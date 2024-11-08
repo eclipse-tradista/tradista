@@ -1,19 +1,19 @@
-package finance.tradista.security.repo.workflow.mapping;
+package org.eclipse.tradista.security.repo.workflow.mapping;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.workflow.model.mapping.StatusMapper;
-import finance.tradista.flow.model.Status;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.model.WorkflowObject;
-import finance.tradista.security.common.model.Security;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
+import org.eclipse.tradista.flow.model.Status;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.model.WorkflowObject;
+import org.eclipse.tradista.security.common.model.Security;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -33,7 +33,7 @@ import finance.tradista.security.common.model.Security;
 
 public abstract class RepoTrade implements WorkflowObject {
 
-	protected finance.tradista.security.repo.model.RepoTrade repoTrade;
+	protected org.eclipse.tradista.security.repo.model.RepoTrade repoTrade;
 
 	private Workflow wkf;
 
@@ -187,10 +187,10 @@ public abstract class RepoTrade implements WorkflowObject {
 	}
 
 	@Override
-	public finance.tradista.flow.model.WorkflowObject clone() throws java.lang.CloneNotSupportedException {
+	public org.eclipse.tradista.flow.model.WorkflowObject clone() throws java.lang.CloneNotSupportedException {
 		RepoTrade repoTrade = (RepoTrade) super.clone();
 		if (this.repoTrade != null) {
-			repoTrade.repoTrade = (finance.tradista.security.repo.model.RepoTrade) this.repoTrade.clone();
+			repoTrade.repoTrade = (org.eclipse.tradista.security.repo.model.RepoTrade) this.repoTrade.clone();
 		}
 		if (this.wkf != null) {
 			repoTrade.wkf = this.wkf.clone();
@@ -198,8 +198,8 @@ public abstract class RepoTrade implements WorkflowObject {
 		return repoTrade;
 	}
 
-	public finance.tradista.security.repo.model.RepoTrade getOriginalRepoTrade() {
-		return (finance.tradista.security.repo.model.RepoTrade) TradistaModelUtil.clone(repoTrade);
+	public org.eclipse.tradista.security.repo.model.RepoTrade getOriginalRepoTrade() {
+		return (org.eclipse.tradista.security.repo.model.RepoTrade) TradistaModelUtil.clone(repoTrade);
 	}
 
 }

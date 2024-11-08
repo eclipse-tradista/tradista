@@ -1,4 +1,4 @@
-package finance.tradista.mm.loan.transfer;
+package org.eclipse.tradista.mm.loan.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,16 +6,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.interestpayment.model.InterestPayment;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.FixingError;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.mm.loandeposit.model.DepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
-import finance.tradista.mm.loandeposit.transfer.LoanDepositTransferManager;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.FixingError;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.transfer.LoanDepositTransferManager;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -60,7 +60,7 @@ public class LoanTransferManager extends LoanDepositTransferManager {
 					"Transfer %n cannot be fixed. Impossible to get the %s index closing value as of %tD in QuoteSet %s.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
 			fixingError.setMessage(errorMsg);
-			fixingError.setStatus(finance.tradista.core.error.model.Error.Status.UNSOLVED);
+			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 			List<FixingError> errors = new ArrayList<FixingError>(1);
 			errors.add(fixingError);
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);

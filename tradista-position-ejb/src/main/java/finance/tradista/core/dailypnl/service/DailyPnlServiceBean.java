@@ -1,4 +1,4 @@
-package finance.tradista.core.dailypnl.service;
+package org.eclipse.tradista.core.dailypnl.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,19 +8,21 @@ import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.calendar.service.CalendarBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.dailypnl.model.DailyPnl;
-import finance.tradista.core.dailypnl.persistence.DailyPnlSQL;
-import finance.tradista.core.position.model.Position;
-import finance.tradista.core.position.model.PositionCalculationError;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.position.service.PositionCalculationErrorService;
-import finance.tradista.core.position.service.PositionDefinitionProductScopeFilteringInterceptor;
-import finance.tradista.core.position.service.PositionDefinitionService;
-import finance.tradista.core.position.service.PositionService;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.calendar.service.CalendarBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.dailypnl.model.DailyPnl;
+import org.eclipse.tradista.core.dailypnl.persistence.DailyPnlSQL;
+import org.eclipse.tradista.core.dailypnl.service.DailyPnlFilteringInterceptor;
+import org.eclipse.tradista.core.dailypnl.service.DailyPnlProductScopeFilteringInterceptor;
+import org.eclipse.tradista.core.position.model.Position;
+import org.eclipse.tradista.core.position.model.PositionCalculationError;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.service.PositionCalculationErrorService;
+import org.eclipse.tradista.core.position.service.PositionDefinitionProductScopeFilteringInterceptor;
+import org.eclipse.tradista.core.position.service.PositionDefinitionService;
+import org.eclipse.tradista.core.position.service.PositionService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;

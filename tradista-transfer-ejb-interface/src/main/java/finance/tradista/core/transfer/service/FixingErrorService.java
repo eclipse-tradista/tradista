@@ -1,4 +1,4 @@
-package finance.tradista.core.transfer.service;
+package org.eclipse.tradista.core.transfer.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.error.model.Error.Status;
-import finance.tradista.core.transfer.model.FixingError;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.transfer.model.FixingError;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

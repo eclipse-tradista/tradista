@@ -16,7 +16,7 @@
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.60"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.exchange.ui.controller.ExchangesController">
+	fx:controller="org.eclipse.tradista.core.exchange.ui.controller.ExchangesController">
 	<columnConstraints>
 		<ColumnConstraints />
 		<ColumnConstraints hgrow="SOMETIMES" />

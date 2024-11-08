@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.model;
+package org.eclipse.tradista.security.equityoption.model;
 
 import org.apache.commons.lang3.StringUtils;
 

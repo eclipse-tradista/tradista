@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.persistence;
+package org.eclipse.tradista.security.equityoption.persistence;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -12,15 +12,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.marketdata.model.Quote;
-import finance.tradista.core.marketdata.model.SurfacePoint;
-import finance.tradista.core.marketdata.persistence.QuoteSQL;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.marketdata.model.Quote;
+import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.persistence.QuoteSQL;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.security.bond.bootstraphandler;
+package org.eclipse.tradista.security.bond.bootstraphandler;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,18 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.marketdata.bootstraphandler.BootstrapHandler;
-import finance.tradista.core.marketdata.model.Instrument;
-import finance.tradista.core.pricing.exception.PricerException;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.model.Coupon;
-import finance.tradista.security.bond.pricer.PricerBondUtil;
-import finance.tradista.security.bond.service.BondBusinessDelegate;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.bootstraphandler.BootstrapHandler;
+import org.eclipse.tradista.core.marketdata.model.Instrument;
+import org.eclipse.tradista.core.pricing.exception.PricerException;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.model.Coupon;
+import org.eclipse.tradista.security.bond.pricer.PricerBondUtil;
+import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

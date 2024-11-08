@@ -1,10 +1,10 @@
-package finance.tradista.core.currency.ui.converter;
+package org.eclipse.tradista.core.currency.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.service.CurrencyBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

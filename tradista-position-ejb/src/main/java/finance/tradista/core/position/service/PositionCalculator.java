@@ -1,4 +1,4 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,18 +19,18 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.position.model.Position;
-import finance.tradista.core.position.model.PositionCalculationError;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.pricing.pricer.Pricer;
-import finance.tradista.core.pricing.service.PricerBusinessDelegate;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.service.ProductBusinessDelegate;
-import finance.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.trade.service.TradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.position.model.Position;
+import org.eclipse.tradista.core.position.model.PositionCalculationError;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -94,7 +94,7 @@ public class PositionCalculator {
 			List<PositionCalculationError> existingErrors = null;
 			try {
 				existingErrors = positionCalculationErrorService.getPositionCalculationErrors(0,
-						finance.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0, LocalDate.now(), LocalDate.now(),
+						org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0, LocalDate.now(), LocalDate.now(),
 						null, null, null, null);
 			} catch (TradistaBusinessException abe) {
 				// Should not happen at this stage because dates are consistent.

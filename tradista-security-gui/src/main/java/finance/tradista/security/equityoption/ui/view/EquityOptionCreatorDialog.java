@@ -1,18 +1,18 @@
-package finance.tradista.security.equityoption.ui.view;
+package org.eclipse.tradista.security.equityoption.ui.view;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaDialog;
-import finance.tradista.core.daterule.service.DateRuleBusinessDelegate;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionContractSpecification;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
+import org.eclipse.tradista.core.daterule.service.DateRuleBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Alert;

@@ -1,4 +1,4 @@
-package finance.tradista.core.status.constants;
+package org.eclipse.tradista.core.status.constants;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

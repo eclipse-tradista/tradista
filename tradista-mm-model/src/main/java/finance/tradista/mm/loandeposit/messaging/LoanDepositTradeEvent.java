@@ -1,7 +1,7 @@
-package finance.tradista.mm.loandeposit.messaging;
+package org.eclipse.tradista.mm.loandeposit.messaging;
 
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

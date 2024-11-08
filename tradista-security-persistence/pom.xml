@@ -3,22 +3,22 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>finance.tradista.app</groupId>
+		<groupId>org.eclipse.tradista.app</groupId>
 		<artifactId>parent</artifactId>
 		<version>${parent.version}</version>
 		<relativePath>../tradista-parent</relativePath>
 	</parent>
-	<groupId>finance.tradista.security</groupId>
+	<groupId>org.eclipse.tradista.security</groupId>
 	<artifactId>security-persistence</artifactId>
 	<version>${security-persistence.version}</version>
 	<dependencies>
 		<dependency>
-			<groupId>finance.tradista.core</groupId>
+			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-persistence</artifactId>
 			<version>${core-persistence.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.security</groupId>
+			<groupId>org.eclipse.tradista.security</groupId>
 			<artifactId>security-ejb-client</artifactId>
 			<version>${security-ejb-client.version}</version>
 		</dependency>

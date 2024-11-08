@@ -1,4 +1,4 @@
-package finance.tradista.core.common.model;
+package org.eclipse.tradista.core.common.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.RoundingMode;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion

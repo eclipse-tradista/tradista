@@ -1,8 +1,8 @@
-package finance.tradista.security.specificrepo.workflow.mapping;
+package org.eclipse.tradista.security.specificrepo.workflow.mapping;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.security.repo.workflow.mapping.RepoTrade;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -26,12 +26,12 @@ public class SpecificRepoTrade extends RepoTrade {
 		super(wkf);
 	}
 
-	public void setRepoTrade(finance.tradista.security.specificrepo.model.SpecificRepoTrade repoTrade) {
+	public void setRepoTrade(org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade repoTrade) {
 		this.repoTrade = repoTrade;
 	}
 	
-	public finance.tradista.security.specificrepo.model.SpecificRepoTrade getOriginalRepoTrade() {
-		return (finance.tradista.security.specificrepo.model.SpecificRepoTrade) TradistaModelUtil.clone(repoTrade);
+	public org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade getOriginalRepoTrade() {
+		return (org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade) TradistaModelUtil.clone(repoTrade);
 	}
 
 }

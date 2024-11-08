@@ -1,4 +1,4 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,11 +6,14 @@ import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.error.model.Error.Status;
-import finance.tradista.core.position.model.PositionCalculationError;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.position.persistence.PositionCalculationErrorSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.position.model.PositionCalculationError;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.persistence.PositionCalculationErrorSQL;
+import org.eclipse.tradista.core.position.service.PositionCalculationErrorFilteringInterceptor;
+import org.eclipse.tradista.core.position.service.PositionDefinitionBusinessDelegate;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;

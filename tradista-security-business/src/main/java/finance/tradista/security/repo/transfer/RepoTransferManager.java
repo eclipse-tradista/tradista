@@ -1,21 +1,21 @@
-package finance.tradista.security.repo.transfer;
+package org.eclipse.tradista.security.repo.transfer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import finance.tradista.core.action.constants.ActionConstants;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.status.constants.StatusConstants;
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.core.transfer.service.TransferBusinessDelegate;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.repo.model.RepoTrade;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.core.action.constants.ActionConstants;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.status.constants.StatusConstants;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

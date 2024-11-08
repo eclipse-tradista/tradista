@@ -1,15 +1,17 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.FeedConfig;
-import finance.tradista.core.marketdata.model.Quote;
-import finance.tradista.core.marketdata.model.QuoteType;
-import finance.tradista.core.marketdata.persistence.FeedConfigSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.Quote;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.marketdata.persistence.FeedConfigSQL;
+import org.eclipse.tradista.core.marketdata.service.FeedConfigFilteringInterceptor;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;

@@ -1,4 +1,4 @@
-package finance.tradista.core.daterule.service;
+package org.eclipse.tradista.core.daterule.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.calendar.persistence.CalendarSQL;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.daterollconvention.model.DateRollingConvention;
-import finance.tradista.core.daterule.model.DateRule;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.calendar.persistence.CalendarSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.daterollconvention.model.DateRollingConvention;
+import org.eclipse.tradista.core.daterule.model.DateRule;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion

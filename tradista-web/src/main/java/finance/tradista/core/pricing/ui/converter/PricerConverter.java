@@ -1,11 +1,11 @@
-package finance.tradista.core.pricing.ui.converter;
+package org.eclipse.tradista.core.pricing.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.pricing.pricer.Parameterizable;
-import finance.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
@@ -46,7 +46,7 @@ public class PricerConverter implements Serializable, Converter<Pricer> {
 		Pricer pricer = null;
 		try {
 			pricer = (Pricer) TradistaUtil.getInstance(TradistaUtil
-					.getAllClassesByTypeAndAnnotation(Pricer.class, Parameterizable.class, "finance.tradista").stream()
+					.getAllClassesByTypeAndAnnotation(Pricer.class, Parameterizable.class, "org.eclipse.tradista").stream()
 					.filter(p -> p.getClass().getAnnotation(Parameterizable.class).name().equals(value)).findFirst()
 					.get());
 		} catch (TradistaTechnicalException tte) {

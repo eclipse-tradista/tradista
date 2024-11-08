@@ -1,4 +1,4 @@
-package finance.tradista.core.common.persistence.db;
+package org.eclipse.tradista.core.common.persistence.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -7,7 +7,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

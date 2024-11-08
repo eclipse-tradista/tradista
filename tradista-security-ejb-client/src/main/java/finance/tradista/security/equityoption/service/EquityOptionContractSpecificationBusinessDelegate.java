@@ -1,14 +1,14 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.security.equityoption.model.EquityOptionContractSpecification;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

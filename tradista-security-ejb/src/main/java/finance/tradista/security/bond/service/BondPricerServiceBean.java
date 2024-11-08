@@ -1,4 +1,4 @@
-package finance.tradista.security.bond.service;
+package org.eclipse.tradista.security.bond.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,24 +13,24 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.model.CurrencyPair;
-import finance.tradista.core.inventory.model.ProductInventory;
-import finance.tradista.core.marketdata.model.FXCurve;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.pricing.exception.PricerException;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.model.BondTrade;
-import finance.tradista.security.bond.model.Coupon;
-import finance.tradista.security.bond.pricer.PricerBondUtil;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.model.CurrencyPair;
+import org.eclipse.tradista.core.inventory.model.ProductInventory;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.pricing.exception.PricerException;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.model.BondTrade;
+import org.eclipse.tradista.security.bond.model.Coupon;
+import org.eclipse.tradista.security.bond.pricer.PricerBondUtil;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

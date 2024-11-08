@@ -1,4 +1,4 @@
-package finance.tradista.core.daterule.model;
+package org.eclipse.tradista.core.daterule.model;
 
 import java.time.DayOfWeek;
 import java.time.Month;
@@ -10,12 +10,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.daterollconvention.model.DateRollingConvention;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.daterollconvention.model.DateRollingConvention;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion

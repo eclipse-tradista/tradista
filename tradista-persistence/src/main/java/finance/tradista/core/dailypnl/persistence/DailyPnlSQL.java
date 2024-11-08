@@ -1,4 +1,4 @@
-package finance.tradista.core.dailypnl.persistence;
+package org.eclipse.tradista.core.dailypnl.persistence;
 
 import java.math.RoundingMode;
 import java.sql.Connection;
@@ -14,14 +14,14 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.calendar.persistence.CalendarSQL;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.dailypnl.model.DailyPnl;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.position.persistence.PositionDefinitionSQL;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.calendar.persistence.CalendarSQL;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.dailypnl.model.DailyPnl;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.persistence.PositionDefinitionSQL;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.core.transfer.persistence;
+package org.eclipse.tradista.core.transfer.persistence;
 
 import java.math.RoundingMode;
 import java.sql.Connection;
@@ -17,25 +17,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.service.CurrencyBusinessDelegate;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.service.ProductBusinessDelegate;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.trade.service.TradeBusinessDelegate;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.ProductTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.Transfer.Direction;
-import finance.tradista.core.transfer.model.Transfer.Status;
-import finance.tradista.core.transfer.model.Transfer.Type;
-import finance.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.Transfer.Direction;
+import org.eclipse.tradista.core.transfer.model.Transfer.Status;
+import org.eclipse.tradista.core.transfer.model.Transfer.Type;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

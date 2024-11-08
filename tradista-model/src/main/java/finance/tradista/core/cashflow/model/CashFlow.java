@@ -1,13 +1,13 @@
-package finance.tradista.core.cashflow.model;
+package org.eclipse.tradista.core.cashflow.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion

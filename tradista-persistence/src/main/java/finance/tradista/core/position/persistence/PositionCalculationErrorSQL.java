@@ -1,4 +1,4 @@
-package finance.tradista.core.position.persistence;
+package org.eclipse.tradista.core.position.persistence;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.error.model.Error.Status;
-import finance.tradista.core.position.model.PositionCalculationError;
-import finance.tradista.core.product.persistence.ProductSQL;
-import finance.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.position.model.PositionCalculationError;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
+import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -121,7 +121,7 @@ public class PositionCalculationErrorSQL {
 						"UPDATE ERROR SET STATUS = ?, SOLVING_DATE = ? WHERE ID IN (SELECT ERROR_ID FROM POSITION_CALCULATION_ERROR WHERE POSITION_DEFINITION_ID = ?)")) {
 			for (long id : solved) {
 				stmtSolvePositionCalculationErrors.setString(1,
-						finance.tradista.core.error.model.Error.Status.SOLVED.name());
+						org.eclipse.tradista.core.error.model.Error.Status.SOLVED.name());
 				stmtSolvePositionCalculationErrors.setDate(2, java.sql.Date.valueOf(date));
 				stmtSolvePositionCalculationErrors.setLong(3, id);
 				stmtSolvePositionCalculationErrors.addBatch();
@@ -139,7 +139,7 @@ public class PositionCalculationErrorSQL {
 				PreparedStatement stmtSolvePositionCalculationError = con.prepareStatement(
 						"UPDATE ERROR SET STATUS = ?, SOLVING_DATE = ? WHERE ID IN (SELECT ERROR_ID FROM POSITION_CALCULATION_ERROR WHERE POSITION_DEFINITION_ID = ?)")) {
 			stmtSolvePositionCalculationError.setString(1,
-					finance.tradista.core.error.model.Error.Status.SOLVED.name());
+					org.eclipse.tradista.core.error.model.Error.Status.SOLVED.name());
 			stmtSolvePositionCalculationError.setDate(2, java.sql.Date.valueOf(date));
 			stmtSolvePositionCalculationError.setLong(3, positionDefinitionId);
 			stmtSolvePositionCalculationError.executeUpdate();

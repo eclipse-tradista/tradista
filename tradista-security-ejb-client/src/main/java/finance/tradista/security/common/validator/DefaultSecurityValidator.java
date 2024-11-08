@@ -1,13 +1,13 @@
-package finance.tradista.security.common.validator;
+package org.eclipse.tradista.security.common.validator;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.validator.DefaultProductValidator;
-import finance.tradista.legalentity.service.LegalEntityBusinessDelegate;
-import finance.tradista.security.common.model.Security;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.validator.DefaultProductValidator;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.eclipse.tradista.security.common.model.Security;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -41,8 +41,8 @@ public class DefaultSecurityValidator extends DefaultProductValidator {
 	 * Making issue date and issue price optional. (non-Javadoc)
 	 * 
 	 * @see
-	 * finance.tradista.core.validator.DefaultProductValidator#validateProductBasics
-	 * (finance.tradista.core.product.Product)
+	 * org.eclipse.tradista.core.validator.DefaultProductValidator#validateProductBasics
+	 * (org.eclipse.tradista.core.product.Product)
 	 */
 	protected StringBuilder validateProductBasics(Product product) throws TradistaBusinessException {
 		Security security = (Security) product;

@@ -1,7 +1,7 @@
-package finance.tradista.security.bond.messaging;
+package org.eclipse.tradista.security.bond.messaging;
 
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.security.bond.model.BondTrade;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.security.bond.model.BondTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

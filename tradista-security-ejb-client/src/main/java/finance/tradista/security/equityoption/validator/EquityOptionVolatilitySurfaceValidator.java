@@ -1,12 +1,12 @@
-package finance.tradista.security.equityoption.validator;
+package org.eclipse.tradista.security.equityoption.validator;
 
 import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.SurfacePoint;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

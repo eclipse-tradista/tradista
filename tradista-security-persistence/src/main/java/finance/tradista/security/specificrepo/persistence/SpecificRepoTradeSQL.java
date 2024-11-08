@@ -1,4 +1,4 @@
-package finance.tradista.security.specificrepo.persistence;
+package org.eclipse.tradista.security.specificrepo.persistence;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -11,16 +11,16 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.index.persistence.IndexSQL;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.trade.persistence.TradeSQL;
-import finance.tradista.security.bond.persistence.BondSQL;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.equity.persistence.EquitySQL;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.index.persistence.IndexSQL;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.security.bond.persistence.BondSQL;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.equity.persistence.EquitySQL;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

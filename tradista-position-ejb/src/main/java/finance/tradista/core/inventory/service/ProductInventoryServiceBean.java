@@ -1,4 +1,4 @@
-package finance.tradista.core.inventory.service;
+package org.eclipse.tradista.core.inventory.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,19 +18,19 @@ import jakarta.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.inventory.model.ProductInventory;
-import finance.tradista.core.inventory.persistence.ProductInventorySQL;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.service.ProductBusinessDelegate;
-import finance.tradista.core.productinventory.service.ProductInventoryFilteringInterceptor;
-import finance.tradista.core.productinventory.service.ProductInventoryService;
-import finance.tradista.core.transfer.model.ProductTransfer;
-import finance.tradista.ir.future.model.Future;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.inventory.model.ProductInventory;
+import org.eclipse.tradista.core.inventory.persistence.ProductInventorySQL;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryFilteringInterceptor;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.ir.future.model.Future;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

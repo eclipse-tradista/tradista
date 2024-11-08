@@ -1,4 +1,4 @@
-package finance.tradista.security.repo.trade;
+package org.eclipse.tradista.security.repo.trade;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,27 +9,27 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.daycountconvention.model.DayCountConvention;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.marketdata.model.QuoteType;
-import finance.tradista.core.marketdata.model.QuoteValue;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.transfer.model.ProductTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.Transfer.Direction;
-import finance.tradista.core.transfer.model.Transfer.Type;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.core.transfer.service.TransferBusinessDelegate;
-import finance.tradista.security.bond.service.BondBusinessDelegate;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.equity.service.EquityBusinessDelegate;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.Transfer.Direction;
+import org.eclipse.tradista.core.transfer.model.Transfer.Type;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
+import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

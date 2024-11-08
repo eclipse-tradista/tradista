@@ -1,4 +1,4 @@
-package finance.tradista.mm.common.service;
+package org.eclipse.tradista.mm.common.service;
 
 import jakarta.ejb.Remote;
 

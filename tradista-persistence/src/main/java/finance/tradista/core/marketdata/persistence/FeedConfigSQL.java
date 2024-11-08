@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.persistence;
+package org.eclipse.tradista.core.marketdata.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,14 +11,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.marketdata.model.FeedConfig;
-import finance.tradista.core.marketdata.model.FeedType;
-import finance.tradista.core.marketdata.model.Quote;
-import finance.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.FeedType;
+import org.eclipse.tradista.core.marketdata.model.Quote;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

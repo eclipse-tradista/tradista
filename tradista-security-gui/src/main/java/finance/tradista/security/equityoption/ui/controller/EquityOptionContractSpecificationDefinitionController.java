@@ -1,20 +1,20 @@
-package finance.tradista.security.equityoption.ui.controller;
+package org.eclipse.tradista.security.equityoption.ui.controller;
 
 import java.util.Optional;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.ui.controller.TradistaController;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaAlert;
-import finance.tradista.core.common.ui.view.TradistaTextInputDialog;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.daterule.model.DateRule;
-import finance.tradista.core.daterule.service.DateRuleBusinessDelegate;
-import finance.tradista.core.exchange.model.Exchange;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.core.trade.model.VanillaOptionTrade;
-import finance.tradista.security.equityoption.model.EquityOptionContractSpecification;
-import finance.tradista.security.equityoption.service.EquityOptionContractSpecificationBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.ui.controller.TradistaController;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.daterule.model.DateRule;
+import org.eclipse.tradista.core.daterule.service.DateRuleBusinessDelegate;
+import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
+import org.eclipse.tradista.security.equityoption.service.EquityOptionContractSpecificationBusinessDelegate;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;

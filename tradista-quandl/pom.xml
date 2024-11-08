@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>finance.tradista.app</groupId>
+		<groupId>org.eclipse.tradista.app</groupId>
 		<artifactId>parent</artifactId>
 		<version>${parent.version}</version>
 		<relativePath>../tradista-parent</relativePath>
 	</parent>
-	<groupId>finance.tradista.quandl</groupId>
+	<groupId>org.eclipse.tradista.quandl</groupId>
 	<artifactId>quandl-interface</artifactId>
 	<version>${quandl-interface.version}</version>
 	<dependencies>
@@ -28,7 +28,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.core</groupId>
+			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-common</artifactId>
 			<version>${core-common.version}</version>
 		</dependency>

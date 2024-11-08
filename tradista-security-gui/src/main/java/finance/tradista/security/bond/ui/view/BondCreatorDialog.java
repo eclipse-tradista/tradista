@@ -1,9 +1,9 @@
-package finance.tradista.security.bond.ui.view;
+package org.eclipse.tradista.security.bond.ui.view;
 
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaDialog;
-import finance.tradista.core.exchange.model.Exchange;
-import finance.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
+import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.security.bond.model.Bond;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;

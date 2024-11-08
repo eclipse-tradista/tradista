@@ -1,6 +1,6 @@
-package finance.tradista.core.parsing.parser;
+package org.eclipse.tradista.core.parsing.parser;
 
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

@@ -1,10 +1,10 @@
-package finance.tradista.core.marketdata.ui.converter;
+package org.eclipse.tradista.core.marketdata.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

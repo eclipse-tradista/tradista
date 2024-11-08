@@ -1,4 +1,4 @@
-package finance.tradista.core.user.persistence;
+package org.eclipse.tradista.core.user.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,11 +9,11 @@ import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.user.model.User;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.user.model.User;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

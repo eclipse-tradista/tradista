@@ -1,11 +1,11 @@
-package finance.tradista.security.gcrepo.transfer;
+package org.eclipse.tradista.security.gcrepo.transfer;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.TransferManager;
-import finance.tradista.security.gcrepo.messaging.GCRepoTradeEvent;
-import finance.tradista.security.repo.transfer.RepoTransferManager;
-import finance.tradista.security.repo.transfer.RepoTransferUtil;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.TransferManager;
+import org.eclipse.tradista.security.gcrepo.messaging.GCRepoTradeEvent;
+import org.eclipse.tradista.security.repo.transfer.RepoTransferManager;
+import org.eclipse.tradista.security.repo.transfer.RepoTransferUtil;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +8,14 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.marketdata.model.FeedConfig;
-import finance.tradista.core.marketdata.model.Provider;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.Provider;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;

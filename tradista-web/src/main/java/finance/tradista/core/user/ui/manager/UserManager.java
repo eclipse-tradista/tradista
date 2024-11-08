@@ -1,11 +1,11 @@
-package finance.tradista.core.user.ui.manager;
+package org.eclipse.tradista.core.user.ui.manager;
 
 import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Named;
 

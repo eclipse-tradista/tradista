@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.persistence;
+package org.eclipse.tradista.core.marketdata.persistence;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -18,12 +18,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.marketdata.model.Quote;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.model.QuoteType;
-import finance.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.marketdata.model.Quote;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

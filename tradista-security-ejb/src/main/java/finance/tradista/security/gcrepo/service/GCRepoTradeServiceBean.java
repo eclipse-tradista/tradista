@@ -1,4 +1,4 @@
-package finance.tradista.security.gcrepo.service;
+package org.eclipse.tradista.security.gcrepo.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -6,19 +6,19 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
-import finance.tradista.core.workflow.model.mapping.StatusMapper;
-import finance.tradista.flow.exception.TradistaFlowBusinessException;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.service.WorkflowManager;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.gcrepo.messaging.GCRepoTradeEvent;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.gcrepo.persistence.GCRepoTradeSQL;
-import finance.tradista.security.gcrepo.workflow.mapping.GCRepoTradeMapper;
-import finance.tradista.security.repo.trade.RepoTradeUtil;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
+import org.eclipse.tradista.flow.exception.TradistaFlowBusinessException;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.service.WorkflowManager;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.gcrepo.messaging.GCRepoTradeEvent;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.gcrepo.persistence.GCRepoTradeSQL;
+import org.eclipse.tradista.security.gcrepo.workflow.mapping.GCRepoTradeMapper;
+import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
@@ -75,7 +75,7 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 		if (!StringUtils.isEmpty(action)) {
 			try {
 				Workflow workflow = WorkflowManager.getWorkflowByName(trade.getWorkflow());
-				finance.tradista.security.gcrepo.workflow.mapping.GCRepoTrade mappedTrade = GCRepoTradeMapper.map(trade,
+				org.eclipse.tradista.security.gcrepo.workflow.mapping.GCRepoTrade mappedTrade = GCRepoTradeMapper.map(trade,
 						workflow);
 				mappedTrade = WorkflowManager.applyAction(mappedTrade, action);
 				trade.setStatus(StatusMapper.map(mappedTrade.getStatus()));

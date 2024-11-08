@@ -1,11 +1,11 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.workflow.model.Action;
-import finance.tradista.core.workflow.model.Status;
-import finance.tradista.core.workflow.model.Workflow;
+import org.eclipse.tradista.core.workflow.model.Action;
+import org.eclipse.tradista.core.workflow.model.Status;
+import org.eclipse.tradista.core.workflow.model.Workflow;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -28,7 +28,7 @@ public final class WorkflowMapper {
 	private WorkflowMapper() {
 	}
 
-	public static Workflow map(finance.tradista.flow.model.Workflow<?> wkf) {
+	public static Workflow map(org.eclipse.tradista.flow.model.Workflow<?> wkf) {
 		Workflow workflow = null;
 		if (wkf != null) {
 			workflow = new Workflow();
@@ -37,12 +37,12 @@ public final class WorkflowMapper {
 			workflow.setDescription(wkf.getDescription());
 			Set<Status> statusSet = new HashSet<>();
 			Set<Action> actionsSet = new HashSet<>();
-			for (finance.tradista.flow.model.Status<?> status : wkf.getStatus()) {
+			for (org.eclipse.tradista.flow.model.Status<?> status : wkf.getStatus()) {
 				Status currentStatus = StatusMapper.map(status);
 				currentStatus.setWorkflowName(workflow.getName());
 				statusSet.add(currentStatus);
 			}
-			for (finance.tradista.flow.model.Action<?> action : wkf.getActions()) {
+			for (org.eclipse.tradista.flow.model.Action<?> action : wkf.getActions()) {
 				Action currentAction = ActionMapper.map(action);
 				if (currentAction != null) {
 					actionsSet.add(currentAction);

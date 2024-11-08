@@ -1,16 +1,16 @@
-package finance.tradista.security.repo.service;
+package org.eclipse.tradista.security.repo.service;
 
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

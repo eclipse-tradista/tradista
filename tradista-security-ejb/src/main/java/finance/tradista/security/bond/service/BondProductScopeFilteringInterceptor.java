@@ -1,7 +1,7 @@
-package finance.tradista.security.bond.service;
+package org.eclipse.tradista.security.bond.service;
 
-import finance.tradista.core.trade.service.ProductScopeFilteringInterceptor;
-import finance.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.core.trade.service.ProductScopeFilteringInterceptor;
+import org.eclipse.tradista.security.bond.model.Bond;
 
 /********************************************************************************
  * Copyright (c) 2021 Olivier Asuncion

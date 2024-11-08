@@ -1,10 +1,10 @@
-package finance.tradista.security.repo.workflow.condition;
+package org.eclipse.tradista.security.repo.workflow.condition;
 
 import java.math.BigDecimal;
 
-import finance.tradista.flow.model.Condition;
-import finance.tradista.security.repo.pricer.RepoPricerUtil;
-import finance.tradista.security.repo.workflow.mapping.RepoTrade;
+import org.eclipse.tradista.flow.model.Condition;
+import org.eclipse.tradista.security.repo.pricer.RepoPricerUtil;
+import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 import jakarta.persistence.Entity;
 
 /********************************************************************************

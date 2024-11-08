@@ -3,18 +3,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>finance.tradista.app</groupId>
+		<groupId>org.eclipse.tradista.app</groupId>
 		<artifactId>parent</artifactId>
 		<version>${parent.version}</version>
 		<relativePath>../tradista-parent</relativePath>
 	</parent>
-	<groupId>finance.tradista.ai</groupId>
+	<groupId>org.eclipse.tradista.ai</groupId>
 	<artifactId>ai-app</artifactId>
 	<version>${ai-app.version}</version>
 	<packaging>ear</packaging>
 	<dependencies>
 		<dependency>
-			<groupId>finance.tradista.ai</groupId>
+			<groupId>org.eclipse.tradista.ai</groupId>
 			<artifactId>ai-ejb</artifactId>
 			<version>${ai-ejb.version}</version>
 			<type>ejb</type>

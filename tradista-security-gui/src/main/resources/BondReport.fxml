@@ -16,7 +16,7 @@
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.192"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.security.bond.ui.controller.BondReportController">
+	fx:controller="org.eclipse.tradista.security.bond.ui.controller.BondReportController">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" />
 		<ColumnConstraints hgrow="SOMETIMES" />

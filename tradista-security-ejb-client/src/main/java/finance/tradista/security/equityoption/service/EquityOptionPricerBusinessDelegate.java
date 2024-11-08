@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -6,17 +6,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
-import finance.tradista.security.equityoption.validator.EquityOptionTradeValidator;
-import finance.tradista.security.equityoption.validator.EquityOptionValidator;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.security.equityoption.validator.EquityOptionTradeValidator;
+import org.eclipse.tradista.security.equityoption.validator.EquityOptionValidator;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

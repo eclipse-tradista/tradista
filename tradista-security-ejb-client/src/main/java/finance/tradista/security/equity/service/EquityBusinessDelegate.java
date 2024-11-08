@@ -1,13 +1,13 @@
-package finance.tradista.security.equity.service;
+package org.eclipse.tradista.security.equity.service;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.validator.EquityValidator;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.validator.EquityValidator;
 import jakarta.enterprise.inject.Default;
 
 /********************************************************************************

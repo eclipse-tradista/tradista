@@ -1,4 +1,4 @@
-package finance.tradista.core.calendar.model;
+package org.eclipse.tradista.core.calendar.model;
 
 import org.apache.commons.lang3.StringUtils;
 

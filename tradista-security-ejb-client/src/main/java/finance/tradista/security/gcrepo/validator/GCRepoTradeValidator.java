@@ -1,10 +1,10 @@
-package finance.tradista.security.gcrepo.validator;
+package org.eclipse.tradista.security.gcrepo.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.repo.service.RepoTradeValidator;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.repo.service.RepoTradeValidator;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

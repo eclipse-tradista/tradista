@@ -1,11 +1,11 @@
-package finance.tradista.core.marketdata.model;
+package org.eclipse.tradista.core.marketdata.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion

@@ -1,8 +1,8 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
-import finance.tradista.core.workflow.model.Status;
-import finance.tradista.core.workflow.model.WorkflowObject;
-import finance.tradista.flow.model.Workflow;
+import org.eclipse.tradista.core.workflow.model.Status;
+import org.eclipse.tradista.core.workflow.model.WorkflowObject;
+import org.eclipse.tradista.flow.model.Workflow;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -25,14 +25,14 @@ public final class WorkflowObjectMapper {
 	private WorkflowObjectMapper() {
 	}
 
-	public static finance.tradista.flow.model.WorkflowObject map(WorkflowObject wo, Workflow<?> wkf) {
-		return new finance.tradista.flow.model.WorkflowObject() {
+	public static org.eclipse.tradista.flow.model.WorkflowObject map(WorkflowObject wo, Workflow<?> wkf) {
+		return new org.eclipse.tradista.flow.model.WorkflowObject() {
 
-			private finance.tradista.flow.model.Status<?> status = StatusMapper.map(wo.getStatus(), wkf);
+			private org.eclipse.tradista.flow.model.Status<?> status = StatusMapper.map(wo.getStatus(), wkf);
 
 			@SuppressWarnings("unchecked")
 			@Override
-			public finance.tradista.flow.model.Status<?> getStatus() {
+			public org.eclipse.tradista.flow.model.Status<?> getStatus() {
 				return status;
 			}
 
@@ -42,19 +42,19 @@ public final class WorkflowObjectMapper {
 			}
 
 			@Override
-			public void setStatus(finance.tradista.flow.model.Status<?> status) {
+			public void setStatus(org.eclipse.tradista.flow.model.Status<?> status) {
 				this.status = status;
 			}
 
 			@Override
-			public finance.tradista.flow.model.WorkflowObject clone() throws java.lang.CloneNotSupportedException {
-				return (finance.tradista.flow.model.WorkflowObject) super.clone();
+			public org.eclipse.tradista.flow.model.WorkflowObject clone() throws java.lang.CloneNotSupportedException {
+				return (org.eclipse.tradista.flow.model.WorkflowObject) super.clone();
 			}
 
 		};
 	}
 
-	public static WorkflowObject map(finance.tradista.flow.model.WorkflowObject wo) {
+	public static WorkflowObject map(org.eclipse.tradista.flow.model.WorkflowObject wo) {
 		return new WorkflowObject() {
 
 			private Status status = StatusMapper.map(wo.getStatus());

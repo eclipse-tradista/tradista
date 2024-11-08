@@ -1,12 +1,12 @@
-package finance.tradista.core.dailypnl.service;
+package org.eclipse.tradista.core.dailypnl.service;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.dailypnl.model.DailyPnl;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.dailypnl.model.DailyPnl;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

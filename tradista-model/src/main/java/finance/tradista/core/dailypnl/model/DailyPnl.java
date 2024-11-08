@@ -1,13 +1,13 @@
-package finance.tradista.core.dailypnl.model;
+package org.eclipse.tradista.core.dailypnl.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

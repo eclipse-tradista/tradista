@@ -1,16 +1,16 @@
-package finance.tradista.security.repo.ui.controller;
+package org.eclipse.tradista.security.repo.ui.controller;
 
 import java.io.Serializable;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import finance.tradista.core.marketdata.model.BlankQuoteSet;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import finance.tradista.security.repo.model.AllocationConfiguration;
-import finance.tradista.security.repo.model.BlankAllocationConfiguration;
-import finance.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.model.BlankQuoteSet;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.repo.model.BlankAllocationConfiguration;
+import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;

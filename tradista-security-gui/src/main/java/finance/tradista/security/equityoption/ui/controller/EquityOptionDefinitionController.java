@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.ui.controller;
+package org.eclipse.tradista.security.equityoption.ui.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,21 +9,21 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.ui.controller.TradistaController;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaAlert;
-import finance.tradista.core.common.ui.view.TradistaChoiceDialog;
-import finance.tradista.core.daterule.service.DateRuleBusinessDelegate;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.service.EquityBusinessDelegate;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionContractSpecification;
-import finance.tradista.security.equityoption.service.EquityOptionBusinessDelegate;
-import finance.tradista.security.equityoption.service.EquityOptionContractSpecificationBusinessDelegate;
-import finance.tradista.security.equityoption.ui.view.EquityOptionCreatorDialog;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.ui.controller.TradistaController;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaChoiceDialog;
+import org.eclipse.tradista.core.daterule.service.DateRuleBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
+import org.eclipse.tradista.security.equityoption.service.EquityOptionBusinessDelegate;
+import org.eclipse.tradista.security.equityoption.service.EquityOptionContractSpecificationBusinessDelegate;
+import org.eclipse.tradista.security.equityoption.ui.view.EquityOptionCreatorDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;

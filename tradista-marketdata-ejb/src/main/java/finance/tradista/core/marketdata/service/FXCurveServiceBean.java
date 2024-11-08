@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -13,17 +13,19 @@ import jakarta.interceptor.Interceptors;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.marketdata.constants.MarketDataConstants;
-import finance.tradista.core.marketdata.generationalgorithm.FXCurveGenerationAlgorithm;
-import finance.tradista.core.marketdata.interpolator.UnivariateInterpolator;
-import finance.tradista.core.marketdata.model.FXCurve;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.model.RatePoint;
-import finance.tradista.core.marketdata.persistence.FXCurveSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
+import org.eclipse.tradista.core.marketdata.generationalgorithm.FXCurveGenerationAlgorithm;
+import org.eclipse.tradista.core.marketdata.interpolator.UnivariateInterpolator;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.model.RatePoint;
+import org.eclipse.tradista.core.marketdata.persistence.FXCurveSQL;
+import org.eclipse.tradista.core.marketdata.service.CurveFilteringInterceptor;
+import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>finance.tradista.app</groupId>
+		<groupId>org.eclipse.tradista.app</groupId>
 		<artifactId>parent</artifactId>
 		<version>${parent.version}</version>
 		<relativePath>../tradista-parent</relativePath>
 	</parent>
-	<groupId>finance.tradista.app</groupId>
+	<groupId>org.eclipse.tradista.app</groupId>
 	<artifactId>app-client</artifactId>
 	<version>${app-client.version}</version>
 	<build>
@@ -57,32 +57,32 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>finance.tradista.fx</groupId>
+			<groupId>org.eclipse.tradista.fx</groupId>
 			<artifactId>fx-gui</artifactId>
 			<version>${fx-gui.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.mm</groupId>
+			<groupId>org.eclipse.tradista.mm</groupId>
 			<artifactId>mm-gui</artifactId>
 			<version>${mm-gui.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.ir</groupId>
+			<groupId>org.eclipse.tradista.ir</groupId>
 			<artifactId>ir-gui</artifactId>
 			<version>${ir-gui.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.security</groupId>
+			<groupId>org.eclipse.tradista.security</groupId>
 			<artifactId>security-gui</artifactId>
 			<version>${security-gui.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.ai</groupId>
+			<groupId>org.eclipse.tradista.ai</groupId>
 			<artifactId>ai-gui</artifactId>
 			<version>${ai-gui.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.core</groupId>
+			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-gui</artifactId>
 			<version>${core-gui.version}</version>
 		</dependency>
@@ -93,7 +93,7 @@
 			<type>pom</type>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.bloomberg</groupId>
+			<groupId>org.eclipse.tradista.bloomberg</groupId>
 			<artifactId>bloomberg-interface</artifactId>
 			<version>${bloomberg-interface.version}</version>
 		</dependency>

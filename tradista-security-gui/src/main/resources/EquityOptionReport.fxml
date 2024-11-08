@@ -16,7 +16,7 @@
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.192"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.security.equityoption.ui.controller.EquityOptionReportController">
+	fx:controller="org.eclipse.tradista.security.equityoption.ui.controller.EquityOptionReportController">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" />
 		<ColumnConstraints hgrow="SOMETIMES" />

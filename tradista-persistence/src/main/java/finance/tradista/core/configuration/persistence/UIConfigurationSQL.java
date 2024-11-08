@@ -1,4 +1,4 @@
-package finance.tradista.core.configuration.persistence;
+package org.eclipse.tradista.core.configuration.persistence;
 
 import java.math.RoundingMode;
 import java.sql.Connection;
@@ -8,10 +8,10 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.configuration.model.UIConfiguration;
-import finance.tradista.core.user.model.User;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.configuration.model.UIConfiguration;
+import org.eclipse.tradista.core.user.model.User;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion

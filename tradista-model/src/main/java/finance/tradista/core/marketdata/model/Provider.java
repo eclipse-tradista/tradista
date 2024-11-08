@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.model;
+package org.eclipse.tradista.core.marketdata.model;
 
 import java.util.List;
 import java.util.Map;

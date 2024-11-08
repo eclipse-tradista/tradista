@@ -1,7 +1,7 @@
-package finance.tradista.security.equityoption.pricer;
+package org.eclipse.tradista.security.equityoption.pricer;
 
-import finance.tradista.core.pricing.pricer.Parameterizable;
-import finance.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -1,11 +1,11 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import java.util.Set;
 
 import jakarta.ejb.Local;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion

@@ -1,12 +1,12 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.util.Set;
 
 import jakarta.ejb.Local;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.FeedConfig;
-import finance.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion

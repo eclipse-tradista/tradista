@@ -6,13 +6,13 @@
     <session>
       <ejb-name>LoanDepositTradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean
+		org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -22,7 +22,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>

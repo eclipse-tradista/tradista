@@ -1,22 +1,22 @@
-package finance.tradista.core.pricing.ui.controller;
+package org.eclipse.tradista.core.pricing.ui.controller;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.TradistaGUIUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.service.CurrencyBusinessDelegate;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import finance.tradista.core.pricing.pricer.Pricer;
-import finance.tradista.core.pricing.pricer.PricerMeasure;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.service.PricerBusinessDelegate;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.workflow.service.WorkflowBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

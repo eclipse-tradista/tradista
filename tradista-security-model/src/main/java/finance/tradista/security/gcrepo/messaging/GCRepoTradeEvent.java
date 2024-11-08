@@ -1,7 +1,7 @@
-package finance.tradista.security.gcrepo.messaging;
+package org.eclipse.tradista.security.gcrepo.messaging;
 
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

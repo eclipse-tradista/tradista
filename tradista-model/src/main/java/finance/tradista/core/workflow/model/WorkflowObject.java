@@ -1,4 +1,4 @@
-package finance.tradista.core.workflow.model;
+package org.eclipse.tradista.core.workflow.model;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

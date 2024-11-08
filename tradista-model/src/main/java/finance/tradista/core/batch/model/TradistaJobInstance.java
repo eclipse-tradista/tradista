@@ -1,15 +1,15 @@
-package finance.tradista.core.batch.model;
+package org.eclipse.tradista.core.batch.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.quartz.JobDetail;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.legalentity.model.LegalEntity.Role;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity.Role;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

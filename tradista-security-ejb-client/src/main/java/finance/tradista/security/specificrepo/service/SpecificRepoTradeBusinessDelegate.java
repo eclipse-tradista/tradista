@@ -1,16 +1,16 @@
-package finance.tradista.security.specificrepo.service;
+package org.eclipse.tradista.security.specificrepo.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
-import finance.tradista.security.specificrepo.service.SpecificRepoTradeService;
-import finance.tradista.security.specificrepo.validator.SpecificRepoTradeValidator;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeService;
+import org.eclipse.tradista.security.specificrepo.validator.SpecificRepoTradeValidator;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

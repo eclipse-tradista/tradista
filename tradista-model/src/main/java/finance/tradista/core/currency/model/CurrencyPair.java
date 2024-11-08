@@ -1,8 +1,8 @@
-package finance.tradista.core.currency.model;
+package org.eclipse.tradista.core.currency.model;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

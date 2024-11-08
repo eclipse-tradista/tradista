@@ -1,13 +1,13 @@
-package finance.tradista.security.gcrepo.ui.controller;
+package org.eclipse.tradista.security.gcrepo.ui.controller;
 
 import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
-import finance.tradista.security.repo.ui.controller.PartialTermination;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
+import org.eclipse.tradista.security.repo.ui.controller.PartialTermination;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

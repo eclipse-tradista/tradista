@@ -1,6 +1,6 @@
-package finance.tradista.core.transfer.messaging;
+package org.eclipse.tradista.core.transfer.messaging;
 
-import finance.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -1,11 +1,11 @@
-package finance.tradista.security.bond.ui.controller;
+package org.eclipse.tradista.security.bond.ui.controller;
 
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.security.bond.model.Bond;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;

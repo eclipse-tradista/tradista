@@ -1,15 +1,15 @@
-package finance.tradista.mm.loandeposit.model;
+package org.eclipse.tradista.mm.loandeposit.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.daycountconvention.model.DayCountConvention;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.interestpayment.model.InterestPayment;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.model.Trade;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

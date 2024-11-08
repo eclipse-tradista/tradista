@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,10 +13,10 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.marketdata.model.FeedConfig;
-import finance.tradista.core.marketdata.model.Provider;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.Provider;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

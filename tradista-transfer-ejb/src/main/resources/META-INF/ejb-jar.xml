@@ -8,13 +8,13 @@
 		TransferServiceBean
 		</ejb-name>
 		<ejb-class>
-		finance.tradista.core.transfer.service.TransferServiceBean
+		org.eclipse.tradista.core.transfer.service.TransferServiceBean
 		</ejb-class>
 		<session-type>Stateless</session-type>
 		 <resource-ref>
 		 <res-ref-name>ConnectionFactory</res-ref-name>
 		 <injection-target>
-		 <injection-target-class>finance.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
+		 <injection-target-class>org.eclipse.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
 		 <injection-target-name>factory</injection-target-name></injection-target>
 		 <lookup-name>
 		 java:/ConnectionFactory
@@ -23,7 +23,7 @@
 		 <resource-ref>
 		 <res-ref-name>CashInventoryQueue</res-ref-name>
 		 <injection-target>
-		 <injection-target-class>finance.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
+		 <injection-target-class>org.eclipse.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
 		 <injection-target-name>
 		 cashInventoryDestination
 		 </injection-target-name>
@@ -35,7 +35,7 @@
 		 <resource-ref>
 		 <res-ref-name>ProductInventoryQueue</res-ref-name>
 		 <injection-target>
-		 <injection-target-class>finance.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
+		 <injection-target-class>org.eclipse.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
 		 <injection-target-name>
 		 productInventoryDestination
 		 </injection-target-name>

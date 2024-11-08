@@ -1,13 +1,13 @@
-package finance.tradista.security.repo.service;
+package org.eclipse.tradista.security.repo.service;
 
 import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.gcrepo.persistence.AllocationConfigurationSQL;
-import finance.tradista.security.repo.model.AllocationConfiguration;
-import finance.tradista.security.specificrepo.service.SpecificRepoProductScopeFilteringInterceptor;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.gcrepo.persistence.AllocationConfigurationSQL;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.specificrepo.service.SpecificRepoProductScopeFilteringInterceptor;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;

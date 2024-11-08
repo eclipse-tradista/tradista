@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.ui.controller;
+package org.eclipse.tradista.security.equityoption.ui.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,18 +11,18 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaAlert;
-import finance.tradista.core.common.ui.view.TradistaTextInputDialog;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.marketdata.model.Quote;
-import finance.tradista.core.marketdata.model.SurfacePoint;
-import finance.tradista.core.marketdata.ui.controller.TradistaVolatilitySurfaceController;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
-import finance.tradista.security.equityoption.service.EquityOptionVolatilitySurfaceBusinessDelegate;
-import finance.tradista.security.equityoption.ui.view.EquityOptionVolatilitySurfaceCreatorDialog;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.marketdata.model.Quote;
+import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.ui.controller.TradistaVolatilitySurfaceController;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.security.equityoption.service.EquityOptionVolatilitySurfaceBusinessDelegate;
+import org.eclipse.tradista.security.equityoption.ui.view.EquityOptionVolatilitySurfaceCreatorDialog;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

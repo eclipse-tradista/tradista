@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,11 +10,13 @@ import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.Curve;
-import finance.tradista.core.marketdata.model.FXCurve;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.model.RatePoint;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.Curve;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.model.RatePoint;
+import org.eclipse.tradista.core.marketdata.service.CurveFilteringInterceptor;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;

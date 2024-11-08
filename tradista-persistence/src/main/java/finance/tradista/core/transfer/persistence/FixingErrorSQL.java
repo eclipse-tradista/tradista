@@ -1,4 +1,4 @@
-package finance.tradista.core.transfer.persistence;
+package org.eclipse.tradista.core.transfer.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.error.model.Error.Status;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.FixingError;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.FixingError;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -95,7 +95,7 @@ public class FixingErrorSQL {
 				PreparedStatement stmtSolveFixingErrors = con.prepareStatement(
 						"UPDATE ERROR SET STATUS = ?, SOLVING_DATE = ? WHERE ID IN (SELECT ERROR_ID FROM FIXING_ERROR WHERE TRANSFER_ID = ?)")) {
 			for (long id : solved) {
-				stmtSolveFixingErrors.setString(1, finance.tradista.core.error.model.Error.Status.SOLVED.name());
+				stmtSolveFixingErrors.setString(1, org.eclipse.tradista.core.error.model.Error.Status.SOLVED.name());
 				stmtSolveFixingErrors.setDate(2, java.sql.Date.valueOf(date));
 				stmtSolveFixingErrors.setLong(3, id);
 				stmtSolveFixingErrors.addBatch();
@@ -111,7 +111,7 @@ public class FixingErrorSQL {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSolveFixingError = con.prepareStatement(
 						"UPDATE ERROR SET STATUS = ?, SOLVING_DATE = ? WHERE ID IN (SELECT ERROR_ID FROM TRANSFER_ERROR WHERE TRANSFER_ID = ?)")) {
-			stmtSolveFixingError.setString(1, finance.tradista.core.error.model.Error.Status.SOLVED.name());
+			stmtSolveFixingError.setString(1, org.eclipse.tradista.core.error.model.Error.Status.SOLVED.name());
 			stmtSolveFixingError.setDate(2, java.sql.Date.valueOf(date));
 			stmtSolveFixingError.setLong(3, transferId);
 			stmtSolveFixingError.executeUpdate();

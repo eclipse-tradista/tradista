@@ -1,10 +1,10 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
 import java.util.stream.Collectors;
 
-import finance.tradista.core.workflow.model.SimpleAction;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.model.WorkflowObject;
+import org.eclipse.tradista.core.workflow.model.SimpleAction;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.model.WorkflowObject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -27,7 +27,7 @@ public final class SimpleActionMapper {
 	private SimpleActionMapper() {
 	}
 
-	public static SimpleAction map(finance.tradista.flow.model.SimpleAction<?> action) {
+	public static SimpleAction map(org.eclipse.tradista.flow.model.SimpleAction<?> action) {
 		SimpleAction actionResult = null;
 		if (action != null) {
 			actionResult = new SimpleAction();
@@ -46,11 +46,11 @@ public final class SimpleActionMapper {
 		return actionResult;
 	}
 
-	public static <X extends WorkflowObject> finance.tradista.flow.model.SimpleAction<X> map(SimpleAction action,
+	public static <X extends WorkflowObject> org.eclipse.tradista.flow.model.SimpleAction<X> map(SimpleAction action,
 			Workflow<X> workflow) {
-		finance.tradista.flow.model.SimpleAction<X> actionResult = null;
+		org.eclipse.tradista.flow.model.SimpleAction<X> actionResult = null;
 		if (action != null) {
-			actionResult = new finance.tradista.flow.model.SimpleAction<>();
+			actionResult = new org.eclipse.tradista.flow.model.SimpleAction<>();
 			actionResult.setId(action.getId());
 			actionResult.setName(action.getName());
 			actionResult.setArrivalStatus(StatusMapper.map(action.getArrivalStatus(), workflow));

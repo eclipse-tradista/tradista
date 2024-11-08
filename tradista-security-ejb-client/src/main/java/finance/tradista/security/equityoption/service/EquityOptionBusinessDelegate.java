@@ -1,16 +1,16 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.validator.EquityOptionValidator;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.validator.EquityOptionValidator;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

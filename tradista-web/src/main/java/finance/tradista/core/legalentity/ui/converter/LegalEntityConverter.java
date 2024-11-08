@@ -1,9 +1,9 @@
-package finance.tradista.core.legalentity.ui.converter;
+package org.eclipse.tradista.core.legalentity.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

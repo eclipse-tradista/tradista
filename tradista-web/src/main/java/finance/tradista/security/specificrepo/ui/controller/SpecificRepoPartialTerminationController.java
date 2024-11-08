@@ -1,13 +1,13 @@
-package finance.tradista.security.specificrepo.ui.controller;
+package org.eclipse.tradista.security.specificrepo.ui.controller;
 
 import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.repo.ui.controller.PartialTermination;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
-import finance.tradista.security.specificrepo.service.SpecificRepoTradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.repo.ui.controller.PartialTermination;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

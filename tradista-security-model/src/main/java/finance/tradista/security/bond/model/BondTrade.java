@@ -1,9 +1,9 @@
-package finance.tradista.security.bond.model;
+package org.eclipse.tradista.security.bond.model;
 
 import java.math.BigDecimal;
 
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.trade.model.Trade;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion

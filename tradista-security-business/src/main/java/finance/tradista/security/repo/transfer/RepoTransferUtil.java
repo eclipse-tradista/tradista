@@ -1,4 +1,4 @@
-package finance.tradista.security.repo.transfer;
+package org.eclipse.tradista.security.repo.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,24 +12,24 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.daycountconvention.model.DayCountConvention;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.FixingError;
-import finance.tradista.core.transfer.model.ProductTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.Transfer.Status;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.core.transfer.service.FixingErrorBusinessDelegate;
-import finance.tradista.core.transfer.service.TransferBusinessDelegate;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.repo.model.RepoTrade;
-import finance.tradista.security.repo.trade.RepoTradeUtil;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.FixingError;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.Transfer.Status;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
+import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -485,7 +485,7 @@ public final class RepoTransferUtil {
 		fixingError.setCashTransfer(transfer);
 		fixingError.setErrorDate(LocalDateTime.now());
 		fixingError.setMessage(errorMsg);
-		fixingError.setStatus(finance.tradista.core.error.model.Error.Status.UNSOLVED);
+		fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 		List<FixingError> errors = new ArrayList<>(1);
 		errors.add(fixingError);
 		fixingErrorBusinessDelegate.saveFixingErrors(errors);

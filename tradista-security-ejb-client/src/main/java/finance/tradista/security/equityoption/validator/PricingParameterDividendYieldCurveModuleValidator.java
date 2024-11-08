@@ -1,12 +1,12 @@
-package finance.tradista.security.equityoption.validator;
+package org.eclipse.tradista.security.equityoption.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
-import finance.tradista.core.pricing.pricer.PricingParameterModule;
-import finance.tradista.core.pricing.service.PricingParameterModuleValidator;
-import finance.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
+import org.eclipse.tradista.core.pricing.service.PricingParameterModuleValidator;
+import org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

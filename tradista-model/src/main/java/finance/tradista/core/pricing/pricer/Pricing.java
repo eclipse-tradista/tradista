@@ -1,4 +1,4 @@
-package finance.tradista.core.pricing.pricer;
+package org.eclipse.tradista.core.pricing.pricer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

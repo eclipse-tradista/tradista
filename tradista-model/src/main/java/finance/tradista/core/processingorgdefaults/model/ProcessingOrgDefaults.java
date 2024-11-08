@@ -1,4 +1,4 @@
-package finance.tradista.core.processingorgdefaults.model;
+package org.eclipse.tradista.core.processingorgdefaults.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,11 +6,11 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

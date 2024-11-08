@@ -1,15 +1,15 @@
-package finance.tradista.security.bond.service;
+package org.eclipse.tradista.security.bond.service;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.persistence.BondSQL;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.service.EquityService;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.persistence.BondSQL;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.service.EquityService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;

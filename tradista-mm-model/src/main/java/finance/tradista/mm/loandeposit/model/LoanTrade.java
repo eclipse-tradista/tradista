@@ -1,4 +1,4 @@
-package finance.tradista.mm.loandeposit.model;
+package org.eclipse.tradista.mm.loandeposit.model;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

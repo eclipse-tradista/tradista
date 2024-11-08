@@ -1,11 +1,11 @@
-package finance.tradista.security.bond.service;
+package org.eclipse.tradista.security.bond.service;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.security.bond.model.BondTrade;
+import org.eclipse.tradista.security.bond.model.BondTrade;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

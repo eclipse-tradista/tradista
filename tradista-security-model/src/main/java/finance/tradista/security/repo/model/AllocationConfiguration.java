@@ -1,12 +1,12 @@
-package finance.tradista.security.repo.model;
+package org.eclipse.tradista.security.repo.model;
 
 import java.util.Set;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

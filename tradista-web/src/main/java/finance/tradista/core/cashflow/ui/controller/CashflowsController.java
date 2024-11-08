@@ -1,4 +1,4 @@
-package finance.tradista.core.cashflow.ui.controller;
+package org.eclipse.tradista.core.cashflow.ui.controller;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.service.PricerBusinessDelegate;
-import finance.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

@@ -1,12 +1,12 @@
-package finance.tradista.core.common.ui.controller;
+package org.eclipse.tradista.core.common.ui.controller;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.common.util.MathProperties;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.user.service.UserBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.common.util.MathProperties;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;

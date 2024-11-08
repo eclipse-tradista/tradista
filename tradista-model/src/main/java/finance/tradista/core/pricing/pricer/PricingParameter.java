@@ -1,20 +1,20 @@
-package finance.tradista.core.pricing.pricer;
+package org.eclipse.tradista.core.pricing.pricer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.model.CurrencyPair;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.marketdata.model.FXCurve;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.model.CurrencyPair;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion

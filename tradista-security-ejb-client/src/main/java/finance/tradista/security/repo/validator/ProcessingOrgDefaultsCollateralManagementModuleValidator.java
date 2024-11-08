@@ -1,14 +1,14 @@
-package finance.tradista.security.repo.validator;
+package org.eclipse.tradista.security.repo.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import finance.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
-import finance.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsModuleValidator;
-import finance.tradista.security.repo.model.AllocationConfiguration;
-import finance.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
-import finance.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
+import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsModuleValidator;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
+import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

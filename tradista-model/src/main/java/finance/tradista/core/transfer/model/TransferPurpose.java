@@ -1,4 +1,4 @@
-package finance.tradista.core.transfer.model;
+package org.eclipse.tradista.core.transfer.model;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -1,7 +1,7 @@
-package finance.tradista.security.gcrepo.service;
+package org.eclipse.tradista.security.gcrepo.service;
 
-import finance.tradista.core.trade.service.ProductScopeFilteringInterceptor;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.core.trade.service.ProductScopeFilteringInterceptor;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

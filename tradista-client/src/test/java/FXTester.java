@@ -1,5 +1,5 @@
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.user.service.UserBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion

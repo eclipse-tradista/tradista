@@ -1,7 +1,7 @@
-package finance.tradista.security.specificrepo.model;
+package org.eclipse.tradista.security.specificrepo.model;
 
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

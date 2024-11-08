@@ -1,10 +1,10 @@
-package finance.tradista.security.repo.ui.converter;
+package org.eclipse.tradista.security.repo.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.repo.model.AllocationConfiguration;
-import finance.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

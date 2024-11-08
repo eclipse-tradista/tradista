@@ -1,15 +1,15 @@
-package finance.tradista.security.equityoption.ui.view;
+package org.eclipse.tradista.security.equityoption.ui.view;
 
 import java.math.BigDecimal;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaAlert;
-import finance.tradista.core.common.ui.view.TradistaDialog;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
-import finance.tradista.security.equityoption.ui.controller.EquityOptionVolatilitySurfacesController;
-import finance.tradista.security.equityoption.ui.controller.EquityOptionVolatilitySurfacesController.StrikeProperty;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.security.equityoption.ui.controller.EquityOptionVolatilitySurfacesController;
+import org.eclipse.tradista.security.equityoption.ui.controller.EquityOptionVolatilitySurfacesController.StrikeProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert.AlertType;

@@ -1,15 +1,15 @@
-package finance.tradista.security.gcrepo.service;
+package org.eclipse.tradista.security.gcrepo.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.gcrepo.validator.GCRepoTradeValidator;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.gcrepo.validator.GCRepoTradeValidator;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

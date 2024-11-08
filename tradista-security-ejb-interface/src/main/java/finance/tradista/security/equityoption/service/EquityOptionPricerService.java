@@ -1,16 +1,16 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

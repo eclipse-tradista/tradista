@@ -1,6 +1,6 @@
-package finance.tradista.security.specificrepo.workflow.mapping;
+package org.eclipse.tradista.security.specificrepo.workflow.mapping;
 
-import finance.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.model.Workflow;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -23,7 +23,7 @@ public final class SpecificRepoTradeMapper {
 	private SpecificRepoTradeMapper() {
 	}
 
-	public static SpecificRepoTrade map(finance.tradista.security.specificrepo.model.SpecificRepoTrade specificRepoTrade,
+	public static SpecificRepoTrade map(org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade specificRepoTrade,
 			Workflow wkf) {
 		SpecificRepoTrade specificRepoTradeResult = new SpecificRepoTrade(wkf);
 		specificRepoTradeResult.setRepoTrade(specificRepoTrade);

@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -8,11 +8,11 @@ import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.model.RatePoint;
-import finance.tradista.core.marketdata.model.ZeroCouponCurve;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.model.RatePoint;
+import org.eclipse.tradista.core.marketdata.model.ZeroCouponCurve;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

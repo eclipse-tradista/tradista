@@ -1,26 +1,26 @@
-package finance.tradista.security.equityoption.transfer;
+package org.eclipse.tradista.security.equityoption.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.QuoteType;
-import finance.tradista.core.marketdata.model.QuoteValue;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.trade.model.OptionTrade.SettlementType;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.FixingError;
-import finance.tradista.core.transfer.model.ProductTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.TransferManager;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.core.transfer.service.FixingErrorBusinessDelegate;
-import finance.tradista.core.transfer.service.TransferBusinessDelegate;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equityoption.messaging.EquityOptionTradeEvent;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.model.OptionTrade.SettlementType;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.FixingError;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.TransferManager;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
+import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equityoption.messaging.EquityOptionTradeEvent;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -227,7 +227,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 					"Transfer %n cannot be fixed. Impossible to get the %s price closing value as of %tD in QuoteSet %s.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
 			fixingError.setMessage(errorMsg);
-			fixingError.setStatus(finance.tradista.core.error.model.Error.Status.UNSOLVED);
+			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 			List<FixingError> errors = new ArrayList<FixingError>(1);
 			errors.add(fixingError);
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);

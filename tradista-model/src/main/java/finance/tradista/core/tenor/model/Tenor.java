@@ -1,4 +1,4 @@
-package finance.tradista.core.tenor.model;
+package org.eclipse.tradista.core.tenor.model;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

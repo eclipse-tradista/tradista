@@ -1,4 +1,4 @@
-package finance.tradista.core.common.messaging;
+package org.eclipse.tradista.core.common.messaging;
 
 import java.io.Serializable;
 

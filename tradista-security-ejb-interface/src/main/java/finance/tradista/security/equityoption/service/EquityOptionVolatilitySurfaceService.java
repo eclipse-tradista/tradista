@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -7,10 +7,10 @@ import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.model.SurfacePoint;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

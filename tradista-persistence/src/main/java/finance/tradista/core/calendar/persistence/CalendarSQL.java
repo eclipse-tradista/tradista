@@ -1,4 +1,4 @@
-package finance.tradista.core.calendar.persistence;
+package org.eclipse.tradista.core.calendar.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,9 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

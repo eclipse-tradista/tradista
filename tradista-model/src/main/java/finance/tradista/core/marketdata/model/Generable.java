@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.model;
+package org.eclipse.tradista.core.marketdata.model;
 
 import java.time.LocalDate;
 import java.util.List;

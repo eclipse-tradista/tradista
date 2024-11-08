@@ -1,6 +1,6 @@
-package finance.tradista.core.trade.model;
+package org.eclipse.tradista.core.trade.model;
 
-import finance.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.model.Product;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion

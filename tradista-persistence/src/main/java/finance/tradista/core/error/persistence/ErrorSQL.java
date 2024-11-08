@@ -1,4 +1,4 @@
-package finance.tradista.core.error.persistence;
+package org.eclipse.tradista.core.error.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,11 +13,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.error.model.Error.Status;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -45,7 +45,7 @@ public class ErrorSQL {
 				for (String err : errorTypes) {
 					Class<?> persistenceClass = null;
 					List<Class<?>> klasses = TradistaUtil.getAllClassesByRegex("[^*]+.persistence." + err + "SQL",
-							"finance.tradista.**");
+							"org.eclipse.tradista.**");
 					if (klasses != null && klasses.size() > 1) {
 						persistenceClass = klasses.get(0);
 					}

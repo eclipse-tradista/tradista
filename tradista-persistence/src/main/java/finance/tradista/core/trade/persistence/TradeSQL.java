@@ -1,4 +1,4 @@
-package finance.tradista.core.trade.persistence;
+package org.eclipse.tradista.core.trade.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,18 +12,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import finance.tradista.core.book.persistence.BookSQL;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.service.ProductBusinessDelegate;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.workflow.persistence.StatusSQL;
+import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.workflow.persistence.StatusSQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -234,7 +234,7 @@ public class TradeSQL {
 
 	private static Class<?> getTradeSQLClass(ProductBusinessDelegate productBusinessDelegate, String product)
 			throws TradistaBusinessException {
-		return TradistaUtil.getClass("finance.tradista." + productBusinessDelegate.getProductFamily(product) + "."
+		return TradistaUtil.getClass("org.eclipse.tradista." + productBusinessDelegate.getProductFamily(product) + "."
 				+ product.toLowerCase() + ".persistence." + product + "TradeSQL");
 	}
 

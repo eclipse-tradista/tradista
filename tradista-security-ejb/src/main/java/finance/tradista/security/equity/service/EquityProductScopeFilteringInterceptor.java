@@ -1,7 +1,7 @@
-package finance.tradista.security.equity.service;
+package org.eclipse.tradista.security.equity.service;
 
-import finance.tradista.core.trade.service.ProductScopeFilteringInterceptor;
-import finance.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.core.trade.service.ProductScopeFilteringInterceptor;
+import org.eclipse.tradista.security.equity.model.Equity;
 
 /********************************************************************************
  * Copyright (c) 2021 Olivier Asuncion

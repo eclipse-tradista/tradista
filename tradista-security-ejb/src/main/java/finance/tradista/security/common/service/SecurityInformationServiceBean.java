@@ -1,4 +1,4 @@
-package finance.tradista.security.common.service;
+package org.eclipse.tradista.security.common.service;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 

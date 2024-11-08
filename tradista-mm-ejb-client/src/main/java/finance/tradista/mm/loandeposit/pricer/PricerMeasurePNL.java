@@ -1,17 +1,17 @@
-package finance.tradista.mm.loandeposit.pricer;
+package org.eclipse.tradista.mm.loandeposit.pricer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.pricing.exception.PricerException;
-import finance.tradista.core.pricing.pricer.PricerMeasure;
-import finance.tradista.core.pricing.pricer.Pricing;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.mm.loandeposit.model.DepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanTrade;
-import finance.tradista.mm.loandeposit.service.LoanDepositPricerBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.pricing.exception.PricerException;
+import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
+import org.eclipse.tradista.core.pricing.pricer.Pricing;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
+import org.eclipse.tradista.mm.loandeposit.service.LoanDepositPricerBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

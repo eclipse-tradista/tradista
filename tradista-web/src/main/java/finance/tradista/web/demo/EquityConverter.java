@@ -1,4 +1,4 @@
-package finance.tradista.web.demo;
+package org.eclipse.tradista.web.demo;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
@@ -6,8 +6,8 @@ import jakarta.faces.convert.Converter;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.service.EquityBusinessDelegate;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
 import java.io.Serializable;
 
 /********************************************************************************

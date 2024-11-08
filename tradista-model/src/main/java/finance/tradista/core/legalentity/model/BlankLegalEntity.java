@@ -1,4 +1,4 @@
-package finance.tradista.core.legalentity.model;
+package org.eclipse.tradista.core.legalentity.model;
 
 import org.apache.commons.lang3.StringUtils;
 

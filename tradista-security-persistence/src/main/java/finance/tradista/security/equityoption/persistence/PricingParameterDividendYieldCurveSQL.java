@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.persistence;
+package org.eclipse.tradista.security.equityoption.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,12 +7,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.persistence.InterestRateCurveSQL;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.persistence.EquitySQL;
-import finance.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.persistence.InterestRateCurveSQL;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.persistence.EquitySQL;
+import org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

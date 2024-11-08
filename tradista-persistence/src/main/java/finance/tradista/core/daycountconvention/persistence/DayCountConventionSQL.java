@@ -1,4 +1,4 @@
-package finance.tradista.core.daycountconvention.persistence;
+package org.eclipse.tradista.core.daycountconvention.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.TreeSet;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.daycountconvention.model.DayCountConvention;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

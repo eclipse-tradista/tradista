@@ -1,15 +1,15 @@
-package finance.tradista.security.gcrepo.pricer;
+package org.eclipse.tradista.security.gcrepo.pricer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.pricing.pricer.PricerMeasure;
-import finance.tradista.core.pricing.pricer.Pricing;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.security.gcrepo.model.GCRepoTrade;
-import finance.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
+import org.eclipse.tradista.core.pricing.pricer.Pricing;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

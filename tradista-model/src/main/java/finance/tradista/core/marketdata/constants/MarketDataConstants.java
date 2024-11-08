@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.constants;
+package org.eclipse.tradista.core.marketdata.constants;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -18,8 +18,8 @@ package finance.tradista.core.marketdata.constants;
 
 public final class MarketDataConstants {
 
-	public static final String GENERATION_ALGORITHM_PACKAGE = "finance.tradista.core.marketdata.generationalgorithm";
+	public static final String GENERATION_ALGORITHM_PACKAGE = "org.eclipse.tradista.core.marketdata.generationalgorithm";
 
-	public static final String INTERPOLATOR_PACKAGE = "finance.tradista.core.marketdata.interpolator";
+	public static final String INTERPOLATOR_PACKAGE = "org.eclipse.tradista.core.marketdata.interpolator";
 
 }

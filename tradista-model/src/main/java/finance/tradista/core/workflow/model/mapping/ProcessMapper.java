@@ -1,7 +1,7 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.workflow.model.Process;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.workflow.model.Process;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -24,8 +24,8 @@ public final class ProcessMapper {
 	private ProcessMapper() {
 	}
 
-	public static <X extends finance.tradista.flow.model.WorkflowObject> Process map(
-			finance.tradista.flow.model.Process<X> process) {
+	public static <X extends org.eclipse.tradista.flow.model.WorkflowObject> Process map(
+			org.eclipse.tradista.flow.model.Process<X> process) {
 		Process processResult = null;
 		if (process != null) {
 			processResult = new Process();
@@ -37,11 +37,11 @@ public final class ProcessMapper {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <X extends finance.tradista.flow.model.WorkflowObject> finance.tradista.flow.model.Process<X> map(
+	public static <X extends org.eclipse.tradista.flow.model.WorkflowObject> org.eclipse.tradista.flow.model.Process<X> map(
 			Process process) {
-		finance.tradista.flow.model.Process<X> processResult = null;
+		org.eclipse.tradista.flow.model.Process<X> processResult = null;
 		if (process != null) {
-			processResult = TradistaModelUtil.getInstance(finance.tradista.flow.model.Process.class,
+			processResult = TradistaModelUtil.getInstance(org.eclipse.tradista.flow.model.Process.class,
 					process.getLongName());
 			processResult.setId(process.getId());
 		}

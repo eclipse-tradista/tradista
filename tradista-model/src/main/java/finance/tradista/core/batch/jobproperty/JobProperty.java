@@ -1,4 +1,4 @@
-package finance.tradista.core.batch.jobproperty;
+package org.eclipse.tradista.core.batch.jobproperty;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

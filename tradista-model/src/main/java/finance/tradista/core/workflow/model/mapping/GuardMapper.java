@@ -1,7 +1,7 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.workflow.model.Guard;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.workflow.model.Guard;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -24,8 +24,8 @@ public final class GuardMapper {
 	private GuardMapper() {
 	}
 
-	public static <X extends finance.tradista.flow.model.WorkflowObject> Guard map(
-			finance.tradista.flow.model.Guard<X> guard) {
+	public static <X extends org.eclipse.tradista.flow.model.WorkflowObject> Guard map(
+			org.eclipse.tradista.flow.model.Guard<X> guard) {
 		Guard guardResult = null;
 		if (guard != null) {
 			guardResult = new Guard();
@@ -37,11 +37,11 @@ public final class GuardMapper {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <X extends finance.tradista.flow.model.WorkflowObject> finance.tradista.flow.model.Guard<X> map(
+	public static <X extends org.eclipse.tradista.flow.model.WorkflowObject> org.eclipse.tradista.flow.model.Guard<X> map(
 			Guard guard) {
-		finance.tradista.flow.model.Guard<X> guardResult = null;
+		org.eclipse.tradista.flow.model.Guard<X> guardResult = null;
 		if (guard != null) {
-			guardResult = TradistaModelUtil.getInstance(finance.tradista.flow.model.Guard.class, guard.getLongName());
+			guardResult = TradistaModelUtil.getInstance(org.eclipse.tradista.flow.model.Guard.class, guard.getLongName());
 			guardResult.setId(guard.getId());
 		}
 		return guardResult;

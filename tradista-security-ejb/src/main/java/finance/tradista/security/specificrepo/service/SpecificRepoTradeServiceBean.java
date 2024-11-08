@@ -1,4 +1,4 @@
-package finance.tradista.security.specificrepo.service;
+package org.eclipse.tradista.security.specificrepo.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -6,19 +6,19 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
-import finance.tradista.core.workflow.model.mapping.StatusMapper;
-import finance.tradista.flow.exception.TradistaFlowBusinessException;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.service.WorkflowManager;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.repo.trade.RepoTradeUtil;
-import finance.tradista.security.specificrepo.messaging.SpecificRepoTradeEvent;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
-import finance.tradista.security.specificrepo.persistence.SpecificRepoTradeSQL;
-import finance.tradista.security.specificrepo.workflow.mapping.SpecificRepoTradeMapper;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
+import org.eclipse.tradista.flow.exception.TradistaFlowBusinessException;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.service.WorkflowManager;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
+import org.eclipse.tradista.security.specificrepo.messaging.SpecificRepoTradeEvent;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.security.specificrepo.persistence.SpecificRepoTradeSQL;
+import org.eclipse.tradista.security.specificrepo.workflow.mapping.SpecificRepoTradeMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
@@ -75,7 +75,7 @@ public class SpecificRepoTradeServiceBean implements SpecificRepoTradeService {
 		if (!StringUtils.isEmpty(action)) {
 			try {
 				Workflow workflow = WorkflowManager.getWorkflowByName(trade.getWorkflow());
-				finance.tradista.security.specificrepo.workflow.mapping.SpecificRepoTrade mappedTrade = SpecificRepoTradeMapper
+				org.eclipse.tradista.security.specificrepo.workflow.mapping.SpecificRepoTrade mappedTrade = SpecificRepoTradeMapper
 						.map(trade, workflow);
 				mappedTrade = WorkflowManager.applyAction(mappedTrade, action);
 				trade.setStatus(StatusMapper.map(mappedTrade.getStatus()));

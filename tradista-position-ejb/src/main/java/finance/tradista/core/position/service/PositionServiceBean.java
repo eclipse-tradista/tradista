@@ -1,4 +1,4 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,19 +14,22 @@ import jakarta.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.position.model.Position;
-import finance.tradista.core.position.model.PositionCalculationError;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.position.persistence.PositionSQL;
-import finance.tradista.core.pricing.pricer.Pricer;
-import finance.tradista.core.pricing.service.PricerBusinessDelegate;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.service.ProductBusinessDelegate;
-import finance.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.trade.service.TradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.position.model.Position;
+import org.eclipse.tradista.core.position.model.PositionCalculationError;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.persistence.PositionSQL;
+import org.eclipse.tradista.core.position.service.PositionDefinitionProductScopeFilteringInterceptor;
+import org.eclipse.tradista.core.position.service.PositionFilteringInterceptor;
+import org.eclipse.tradista.core.position.service.PositionProductScopeFilteringInterceptor;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -97,7 +100,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 		PricerBusinessDelegate pricerBusinessDelegate = new PricerBusinessDelegate();
 		List<PositionCalculationError> posErrors = new ArrayList<PositionCalculationError>();
 		List<PositionCalculationError> existingErrors = positionCalculationErrorService.getPositionCalculationErrors(
-				posDef.getId(), finance.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0,
+				posDef.getId(), org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0,
 				valueDateTime.toLocalDate(), valueDateTime.toLocalDate(), null, null, null, null);
 		boolean canBeOTC = true;
 		boolean canBeListed = true;

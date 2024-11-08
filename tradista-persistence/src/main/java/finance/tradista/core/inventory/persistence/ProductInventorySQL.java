@@ -1,4 +1,4 @@
-package finance.tradista.core.inventory.persistence;
+package org.eclipse.tradista.core.inventory.persistence;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -15,12 +15,12 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.book.persistence.BookSQL;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.inventory.model.ProductInventory;
-import finance.tradista.core.product.persistence.ProductSQL;
+import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.inventory.model.ProductInventory;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

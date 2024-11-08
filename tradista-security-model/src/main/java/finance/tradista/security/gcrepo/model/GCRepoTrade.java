@@ -1,6 +1,6 @@
-package finance.tradista.security.gcrepo.model;
+package org.eclipse.tradista.security.gcrepo.model;
 
-import finance.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

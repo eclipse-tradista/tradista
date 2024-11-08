@@ -1,4 +1,4 @@
-package finance.tradista.core.pricing.exception;
+package org.eclipse.tradista.core.pricing.exception;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion

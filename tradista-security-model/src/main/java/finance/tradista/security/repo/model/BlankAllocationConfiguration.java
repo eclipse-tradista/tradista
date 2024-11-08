@@ -1,8 +1,8 @@
-package finance.tradista.security.repo.model;
+package org.eclipse.tradista.security.repo.model;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.legalentity.model.BlankLegalEntity;
+import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

@@ -1,12 +1,12 @@
-package finance.tradista.core.marketdata.model;
+package org.eclipse.tradista.core.marketdata.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.TreeMap;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 /********************************************************************************
  * Copyright (c) 2020 Olivier Asuncion

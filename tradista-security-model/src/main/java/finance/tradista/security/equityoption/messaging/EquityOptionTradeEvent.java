@@ -1,7 +1,7 @@
-package finance.tradista.security.equityoption.messaging;
+package org.eclipse.tradista.security.equityoption.messaging;
 
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

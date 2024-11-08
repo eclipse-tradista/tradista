@@ -1,10 +1,10 @@
-package finance.tradista.security.specificrepo.validator;
+package org.eclipse.tradista.security.specificrepo.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.security.repo.service.RepoTradeValidator;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.security.repo.service.RepoTradeValidator;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

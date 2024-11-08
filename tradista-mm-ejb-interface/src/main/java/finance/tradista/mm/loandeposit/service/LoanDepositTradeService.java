@@ -1,9 +1,9 @@
-package finance.tradista.mm.loandeposit.service;
+package org.eclipse.tradista.mm.loandeposit.service;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

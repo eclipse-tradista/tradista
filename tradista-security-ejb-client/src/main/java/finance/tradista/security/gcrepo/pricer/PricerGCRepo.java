@@ -1,7 +1,7 @@
-package finance.tradista.security.gcrepo.pricer;
+package org.eclipse.tradista.security.gcrepo.pricer;
 
-import finance.tradista.core.pricing.pricer.Parameterizable;
-import finance.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

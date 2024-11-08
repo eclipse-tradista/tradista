@@ -1,12 +1,12 @@
-package finance.tradista.security.repo.service;
+package org.eclipse.tradista.security.repo.service;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
-import finance.tradista.core.user.model.User;
-import finance.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.user.model.User;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 import jakarta.ejb.EJB;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;

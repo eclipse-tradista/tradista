@@ -1,9 +1,10 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.eclipse.tradista.core.marketdata.service.MarketDataConfigurationBusinessDelegate;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
@@ -38,7 +39,7 @@ public class MarketDataInformationServiceBean implements MarketDataInformationSe
 		if (modules != null && !modules.isEmpty()) {
 			map = new TreeMap<String, String>();
 			for (String m : modules) {
-				map.put(m, Package.getPackage("finance.tradista.core.marketdata." + m.toLowerCase())
+				map.put(m, Package.getPackage("org.eclipse.tradista.core.marketdata." + m.toLowerCase())
 						.getImplementationVersion());
 			}
 		}

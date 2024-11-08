@@ -1,4 +1,4 @@
-package finance.tradista.security.equity.pricer;
+package org.eclipse.tradista.security.equity.pricer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -7,22 +7,22 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.marketdata.model.QuoteType;
-import finance.tradista.core.marketdata.model.QuoteValue;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import finance.tradista.core.pricing.exception.PricerException;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.core.pricing.exception.PricerException;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

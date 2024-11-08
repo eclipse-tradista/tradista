@@ -1,16 +1,16 @@
-package finance.tradista.security.repo.model;
+package org.eclipse.tradista.security.repo.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.security.common.model.Security;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.security.common.model.Security;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

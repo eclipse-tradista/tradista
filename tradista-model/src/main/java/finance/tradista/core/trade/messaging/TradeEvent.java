@@ -1,7 +1,7 @@
-package finance.tradista.core.trade.messaging;
+package org.eclipse.tradista.core.trade.messaging;
 
-import finance.tradista.core.common.messaging.Event;
-import finance.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.common.messaging.Event;
+import org.eclipse.tradista.core.trade.model.Trade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

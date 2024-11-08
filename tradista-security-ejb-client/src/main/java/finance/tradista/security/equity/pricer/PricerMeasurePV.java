@@ -1,16 +1,16 @@
-package finance.tradista.security.equity.pricer;
+package org.eclipse.tradista.security.equity.pricer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.pricing.exception.PricerException;
-import finance.tradista.core.pricing.pricer.PricerMeasure;
-import finance.tradista.core.pricing.pricer.Pricing;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.security.equity.model.EquityTrade;
-import finance.tradista.security.equity.service.EquityPricerBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.pricing.exception.PricerException;
+import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
+import org.eclipse.tradista.core.pricing.pricer.Pricing;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.security.equity.service.EquityPricerBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

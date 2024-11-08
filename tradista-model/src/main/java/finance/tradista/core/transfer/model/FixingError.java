@@ -1,7 +1,7 @@
-package finance.tradista.core.transfer.model;
+package org.eclipse.tradista.core.transfer.model;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.error.model.Error;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.error.model.Error;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

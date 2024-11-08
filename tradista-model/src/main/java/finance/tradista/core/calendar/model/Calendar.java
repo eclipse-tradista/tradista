@@ -1,13 +1,13 @@
-package finance.tradista.core.calendar.model;
+package org.eclipse.tradista.core.calendar.model;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

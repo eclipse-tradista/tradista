@@ -1,4 +1,4 @@
-package finance.tradista.core.action.constants;
+package org.eclipse.tradista.core.action.constants;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

@@ -34,7 +34,7 @@
 	</bean>
 	<!-- Global properties used during arithmetic operations -->
 	<bean id="mathProperties"
-		class="finance.tradista.core.common.util.MathProperties">
+		class="org.eclipse.tradista.core.common.util.MathProperties">
 		<!-- Scale, ie the number of digits after the decimal separator -->
 		<!-- ### Note ###: Derby doesn't support a scale greater then 31 digits. -->
 		<property name="scale" value="10" />
@@ -44,7 +44,7 @@
 		<property name="roundingMode" value="HALF_EVEN" />
 	</bean>
 	<bean id="customProperties"
-		class="finance.tradista.core.common.service.CustomProperties">
+		class="org.eclipse.tradista.core.common.service.CustomProperties">
 		<!-- The name of the package for customizations -->
 		<property name="customPackage" value="tradistax" />
 	</bean>

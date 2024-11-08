@@ -1,6 +1,6 @@
-package finance.tradista.mm.loandeposit.pricer;
+package org.eclipse.tradista.mm.loandeposit.pricer;
 
-import finance.tradista.core.pricing.pricer.Parameterizable;
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

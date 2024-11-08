@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,13 +15,13 @@ import jakarta.jms.JMSContext;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
-import finance.tradista.security.equity.service.EquityTradeService;
-import finance.tradista.security.equityoption.messaging.EquityOptionTradeEvent;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
-import finance.tradista.security.equityoption.persistence.EquityOptionTradeSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.security.equity.service.EquityTradeService;
+import org.eclipse.tradista.security.equityoption.messaging.EquityOptionTradeEvent;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.security.equityoption.persistence.EquityOptionTradeSQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

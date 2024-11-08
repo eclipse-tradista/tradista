@@ -1,10 +1,10 @@
-package finance.tradista.core.book.ui.converter;
+package org.eclipse.tradista.core.book.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

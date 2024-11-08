@@ -1,4 +1,4 @@
-package finance.tradista.core.batch.model;
+package org.eclipse.tradista.core.batch.model;
 
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
@@ -15,8 +15,8 @@ import org.quartz.UnableToInterruptJobException;
 import org.quartz.ee.jta.UserTransactionHelper;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

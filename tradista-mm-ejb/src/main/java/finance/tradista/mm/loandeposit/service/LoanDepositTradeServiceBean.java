@@ -1,4 +1,4 @@
-package finance.tradista.mm.loandeposit.service;
+package org.eclipse.tradista.mm.loandeposit.service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -11,11 +11,11 @@ import jakarta.jms.JMSContext;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
-import finance.tradista.mm.loandeposit.messaging.LoanDepositTradeEvent;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
-import finance.tradista.mm.loandeposit.persistence.LoanDepositTradeSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.mm.loandeposit.messaging.LoanDepositTradeEvent;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.persistence.LoanDepositTradeSQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

@@ -1,16 +1,16 @@
-package finance.tradista.mm.loandeposit.validator;
+package org.eclipse.tradista.mm.loandeposit.validator;
 
 import java.time.LocalDate;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.interestpayment.model.InterestPayment;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.trade.validator.DefaultTradeValidator;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.validator.DefaultTradeValidator;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.core.productinventory.service;
+package org.eclipse.tradista.core.productinventory.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -7,9 +7,9 @@ import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.inventory.model.ProductInventory;
-import finance.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.inventory.model.ProductInventory;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

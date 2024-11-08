@@ -1,4 +1,4 @@
-package finance.tradista.web.demo;
+package org.eclipse.tradista.web.demo;
 
 import java.io.Serializable;
 

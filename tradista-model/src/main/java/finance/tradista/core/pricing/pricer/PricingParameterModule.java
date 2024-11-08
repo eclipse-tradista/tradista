@@ -1,6 +1,6 @@
-package finance.tradista.core.pricing.pricer;
+package org.eclipse.tradista.core.pricing.pricer;
 
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

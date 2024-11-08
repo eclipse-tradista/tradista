@@ -1,11 +1,11 @@
-package finance.tradista.security.equityoption.model;
+package org.eclipse.tradista.security.equityoption.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.pricing.pricer.PricingParameterModule;
-import finance.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
+import org.eclipse.tradista.security.equity.model.Equity;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.persistence;
+package org.eclipse.tradista.security.equityoption.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,14 +8,14 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.daterule.service.DateRuleSQL;
-import finance.tradista.core.exchange.persistence.ExchangeSQL;
-import finance.tradista.core.trade.model.VanillaOptionTrade;
-import finance.tradista.core.trade.model.OptionTrade.SettlementType;
-import finance.tradista.security.equityoption.model.EquityOptionContractSpecification;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.daterule.service.DateRuleSQL;
+import org.eclipse.tradista.core.exchange.persistence.ExchangeSQL;
+import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.core.trade.model.OptionTrade.SettlementType;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion

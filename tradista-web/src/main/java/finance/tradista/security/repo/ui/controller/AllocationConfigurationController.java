@@ -1,4 +1,4 @@
-package finance.tradista.security.repo.ui.controller;
+package org.eclipse.tradista.security.repo.ui.controller;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,14 +10,14 @@ import java.util.TreeSet;
 
 import org.primefaces.model.DualListModel;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.legalentity.service.LegalEntityBusinessDelegate;
-import finance.tradista.security.repo.model.AllocationConfiguration;
-import finance.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

@@ -1,4 +1,4 @@
-package finance.tradista.web.demo;
+package org.eclipse.tradista.web.demo;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -12,12 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.ColorUtil;
-import finance.tradista.core.inventory.model.ProductInventory;
-import finance.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ColorUtil;
+import org.eclipse.tradista.core.inventory.model.ProductInventory;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

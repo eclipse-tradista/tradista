@@ -1,4 +1,4 @@
-package finance.tradista.core.transfer.service;
+package org.eclipse.tradista.core.transfer.service;
 
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -17,22 +17,23 @@ import jakarta.jms.JMSContext;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.core.transfer.messaging.CashTransferEvent;
-import finance.tradista.core.transfer.messaging.ProductTransferEvent;
-import finance.tradista.core.transfer.messaging.TransferEvent;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.ProductTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.Transfer.Direction;
-import finance.tradista.core.transfer.model.Transfer.Status;
-import finance.tradista.core.transfer.model.Transfer.Type;
-import finance.tradista.core.transfer.model.TransferManager;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.core.transfer.persistence.TransferSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.core.transfer.messaging.CashTransferEvent;
+import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
+import org.eclipse.tradista.core.transfer.messaging.TransferEvent;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.Transfer.Direction;
+import org.eclipse.tradista.core.transfer.model.Transfer.Status;
+import org.eclipse.tradista.core.transfer.model.Transfer.Type;
+import org.eclipse.tradista.core.transfer.model.TransferManager;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.transfer.persistence.TransferSQL;
+import org.eclipse.tradista.core.transfer.service.TransferPostFilteringInterceptor;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

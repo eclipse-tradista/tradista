@@ -1,8 +1,8 @@
-package finance.tradista.core.trade.ui.converter;
+package org.eclipse.tradista.core.trade.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.trade.model.Trade.Direction;
+import org.eclipse.tradista.core.trade.model.Trade.Direction;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

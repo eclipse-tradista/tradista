@@ -1,13 +1,13 @@
-package finance.tradista.core.position.model;
+package org.eclipse.tradista.core.position.model;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.product.model.Product;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

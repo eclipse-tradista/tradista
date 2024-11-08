@@ -1,6 +1,6 @@
-package finance.tradista.security.gcrepo.workflow.mapping;
+package org.eclipse.tradista.security.gcrepo.workflow.mapping;
 
-import finance.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.model.Workflow;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -23,7 +23,7 @@ public final class GCRepoTradeMapper {
 	private GCRepoTradeMapper() {
 	}
 
-	public static GCRepoTrade map(finance.tradista.security.gcrepo.model.GCRepoTrade gcRepoTrade, Workflow wkf) {
+	public static GCRepoTrade map(org.eclipse.tradista.security.gcrepo.model.GCRepoTrade gcRepoTrade, Workflow wkf) {
 		GCRepoTrade gcRepoTradeResult = new GCRepoTrade(wkf);
 		gcRepoTradeResult.setRepoTrade(gcRepoTrade);
 		return gcRepoTradeResult;

@@ -1,11 +1,11 @@
-package finance.tradista.core.configuration.model;
+package org.eclipse.tradista.core.configuration.model;
 
 import java.text.DecimalFormat;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.core.user.model.User;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.user.model.User;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

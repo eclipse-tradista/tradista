@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,18 +12,18 @@ import jakarta.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.marketdata.constants.MarketDataConstants;
-import finance.tradista.core.marketdata.generationalgorithm.SurfaceGenerationAlgorithm;
-import finance.tradista.core.marketdata.interpolator.MultivariateInterpolator;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.model.SurfacePoint;
-import finance.tradista.core.marketdata.service.SurfaceBusinessDelegate;
-import finance.tradista.core.marketdata.service.VolatilitySurfaceFilteringInterceptor;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
-import finance.tradista.security.equityoption.persistence.EquityOptionVolatilitySurfaceSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
+import org.eclipse.tradista.core.marketdata.generationalgorithm.SurfaceGenerationAlgorithm;
+import org.eclipse.tradista.core.marketdata.interpolator.MultivariateInterpolator;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.service.SurfaceBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.service.VolatilitySurfaceFilteringInterceptor;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.security.equityoption.persistence.EquityOptionVolatilitySurfaceSQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

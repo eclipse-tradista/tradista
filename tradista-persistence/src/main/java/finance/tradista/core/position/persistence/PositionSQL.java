@@ -1,4 +1,4 @@
-package finance.tradista.core.position.persistence;
+package org.eclipse.tradista.core.position.persistence;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -15,10 +15,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.position.model.Position;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.position.model.Position;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

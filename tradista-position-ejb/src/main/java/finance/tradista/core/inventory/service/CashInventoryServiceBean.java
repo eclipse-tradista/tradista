@@ -1,4 +1,4 @@
-package finance.tradista.core.inventory.service;
+package org.eclipse.tradista.core.inventory.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,14 +17,14 @@ import jakarta.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.cashinventory.service.CashInventoryFilteringInterceptor;
-import finance.tradista.core.cashinventory.service.CashInventoryService;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.inventory.model.CashInventory;
-import finance.tradista.core.inventory.persistence.CashInventorySQL;
-import finance.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.cashinventory.service.CashInventoryFilteringInterceptor;
+import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.inventory.model.CashInventory;
+import org.eclipse.tradista.core.inventory.persistence.CashInventorySQL;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

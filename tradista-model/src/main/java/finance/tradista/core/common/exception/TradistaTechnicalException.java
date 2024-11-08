@@ -1,4 +1,4 @@
-package finance.tradista.core.common.exception;
+package org.eclipse.tradista.core.common.exception;
 
 import jakarta.ejb.ApplicationException;
 

@@ -1,10 +1,10 @@
-package finance.tradista.security.equity.ui.controller;
+package org.eclipse.tradista.security.equity.ui.controller;
 
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.model.Equity;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleBooleanProperty;

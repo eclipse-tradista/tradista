@@ -1,12 +1,12 @@
-package finance.tradista.core.position.model;
+package org.eclipse.tradista.core.position.model;
 
 import java.time.LocalDate;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.error.model.Error;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.error.model.Error;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.trade.model.Trade;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

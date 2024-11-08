@@ -1,4 +1,4 @@
-package finance.tradista.core.inventory.service;
+package org.eclipse.tradista.core.inventory.service;
 
 import jakarta.annotation.Resource;
 import jakarta.ejb.EJB;
@@ -9,10 +9,10 @@ import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
 import jakarta.jms.ObjectMessage;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.productinventory.service.ProductInventoryService;
-import finance.tradista.core.transfer.messaging.ProductTransferEvent;
-import finance.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
+import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
+import org.eclipse.tradista.core.transfer.model.Transfer;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

@@ -1,10 +1,10 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
-import finance.tradista.core.workflow.model.Action;
-import finance.tradista.core.workflow.model.ConditionalAction;
-import finance.tradista.core.workflow.model.SimpleAction;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.model.WorkflowObject;
+import org.eclipse.tradista.core.workflow.model.Action;
+import org.eclipse.tradista.core.workflow.model.ConditionalAction;
+import org.eclipse.tradista.core.workflow.model.SimpleAction;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.model.WorkflowObject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -27,21 +27,21 @@ public final class ActionMapper {
 	private ActionMapper() {
 	}
 
-	public static Action map(finance.tradista.flow.model.Action<?> action) {
+	public static Action map(org.eclipse.tradista.flow.model.Action<?> action) {
 		Action actionResult = null;
 		if (action != null) {
-			if (action instanceof finance.tradista.flow.model.SimpleAction<?> simpleAction) {
+			if (action instanceof org.eclipse.tradista.flow.model.SimpleAction<?> simpleAction) {
 				actionResult = SimpleActionMapper.map(simpleAction);
 			} else {
-				actionResult = ConditionalActionMapper.map((finance.tradista.flow.model.ConditionalAction<?>) action);
+				actionResult = ConditionalActionMapper.map((org.eclipse.tradista.flow.model.ConditionalAction<?>) action);
 			}
 		}
 		return actionResult;
 	}
 
-	public static <X extends WorkflowObject> finance.tradista.flow.model.Action<X> map(Action action,
+	public static <X extends WorkflowObject> org.eclipse.tradista.flow.model.Action<X> map(Action action,
 			Workflow<X> workflow) {
-		finance.tradista.flow.model.Action<X> actionResult = null;
+		org.eclipse.tradista.flow.model.Action<X> actionResult = null;
 		if (action != null) {
 			if (action instanceof SimpleAction simpleAction) {
 				actionResult = SimpleActionMapper.map(simpleAction, workflow);

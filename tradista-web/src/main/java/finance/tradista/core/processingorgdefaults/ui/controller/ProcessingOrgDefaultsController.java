@@ -1,4 +1,4 @@
-package finance.tradista.core.processingorgdefaults.ui.controller;
+package org.eclipse.tradista.core.processingorgdefaults.ui.controller;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -8,14 +8,14 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
-import finance.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsBusinessDelegate;
-import finance.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
+import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsBusinessDelegate;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -76,7 +76,7 @@ public class ProcessingOrgDefaultsController implements Serializable {
 		Class<?> controllerClass = null;
 		try {
 			controllerClass = TradistaUtil.getClass(
-					"finance.tradista.security.repo.ui.controller.ProcessingOrgDefaultsCollateralManagementController");
+					"org.eclipse.tradista.security.repo.ui.controller.ProcessingOrgDefaultsCollateralManagementController");
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info
 		}

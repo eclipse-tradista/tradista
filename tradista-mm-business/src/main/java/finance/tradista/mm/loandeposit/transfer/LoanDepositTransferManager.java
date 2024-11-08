@@ -1,21 +1,21 @@
-package finance.tradista.mm.loandeposit.transfer;
+package org.eclipse.tradista.mm.loandeposit.transfer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.Transfer.Direction;
-import finance.tradista.core.transfer.model.TransferManager;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.core.transfer.service.FixingErrorBusinessDelegate;
-import finance.tradista.core.transfer.service.TransferBusinessDelegate;
-import finance.tradista.mm.loandeposit.messaging.LoanDepositTradeEvent;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanTrade;
-import finance.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.Transfer.Direction;
+import org.eclipse.tradista.core.transfer.model.TransferManager;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
+import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
+import org.eclipse.tradista.mm.loandeposit.messaging.LoanDepositTradeEvent;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
+import org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

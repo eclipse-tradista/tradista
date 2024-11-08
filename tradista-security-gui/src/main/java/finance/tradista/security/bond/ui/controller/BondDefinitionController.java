@@ -1,4 +1,4 @@
-package finance.tradista.security.bond.ui.controller;
+package org.eclipse.tradista.security.bond.ui.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,19 +8,19 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.ui.controller.TradistaController;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaAlert;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.exchange.model.Exchange;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.legalentity.service.LegalEntityBusinessDelegate;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.service.BondBusinessDelegate;
-import finance.tradista.security.bond.ui.view.BondCreatorDialog;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.ui.controller.TradistaController;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
+import org.eclipse.tradista.security.bond.ui.view.BondCreatorDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

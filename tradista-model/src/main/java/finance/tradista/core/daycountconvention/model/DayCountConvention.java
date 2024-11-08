@@ -1,7 +1,7 @@
-package finance.tradista.core.daycountconvention.model;
+package org.eclipse.tradista.core.daycountconvention.model;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

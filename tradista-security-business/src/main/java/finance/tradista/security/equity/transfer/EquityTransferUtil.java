@@ -1,19 +1,19 @@
-package finance.tradista.security.equity.transfer;
+package org.eclipse.tradista.security.equity.transfer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.Transfer.Direction;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.Transfer.Direction;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

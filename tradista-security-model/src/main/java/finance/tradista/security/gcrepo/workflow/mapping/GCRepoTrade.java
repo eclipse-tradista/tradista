@@ -1,8 +1,8 @@
-package finance.tradista.security.gcrepo.workflow.mapping;
+package org.eclipse.tradista.security.gcrepo.workflow.mapping;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.security.repo.workflow.mapping.RepoTrade;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -26,12 +26,12 @@ public class GCRepoTrade extends RepoTrade {
 		super(wkf);
 	}
 
-	public void setRepoTrade(finance.tradista.security.gcrepo.model.GCRepoTrade repoTrade) {
+	public void setRepoTrade(org.eclipse.tradista.security.gcrepo.model.GCRepoTrade repoTrade) {
 		this.repoTrade = repoTrade;
 	}
 
-	public finance.tradista.security.gcrepo.model.GCRepoTrade getOriginalRepoTrade() {
-		return (finance.tradista.security.gcrepo.model.GCRepoTrade) TradistaModelUtil.clone(repoTrade);
+	public org.eclipse.tradista.security.gcrepo.model.GCRepoTrade getOriginalRepoTrade() {
+		return (org.eclipse.tradista.security.gcrepo.model.GCRepoTrade) TradistaModelUtil.clone(repoTrade);
 	}
 
 }

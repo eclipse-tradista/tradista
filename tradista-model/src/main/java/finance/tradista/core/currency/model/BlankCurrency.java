@@ -1,4 +1,4 @@
-package finance.tradista.core.currency.model;
+package org.eclipse.tradista.core.currency.model;
 
 import org.apache.commons.lang3.StringUtils;
 

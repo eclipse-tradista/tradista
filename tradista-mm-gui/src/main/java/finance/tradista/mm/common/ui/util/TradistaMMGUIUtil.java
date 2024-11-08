@@ -1,6 +1,6 @@
-package finance.tradista.mm.common.ui.util;
+package org.eclipse.tradista.mm.common.ui.util;
 
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;

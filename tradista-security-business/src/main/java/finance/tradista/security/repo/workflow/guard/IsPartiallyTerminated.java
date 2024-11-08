@@ -1,9 +1,9 @@
-package finance.tradista.security.repo.workflow.guard;
+package org.eclipse.tradista.security.repo.workflow.guard;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.flow.model.Guard;
-import finance.tradista.security.repo.service.RepoTradeBusinessDelegate;
-import finance.tradista.security.repo.workflow.mapping.RepoTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.flow.model.Guard;
+import org.eclipse.tradista.security.repo.service.RepoTradeBusinessDelegate;
+import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 
@@ -35,7 +35,7 @@ public class IsPartiallyTerminated extends Guard<RepoTrade> {
 		repoTradeBusinessDelegate = new RepoTradeBusinessDelegate();
 		setPredicate(trade -> {
 			// Get the previous state of the trade
-			finance.tradista.security.repo.model.RepoTrade oldTrade = repoTradeBusinessDelegate
+			org.eclipse.tradista.security.repo.model.RepoTrade oldTrade = repoTradeBusinessDelegate
 					.getRepoTradeById(trade.getId());
 			// The guard returns true only if the notional has been reduced.
 			boolean isPartiallyTerminated = (trade.getCashAmount().compareTo(oldTrade.getAmount()) == -1);

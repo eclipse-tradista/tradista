@@ -1,4 +1,4 @@
-package finance.tradista.security.repo.persistence;
+package org.eclipse.tradista.security.repo.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.marketdata.persistence.QuoteSetSQL;
-import finance.tradista.security.gcrepo.persistence.AllocationConfigurationSQL;
-import finance.tradista.security.repo.model.AllocationConfiguration;
-import finance.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.marketdata.persistence.QuoteSetSQL;
+import org.eclipse.tradista.security.gcrepo.persistence.AllocationConfigurationSQL;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

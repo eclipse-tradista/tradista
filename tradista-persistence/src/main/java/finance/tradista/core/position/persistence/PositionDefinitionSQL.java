@@ -1,4 +1,4 @@
-package finance.tradista.core.position.persistence;
+package org.eclipse.tradista.core.position.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,15 +9,15 @@ import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.book.persistence.BookSQL;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.pricing.persistence.PricingParameterSQL;
-import finance.tradista.core.product.persistence.ProductSQL;
+import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.pricing.persistence.PricingParameterSQL;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

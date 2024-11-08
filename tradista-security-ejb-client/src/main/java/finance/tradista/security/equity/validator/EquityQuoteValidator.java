@@ -1,9 +1,9 @@
-package finance.tradista.security.equity.validator;
+package org.eclipse.tradista.security.equity.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.validator.DefaultQuoteValidator;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.service.EquityBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

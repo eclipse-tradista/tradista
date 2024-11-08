@@ -1,7 +1,7 @@
-package finance.tradista.security.specificrepo.messaging;
+package org.eclipse.tradista.security.specificrepo.messaging;
 
-import finance.tradista.core.trade.messaging.TradeEvent;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

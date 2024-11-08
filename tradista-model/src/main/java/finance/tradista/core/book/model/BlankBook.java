@@ -1,4 +1,4 @@
-package finance.tradista.core.book.model;
+package org.eclipse.tradista.core.book.model;
 
 import org.apache.commons.lang3.StringUtils;
 

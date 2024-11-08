@@ -1,12 +1,12 @@
-package finance.tradista.security.equity.service;
+package org.eclipse.tradista.security.equity.service;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.equity.model.Equity;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

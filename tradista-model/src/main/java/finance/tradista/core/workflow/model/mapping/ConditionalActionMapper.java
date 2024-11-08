@@ -1,11 +1,11 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import finance.tradista.core.workflow.model.ConditionalAction;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.model.WorkflowObject;
+import org.eclipse.tradista.core.workflow.model.ConditionalAction;
+import org.eclipse.tradista.flow.model.Workflow;
+import org.eclipse.tradista.flow.model.WorkflowObject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -28,7 +28,7 @@ public final class ConditionalActionMapper {
 	private ConditionalActionMapper() {
 	}
 
-	public static ConditionalAction map(finance.tradista.flow.model.ConditionalAction<?> action) {
+	public static ConditionalAction map(org.eclipse.tradista.flow.model.ConditionalAction<?> action) {
 		ConditionalAction actionResult = null;
 		if (action != null) {
 			actionResult = new ConditionalAction();
@@ -52,11 +52,11 @@ public final class ConditionalActionMapper {
 		return actionResult;
 	}
 
-	public static <X extends WorkflowObject> finance.tradista.flow.model.ConditionalAction<X> map(
+	public static <X extends WorkflowObject> org.eclipse.tradista.flow.model.ConditionalAction<X> map(
 			ConditionalAction action, Workflow<X> workflow) {
-		finance.tradista.flow.model.ConditionalAction<X> actionResult = null;
+		org.eclipse.tradista.flow.model.ConditionalAction<X> actionResult = null;
 		if (action != null) {
-			actionResult = new finance.tradista.flow.model.ConditionalAction<>();
+			actionResult = new org.eclipse.tradista.flow.model.ConditionalAction<>();
 			actionResult.setId(action.getId());
 			actionResult.setName(action.getName());
 			actionResult.setChoicePseudoStatus(StatusMapper.map(action.getChoicePseudoStatus(), workflow));

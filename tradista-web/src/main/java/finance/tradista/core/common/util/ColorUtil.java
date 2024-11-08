@@ -1,4 +1,4 @@
-package finance.tradista.core.common.util;
+package org.eclipse.tradista.core.common.util;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion

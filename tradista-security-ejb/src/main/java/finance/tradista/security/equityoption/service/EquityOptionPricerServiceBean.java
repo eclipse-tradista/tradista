@@ -1,6 +1,6 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
-import static finance.tradista.core.pricing.util.PricerUtil.cnd;
+import static org.eclipse.tradista.core.pricing.util.PricerUtil.cnd;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,33 +16,33 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.configuration.service.ConfigurationBusinessDelegate;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.model.CurrencyPair;
-import finance.tradista.core.inventory.model.ProductInventory;
-import finance.tradista.core.marketdata.model.FXCurve;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.model.QuoteType;
-import finance.tradista.core.marketdata.model.QuoteValue;
-import finance.tradista.core.pricing.exception.PricerException;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.pricer.PricingParameterModule;
-import finance.tradista.core.pricing.util.PricerUtil;
-import finance.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
-import finance.tradista.core.trade.model.VanillaOptionTrade;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.model.EquityTrade;
-import finance.tradista.security.equity.pricer.PricerEquityUtil;
-import finance.tradista.security.equity.service.EquityPricerBusinessDelegate;
-import finance.tradista.security.equity.service.EquityPricerService;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
-import finance.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
-import finance.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
-import finance.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule;
-import finance.tradista.security.equityoption.pricer.PricerEquityOptionUtil;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.model.CurrencyPair;
+import org.eclipse.tradista.core.inventory.model.ProductInventory;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.model.QuoteType;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.pricing.exception.PricerException;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
+import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.security.equity.pricer.PricerEquityUtil;
+import org.eclipse.tradista.security.equity.service.EquityPricerBusinessDelegate;
+import org.eclipse.tradista.security.equity.service.EquityPricerService;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
+import org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
+import org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule;
+import org.eclipse.tradista.security.equityoption.pricer.PricerEquityOptionUtil;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

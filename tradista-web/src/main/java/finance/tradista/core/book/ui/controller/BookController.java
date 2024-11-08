@@ -1,4 +1,4 @@
-package finance.tradista.core.book.ui.controller;
+package org.eclipse.tradista.core.book.ui.controller;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.ColorUtil;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ColorUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

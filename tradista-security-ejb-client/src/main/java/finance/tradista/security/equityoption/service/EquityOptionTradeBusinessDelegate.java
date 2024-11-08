@@ -1,17 +1,17 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import finance.tradista.core.calendar.model.Calendar;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.core.exchange.model.Exchange;
-import finance.tradista.security.equity.model.EquityTrade;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
-import finance.tradista.security.equityoption.validator.EquityOptionTradeValidator;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.security.equityoption.validator.EquityOptionTradeValidator;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

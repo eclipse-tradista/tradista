@@ -1,4 +1,4 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;

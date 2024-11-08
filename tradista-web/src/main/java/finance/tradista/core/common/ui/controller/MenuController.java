@@ -1,4 +1,4 @@
-package finance.tradista.core.common.ui.controller;
+package org.eclipse.tradista.core.common.ui.controller;
 
 import java.io.Serializable;
 

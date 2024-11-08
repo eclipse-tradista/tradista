@@ -1,4 +1,4 @@
-package finance.tradista.mm.loandeposit.transfer;
+package org.eclipse.tradista.mm.loandeposit.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,16 +6,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.interestpayment.model.InterestPayment;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanTrade;
-import finance.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
+import org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

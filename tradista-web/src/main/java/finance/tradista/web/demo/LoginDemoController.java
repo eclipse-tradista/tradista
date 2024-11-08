@@ -1,9 +1,9 @@
-package finance.tradista.web.demo;
+package org.eclipse.tradista.web.demo;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.user.service.UserBusinessDelegate;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;

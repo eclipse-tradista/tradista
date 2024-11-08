@@ -1,4 +1,4 @@
-package finance.tradista.web.demo;
+package org.eclipse.tradista.web.demo;
 
 import java.io.Serializable;
 import java.util.List;
@@ -7,14 +7,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.book.service.BookBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.trade.service.TradeBusinessDelegate;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

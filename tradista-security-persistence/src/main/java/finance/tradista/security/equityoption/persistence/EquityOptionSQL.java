@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.persistence;
+package org.eclipse.tradista.security.equityoption.persistence;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -11,11 +11,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.security.equity.persistence.EquitySQL;
-import finance.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.security.equity.persistence.EquitySQL;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.core.batch.persistence;
+package org.eclipse.tradista.core.batch.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,12 +14,12 @@ import java.util.Set;
 import org.quartz.JobKey;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 
-import finance.tradista.core.batch.model.TradistaJobExecution;
-import finance.tradista.core.batch.model.TradistaJobInstance;
-import finance.tradista.core.batch.service.BatchBusinessDelegate;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
+import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
+import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

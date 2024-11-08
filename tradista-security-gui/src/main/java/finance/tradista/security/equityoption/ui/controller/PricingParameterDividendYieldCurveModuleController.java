@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.ui.controller;
+package org.eclipse.tradista.security.equityoption.ui.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,21 +8,21 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.ui.controller.TradistaControllerAdapter;
-import finance.tradista.core.common.ui.util.TradistaGUIUtil;
-import finance.tradista.core.common.ui.view.TradistaAlert;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
-import finance.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.pricer.PricingParameterModule;
-import finance.tradista.core.pricing.ui.controller.PricingParameterModuleController;
-import finance.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.ui.view.TradistaEquityComboBox;
-import finance.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
+import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
+import org.eclipse.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.ui.view.TradistaEquityComboBox;
+import org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;

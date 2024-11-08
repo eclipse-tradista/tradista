@@ -1,12 +1,12 @@
-package finance.tradista.security.equityoption.service;
+package org.eclipse.tradista.security.equityoption.service;
 
 import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.equityoption.model.EquityOptionContractSpecification;
-import finance.tradista.security.equityoption.persistence.EquityOptionContractSpecificationSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
+import org.eclipse.tradista.security.equityoption.persistence.EquityOptionContractSpecificationSQL;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;

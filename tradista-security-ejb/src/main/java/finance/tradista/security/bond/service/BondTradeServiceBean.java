@@ -1,4 +1,4 @@
-package finance.tradista.security.bond.service;
+package org.eclipse.tradista.security.bond.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,10 +14,10 @@ import jakarta.jms.JMSContext;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
-import finance.tradista.security.bond.messaging.BondTradeEvent;
-import finance.tradista.security.bond.model.BondTrade;
-import finance.tradista.security.bond.persistence.BondTradeSQL;
+import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.security.bond.messaging.BondTradeEvent;
+import org.eclipse.tradista.security.bond.model.BondTrade;
+import org.eclipse.tradista.security.bond.persistence.BondTradeSQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

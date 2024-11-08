@@ -1,14 +1,14 @@
-package finance.tradista.security.equityoption.model;
+package org.eclipse.tradista.security.equityoption.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.marketdata.model.SurfacePoint;
-import finance.tradista.core.marketdata.model.VolatilitySurface;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

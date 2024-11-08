@@ -1,4 +1,4 @@
-package finance.tradista.security.common.service;
+package org.eclipse.tradista.security.common.service;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -16,8 +16,8 @@ package finance.tradista.security.common.service;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
 
 public class SecurityInformationBusinessDelegate {
 

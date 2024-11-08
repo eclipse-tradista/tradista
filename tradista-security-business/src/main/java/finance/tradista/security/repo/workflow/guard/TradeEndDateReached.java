@@ -1,10 +1,10 @@
-package finance.tradista.security.repo.workflow.guard;
+package org.eclipse.tradista.security.repo.workflow.guard;
 
 import java.time.LocalDate;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.flow.model.Guard;
-import finance.tradista.security.repo.workflow.mapping.RepoTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.flow.model.Guard;
+import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 import jakarta.persistence.Entity;
 
 /********************************************************************************

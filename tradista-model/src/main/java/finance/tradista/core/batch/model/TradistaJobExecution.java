@@ -1,13 +1,13 @@
-package finance.tradista.core.batch.model;
+package org.eclipse.tradista.core.batch.model;
 
 import java.time.LocalDateTime;
 
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.AbstractTrigger;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

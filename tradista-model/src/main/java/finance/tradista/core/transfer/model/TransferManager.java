@@ -1,7 +1,7 @@
-package finance.tradista.core.transfer.model;
+package org.eclipse.tradista.core.transfer.model;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

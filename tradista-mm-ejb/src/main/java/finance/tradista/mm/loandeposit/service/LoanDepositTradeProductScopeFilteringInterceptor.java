@@ -1,7 +1,7 @@
-package finance.tradista.mm.loandeposit.service;
+package org.eclipse.tradista.mm.loandeposit.service;
 
-import finance.tradista.core.trade.service.ProductScopeFilteringInterceptor;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.core.trade.service.ProductScopeFilteringInterceptor;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 
 /********************************************************************************
  * Copyright (c) 2021 Olivier Asuncion

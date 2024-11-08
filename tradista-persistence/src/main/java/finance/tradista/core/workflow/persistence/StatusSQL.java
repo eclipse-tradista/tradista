@@ -1,13 +1,13 @@
-package finance.tradista.core.workflow.persistence;
+package org.eclipse.tradista.core.workflow.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.workflow.model.Status;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.workflow.model.Status;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.model;
+package org.eclipse.tradista.core.marketdata.model;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

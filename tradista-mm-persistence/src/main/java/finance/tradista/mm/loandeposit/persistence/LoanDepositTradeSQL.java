@@ -1,4 +1,4 @@
-package finance.tradista.mm.loandeposit.persistence;
+package org.eclipse.tradista.mm.loandeposit.persistence;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -8,21 +8,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 
-import finance.tradista.core.book.persistence.BookSQL;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.daycountconvention.persistence.DayCountConventionSQL;
-import finance.tradista.core.index.persistence.IndexSQL;
-import finance.tradista.core.interestpayment.model.InterestPayment;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.trade.persistence.TradeSQL;
-import finance.tradista.mm.loandeposit.model.DepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
-import finance.tradista.mm.loandeposit.model.LoanTrade;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
+import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.daycountconvention.persistence.DayCountConventionSQL;
+import org.eclipse.tradista.core.index.persistence.IndexSQL;
+import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

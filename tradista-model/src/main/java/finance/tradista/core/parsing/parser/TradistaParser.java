@@ -1,10 +1,10 @@
-package finance.tradista.core.parsing.parser;
+package org.eclipse.tradista.core.parsing.parser;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

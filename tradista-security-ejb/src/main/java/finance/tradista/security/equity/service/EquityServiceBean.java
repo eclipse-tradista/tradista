@@ -1,4 +1,4 @@
-package finance.tradista.security.equity.service;
+package org.eclipse.tradista.security.equity.service;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -10,11 +10,11 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.service.BondService;
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.persistence.EquitySQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.service.BondService;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.persistence.EquitySQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

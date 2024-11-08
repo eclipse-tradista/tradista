@@ -1,4 +1,4 @@
-package finance.tradista.core.transfer.service;
+package org.eclipse.tradista.core.transfer.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,11 +11,12 @@ import jakarta.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.error.model.Error.Status;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.FixingError;
-import finance.tradista.core.transfer.persistence.FixingErrorSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.FixingError;
+import org.eclipse.tradista.core.transfer.persistence.FixingErrorSQL;
+import org.eclipse.tradista.core.transfer.service.FixingErrorFilteringInterceptor;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

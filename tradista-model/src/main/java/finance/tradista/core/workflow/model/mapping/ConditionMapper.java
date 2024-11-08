@@ -1,7 +1,7 @@
-package finance.tradista.core.workflow.model.mapping;
+package org.eclipse.tradista.core.workflow.model.mapping;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.workflow.model.Condition;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.workflow.model.Condition;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -24,8 +24,8 @@ public final class ConditionMapper {
 	private ConditionMapper() {
 	}
 
-	public static <X extends finance.tradista.flow.model.WorkflowObject> Condition map(
-			finance.tradista.flow.model.Condition<X> condition) {
+	public static <X extends org.eclipse.tradista.flow.model.WorkflowObject> Condition map(
+			org.eclipse.tradista.flow.model.Condition<X> condition) {
 		Condition conditionResult = null;
 		if (condition != null) {
 			conditionResult = new Condition();
@@ -37,11 +37,11 @@ public final class ConditionMapper {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <X extends finance.tradista.flow.model.WorkflowObject> finance.tradista.flow.model.Condition<X> map(
+	public static <X extends org.eclipse.tradista.flow.model.WorkflowObject> org.eclipse.tradista.flow.model.Condition<X> map(
 			Condition condition) {
-		finance.tradista.flow.model.Condition<X> conditionResult = null;
+		org.eclipse.tradista.flow.model.Condition<X> conditionResult = null;
 		if (condition != null) {
-			conditionResult = TradistaModelUtil.getInstance(finance.tradista.flow.model.Condition.class,
+			conditionResult = TradistaModelUtil.getInstance(org.eclipse.tradista.flow.model.Condition.class,
 					condition.getLongName());
 			conditionResult.setId(condition.getId());
 		}

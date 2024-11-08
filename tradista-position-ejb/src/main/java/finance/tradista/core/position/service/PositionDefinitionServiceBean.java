@@ -1,12 +1,15 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import java.util.Set;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.position.model.PositionDefinition;
-import finance.tradista.core.position.persistence.PositionDefinitionSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.persistence.PositionDefinitionSQL;
+import org.eclipse.tradista.core.position.service.PositionDefinitionFilteringInterceptor;
+import org.eclipse.tradista.core.position.service.PositionDefinitionProductScopeFilteringInterceptor;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;

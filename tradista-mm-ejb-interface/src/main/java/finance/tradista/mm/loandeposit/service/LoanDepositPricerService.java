@@ -1,4 +1,4 @@
-package finance.tradista.mm.loandeposit.service;
+package org.eclipse.tradista.mm.loandeposit.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,11 +6,11 @@ import java.util.List;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -32,7 +32,7 @@ import finance.tradista.mm.loandeposit.model.LoanDepositTrade;
 public interface LoanDepositPricerService {
 
 	BigDecimal npvDiscountedCashFlow(PricingParameter params, LoanDepositTrade trade,
-			finance.tradista.core.currency.model.Currency currency, LocalDate pricingDate)
+			org.eclipse.tradista.core.currency.model.Currency currency, LocalDate pricingDate)
 			throws TradistaBusinessException;
 
 	BigDecimal unrealizedPnlDiscountedCashFlow(PricingParameter params, LoanDepositTrade trade, Currency currency,

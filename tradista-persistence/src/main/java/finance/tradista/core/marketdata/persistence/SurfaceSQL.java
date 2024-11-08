@@ -1,13 +1,13 @@
-package finance.tradista.core.marketdata.persistence;
+package org.eclipse.tradista.core.marketdata.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.marketdata.model.VolatilitySurface;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

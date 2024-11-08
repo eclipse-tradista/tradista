@@ -1,9 +1,9 @@
-package finance.tradista.security.equityoption.pricer;
+package org.eclipse.tradista.security.equityoption.pricer;
 
 import java.math.BigDecimal;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

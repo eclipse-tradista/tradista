@@ -1,4 +1,4 @@
-package finance.tradista.core.pricing.persistence;
+package org.eclipse.tradista.core.pricing.persistence;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,23 +13,23 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.currency.model.CurrencyPair;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.index.model.Index;
-import finance.tradista.core.index.persistence.IndexSQL;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.marketdata.model.FXCurve;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.marketdata.persistence.FXCurveSQL;
-import finance.tradista.core.marketdata.persistence.InterestRateCurveSQL;
-import finance.tradista.core.marketdata.persistence.QuoteSetSQL;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.pricer.PricingParameterModule;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.currency.model.CurrencyPair;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.index.model.Index;
+import org.eclipse.tradista.core.index.persistence.IndexSQL;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.persistence.FXCurveSQL;
+import org.eclipse.tradista.core.marketdata.persistence.InterestRateCurveSQL;
+import org.eclipse.tradista.core.marketdata.persistence.QuoteSetSQL;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -56,37 +56,37 @@ public class PricingParameterSQL {
 
 		try {
 			daoClass = TradistaUtil.getClass(
-					"finance.tradista.security.equityoption.persistence.PricingParameterDividendYieldCurveSQL");
-			daoClasses.put("finance.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule",
+					"org.eclipse.tradista.security.equityoption.persistence.PricingParameterDividendYieldCurveSQL");
+			daoClasses.put("org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule",
 					daoClass);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info
 		}
 		try {
 			daoClass = TradistaUtil
-					.getClass("finance.tradista.fx.common.persistence.PricingParameterUnrealizedPnlCalculationSQL");
-			daoClasses.put("finance.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule", daoClass);
+					.getClass("org.eclipse.tradista.fx.common.persistence.PricingParameterUnrealizedPnlCalculationSQL");
+			daoClasses.put("org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule", daoClass);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info
 		}
 		try {
 			daoClass = TradistaUtil
-					.getClass("finance.tradista.fx.fxoption.persistence.PricingParameterVolatilitySurfaceSQL");
-			daoClasses.put("finance.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule", daoClass);
+					.getClass("org.eclipse.tradista.fx.fxoption.persistence.PricingParameterVolatilitySurfaceSQL");
+			daoClasses.put("org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule", daoClass);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info
 		}
 		try {
 			daoClass = TradistaUtil
-					.getClass("finance.tradista.ir.irswapoption.persistence.PricingParameterVolatilitySurfaceSQL");
-			daoClasses.put("finance.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule", daoClass);
+					.getClass("org.eclipse.tradista.ir.irswapoption.persistence.PricingParameterVolatilitySurfaceSQL");
+			daoClasses.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule", daoClass);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info
 		}
 		try {
 			daoClass = TradistaUtil.getClass(
-					"finance.tradista.security.equityoption.persistence.PricingParameterVolatilitySurfaceSQL");
-			daoClasses.put("finance.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule",
+					"org.eclipse.tradista.security.equityoption.persistence.PricingParameterVolatilitySurfaceSQL");
+			daoClasses.put("org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule",
 					daoClass);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info

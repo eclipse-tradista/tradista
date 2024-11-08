@@ -1,4 +1,4 @@
-package finance.tradista.security.repo.ui.controller;
+package org.eclipse.tradista.security.repo.ui.controller;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

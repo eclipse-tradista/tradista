@@ -1,8 +1,8 @@
-package finance.tradista.security.repo.model;
+package org.eclipse.tradista.security.repo.model;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.marketdata.model.QuoteSet;
-import finance.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
+import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

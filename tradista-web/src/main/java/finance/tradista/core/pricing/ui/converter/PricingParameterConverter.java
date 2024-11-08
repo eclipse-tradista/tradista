@@ -1,12 +1,12 @@
-package finance.tradista.core.pricing.ui.converter;
+package org.eclipse.tradista.core.pricing.ui.converter;
 
 import java.io.Serializable;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.ClientUtil;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

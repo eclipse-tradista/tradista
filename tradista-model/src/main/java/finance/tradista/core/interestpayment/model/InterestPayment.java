@@ -1,4 +1,4 @@
-package finance.tradista.core.interestpayment.model;
+package org.eclipse.tradista.core.interestpayment.model;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -3,18 +3,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>finance.tradista.app</groupId>
+		<groupId>org.eclipse.tradista.app</groupId>
 		<artifactId>parent</artifactId>
 		<version>${parent.version}</version>
 		<relativePath>../tradista-parent</relativePath>
 	</parent>
-	<groupId>finance.tradista.core</groupId>
+	<groupId>org.eclipse.tradista.core</groupId>
 	<artifactId>marketdata-ejb</artifactId>
 	<version>${marketdata-ejb.version}</version>
 	<packaging>ejb</packaging>
 	<dependencies>
 		<dependency>
-			<groupId>finance.tradista.core</groupId>
+			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-business</artifactId>
 			<version>${core-business.version}</version>
 		</dependency>
@@ -25,17 +25,17 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.bloomberg</groupId>
+			<groupId>org.eclipse.tradista.bloomberg</groupId>
 			<artifactId>bloomberg-interface</artifactId>
 			<version>${bloomberg-interface.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.quandl</groupId>
+			<groupId>org.eclipse.tradista.quandl</groupId>
 			<artifactId>quandl-interface</artifactId>
 			<version>${quandl-interface.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>finance.tradista.core</groupId>
+			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-persistence</artifactId>
 			<version>${core-persistence.version}</version>
 		</dependency>

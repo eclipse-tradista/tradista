@@ -1,4 +1,4 @@
-package finance.tradista.security.bond.transfer;
+package org.eclipse.tradista.security.bond.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -6,14 +6,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.util.DateUtil;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.core.transfer.model.CashTransfer;
-import finance.tradista.core.transfer.model.Transfer;
-import finance.tradista.core.transfer.model.TransferPurpose;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.model.BondTrade;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.model.BondTrade;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

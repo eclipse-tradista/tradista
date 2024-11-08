@@ -1,4 +1,4 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

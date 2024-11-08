@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.marketdata.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,9 +9,9 @@ import java.util.Set;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.Curve;
-import finance.tradista.core.marketdata.model.RatePoint;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.Curve;
+import org.eclipse.tradista.core.marketdata.model.RatePoint;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

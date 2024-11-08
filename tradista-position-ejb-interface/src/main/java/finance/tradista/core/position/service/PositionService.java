@@ -1,4 +1,4 @@
-package finance.tradista.core.position.service;
+package org.eclipse.tradista.core.position.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -6,8 +6,8 @@ import java.util.List;
 
 import jakarta.ejb.Remote;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.position.model.Position;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.position.model.Position;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion

@@ -1,7 +1,7 @@
-package finance.tradista.mm.common.service;
+package org.eclipse.tradista.mm.common.service;
 
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

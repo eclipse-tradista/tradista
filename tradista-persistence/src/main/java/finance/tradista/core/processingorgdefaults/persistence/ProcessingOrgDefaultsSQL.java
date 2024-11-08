@@ -1,4 +1,4 @@
-package finance.tradista.core.processingorgdefaults.persistence;
+package org.eclipse.tradista.core.processingorgdefaults.persistence;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
-import finance.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
+import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -39,8 +39,8 @@ public class ProcessingOrgDefaultsSQL {
 		Class<?> daoClass = null;
 		try {
 			daoClass = TradistaUtil.getClass(
-					"finance.tradista.security.repo.persistence.ProcessingOrgDefaultsCollateralManagementSQL");
-			daoClasses.put("finance.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule",
+					"org.eclipse.tradista.security.repo.persistence.ProcessingOrgDefaultsCollateralManagementSQL");
+			daoClasses.put("org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule",
 					daoClass);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info

@@ -1,4 +1,4 @@
-package finance.tradista.security.specificrepo.service;
+package org.eclipse.tradista.security.specificrepo.service;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -6,18 +6,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.servicelocator.TradistaServiceLocator;
-import finance.tradista.core.common.util.SecurityUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.legalentity.model.LegalEntity;
-import finance.tradista.core.marketdata.model.InterestRateCurve;
-import finance.tradista.core.pricing.pricer.PricingParameter;
-import finance.tradista.security.common.model.Security;
-import finance.tradista.security.specificrepo.model.SpecificRepoTrade;
-import finance.tradista.security.specificrepo.validator.SpecificRepoTradeValidator;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.eclipse.tradista.security.specificrepo.validator.SpecificRepoTradeValidator;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

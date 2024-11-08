@@ -1,4 +1,4 @@
-package finance.tradista.core.currency.persistence;
+package org.eclipse.tradista.core.currency.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,10 +9,10 @@ import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
-import finance.tradista.core.calendar.persistence.CalendarSQL;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.calendar.persistence.CalendarSQL;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.currency.model.Currency;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

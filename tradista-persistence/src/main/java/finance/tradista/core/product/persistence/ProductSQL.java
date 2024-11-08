@@ -1,4 +1,4 @@
-package finance.tradista.core.product.persistence;
+package org.eclipse.tradista.core.product.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.common.util.TradistaUtil;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -64,7 +64,7 @@ public class ProductSQL {
 			for (String prod : products) {
 				try {
 					Product product = TradistaUtil.callMethod(
-							"finance.tradista." + productBusinessDelegate.getProductFamily(prod) + "."
+							"org.eclipse.tradista." + productBusinessDelegate.getProductFamily(prod) + "."
 									+ prod.toLowerCase() + ".persistence." + prod + "SQL",
 							Product.class, "get" + prod + "ById", id);
 					if (product != null) {
@@ -95,7 +95,7 @@ public class ProductSQL {
 			}
 			try {
 				products = TradistaUtil.callMethod(
-						"finance.tradista." + new ProductBusinessDelegate().getProductFamily(productType) + "."
+						"org.eclipse.tradista." + new ProductBusinessDelegate().getProductFamily(productType) + "."
 								+ productType.toLowerCase() + ".persistence." + productType + "SQL",
 						Set.class, "getAll" + productNameInMethod);
 			} catch (TradistaTechnicalException tte) {

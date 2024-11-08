@@ -1,4 +1,4 @@
-package finance.tradista.security.equity.persistence;
+package org.eclipse.tradista.security.equity.persistence;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,14 +11,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import finance.tradista.core.book.persistence.BookSQL;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.currency.persistence.CurrencySQL;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.core.trade.persistence.TradeSQL;
-import finance.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.security.equity.model.EquityTrade;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

@@ -1,9 +1,9 @@
-package finance.tradista.core.workflow.model;
+package org.eclipse.tradista.core.workflow.model;
 
 import java.util.Objects;
 import java.util.Set;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

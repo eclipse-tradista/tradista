@@ -1,13 +1,13 @@
-package finance.tradista.security.equityoption.validator;
+package org.eclipse.tradista.security.equityoption.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.core.trade.model.Trade;
-import finance.tradista.core.trade.model.VanillaOptionTrade.Style;
-import finance.tradista.core.trade.validator.DefaultTradeValidator;
-import finance.tradista.security.equityoption.model.EquityOptionTrade;
-import finance.tradista.security.equityoption.service.EquityOptionTradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.model.VanillaOptionTrade.Style;
+import org.eclipse.tradista.core.trade.validator.DefaultTradeValidator;
+import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
+import org.eclipse.tradista.security.equityoption.service.EquityOptionTradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

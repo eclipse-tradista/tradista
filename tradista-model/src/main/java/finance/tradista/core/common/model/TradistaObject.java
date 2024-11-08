@@ -1,4 +1,4 @@
-package finance.tradista.core.common.model;
+package org.eclipse.tradista.core.common.model;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion
@@ -56,7 +56,7 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 
 	/**
 	 * hashCode is calculated using the object composite key (@see
-	 * finance.tradista.core.common.model.Id). If the object doesn't have a
+	 * org.eclipse.tradista.core.common.model.Id). If the object doesn't have a
 	 * composite key, id will be used if positive, otherwise Object's hashCode
 	 * implementation is used.
 	 */
@@ -78,7 +78,7 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 	 * positive (this means that they both refer to the same object that have been
 	 * persisted in Tradista). If they don't have both positive ids, they are equal
 	 * if they have the same composite key (@see
-	 * finance.tradista.core.common.model.Id). In all other cases, they are
+	 * org.eclipse.tradista.core.common.model.Id). In all other cases, they are
 	 * different.
 	 */
 	@Override

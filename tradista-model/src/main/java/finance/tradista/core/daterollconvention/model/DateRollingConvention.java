@@ -1,4 +1,4 @@
-package finance.tradista.core.daterollconvention.model;
+package org.eclipse.tradista.core.daterollconvention.model;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion

@@ -1,17 +1,17 @@
-package finance.tradista.security.equityoption.model;
+package org.eclipse.tradista.security.equityoption.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.exchange.model.Exchange;
-import finance.tradista.core.product.model.Product;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.core.trade.model.OptionTrade.SettlementType;
-import finance.tradista.core.trade.model.VanillaOptionTrade;
-import finance.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.core.trade.model.OptionTrade.SettlementType;
+import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.security.equity.model.Equity;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

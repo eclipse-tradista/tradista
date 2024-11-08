@@ -1,14 +1,14 @@
-package finance.tradista.core.marketdata.bootstraphandler;
+package org.eclipse.tradista.core.marketdata.bootstraphandler;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import finance.tradista.core.cashflow.model.CashFlow;
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.model.Instrument;
-import finance.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.model.Instrument;
+import org.eclipse.tradista.core.tenor.model.Tenor;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

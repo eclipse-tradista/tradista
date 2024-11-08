@@ -1,4 +1,4 @@
-package finance.tradista.security.gcrepo.persistence;
+package org.eclipse.tradista.security.gcrepo.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,12 +10,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import finance.tradista.core.book.model.Book;
-import finance.tradista.core.book.persistence.BookSQL;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.persistence.db.TradistaDB;
-import finance.tradista.core.legalentity.persistence.LegalEntitySQL;
-import finance.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

@@ -1,4 +1,4 @@
-package finance.tradista.security.equityoption.validator;
+package org.eclipse.tradista.security.equityoption.validator;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.validator.DefaultQuoteValidator;
-import finance.tradista.core.trade.model.OptionTrade;
-import finance.tradista.security.equityoption.model.EquityOption;
-import finance.tradista.security.equityoption.service.EquityOptionBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
+import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
+import org.eclipse.tradista.security.equityoption.service.EquityOptionBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -1,4 +1,6 @@
-package finance.tradista.core.common.util;
+package org.eclipse.tradista.core.common.util;
+
+import org.eclipse.tradista.core.common.util.MathProperties;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

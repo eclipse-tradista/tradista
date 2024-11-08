@@ -1,9 +1,9 @@
-package finance.tradista.security.bond.validator;
+package org.eclipse.tradista.security.bond.validator;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.core.marketdata.validator.DefaultQuoteValidator;
-import finance.tradista.security.bond.model.Bond;
-import finance.tradista.security.bond.service.BondBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
+import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

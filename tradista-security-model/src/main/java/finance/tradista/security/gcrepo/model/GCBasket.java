@@ -1,11 +1,11 @@
-package finance.tradista.security.gcrepo.model;
+package org.eclipse.tradista.security.gcrepo.model;
 
 import java.util.Set;
 
-import finance.tradista.core.common.model.Id;
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.common.model.TradistaObject;
-import finance.tradista.security.common.model.Security;
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.security.common.model.Security;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

@@ -1,9 +1,9 @@
-package finance.tradista.security.equity.ui.view;
+package org.eclipse.tradista.security.equity.ui.view;
 
 import java.util.Set;
 
-import finance.tradista.security.equity.model.Equity;
-import finance.tradista.security.equity.service.EquityBusinessDelegate;
+import org.eclipse.tradista.security.equity.model.Equity;
+import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 

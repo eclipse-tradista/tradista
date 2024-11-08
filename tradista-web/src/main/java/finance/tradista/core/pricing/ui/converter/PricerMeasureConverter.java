@@ -1,11 +1,11 @@
-package finance.tradista.core.pricing.ui.converter;
+package org.eclipse.tradista.core.pricing.ui.converter;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
-import finance.tradista.core.pricing.pricer.Pricer;
-import finance.tradista.core.pricing.pricer.PricerMeasure;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;

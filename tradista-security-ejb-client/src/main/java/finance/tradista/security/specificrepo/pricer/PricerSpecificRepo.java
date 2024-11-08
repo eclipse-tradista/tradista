@@ -1,7 +1,7 @@
-package finance.tradista.security.specificrepo.pricer;
+package org.eclipse.tradista.security.specificrepo.pricer;
 
-import finance.tradista.core.pricing.pricer.Parameterizable;
-import finance.tradista.core.pricing.pricer.Pricer;
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

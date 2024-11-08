@@ -1,4 +1,4 @@
-package finance.tradista.core.marketdata.quandl;
+package org.eclipse.tradista.core.marketdata.quandl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,10 +17,10 @@ import com.jimmoores.quandl.Row;
 import com.jimmoores.quandl.TabularResult;
 import com.jimmoores.quandl.util.QuandlRuntimeException;
 
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.marketdata.model.FeedConfig;
-import finance.tradista.core.marketdata.model.Provider;
-import finance.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.Provider;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion

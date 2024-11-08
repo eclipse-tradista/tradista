@@ -11,11 +11,11 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
-<?import finance.tradista.core.index.ui.view.TradistaIndexComboBox?>
+<?import org.eclipse.tradista.core.index.ui.view.TradistaIndexComboBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.141"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.ir.irswapoption.ui.controller.PricingParameterVolatilitySurfaceModuleController">
+	fx:controller="org.eclipse.tradista.ir.irswapoption.ui.controller.PricingParameterVolatilitySurfaceModuleController">
 	<GridPane vgap="10.0" hgap="10.0" maxHeight="-Infinity"
 		maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 		<columnConstraints>

@@ -1,12 +1,12 @@
-package finance.tradista.security.equity.model;
+package org.eclipse.tradista.security.equity.model;
 
 import java.time.LocalDate;
 
-import finance.tradista.core.common.model.TradistaModelUtil;
-import finance.tradista.core.currency.model.Currency;
-import finance.tradista.core.exchange.model.Exchange;
-import finance.tradista.core.tenor.model.Tenor;
-import finance.tradista.security.common.model.Security;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.security.common.model.Security;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

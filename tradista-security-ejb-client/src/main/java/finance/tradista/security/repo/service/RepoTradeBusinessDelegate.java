@@ -1,9 +1,9 @@
-package finance.tradista.security.repo.service;
+package org.eclipse.tradista.security.repo.service;
 
-import finance.tradista.core.common.exception.TradistaBusinessException;
-import finance.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
-import finance.tradista.security.repo.model.RepoTrade;
-import finance.tradista.security.specificrepo.service.SpecificRepoTradeBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
+import org.eclipse.tradista.security.repo.model.RepoTrade;
+import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

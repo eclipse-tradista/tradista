@@ -39,8 +39,8 @@ import asp4j.mapping.object.atom.AtomMapping;
 import asp4j.mapping.object.constant.ConstantEnumMapping;
 import asp4j.mapping.object.constant.ConstantMapping;
 import asp4j.mapping.object.term.TermMapping;
-import finance.tradista.core.common.exception.TradistaTechnicalException;
-import finance.tradista.core.common.util.TradistaUtil;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 
 /*Copyright (c) 2013, Harald Beck
 All rights reserved.

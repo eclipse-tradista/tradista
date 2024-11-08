@@ -1,4 +1,4 @@
-package finance.tradista.core.common.model;
+package org.eclipse.tradista.core.common.model;
 
 import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
  * key. A TradistaObject's composite key is a business key identifying the
  * object in Tradista.
  * 
- * @see finance.tradista.core.common.model.TradistaObject
+ * @see org.eclipse.tradista.core.common.model.TradistaObject
  * 
  * @author OA
  *
