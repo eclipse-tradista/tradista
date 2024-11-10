@@ -36,6 +36,7 @@ import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.service.FXOptionTradeBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

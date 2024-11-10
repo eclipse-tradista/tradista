@@ -1,10 +1,5 @@
 package asp4j.solver;
 
-import asp4j.lang.AnswerSet;
-import asp4j.lang.AnswerSetImpl;
-import asp4j.lang.Atom;
-import asp4j.util.ParseUtils;
-import asp4j.program.Program;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -15,7 +10,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.io.FileUtils;
+
+import asp4j.lang.AnswerSet;
+import asp4j.lang.AnswerSetImpl;
+import asp4j.lang.Atom;
+import asp4j.program.Program;
+import asp4j.util.ParseUtils;
 
 /*Copyright (c) 2013, Harald Beck
 All rights reserved.

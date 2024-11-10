@@ -12,7 +12,6 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
-import org.eclipse.tradista.core.trade.ui.controller.TradeProperty;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

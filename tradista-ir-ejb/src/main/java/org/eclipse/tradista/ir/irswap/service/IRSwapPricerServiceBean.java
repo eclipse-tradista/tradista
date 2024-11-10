@@ -4,12 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
-import jakarta.annotation.security.PermitAll;
-import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
-
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -21,7 +15,11 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
 import org.eclipse.tradista.ir.irswap.pricer.PricerIRSwapUtil;
-import org.eclipse.tradista.ir.irswap.service.IRSwapPricerService;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

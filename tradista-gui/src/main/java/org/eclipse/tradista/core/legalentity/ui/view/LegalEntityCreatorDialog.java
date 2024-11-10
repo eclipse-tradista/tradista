@@ -3,6 +3,7 @@ package org.eclipse.tradista.core.legalentity.ui.view;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;

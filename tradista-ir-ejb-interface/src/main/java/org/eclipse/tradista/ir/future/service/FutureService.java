@@ -2,10 +2,10 @@ package org.eclipse.tradista.ir.future.service;
 
 import java.util.Set;
 
-import jakarta.ejb.Remote;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.ir.future.model.Future;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

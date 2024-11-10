@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.configuration.service.ConfigurationService;
@@ -19,7 +18,7 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
-import org.eclipse.tradista.fx.fx.service.FXPricerService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;

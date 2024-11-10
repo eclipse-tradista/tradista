@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.csv.CSVRecord;
-
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.parsing.parser.TradistaObjectParser;
 

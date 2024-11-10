@@ -2,12 +2,11 @@ package org.eclipse.tradista.core.book.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.persistence.BookSQL;
-import org.eclipse.tradista.core.book.service.BookFilteringInterceptor;
-import org.eclipse.tradista.core.book.service.BookService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;

@@ -7,7 +7,6 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
-import org.eclipse.tradista.ir.future.service.FutureTradeService;
 import org.eclipse.tradista.ir.future.validator.FutureTradeValidator;
 
 /********************************************************************************

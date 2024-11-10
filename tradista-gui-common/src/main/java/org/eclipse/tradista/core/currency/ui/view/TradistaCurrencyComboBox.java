@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 

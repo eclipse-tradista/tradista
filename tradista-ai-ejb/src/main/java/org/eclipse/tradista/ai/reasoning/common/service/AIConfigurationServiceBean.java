@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.reasoning.common.util.TradistaAIProperties;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Singleton;

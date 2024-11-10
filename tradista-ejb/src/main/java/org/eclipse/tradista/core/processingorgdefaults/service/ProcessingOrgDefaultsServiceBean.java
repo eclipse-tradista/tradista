@@ -1,10 +1,8 @@
 package org.eclipse.tradista.core.processingorgdefaults.service;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.persistence.ProcessingOrgDefaultsSQL;
-import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsFilteringInterceptor;
-import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

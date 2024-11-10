@@ -2,10 +2,9 @@ package org.eclipse.tradista.core.error.service;
 
 import java.time.LocalDate;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.error.persistence.ErrorSQL;
-import org.eclipse.tradista.core.error.service.ErrorService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

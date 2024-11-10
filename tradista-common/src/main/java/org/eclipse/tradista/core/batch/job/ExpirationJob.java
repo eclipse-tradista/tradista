@@ -1,11 +1,10 @@
 package org.eclipse.tradista.core.batch.job;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

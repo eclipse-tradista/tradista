@@ -3,12 +3,12 @@ package org.eclipse.tradista.core.marketdata.bloombergapi;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
-
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

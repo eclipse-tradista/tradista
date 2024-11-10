@@ -2,12 +2,10 @@ package org.eclipse.tradista.core.user.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.persistence.UserSQL;
-import org.eclipse.tradista.core.user.service.UserFilteringInterceptor;
-import org.eclipse.tradista.core.user.service.UserService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

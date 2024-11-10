@@ -10,7 +10,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
-import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsService;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

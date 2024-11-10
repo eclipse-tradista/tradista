@@ -9,7 +9,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
-import org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeService;
 import org.eclipse.tradista.ir.ircapfloorcollar.validator.IRCapFloorCollarTradeValidator;
 import org.eclipse.tradista.ir.irforward.model.IRForwardTrade;
 

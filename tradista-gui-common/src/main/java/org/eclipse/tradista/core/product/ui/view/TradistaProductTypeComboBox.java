@@ -3,9 +3,10 @@ package org.eclipse.tradista.core.product.ui.view;
 import java.util.Set;
 
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+
+import javafx.beans.NamedArg;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
-import javafx.beans.NamedArg;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

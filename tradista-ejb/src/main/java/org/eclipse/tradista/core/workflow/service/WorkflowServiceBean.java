@@ -2,15 +2,15 @@ package org.eclipse.tradista.core.workflow.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.core.workflow.model.mapping.WorkflowMapper;
-import org.eclipse.tradista.core.workflow.service.WorkflowService;
-import org.eclipse.tradista.flow.exception.TradistaFlowBusinessException;
-import org.eclipse.tradista.flow.service.WorkflowManager;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
+import finance.tradista.flow.exception.TradistaFlowBusinessException;
+import finance.tradista.flow.service.WorkflowManager;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 
@@ -37,7 +37,7 @@ public class WorkflowServiceBean implements WorkflowService {
 
 	@Override
 	public Workflow getWorkflowByName(String name) throws TradistaBusinessException {
-		org.eclipse.tradista.flow.model.Workflow workflow;
+		finance.tradista.flow.model.Workflow workflow;
 		Workflow workflowResult = null;
 		try {
 			workflow = WorkflowManager.getWorkflowByName(name);
@@ -53,7 +53,7 @@ public class WorkflowServiceBean implements WorkflowService {
 	@Override
 	public Set<String> getAvailableActionsFromStatus(String workflowName, Status status)
 			throws TradistaBusinessException {
-		org.eclipse.tradista.flow.model.Workflow workflow;
+		finance.tradista.flow.model.Workflow workflow;
 		Set<String> actionNames = null;
 		try {
 			workflow = WorkflowManager.getWorkflowByName(workflowName);
@@ -70,7 +70,7 @@ public class WorkflowServiceBean implements WorkflowService {
 
 	@Override
 	public Status getInitialStatus(String workflowName) throws TradistaBusinessException {
-		org.eclipse.tradista.flow.model.Workflow workflow;
+		finance.tradista.flow.model.Workflow workflow;
 		try {
 			workflow = WorkflowManager.getWorkflowByName(workflowName);
 		} catch (TradistaFlowBusinessException tfbe) {

@@ -2,12 +2,12 @@ package org.eclipse.tradista.core.legalentity.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
-import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
 import org.eclipse.tradista.legalentity.service.LegalEntityFilteringInterceptor;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;

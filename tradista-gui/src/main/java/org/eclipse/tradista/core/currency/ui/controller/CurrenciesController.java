@@ -14,6 +14,7 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;

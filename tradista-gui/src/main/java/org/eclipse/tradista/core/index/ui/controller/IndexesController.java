@@ -10,6 +10,7 @@ import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.model.Index.Fixing;
 import org.eclipse.tradista.core.index.service.IndexBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;

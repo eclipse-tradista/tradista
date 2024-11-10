@@ -2,12 +2,12 @@ package org.eclipse.tradista.ai.agent.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.agent.model.Agent;
 import org.eclipse.tradista.ai.agent.persistence.AgentSQL;
 import org.eclipse.tradista.ai.reasoning.prm.persistence.FunctionSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 

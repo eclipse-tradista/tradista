@@ -25,7 +25,6 @@ import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.ui.controller.TradistaGenerableCurveController;
 import org.eclipse.tradista.core.marketdata.ui.view.FXCurveCreatorDialog;
 
 import javafx.beans.property.SimpleLongProperty;

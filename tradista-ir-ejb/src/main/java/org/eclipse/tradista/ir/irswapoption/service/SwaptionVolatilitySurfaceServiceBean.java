@@ -8,11 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.annotation.security.PermitAll;
-import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
-
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
@@ -27,7 +22,11 @@ import org.eclipse.tradista.core.marketdata.service.VolatilitySurfaceFilteringIn
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.eclipse.tradista.ir.irswapoption.persistence.SwaptionVolatilitySurfaceSQL;
-import org.eclipse.tradista.ir.irswapoption.service.SwaptionVolatilitySurfaceService;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

@@ -12,6 +12,7 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.marketdata.model.GenerableCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;

@@ -2,11 +2,10 @@ package org.eclipse.tradista.ir.future.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.persistence.FutureSQL;
-import org.eclipse.tradista.ir.future.service.FutureService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

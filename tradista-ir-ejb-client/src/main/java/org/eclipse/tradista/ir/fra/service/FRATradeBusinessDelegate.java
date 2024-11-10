@@ -9,7 +9,6 @@ import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.ir.fra.model.FRATrade;
-import org.eclipse.tradista.ir.fra.service.FRATradeService;
 import org.eclipse.tradista.ir.fra.validator.FRATradeValidator;
 
 /********************************************************************************

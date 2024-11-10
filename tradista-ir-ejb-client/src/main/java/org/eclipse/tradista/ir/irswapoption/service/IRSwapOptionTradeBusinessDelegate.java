@@ -10,7 +10,6 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
-import org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeService;
 import org.eclipse.tradista.ir.irswapoption.validator.IRSwapOptionTradeValidator;
 
 /********************************************************************************

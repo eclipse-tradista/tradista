@@ -14,7 +14,6 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
-import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.MathProperties;
 import org.eclipse.tradista.core.common.util.TradistaProperties;

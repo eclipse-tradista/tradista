@@ -5,7 +5,6 @@ import static org.eclipse.tradista.core.pricing.util.PricerUtil.cnd;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -24,8 +23,7 @@ import org.eclipse.tradista.fx.fx.service.FXPricerService;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule;
-import org.eclipse.tradista.fx.fxoption.service.FXOptionPricerService;
-import org.eclipse.tradista.fx.fxoption.service.FXVolatilitySurfaceService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;

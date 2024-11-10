@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
@@ -17,7 +16,6 @@ import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
-import org.eclipse.tradista.core.marketdata.service.QuoteService;
 import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
 import org.eclipse.tradista.core.marketdata.validator.QuoteValidator;
 

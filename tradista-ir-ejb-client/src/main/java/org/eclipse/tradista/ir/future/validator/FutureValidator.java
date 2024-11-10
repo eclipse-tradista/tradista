@@ -1,7 +1,6 @@
 package org.eclipse.tradista.ir.future.validator;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.validator.DefaultProductValidator;

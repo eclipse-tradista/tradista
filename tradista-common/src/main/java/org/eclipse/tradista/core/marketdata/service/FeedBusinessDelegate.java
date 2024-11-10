@@ -9,7 +9,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
-import org.eclipse.tradista.core.marketdata.service.FeedService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -10,12 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.batch.jobproperty.JobProperty;
 import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
-import org.eclipse.tradista.core.batch.service.BatchService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;

@@ -2,11 +2,10 @@ package org.eclipse.tradista.core.exchange.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.exchange.persistence.ExchangeSQL;
-import org.eclipse.tradista.core.exchange.service.ExchangeService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

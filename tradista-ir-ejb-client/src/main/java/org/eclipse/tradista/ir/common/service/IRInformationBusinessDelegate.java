@@ -2,7 +2,6 @@ package org.eclipse.tradista.ir.common.service;
 
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
-import org.eclipse.tradista.ir.common.service.IRInformationService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

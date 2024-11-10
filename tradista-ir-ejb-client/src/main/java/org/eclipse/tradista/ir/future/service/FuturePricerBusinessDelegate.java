@@ -15,7 +15,6 @@ import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
-import org.eclipse.tradista.ir.future.service.FuturePricerService;
 import org.eclipse.tradista.ir.future.validator.FutureTradeValidator;
 import org.eclipse.tradista.ir.future.validator.FutureValidator;
 

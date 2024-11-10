@@ -4,6 +4,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 

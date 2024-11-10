@@ -16,7 +16,6 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
-import org.eclipse.tradista.core.marketdata.service.FXCurveService;
 import org.eclipse.tradista.core.marketdata.validator.DefaultFXCurveValidator;
 import org.eclipse.tradista.core.marketdata.validator.FXCurveValidator;
 

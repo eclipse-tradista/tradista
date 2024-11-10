@@ -9,7 +9,6 @@ import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.transfer.model.FixingError;
-import org.eclipse.tradista.core.transfer.service.FixingErrorService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

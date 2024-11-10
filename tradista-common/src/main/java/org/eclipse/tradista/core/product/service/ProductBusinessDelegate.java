@@ -5,13 +5,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.product.model.Product;
-import org.eclipse.tradista.core.product.service.ProductService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

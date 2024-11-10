@@ -13,7 +13,6 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
-import org.eclipse.tradista.fx.fxswap.service.FXSwapPricerService;
 import org.eclipse.tradista.fx.fxswap.validator.FXSwapTradeValidator;
 
 /********************************************************************************

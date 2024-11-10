@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.service.IndexBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 

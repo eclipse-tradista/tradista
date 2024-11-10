@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.common.util.TradistaUtil;

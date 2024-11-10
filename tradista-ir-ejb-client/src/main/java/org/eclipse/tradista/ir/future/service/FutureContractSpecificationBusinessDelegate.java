@@ -6,7 +6,6 @@ import java.time.Period;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
@@ -14,7 +13,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.daterule.service.DateRuleBusinessDelegate;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.ir.future.model.FutureContractSpecification;
-import org.eclipse.tradista.ir.future.service.FutureContractSpecificationService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

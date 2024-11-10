@@ -8,6 +8,7 @@ import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringIn
 import org.eclipse.tradista.core.position.model.Position;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.user.model.User;
+
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;
 

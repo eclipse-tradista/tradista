@@ -38,6 +38,7 @@ import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 import org.eclipse.tradista.fx.fxndf.service.FXNDFPricerBusinessDelegate;
 import org.eclipse.tradista.fx.fxndf.service.FXNDFTradeBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

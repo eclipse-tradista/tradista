@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.common.util;
 
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;

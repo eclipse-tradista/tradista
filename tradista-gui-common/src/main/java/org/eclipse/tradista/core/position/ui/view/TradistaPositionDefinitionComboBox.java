@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.position.service.PositionDefinitionBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;

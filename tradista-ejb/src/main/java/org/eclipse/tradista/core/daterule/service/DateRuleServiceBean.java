@@ -2,11 +2,9 @@ package org.eclipse.tradista.core.daterule.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.daterule.model.DateRule;
-import org.eclipse.tradista.core.daterule.service.DateRuleSQL;
-import org.eclipse.tradista.core.daterule.service.DateRuleService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

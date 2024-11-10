@@ -11,7 +11,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
-
 import org.eclipse.tradista.core.common.util.DateUtil;
 
 /********************************************************************************

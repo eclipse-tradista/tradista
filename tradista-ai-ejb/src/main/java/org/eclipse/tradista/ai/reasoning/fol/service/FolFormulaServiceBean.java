@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.reasoning.fol.model.FolFormula;
 import org.eclipse.tradista.ai.reasoning.fol.persistence.FolFormulaSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import net.sf.tweety.commons.Formula;

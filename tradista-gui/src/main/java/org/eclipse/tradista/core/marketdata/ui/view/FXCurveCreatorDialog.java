@@ -4,6 +4,7 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
+
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;

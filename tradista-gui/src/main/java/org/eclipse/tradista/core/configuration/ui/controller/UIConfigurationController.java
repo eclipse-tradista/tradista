@@ -6,13 +6,13 @@ import java.text.DecimalFormatSymbols;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.configuration.model.UIConfiguration;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;

@@ -3,14 +3,12 @@ package org.eclipse.tradista.core.user.service;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.user.model.User;
-import org.eclipse.tradista.core.user.service.UserService;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion

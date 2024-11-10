@@ -1,10 +1,10 @@
 package org.eclipse.tradista.ai.reasoning.prm.service;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.reasoning.prm.probability.model.ProbabilityLaw;
 import org.eclipse.tradista.ai.reasoning.prm.probability.persistence.ProbabilityLawSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 

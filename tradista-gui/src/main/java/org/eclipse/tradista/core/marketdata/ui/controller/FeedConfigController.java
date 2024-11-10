@@ -23,6 +23,7 @@ import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.service.FeedBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.FeedConfigCreatorDialog;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;

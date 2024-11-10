@@ -14,6 +14,7 @@ import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;

@@ -14,7 +14,6 @@ import org.eclipse.tradista.core.transfer.model.Transfer;
 import org.eclipse.tradista.core.transfer.model.Transfer.Direction;
 import org.eclipse.tradista.core.transfer.model.Transfer.Status;
 import org.eclipse.tradista.core.transfer.model.Transfer.Type;
-import org.eclipse.tradista.core.transfer.service.TransferService;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 
 /********************************************************************************

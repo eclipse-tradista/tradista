@@ -8,7 +8,6 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.inventory.model.ProductInventory;
-import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
 import org.eclipse.tradista.core.transfer.model.ProductTransfer;
 
 /********************************************************************************

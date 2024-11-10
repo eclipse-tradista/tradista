@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.Provider;
+import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
@@ -21,11 +25,6 @@ import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
-
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
-import org.eclipse.tradista.core.marketdata.model.FeedConfig;
-import org.eclipse.tradista.core.marketdata.model.Provider;
-import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

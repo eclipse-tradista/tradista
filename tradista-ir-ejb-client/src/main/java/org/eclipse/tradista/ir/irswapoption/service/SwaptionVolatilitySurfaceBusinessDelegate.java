@@ -17,7 +17,6 @@ import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
-import org.eclipse.tradista.ir.irswapoption.service.SwaptionVolatilitySurfaceService;
 import org.eclipse.tradista.ir.irswapoption.validator.SwaptionVolatilitySurfaceValidator;
 
 /********************************************************************************

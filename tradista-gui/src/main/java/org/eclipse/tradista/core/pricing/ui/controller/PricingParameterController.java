@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
@@ -38,7 +37,6 @@ import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveCom
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
-import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
 import org.eclipse.tradista.core.pricing.ui.view.PricingParameterCreatorDialog;
 import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox;
 

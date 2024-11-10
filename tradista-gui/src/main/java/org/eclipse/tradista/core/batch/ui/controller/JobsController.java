@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
@@ -33,6 +32,7 @@ import org.eclipse.tradista.core.marketdata.ui.view.TradistaQuoteSetComboBox;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaQuoteSetsListView;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.position.ui.view.TradistaPositionDefinitionComboBox;
+
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;

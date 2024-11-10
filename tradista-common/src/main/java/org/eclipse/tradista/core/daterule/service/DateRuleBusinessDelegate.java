@@ -9,14 +9,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.daterule.model.DateRule;
-import org.eclipse.tradista.core.daterule.service.DateRuleService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

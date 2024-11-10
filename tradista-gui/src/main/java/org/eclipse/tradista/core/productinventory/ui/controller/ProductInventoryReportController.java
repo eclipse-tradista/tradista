@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.book.model.BlankBook;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
@@ -19,6 +18,7 @@ import org.eclipse.tradista.core.product.model.BlankProduct;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

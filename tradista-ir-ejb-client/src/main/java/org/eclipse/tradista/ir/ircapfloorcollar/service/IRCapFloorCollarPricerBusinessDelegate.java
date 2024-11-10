@@ -14,7 +14,6 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
-import org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarPricerService;
 import org.eclipse.tradista.ir.ircapfloorcollar.validator.IRCapFloorCollarTradeValidator;
 
 /********************************************************************************

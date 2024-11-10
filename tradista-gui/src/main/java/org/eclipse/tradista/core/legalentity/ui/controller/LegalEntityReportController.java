@@ -8,13 +8,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.eclipse.tradista.core.legalentity.ui.controller.LegalEntityProperty;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 import javafx.collections.FXCollections;

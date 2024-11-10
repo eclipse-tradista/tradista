@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.book.model.BlankBook;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -22,6 +21,7 @@ import org.eclipse.tradista.core.transfer.model.Transfer;
 import org.eclipse.tradista.core.transfer.model.Transfer.Status;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

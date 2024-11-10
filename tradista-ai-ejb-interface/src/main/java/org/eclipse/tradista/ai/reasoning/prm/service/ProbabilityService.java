@@ -2,6 +2,7 @@ package org.eclipse.tradista.ai.reasoning.prm.service;
 
 import org.eclipse.tradista.ai.reasoning.prm.probability.model.ProbabilityLaw;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+
 import jakarta.ejb.Remote;
 
 /********************************************************************************

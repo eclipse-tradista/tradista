@@ -15,6 +15,7 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.exchange.service.ExchangeBusinessDelegate;
 import org.eclipse.tradista.core.exchange.ui.view.ExchangeCreatorDialog;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;

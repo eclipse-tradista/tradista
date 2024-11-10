@@ -1,9 +1,9 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
-import jakarta.ejb.Remote;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

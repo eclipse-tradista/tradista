@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.user.model.User;
+
 import jakarta.ejb.Remote;
 
 /********************************************************************************

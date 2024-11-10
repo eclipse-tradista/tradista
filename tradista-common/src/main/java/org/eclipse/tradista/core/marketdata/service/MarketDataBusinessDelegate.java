@@ -13,7 +13,6 @@ import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.requestpreparator.RequestPreparator;
 import org.eclipse.tradista.core.marketdata.requestpreparator.RequestPreparatorFactory;
-import org.eclipse.tradista.core.marketdata.service.MarketDataService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

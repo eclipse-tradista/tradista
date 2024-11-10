@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fx.common.service;
 
-import org.eclipse.tradista.fx.common.service.FXInformationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;

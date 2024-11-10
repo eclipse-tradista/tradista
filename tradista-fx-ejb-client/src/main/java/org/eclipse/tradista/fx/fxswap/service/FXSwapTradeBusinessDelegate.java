@@ -11,7 +11,6 @@ import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.fx.fx.service.AbstractFXTradeBusinessDelegate;
 import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
-import org.eclipse.tradista.fx.fxswap.service.FXSwapTradeService;
 import org.eclipse.tradista.fx.fxswap.validator.FXSwapTradeValidator;
 
 /********************************************************************************

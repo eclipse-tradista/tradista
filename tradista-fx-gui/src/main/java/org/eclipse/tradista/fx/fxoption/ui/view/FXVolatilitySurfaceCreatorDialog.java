@@ -3,7 +3,6 @@ package org.eclipse.tradista.fx.fxoption.ui.view;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -12,6 +11,7 @@ import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.ui.controller.FXVolatilitySurfacesController;
 import org.eclipse.tradista.fx.fxoption.ui.controller.FXVolatilitySurfacesController.DeltaProperty;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert.AlertType;

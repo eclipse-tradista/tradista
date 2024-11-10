@@ -8,6 +8,7 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.ui.view.LegalEntityCreatorDialog;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;

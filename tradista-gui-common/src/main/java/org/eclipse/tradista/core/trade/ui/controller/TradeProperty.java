@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
+
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;

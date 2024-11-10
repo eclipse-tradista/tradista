@@ -8,6 +8,7 @@ import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonBar.ButtonData;

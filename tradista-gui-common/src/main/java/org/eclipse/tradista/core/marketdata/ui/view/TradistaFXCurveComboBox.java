@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
 import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;

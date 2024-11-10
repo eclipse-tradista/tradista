@@ -5,13 +5,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
-import jakarta.annotation.security.PermitAll;
-import jakarta.ejb.EJB;
-import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
-
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -23,7 +16,12 @@ import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXPricerService;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
-import org.eclipse.tradista.fx.fxswap.service.FXSwapPricerService;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 /*
  * Copyright 2015 Olivier Asuncion

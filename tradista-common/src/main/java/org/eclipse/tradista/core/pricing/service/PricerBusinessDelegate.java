@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -26,7 +25,6 @@ import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.Pricing;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
-import org.eclipse.tradista.core.pricing.service.PricerService;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.validator.TradeValidator;

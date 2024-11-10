@@ -4,6 +4,7 @@ import java.math.RoundingMode;
 
 import org.eclipse.tradista.core.configuration.model.UIConfiguration;
 import org.eclipse.tradista.core.user.model.User;
+
 import jakarta.ejb.Remote;
 
 /********************************************************************************

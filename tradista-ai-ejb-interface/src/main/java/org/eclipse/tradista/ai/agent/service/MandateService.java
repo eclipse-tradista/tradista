@@ -2,6 +2,7 @@ package org.eclipse.tradista.ai.agent.service;
 
 import org.eclipse.tradista.ai.agent.model.Mandate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+
 import jakarta.ejb.Remote;
 
 /********************************************************************************

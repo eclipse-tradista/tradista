@@ -4,19 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 import org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL;
-import org.eclipse.tradista.core.marketdata.service.SurfaceService;
-import org.eclipse.tradista.core.marketdata.service.VolatilitySurfaceFilteringInterceptor;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.service.FXVolatilitySurfaceBusinessDelegate;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.eclipse.tradista.ir.irswapoption.service.SwaptionVolatilitySurfaceBusinessDelegate;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 import org.eclipse.tradista.security.equityoption.service.EquityOptionVolatilitySurfaceBusinessDelegate;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

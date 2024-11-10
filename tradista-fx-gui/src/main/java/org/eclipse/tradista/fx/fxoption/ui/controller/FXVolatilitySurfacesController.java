@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -22,6 +21,7 @@ import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.service.FXVolatilitySurfaceBusinessDelegate;
 import org.eclipse.tradista.fx.fxoption.ui.view.FXVolatilitySurfaceCreatorDialog;
+
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

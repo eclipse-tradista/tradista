@@ -3,9 +3,7 @@ package org.eclipse.tradista.core.calendar.service;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.calendar.model.Calendar;
-import org.eclipse.tradista.core.calendar.service.CalendarService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;

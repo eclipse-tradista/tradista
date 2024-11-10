@@ -1,10 +1,10 @@
 package org.eclipse.tradista.ai.agent.service;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.agent.model.Mandate;
 import org.eclipse.tradista.ai.agent.persistence.MandateSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 

@@ -1,9 +1,9 @@
 package org.eclipse.tradista.fx.fxoption.service;
 
-import jakarta.ejb.Remote;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

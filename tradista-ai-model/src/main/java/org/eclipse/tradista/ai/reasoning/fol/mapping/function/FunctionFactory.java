@@ -3,7 +3,6 @@ package org.eclipse.tradista.ai.reasoning.fol.mapping.function;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.ai.reasoning.common.model.Function;
 import org.eclipse.tradista.ai.reasoning.common.model.NPVFXGTEFunction;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;

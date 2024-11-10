@@ -12,6 +12,7 @@ import org.eclipse.tradista.core.pricing.pricer.Pricer;
 import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;

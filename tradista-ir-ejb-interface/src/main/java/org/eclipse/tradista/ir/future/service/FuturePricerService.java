@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import jakarta.ejb.Remote;
-
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -13,6 +11,8 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

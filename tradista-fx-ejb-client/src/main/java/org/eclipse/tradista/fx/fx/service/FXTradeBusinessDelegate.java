@@ -12,7 +12,6 @@ import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDele
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.model.FXTrade.Type;
-import org.eclipse.tradista.fx.fx.service.FXTradeService;
 import org.eclipse.tradista.fx.fx.validator.FXTradeValidator;
 
 /********************************************************************************

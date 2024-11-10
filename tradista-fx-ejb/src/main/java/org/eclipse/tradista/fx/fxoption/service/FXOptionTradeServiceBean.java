@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fx.fxoption.service;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
@@ -8,7 +7,7 @@ import org.eclipse.tradista.fx.fx.service.FXTradeService;
 import org.eclipse.tradista.fx.fxoption.messaging.FXOptionTradeEvent;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.persistence.FXOptionTradeSQL;
-import org.eclipse.tradista.fx.fxoption.service.FXOptionTradeService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

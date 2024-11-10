@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart;
@@ -46,6 +45,7 @@ import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXPricerBusinessDelegate;
 import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

@@ -1,9 +1,9 @@
 package org.eclipse.tradista.ir.irswap.service;
 
-import jakarta.ejb.Remote;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

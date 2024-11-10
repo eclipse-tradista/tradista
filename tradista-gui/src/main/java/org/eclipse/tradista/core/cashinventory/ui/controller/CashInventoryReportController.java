@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.book.model.BlankBook;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashinventory.service.CashInventoryBusinessDelegate;
@@ -17,6 +16,7 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.currency.model.BlankCurrency;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.inventory.model.CashInventory;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

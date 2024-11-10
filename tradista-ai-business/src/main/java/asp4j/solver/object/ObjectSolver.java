@@ -1,11 +1,12 @@
 package asp4j.solver.object;
 
+import java.util.List;
+import java.util.Set;
+
 import asp4j.lang.AnswerSet;
 import asp4j.program.Program;
 import asp4j.solver.ReasoningMode;
 import asp4j.solver.SolverException;
-import java.util.List;
-import java.util.Set;
 
 /*Copyright (c) 2013, Harald Beck
 All rights reserved.

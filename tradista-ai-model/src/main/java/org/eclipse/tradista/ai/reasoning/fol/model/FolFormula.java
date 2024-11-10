@@ -7,6 +7,7 @@ import org.eclipse.tradista.ai.reasoning.common.model.Function;
 import org.eclipse.tradista.ai.reasoning.fol.mapping.function.FunctionFactory;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+
 import net.sf.tweety.logics.commons.syntax.Functor;
 
 /********************************************************************************

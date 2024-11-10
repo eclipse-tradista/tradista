@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.ui.view.TradistaBookComboBox;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -20,6 +19,7 @@ import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.BookProductTypePair;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.UnrealizedPnlCalculation;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;

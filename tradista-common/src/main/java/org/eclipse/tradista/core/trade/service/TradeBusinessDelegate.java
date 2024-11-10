@@ -10,7 +10,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
-import org.eclipse.tradista.core.trade.service.TradeService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

@@ -23,7 +23,6 @@ import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.model.ZeroCouponCurve;
 import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.ui.controller.TradistaGenerableCurveController;
 import org.eclipse.tradista.core.marketdata.ui.view.ZeroCouponCurveCreatorDialog;
 
 import javafx.beans.property.SimpleLongProperty;

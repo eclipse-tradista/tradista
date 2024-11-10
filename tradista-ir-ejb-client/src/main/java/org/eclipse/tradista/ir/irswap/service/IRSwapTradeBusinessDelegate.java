@@ -8,7 +8,6 @@ import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
-import org.eclipse.tradista.ir.irswap.service.IRSwapTradeService;
 import org.eclipse.tradista.ir.irswap.validator.IRSwapTradeValidator;
 
 /********************************************************************************

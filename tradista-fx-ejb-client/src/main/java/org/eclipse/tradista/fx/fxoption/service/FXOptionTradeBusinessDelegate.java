@@ -8,7 +8,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
-import org.eclipse.tradista.fx.fxoption.service.FXOptionTradeService;
 import org.eclipse.tradista.fx.fxoption.validator.FXOptionTradeValidator;
 
 /********************************************************************************

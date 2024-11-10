@@ -20,7 +20,6 @@ import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.ui.controller.QuoteProperty;
 import org.eclipse.tradista.core.marketdata.ui.view.QuoteCreatorDialog;
 import org.eclipse.tradista.core.marketdata.ui.view.QuoteSetCreatorDialog;
 

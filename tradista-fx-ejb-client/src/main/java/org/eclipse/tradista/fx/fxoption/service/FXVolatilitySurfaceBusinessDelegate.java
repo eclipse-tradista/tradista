@@ -14,7 +14,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
-import org.eclipse.tradista.fx.fxoption.service.FXVolatilitySurfaceService;
 import org.eclipse.tradista.fx.fxoption.validator.FXOptionVolatilitySurfaceValidator;
 
 /********************************************************************************

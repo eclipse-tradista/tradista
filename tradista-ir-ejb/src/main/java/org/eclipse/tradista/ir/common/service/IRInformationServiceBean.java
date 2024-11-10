@@ -1,6 +1,5 @@
 package org.eclipse.tradista.ir.common.service;
 
-import org.eclipse.tradista.ir.common.service.IRInformationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;

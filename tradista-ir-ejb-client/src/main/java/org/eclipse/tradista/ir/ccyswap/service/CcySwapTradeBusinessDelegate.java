@@ -8,7 +8,6 @@ import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.ir.ccyswap.model.CcySwapTrade;
-import org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeService;
 import org.eclipse.tradista.ir.ccyswap.validator.CcySwapTradeValidator;
 
 /********************************************************************************

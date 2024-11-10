@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 
 import javax.security.sasl.SaslException;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.jboss.ejb.client.RequestSendFailedException;
 import org.wildfly.common.function.ExceptionConsumer;
 import org.wildfly.common.function.ExceptionSupplier;
@@ -15,8 +17,6 @@ import org.wildfly.security.credential.PasswordCredential;
 import org.wildfly.security.password.interfaces.ClearPassword;
 import org.wildfly.security.sasl.SaslMechanismSelector;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import jakarta.ejb.EJBException;
 import jakarta.ejb.NoSuchEJBException;
 

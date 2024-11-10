@@ -2,11 +2,10 @@ package org.eclipse.tradista.core.index.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.persistence.IndexSQL;
-import org.eclipse.tradista.core.index.service.IndexService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

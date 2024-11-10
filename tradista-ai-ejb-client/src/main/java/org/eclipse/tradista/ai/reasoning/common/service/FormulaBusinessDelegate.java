@@ -3,7 +3,6 @@ package org.eclipse.tradista.ai.reasoning.common.service;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.ai.reasoning.common.model.Formula;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;

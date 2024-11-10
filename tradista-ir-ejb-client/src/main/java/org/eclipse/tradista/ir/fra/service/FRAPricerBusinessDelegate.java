@@ -13,7 +13,6 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.ir.fra.model.FRATrade;
-import org.eclipse.tradista.ir.fra.service.FRAPricerService;
 import org.eclipse.tradista.ir.fra.validator.FRATradeValidator;
 
 /********************************************************************************

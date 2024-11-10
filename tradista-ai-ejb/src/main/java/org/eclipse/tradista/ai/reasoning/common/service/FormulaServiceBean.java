@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.tradista.ai.reasoning.asp.atom.AtomMapper;
+import org.eclipse.tradista.ai.reasoning.common.model.Formula;
+import org.eclipse.tradista.ai.reasoning.common.persistence.FormulaSQL;
+import org.eclipse.tradista.ai.reasoning.common.util.TradistaAIProperties;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import asp4j.lang.AnswerSet;
@@ -20,10 +24,6 @@ import asp4j.solver.SolverException;
 import asp4j.solver.object.Filter;
 import asp4j.solver.object.ObjectSolver;
 import asp4j.solver.object.ObjectSolverImpl;
-import org.eclipse.tradista.ai.reasoning.common.model.Formula;
-import org.eclipse.tradista.ai.reasoning.common.persistence.FormulaSQL;
-import org.eclipse.tradista.ai.reasoning.common.util.TradistaAIProperties;
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 

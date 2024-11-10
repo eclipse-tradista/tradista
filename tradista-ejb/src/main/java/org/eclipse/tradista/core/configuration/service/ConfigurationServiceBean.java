@@ -2,17 +2,16 @@ package org.eclipse.tradista.core.configuration.service;
 
 import java.math.RoundingMode;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-import org.quartz.Scheduler;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.eclipse.tradista.core.common.service.CustomProperties;
 import org.eclipse.tradista.core.common.util.MathProperties;
 import org.eclipse.tradista.core.configuration.model.UIConfiguration;
 import org.eclipse.tradista.core.configuration.persistence.UIConfigurationSQL;
-import org.eclipse.tradista.core.configuration.service.ConfigurationPreFilteringInterceptor;
-import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.user.model.User;
+import org.jboss.ejb3.annotation.SecurityDomain;
+import org.quartz.Scheduler;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Singleton;

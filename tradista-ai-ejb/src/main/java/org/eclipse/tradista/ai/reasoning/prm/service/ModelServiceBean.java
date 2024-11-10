@@ -1,12 +1,12 @@
 package org.eclipse.tradista.ai.reasoning.prm.service;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.reasoning.prm.model.Constant;
 import org.eclipse.tradista.ai.reasoning.prm.model.Function;
 import org.eclipse.tradista.ai.reasoning.prm.persistence.ConstantSQL;
 import org.eclipse.tradista.ai.reasoning.prm.persistence.FunctionSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 

@@ -2,9 +2,6 @@ package org.eclipse.tradista.core.batch.job;
 
 import java.util.Set;
 
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 import org.eclipse.tradista.core.batch.jobproperty.JobProperty;
 import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -13,6 +10,8 @@ import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.service.FeedBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.MarketDataBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

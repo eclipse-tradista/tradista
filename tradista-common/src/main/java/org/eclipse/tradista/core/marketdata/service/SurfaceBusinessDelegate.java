@@ -3,12 +3,10 @@ package org.eclipse.tradista.core.marketdata.service;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
-import org.eclipse.tradista.core.marketdata.service.SurfaceService;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

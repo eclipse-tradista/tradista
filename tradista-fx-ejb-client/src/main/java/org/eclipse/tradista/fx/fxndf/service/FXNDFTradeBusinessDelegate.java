@@ -10,7 +10,6 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.fx.fx.service.AbstractFXTradeBusinessDelegate;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
-import org.eclipse.tradista.fx.fxndf.service.FXNDFTradeService;
 import org.eclipse.tradista.fx.fxndf.validator.FXNDFTradeValidator;
 
 /********************************************************************************

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.publisher.TradistaPublisher;
 import org.eclipse.tradista.core.common.ui.subscriber.TradistaSubscriber;
@@ -15,6 +14,7 @@ import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.controller.QuoteProperty;
 import org.eclipse.tradista.core.marketdata.ui.publisher.MarketDataPublisher;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

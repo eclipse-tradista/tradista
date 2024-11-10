@@ -1,9 +1,9 @@
 package org.eclipse.tradista.ir.ccyswap.service;
 
-import jakarta.ejb.Remote;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.ir.ccyswap.model.CcySwapTrade;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

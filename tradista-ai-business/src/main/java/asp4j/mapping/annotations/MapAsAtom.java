@@ -1,7 +1,6 @@
 package asp4j.mapping.annotations;
 
 import java.lang.annotation.ElementType;
-
 /*Copyright (c) 2013, Harald Beck
 All rights reserved.
 

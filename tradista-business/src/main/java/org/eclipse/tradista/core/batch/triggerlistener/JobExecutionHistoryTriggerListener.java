@@ -3,14 +3,13 @@ package org.eclipse.tradista.core.batch.triggerlistener;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import org.eclipse.tradista.core.batch.model.TradistaJob;
+import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.listeners.TriggerListenerSupport;
 import org.springframework.util.StringUtils;
-
-import org.eclipse.tradista.core.batch.model.TradistaJob;
-import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

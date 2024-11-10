@@ -15,6 +15,7 @@ import org.eclipse.tradista.core.dailypnl.model.DailyPnl;
 import org.eclipse.tradista.core.dailypnl.service.DailyPnlBusinessDelegate;
 import org.eclipse.tradista.core.position.model.BlankPositionDefinition;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

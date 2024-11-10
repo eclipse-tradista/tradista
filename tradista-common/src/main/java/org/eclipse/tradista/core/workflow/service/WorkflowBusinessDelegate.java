@@ -3,13 +3,11 @@ package org.eclipse.tradista.core.workflow.service;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
-import org.eclipse.tradista.core.workflow.service.WorkflowService;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion

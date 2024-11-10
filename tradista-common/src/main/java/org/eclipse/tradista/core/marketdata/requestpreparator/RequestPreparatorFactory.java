@@ -3,7 +3,6 @@ package org.eclipse.tradista.core.marketdata.requestpreparator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 

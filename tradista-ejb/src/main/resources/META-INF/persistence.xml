@@ -8,16 +8,16 @@
 			project.
 		</description>
 		<jta-data-source>java:/TradistaDataSource</jta-data-source>
-		<class>org.eclipse.tradista.flow.model.Workflow</class>
-		<class>org.eclipse.tradista.flow.model.Action</class>
-		<class>org.eclipse.tradista.flow.model.SimpleAction</class>
-		<class>org.eclipse.tradista.flow.model.ConditionalAction</class>
-		<class>org.eclipse.tradista.flow.model.Condition</class>
-		<class>org.eclipse.tradista.flow.model.Guard</class>
-		<class>org.eclipse.tradista.flow.model.Process</class>
-		<class>org.eclipse.tradista.flow.model.Status</class>
-		<class>org.eclipse.tradista.flow.model.PseudoStatus</class>
-		<class>org.eclipse.tradista.flow.model.TradistaFlowObject</class>
+		<class>finance.tradista.flow.model.Workflow</class>
+		<class>finance.tradista.flow.model.Action</class>
+		<class>finance.tradista.flow.model.SimpleAction</class>
+		<class>finance.tradista.flow.model.ConditionalAction</class>
+		<class>finance.tradista.flow.model.Condition</class>
+		<class>finance.tradista.flow.model.Guard</class>
+		<class>finance.tradista.flow.model.Process</class>
+		<class>finance.tradista.flow.model.Status</class>
+		<class>finance.tradista.flow.model.PseudoStatus</class>
+		<class>finance.tradista.flow.model.TradistaFlowObject</class>
 		<class>org.eclipse.tradista.security.repo.workflow.condition.IsAllocated
 		</class>
 		<class>org.eclipse.tradista.security.repo.workflow.guard.CollateralAdded

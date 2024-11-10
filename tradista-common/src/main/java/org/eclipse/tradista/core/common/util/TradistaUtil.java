@@ -11,13 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.core.type.filter.RegexPatternTypeFilter;
-import org.springframework.util.ClassUtils;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.error.model.Error;
@@ -25,6 +18,12 @@ import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
 import org.eclipse.tradista.core.trade.validator.TradeValidator;
 import org.eclipse.tradista.core.transfer.model.TransferManager;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.core.type.filter.RegexPatternTypeFilter;
+import org.springframework.util.ClassUtils;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion

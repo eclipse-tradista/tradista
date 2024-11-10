@@ -21,6 +21,7 @@ import org.eclipse.tradista.core.marketdata.model.Curve;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.service.CurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.CurveCreatorDialog;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;

@@ -15,6 +15,7 @@ import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;

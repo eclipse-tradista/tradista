@@ -4,13 +4,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
-import org.eclipse.tradista.core.trade.service.TradeService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

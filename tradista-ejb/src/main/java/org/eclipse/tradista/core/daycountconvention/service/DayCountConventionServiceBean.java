@@ -2,10 +2,9 @@ package org.eclipse.tradista.core.daycountconvention.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.daycountconvention.persistence.DayCountConventionSQL;
-import org.eclipse.tradista.core.daycountconvention.service.DayCountConventionService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

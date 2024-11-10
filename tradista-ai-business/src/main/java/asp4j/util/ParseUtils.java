@@ -1,13 +1,14 @@
 package asp4j.util;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 import asp4j.lang.Atom;
 import asp4j.lang.AtomImpl;
 import asp4j.lang.ConstantImpl;
 import asp4j.lang.Term;
 import asp4j.lang.TermImpl;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 /*Copyright (c) 2013, Harald Beck
 All rights reserved.

@@ -1,12 +1,11 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.fx.fxndf.messaging.FXNDFTradeEvent;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 import org.eclipse.tradista.fx.fxndf.persistence.FXNDFTradeSQL;
-import org.eclipse.tradista.fx.fxndf.service.FXNDFTradeService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

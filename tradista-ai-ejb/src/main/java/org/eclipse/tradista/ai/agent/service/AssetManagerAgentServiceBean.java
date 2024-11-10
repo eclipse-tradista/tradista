@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
-
 import org.eclipse.tradista.ai.agent.model.Agent;
 import org.eclipse.tradista.ai.agent.model.AssetManagerAgent;
 import org.eclipse.tradista.ai.agent.persistence.AgentSQL;
@@ -33,6 +31,8 @@ import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.fx.common.util.FXUtil;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;

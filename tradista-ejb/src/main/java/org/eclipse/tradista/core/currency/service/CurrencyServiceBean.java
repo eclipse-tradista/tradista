@@ -2,11 +2,10 @@ package org.eclipse.tradista.core.currency.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
-import org.eclipse.tradista.core.currency.service.CurrencyService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;

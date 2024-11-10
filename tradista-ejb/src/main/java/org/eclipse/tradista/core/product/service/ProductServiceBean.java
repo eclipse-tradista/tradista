@@ -5,13 +5,12 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
-import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
-import org.eclipse.tradista.core.product.service.ProductService;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 

@@ -2,7 +2,6 @@ package org.eclipse.tradista.core.common.service;
 
 import java.util.Map;
 
-import org.eclipse.tradista.core.common.service.InformationService;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 

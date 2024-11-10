@@ -2,11 +2,11 @@ package org.eclipse.tradista.core.calendar.service;
 
 import java.util.Set;
 
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.calendar.persistence.CalendarSQL;
-import org.eclipse.tradista.core.calendar.service.CalendarService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 
