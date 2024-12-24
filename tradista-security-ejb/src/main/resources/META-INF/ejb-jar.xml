@@ -9,13 +9,13 @@
 		<session>
 			<ejb-name>BondTradeServiceBean</ejb-name>
 			<ejb-class>
-				finance.tradista.security.bond.service.BondTradeServiceBean
+				org.eclipse.tradista.security.bond.service.BondTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.bond.service.BondTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.bond.service.BondTradeServiceBean</injection-target-class>
 					<injection-target-name>factory</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -25,7 +25,7 @@
 			<resource-ref>
 				<res-ref-name>TransferQueue</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.bond.service.BondTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.bond.service.BondTradeServiceBean</injection-target-class>
 					<injection-target-name>destination</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -36,13 +36,13 @@
 		<session>
 			<ejb-name>EquityTradeServiceBean</ejb-name>
 			<ejb-class>
-				finance.tradista.security.equity.service.EquityTradeServiceBean
+				org.eclipse.tradista.security.equity.service.EquityTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.equity.service.EquityTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</injection-target-class>
 					<injection-target-name>factory</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -52,7 +52,7 @@
 			<resource-ref>
 				<res-ref-name>TransferQueue</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.equity.service.EquityTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</injection-target-class>
 					<injection-target-name>destination</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -63,13 +63,13 @@
 		<session>
 			<ejb-name>EquityOptionTradeServiceBean</ejb-name>
 			<ejb-class>
-				finance.tradista.security.equityoption.service.EquityOptionTradeServiceBean
+				org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.equityoption.service.EquityOptionTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</injection-target-class>
 					<injection-target-name>factory</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -79,7 +79,7 @@
 			<resource-ref>
 				<res-ref-name>TransferQueue</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.equityoption.service.EquityOptionTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</injection-target-class>
 					<injection-target-name>destination</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -90,13 +90,13 @@
 		<session>
 			<ejb-name>GCRepoTradeServiceBean</ejb-name>
 			<ejb-class>
-				finance.tradista.security.gcrepo.service.GCRepoTradeServiceBean
+				org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.gcrepo.service.GCRepoTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</injection-target-class>
 					<injection-target-name>factory</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -106,7 +106,7 @@
 			<resource-ref>
 				<res-ref-name>TransferQueue</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.gcrepo.service.GCRepoTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</injection-target-class>
 					<injection-target-name>destination</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -117,13 +117,13 @@
 		<session>
 			<ejb-name>SpecificRepoTradeServiceBean</ejb-name>
 			<ejb-class>
-				finance.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean
+				org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</injection-target-class>
 					<injection-target-name>factory</injection-target-name>
 				</injection-target>
 				<lookup-name>
@@ -133,7 +133,7 @@
 			<resource-ref>
 				<res-ref-name>TransferQueue</res-ref-name>
 				<injection-target>
-					<injection-target-class>finance.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</injection-target-class>
+					<injection-target-class>org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</injection-target-class>
 					<injection-target-name>destination</injection-target-name>
 				</injection-target>
 				<lookup-name>

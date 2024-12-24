@@ -18,17 +18,17 @@
 		<class>finance.tradista.flow.model.Status</class>
 		<class>finance.tradista.flow.model.PseudoStatus</class>
 		<class>finance.tradista.flow.model.TradistaFlowObject</class>
-		<class>finance.tradista.security.repo.workflow.condition.IsAllocated
+		<class>org.eclipse.tradista.security.repo.workflow.condition.IsAllocated
 		</class>
-		<class>finance.tradista.security.repo.workflow.guard.CollateralAdded
+		<class>org.eclipse.tradista.security.repo.workflow.guard.CollateralAdded
 		</class>
-		<class>finance.tradista.security.repo.workflow.guard.CollateralSubstituted
+		<class>org.eclipse.tradista.security.repo.workflow.guard.CollateralSubstituted
 		</class>
-		<class>finance.tradista.security.repo.workflow.guard.IsPartiallyTerminated
+		<class>org.eclipse.tradista.security.repo.workflow.guard.IsPartiallyTerminated
 		</class>
-		<class>finance.tradista.security.repo.workflow.guard.TradeEndDateReached
+		<class>org.eclipse.tradista.security.repo.workflow.guard.TradeEndDateReached
 		</class>
-		<class>finance.tradista.security.repo.workflow.guard.IsSubstitutionAllowed
+		<class>org.eclipse.tradista.security.repo.workflow.guard.IsSubstitutionAllowed
 		</class>
 		<properties>
 			<property name="hibernate.dialect"

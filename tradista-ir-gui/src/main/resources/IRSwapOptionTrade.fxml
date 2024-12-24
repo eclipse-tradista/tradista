@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import finance.tradista.core.book.ui.controller.TradistaBookPieChart?>
+<?import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -20,7 +20,7 @@
 <GridPane hgap="10.0" styleClass="root" vgap="10.0"
 	xmlns="http://javafx.com/javafx/8.0.162"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.ir.irswapoption.ui.controller.IRSwapOptionTradeDefinitionController">
+	fx:controller="org.eclipse.tradista.ir.irswapoption.ui.controller.IRSwapOptionTradeDefinitionController">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" />
 		<ColumnConstraints hgrow="ALWAYS" />

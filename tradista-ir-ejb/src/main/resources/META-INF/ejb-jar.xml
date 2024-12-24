@@ -6,13 +6,13 @@
     <session>
       <ejb-name>FutureTradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.ir.future.service.FutureTradeServiceBean
+		org.eclipse.tradista.ir.future.service.FutureTradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.future.service.FutureTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.future.service.FutureTradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -22,7 +22,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.future.service.FutureTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.future.service.FutureTradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -33,13 +33,13 @@
     <session>
       <ejb-name>FRATradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.ir.fra.service.FRATradeServiceBean
+		org.eclipse.tradista.ir.fra.service.FRATradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.fra.service.FRATradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.fra.service.FRATradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -49,7 +49,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.fra.service.FRATradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.fra.service.FRATradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -60,13 +60,13 @@
     <session>
       <ejb-name>CcySwapTradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.ir.ccyswap.service.CcySwapTradeServiceBean
+		org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.ccyswap.service.CcySwapTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -76,7 +76,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.ccyswap.service.CcySwapTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -87,13 +87,13 @@
     <session>
       <ejb-name>IRCapFloorCollarTradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean
+		org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -103,7 +103,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -114,13 +114,13 @@
     <session>
       <ejb-name>IRSwapTradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.ir.irswap.service.IRSwapTradeServiceBean
+		org.eclipse.tradista.ir.irswap.service.IRSwapTradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.irswap.service.IRSwapTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.irswap.service.IRSwapTradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -130,7 +130,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.irswap.service.IRSwapTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.irswap.service.IRSwapTradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -141,13 +141,13 @@
     <session>
       <ejb-name>IRSwapOptionTradeServiceBean</ejb-name>
       <ejb-class>
-		finance.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean
+		org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean
 		</ejb-class>
       <session-type>Stateless</session-type>
       <resource-ref>
         <res-ref-name>ConnectionFactory</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean</injection-target-class>
           <injection-target-name>factory</injection-target-name>
         </injection-target>
         <lookup-name>
@@ -157,7 +157,7 @@
       <resource-ref>
         <res-ref-name>TransferQueue</res-ref-name>
         <injection-target>
-          <injection-target-class>finance.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean</injection-target-class>
+          <injection-target-class>org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean</injection-target-class>
           <injection-target-name>destination</injection-target-name>
         </injection-target>
         <lookup-name>

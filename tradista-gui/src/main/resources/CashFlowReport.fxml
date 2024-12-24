@@ -18,7 +18,7 @@
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.192"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.cashflow.ui.controller.CashFlowReportController">
+	fx:controller="org.eclipse.tradista.core.cashflow.ui.controller.CashFlowReportController">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" />
 		<ColumnConstraints hgrow="SOMETIMES" />

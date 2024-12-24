@@ -17,7 +17,7 @@
 	minWidth="-Infinity" styleClass="root"
 	vgap="10.0" xmlns="http://javafx.com/javafx/8.0.131"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.pricer.ui.controller.PricerController">
+	fx:controller="org.eclipse.tradista.core.pricer.ui.controller.PricerController">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
 		<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />

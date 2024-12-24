@@ -18,15 +18,15 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<?import finance.tradista.core.currency.ui.view.TradistaCurrencyComboBox?>
-<?import finance.tradista.core.index.ui.view.TradistaIndexComboBox?>
-<?import finance.tradista.core.product.ui.view.TradistaProductTypeComboBox?>
+<?import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox?>
+<?import org.eclipse.tradista.core.index.ui.view.TradistaIndexComboBox?>
+<?import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox?>
 
 <GridPane hgap="10.0" maxHeight="-Infinity"
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.171"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.pricing.ui.controller.PricingParameterController">
+	fx:controller="org.eclipse.tradista.core.pricing.ui.controller.PricingParameterController">
 	<columnConstraints>
 		<ColumnConstraints />
 	</columnConstraints>

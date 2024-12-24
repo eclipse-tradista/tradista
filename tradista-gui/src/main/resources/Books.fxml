@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import finance.tradista.core.book.ui.controller.TradistaBookPieChart?>
+<?import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -18,7 +18,7 @@
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.60"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.book.ui.controller.BooksController">
+	fx:controller="org.eclipse.tradista.core.book.ui.controller.BooksController">
 	<columnConstraints>
 		<ColumnConstraints />
 		<ColumnConstraints hgrow="SOMETIMES" />

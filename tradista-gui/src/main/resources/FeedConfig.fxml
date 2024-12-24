@@ -18,7 +18,7 @@
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/11.0.1"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.marketdata.ui.controller.FeedConfigController">
+	fx:controller="org.eclipse.tradista.core.marketdata.ui.controller.FeedConfigController">
 	<columnConstraints>
 		<ColumnConstraints hgrow="SOMETIMES" />
 		<ColumnConstraints hgrow="SOMETIMES" />

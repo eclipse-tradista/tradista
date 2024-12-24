@@ -11,12 +11,12 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
-<?import finance.tradista.core.product.ui.view.TradistaProductTypeComboBox?>
-<?import finance.tradista.core.book.ui.view.TradistaBookComboBox?>
+<?import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox?>
+<?import org.eclipse.tradista.core.book.ui.view.TradistaBookComboBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.141"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.fx.common.ui.controller.PricingParameterUnrealizedPnlCalculationModuleController">
+	fx:controller="org.eclipse.tradista.fx.common.ui.controller.PricingParameterUnrealizedPnlCalculationModuleController">
 	<GridPane vgap="10.0" hgap="10.0" maxHeight="-Infinity"
 		maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 		<columnConstraints>

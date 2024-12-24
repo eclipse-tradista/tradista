@@ -21,7 +21,7 @@
 	styleClass="root" vgap="10.0"
 	xmlns="http://javafx.com/javafx/8.0.60"
 	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="finance.tradista.core.daterule.ui.controller.DateRulesController">
+	fx:controller="org.eclipse.tradista.core.daterule.ui.controller.DateRulesController">
 	<columnConstraints>
 		<ColumnConstraints />
 		<ColumnConstraints hgrow="SOMETIMES" />
