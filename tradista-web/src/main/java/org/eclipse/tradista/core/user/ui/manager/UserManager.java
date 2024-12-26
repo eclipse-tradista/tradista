@@ -39,4 +39,12 @@ public class UserManager implements Serializable {
 		return StringUtils.EMPTY;
 	}
 
+	public String getCurrentUserFirstName() {
+		return ClientUtil.getCurrentUser().getFirstName();
+	}
+
+	public String getCurrentUserSurname() {
+		return ClientUtil.getCurrentUser().getSurname();
+	}
+
 }

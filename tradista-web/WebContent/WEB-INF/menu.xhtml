@@ -4,18 +4,20 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:po="http://primefaces.org/poseidon">
-
-	<div class="menu-wrapper">
-		<div class="layout-menu-container">
-			<h:form id="menuform">
-				<p:menubar model="#{menuController.model}">
-					<f:facet name="options">
-						<p:commandButton icon="pi pi-power-off"
-							action="#{menuController.logout}" />
-					</f:facet>
-				</p:menubar>
-			</h:form>
-		</div>
-	</div>
-
+	<h:form id="menuform">
+		<p:menubar model="#{menuController.model}">
+			<f:facet name="options">
+				<p:outputLabel styleClass="tradista-menu-item"
+					value="#{userManager.currentUserFirstName}" />
+				<p:outputLabel styleClass="tradista-menu-item .ui-menuitem-text"
+					value="#{userManager.currentUserSurname}" />
+				<p:outputLabel styleClass="tradista-menu-item" value="-"
+					rendered="#{not empty userManager.currentUserProcessingOrg}" />
+				<p:outputLabel styleClass="tradista-menu-item"
+					value="#{userManager.currentUserProcessingOrg}" />
+				<p:commandButton icon="pi pi-power-off"
+					action="#{menuController.logout}" />
+			</f:facet>
+		</p:menubar>
+	</h:form>
 </ui:composition>
