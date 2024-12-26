@@ -6,15 +6,76 @@
 	<dependencySets>
 		<dependencySet>
 			<includes>
-				<include>*javafx*</include>
+				<include>org.openjfx:javafx-base</include>
+				<include>org.openjfx:javafx-controls</include>
+				<include>org.openjfx:javafx-media</include>
+				<include>org.openjfx:javafx-fxml</include>
+				<include>org.openjfx:javafx-graphics</include>
 			</includes>
+			<excludes>
+				<exclude>org.openjfx:javafx-base:jar:win</exclude>
+				<exclude>org.openjfx:javafx-controls:jar:win</exclude>
+				<exclude>org.openjfx:javafx-media:jar:win</exclude>
+				<exclude>org.openjfx:javafx-fxml:jar:win</exclude>
+				<exclude>org.openjfx:javafx-graphics:jar:win</exclude>
+				<exclude>org.openjfx:javafx-base:jar:linux</exclude>
+				<exclude>org.openjfx:javafx-controls:jar:linux</exclude>
+				<exclude>org.openjfx:javafx-media:jar:linux</exclude>
+				<exclude>org.openjfx:javafx-fxml:jar:linux</exclude>
+				<exclude>org.openjfx:javafx-graphics:jar:linux</exclude>
+				<exclude>org.openjfx:javafx-base:jar:mac</exclude>
+				<exclude>org.openjfx:javafx-controls:jar:mac</exclude>
+				<exclude>org.openjfx:javafx-media:jar:mac</exclude>
+				<exclude>org.openjfx:javafx-fxml:jar:mac</exclude>
+				<exclude>org.openjfx:javafx-graphics:jar:mac</exclude>
+			</excludes>
 			<unpack>false</unpack>
 			<scope>runtime</scope>
 			<outputDirectory>lib/javafx</outputDirectory>
 		</dependencySet>
 		<dependencySet>
+			<includes>
+				<include>org.openjfx:javafx-base:jar:win</include>
+				<include>org.openjfx:javafx-controls:jar:win</include>
+				<include>org.openjfx:javafx-media:jar:win</include>
+				<include>org.openjfx:javafx-fxml:jar:win</include>
+				<include>org.openjfx:javafx-graphics:jar:win</include>
+			</includes>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<outputDirectory>lib/javafx/win</outputDirectory>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openjfx:javafx-base:jar:linux</include>
+				<include>org.openjfx:javafx-controls:jar:linux</include>
+				<include>org.openjfx:javafx-media:jar:linux</include>
+				<include>org.openjfx:javafx-fxml:jar:linux</include>
+				<include>org.openjfx:javafx-graphics:jar:linux</include>
+			</includes>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<outputDirectory>lib/javafx/linux</outputDirectory>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>org.openjfx:javafx-base:jar:mac</include>
+				<include>org.openjfx:javafx-controls:jar:mac</include>
+				<include>org.openjfx:javafx-media:jar:mac</include>
+				<include>org.openjfx:javafx-fxml:jar:mac</include>
+				<include>org.openjfx:javafx-graphics:jar:mac</include>
+			</includes>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<outputDirectory>lib/javafx/mac</outputDirectory>
+		</dependencySet>
+		<dependencySet>
 			<excludes>
-				<exclude>*javafx*</exclude>
+				<exclude>org.openjfx:javafx-base</exclude>
+				<exclude>org.openjfx:javafx-controls</exclude>
+				<exclude>org.openjfx:javafx-media</exclude>
+				<exclude>org.openjfx:javafx-fxml</exclude>
+				<exclude>org.openjfx:javafx-graphics</exclude>
 			</excludes>
 			<unpack>false</unpack>
 			<scope>runtime</scope>
