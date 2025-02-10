@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>com.bloombergp</groupId>
 			<artifactId>blpapi</artifactId>
-			<version>3.12.1-1</version>
+			<version>3.24.12-1</version>
 		</dependency>
 		<!--<dependency> 
 			<groupId>org.eclipse.tradista.bloomberg</groupId> 
@@ -36,9 +36,9 @@
 				<configuration>
 					<groupId>com.bloombergp</groupId>
 					<artifactId>blpapi</artifactId>
-					<version>3.12.1-1</version>
+					<version>3.24.12-1</version>
 					<packaging>jar</packaging>
-					<file>${basedir}/lib/blpapi-3.12.1-1.jar</file>
+					<file>${basedir}/lib/blpapi-3.24.12-1.jar</file>
 				</configuration>
 				<executions>
 					<execution>
