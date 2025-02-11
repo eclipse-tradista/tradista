@@ -69,12 +69,6 @@
 			<artifactId>fx-ejb-client</artifactId>
 			<version>${fx-ejb-client.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.primefaces.themes</groupId>
-			<artifactId>poseidon-theme</artifactId>
-			<version>6.0.0</version>
-			<classifier>jakarta</classifier>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
