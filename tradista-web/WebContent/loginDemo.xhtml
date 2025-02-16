@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -14,11 +14,9 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 	</f:facet>
 	<link rel="icon" type="image/x-icon"
-		href="#{resource['poseidon-layout:images/tradista-icon-16x16.png']}" />
-	<h:outputStylesheet name="css/layout-light.css"
-		library="poseidon-layout" />
+		href="#{resource['images:tradista-icon-16x16.png']}" />
 	<h:outputStylesheet name="tradista.css" />
-	<title>Tradista Demo Login page</title>
+	<title>Eclipse Tradista Demo Login page</title>
 </h:head>
 
 
@@ -26,9 +24,9 @@
 	<div class="login-wrapper">
 		<div class="login-panel">
 			<h:form class="login-form" id="loginForm">
-				<p:graphicImage name="images/logo-tradista-white.png"
-					library="poseidon-layout" width="300" height="300" />
-				<h2 class="login-label">Login To Tradista Demo</h2>
+				<p:graphicImage name="logo-tradista-white.png" library="images"
+					width="300" height="300" />
+				<h2 class="login-label">Login To Eclipse Tradista Demo</h2>
 				<p:inputText placeholder="Login" styleClass="login-input"
 					value="#{loginDemoController.login}" />
 				<p:password placeholder="Password" styleClass="login-input"

@@ -9,7 +9,7 @@
 	</welcome-file-list>
 	<context-param>
 		<param-name>primefaces.THEME</param-name>
-		<param-value>poseidon-tradista</param-value>
+		<param-value>tradista</param-value>
 	</context-param>
 	<security-constraint>
 		<web-resource-collection>
