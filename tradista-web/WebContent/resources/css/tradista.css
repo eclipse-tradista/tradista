@@ -107,6 +107,39 @@ body .ui-inputfield {
 	background: linear-gradient(to top right, #00455E, #197B84);
 }
 
+.login-body .login-wrapper {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	height: 100vh;
+}
+
+.login-body .login-wrapper .login-panel {
+	width: 30%;
+	height: 100%;
+	text-align: center;
+	padding: 40px 20px;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	-ms-flex-direction: column;
+	flex-direction: column;
+}
+
+.login-body .login-wrapper .login-panel .login-form>input {
+	width: 85%;
+	max-width: 310px;
+	margin-bottom: 20px;
+	background-color: #F6F9FE;
+	color: #515C66;
+}
+
 body .login-button {
 	background-color: #197B84;
 	border: 0px solid #197B84;
