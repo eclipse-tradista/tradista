@@ -1,4 +1,4 @@
-Tradista uses Quartz: http://www.quartz-scheduler.org
+Eclipse Tradista uses Quartz: http://www.quartz-scheduler.org
 Quartz Scheduler source code and documentation are Copyright (c) Terracotta, Inc.
 Quartz Scheduler released under the Apache License, Version 2.0, a copy of the license can be found in LICENSE.quartz
 
