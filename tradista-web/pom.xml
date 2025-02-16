@@ -69,36 +69,9 @@
 			<artifactId>fx-ejb-client</artifactId>
 			<version>${fx-ejb-client.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.primefaces.themes</groupId>
-			<artifactId>poseidon-theme</artifactId>
-			<version>6.0.0</version>
-			<classifier>jakarta</classifier>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<groupId>org.primefaces.themes</groupId>
-					<artifactId>poseidon-theme</artifactId>
-					<version>6.0.0</version>
-					<classifier>jakarta</classifier>
-					<packaging>jar</packaging>
-					<file>${basedir}/lib/poseidon-theme-6.0.0-jakarta.jar</file>
-				</configuration>
-				<executions>
-					<execution>
-						<id>install-jar-lib</id>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<phase>validate</phase>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
