@@ -2,6 +2,6 @@
 	instance -->
 <jboss umlns="urn:jboss:1.0">
   <jboss-deployment-dependencies xmlns="urn:jboss:deployment-dependencies:1.0">
-    <dependency name="app-2.2.0-RC1.ear" />
+    <dependency name="app-2.2.0-RC2.ear" />
   </jboss-deployment-dependencies>
 </jboss>
