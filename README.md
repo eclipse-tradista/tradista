@@ -40,7 +40,8 @@ Tradista is made possible using powerful third party tools:
 - [ASP4J](https://github.com/hbeck/asp4j) for Answer Set Programming
 - [Bloomberg API](https://www.bloomberg.com/professional/support/api-library/) to connect to Bloomberg
 - [JavaFX](https://openjfx.io/) for the Desktop client
-- [PrimeFaces](https://www.primefaces.org/) for the WEB UI
+- [PrimeFaces](https://www.primefaces.org/) for the WEB UI (a JSF implementation)
+- [PrimeFlex](https://www.primeflex.org/) for the WEB UI (a CSS library)
 - [Quandl4J](https://github.com/jimmoores/quandl4j) to connect to Quandl REST API
 - [Quartz](http://www.quartz-scheduler.org/) for job scheduling
 - [Spring](https://spring.io/) for dependency injection, introspection and many more
