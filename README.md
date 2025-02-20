@@ -17,7 +17,7 @@ Eclipse Tradista is a Java based application. The server is based on WildFly and
 
 Tested configuration:
 - Server: WildFly 27.0.1.Final
-- JRE: Oracle JRE v17.0.13+10-LTS-268, OpenJDK JRE RedHat implementation v17.0.13.0+11-1 and OpenJDK JRE Eclipse Temurin implementation v17.0.13+11
+- JRE: Oracle JRE v17.0.13+10-LTS-268, OpenJDK JRE RedHat implementation v17.0.13.0+11-1 and OpenJDK JRE Eclipse Temurin implementation v17.0.14+7
 - Database: Derby 10.16.1.1
 - Build automation tool: Maven 3.9.6
 
