@@ -401,29 +401,29 @@ public class MainEntry extends Application {
 			if (!product.equals("FX") && !product.equals("FXSwap") && !product.equals("FXOption")
 					&& !product.equals("FXNDF") && !product.equals("IRSwap") && !product.equals("CcySwap")
 					&& !product.equals("IRSwapOption") && !product.equals("LoanDeposit")
-					&& !product.equals("IRCapFloorCollar") && !product.equals("FRA") && !product.equals("Future")) {
-				MenuItem productMenuItem;
-				if ((product.equals("GCRepo")) || (product.equals("SpecificRepo"))) {
-					if (product.equals("GCRepo")) {
-						productMenuItem = new MenuItem("GCBasket");
-					} else {
-						productMenuItem = new MenuItem(product);
-					}
-					if (!menuConfiguration.getItems().contains(allocationConfiguration)) {
-						menuConfiguration.getItems().add(allocationConfiguration);
-						setupMenuItem(allocationConfiguration, "Allocation Configuration", "AllocationConfiguration",
-								primScreenBounds);
-					}
-
-				} else {
-					productMenuItem = new MenuItem(product);
-				}
+					&& !product.equals("IRCapFloorCollar") && !product.equals("FRA") && !product.equals("Future")
+					&& !product.equals("SpecificRepo") && !product.equals("GCRepo")) {
+				MenuItem productMenuItem = new MenuItem(product);
 				menuProduct.getItems().add(productMenuItem);
 				setupMenuItem(productMenuItem, product, product + "Product", primScreenBounds);
 
 				MenuItem report = new MenuItem(product);
 				menuReports.getItems().add(report);
 				setupMenuItem(report, product + " Report", product + "Report", primScreenBounds);
+			}
+
+			if (product.equals("GCRepo")) {
+				MenuItem gcBasket = new MenuItem("GCBasket");
+				menuProduct.getItems().add(gcBasket);
+				setupMenuItem(gcBasket, product, product + "Product", primScreenBounds);
+			}
+
+			if ((product.equals("GCRepo")) || (product.equals("SpecificRepo"))) {
+				if (!menuConfiguration.getItems().contains(allocationConfiguration)) {
+					menuConfiguration.getItems().add(allocationConfiguration);
+					setupMenuItem(allocationConfiguration, "Allocation Configuration", "AllocationConfiguration",
+							primScreenBounds);
+				}
 			}
 
 			if (product.equals("FX") || product.equals("EquityOption") || product.equals("IRSwapOption")) {
