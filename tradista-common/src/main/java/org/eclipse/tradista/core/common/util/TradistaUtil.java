@@ -4,12 +4,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
@@ -46,9 +47,13 @@ public final class TradistaUtil {
 	private TradistaUtil() {
 	}
 
-	private static Map<String, TransferManager<TradeEvent<?>>> transferManagersCache = new HashMap<>();
+	private static Map<String, TransferManager<TradeEvent<?>>> transferManagersCache = new ConcurrentHashMap<>();
 
-	private static Map<String, TradeValidator> tradeValidatorCache = new HashMap<>();
+	private static Map<String, TradeValidator> tradeValidatorCache = new ConcurrentHashMap<>();
+
+	private static Set<Class<? extends Error>> errorClassCache = ConcurrentHashMap.newKeySet();
+
+	private static final String COULD_NOT_CREATE_INSTANCE_OF = "Could not create instance of %s : %s";
 
 	@SuppressWarnings("unchecked")
 	public static <T> List<Class<T>> getAllClassesByType(Class<T> type, String pckg) {
@@ -94,17 +99,35 @@ public final class TradistaUtil {
 		return names;
 	}
 
-	public static Set<String> getAllErrorTypes() {
-		Set<String> names = new HashSet<>();
-		ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-		scanner.addIncludeFilter(new AssignableTypeFilter(Error.class));
-		for (BeanDefinition bd : scanner.findCandidateComponents("org.eclipse.tradista.**")) {
-			String fullClassName = bd.getBeanClassName();
-			if (!bd.isAbstract()) {
-				names.add(fullClassName.substring(fullClassName.lastIndexOf(".") + 1));
+	private static synchronized Set<Class<? extends Error>> getAllErrorClasses() {
+		if (errorClassCache.isEmpty()) {
+			ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
+					false);
+			scanner.addIncludeFilter(new AssignableTypeFilter(Error.class));
+			scanner.setResourceLoader(null);
+			for (BeanDefinition bd : scanner.findCandidateComponents("org.eclipse.tradista.**")) {
+				if (!bd.isAbstract()) {
+					Class<? extends Error> klass;
+					try {
+						klass = Class.forName(bd.getBeanClassName()).asSubclass(Error.class);
+					} catch (ClassNotFoundException cnfe) {
+						throw new TradistaTechnicalException(cnfe);
+					}
+					errorClassCache.add(klass);
+				}
 			}
 		}
-		return names;
+		return errorClassCache;
+	}
+
+	public static Set<String> getAllErrorClassNames() {
+		return getAllErrorClasses().stream().map(Class::getSimpleName).collect(Collectors.toSet());
+	}
+
+	public static Set<String> getAllErrorTypes() {
+		return getAllErrorClasses().stream().map(c -> TradistaUtil.getInstance(c).getType())
+				.collect(Collectors.toSet());
+
 	}
 
 	public static List<Class<?>> getAllClassesByRegex(String regex, String pckg) {
@@ -157,7 +180,6 @@ public final class TradistaUtil {
 	@SuppressWarnings("unchecked")
 	public static TransferManager<TradeEvent<?>> getTransferManager(String productType)
 			throws TradistaBusinessException {
-
 		if (transferManagersCache.containsKey(productType)) {
 			return transferManagersCache.get(productType);
 		} else {
@@ -169,7 +191,6 @@ public final class TradistaUtil {
 	}
 
 	public static TradeValidator getTradeValidator(String productType) throws TradistaBusinessException {
-
 		if (tradeValidatorCache.containsKey(productType)) {
 			return tradeValidatorCache.get(productType);
 		} else {
@@ -237,8 +258,7 @@ public final class TradistaUtil {
 		try {
 			return (T) getInstance(Class.forName(className));
 		} catch (ClassNotFoundException cnfe) {
-			throw new TradistaTechnicalException(
-					String.format("Could not create instance of %s : %s", className, cnfe));
+			throw new TradistaTechnicalException(String.format(COULD_NOT_CREATE_INSTANCE_OF, className, cnfe));
 		}
 	}
 
@@ -247,10 +267,10 @@ public final class TradistaUtil {
 			return type.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException
 				| SecurityException e) {
-			throw new TradistaTechnicalException(String.format("Could not create instance of %s : %s", type, e));
+			throw new TradistaTechnicalException(String.format(COULD_NOT_CREATE_INSTANCE_OF, type, e));
 		} catch (InvocationTargetException ite) {
 			throw new TradistaTechnicalException(
-					String.format("Could not create instance of %s : %s", type, ite.getCause().getMessage()));
+					String.format(COULD_NOT_CREATE_INSTANCE_OF, type, ite.getCause().getMessage()));
 		}
 	}
 

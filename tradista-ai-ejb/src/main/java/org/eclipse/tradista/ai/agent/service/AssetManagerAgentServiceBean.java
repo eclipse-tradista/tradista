@@ -115,14 +115,13 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 				.getOpenPositionsFromCashInventoryByCurrencyAndBookIds(0, agent.getMandate().getBook().getId());
 
 		if (cashPosition != null && !cashPosition.isEmpty()) {
-			Set<Currency> currencies = new HashSet<Currency>(cashPosition.size());
-			Map<String, Boolean> npvBooleans = new HashMap<String, Boolean>();
-			Map<String, BigDecimal> npvs = new HashMap<String, BigDecimal>();
+			Set<Currency> currencies = new HashSet<>(cashPosition.size());
+			Map<String, Boolean> npvBooleans = new HashMap<>();
+			Map<String, BigDecimal> npvs = new HashMap<>();
 			for (CashInventory inv : cashPosition) {
 				currencies.add(inv.getCurrency());
 			}
-			Set<Currency> authorizedCurrencies = new HashSet<Currency>(
-					agent.getMandate().getCurrencyAllocations().size());
+			Set<Currency> authorizedCurrencies = new HashSet<>(agent.getMandate().getCurrencyAllocations().size());
 			for (String isoCode : agent.getMandate().getCurrencyAllocations().keySet()) {
 				authorizedCurrencies.add(currencyBusinessDelegate.getCurrencyByIsoCode(isoCode));
 			}
@@ -133,7 +132,7 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 			if (formulas != null && !formulas.isEmpty()) {
 				for (Formula formula : formulas) {
 					if (functions == null) {
-						functions = new HashSet<Function<?>>();
+						functions = new HashSet<>();
 					}
 					Set<Function<?>> fcts = formula.getFunctions();
 					if (fcts != null && !fcts.isEmpty()) {
@@ -188,7 +187,7 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 			}
 
 			// 6. Ask for achat(x,y) for each possible currencies
-			buyFxs = new HashMap<String, Boolean>(npvBooleans.size());
+			buyFxs = new HashMap<>(npvBooleans.size());
 			for (Currency c1 : authorizedCurrencies) {
 				for (Currency c2 : currencies) {
 					if (!c1.equals(c2)) {
@@ -214,7 +213,7 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 			// 9. Proceed with the buys, starting with the combination showing
 			// the best npv,
 			// respecting the min and max allocations
-			Set<Currency> soldCurrencies = new HashSet<Currency>();
+			Set<Currency> soldCurrencies = new HashSet<>();
 			for (Map.Entry<String, BigDecimal> entry : sortedNPVs.entrySet()) {
 				// Try to buy the maximum quantity, respecting the
 				// allocations

@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -29,6 +29,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.MathProperties;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
@@ -115,7 +116,7 @@ import javafx.stage.WindowEvent;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class TradistaGUIUtil {
+public final class TradistaGUIUtil {
 
 	private static final int GOLDEN_RATIO_WIDTH = 16;
 
@@ -165,6 +166,9 @@ public class TradistaGUIUtil {
 
 	private static SurfaceBusinessDelegate surfaceBusinessDelegate = new SurfaceBusinessDelegate();
 
+	private TradistaGUIUtil() {
+	}
+
 	public static void resizeComponents(Window window, Number oldWidth) {
 		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 		TradistaGUIUtil.resizeComponentHeights(primScreenBounds, window, 0);
@@ -198,56 +202,50 @@ public class TradistaGUIUtil {
 		if (nodes != null && !nodes.isEmpty()) {
 			String style = "-fx-font-size: " + fontSize + "px;";
 			for (Node n : nodes) {
-				if (n instanceof Labeled) {
-					Labeled labeled = ((Labeled) n);
+				if (n instanceof Labeled labeled) {
 					labeled.setStyle(style);
 				}
-				if (n instanceof ComboBox) {
-					ComboBox<?> comboBox = ((ComboBox<?>) n);
+				if (n instanceof ComboBox<?> comboBox) {
 					comboBox.setPrefWidth(componentsWidth);
 					comboBox.setStyle(style);
 				}
-				if (n instanceof TextField) {
-					TextField textField = ((TextField) n);
+				if (n instanceof TextField textField) {
 					textField.setFont(Font.font(fontSize));
 					textField.setPrefWidth(componentsWidth);
 				}
-				if (n instanceof TextArea) {
-					TextArea textArea = ((TextArea) n);
+				if (n instanceof TextArea textArea) {
 					textArea.setFont(Font.font(fontSize));
 					textArea.setPrefWidth(componentsWidth * 2);
 				}
-				if (n instanceof ListView) {
-					ListView<?> listView = ((ListView<?>) n);
+				if (n instanceof ListView<?> listView) {
 					listView.setPrefWidth(componentsWidth);
 				}
-				if (n instanceof DatePicker) {
-					((DatePicker) n).setPrefWidth(componentsWidth);
-					((DatePicker) n).setStyle(style);
+				if (n instanceof DatePicker datePicker) {
+					datePicker.setPrefWidth(componentsWidth);
+					datePicker.setStyle(style);
 				}
-				if (n instanceof CheckBox) {
-					((CheckBox) n).setFont(Font.font(fontSize));
+				if (n instanceof CheckBox checkBox) {
+					checkBox.setFont(Font.font(fontSize));
 				}
-				if (n instanceof Button) {
-					((Button) n).setStyle(style);
+				if (n instanceof Button button) {
+					button.setStyle(style);
 				}
-				if (n instanceof TableView) {
-					for (Object o : ((TableView<?>) n).getColumns()) {
-						TableColumn<?, ?> tc = (TableColumn<?, ?>) o;
+				if (n instanceof TableView<?> tableView) {
+					for (TableColumn<?, ?> tc : tableView.getColumns()) {
 						tc.setPrefWidth(componentsWidth);
 						tc.setStyle(style);
 					}
 				}
-				if (n instanceof TabPane) {
-					for (Tab tab : ((TabPane) n).getTabs()) {
+				if (n instanceof TabPane tabPane) {
+					for (Tab tab : tabPane.getTabs()) {
 						tab.setStyle(style);
 					}
 				}
-				if (n instanceof PieChart) {
-					((PieChart) n).setPrefWidth(componentsWidth * 3);
+				if (n instanceof PieChart pieChart) {
+					pieChart.setPrefWidth(componentsWidth * 3);
 				}
-				if (n instanceof MenuBar) {
-					((MenuBar) n).setStyle(style);
+				if (n instanceof MenuBar menuBar) {
+					menuBar.setStyle(style);
 				}
 			}
 		}
@@ -326,57 +324,50 @@ public class TradistaGUIUtil {
 		if (nodes != null && !nodes.isEmpty()) {
 			String style = "-fx-font-size: " + fontSize + "px;";
 			for (Node n : nodes) {
-				if (n instanceof Labeled) {
-					Labeled labeled = ((Labeled) n);
+				if (n instanceof Labeled labeled) {
 					labeled.setStyle(style);
 				}
-				if (n instanceof ComboBox) {
-					ComboBox<?> comboBox = ((ComboBox<?>) n);
+				if (n instanceof ComboBox<?> comboBox) {
 					comboBox.setPrefHeight(componentsHeight);
 					comboBox.setStyle(style);
 				}
-				if (n instanceof TextField) {
-					TextField textField = ((TextField) n);
+				if (n instanceof TextField textField) {
 					textField.setPrefHeight(componentsHeight);
 					textField.setFont(Font.font(fontSize));
 				}
-				if (n instanceof TextArea) {
-					TextArea textArea = ((TextArea) n);
+				if (n instanceof TextArea textArea) {
 					textArea.setFont(Font.font(fontSize));
 					textArea.setPrefHeight(componentsHeight * 2);
 				}
-				if (n instanceof DatePicker) {
-					((DatePicker) n).setPrefHeight(componentsHeight);
-					((DatePicker) n).setStyle(style);
+				if (n instanceof DatePicker datePicker) {
+					datePicker.setPrefHeight(componentsHeight);
+					datePicker.setStyle(style);
 				}
-				if (n instanceof ListView) {
-					ListView<?> listView = ((ListView<?>) n);
+				if (n instanceof ListView<?> listView) {
 					listView.setPrefHeight(componentsHeight * 5);
 				}
-				if (n instanceof CheckBox) {
-					((CheckBox) n).setFont(Font.font(fontSize));
+				if (n instanceof CheckBox checkBox) {
+					checkBox.setFont(Font.font(fontSize));
 				}
-				if (n instanceof Button) {
-					((Button) n).setStyle(style);
+				if (n instanceof Button button) {
+					button.setStyle(style);
 				}
-				if (n instanceof TableView) {
-					TableView<?> tableView = ((TableView<?>) n);
+				if (n instanceof TableView<?> tableView) {
 					tableView.setPrefHeight(screen.getHeight() / 4);
-					for (Object o : ((TableView<?>) n).getColumns()) {
-						TableColumn<?, ?> tc = (TableColumn<?, ?>) o;
+					for (TableColumn<?, ?> tc : tableView.getColumns()) {
 						tc.setStyle(style);
 					}
 				}
-				if (n instanceof TabPane) {
-					for (Tab tab : ((TabPane) n).getTabs()) {
+				if (n instanceof TabPane tabPane) {
+					for (Tab tab : tabPane.getTabs()) {
 						tab.setStyle(style);
 					}
 				}
-				if (n instanceof PieChart) {
-					((PieChart) n).setPrefHeight(screen.getHeight() / 3);
+				if (n instanceof PieChart pieChart) {
+					pieChart.setPrefHeight(screen.getHeight() / 3);
 				}
-				if (n instanceof MenuBar) {
-					((MenuBar) n).setStyle(style);
+				if (n instanceof MenuBar menuBar) {
+					menuBar.setStyle(style);
 				}
 			}
 		}
@@ -397,27 +388,27 @@ public class TradistaGUIUtil {
 	public static List<Node> getAllNodesInParent(Parent parent) {
 		List<Node> ret = new ArrayList<>();
 		ObservableList<Node> children;
-		if (parent instanceof ScrollPane) {
+		if (parent instanceof ScrollPane scrollPane) {
 			children = FXCollections.observableArrayList();
-			children.add(((ScrollPane) parent).getContent());
+			children.add(scrollPane.getContent());
 		} else {
 			children = parent.getChildrenUnmodifiable();
 		}
 		for (Node child : children) {
 			ret.add(child);
-			if (child instanceof TabPane) {
-				ObservableList<Tab> tabs = ((TabPane) child).getTabs();
+			if (child instanceof TabPane tabPane) {
+				ObservableList<Tab> tabs = tabPane.getTabs();
 				if (tabs != null && !tabs.isEmpty()) {
 					for (Tab tab : tabs) {
 						ret.addAll(getAllNodesInParent((Parent) tab.getContent()));
 					}
 				}
-			} else if (child instanceof ScrollPane) {
-				ret.addAll(getAllNodesInParent((Parent) ((ScrollPane) child).getContent()));
+			} else if (child instanceof ScrollPane scrollPane) {
+				ret.addAll(getAllNodesInParent((Parent) scrollPane.getContent()));
 			}
 
-			else if (child instanceof Parent) {
-				ret.addAll(getAllNodesInParent((Parent) child));
+			else if (child instanceof Parent p) {
+				ret.addAll(getAllNodesInParent(p));
 			}
 		}
 		return ret;
@@ -531,7 +522,7 @@ public class TradistaGUIUtil {
 	public static void fillErrorStatusComboBox(ComboBox<String>... comboBoxes) {
 		List<org.eclipse.tradista.core.error.model.Error.Status> data = Arrays
 				.asList(org.eclipse.tradista.core.error.model.Error.Status.values());
-		List<String> statusStrings = data.stream().map(it -> it.toString()).collect(Collectors.toList());
+		List<String> statusStrings = data.stream().map(Object::toString).toList();
 		if (comboBoxes.length > 0) {
 			for (ComboBox<String> cb : comboBoxes) {
 				String element = cb.getValue();
@@ -604,7 +595,7 @@ public class TradistaGUIUtil {
 
 	@SafeVarargs
 	public static void fillDayComboBox(boolean withAny, ComboBox<String>... comboBoxes) {
-		List<String> days = new ArrayList<String>();
+		List<String> days = new ArrayList<>();
 		if (withAny) {
 			days.add("Any");
 		}
@@ -982,7 +973,7 @@ public class TradistaGUIUtil {
 		if (amounts.isEmpty()) {
 			return Collections.emptyList();
 		}
-		return amounts.stream().map(it -> TradistaGUIUtil.formatAmount(it)).collect(Collectors.toList());
+		return amounts.stream().map(TradistaGUIUtil::formatAmount).toList();
 	}
 
 	public static List<BigDecimal> parseAmounts(List<String> amounts, String dataName)
@@ -993,52 +984,62 @@ public class TradistaGUIUtil {
 		if (amounts.isEmpty()) {
 			return Collections.emptyList();
 		}
-		List<BigDecimal> parsedAmounts = new ArrayList<BigDecimal>(amounts.size());
+		List<BigDecimal> parsedAmounts = new ArrayList<>(amounts.size());
 		for (String amount : amounts) {
 			parsedAmounts.add(TradistaGUIUtil.parseAmount(amount, dataName));
 		}
 		return parsedAmounts;
 	}
 
-	public static void export(TableView tv, String fileName, Window window) {
-		XSSFWorkbook workbook = new XSSFWorkbook();
-		Sheet spreadsheet = workbook.createSheet("sample");
-		Row row = spreadsheet.createRow(0);
-		final FileChooser fileChooser = new FileChooser();
-		ExtensionFilter ef = new ExtensionFilter("*.xlsx", "*.xlsx");
-		fileChooser.getExtensionFilters().add(ef);
-		fileChooser.setInitialFileName(
-				fileName + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")));
-		File file;
-		FileOutputStream fileOutput;
+	public static void export(TableView<?> tv, String fileName, Window window) {
+		try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+			Sheet spreadsheet = workbook.createSheet("sample");
+			Row row = spreadsheet.createRow(0);
+			final FileChooser fileChooser = new FileChooser();
+			ExtensionFilter ef = new ExtensionFilter("*.xlsx", "*.xlsx");
+			fileChooser.getExtensionFilters().add(ef);
+			fileChooser.setInitialFileName(
+					fileName + "-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")));
+			File file;
 
-		for (int j = 0; j < tv.getColumns().size(); j++) {
-			row.createCell(j).setCellValue(((TableColumn) tv.getColumns().get(j)).getText());
-		}
-
-		for (int i = 0; i < tv.getItems().size(); i++) {
-			row = spreadsheet.createRow(i + 1);
 			for (int j = 0; j < tv.getColumns().size(); j++) {
-				if (((TableColumn) tv.getColumns().get(j)).getCellData(i) != null) {
-					row.createCell(j).setCellValue(((TableColumn) tv.getColumns().get(j)).getCellData(i).toString());
-				} else {
-					row.createCell(j).setCellValue(StringUtils.EMPTY);
+				row.createCell(j).setCellValue(((TableColumn<?, ?>) tv.getColumns().get(j)).getText());
+			}
+
+			for (int i = 0; i < tv.getItems().size(); i++) {
+				row = spreadsheet.createRow(i + 1);
+				for (int j = 0; j < tv.getColumns().size(); j++) {
+					if (((TableColumn<?, ?>) tv.getColumns().get(j)).getCellData(i) != null) {
+						row.createCell(j)
+								.setCellValue(((TableColumn<?, ?>) tv.getColumns().get(j)).getCellData(i).toString());
+					} else {
+						row.createCell(j).setCellValue(StringUtils.EMPTY);
+					}
 				}
 			}
-		}
 
-		try {
 			file = fileChooser.showSaveDialog(window);
 			if (file != null) {
-				fileOutput = new FileOutputStream(file);
-				workbook.write(fileOutput);
-				fileOutput.close();
+				try (FileOutputStream fileOutput = new FileOutputStream(file)) {
+					workbook.write(fileOutput);
+				}
 			}
+
 		} catch (IOException ioe) {
 			// Manage logs
 			ioe.printStackTrace();
 			throw new TradistaTechnicalException(ioe.getMessage());
 		}
+	}
+
+	/**
+	 * Warm-up cache on client side. Add here what is time consuming. To be used
+	 * when Tradista client is started.
+	 * 
+	 * @see MainEntry
+	 */
+	public static void warmUpCache() {
+		CompletableFuture.supplyAsync(TradistaUtil::getAllErrorTypes);
 	}
 
 }

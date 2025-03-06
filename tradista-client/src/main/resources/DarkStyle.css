@@ -251,18 +251,19 @@
 	-fx-tick-label-fill: -main-font-color;
 }
 
-.list-view .cell:selected {
-	-fx-text-fill: -main-font-color;
+.list-view .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+
+.list-view .list-cell:selected {
+    -fx-background-color: -secondary-color;
+    -fx-text-fill: -secondary-font-color;
 }
 
 .list-view .list-cell:hover {
 	-fx-background-color: -secondary-color;
-	-fx-text-fill: -main-font-color;
-}
-
-.list-view .list-cell:focused {
-	-fx-background-color: -secondary-color;
-	-fx-text-fill: -main-font-color;
+	-fx-text-fill: -secondary-font-color;
 }
 
 .dialog-pane:header .header-panel {
