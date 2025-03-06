@@ -25,6 +25,7 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.error.ui.view.TradistaErrorTypeComboBox;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaFeedConfigComboBox;
@@ -35,32 +36,28 @@ import org.eclipse.tradista.core.position.ui.view.TradistaPositionDefinitionComb
 
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -93,7 +90,7 @@ public class JobsController extends TradistaControllerAdapter {
 	private TableColumn<JobPropertyProperty, Object> propertyValue;
 
 	@FXML
-	private TableColumn<JobExecutionProperty, String> executionId;
+	private TableColumn<JobExecutionProperty, Long> executionId;
 
 	@FXML
 	private TableColumn<JobExecutionProperty, String> executionJobInstanceName;
@@ -137,30 +134,23 @@ public class JobsController extends TradistaControllerAdapter {
 
 	private String po;
 
+	private static final String DATE_PATTERN = "dd/MM/yyyy";
+
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
+
 		batchBusinessDelegate = new BatchBusinessDelegate();
-		Callback<TableColumn<JobPropertyProperty, Object>, TableCell<JobPropertyProperty, Object>> cellFactory = new Callback<TableColumn<JobPropertyProperty, Object>, TableCell<JobPropertyProperty, Object>>() {
-			public TableCell<JobPropertyProperty, Object> call(TableColumn<JobPropertyProperty, Object> p) {
-				return new EditingCell();
-			}
-		};
 
 		propertyName.setCellValueFactory(cellData -> cellData.getValue().getName());
 
-		propertyValue.setCellFactory(cellFactory);
+		propertyValue.setCellFactory(tc -> new EditingCell());
 
-		propertyValue.setOnEditCommit(new EventHandler<CellEditEvent<JobPropertyProperty, Object>>() {
-			@Override
-			public void handle(CellEditEvent<JobPropertyProperty, Object> t) {
-				((JobPropertyProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setValue(t.getNewValue());
-			}
-		});
+		propertyValue.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setValue(cee.getNewValue()));
 
-		propertyValue.setCellValueFactory(new PropertyValueFactory<JobPropertyProperty, Object>("value"));
+		propertyValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
 
-		executionId.setCellValueFactory(new PropertyValueFactory<JobExecutionProperty, String>("id"));
+		executionId.setCellValueFactory(cellData -> cellData.getValue().getId().asObject());
 
 		executionJobInstanceName.setCellValueFactory(cellData -> cellData.getValue().getJobInstanceName());
 
@@ -174,16 +164,9 @@ public class JobsController extends TradistaControllerAdapter {
 
 		executionErrorCause.setCellValueFactory(cellData -> cellData.getValue().getErrorCause());
 
-		executionActions.setCellValueFactory(new PropertyValueFactory<JobExecutionProperty, List<Button>>("actions"));
+		executionActions.setCellValueFactory(cellData -> cellData.getValue().getActions());
 
-		executionActions.setCellFactory(
-				new Callback<TableColumn<JobExecutionProperty, List<Button>>, TableCell<JobExecutionProperty, List<Button>>>() {
-					@Override
-					public TableCell<JobExecutionProperty, List<Button>> call(
-							TableColumn<JobExecutionProperty, List<Button>> personBooleanTableColumn) {
-						return new ExecutionActionsCellFactory(jobExecutionsTable);
-					}
-				});
+		executionActions.setCellFactory(tc -> new ExecutionActionsCellFactory());
 
 		jobExecutionDate.setValue(LocalDate.now());
 
@@ -197,15 +180,14 @@ public class JobsController extends TradistaControllerAdapter {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
 		}
+
+		jobPropertiesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
 	}
 
 	private class ExecutionActionsCellFactory extends TableCell<JobExecutionProperty, List<Button>> {
 
-		ExecutionActionsCellFactory(final TableView<JobExecutionProperty> table) {
-			super();
-		}
-
-		/** places an add button in the row only if the row is not empty. */
+		/** places a button in the row only if the row is not empty. */
 		@Override
 		protected void updateItem(List<Button> item, boolean empty) {
 			super.updateItem(item, empty);
@@ -229,7 +211,7 @@ public class JobsController extends TradistaControllerAdapter {
 			currentJobInstance = jobInstance.getValue();
 			ObservableList<JobPropertyProperty> data = buildTableContent(currentJobInstance);
 			jobType.setText(currentJobInstance.getJobType());
-			this.jobName.setText(currentJobInstance.getName());
+			jobName.setText(currentJobInstance.getName());
 			jobInstanceName.setText(currentJobInstance.getName());
 			jobPropertiesTable.setItems(data);
 			jobPropertiesTable.refresh();
@@ -243,16 +225,13 @@ public class JobsController extends TradistaControllerAdapter {
 	protected void retry(String jobInstance, String po) {
 		try {
 			batchBusinessDelegate.runJobInstance(jobInstance, po);
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Thread.sleep(1000);
 			refreshJobExecutionTable();
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -278,11 +257,12 @@ public class JobsController extends TradistaControllerAdapter {
 			confirmation.setContentText("Do you want to save this Job Instance?");
 
 			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (result.isPresent() && result.get() == ButtonType.OK) {
 				Map<String, Object> properties = toMap(jobPropertiesTable.getItems());
 				currentJobInstance.setProperties(properties);
 				batchBusinessDelegate.saveJobInstance(currentJobInstance);
 			}
+
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
@@ -303,10 +283,8 @@ public class JobsController extends TradistaControllerAdapter {
 			dialog.setContentText("Please choose a Job instance name:");
 
 			Optional<String> result = dialog.showAndWait();
-			// The Java 8 way to get the response value (with lambda
-			// expression).
-			result.ifPresent(name -> jobName.append(name));
 			if (result.isPresent()) {
+				jobName.append(result.get());
 				TradistaJobInstance job = new TradistaJobInstance(jobName.toString(), currentJobInstance.getJobType(),
 						ClientUtil.getCurrentUser().getProcessingOrg());
 				job.setProperties(properties);
@@ -322,6 +300,7 @@ public class JobsController extends TradistaControllerAdapter {
 				this.jobName.setText(jobName.toString());
 				jobInstanceName.setText(jobName.toString());
 				currentJobInstance = batchBusinessDelegate.getJobInstanceByNameAndPo(jobName.toString(), po);
+
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -355,7 +334,7 @@ public class JobsController extends TradistaControllerAdapter {
 			confirmation.setContentText("Do you want to run this Job Instance?");
 
 			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (result.isPresent() && result.get() == ButtonType.OK) {
 				batchBusinessDelegate.runJobInstance(currentJobInstance.getName(), po);
 			}
 		} catch (TradistaBusinessException tbe) {
@@ -377,17 +356,19 @@ public class JobsController extends TradistaControllerAdapter {
 					String.format("Do you want to delete this Job Instance %s ?", currentJobInstance.getName()));
 
 			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (result.isPresent() && result.get() == ButtonType.OK) {
+
 				batchBusinessDelegate.deleteJobInstance(currentJobInstance.getName(), po);
 
 				TradistaGUIUtil.fillComboBox(batchBusinessDelegate.getAllJobInstances(po), jobInstance);
-				if (currentJobInstance != null && !jobInstance.getItems().contains(currentJobInstance)) {
+				if (!jobInstance.getItems().contains(currentJobInstance)) {
 					jobPropertiesTable.setItems(null);
 					jobType.setText(null);
 					jobName.setText(null);
 					jobInstanceName.setText(null);
 					currentJobInstance = null;
 				}
+
 			}
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
@@ -397,11 +378,11 @@ public class JobsController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void create(ActionEvent event) {
-		try {
-			JobInstanceCreatorDialog dialog = new JobInstanceCreatorDialog();
-			Optional<TradistaJobInstance> result = dialog.showAndWait();
+		JobInstanceCreatorDialog dialog = new JobInstanceCreatorDialog();
+		Optional<TradistaJobInstance> result = dialog.showAndWait();
 
-			if (result.isPresent()) {
+		if (result.isPresent()) {
+			try {
 				TradistaJobInstance job = result.get();
 				batchBusinessDelegate.saveJobInstance(job);
 
@@ -412,10 +393,10 @@ public class JobsController extends TradistaControllerAdapter {
 					jobName.setText(null);
 					currentJobInstance = null;
 				}
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
+				alert.showAndWait();
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-			alert.showAndWait();
 		}
 	}
 
@@ -435,127 +416,90 @@ public class JobsController extends TradistaControllerAdapter {
 
 		private DatePicker datePicker;
 
+		private CheckBox checkBox;
+
+		private TradistaErrorTypeComboBox errorTypeComboBox;
+
+		private ComboBox<String> errorStatusComboBox;
+
 		private JobPropertyProperty model;
 
-		@Override
-		public void startEdit() {
-			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
-
-			if (model != null) {
-				if (model.getType().equals("Calendar")) {
-					createCalendarComboBox();
-					Calendar calendar = calendarComboBox.getValue();
-					if (calendar != null) {
-						setText(calendar.toString());
-					}
-					setGraphic(calendarComboBox);
-				} else if (model.getType().equals("PositionDefinition")) {
-					createPositionDefinitionComboBox();
-					if (positionDefinitionComboBox.getValue() != null) {
-						setText(positionDefinitionComboBox.getValue().toString());
-					}
-					setGraphic(positionDefinitionComboBox);
-				} else if (model.getType().equals("QuoteSet")) {
-					createQuoteSetComboBox();
-					if (quoteSetComboBox.getValue() != null) {
-						setText(quoteSetComboBox.getValue().toString());
-					}
-					setGraphic(quoteSetComboBox);
-				} else if (model.getType().equals("FeedConfig")) {
-					createFeedConfigComboBox();
-					if (feedConfigComboBox.getValue() != null) {
-						setText(feedConfigComboBox.getValue().toString());
-					}
-					setGraphic(feedConfigComboBox);
-				} else if (model.getType().equals("QuoteSetSet")) {
-					createQuoteSetsListView();
-					if (quoteSetsListView.getSelectionModel().getSelectedItems() != null
-							&& !quoteSetsListView.getSelectionModel().getSelectedItems().isEmpty()) {
-						setText(quoteSetsListView.getSelectionModel().getSelectedItems().get(0).toString());
-					}
-					setGraphic(quoteSetsListView);
-				} else if (model.getType().equals("Date")) {
-					createDatePicker();
-					LocalDate date = datePicker.getValue();
-					if (date != null) {
-						setText(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-					}
-					setGraphic(datePicker);
-				} else {
-					createTextField();
-					setText(textField.getText());
-					setGraphic(textField);
-					textField.selectAll();
-				}
-			} else {
-				createTextField();
-				setText(textField.getText());
-				setGraphic(textField);
-				textField.selectAll();
-			}
-
+		public EditingCell() {
+			createCalendarComboBox();
+			createPositionDefinitionComboBox();
+			createQuoteSetComboBox();
+			createFeedConfigComboBox();
+			createQuoteSetsListView();
+			createDatePicker();
+			createTextField();
+			createCheckBox();
+			createErrorTypeComboBox();
+			createErrorStatusComboBox();
 		}
 
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
+		@SuppressWarnings("unchecked")
 		@Override
 		public void updateItem(Object item, boolean empty) {
 			super.updateItem(item, empty);
-			model = (JobPropertyProperty) getTableRow().getItem();
+			model = getTableRow().getItem();
 			if (empty) {
 				setText(null);
 				setGraphic(null);
 			} else {
-				if (isEditing()) {
-					if (model != null) {
-						if (model.getType().equals("Calendar")) {
-							if (calendarComboBox != null) {
-								calendarComboBox.setValue((Calendar) getItem());
-							}
-							setGraphic(calendarComboBox);
-						} else if (model.getType().equals("PositionDefinition")) {
-							if (positionDefinitionComboBox != null) {
-								positionDefinitionComboBox.setValue((PositionDefinition) getItem());
-							}
-							setGraphic(positionDefinitionComboBox);
-						} else if (model.getType().equals("QuoteSet")) {
-							if (quoteSetComboBox != null) {
-								quoteSetComboBox.setValue((QuoteSet) getItem());
-							}
-							setGraphic(quoteSetComboBox);
-						} else if (model.getType().equals("FeedConfig")) {
-							if (feedConfigComboBox != null) {
-								feedConfigComboBox.setValue((FeedConfig) getItem());
-							}
-							setGraphic(feedConfigComboBox);
-						} else if (model.getType().equals("QuoteSetSet")) {
-							if (quoteSetsListView != null) {
-								quoteSetsListView.getSelectionModel().select((QuoteSet) getItem());
-							}
-							setGraphic(quoteSetsListView);
-						} else if (model.getType().equals("Date")) {
-							if (datePicker != null) {
-								datePicker.setValue(
-										LocalDate.parse(getString(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-							}
-							setGraphic(datePicker);
-						} else {
-							if (textField != null) {
-								textField.setText(getString());
-							}
-							setGraphic(textField);
+				if (model != null) {
+					if (model.getType().get().equals("Calendar")) {
+						if (calendarComboBox != null) {
+							calendarComboBox.setValue((Calendar) item);
 						}
+						setGraphic(calendarComboBox);
+					} else if (model.getType().get().equals("PositionDefinition")) {
+						if (positionDefinitionComboBox != null) {
+							positionDefinitionComboBox.setValue((PositionDefinition) item);
+						}
+						setGraphic(positionDefinitionComboBox);
+					} else if (model.getType().get().equals("QuoteSet")) {
+						if (quoteSetComboBox != null) {
+							quoteSetComboBox.setValue((QuoteSet) item);
+						}
+						setGraphic(quoteSetComboBox);
+					} else if (model.getType().get().equals("FeedConfig")) {
+						if (feedConfigComboBox != null) {
+							feedConfigComboBox.setValue((FeedConfig) item);
+						}
+						setGraphic(feedConfigComboBox);
+					} else if (model.getType().get().equals("QuoteSetSet")) {
+						if (quoteSetsListView != null) {
+							if (item != null && !((HashSet<QuoteSet>) item).isEmpty()) {
+								for (QuoteSet qs : (HashSet<QuoteSet>) item) {
+									quoteSetsListView.getSelectionModel().select(qs);
+								}
+							}
+						}
+						setGraphic(quoteSetsListView);
+					} else if (model.getType().get().equals("Date")) {
+						if (datePicker != null) {
+							if (item != null) {
+								datePicker.setValue(
+										LocalDate.parse(getString(), DateTimeFormatter.ofPattern(DATE_PATTERN)));
+							}
+						}
+						setGraphic(datePicker);
+					} else if (model.getType().get().equals("Boolean")) {
+						if (checkBox != null) {
+							Boolean value = item == null ? Boolean.FALSE : (Boolean) item;
+							checkBox.setSelected(value);
+						}
+						setGraphic(checkBox);
+					} else if (model.getType().get().equals("ErrorType")) {
+						if (errorTypeComboBox != null) {
+							errorTypeComboBox.setValue(getString());
+						}
+						setGraphic(errorTypeComboBox);
+					} else if (model.getType().get().equals("ErrorStatus")) {
+						if (errorStatusComboBox != null) {
+							errorStatusComboBox.setValue(getString());
+						}
+						setGraphic(errorStatusComboBox);
 					} else {
 						if (textField != null) {
 							textField.setText(getString());
@@ -571,17 +515,18 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createTextField() {
-			textField = new TextField(getString());
+			textField = new TextField();
+			if (getItem() != null) {
+				textField.setText(getItem().toString());
+			}
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(textField.getText());
+					commitEdit(textField.getText());
 				}
 			});
-
+			textField.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private void createCalendarComboBox() {
@@ -590,14 +535,13 @@ public class JobsController extends TradistaControllerAdapter {
 				calendarComboBox.setValue((Calendar) getItem());
 			}
 			calendarComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			calendarComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(calendarComboBox.getValue());
-					}
+			calendarComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(calendarComboBox.getValue());
+					commitEdit(calendarComboBox.getValue());
 				}
 			});
+			calendarComboBox.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private void createPositionDefinitionComboBox() {
@@ -606,98 +550,156 @@ public class JobsController extends TradistaControllerAdapter {
 				positionDefinitionComboBox.setValue((PositionDefinition) getItem());
 			}
 			positionDefinitionComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			positionDefinitionComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(positionDefinitionComboBox.getValue());
-					}
+			positionDefinitionComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(positionDefinitionComboBox.getValue());
+					commitEdit(positionDefinitionComboBox.getValue());
 				}
 			});
+			positionDefinitionComboBox.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private void createQuoteSetComboBox() {
 			quoteSetComboBox = new TradistaQuoteSetComboBox();
-			quoteSetComboBox.setValue((QuoteSet) getItem());
+			if (getItem() != null) {
+				quoteSetComboBox.setValue((QuoteSet) getItem());
+			}
 			quoteSetComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			quoteSetComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(quoteSetComboBox.getValue());
-					}
+			quoteSetComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(quoteSetComboBox.getValue());
+					commitEdit(quoteSetComboBox.getValue());
 				}
 			});
+			quoteSetComboBox.setMaxWidth(Double.MAX_VALUE);
 		}
 
+		@SuppressWarnings("unchecked")
 		private void createQuoteSetsListView() {
+			final String MAIN_STYLE = "-fx-background-color: white; -fx-text-fill: black;";
+			final String SECONDARY_STYLE = "-fx-background-color: -secondary-color; -fx-text-fill: -secondary-font-color;";
 			quoteSetsListView = new TradistaQuoteSetsListView();
-			if (getItem() instanceof QuoteSet) {
-				quoteSetsListView.getSelectionModel().select((QuoteSet) getItem());
-			} else if (getItem() instanceof HashSet) {
-				if (getItem() != null && !((HashSet<QuoteSet>) getItem()).isEmpty()) {
-					for (QuoteSet qs : (HashSet<QuoteSet>) getItem()) {
+			if (getItem() instanceof QuoteSet qs) {
+				quoteSetsListView.getSelectionModel().select(qs);
+			} else if (getItem() instanceof HashSet hs) {
+				if (!hs.isEmpty()) {
+					for (QuoteSet qs : (HashSet<QuoteSet>) hs) {
 						quoteSetsListView.getSelectionModel().select(qs);
 					}
 				}
 			}
 			quoteSetsListView.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			quoteSetsListView.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						Set<QuoteSet> quoteSets = null;
-						if (quoteSetsListView.getSelectionModel().getSelectedItems() != null) {
-							quoteSets = new HashSet<QuoteSet>(quoteSetsListView.getSelectionModel().getSelectedItems());
-						}
-						commitEdit(quoteSets);
+			quoteSetsListView.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					Set<QuoteSet> quoteSets = null;
+					if (quoteSetsListView.getSelectionModel().getSelectedItems() != null) {
+						quoteSets = new HashSet<>(quoteSetsListView.getSelectionModel().getSelectedItems());
 					}
+					model.setValue(quoteSets);
+					commitEdit(quoteSets);
 				}
 			});
+			focusedProperty().addListener((b, ov, nv) -> {
+				if (isSelected()) {
+					quoteSetsListView.setStyle(SECONDARY_STYLE);
+				} else {
+					quoteSetsListView.setStyle(MAIN_STYLE);
+				}
+			});
+			hoverProperty().addListener((b, ov, nv) -> {
+				if (Boolean.TRUE.equals(nv)) {
+					quoteSetsListView.setStyle(SECONDARY_STYLE);
+				}
+			});
+			quoteSetsListView.setMaxWidth(Double.MAX_VALUE);
+			quoteSetsListView.setMaxHeight(100);
 		}
 
 		private void createFeedConfigComboBox() {
 			feedConfigComboBox = new TradistaFeedConfigComboBox();
-			feedConfigComboBox.setValue((FeedConfig) getItem());
+			if (getItem() != null) {
+				feedConfigComboBox.setValue((FeedConfig) getItem());
+			}
 			feedConfigComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			feedConfigComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(feedConfigComboBox.getValue());
-					}
+			feedConfigComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(feedConfigComboBox.getValue());
+					commitEdit(feedConfigComboBox.getValue());
 				}
 			});
+			feedConfigComboBox.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private void createDatePicker() {
 			datePicker = new DatePicker();
 			if (getItem() != null) {
-				datePicker.setValue(LocalDate.parse(getString(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				datePicker.setValue(LocalDate.parse(getString(), DateTimeFormatter.ofPattern(DATE_PATTERN)));
 			}
 			setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 			datePicker.setEditable(false);
-			datePicker.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						LocalDate date = datePicker.getValue();
-						if (date != null) {
-							String dateString = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-							commitEdit(date);
-							setContentDisplay(ContentDisplay.TEXT_ONLY);
-							setText(dateString);
-						}
+			datePicker.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					LocalDate date = datePicker.getValue();
+					if (date != null) {
+						model.setValue(date);
+						commitEdit(date);
 					}
 				}
 			});
+			datePicker.setMaxWidth(Double.MAX_VALUE);
+		}
+
+		private void createCheckBox() {
+			checkBox = new CheckBox();
+			if (getItem() != null) {
+				checkBox.setSelected((Boolean) getItem());
+			}
+			checkBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+			checkBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(checkBox.isSelected());
+					commitEdit(checkBox.isSelected());
+				}
+			});
+			checkBox.setMaxWidth(Double.MAX_VALUE);
+		}
+
+		private void createErrorTypeComboBox() {
+			errorTypeComboBox = new TradistaErrorTypeComboBox();
+			if (getItem() != null) {
+				errorTypeComboBox.setValue((String) getItem());
+			}
+			errorTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+			errorTypeComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(errorTypeComboBox.getValue());
+					commitEdit(errorTypeComboBox.getValue());
+				}
+			});
+			errorTypeComboBox.setMaxWidth(Double.MAX_VALUE);
+		}
+
+		private void createErrorStatusComboBox() {
+			errorStatusComboBox = new ComboBox<String>();
+			TradistaGUIUtil.fillErrorStatusComboBox(errorStatusComboBox);
+			if (getItem() != null) {
+				errorTypeComboBox.setValue((String) getItem());
+			}
+			errorTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+			errorTypeComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setValue(errorTypeComboBox.getValue());
+					commitEdit(errorTypeComboBox.getValue());
+				}
+			});
+			errorTypeComboBox.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private String getString() {
-			JobPropertyProperty model = (JobPropertyProperty) getTableRow().getItem();
+			JobPropertyProperty model = getTableRow().getItem();
 			return getItem() == null ? StringUtils.EMPTY
-					: (model != null && model.getType().equals("Date"))
-							? ((LocalDate) getItem()).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+					: (model != null && model.getType().get().equals("Date"))
+							? ((LocalDate) getItem()).format(DateTimeFormatter.ofPattern(DATE_PATTERN))
 							: getItem().toString();
 		}
 	}
@@ -705,7 +707,7 @@ public class JobsController extends TradistaControllerAdapter {
 	private ObservableList<JobPropertyProperty> buildTableContent(TradistaJobInstance jobInstance)
 			throws TradistaBusinessException {
 
-		List<JobPropertyProperty> jobPropertyProperty = new ArrayList<JobPropertyProperty>();
+		List<JobPropertyProperty> jobPropertyProperty = new ArrayList<>();
 
 		for (String name : batchBusinessDelegate.getAllJobPropertyNames(jobInstance)) {
 			if (!name.equals("ProcessingOrg")) {
@@ -723,7 +725,7 @@ public class JobsController extends TradistaControllerAdapter {
 	private ObservableList<JobExecutionProperty> buildJobExecutionsTableContent(
 			Set<TradistaJobExecution> jobExecutions) {
 
-		List<JobExecutionProperty> jobExecutionProperties = new ArrayList<JobExecutionProperty>();
+		List<JobExecutionProperty> jobExecutionProperties = new ArrayList<>();
 
 		if (jobExecutions != null) {
 			for (TradistaJobExecution jobExecution : jobExecutions) {
@@ -741,11 +743,11 @@ public class JobsController extends TradistaControllerAdapter {
 	}
 
 	private Map<String, Object> toMap(List<JobPropertyProperty> data) {
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 		for (JobPropertyProperty prop : data) {
 			Object value = prop.getValue();
 			if (value != null) {
-				properties.put(prop.getName().getValue(), prop.getValue());
+				properties.put(prop.getName().get(), prop.getValue().get());
 			}
 		}
 
@@ -755,12 +757,12 @@ public class JobsController extends TradistaControllerAdapter {
 	public static class JobPropertyProperty implements Comparable<JobPropertyProperty> {
 
 		private final StringProperty name;
-		private final SimpleObjectProperty value;
+		private final ObjectProperty<Object> value;
 		private final StringProperty type;
 
 		private JobPropertyProperty(String name, Object value, String type) {
 			this.name = new SimpleStringProperty(name);
-			this.value = new SimpleObjectProperty(value);
+			this.value = new SimpleObjectProperty<>(value);
 			this.type = new SimpleStringProperty(type);
 		}
 
@@ -772,8 +774,8 @@ public class JobsController extends TradistaControllerAdapter {
 			this.name.set(name);
 		}
 
-		public Object getValue() {
-			return value.get();
+		public ObjectProperty<Object> getValue() {
+			return value;
 		}
 
 		public void setValue(Object value) {
@@ -784,13 +786,13 @@ public class JobsController extends TradistaControllerAdapter {
 			return type;
 		}
 
-		public void setValue(String type) {
+		public void setType(String type) {
 			this.type.set(type);
 		}
 
 		@Override
-		public int compareTo(JobPropertyProperty o) {
-			return getName().getValue().compareTo(o.getName().getValue());
+		public int compareTo(JobPropertyProperty j) {
+			return getName().get().compareTo(j.getName().get());
 		}
 
 	}
@@ -805,7 +807,7 @@ public class JobsController extends TradistaControllerAdapter {
 		private final StringProperty jobInstanceName;
 		private final StringProperty jobType;
 		private final LongProperty id;
-		private final List<Button> actions;
+		private final ObjectProperty<List<Button>> actions;
 
 		private JobExecutionProperty(long id, final String name, String status, LocalDateTime startTime,
 				LocalDateTime endTime, String errorCause, final String jobInstanceName, String jobType,
@@ -820,40 +822,25 @@ public class JobsController extends TradistaControllerAdapter {
 			this.errorCause = new SimpleStringProperty(errorCause);
 			this.jobInstanceName = new SimpleStringProperty(jobInstanceName);
 			this.jobType = new SimpleStringProperty(jobType);
-			actions = new ArrayList<Button>();
+			List<Button> buttons = new ArrayList<>();
 
 			if (status.equals("FAILED") && jobInstanceStillExists) {
 				Button retryButton = new Button("Retry");
-				retryButton.setOnAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent actionEvent) {
-						JobsController.this.retry(jobInstanceName, po);
-					}
-				});
-
-				actions.add(retryButton);
+				retryButton.setOnAction(ae -> JobsController.this.retry(jobInstanceName, po));
+				buttons.add(retryButton);
 			}
 			if (status.equals("IN PROGRESS")) {
 				Button stopButton = new Button("Stop");
-				stopButton.setOnAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent actionEvent) {
-						JobsController.this.stop(name);
-					}
-				});
-				actions.add(stopButton);
+				stopButton.setOnAction(ae -> JobsController.this.stop(name));
+				buttons.add(stopButton);
 			}
 
 			if (status.equals("PAUSED")) {
 				Button stopButton = new Button("Stop");
-				stopButton.setOnAction(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent actionEvent) {
-						JobsController.this.stop(name);
-					}
-				});
-				actions.add(stopButton);
+				stopButton.setOnAction(ae -> JobsController.this.stop(name));
+				buttons.add(stopButton);
 			}
+			actions = new SimpleObjectProperty<>(buttons);
 		}
 
 		public StringProperty getName() {
@@ -881,10 +868,7 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		public StringProperty getEndTime() {
-			if (endTime != null) {
-				return endTime;
-			}
-			return null;
+			return endTime;
 		}
 
 		public void setEndTime(String endTime) {
@@ -915,32 +899,31 @@ public class JobsController extends TradistaControllerAdapter {
 			this.jobType.set(jobType);
 		}
 
-		public long getId() {
-			return id.get();
+		public LongProperty getId() {
+			return id;
 		}
 
 		public void setId(long id) {
 			this.id.set(id);
 		}
 
-		public List<Button> getActions() {
+		public ObjectProperty<List<Button>> getActions() {
 			return actions;
 		}
 
 		public void setActions(List<Button> buttons) {
-			actions.clear();
-			this.actions.addAll(buttons);
+			actions.set(buttons);
 		}
 
 		@Override
 		public int compareTo(JobExecutionProperty o) {
-			if (getId() < o.getId()) {
+			if (getId().get() < o.getId().get()) {
 				return -1;
 			}
-			if (getId() == o.getId()) {
+			if (getId().get() == o.getId().get()) {
 				return 0;
 			}
-			if (getId() > o.getId()) {
+			if (getId().get() > o.getId().get()) {
 				return 1;
 			}
 
@@ -951,18 +934,15 @@ public class JobsController extends TradistaControllerAdapter {
 	}
 
 	private void refreshJobExecutionTable() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				Set<TradistaJobExecution> jobExecutions;
-				try {
-					jobExecutions = batchBusinessDelegate.getJobExecutions(jobExecutionDate.getValue(), po);
-					ObservableList<JobExecutionProperty> data = buildJobExecutionsTableContent(jobExecutions);
-					jobExecutionsTable.setItems(data);
-				} catch (TradistaBusinessException tbe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-					alert.showAndWait();
-				}
+		Platform.runLater(() -> {
+			Set<TradistaJobExecution> jobExecutions;
+			try {
+				jobExecutions = batchBusinessDelegate.getJobExecutions(jobExecutionDate.getValue(), po);
+				ObservableList<JobExecutionProperty> data = buildJobExecutionsTableContent(jobExecutions);
+				jobExecutionsTable.setItems(data);
+			} catch (TradistaBusinessException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+				alert.showAndWait();
 			}
 		});
 	}

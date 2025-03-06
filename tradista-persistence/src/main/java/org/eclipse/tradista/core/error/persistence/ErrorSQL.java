@@ -37,22 +37,25 @@ import org.eclipse.tradista.core.error.model.Error.Status;
 public class ErrorSQL {
 
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
-		Set<String> errorTypes = TradistaUtil.getAllErrorTypes();
+		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();
 		Set<Long> ids = getErrorIds(errorType, status, errorDateFrom, errorDateTo);
 		try {
 			if (ids != null && !ids.isEmpty()) {
-				for (String err : errorTypes) {
+				for (String err : errorClassNames) {
 					Class<?> persistenceClass = null;
 					List<Class<?>> klasses = TradistaUtil.getAllClassesByRegex("[^*]+.persistence." + err + "SQL",
 							"org.eclipse.tradista.**");
 					if (klasses != null && klasses.size() > 1) {
 						persistenceClass = klasses.get(0);
+						TradistaUtil.callMethod(persistenceClass.getName(), Void.class, "deleteErrors", ids);
+					} else {
+						throw new TradistaTechnicalException(
+								String.format("the persistence class has not been found for this error type: %s", err));
 					}
-					TradistaUtil.callMethod(persistenceClass.getName(), Void.class, "deleteErrors", ids);
 				}
 			}
-		} catch (TradistaBusinessException abe) {
-			throw new TradistaTechnicalException(abe);
+		} catch (TradistaBusinessException tbe) {
+			throw new TradistaTechnicalException(tbe);
 		}
 		ErrorSQL.deleteErrors(ids);
 	}
@@ -110,7 +113,7 @@ public class ErrorSQL {
 				ResultSet results = stmtGetErrorIds.executeQuery(sqlQuery.toString())) {
 			while (results.next()) {
 				if (ids == null) {
-					ids = new HashSet<Long>();
+					ids = new HashSet<>();
 				}
 				ids.add(results.getLong("id"));
 			}

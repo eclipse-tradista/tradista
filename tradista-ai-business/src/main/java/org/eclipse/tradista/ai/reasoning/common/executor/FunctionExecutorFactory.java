@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ai.reasoning.common.executor;
 
+import org.apache.commons.lang3.StringUtils;
+
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
  * 
@@ -17,13 +19,19 @@ package org.eclipse.tradista.ai.reasoning.common.executor;
  ********************************************************************************/
 
 import org.eclipse.tradista.ai.reasoning.common.model.FunctionExecutor;
-import org.eclipse.tradista.ai.reasoning.common.model.NPVFXGTEFunction;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 
 public final class FunctionExecutorFactory {
 
+	private FunctionExecutorFactory() {
+	}
+
 	public static FunctionExecutor<?> getFunctionExecutor(String functionName) {
-		return TradistaUtil.getInstance(FunctionExecutor.class, "org.eclipse.tradista.ai.reasoning.common.executor."
-				+ NPVFXGTEFunction.NPV_FX_GTE.toUpperCase() + "FunctionExecutor");
+		if (StringUtils.isEmpty(functionName)) {
+			throw new TradistaTechnicalException("Function name is mandatory.");
+		}
+		return TradistaUtil.getInstance(FunctionExecutor.class,
+				"org.eclipse.tradista.ai.reasoning.common.executor." + functionName.toUpperCase() + "FunctionExecutor");
 	}
 }

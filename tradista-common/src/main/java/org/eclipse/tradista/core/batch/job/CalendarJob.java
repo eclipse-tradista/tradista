@@ -38,10 +38,10 @@ public class CalendarJob extends TradistaJob {
 	@JobProperty(name = "FilePath")
 	private String filePath;
 
-	@JobProperty(name = "replaceCalendar")
+	@JobProperty(name = "ReplaceCalendar", type = "Boolean")
 	private boolean replaceCalendar;
 
-	@JobProperty(name = "fieldSeparator")
+	@JobProperty(name = "FieldSeparator")
 	private String fieldSeparator;
 
 	@SuppressWarnings({ "unchecked" })
@@ -52,7 +52,7 @@ public class CalendarJob extends TradistaJob {
 		CalendarBusinessDelegate calendarBusinessDelegate;
 		Map<String, String> config = null;
 		if (fieldSeparator != null && !fieldSeparator.isEmpty()) {
-			config = new HashMap<String, String>();
+			config = new HashMap<>();
 			config.put("fieldSeparator", fieldSeparator);
 		}
 
