@@ -161,6 +161,7 @@ public class MainEntry extends Application {
 
 				// Mock tasks
 				Thread.sleep(750);
+				TradistaGUIUtil.warmUpCache();
 				updateProgress(1, 3);
 				Thread.sleep(750);
 				ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
@@ -182,7 +183,7 @@ public class MainEntry extends Application {
 				}
 				try {
 					TradistaProperties.load(properties);
-				} catch (TradistaBusinessException abe) {
+				} catch (TradistaBusinessException tbe) {
 					// should not happen here.
 				}
 				updateProgress(3, 3);

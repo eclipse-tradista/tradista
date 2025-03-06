@@ -1,8 +1,6 @@
 package org.eclipse.tradista.core.batch.job;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.batch.jobproperty.JobProperty;
@@ -31,16 +29,16 @@ import org.quartz.JobExecutionException;
 
 public class CleanErrorJob extends TradistaJob {
 
-	@JobProperty(name = "ErrorType")
+	@JobProperty(name = "ErrorType", type = "ErrorType")
 	private String errorType;
 
-	@JobProperty(name = "ErrorDateFrom")
-	private String errorDateFrom;
+	@JobProperty(name = "ErrorDateFrom", type = "Date")
+	private LocalDate errorDateFrom;
 
-	@JobProperty(name = "ErrorDateTo")
-	private String errorDateTo;
+	@JobProperty(name = "ErrorDateTo", type = "Date")
+	private LocalDate errorDateTo;
 
-	@JobProperty(name = "Status")
+	@JobProperty(name = "Status", type = "ErrorStatus")
 	private String status;
 
 	@Override
@@ -51,15 +49,8 @@ public class CleanErrorJob extends TradistaJob {
 			performInterruption(execContext);
 		}
 
-		LocalDate from = null;
-		LocalDate to = null;
 		Status statusEnumValue = null;
-		if (!StringUtils.isEmpty(errorDateFrom)) {
-			from = LocalDate.parse(errorDateFrom, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		}
-		if (!StringUtils.isEmpty(errorDateTo)) {
-			to = LocalDate.parse(errorDateTo, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		}
+
 		if (!StringUtils.isEmpty(status)) {
 			statusEnumValue = Status.valueOf(status);
 		}
@@ -68,7 +59,7 @@ public class CleanErrorJob extends TradistaJob {
 			performInterruption(execContext);
 		}
 
-		new ErrorBusinessDelegate().deleteErrors(errorType, statusEnumValue, from, to);
+		new ErrorBusinessDelegate().deleteErrors(errorType, statusEnumValue, errorDateFrom, errorDateTo);
 
 		if (isInterrupted) {
 			performInterruption(execContext);
@@ -91,33 +82,17 @@ public class CleanErrorJob extends TradistaJob {
 						org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, "ALL"));
 			}
 		}
-		try {
-			if (!StringUtils.isEmpty(errorDateFrom)) {
-				LocalDate.parse(errorDateFrom, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-			}
-		} catch (DateTimeParseException dtpe) {
-			throw new TradistaBusinessException(
-					String.format("The value date must be a valid date: %s.", dtpe.getMessage()));
-		}
-		try {
-			if (!StringUtils.isEmpty(errorDateTo)) {
-				LocalDate.parse(errorDateTo, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-			}
-		} catch (DateTimeParseException dtpe) {
-			throw new TradistaBusinessException(
-					String.format("The value date must be a valid date: %s.", dtpe.getMessage()));
-		}
 	}
 
 	public void setErrorType(String errorType) {
 		this.errorType = errorType;
 	}
 
-	public void setErrorDateFrom(String errorDateFrom) {
+	public void setErrorDateFrom(LocalDate errorDateFrom) {
 		this.errorDateFrom = errorDateFrom;
 	}
 
-	public void setErrorDateTo(String errorDateTo) {
+	public void setErrorDateTo(LocalDate errorDateTo) {
 		this.errorDateTo = errorDateTo;
 	}
 
