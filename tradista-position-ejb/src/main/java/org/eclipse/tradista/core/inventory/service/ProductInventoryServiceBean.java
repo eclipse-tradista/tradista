@@ -69,7 +69,7 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 		boolean inventoryFound = false;
 		LocalDate firstInventoryFromDateAfterTradeSettlementDate = null;
 		ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-		Set<ProductInventory> inventoriesToBeSaved = new HashSet<ProductInventory>();
+		Set<ProductInventory> inventoriesToBeSaved = new HashSet<>();
 		// 1. Gets the last inventory before the trade date for this product and
 		// book
 		ProductInventory inventory = ProductInventorySQL.getLastProductInventoryBeforeDateByProductAndBookIds(
@@ -166,11 +166,11 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 	}
 
 	private void fusionContiguousInventories(long productId, long bookId) {
-		Map<LocalDate, ProductInventory> inventories = new HashMap<LocalDate, ProductInventory>();
+		Map<LocalDate, ProductInventory> inventories = new HashMap<>();
 		Set<ProductInventory> inventoriesByProductAndBookIds = ProductInventorySQL
 				.getProductInventoriesByProductAndBookIds(productId, bookId);
-		Set<ProductInventory> inventoriesToBeSaved = new HashSet<ProductInventory>();
-		Set<Long> inventoryIdsToBeDeleted = new HashSet<Long>();
+		Set<ProductInventory> inventoriesToBeSaved = new HashSet<>();
+		Set<Long> inventoryIdsToBeDeleted = new HashSet<>();
 
 		if (inventoriesByProductAndBookIds != null && !inventoriesByProductAndBookIds.isEmpty()) {
 			for (ProductInventory inv : inventoriesByProductAndBookIds) {
@@ -235,29 +235,29 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 
 		// 2. For each of them, check if the product is expired.
 		if (openPositions != null && !openPositions.isEmpty()) {
-			Set<ProductInventory> expiredPos = new HashSet<ProductInventory>();
+			Set<ProductInventory> expiredPos = new HashSet<>();
 			for (ProductInventory inv : openPositions) {
 				Product prod = inv.getProduct();
-				if (prod instanceof Equity) {
-					if (((Equity) prod).getActiveTo().isBefore(LocalDate.now())) {
+				if (prod instanceof Equity equity) {
+					if (equity.getActiveTo().isBefore(LocalDate.now())) {
 						inv.setTo(LocalDate.now());
 						expiredPos.add(inv);
 					}
 				}
-				if (prod instanceof Bond) {
-					if (((Bond) prod).getMaturityDate().isBefore(LocalDate.now())) {
+				if (prod instanceof Bond bond) {
+					if (bond.getMaturityDate().isBefore(LocalDate.now())) {
 						inv.setTo(LocalDate.now());
 						expiredPos.add(inv);
 					}
 				}
-				if (prod instanceof EquityOption) {
-					if (((EquityOption) prod).getMaturityDate().isBefore(LocalDate.now())) {
+				if (prod instanceof EquityOption equityOption) {
+					if (equityOption.getMaturityDate().isBefore(LocalDate.now())) {
 						inv.setTo(LocalDate.now());
 						expiredPos.add(inv);
 					}
 				}
-				if (prod instanceof Future) {
-					if (((Future) prod).getMaturityDate().isBefore(LocalDate.now())) {
+				if (prod instanceof Future future) {
+					if (future.getMaturityDate().isBefore(LocalDate.now())) {
 						inv.setTo(LocalDate.now());
 						expiredPos.add(inv);
 					}
@@ -273,7 +273,7 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 		Set<Product> products = productBusinessDelegate.getAllProducts();
 		Map<String, BigDecimal> bookProductContent = null;
 		if (products != null && !products.isEmpty()) {
-			bookProductContent = new HashMap<String, BigDecimal>(products.size());
+			bookProductContent = new HashMap<>(products.size());
 			for (Product prod : products) {
 				BigDecimal qty = ProductInventorySQL.getQuantityByDateProductAndBookIds(prod.getId(), bookId, date);
 				if (qty.signum() != 0) {

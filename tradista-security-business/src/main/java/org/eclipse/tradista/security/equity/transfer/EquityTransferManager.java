@@ -4,13 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import org.eclipse.tradista.core.transfer.model.CashTransfer;
 import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.model.ProductTransfer;
@@ -47,16 +47,19 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 
 	protected ConfigurationBusinessDelegate configurationBusinessDelegate;
 
+	protected ProductInventoryBusinessDelegate productInventoryBusinessDelegate;
+
 	public EquityTransferManager() {
 		transferBusinessDelegate = new TransferBusinessDelegate();
 		fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
 		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
+		productInventoryBusinessDelegate = new ProductInventoryBusinessDelegate();
 	}
 
 	@Override
 	public void createTransfers(EquityTradeEvent event) throws TradistaBusinessException {
 		EquityTrade trade = event.getTrade();
-		List<Transfer> transfersToBeSaved = new ArrayList<Transfer>();
+		List<Transfer> transfersToBeSaved = new ArrayList<>();
 
 		List<CashTransfer> cashTransfers = null;
 		if (event.getOldTrade() != null) {
@@ -98,7 +101,7 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 					}
 				}
 				if (trade.getSettlementDate() != null) {
-					transfersToBeSaved.add(createNewEquityPayment(cashTransfers, trade));
+					transfersToBeSaved.add(createNewEquityPayment(trade));
 				}
 
 			}
@@ -130,7 +133,7 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 
 		} else {
 			transfersToBeSaved.add(createNewEquitySettlement(trade));
-			transfersToBeSaved.add(createNewEquityPayment(cashTransfers, trade));
+			transfersToBeSaved.add(createNewEquityPayment(trade));
 			if (trade.getProduct().isPayDividend()) {
 				transfersToBeSaved.addAll(createNewDividends(cashTransfers, trade));
 			}
@@ -142,7 +145,7 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 
 	}
 
-	private ProductTransfer createNewEquitySettlement(EquityTrade trade) throws TradistaBusinessException {
+	private ProductTransfer createNewEquitySettlement(EquityTrade trade) {
 		ProductTransfer productTransfer = new ProductTransfer(trade.getBook(), TransferPurpose.EQUITY_SETTLEMENT,
 				trade.getSettlementDate(), trade);
 		productTransfer.setCreationDateTime(LocalDateTime.now());
@@ -167,13 +170,13 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 				null);
 		if (existingDividends != null) {
 			existingDividends = existingDividends.stream().filter(t -> !t.getStatus().equals(Transfer.Status.CANCELED))
-					.collect(Collectors.toList());
+					.toList();
 		}
 
 		if (cashTransfers == null) {
 			cashTransfers = EquityTransferUtil.generateDividends(trade);
 		}
-		List<CashTransfer> dividends = new ArrayList<CashTransfer>();
+		List<CashTransfer> dividends = new ArrayList<>();
 
 		for (CashTransfer transfer : cashTransfers) {
 			if (transfer.getPurpose().equals(TransferPurpose.DIVIDEND)
@@ -185,8 +188,7 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 		return dividends;
 	}
 
-	private CashTransfer createNewEquityPayment(List<CashTransfer> cashTransfers, EquityTrade trade)
-			throws TradistaBusinessException {
+	private CashTransfer createNewEquityPayment(EquityTrade trade) {
 
 		CashTransfer payment = new CashTransfer(trade.getBook(), TransferPurpose.EQUITY_PAYMENT,
 				trade.getSettlementDate(), trade, trade.getCurrency());
@@ -205,69 +207,57 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 
 	@Override
 	public void fixCashTransfer(CashTransfer transfer, long quoteSetId) throws TradistaBusinessException {
-		EquityTrade trade = (EquityTrade) transfer.getTrade();
-		Equity equity = trade.getProduct();
+		Equity equity = (Equity) transfer.getProduct();
 		String quoteName = Equity.EQUITY + "." + equity.getIsin() + equity.getExchange();
 		BigDecimal equityPrice = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId, QuoteType.EQUITY_PRICE,
 				QuoteValue.CLOSE, transfer.getFixingDateTime().toLocalDate());
 		BigDecimal dividend;
-		if (equityPrice == null) {
-			FixingError fixingError = new FixingError();
-			fixingError.setCashTransfer(transfer);
-			fixingError.setErrorDate(LocalDateTime.now());
-			String errorMsg = String.format(
-					"Transfer %n cannot be fixed. Impossible to get the %s price closing value as of %tD in QuoteSet %s.",
-					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
-			fixingError.setMessage(errorMsg);
-			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
-			List<FixingError> errors = new ArrayList<FixingError>(1);
-			errors.add(fixingError);
-			fixingErrorBusinessDelegate.saveFixingErrors(errors);
-			throw new TradistaBusinessException(errorMsg);
-		}
 		BigDecimal dividendYield = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId, QuoteType.DIVIDEND_YIELD,
 				QuoteValue.CLOSE, transfer.getFixingDateTime().toLocalDate());
+
 		if (dividendYield == null) {
 			FixingError fixingError = new FixingError();
 			fixingError.setCashTransfer(transfer);
 			fixingError.setErrorDate(LocalDateTime.now());
 			String errorMsg = String.format(
-					"Transfer %n cannot be fixed. Impossible to get the %s dividend yield closing value as of %tD in QuoteSet %s.",
+					"Transfer %d cannot be fixed. Impossible to get the %s dividend yield closing value as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
 			fixingError.setMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
-			List<FixingError> errors = new ArrayList<FixingError>(1);
+			List<FixingError> errors = new ArrayList<>(1);
 			errors.add(fixingError);
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);
 		}
 
-		dividend = equityPrice.divide(BigDecimal.valueOf(100), configurationBusinessDelegate.getRoundingMode())
-				.multiply(dividendYield);
-
-		if (dividend.signum() == 0) {
+		if (dividendYield.signum() <= 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
 			return;
 			// TODO add a warn somewhere ?
 		}
-		Transfer.Direction direction;
-		if (trade.isBuy()) {
-			if (dividend.signum() > 0) {
-				direction = Transfer.Direction.RECEIVE;
-			} else {
-				direction = Transfer.Direction.PAY;
-				dividend = dividend.negate();
-			}
-		} else {
-			if (dividend.signum() > 0) {
-				direction = Transfer.Direction.RECEIVE;
-			} else {
-				direction = Transfer.Direction.PAY;
-				dividend = dividend.negate();
-			}
+
+		if (equityPrice == null) {
+			FixingError fixingError = new FixingError();
+			fixingError.setCashTransfer(transfer);
+			fixingError.setErrorDate(LocalDateTime.now());
+			String errorMsg = String.format(
+					"Transfer %d cannot be fixed. Impossible to get the %s price closing value as of %tD in QuoteSet %d.",
+					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
+			fixingError.setMessage(errorMsg);
+			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
+			List<FixingError> errors = new ArrayList<>(1);
+			errors.add(fixingError);
+			fixingErrorBusinessDelegate.saveFixingErrors(errors);
+			throw new TradistaBusinessException(errorMsg);
 		}
-		transfer.setDirection(direction);
+
+		BigDecimal quantity = productInventoryBusinessDelegate.getQuantityByDateProductAndBookIds(equity.getId(),
+				transfer.getBook().getId(), transfer.getFixingDateTime().toLocalDate());
+
+		dividend = equityPrice.divide(BigDecimal.valueOf(100), configurationBusinessDelegate.getRoundingMode())
+				.multiply(dividendYield).multiply(quantity);
+		transfer.setDirection(Transfer.Direction.RECEIVE);
 		transfer.setAmount(dividend);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}

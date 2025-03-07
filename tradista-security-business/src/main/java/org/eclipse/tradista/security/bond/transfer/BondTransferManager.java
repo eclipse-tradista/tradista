@@ -20,6 +20,7 @@ import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
 import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.security.bond.messaging.BondTradeEvent;
+import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.model.BondTrade;
 
 /********************************************************************************
@@ -340,12 +341,11 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 
 	@Override
 	public void fixCashTransfer(CashTransfer transfer, long quoteSetId) throws TradistaBusinessException {
-		BondTrade trade = (BondTrade) transfer.getTrade();
-		BigDecimal notional = trade.getAmount();
+		Bond bond = (Bond) transfer.getProduct();
+		BigDecimal notional = bond.getPrincipal();
 		BigDecimal fractionedNotional;
 		BigDecimal amount;
-		String quoteName = Index.INDEX + "." + trade.getProduct().getReferenceRateIndex() + "."
-				+ trade.getProduct().getCouponFrequency();
+		String quoteName = Index.INDEX + "." + bond.getReferenceRateIndex() + "." + bond.getCouponFrequency();
 		BigDecimal ir = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId, QuoteType.INTEREST_RATE,
 				QuoteValue.CLOSE, transfer.getFixingDateTime().toLocalDate());
 		if (ir == null) {
@@ -353,7 +353,7 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 			fixingError.setCashTransfer(transfer);
 			fixingError.setErrorDate(LocalDateTime.now());
 			String errorMsg = String.format(
-					"Transfer %s cannot be fixed. Impossible to get the %s index closing value as of %tD in QuoteSet %s.",
+					"Transfer %d cannot be fixed. Impossible to get the %s index value (CLOSE) as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
 			fixingError.setMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
@@ -362,7 +362,7 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);
 		}
-		fractionedNotional = notional.multiply(PricerUtil.daysToYear(trade.getProduct().getCouponFrequency()));
+		fractionedNotional = notional.multiply(PricerUtil.daysToYear(bond.getCouponFrequency()));
 		amount = fractionedNotional.multiply(ir.divide(BigDecimal.valueOf(100),
 				configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode()));
 		if (amount.signum() == 0) {
@@ -372,21 +372,11 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
-
-		if (trade.isBuy()) {
-			if (amount.signum() > 0) {
-				direction = Transfer.Direction.RECEIVE;
-			} else {
-				direction = Transfer.Direction.PAY;
-				amount = amount.negate();
-			}
+		if (amount.signum() > 0) {
+			direction = Transfer.Direction.RECEIVE;
 		} else {
-			if (amount.signum() > 0) {
-				direction = Transfer.Direction.PAY;
-			} else {
-				direction = Transfer.Direction.RECEIVE;
-				amount = amount.negate();
-			}
+			direction = Transfer.Direction.PAY;
+			amount = amount.negate();
 		}
 
 		transfer.setDirection(direction);

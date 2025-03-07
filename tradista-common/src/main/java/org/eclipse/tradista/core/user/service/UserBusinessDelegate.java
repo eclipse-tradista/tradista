@@ -98,7 +98,7 @@ public class UserBusinessDelegate {
 			errMsg.append(String.format("The login cannot be empty.%n"));
 		}
 		if (StringUtils.isBlank(password)) {
-			errMsg.append(String.format("The password cannot be empty."));
+			errMsg.append("The password cannot be empty.");
 		}
 		if (errMsg.length() > 0) {
 			throw new TradistaBusinessException(errMsg.toString());

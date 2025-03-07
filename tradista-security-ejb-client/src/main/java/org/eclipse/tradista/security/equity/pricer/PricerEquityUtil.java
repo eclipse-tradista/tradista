@@ -53,10 +53,10 @@ public final class PricerEquityUtil {
 		}
 
 		if (params == null) {
-			errMsg.append(String.format("Pricing Parameters Set is mandatory."));
+			errMsg.append("Pricing Parameters Set is mandatory.");
 		} else {
 			if (params.getQuoteSet() == null) {
-				errMsg.append(String.format("Pricing Parameters Set quote set is mandatory."));
+				errMsg.append("Pricing Parameters Set quote set is mandatory.");
 			}
 		}
 
@@ -286,7 +286,7 @@ public final class PricerEquityUtil {
 			errMsg.append(String.format("Pricing Parameters Set is mandatory.%n"));
 		} else {
 			if (params.getQuoteSet() == null) {
-				errMsg.append(String.format("Pricing Parameters Set quote set is mandatory."));
+				errMsg.append("Pricing Parameters Set quote set is mandatory.");
 			}
 		}
 
@@ -298,7 +298,7 @@ public final class PricerEquityUtil {
 			pricingDate = LocalDate.MIN;
 		}
 
-		List<CashFlow> cfs = new ArrayList<CashFlow>();
+		List<CashFlow> cfs = new ArrayList<>();
 		CashFlow payment = new CashFlow();
 
 		if (!trade.getSettlementDate().isBefore(pricingDate)) {

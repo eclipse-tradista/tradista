@@ -55,7 +55,7 @@ public class FXVolatilitySurface extends VolatilitySurface<Integer, BigDecimal, 
 			throw new TradistaBusinessException("The surface points list is empty.");
 		}
 
-		List<BigDecimal> volats = new ArrayList<BigDecimal>();
+		List<BigDecimal> volats = new ArrayList<>();
 
 		for (SurfacePoint<Integer, BigDecimal, BigDecimal> p : points) {
 			if (p.getxAxis() == optionExpiry) {
@@ -65,7 +65,7 @@ public class FXVolatilitySurface extends VolatilitySurface<Integer, BigDecimal, 
 
 		if (volats.isEmpty()) {
 			throw new TradistaBusinessException(
-					String.format("No values found for this option expiry: %", optionExpiry));
+					String.format("No values found for this option expiry: %d", optionExpiry));
 		}
 
 		BigDecimal avgVolat = BigDecimal.valueOf(0);

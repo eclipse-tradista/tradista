@@ -11,6 +11,7 @@ import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import org.eclipse.tradista.core.transfer.model.CashTransfer;
 import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.model.ProductTransfer;
@@ -20,6 +21,7 @@ import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
 import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.ir.future.messaging.FutureTradeEvent;
+import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
 
 /********************************************************************************
@@ -44,16 +46,19 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 
 	protected FixingErrorBusinessDelegate fixingErrorBusinessDelegate;
 
+	protected ProductInventoryBusinessDelegate productInventoryBusinessDelegate;
+
 	public FutureTransferManager() {
 		transferBusinessDelegate = new TransferBusinessDelegate();
 		fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
+		productInventoryBusinessDelegate = new ProductInventoryBusinessDelegate();
 	}
 
 	@Override
 	public void createTransfers(FutureTradeEvent event) throws TradistaBusinessException {
 
 		FutureTrade trade = event.getTrade();
-		List<Transfer> transfersToBeSaved = new ArrayList<Transfer>();
+		List<Transfer> transfersToBeSaved = new ArrayList<>();
 
 		// Get the cash transfers currently planned to be received for this
 		// future
@@ -106,7 +111,7 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 		}
 	}
 
-	private ProductTransfer createNewFutureSettlement(FutureTrade trade) throws TradistaBusinessException {
+	private ProductTransfer createNewFutureSettlement(FutureTrade trade) {
 
 		ProductTransfer futureSettlement = new ProductTransfer(trade.getBook(), TransferPurpose.FUTURE_SETTLEMENT,
 				trade.getSettlementDate(), trade);
@@ -123,8 +128,7 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 		return futureSettlement;
 	}
 
-	private CashTransfer createCashSettlement(List<CashTransfer> existingTransfers, FutureTrade trade)
-			throws TradistaBusinessException {
+	private CashTransfer createCashSettlement(List<CashTransfer> existingTransfers, FutureTrade trade) {
 
 		CashTransfer cashSettlement = new CashTransfer(trade.getBook(), trade.getProduct(),
 				TransferPurpose.CASH_SETTLEMENT, trade.getSettlementDate(), trade.getCurrency());
@@ -148,16 +152,31 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 		return null;
 	}
 
+	/**
+	 * Fixes the cash transfer (the final payment when the related contract
+	 * matures). We calculate the average price and compare it to the fixing rate,
+	 * so we can assess if a payment should be made or received
+	 * 
+	 * @param transfer   the cash transfer to fix
+	 * @param quoteSetId the quote set id used to retrieve the index to determine
+	 *                   the fixing rate
+	 * @throws TradistaBusinessException when: - the fixing rate could not be found
+	 *                                   - the quantity or the average price from
+	 *                                   the inventory could not be found for this
+	 *                                   book - the transfer could not be deleted or
+	 *                                   could not be updated.
+	 */
 	@Override
 	public void fixCashTransfer(CashTransfer transfer, long quoteSetId) throws TradistaBusinessException {
-		FutureTrade trade = (FutureTrade) transfer.getTrade();
+		Future future = (Future) transfer.getProduct();
 		BigDecimal fixingRate = null;
 		BigDecimal difference = null;
 		BigDecimal amount = null;
 		// 1. Get the right rate
 		// TODO Put the quoteset from the Transfer Configuration as parameter of
 		// PricerUtil.getValueAsOfDateFromQuote
-		String quoteName = Index.INDEX + "." + trade.getReferenceRateIndex() + "." + trade.getReferenceRateIndexTenor();
+		String quoteName = Index.INDEX + "." + future.getReferenceRateIndex() + "."
+				+ future.getReferenceRateIndexTenor();
 		fixingRate = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId, QuoteType.INTEREST_RATE,
 				QuoteValue.CLOSE, transfer.getFixingDateTime().toLocalDate());
 
@@ -166,20 +185,24 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 			fixingError.setCashTransfer(transfer);
 			fixingError.setErrorDate(LocalDateTime.now());
 			String errorMsg = String.format(
-					"Transfer %n cannot be fixed. Impossible to get the %s quote value as of %tD in QuoteSet %s.",
+					"Transfer %d cannot be fixed. Impossible to get the %s index value (CLOSE) as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, LocalDate.now(), quoteSetId);
 			fixingError.setMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
-			List<FixingError> errors = new ArrayList<FixingError>(1);
+			List<FixingError> errors = new ArrayList<>(1);
 			errors.add(fixingError);
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);
 		}
+		BigDecimal averagePrice = productInventoryBusinessDelegate.getAveragePriceByDateProductAndBookIds(
+				future.getId(), transfer.getBook().getId(), transfer.getFixingDateTime().toLocalDate());
+		BigDecimal quantity = productInventoryBusinessDelegate.getQuantityByDateProductAndBookIds(future.getId(),
+				transfer.getBook().getId(), transfer.getFixingDateTime().toLocalDate());
+
 		BigDecimal settlementPrice = new BigDecimal("100").subtract(fixingRate);
-		difference = trade.getAmount().subtract(settlementPrice);
+		difference = averagePrice.subtract(settlementPrice);
 		amount = difference.abs().multiply(new BigDecimal("100"))
-				.multiply(trade.getProduct().getContractSpecification().getPriceVariationByBasisPoint())
-				.multiply(trade.getQuantity());
+				.multiply(future.getContractSpecification().getPriceVariationByBasisPoint()).multiply(quantity);
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
@@ -187,19 +210,13 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 			// TODO add a warn somewhere ?
 		}
 		transfer.setAmount(amount);
-		if (trade.isBuy()) {
-			if (difference.signum() < 0) {
-				transfer.setDirection(Transfer.Direction.RECEIVE);
-			} else {
-				transfer.setDirection(Transfer.Direction.PAY);
-			}
+
+		if (difference.signum() < 0) {
+			transfer.setDirection(Transfer.Direction.RECEIVE);
 		} else {
-			if (difference.signum() < 0) {
-				transfer.setDirection(Transfer.Direction.PAY);
-			} else {
-				transfer.setDirection(Transfer.Direction.RECEIVE);
-			}
+			transfer.setDirection(Transfer.Direction.PAY);
 		}
+
 		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}

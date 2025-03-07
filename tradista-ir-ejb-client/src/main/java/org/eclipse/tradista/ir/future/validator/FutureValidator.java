@@ -34,8 +34,8 @@ public class FutureValidator extends DefaultProductValidator {
 
 		try {
 			validateSymbol(future.getSymbol());
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(String.format(abe.getMessage() + "%n"));
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(String.format("%s%n", tbe.getMessage()));
 		}
 
 		if (future.getContractSpecification() == null) {

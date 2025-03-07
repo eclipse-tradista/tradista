@@ -146,7 +146,7 @@ public class CcySwapTradeValidator extends DefaultTradeValidator {
 		} else {
 			if (ccySwapTrade.getCurrency() != null) {
 				if (ccySwapTrade.getCurrency().equals(ccySwapTrade.getCurrencyTwo())) {
-					errMsg.append(String.format("The currency 1 (%s) must be different of the currency 2.%n",
+					errMsg.append(String.format("The currency 1 (%s) must be different of the currency 2 (%s).%n",
 							ccySwapTrade.getCurrency(), ccySwapTrade.getCurrencyTwo()));
 				}
 			}

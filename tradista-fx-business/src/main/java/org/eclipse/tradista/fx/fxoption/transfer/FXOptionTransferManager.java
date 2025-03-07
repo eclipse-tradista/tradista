@@ -169,12 +169,12 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 			fixingError.setCashTransfer(transfer);
 			fixingError.setErrorDate(LocalDateTime.now());
 			String errorMsg = String.format(
-					"Transfer %n cannot be fixed. Impossible to get the %s/%s FX closing rate as of %tD in QuoteSet %s.",
+					"Transfer %d cannot be fixed. Impossible to get the %s/%s FX closing rate as of %tD in QuoteSet %d.",
 					transfer.getId(), fxOptionTrade.getUnderlying().getCurrency(),
 					fxOptionTrade.getUnderlying().getCurrencyOne(), transfer.getFixingDateTime(), quoteSetId);
 			fixingError.setMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
-			List<FixingError> errors = new ArrayList<FixingError>(1);
+			List<FixingError> errors = new ArrayList<>(1);
 			errors.add(fixingError);
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);
