@@ -35,7 +35,6 @@ import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaFXCurveComboBox;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
-import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import org.eclipse.tradista.core.pricing.ui.view.PricingParameterCreatorDialog;
 import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox;
@@ -1877,7 +1876,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				productTypeComboBox.setValue(getItem());
 			}
 			productTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			productTypeComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			productTypeComboBox.focusedProperty().addListener(new ChangeListener<>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
 					if (!arg2) {
@@ -1898,7 +1897,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private ObservableList<PricingParamProperty> buildTableContent(PricingParameter data) {
 
-		List<PricingParamProperty> pricingParamPropertyList = new ArrayList<PricingParamProperty>();
+		List<PricingParamProperty> pricingParamPropertyList = new ArrayList<>();
 
 		for (Map.Entry<String, String> entry : data.getParams().entrySet()) {
 			pricingParamPropertyList.add(new PricingParamProperty(entry.getKey(), entry.getValue()));
@@ -1912,7 +1911,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private ObservableList<DiscountCurveProperty> buildDiscountCurvesTableContent(PricingParameter data) {
 
-		List<DiscountCurveProperty> discountCurvesPropertyList = new ArrayList<DiscountCurveProperty>();
+		List<DiscountCurveProperty> discountCurvesPropertyList = new ArrayList<>();
 
 		for (Map.Entry<Currency, InterestRateCurve> entry : data.getDiscountCurves().entrySet()) {
 			discountCurvesPropertyList.add(new DiscountCurveProperty(entry.getKey(), entry.getValue()));
@@ -1926,7 +1925,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private ObservableList<IndexCurveProperty> buildIndexCurvesTableContent(PricingParameter data) {
 
-		List<IndexCurveProperty> indexCurvesPropertyList = new ArrayList<IndexCurveProperty>();
+		List<IndexCurveProperty> indexCurvesPropertyList = new ArrayList<>();
 
 		for (Map.Entry<Index, InterestRateCurve> entry : data.getIndexCurves().entrySet()) {
 			indexCurvesPropertyList.add(new IndexCurveProperty(entry.getKey(), entry.getValue()));
@@ -1940,7 +1939,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private ObservableList<FXCurveProperty> buildFXCurvesTableContent(PricingParameter data) {
 
-		List<FXCurveProperty> fxCurvesPropertyList = new ArrayList<FXCurveProperty>();
+		List<FXCurveProperty> fxCurvesPropertyList = new ArrayList<>();
 
 		for (Map.Entry<CurrencyPair, FXCurve> entry : data.getFxCurves().entrySet()) {
 			fxCurvesPropertyList.add(new FXCurveProperty(entry.getKey().getPrimaryCurrency(),
@@ -1955,7 +1954,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private ObservableList<CustomPricerProperty> buildCustomPricersTableContent(PricingParameter data) {
 
-		List<CustomPricerProperty> customPricerPropertyList = new ArrayList<CustomPricerProperty>();
+		List<CustomPricerProperty> customPricerPropertyList = new ArrayList<>();
 
 		for (Map.Entry<String, String> entry : data.getCustomPricers().entrySet()) {
 			customPricerPropertyList.add(new CustomPricerProperty(entry.getKey(), entry.getValue()));
@@ -1983,7 +1982,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			pricingParameter.setModules(pricingParameterModuleControllersList.stream().map(c -> c.buildModule())
 					.collect(Collectors.toList()));
 		} else {
-			pricingParameter.setModules(new ArrayList<PricingParameterModule>());
+			pricingParameter.setModules(new ArrayList<>());
 		}
 	}
 

@@ -116,11 +116,11 @@ public class FRATransferManager implements TransferManager<FRATradeEvent> {
 			fixingError.setCashTransfer(transfer);
 			fixingError.setErrorDate(LocalDateTime.now());
 			String errorMsg = String.format(
-					"Transfer %n cannot be fixed. Impossible to get the %s quote value as of %tD in QuoteSet %s.",
+					"Transfer %d cannot be fixed. Impossible to get the %s quote value (CLOSE) as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, LocalDate.now(), quoteSetId);
 			fixingError.setMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
-			List<FixingError> errors = new ArrayList<FixingError>(1);
+			List<FixingError> errors = new ArrayList<>(1);
 			errors.add(fixingError);
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);

@@ -100,14 +100,14 @@ public class CurrenciesController extends TradistaControllerAdapter {
 	public void checkAmounts() throws TradistaBusinessException {
 		if (fixingDateOffset.getText().isEmpty() && nonDeliverable.isSelected()) {
 			throw new TradistaBusinessException(
-					String.format("The fixing date offset cannot be empty when the currency is non deliverable."));
+					"The fixing date offset cannot be empty when the currency is non deliverable.");
 		}
 		if (!fixingDateOffset.getText().isEmpty()) {
 			try {
 				Integer.parseInt(fixingDateOffset.getText());
 			} catch (NumberFormatException nfe) {
 				throw new TradistaBusinessException(
-						String.format("The fixing date offset (%) is not correct.", fixingDateOffset.getText()));
+						String.format("The fixing date offset (%s) is not correct.", fixingDateOffset.getText()));
 			}
 		}
 	}
