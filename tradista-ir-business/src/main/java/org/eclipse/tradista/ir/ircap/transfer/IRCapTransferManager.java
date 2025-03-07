@@ -67,7 +67,7 @@ public class IRCapTransferManager extends IRCapFloorCollarTransferManager {
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);
 		}
-		if (!(ir.compareTo(trade.getCapStrike()) > 0)) {
+		if (ir.compareTo(trade.getCapStrike()) <= 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
 			return;
