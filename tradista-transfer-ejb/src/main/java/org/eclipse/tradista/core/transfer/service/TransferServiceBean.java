@@ -243,7 +243,7 @@ public class TransferServiceBean implements TransferService {
 
 		if (new QuoteBusinessDelegate().getQuoteSetById(quoteSetId) == null) {
 			throw new TradistaBusinessException(
-					String.format("The quoteSet %s doesn't exist in the system.", quoteSetId));
+					String.format("The quoteSet %d doesn't exist in the system.", quoteSetId));
 		}
 		// 1. Get All the Cash Transfers with status UNKNOW
 		List<Transfer> transfers = getTransfers(Transfer.Type.CASH, Transfer.Status.UNKNOWN, null, null, 0, 0, 0, 0,
@@ -272,7 +272,6 @@ public class TransferServiceBean implements TransferService {
 				}
 			}
 		}
-
 	}
 
 }

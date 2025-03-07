@@ -33,6 +33,9 @@ import org.eclipse.tradista.security.equity.model.EquityTrade;
 
 public final class EquityTransferUtil {
 
+	private EquityTransferUtil() {
+	}
+
 	/**
 	 * Returns the list of received dividends for a given equity trade.
 	 * 
@@ -62,7 +65,7 @@ public final class EquityTransferUtil {
 		Equity equity = trade.getProduct();
 
 		Tenor frequency = equity.getDividendFrequency();
-		List<CashTransfer> dividends = new ArrayList<CashTransfer>();
+		List<CashTransfer> dividends = new ArrayList<>();
 
 		LocalDate activeFrom = equity.getActiveFrom();
 

@@ -35,7 +35,7 @@ public abstract class IRCapFloorCollarTransferManager implements TransferManager
 
 	protected FixingErrorBusinessDelegate fixingErrorBusinessDelegate;
 
-	public IRCapFloorCollarTransferManager() {
+	protected IRCapFloorCollarTransferManager() {
 		transferBusinessDelegate = new TransferBusinessDelegate();
 		fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
 	}
@@ -44,7 +44,7 @@ public abstract class IRCapFloorCollarTransferManager implements TransferManager
 	public void createTransfers(IRCapFloorCollarTradeEvent event) throws TradistaBusinessException {
 
 		IRCapFloorCollarTrade trade = event.getTrade();
-		List<Transfer> transfersToBeSaved = new ArrayList<Transfer>();
+		List<Transfer> transfersToBeSaved = new ArrayList<>();
 
 		if (event.getOldTrade() != null) {
 			IRCapFloorCollarTrade oldTrade = event.getOldTrade();
