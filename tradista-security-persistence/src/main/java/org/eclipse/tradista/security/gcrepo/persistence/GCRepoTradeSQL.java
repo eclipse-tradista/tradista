@@ -200,7 +200,7 @@ public class GCRepoTradeSQL {
 			gcRepoTrade = new GCRepoTrade();
 			gcRepoTrade.setCrossCurrencyCollateral(rs.getBoolean("cross_currency_collateral"));
 			gcRepoTrade.setGcBasket(GCBasketSQL.getGCBasketById(rs.getLong("gcbasket_id")));
-			java.sql.Date endDate = rs.getDate("gcrepo_end_date");
+			java.sql.Date endDate = rs.getDate("repo_end_date");
 			if (endDate != null) {
 				gcRepoTrade.setEndDate(endDate.toLocalDate());
 			}
