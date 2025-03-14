@@ -9,6 +9,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 
+import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
@@ -60,6 +61,7 @@ public class IRCapFloorCollarTradeSQL {
 
 					irCapFloorCollarTrade.setId(id);
 					irCapFloorCollarTrade.setAmount(results.getBigDecimal("amount"));
+					irCapFloorCollarTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
 					irCapFloorCollarTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
 					irCapFloorCollarTrade.setBuySell(results.getBoolean("BUY_SELL"));
 					irCapFloorCollarTrade.setCapStrike(results.getBigDecimal("CAP_STRIKE"));
@@ -77,8 +79,9 @@ public class IRCapFloorCollarTradeSQL {
 							.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
 
 					// Building the IRForward
-					IRForwardTrade<Product> irForward = new IRForwardTrade<Product>();
+					IRForwardTrade<Product> irForward = new IRForwardTrade<>();
 					irForward.setId(results.getLong("IRFORWARD_TRADE_ID"));
+					irForward.setBook(BookSQL.getBookById(results.getLong("book_id")));
 					irForward.setAmount(results.getBigDecimal("FWD_AMOUNT"));
 					irForward.setBuySell(results.getBoolean("BUY_SELL"));
 					irForward.setCreationDate(results.getDate("CREATION_DATE").toLocalDate());
@@ -136,9 +139,10 @@ public class IRCapFloorCollarTradeSQL {
 			TradeSQL.setTradeCommonFields(irCapFloorCollarTrade, rs);
 
 			// Building the IRForward
-			IRForwardTrade<Product> irForward = new IRForwardTrade<Product>();
+			IRForwardTrade<Product> irForward = new IRForwardTrade<>();
 			irForward.setId(rs.getLong("UND_IRFORWARD_ID"));
 			irForward.setAmount(rs.getBigDecimal("UND_IRFORWARD_AMOUNT"));
+			irForward.setBook(BookSQL.getBookById(rs.getLong("UND_IRFORWARD_BOOK_ID")));
 			irForward.setBuySell(rs.getBoolean("UND_IRFORWARD_BUY_SELL"));
 			irForward.setCreationDate(rs.getDate("UND_IRFORWARD_CREATION_DATE").toLocalDate());
 			irForward.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("UND_IRFORWARD_CURRENCY_ID")));
