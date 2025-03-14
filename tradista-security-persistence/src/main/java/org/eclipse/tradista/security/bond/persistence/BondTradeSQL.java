@@ -162,7 +162,7 @@ public class BondTradeSQL {
 			try (ResultSet results = stmtGetTradesBeforeTradeDateByBondAndBookIds.executeQuery(query)) {
 				while (results.next()) {
 					if (bondTrades == null) {
-						bondTrades = new ArrayList<BondTrade>();
+						bondTrades = new ArrayList<>();
 					}
 					BondTrade bondTrade = new BondTrade();
 					bondTrade.setProduct(BondSQL.getBondById(results.getLong("product_id")));
