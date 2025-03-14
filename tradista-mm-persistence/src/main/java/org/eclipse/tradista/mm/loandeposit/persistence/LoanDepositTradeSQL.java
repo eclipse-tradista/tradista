@@ -21,8 +21,8 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
-import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

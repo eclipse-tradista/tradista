@@ -215,7 +215,7 @@ public class SpecificRepoTradeSQL {
 				security = EquitySQL.getEquityById(securityId);
 			}
 			specificRepoTrade.setSecurity(security);
-			java.sql.Date endDate = rs.getDate("specificrepo_end_date");
+			java.sql.Date endDate = rs.getDate("repo_end_date");
 			if (endDate != null) {
 				specificRepoTrade.setEndDate(endDate.toLocalDate());
 			}

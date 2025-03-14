@@ -26,7 +26,6 @@ import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
-import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.ui.controller.QuoteProperty;
@@ -45,11 +44,7 @@ import org.eclipse.tradista.ir.irswap.service.IRSwapTradeBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -331,354 +326,294 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
-			@Override
-			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
-					QuoteSet newValue) {
-				if (newValue != null) {
-					String irSwapRate = null;
-					String irSwapReferenceRate = null;
-					String irSwapPaymentReferenceRate = null;
-					if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
-						irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-						irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-					}
-					if (!interestsToPayFixed.isSelected()) {
-						if (paymentReferenceRateIndex.getValue() != null
-								&& paymentReferenceRateIndexTenor.getValue() != null) {
-							irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue() + "."
-									+ paymentReferenceRateIndexTenor.getValue() + "%";
-						}
-						fillQuotesTable(newValue, selectedQuoteDate.getValue(), irSwapRate, irSwapReferenceRate,
-								irSwapPaymentReferenceRate);
-					}
+		selectedQuoteSet.valueProperty().addListener((q, ov, nv) -> {
+			if (nv != null) {
+				String irSwapRate = null;
+				String irSwapReferenceRate = null;
+				String irSwapPaymentReferenceRate = null;
+				if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
+					irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
+					irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
 				}
-			}
-		});
-
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
-			@Override
-			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
-					LocalDate newValue) {
-				if (newValue != null) {
-					String irSwapRate = null;
-					String irSwapReferenceRate = null;
-					String irSwapPaymentReferenceRate = null;
-					if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
-						irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-						irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
+				if (!interestsToPayFixed.isSelected()) {
+					if (paymentReferenceRateIndex.getValue() != null
+							&& paymentReferenceRateIndexTenor.getValue() != null) {
+						irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue() + "."
+								+ paymentReferenceRateIndexTenor.getValue() + "%";
 					}
-					if (!interestsToPayFixed.isSelected()) {
-						if (paymentReferenceRateIndex.getValue() != null
-								&& paymentReferenceRateIndexTenor.getValue() != null) {
-							irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue() + "."
-									+ paymentReferenceRateIndexTenor.getValue() + "%";
-						}
-					}
-					fillQuotesTable(selectedQuoteSet.getValue(), newValue, irSwapRate, irSwapReferenceRate,
+					fillQuotesTable(nv, selectedQuoteDate.getValue(), irSwapRate, irSwapReferenceRate,
 							irSwapPaymentReferenceRate);
 				}
 			}
 		});
 
-		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
-			@Override
-			public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
-				if (selectedQuoteDate.getValue() != null) {
-					String irSwapRate = null;
-					String irSwapReferenceRate = null;
-					String irSwapPaymentReferenceRate = null;
-					if (newIndex != null && referenceRateIndexTenor.getValue() != null) {
-						irSwapRate = IRSwapTrade.IR_SWAP + "." + newIndex.getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-						irSwapReferenceRate = Index.INDEX + "." + newIndex.getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-					}
-					if (!interestsToPayFixed.isSelected()) {
-						if (paymentReferenceRateIndex.getValue() != null
-								&& paymentReferenceRateIndexTenor.getValue() != null) {
-							irSwapPaymentReferenceRate = Index.INDEX + "."
-									+ paymentReferenceRateIndex.getValue().getName() + "+"
-									+ paymentReferenceRateIndexTenor.getValue() + "%";
-						}
-					}
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
-							irSwapReferenceRate, irSwapPaymentReferenceRate);
+		selectedQuoteDate.valueProperty().addListener((d, ov, nv) -> {
+			if (nv != null) {
+				String irSwapRate = null;
+				String irSwapReferenceRate = null;
+				String irSwapPaymentReferenceRate = null;
+				if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
+					irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
+					irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
 				}
-			}
-		});
-
-		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tenor>() {
-			@Override
-			public void changed(ObservableValue<? extends Tenor> observableValue, Tenor oldTenor, Tenor newTenor) {
-				if (selectedQuoteDate.getValue() != null) {
-					String irSwapRate = null;
-					String irSwapReferenceRate = null;
-					String irSwapPaymentReferenceRate = null;
-					if (newTenor != null && referenceRateIndex.getValue() != null) {
-						irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
-								+ newTenor + "%";
-						irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
-								+ newTenor + "%";
+				if (!interestsToPayFixed.isSelected()) {
+					if (paymentReferenceRateIndex.getValue() != null
+							&& paymentReferenceRateIndexTenor.getValue() != null) {
+						irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue() + "."
+								+ paymentReferenceRateIndexTenor.getValue() + "%";
 					}
-					if (!interestsToPayFixed.isSelected()) {
-						if (paymentReferenceRateIndex.getValue() != null
-								&& paymentReferenceRateIndexTenor.getValue() != null) {
-							irSwapPaymentReferenceRate = Index.INDEX + "."
-									+ paymentReferenceRateIndex.getValue().getName() + "."
-									+ paymentReferenceRateIndexTenor.getValue() + "%";
-						}
-					}
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
-							irSwapReferenceRate, irSwapPaymentReferenceRate);
 				}
+				fillQuotesTable(selectedQuoteSet.getValue(), nv, irSwapRate, irSwapReferenceRate,
+						irSwapPaymentReferenceRate);
 			}
 		});
 
-		paymentReferenceRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
-			@Override
-			public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
-				if (selectedQuoteDate.getValue() != null) {
-					String irSwapRate = null;
-					String irSwapReferenceRate = null;
-					String irSwapPaymentReferenceRate = null;
-					if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
-						irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-						irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
-								+ referenceRateIndexTenor.getValue() + "%";
-					}
-					if (!interestsToPayFixed.isSelected()) {
-						if (newIndex != null && paymentReferenceRateIndexTenor.getValue() != null) {
-							irSwapPaymentReferenceRate = Index.INDEX + "." + newIndex.getName() + "."
-									+ paymentReferenceRateIndexTenor.getValue() + "%";
-						}
-					}
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
-							irSwapReferenceRate, irSwapPaymentReferenceRate);
+		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener((i, ov, nv) -> {
+			if (selectedQuoteDate.getValue() != null) {
+				String irSwapRate = null;
+				String irSwapReferenceRate = null;
+				String irSwapPaymentReferenceRate = null;
+				if (nv != null && referenceRateIndexTenor.getValue() != null) {
+					irSwapRate = IRSwapTrade.IR_SWAP + "." + nv.getName() + "." + referenceRateIndexTenor.getValue()
+							+ "%";
+					irSwapReferenceRate = Index.INDEX + "." + nv.getName() + "." + referenceRateIndexTenor.getValue()
+							+ "%";
 				}
-			}
-		});
-
-		paymentReferenceRateIndexTenor.getSelectionModel().selectedItemProperty()
-				.addListener(new ChangeListener<Tenor>() {
-					@Override
-					public void changed(ObservableValue<? extends Tenor> observableValue, Tenor oldTenor,
-							Tenor newTenor) {
-						if (selectedQuoteDate.getValue() != null) {
-							String irSwapRate = null;
-							String irSwapReferenceRate = null;
-							String irSwapPaymentReferenceRate = null;
-							if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
-								irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
-										+ referenceRateIndexTenor.getValue() + "%";
-								irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
-										+ referenceRateIndexTenor.getValue() + "%";
-							}
-							if (!interestsToPayFixed.isSelected()) {
-								if (paymentReferenceRateIndex.getValue() != null && newTenor != null) {
-									irSwapPaymentReferenceRate = Index.INDEX + "."
-											+ paymentReferenceRateIndex.getValue().getName() + "." + newTenor + "%";
-								}
-							}
-							fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
-									irSwapReferenceRate, irSwapPaymentReferenceRate);
-						}
+				if (!interestsToPayFixed.isSelected()) {
+					if (paymentReferenceRateIndex.getValue() != null
+							&& paymentReferenceRateIndexTenor.getValue() != null) {
+						irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue().getName()
+								+ "+" + paymentReferenceRateIndexTenor.getValue() + "%";
 					}
-				});
-
-		pricingDate.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				}
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
+						irSwapReferenceRate, irSwapPaymentReferenceRate);
 			}
 		});
+
+		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((t, ov, nv) -> {
+			if (selectedQuoteDate.getValue() != null) {
+				String irSwapRate = null;
+				String irSwapReferenceRate = null;
+				String irSwapPaymentReferenceRate = null;
+				if (nv != null && referenceRateIndex.getValue() != null) {
+					irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "." + nv + "%";
+					irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "." + nv + "%";
+				}
+				if (!interestsToPayFixed.isSelected()) {
+					if (paymentReferenceRateIndex.getValue() != null
+							&& paymentReferenceRateIndexTenor.getValue() != null) {
+						irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue().getName()
+								+ "." + paymentReferenceRateIndexTenor.getValue() + "%";
+					}
+				}
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
+						irSwapReferenceRate, irSwapPaymentReferenceRate);
+			}
+		});
+
+		paymentReferenceRateIndex.getSelectionModel().selectedItemProperty().addListener((i, ov, nv) -> {
+			if (selectedQuoteDate.getValue() != null) {
+				String irSwapRate = null;
+				String irSwapReferenceRate = null;
+				String irSwapPaymentReferenceRate = null;
+				if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
+					irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
+					irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
+				}
+				if (!interestsToPayFixed.isSelected()) {
+					if (nv != null && paymentReferenceRateIndexTenor.getValue() != null) {
+						irSwapPaymentReferenceRate = Index.INDEX + "." + nv.getName() + "."
+								+ paymentReferenceRateIndexTenor.getValue() + "%";
+					}
+				}
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
+						irSwapReferenceRate, irSwapPaymentReferenceRate);
+			}
+		});
+
+		paymentReferenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((t, ov, nv) -> {
+			if (selectedQuoteDate.getValue() != null) {
+				String irSwapRate = null;
+				String irSwapReferenceRate = null;
+				String irSwapPaymentReferenceRate = null;
+				if (referenceRateIndex.getValue() != null && referenceRateIndexTenor.getValue() != null) {
+					irSwapRate = IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
+					irSwapReferenceRate = Index.INDEX + "." + referenceRateIndex.getValue().getName() + "."
+							+ referenceRateIndexTenor.getValue() + "%";
+				}
+				if (!interestsToPayFixed.isSelected()) {
+					if (paymentReferenceRateIndex.getValue() != null && nv != null) {
+						irSwapPaymentReferenceRate = Index.INDEX + "." + paymentReferenceRateIndex.getValue().getName()
+								+ "." + nv + "%";
+					}
+				}
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), irSwapRate,
+						irSwapReferenceRate, irSwapPaymentReferenceRate);
+			}
+		});
+
+		pricingDate.setOnAction(
+				ae -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
 
 		pricingDate.setValue(LocalDate.now());
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
-			@Override
-			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
-				if (newValue != null) {
-					bookChartPane.updateBookChart(newValue);
-				}
+		book.getSelectionModel().selectedItemProperty().addListener((b, ov, nv) -> {
+			if (nv != null) {
+				bookChartPane.updateBookChart(nv);
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
-			@Override
-			public void changed(ObservableValue<? extends PricerMeasure> observableValue,
-					PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
-				// newPricerMeasure is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricerMeasure != null) {
-					TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
-							pricingMethod);
-				}
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((pm, ov, nv) -> {
+			// nv is null when we do "setItems" in
+			// the first call of the refresh method
+			if (nv != null) {
+				TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(nv), pricingMethod);
 			}
 		});
 
 		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
-			@Override
-			public void changed(ObservableValue<? extends PricingParameter> observableValue,
-					PricingParameter oldPricingParam, PricingParameter newPricingParam) {
-				// newPricingParam is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricingParam != null) {
-					Pricer pricer = null;
-					try {
-						pricer = pricerBusinessDelegate.getPricer(IRSwapTrade.IR_SWAP, newPricingParam);
-					} catch (TradistaBusinessException tbe) {
-						// Will never happen in this case.
-					}
-					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
-					pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
-					pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener((pm, ov, nv) -> {
+			// nv is null when we do "setItems" in
+			// the first call of the refresh method
+			if (nv != null) {
+				Pricer pricer = null;
+				try {
+					pricer = pricerBusinessDelegate.getPricer(IRSwapTrade.IR_SWAP, nv);
+				} catch (TradistaBusinessException tbe) {
+					// Will never happen in this case.
+				}
+				TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
+				pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
+				pricerQuoteSetLabel.setText(nv.getQuoteSet().getName());
 
-					if (currency.getValue() != null) {
-						InterestRateCurve discountCurve = newPricingParam.getDiscountCurve(currency.getValue());
-						if (discountCurve != null) {
-							cfDiscountCurve.setText(discountCurve.getName());
-							TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
-						} else {
-							cfDiscountCurve.setText(String.format(
-									"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
-									newPricingParam.getName(), currency.getValue()));
-							TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
-						}
+				if (currency.getValue() != null) {
+					InterestRateCurve discountCurve = nv.getDiscountCurve(currency.getValue());
+					if (discountCurve != null) {
+						cfDiscountCurve.setText(discountCurve.getName());
+						TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+					} else {
+						cfDiscountCurve.setText(String.format(
+								"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+								nv.getName(), currency.getValue()));
+						TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
 					}
 				}
 			}
 		});
 
-		currency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
-			@Override
-			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
-					Currency newValue) {
-				// newValue is null on first call to refresh.
-				if (newValue != null) {
-					if (pricingParameter.getValue() != null) {
-						InterestRateCurve discountCurve = pricingParameter.getValue().getDiscountCurve(newValue);
-						if (discountCurve != null) {
-							cfDiscountCurve.setText(discountCurve.getName());
-							TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
-						} else {
-							cfDiscountCurve.setText(String.format(
-									"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
-									pricingParameter.getValue().getName(), newValue));
-							TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
-						}
+		currency.getSelectionModel().selectedItemProperty().addListener((c, ov, nv) -> {
+			// nv is null on first call to refresh.
+			if (nv != null) {
+				if (pricingParameter.getValue() != null) {
+					InterestRateCurve discountCurve = pricingParameter.getValue().getDiscountCurve(nv);
+					if (discountCurve != null) {
+						cfDiscountCurve.setText(discountCurve.getName());
+						TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+					} else {
+						cfDiscountCurve.setText(String.format(
+								"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+								pricingParameter.getValue().getName(), nv));
+						TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
 					}
 				}
 			}
 		});
 
-		interestsToPayFixed.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue) {
-				paymentFixedInterestRateLabel.setVisible(newValue);
-				fixedInterestRate.setVisible(newValue);
-				paymentReferenceRateIndexLabel.setVisible(!newValue);
-				paymentReferenceRateIndex.setVisible(!newValue);
-				paymentReferenceRateIndexTenor.setVisible(!newValue);
-				paymentReferenceRateIndexTenorLabel.setVisible(!newValue);
-				paymentSpread.setVisible(!newValue);
-				paymentSpreadLabel.setVisible(!newValue);
-				paymentInterestFixing.setVisible(!newValue);
-				paymentInterestFixingLabel.setVisible(!newValue);
-			}
+		interestsToPayFixed.selectedProperty().addListener((b, ov, nv) -> {
+			paymentFixedInterestRateLabel.setVisible(nv);
+			fixedInterestRate.setVisible(nv);
+			paymentReferenceRateIndexLabel.setVisible(!nv);
+			paymentReferenceRateIndex.setVisible(!nv);
+			paymentReferenceRateIndexTenor.setVisible(!nv);
+			paymentReferenceRateIndexTenorLabel.setVisible(!nv);
+			paymentSpread.setVisible(!nv);
+			paymentSpreadLabel.setVisible(!nv);
+			paymentInterestFixing.setVisible(!nv);
+			paymentInterestFixingLabel.setVisible(!nv);
 		});
 
-		maturityTenor.valueProperty().addListener(new ChangeListener<Tenor>() {
-			public void changed(ObservableValue<? extends Tenor> ov, Tenor oldValue, Tenor newValue) {
-				if (newValue != null) {
-					boolean tenorIsSpecified = (!newValue.equals(Tenor.NO_TENOR));
-					maturityDate.setDisable(tenorIsSpecified);
-					if (tenorIsSpecified) {
-						if (settlementDate.getValue() != null) {
-							try {
-								maturityDate
-										.setValue(DateUtil.addTenor(settlementDate.getValue().minusDays(1), newValue));
-							} catch (TradistaBusinessException tbe) {
-								// Should not appear here.
-							}
-						} else {
-							maturityDate.setValue(null);
-						}
-					}
-				}
-			}
-		});
-
-		settlementDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
-			public void changed(ObservableValue<? extends LocalDate> ov, LocalDate oldValue, LocalDate newValue) {
-				if (newValue != null) {
-					boolean tenorIsSpecified = (!maturityTenor.getValue().equals(Tenor.NO_TENOR));
-					if (tenorIsSpecified) {
+		maturityTenor.valueProperty().addListener((t, ov, nv) -> {
+			if (nv != null) {
+				boolean tenorIsSpecified = (!nv.equals(Tenor.NO_TENOR));
+				maturityDate.setDisable(tenorIsSpecified);
+				if (tenorIsSpecified) {
+					if (settlementDate.getValue() != null) {
 						try {
-							maturityDate.setValue(DateUtil.addTenor(newValue.minusDays(1), maturityTenor.getValue()));
+							maturityDate.setValue(DateUtil.addTenor(settlementDate.getValue().minusDays(1), nv));
 						} catch (TradistaBusinessException tbe) {
 							// Should not appear here.
 						}
+					} else {
+						maturityDate.setValue(null);
 					}
 				}
 			}
 		});
 
-		referenceRateIndex.valueProperty().addListener(new ChangeListener<Index>() {
-			public void changed(ObservableValue<? extends Index> ov, Index oldValue, Index newValue) {
-				if (newValue != null) {
-					receptionInterestFixing.setValue(newValue.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD
-							: InterestPayment.END_OF_PERIOD);
+		settlementDate.valueProperty().addListener((ld, ov, nv) -> {
+			if (nv != null) {
+				boolean tenorIsSpecified = (!maturityTenor.getValue().equals(Tenor.NO_TENOR));
+				if (tenorIsSpecified) {
+					try {
+						maturityDate.setValue(DateUtil.addTenor(nv.minusDays(1), maturityTenor.getValue()));
+					} catch (TradistaBusinessException tbe) {
+						// Should not appear here.
+					}
 				}
 			}
 		});
 
-		paymentReferenceRateIndex.valueProperty().addListener(new ChangeListener<Index>() {
-			public void changed(ObservableValue<? extends Index> ov, Index oldValue, Index newValue) {
-				if (newValue != null) {
-					paymentInterestFixing.setValue(newValue.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD
-							: InterestPayment.END_OF_PERIOD);
-				}
+		referenceRateIndex.valueProperty().addListener((i, ov, nv) -> {
+			if (nv != null) {
+				receptionInterestFixing.setValue(
+						nv.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD : InterestPayment.END_OF_PERIOD);
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<DatePicker, DateCell>() {
-			public DateCell call(final DatePicker datePicker) {
-				return new DateCell() {
+		paymentReferenceRateIndex.valueProperty().addListener((i, ov, nv) -> {
+			if (nv != null) {
+				paymentInterestFixing.setValue(
+						nv.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD : InterestPayment.END_OF_PERIOD);
+			}
+		});
 
-					SingleCurrencyIRSwapTrade irSwapTrade;
+		final Callback<DatePicker, DateCell> businessDayCellFactory = dp ->
 
-					private boolean isAvailable(LocalDate date) {
-						if (irSwapTrade == null) {
-							irSwapTrade = new SingleCurrencyIRSwapTrade();
-							irSwapTrade.setCurrency(currency.getValue());
-						}
+		new DateCell() {
 
-						try {
-							return irSwapTradeBusinessDelegate.isBusinessDay(irSwapTrade, date);
-						} catch (TradistaBusinessException tbe) {
-							// TODO Auto-generated catch block
-							tbe.printStackTrace();
-						}
-						return false;
+			SingleCurrencyIRSwapTrade irSwapTrade;
 
-					}
+			private boolean isAvailable(LocalDate date) {
+				if (irSwapTrade == null) {
+					irSwapTrade = new SingleCurrencyIRSwapTrade();
+					irSwapTrade.setCurrency(currency.getValue());
+				}
 
-					@Override
-					public void updateItem(LocalDate item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!isAvailable(item)) {
-							setDisable(true);
-						}
-					}
-				};
+				try {
+					return irSwapTradeBusinessDelegate.isBusinessDay(irSwapTrade, date);
+				} catch (TradistaBusinessException tbe) {
+					tbe.printStackTrace();
+				}
+				return false;
+
+			}
+
+			@Override
+			public void updateItem(LocalDate item, boolean empty) {
+				super.updateItem(item, empty);
+				if (!isAvailable(item)) {
+					setDisable(true);
+				}
 			}
 		};
 
@@ -876,6 +811,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 				if (!paymentSpread.getText().isEmpty()) {
 					trade.setPaymentSpread(TradistaGUIUtil.parseAmount(paymentSpread.getText(), "Payment Spread"));
 				}
+				trade.setPaymentInterestFixing(paymentInterestFixing.getValue());
 			}
 			trade.setReceptionDayCountConvention(receptionDayCountConvention.getValue());
 			trade.setReceptionReferenceRateIndex(referenceRateIndex.getValue());
@@ -890,7 +826,6 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			trade.setTradeDate(tradeDate.getValue());
 			trade.setPaymentInterestPayment(paymentInterestPayment.getValue());
 			trade.setReceptionInterestPayment(receptionInterestPayment.getValue());
-			trade.setPaymentInterestFixing(paymentInterestFixing.getValue());
 			trade.setReceptionInterestFixing(receptionInterestFixing.getValue());
 		} catch (TradistaBusinessException tbe) {
 			// Should not happen at this stage
@@ -930,37 +865,33 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
-						if (quoteValues != null && !quoteValues.isEmpty()) {
-							for (QuoteValue qv : quoteValues) {
-								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
-									if (qv.getQuote().getName()
-											.equals(IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue() + "."
-													+ referenceRateIndexTenor.getValue() + "%")
-											|| qv.getQuote().getName()
-													.equals(IRSwapTrade.IR_SWAP + "."
-															+ paymentReferenceRateIndex.getValue() + "."
-															+ paymentReferenceRateIndexTenor.getValue() + "%")) {
-										if (qv.getDate().equals(selectedQuoteDate.getValue())) {
-											if (qv.getQuote().getType().equals(QuoteType.EXCHANGE_RATE)) {
-												if (IRSwapTradeDefinitionController.this.quoteValues.contains(qv)) {
-													IRSwapTradeDefinitionController.this.quoteValues.remove(qv);
-												}
-												IRSwapTradeDefinitionController.this.quoteValues.add(qv);
+				Platform.runLater(() -> {
+					Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
+					if (quoteValues != null && !quoteValues.isEmpty()) {
+						for (QuoteValue qv : quoteValues) {
+							if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
+								if (qv.getQuote().getName()
+										.equals(IRSwapTrade.IR_SWAP + "." + referenceRateIndex.getValue() + "."
+												+ referenceRateIndexTenor.getValue() + "%")
+										|| qv.getQuote().getName()
+												.equals(IRSwapTrade.IR_SWAP + "." + paymentReferenceRateIndex.getValue()
+														+ "." + paymentReferenceRateIndexTenor.getValue() + "%")) {
+									if (qv.getDate().equals(selectedQuoteDate.getValue())) {
+										if (qv.getQuote().getType().equals(QuoteType.EXCHANGE_RATE)) {
+											if (IRSwapTradeDefinitionController.this.quoteValues.contains(qv)) {
+												IRSwapTradeDefinitionController.this.quoteValues.remove(qv);
 											}
+											IRSwapTradeDefinitionController.this.quoteValues.add(qv);
 										}
 									}
 								}
 							}
 						}
-						quotesTable.setItems(FXCollections.observableArrayList(
-								QuoteProperty.toQuotePropertyList(IRSwapTradeDefinitionController.this.quoteValues)));
 					}
+					quotesTable.setItems(FXCollections.observableArrayList(
+							QuoteProperty.toQuotePropertyList(IRSwapTradeDefinitionController.this.quoteValues)));
 				});
 			}
 		}

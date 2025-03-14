@@ -29,6 +29,64 @@ import org.eclipse.tradista.core.product.model.Product;
 
 public class ProductBusinessDelegate {
 
+	// Product types
+
+	private static final String IR_COLLAR = "IRCollar";
+
+	private static final String IR_FLOOR = "IRFloor";
+
+	private static final String IR_CAP = "IRCap";
+
+	private static final String FX_FORWARD = "FXForward";
+
+	private static final String FX_SPOT = "FXSpot";
+
+	private static final String DEPOSIT = "Deposit";
+
+	private static final String LOAN = "Loan";
+
+	private static final String FUTURE = "Future";
+
+	private static final String EQUITY = "Equity";
+
+	private static final String BOND = "Bond";
+
+	private static final String SPECIFIC_REPO = "SpecificRepo";
+
+	private static final String GC_REPO = "GCRepo";
+
+	private static final String FRA = "FRA";
+
+	private static final String CCY_SWAP = "CcySwap";
+
+	private static final String LOAN_DEPOSIT = "LoanDeposit";
+
+	private static final String IR_SWAP_OPTION = "IRSwapOption";
+
+	private static final String IR_CAP_FLOOR_COLLAR = "IRCapFloorCollar";
+
+	private static final String IR_SWAP = "IRSwap";
+
+	private static final String FXNDF = "FXNDF";
+
+	private static final String FX_OPTION = "FXOption";
+
+	private static final String FX_SWAP = "FXSwap";
+
+	private static final String EQUITY_OPTION = "EquityOption";
+
+	private static final String FX_PRODUCT_TYPE = "FX";
+
+	// Product families
+
+	private static final String IR = "ir";
+
+	private static final String FX_PRODUCT_FAMILY = "fx";
+
+	private static final String MM = "mm";
+
+	private static final String SECURITY = "security";
+
 	private ProductService productService;
 
 	private static Set<String> canBeOTC;
@@ -39,25 +97,25 @@ public class ProductBusinessDelegate {
 
 	static {
 		canBeOTC = new HashSet<>();
-		canBeOTC.add("FX");
-		canBeOTC.add("FXSwap");
-		canBeOTC.add("FXOption");
-		canBeOTC.add("FXNDF");
-		canBeOTC.add("IRSwap");
-		canBeOTC.add("IRCapFloorCollar");
-		canBeOTC.add("IRSwapOption");
-		canBeOTC.add("LoanDeposit");
-		canBeOTC.add("CcySwap");
-		canBeOTC.add("FRA");
-		canBeOTC.add("EquityOption");
-		canBeOTC.add("GCRepo");
-		canBeOTC.add("SpecificRepo");
+		canBeOTC.add(FX_PRODUCT_TYPE);
+		canBeOTC.add(FX_SWAP);
+		canBeOTC.add(FX_OPTION);
+		canBeOTC.add(FXNDF);
+		canBeOTC.add(IR_SWAP);
+		canBeOTC.add(IR_CAP_FLOOR_COLLAR);
+		canBeOTC.add(IR_SWAP_OPTION);
+		canBeOTC.add(LOAN_DEPOSIT);
+		canBeOTC.add(CCY_SWAP);
+		canBeOTC.add(FRA);
+		canBeOTC.add(EQUITY_OPTION);
+		canBeOTC.add(GC_REPO);
+		canBeOTC.add(SPECIFIC_REPO);
 
 		canBeListed = new HashSet<>();
-		canBeListed.add("EquityOption");
-		canBeListed.add("Bond");
-		canBeListed.add("Equity");
-		canBeListed.add("Future");
+		canBeListed.add(EQUITY_OPTION);
+		canBeListed.add(BOND);
+		canBeListed.add(EQUITY);
+		canBeListed.add(FUTURE);
 
 		allProductTypes = new HashSet<>();
 		allProductTypes.addAll(canBeOTC);
@@ -95,52 +153,52 @@ public class ProductBusinessDelegate {
 
 	public String getProductFamily(String productType) throws TradistaBusinessException {
 		switch (productType) {
-		case "LoanDeposit":
-			return "mm";
-		case "Loan":
-			return "mm";
-		case "Deposit":
-			return "mm";
-		case "Bond":
-			return "security";
-		case "FX":
-			return "fx";
-		case "FXSpot":
-			return "fx";
-		case "FXForward":
-			return "fx";
-		case "FXSwap":
-			return "fx";
-		case "FXOption":
-			return "fx";
-		case "FXNDF":
-			return "fx";
-		case "IRSwap":
-			return "ir";
-		case "IRSwapOption":
-			return "ir";
-		case "CcySwap":
-			return "ir";
-		case "IRCapFloorCollar":
-			return "ir";
-		case "IRCap":
-			return "ir";
-		case "IRFloor":
-			return "ir";
-		case "IRCollar":
-			return "ir";
-		case "FRA":
-			return "ir";
-		case "Future":
-			return "ir";
-		case "Equity":
-			return "security";
-		case "EquityOption":
-			return "security";
-		case "GCRepo":
-			return "security";
-		case "SpecificRepo":
-			return "security";
+		case LOAN_DEPOSIT:
+			return MM;
+		case LOAN:
+			return MM;
+		case DEPOSIT:
+			return MM;
+		case BOND:
+			return SECURITY;
+		case FX_PRODUCT_TYPE:
+			return FX_PRODUCT_FAMILY;
+		case FX_SPOT:
+			return FX_PRODUCT_FAMILY;
+		case FX_FORWARD:
+			return FX_PRODUCT_FAMILY;
+		case FX_SWAP:
+			return FX_PRODUCT_FAMILY;
+		case FX_OPTION:
+			return FX_PRODUCT_FAMILY;
+		case FXNDF:
+			return FX_PRODUCT_FAMILY;
+		case IR_SWAP:
+			return IR;
+		case IR_SWAP_OPTION:
+			return IR;
+		case CCY_SWAP:
+			return IR;
+		case IR_CAP_FLOOR_COLLAR:
+			return IR;
+		case IR_CAP:
+			return IR;
+		case IR_FLOOR:
+			return IR;
+		case IR_COLLAR:
+			return IR;
+		case FRA:
+			return IR;
+		case FUTURE:
+			return IR;
+		case EQUITY:
+			return SECURITY;
+		case EQUITY_OPTION:
+			return SECURITY;
+		case GC_REPO:
+			return SECURITY;
+		case SPECIFIC_REPO:
+			return SECURITY;
 		}
 		throw new TradistaBusinessException(String.format("This product type %s is not identified.", productType));
 	}
@@ -201,15 +259,13 @@ public class ProductBusinessDelegate {
 
 	public Set<String> getAvailableFXProductTypes() {
 		Set<String> productTypes = getAvailableProductTypes();
-		Set<String> fxProductTypes = productTypes.stream().filter(p -> {
+		return productTypes.stream().filter(p -> {
 			try {
-				return getProductFamily(p).equals("fx");
-			} catch (TradistaBusinessException abe) {
+				return getProductFamily(p).equals(FX_PRODUCT_FAMILY);
+			} catch (TradistaBusinessException tbe) {
 			}
 			return false;
 		}).collect(Collectors.toSet());
-
-		return fxProductTypes;
 	}
 
 	public Set<Product> getAllProducts() {
