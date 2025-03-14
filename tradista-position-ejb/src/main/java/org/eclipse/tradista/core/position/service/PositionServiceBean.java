@@ -94,7 +94,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 		}
 		ProductBusinessDelegate productBusinessDelegate = new ProductBusinessDelegate();
 		PricerBusinessDelegate pricerBusinessDelegate = new PricerBusinessDelegate();
-		List<PositionCalculationError> posErrors = new ArrayList<PositionCalculationError>();
+		List<PositionCalculationError> posErrors = new ArrayList<>();
 		List<PositionCalculationError> existingErrors = positionCalculationErrorService.getPositionCalculationErrors(
 				posDef.getId(), org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0,
 				valueDateTime.toLocalDate(), valueDateTime.toLocalDate(), null, null, null, null);
@@ -139,7 +139,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 									.add(pricerBusinessDelegate.calculate(trade, pricer, posDef.getPricingParameter(),
 											posDef.getCurrency(), valueDateTime.toLocalDate(), "UNREALIZED_PNL"));
 							positionPnl = positionRealizedPnl.add(positionUnrealizedPnl);
-						} catch (TradistaBusinessException abe) {
+						} catch (TradistaBusinessException tbe) {
 							PositionCalculationError error = null;
 							if (existingErrors != null && !existingErrors.isEmpty()) {
 								// If there was already an error for this
@@ -160,13 +160,13 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 									error.setValueDate(valueDateTime.toLocalDate());
 									error.setTrade(trade);
 								}
-								error.setMessage(abe.getMessage());
+								error.setMessage(tbe.getMessage());
 								error.setErrorDate(LocalDateTime.now());
 							} else {
 								// New error
 								error = new PositionCalculationError();
 								error.setPositionDefinition(posDef);
-								error.setMessage(abe.getMessage());
+								error.setMessage(tbe.getMessage());
 								error.setValueDate(valueDateTime.toLocalDate());
 								error.setErrorDate(LocalDateTime.now());
 								error.setTrade(trade);
@@ -188,7 +188,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 				long bookId = posDef.getBook() != null ? posDef.getBook().getId() : 0;
 				try {
 					products = new ProductBusinessDelegate().getProducts(posDef);
-				} catch (TradistaBusinessException abe) {
+				} catch (TradistaBusinessException tbe) {
 					// no exception should appear at this stage as
 					// posDef is not null.
 				}

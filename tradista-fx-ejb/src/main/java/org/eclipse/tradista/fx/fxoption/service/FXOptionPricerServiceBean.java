@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
@@ -18,14 +18,13 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
-import org.eclipse.tradista.fx.fx.service.FXPricerBusinessDelegate;
+import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXPricerService;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -57,18 +56,16 @@ under the License.    */
 @Interceptors(FXOptionTradeProductScopeFilteringInterceptor.class)
 public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
-	private ConfigurationBusinessDelegate configurationBusinessDelegate;
+	private static final String PRICING_PARAMETER_DOES_NOT_CONTAIN_A_X_VALUE = "%s Pricing Parameter doesn't contain a '%s' value. please add it or change the Pricing Parameter.";
+
+	@EJB
+	private ConfigurationService configurationService;
 
 	@EJB
 	private FXPricerService fxPricerService;
 
 	@EJB
 	private FXVolatilitySurfaceService fxVolatilitySurfaceService;
-
-	@PostConstruct
-	public void init() {
-		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-	}
 
 	@Override
 	public BigDecimal npvBlackAndScholes(PricingParameter params, FXOptionTrade trade, Currency currency,
@@ -78,12 +75,13 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		BigDecimal pv = null;
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
+		FXTrade underlying = trade.getUnderlying();
 		if (paramFXCurve == null) {
 			// TODO Add log warn
 		}
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			pv = fxPricerService.npvDiscountedLegsDiff(params, trade.getUnderlying(), currency, pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			pv = fxPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
 			// TODO Log warn
@@ -113,13 +111,13 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		BigDecimal pv = null;
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
+		FXTrade underlying = trade.getUnderlying();
 		if (paramFXCurve == null) {
 			// TODO Add log warn
 		}
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			FXPricerBusinessDelegate fxPricerBusinessDelegate = new FXPricerBusinessDelegate();
-			pv = fxPricerBusinessDelegate.npvDiscountedLegsDiff(params, trade.getUnderlying(), currency, pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			pv = fxPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
 			// TODO Log warn
@@ -146,13 +144,13 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 	@Override
 	public BigDecimal pvBlackAndScholes(PricingParameter params, FXOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
+		FXTrade underlying = trade.getUnderlying();
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
 			if (trade.isBuy()) {
-				return fxPricerService.primaryPvDiscountedLegsDiff(params, trade.getUnderlying(), currency,
-						pricingDate);
+				return fxPricerService.primaryPvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 			} else {
-				return fxPricerService.quotePvDiscountedLegsDiff(params, trade.getUnderlying(), currency, pricingDate);
+				return fxPricerService.quotePvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 			}
 		}
 
@@ -168,16 +166,14 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		}
 
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			return fxPricerService.npvDiscountedLegsDiff(params, trade.getUnderlying(), currency, pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			return fxPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 
 		// Primary currency IR curve retrieval
 		InterestRateCurve paramPrimCurrIRCurve = params.getDiscountCurves().get(trade.getUnderlying().getCurrency());
 		if (paramPrimCurrIRCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a '"
-							+ "%s' value. please add it or change the Pricing Parameter.",
+			throw new TradistaBusinessException(String.format(PRICING_PARAMETER_DOES_NOT_CONTAIN_A_X_VALUE,
 					params.getName(), paramPrimCurrIRCurve));
 		}
 
@@ -185,9 +181,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		InterestRateCurve paramQuoteCurrIRCurve = params.getDiscountCurves()
 				.get(trade.getUnderlying().getCurrencyOne());
 		if (paramQuoteCurrIRCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a '"
-							+ "%s' value. please add it or change the Pricing Parameter.",
+			throw new TradistaBusinessException(String.format(PRICING_PARAMETER_DOES_NOT_CONTAIN_A_X_VALUE,
 					params.getName(), paramQuoteCurrIRCurve));
 		}
 
@@ -216,8 +210,8 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		// Module for the underlying currency pair
 		PricingParameterVolatilitySurfaceModule module = null;
 		for (PricingParameterModule mod : params.getModules()) {
-			if (mod instanceof PricingParameterVolatilitySurfaceModule) {
-				module = (PricingParameterVolatilitySurfaceModule) mod;
+			if (mod instanceof PricingParameterVolatilitySurfaceModule ppvsm) {
+				module = ppvsm;
 				break;
 			}
 		}
@@ -253,7 +247,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 							trade.getUnderlying().getCurrency().getIsoCode() + "."
 									+ trade.getUnderlying().getCurrencyOne().getIsoCode()));
 				} else {
-					s = BigDecimal.ONE.divide(invS, configurationBusinessDelegate.getRoundingMode());
+					s = BigDecimal.ONE.divide(invS, configurationService.getRoundingMode());
 				}
 			}
 
@@ -343,9 +337,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		// Primary currency IR curve retrieval
 		InterestRateCurve paramPrimCurrIRCurve = params.getDiscountCurves().get(trade.getUnderlying().getCurrency());
 		if (paramPrimCurrIRCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a '"
-							+ "%s' value. please add it or change the Pricing Parameter.",
+			throw new TradistaBusinessException(String.format(PRICING_PARAMETER_DOES_NOT_CONTAIN_A_X_VALUE,
 					params.getName(), paramPrimCurrIRCurve));
 		}
 
@@ -353,9 +345,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		InterestRateCurve paramQuoteCurrIRCurve = params.getDiscountCurves()
 				.get(trade.getUnderlying().getCurrencyOne());
 		if (paramQuoteCurrIRCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a '"
-							+ "%s' value. please add it or change the Pricing Parameter.",
+			throw new TradistaBusinessException(String.format(PRICING_PARAMETER_DOES_NOT_CONTAIN_A_X_VALUE,
 					params.getName(), paramQuoteCurrIRCurve));
 		}
 
@@ -377,8 +367,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 			// double deltaT = T / n;
 			double deltaT = PricerUtil.daysToYear(pricingDate, trade.getMaturityDate())
-					.divide(BigDecimal.valueOf(binomialTreeHeightValue),
-							configurationBusinessDelegate.getRoundingMode())
+					.divide(BigDecimal.valueOf(binomialTreeHeightValue), configurationService.getRoundingMode())
 					.doubleValue();
 
 			// Volatility curve
@@ -389,8 +378,8 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 			// Module for the underlying currency pair
 			PricingParameterVolatilitySurfaceModule module = null;
 			for (PricingParameterModule mod : params.getModules()) {
-				if (mod instanceof PricingParameterVolatilitySurfaceModule) {
-					module = (PricingParameterVolatilitySurfaceModule) mod;
+				if (mod instanceof PricingParameterVolatilitySurfaceModule ppvsm) {
+					module = ppvsm;
 					break;
 				}
 			}
@@ -461,11 +450,10 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 			}
 
-			BigDecimal pv = PricerUtil.convertAmount(BigDecimal.valueOf(p[0]), trade.getUnderlying().getCurrencyOne(),
-					currency, pricingDate, params.getQuoteSet().getId(),
+			return PricerUtil.convertAmount(BigDecimal.valueOf(p[0]), trade.getUnderlying().getCurrencyOne(), currency,
+					pricingDate, params.getQuoteSet().getId(),
 					paramUndCcyPricingCcyFXCurve != null ? paramUndCcyPricingCcyFXCurve.getId() : 0);
 
-			return pv;
 		} catch (PricerException pe) {
 			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
@@ -475,6 +463,8 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 	@Override
 	public BigDecimal realizedPnlMarkToMarket(PricingParameter params, FXOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
+
+		FXTrade underlying = trade.getUnderlying();
 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
@@ -507,8 +497,8 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 			return BigDecimal.ZERO;
 		}
 		// 3. There was a realized PNL, we calculate it.
-		trade.getUnderlying().setSettlementDate(underlyingSettlementDate);
-		BigDecimal mtm = fxPricerService.realizedPnlMarkToMarket(params, trade.getUnderlying(), currency, pricingDate);
+		underlying.setSettlementDate(underlyingSettlementDate);
+		BigDecimal mtm = fxPricerService.realizedPnlMarkToMarket(params, underlying, currency, pricingDate);
 
 		// add (or subtract) the premium from the realized PNL,
 		// depending of the trade direction
@@ -559,6 +549,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
+		FXTrade underlying = trade.getUnderlying();
 		if (paramTradeCcyPricingCcyFXCurve == null) {
 			// TODO Add log warn
 		}
@@ -583,9 +574,8 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 		// On option, let's calculate the unrealized pnl as the Mark to Market of the
 		// underlying
-		trade.getUnderlying().setSettlementDate(pricingDate);
-		BigDecimal mtm = fxPricerService.unrealizedPnlMarkToMarket(params, trade.getUnderlying(), currency,
-				pricingDate);
+		underlying.setSettlementDate(pricingDate);
+		BigDecimal mtm = fxPricerService.unrealizedPnlMarkToMarket(params, underlying, currency, pricingDate);
 
 		// add (or subtract) the premium from the realized PNL,
 		// depending of the trade direction

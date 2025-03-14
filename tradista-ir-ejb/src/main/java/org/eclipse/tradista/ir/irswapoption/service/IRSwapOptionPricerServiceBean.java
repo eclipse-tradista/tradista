@@ -18,7 +18,6 @@ import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
-import org.eclipse.tradista.ir.irswap.service.IRSwapPricerBusinessDelegate;
 import org.eclipse.tradista.ir.irswap.service.IRSwapPricerService;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule;
@@ -72,7 +71,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		// underlying trade date must be set to pricing date
 		underlying.setTradeDate(pricingDate);
 
-		return irSwapPricerService.forwardSwapRateForwardSwapRate(params, trade.getUnderlying(), currency, pricingDate);
+		return irSwapPricerService.forwardSwapRateForwardSwapRate(params, underlying, currency, pricingDate);
 	}
 
 	@Override
@@ -81,6 +80,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 
 		BigDecimal npv;
 		BigDecimal pv = null;
+		SingleCurrencyIRSwapTrade underlying = trade.getUnderlying();
 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramPremiumCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
@@ -89,8 +89,8 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		}
 
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			pv = irSwapPricerService.npvDiscountedLegsDiff(params, trade.getUnderlying(), currency, pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			pv = irSwapPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
 			// TODO Log warn
@@ -118,14 +118,14 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 	public BigDecimal pvBlack(PricingParameter params, IRSwapOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 
+		SingleCurrencyIRSwapTrade underlying = trade.getUnderlying();
+
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
 			if (trade.isBuy()) {
-				return irSwapPricerService.fixedLegPvDiscountedCashFlow(params, trade.getUnderlying(), currency,
-						pricingDate);
+				return irSwapPricerService.fixedLegPvDiscountedCashFlow(params, underlying, currency, pricingDate);
 			} else {
-				return irSwapPricerService.floatingLegPvDiscountedCashFlow(params, trade.getUnderlying(), currency,
-						pricingDate);
+				return irSwapPricerService.floatingLegPvDiscountedCashFlow(params, underlying, currency, pricingDate);
 			}
 		}
 
@@ -134,7 +134,6 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 			// TODO Log warn
 			return BigDecimal.ZERO;
 		}
-		SingleCurrencyIRSwapTrade underlying = trade.getUnderlying();
 
 		if (trade.getStyle().equals(VanillaOptionTrade.Style.AMERICAN)) {
 			throw new TradistaBusinessException("Black valuation formula cannot be used with an American Option.");
@@ -171,8 +170,8 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		// Module for the underlying's reference index
 		PricingParameterVolatilitySurfaceModule module = null;
 		for (PricingParameterModule mod : params.getModules()) {
-			if (mod instanceof PricingParameterVolatilitySurfaceModule) {
-				module = (PricingParameterVolatilitySurfaceModule) mod;
+			if (mod instanceof PricingParameterVolatilitySurfaceModule ppvsm) {
+				module = ppvsm;
 				break;
 			}
 		}
@@ -188,15 +187,9 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		// Param in : swaption time to maturity, swap tenor
 		int maturity = PricerUtil.daysToYear(trade.getTradeDate(), trade.getMaturityDate()).intValue();
 		int tenor = PricerUtil.daysToYear(underlying.getSettlementDate(), underlying.getMaturityDate()).intValue();
-		BigDecimal volat;
-		try {
-			volat = surface.getVolatilityByOptionExpiryAndSwapTenor(maturity, tenor);
-		} catch (TradistaBusinessException abe) {
-			throw new TradistaBusinessException(abe.getMessage());
-		}
+		BigDecimal volat = surface.getVolatilityByOptionExpiryAndSwapTenor(maturity, tenor);
 
 		try {
-
 			LocalDate varDate = underlying.getSettlementDate();
 			Tenor frequency = underlying.getPaymentFrequency();
 			BigDecimal k = underlying.getPaymentFixedInterestRate();
@@ -218,8 +211,8 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 			while (!varDate.isAfter(underlying.getMaturityDate())) {
 				if (varDate.isAfter(underlying.getSettlementDate())) {
 
-					BigDecimal d1 = BigDecimal.ZERO;
-					BigDecimal d2 = BigDecimal.ZERO;
+					BigDecimal d1;
+					BigDecimal d2;
 					BigDecimal p = PricerUtil.getDiscountFactor(irSwapCurrIRCurve, varDate);
 
 					if (frequency.equals(Tenor.THREE_MONTHS)) {
@@ -245,10 +238,10 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 					d2 = d1.subtract(volat.multiply(BigDecimal.valueOf(Math.sqrt(discount.doubleValue()))));
 
 					if (trade.isCall()) {
-						pv.add(discountedNominalFraction.multiply(
+						pv = pv.add(discountedNominalFraction.multiply(
 								(fsr.multiply(cnd(d1.doubleValue())).subtract(k.multiply(cnd(d2.doubleValue()))))));
 					} else {
-						pv.add(discountedNominalFraction.multiply(
+						pv = pv.add(discountedNominalFraction.multiply(
 								k.multiply(cnd(-d2.doubleValue())).subtract(fsr.multiply(cnd(-d1.doubleValue())))));
 					}
 
@@ -271,6 +264,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 	public BigDecimal realizedPnlOptionExercise(PricingParameter params, IRSwapOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 
+		SingleCurrencyIRSwapTrade underlying = trade.getUnderlying();
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramPremiumCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramPremiumCcyPricingCcyFXCurve == null) {
@@ -302,9 +296,9 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 			return BigDecimal.ZERO;
 		}
 		// 3. There was a realized PNL, we calculate it.
-		trade.getUnderlying().setSettlementDate(underlyingSettlementDate);
-		BigDecimal npvLegsCashFlows = new IRSwapPricerBusinessDelegate().realizedPnlLegsCashFlows(params,
-				trade.getUnderlying(), currency, pricingDate);
+		underlying.setSettlementDate(underlyingSettlementDate);
+		BigDecimal npvLegsCashFlows = irSwapPricerService.realizedPnlLegsCashFlows(params, underlying, currency,
+				pricingDate);
 
 		// add (or subtract) the premium from the realized PNL,
 		// depending of the trade direction

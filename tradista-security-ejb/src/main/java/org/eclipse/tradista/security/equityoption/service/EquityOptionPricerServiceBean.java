@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.inventory.model.ProductInventory;
@@ -28,7 +28,6 @@ import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 import org.eclipse.tradista.security.equity.pricer.PricerEquityUtil;
-import org.eclipse.tradista.security.equity.service.EquityPricerBusinessDelegate;
 import org.eclipse.tradista.security.equity.service.EquityPricerService;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
@@ -65,11 +64,8 @@ import jakarta.interceptor.Interceptors;
 @Interceptors(EquityOptionProductScopeFilteringInterceptor.class)
 public class EquityOptionPricerServiceBean implements EquityOptionPricerService {
 
-	private ConfigurationBusinessDelegate configurationBusinessDelegate;
-
-	public void init() {
-		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-	}
+	@EJB
+	private ConfigurationService configurationService;
 
 	@EJB
 	private EquityPricerService equityPricerService;
@@ -84,10 +80,10 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 	public BigDecimal pvCoxRossRubinstein(PricingParameter params, EquityOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 
+		EquityTrade underlying = trade.getUnderlying();
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			BigDecimal pv = equityPricerService.npvMontecarloSimulation(params, trade.getUnderlying(), currency,
-					pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			BigDecimal pv = equityPricerService.npvMontecarloSimulation(params, underlying, currency, pricingDate);
 			if (trade.getEquityOption() != null) {
 				pv = pv.multiply(trade.getQuantity());
 			}
@@ -128,8 +124,6 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			BigDecimal r = PricerUtil.getDiscountFactor(discountCurve.getId(), trade.getMaturityDate());
 			BigDecimal q = BigDecimal.ZERO;
 
-			EquityTrade underlying = trade.getUnderlying();
-
 			if (underlying == null) {
 				// the equity option trade is using a listed equityOption
 				underlying = new EquityTrade();
@@ -148,12 +142,11 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 				// Retrieve the dividend yield from quotes or curve, depending of
 				// pricing date
 				String quoteName = Equity.EQUITY + "." + underlying.getProduct().getIsin();
-				Map<Equity, InterestRateCurve> ppDividendYieldCurves = new HashMap<Equity, InterestRateCurve>();
+				Map<Equity, InterestRateCurve> ppDividendYieldCurves = new HashMap<>();
 				if (params.getModules() != null && !params.getModules().isEmpty()) {
 					for (PricingParameterModule module : params.getModules()) {
-						if (module instanceof PricingParameterDividendYieldCurveModule) {
-							ppDividendYieldCurves = ((PricingParameterDividendYieldCurveModule) module)
-									.getDividendYieldCurves();
+						if (module instanceof PricingParameterDividendYieldCurveModule ppdycm) {
+							ppDividendYieldCurves = ppdycm.getDividendYieldCurves();
 							break;
 						}
 					}
@@ -171,8 +164,8 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			}
 
 			// double deltaT = T / n;
-			BigDecimal deltaT = PricerUtil.daysToYear(pricingDate, trade.getMaturityDate()).divide(
-					BigDecimal.valueOf(binomialTreeHeightValue), configurationBusinessDelegate.getRoundingMode());
+			BigDecimal deltaT = PricerUtil.daysToYear(pricingDate, trade.getMaturityDate())
+					.divide(BigDecimal.valueOf(binomialTreeHeightValue), configurationService.getRoundingMode());
 
 			// Volatility Surface
 			// Note : the volatility is supposed to be a constant value in CRR, so
@@ -182,8 +175,8 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			// Module for the underlying
 			PricingParameterVolatilitySurfaceModule module = null;
 			for (PricingParameterModule mod : params.getModules()) {
-				if (mod instanceof PricingParameterVolatilitySurfaceModule) {
-					module = (PricingParameterVolatilitySurfaceModule) mod;
+				if (mod instanceof PricingParameterVolatilitySurfaceModule ppvsm) {
+					module = ppvsm;
 					break;
 				}
 			}
@@ -204,8 +197,8 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			BigDecimal sigma;
 			try {
 				sigma = surface.getVolatilityByOptionExpiry(optionExpiry);
-			} catch (TradistaBusinessException abe) {
-				throw new TradistaBusinessException(abe.getMessage());
+			} catch (TradistaBusinessException tbe) {
+				throw new TradistaBusinessException(tbe.getMessage());
 			}
 
 			BigDecimal up = BigDecimal.valueOf(
@@ -214,7 +207,7 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			BigDecimal p0 = (up.multiply(BigDecimal.valueOf(Math.exp(r.negate().multiply(deltaT).doubleValue())))
 					.subtract(BigDecimal.valueOf(Math.exp(q.multiply(deltaT).doubleValue())))).multiply(up)
 					.divide(BigDecimal.valueOf(Math.pow(up.doubleValue(), 2)).subtract(BigDecimal.valueOf(1)),
-							configurationBusinessDelegate.getRoundingMode());
+							configurationService.getRoundingMode());
 			BigDecimal p1 = BigDecimal.valueOf(Math.exp(r.negate().multiply(deltaT).doubleValue())).subtract(p0);
 
 			BigDecimal[] p = new BigDecimal[binomialTreeHeightValue];
@@ -343,12 +336,13 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 		BigDecimal pv = null;
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
+		EquityTrade underlying = trade.getUnderlying();
 		if (paramTradeCcyPricingCcyFXCurve == null) {
 			// TODO Add log warn
 		}
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			pv = equityPricerService.npvMontecarloSimulation(params, trade.getUnderlying(), currency, pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			pv = equityPricerService.npvMontecarloSimulation(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
 			// TODO Log warn
@@ -395,15 +389,15 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 	@Override
 	public BigDecimal pvBlackAndScholes(PricingParameter params, EquityOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
+		EquityTrade underlying = trade.getUnderlying();
 		if (trade.getStyle().equals(VanillaOptionTrade.Style.AMERICAN)) {
 			throw new TradistaBusinessException(
 					"Black and Scholes valuation formula cannot be used with an American Option.");
 		}
 
 		if (trade.getExerciseDate() != null) {
-			trade.getUnderlying().setSettlementDate(trade.getUnderlyingSettlementDate());
-			BigDecimal pv = equityPricerService.npvMontecarloSimulation(params, trade.getUnderlying(), currency,
-					pricingDate);
+			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
+			BigDecimal pv = equityPricerService.npvMontecarloSimulation(params, underlying, currency, pricingDate);
 			if (trade.getEquityOption() != null) {
 				pv = pv.multiply(trade.getQuantity());
 			}
@@ -444,8 +438,8 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			// Module for the underlying
 			PricingParameterVolatilitySurfaceModule module = null;
 			for (PricingParameterModule mod : params.getModules()) {
-				if (mod instanceof PricingParameterVolatilitySurfaceModule) {
-					module = (PricingParameterVolatilitySurfaceModule) mod;
+				if (mod instanceof PricingParameterVolatilitySurfaceModule ppvsm) {
+					module = ppvsm;
 					break;
 				}
 			}
@@ -459,8 +453,6 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			BigDecimal pv;
 
 			BigDecimal s;
-
-			EquityTrade underlying = trade.getUnderlying();
 
 			if (underlying == null) {
 				// the equity option trade is using a listed equityOption
@@ -524,7 +516,7 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			d1 = BigDecimal.valueOf(Math.log(s.doubleValue() / k.doubleValue()))
 					.add(r.add(volat.pow(2).divide(BigDecimal.valueOf(2)))).multiply(time)
 					.divide(volat.multiply(BigDecimal.valueOf(Math.sqrt(time.doubleValue()))),
-							configurationBusinessDelegate.getRoundingMode());
+							configurationService.getRoundingMode());
 
 			d2 = d1.subtract(volat.multiply(BigDecimal.valueOf(Math.sqrt(time.doubleValue()))));
 
@@ -578,11 +570,11 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 				if (trade.getEquityOption() != null) {
 					if (trade.isBuy()) {
 						if (trade.getExerciseDate() != null) {
-							realizedPnl.add(PricerEquityOptionUtil.getProfitAfterExercice(trade));
+							realizedPnl = realizedPnl.add(PricerEquityOptionUtil.getProfitAfterExercice(trade));
 						}
-						realizedPnl.subtract(trade.getAmount().multiply(trade.getQuantity()));
+						realizedPnl = realizedPnl.subtract(trade.getAmount().multiply(trade.getQuantity()));
 					} else {
-						realizedPnl.add(trade.getAmount().multiply(trade.getQuantity()));
+						realizedPnl = realizedPnl.add(trade.getAmount().multiply(trade.getQuantity()));
 					}
 				}
 			}
@@ -613,6 +605,8 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 	@Override
 	public BigDecimal realizedPnlOptionExercise(PricingParameter params, EquityOptionTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
+
+		EquityTrade underlying = trade.getUnderlying();
 
 		if (trade.getEquityOption() != null) {
 			// TODO Log warn "For listed option, realized pnl must be calculated
@@ -651,9 +645,9 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 			return BigDecimal.ZERO;
 		}
 		// 3. There was a realized PNL, we calculate it.
-		trade.getUnderlying().setSettlementDate(underlyingSettlementDate);
-		BigDecimal npvAsOfSettlementDate = new EquityPricerBusinessDelegate().realizedPnlDefault(params,
-				trade.getUnderlying().getProduct(), trade.getBook(), currency, pricingDate);
+		underlying.setSettlementDate(underlyingSettlementDate);
+		BigDecimal npvAsOfSettlementDate = equityPricerService.realizedPnlDefault(params, underlying.getProduct(),
+				trade.getBook(), currency, pricingDate);
 
 		// add (or subtract) the premium from the realized PNL,
 		// depending of the trade direction

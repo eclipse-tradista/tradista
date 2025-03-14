@@ -76,7 +76,6 @@ public class CcySwapTradeSQL {
 					ccyswapTrade.setAmount(results.getBigDecimal("amount"));
 					ccyswapTrade.setPaymentFrequency(Tenor.valueOf(results.getString("payment_frequency")));
 					ccyswapTrade.setReceptionFrequency(Tenor.valueOf(results.getString("reception_frequency")));
-					ccyswapTrade.setPaymentSpread(results.getBigDecimal("payment_spread"));
 					ccyswapTrade.setReceptionSpread(results.getBigDecimal("reception_spread"));
 					ccyswapTrade.setCurrencyTwo(CurrencySQL.getCurrencyById(results.getLong("currency_two_id")));
 					ccyswapTrade.setNotionalAmountTwo(results.getBigDecimal("notional_amount_two"));
@@ -93,6 +92,7 @@ public class CcySwapTradeSQL {
 								IndexSQL.getIndexById(results.getLong("payment_reference_rate_index_id")));
 						ccyswapTrade.setPaymentInterestFixing(
 								InterestPayment.valueOf(results.getString("payment_interest_fixing")));
+						ccyswapTrade.setPaymentSpread(results.getBigDecimal("payment_spread"));
 					}
 					ccyswapTrade.setPaymentDayCountConvention(DayCountConventionSQL
 							.getDayCountConventionById(results.getLong("payment_day_count_convention_id")));
@@ -139,7 +139,6 @@ public class CcySwapTradeSQL {
 			}
 			ccyswapTrade.setPaymentFrequency(Tenor.valueOf(rs.getString("irswap_payment_frequency")));
 			ccyswapTrade.setReceptionFrequency(Tenor.valueOf(rs.getString("irswap_reception_frequency")));
-			ccyswapTrade.setPaymentSpread(rs.getBigDecimal("payment_spread"));
 			ccyswapTrade.setReceptionSpread(rs.getBigDecimal("reception_spread"));
 			ccyswapTrade.setCurrencyTwo(CurrencySQL.getCurrencyById(rs.getLong("currency_two_id")));
 			ccyswapTrade.setNotionalAmountTwo(rs.getBigDecimal("notional_amount_two"));
@@ -155,6 +154,7 @@ public class CcySwapTradeSQL {
 				ccyswapTrade.setPaymentReferenceRateIndex(
 						IndexSQL.getIndexById(rs.getLong("payment_reference_rate_index_id")));
 				ccyswapTrade.setPaymentInterestFixing(InterestPayment.valueOf(rs.getString("payment_interest_fixing")));
+				ccyswapTrade.setPaymentSpread(rs.getBigDecimal("payment_spread"));
 			}
 			ccyswapTrade.setPaymentDayCountConvention(
 					DayCountConventionSQL.getDayCountConventionById(rs.getLong("payment_day_count_convention_id")));

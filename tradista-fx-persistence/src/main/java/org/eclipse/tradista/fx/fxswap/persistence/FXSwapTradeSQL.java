@@ -8,10 +8,12 @@ import java.sql.Statement;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.persistence.BookSQL;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 
 /********************************************************************************
@@ -83,6 +85,7 @@ public class FXSwapTradeSQL {
 			}
 
 			fxswapTrade = new FXSwapTrade();
+			TradeSQL.setTradeCommonFields(fxswapTrade, rs);
 			fxswapTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxswap_currency_one_id")));
 			fxswapTrade.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("currency_id")));
 			fxswapTrade.setSettlementDateForward(rs.getDate("settlement_date_forward").toLocalDate());
@@ -96,10 +99,10 @@ public class FXSwapTradeSQL {
 			fxswapTrade.setCreationDate(rs.getDate("creation_date").toLocalDate());
 			fxswapTrade.setSettlementDate(rs.getDate("settlement_date").toLocalDate());
 			fxswapTrade.setTradeDate(rs.getDate("trade_date").toLocalDate());
-		} catch (SQLException sqle) {
+		} catch (SQLException | TradistaBusinessException e) {
 			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+			e.printStackTrace();
+			throw new TradistaTechnicalException(e);
 		}
 
 		return fxswapTrade;

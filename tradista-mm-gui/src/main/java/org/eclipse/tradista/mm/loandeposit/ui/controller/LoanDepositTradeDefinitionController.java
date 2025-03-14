@@ -40,9 +40,9 @@ import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.mm.common.ui.util.TradistaMMGUIUtil;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
+import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.Direction;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
-import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 import org.eclipse.tradista.mm.loandeposit.service.LoanDepositPricerBusinessDelegate;
 import org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
 
