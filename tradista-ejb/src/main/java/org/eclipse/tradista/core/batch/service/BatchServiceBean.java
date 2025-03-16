@@ -72,7 +72,7 @@ public class BatchServiceBean implements BatchService {
 	private LegalEntityService legalEntityService;
 
 	public static void initJobTypes() {
-		jobTypes = new HashMap<String, Class<? extends TradistaJob>>();
+		jobTypes = new HashMap<>();
 		String tradistaJobsPackage = TradistaConstants.CORE_PACKAGE + ".batch.job";
 		List<Class<TradistaJob>> classes = TradistaUtil.getAllClassesByType(TradistaJob.class, tradistaJobsPackage);
 
@@ -167,7 +167,7 @@ public class BatchServiceBean implements BatchService {
 
 	@Override
 	public Set<String> getAllJobTypes() {
-		return new HashSet<String>(jobTypes.keySet());
+		return new HashSet<>(jobTypes.keySet());
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class BatchServiceBean implements BatchService {
 	@Interceptors(JobFilteringInterceptor.class)
 	@Override
 	public Set<TradistaJobInstance> getAllJobInstances(String po) throws TradistaBusinessException {
-		Set<TradistaJobInstance> jobInstances = new HashSet<TradistaJobInstance>();
+		Set<TradistaJobInstance> jobInstances = new HashSet<>();
 
 		LegalEntity processingOrg = null;
 		if (po != null) {

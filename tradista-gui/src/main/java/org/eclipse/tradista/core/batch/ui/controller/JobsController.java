@@ -636,14 +636,11 @@ public class JobsController extends TradistaControllerAdapter {
 				datePicker.setValue(LocalDate.parse(getString(), DateTimeFormatter.ofPattern(DATE_PATTERN)));
 			}
 			setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-			datePicker.setEditable(false);
 			datePicker.focusedProperty().addListener((b, ov, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					LocalDate date = datePicker.getValue();
-					if (date != null) {
-						model.setValue(date);
-						commitEdit(date);
-					}
+					model.setValue(date);
+					commitEdit(date);
 				}
 			});
 			datePicker.setMaxWidth(Double.MAX_VALUE);
@@ -680,19 +677,19 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createErrorStatusComboBox() {
-			errorStatusComboBox = new ComboBox<String>();
+			errorStatusComboBox = new ComboBox<>();
 			TradistaGUIUtil.fillErrorStatusComboBox(errorStatusComboBox);
 			if (getItem() != null) {
-				errorTypeComboBox.setValue((String) getItem());
+				errorStatusComboBox.setValue((String) getItem());
 			}
-			errorTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			errorTypeComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			errorStatusComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+			errorStatusComboBox.focusedProperty().addListener((b, ov, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
-					model.setValue(errorTypeComboBox.getValue());
-					commitEdit(errorTypeComboBox.getValue());
+					model.setValue(errorStatusComboBox.getValue());
+					commitEdit(errorStatusComboBox.getValue());
 				}
 			});
-			errorTypeComboBox.setMaxWidth(Double.MAX_VALUE);
+			errorStatusComboBox.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private String getString() {

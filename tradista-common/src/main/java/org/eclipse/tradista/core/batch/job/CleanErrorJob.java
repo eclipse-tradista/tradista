@@ -52,7 +52,7 @@ public class CleanErrorJob extends TradistaJob {
 		Status statusEnumValue = null;
 
 		if (!StringUtils.isEmpty(status)) {
-			statusEnumValue = Status.valueOf(status);
+			statusEnumValue = Status.getStatus(status);
 		}
 
 		if (isInterrupted) {
