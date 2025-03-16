@@ -36,7 +36,7 @@ public class CSVParser extends TradistaParser {
 	@Override
 	public List<TradistaObject> parseFile(File file, String objectName) {
 		TradistaObjectParser<TradistaObject, CSVRecord> objectParser;
-		List<TradistaObject> objects = new ArrayList<TradistaObject>();
+		List<TradistaObject> objects = new ArrayList<>();
 		org.apache.commons.csv.CSVParser parser = null;
 		try {
 			CSVFormat csvFormat = CSVFormat.RFC4180;
