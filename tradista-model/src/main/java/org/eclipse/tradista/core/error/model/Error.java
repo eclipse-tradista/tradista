@@ -37,9 +37,10 @@ public abstract class Error extends TradistaObject {
 
 	private Status status;
 
-	public static enum Status {
+	public enum Status {
 		SOLVED, UNSOLVED;
 
+		@Override
 		public String toString() {
 			switch (this) {
 			case SOLVED:
@@ -61,12 +62,9 @@ public abstract class Error extends TradistaObject {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2187943264623829665L;
 
-	public Error() {
+	protected Error() {
 		status = Status.UNSOLVED;
 	}
 

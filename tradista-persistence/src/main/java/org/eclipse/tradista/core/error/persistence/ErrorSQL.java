@@ -36,6 +36,10 @@ import org.eclipse.tradista.core.error.model.Error.Status;
 
 public class ErrorSQL {
 
+	private static final String SPACE_WHERE_SPACE = " WHERE ";
+	private static final String SPACE_AND_SPACE = " AND ";
+	private static final String WHERE = "WHERE";
+
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
 		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();
 		Set<Long> ids = getErrorIds(errorType, status, errorDateFrom, errorDateTo);
@@ -45,7 +49,7 @@ public class ErrorSQL {
 					Class<?> persistenceClass = null;
 					List<Class<?>> klasses = TradistaUtil.getAllClassesByRegex("[^*]+.persistence." + err + "SQL",
 							"org.eclipse.tradista.**");
-					if (klasses != null && klasses.size() > 1) {
+					if (klasses != null && !klasses.isEmpty()) {
 						persistenceClass = klasses.get(0);
 						TradistaUtil.callMethod(persistenceClass.getName(), Void.class, "deleteErrors", ids);
 					} else {
@@ -85,28 +89,31 @@ public class ErrorSQL {
 			sqlQuery.append(" WHERE TYPE = '" + errorType + "'");
 		}
 		if (status != null) {
-			if (sqlQuery.toString().contains("WHERE")) {
-				sqlQuery.append(" AND ");
+			if (sqlQuery.toString().contains(WHERE)) {
+				sqlQuery.append(SPACE_AND_SPACE);
 			} else {
-				sqlQuery.append(" WHERE ");
+				sqlQuery.append(SPACE_WHERE_SPACE);
 			}
 			sqlQuery.append(" STATUS = '" + status.name() + "'");
 		}
 		if (errorDateFrom != null) {
-			if (sqlQuery.toString().contains("WHERE")) {
-				sqlQuery.append(" AND ");
+			if (sqlQuery.toString().contains(WHERE)) {
+				sqlQuery.append(SPACE_AND_SPACE);
 			} else {
-				sqlQuery.append(" WHERE ");
+				sqlQuery.append(SPACE_WHERE_SPACE);
 			}
-			sqlQuery.append(" ERROR_DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(errorDateFrom) + "'");
+			sqlQuery.append(" ERROR_DATE >= '"
+					+ DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(errorDateFrom.atStartOfDay()) + "'");
 		}
 		if (errorDateTo != null) {
-			if (sqlQuery.toString().contains("WHERE")) {
-				sqlQuery.append(" AND ");
+			if (sqlQuery.toString().contains(WHERE)) {
+				sqlQuery.append(SPACE_AND_SPACE);
 			} else {
-				sqlQuery.append(" WHERE ");
+				sqlQuery.append(SPACE_WHERE_SPACE);
 			}
-			sqlQuery.append(" ERROR_DATE <= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(errorDateTo) + "'");
+			sqlQuery.append(" ERROR_DATE < '"
+					+ DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(errorDateTo.plusDays(1).atStartOfDay())
+					+ "'");
 		}
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmtGetErrorIds = con.createStatement();

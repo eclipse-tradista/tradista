@@ -80,7 +80,6 @@ public class IRSwapTradeSQL {
 					irswapTrade.setAmount(results.getBigDecimal("amount"));
 					irswapTrade.setPaymentFrequency(Tenor.valueOf(results.getString("payment_frequency")));
 					irswapTrade.setReceptionFrequency(Tenor.valueOf(results.getString("reception_frequency")));
-					irswapTrade.setPaymentSpread(results.getBigDecimal("payment_spread"));
 					irswapTrade.setReceptionSpread(results.getBigDecimal("reception_spread"));
 					irswapTrade.setPaymentFixedInterestRate(results.getBigDecimal("payment_fixed_interest_rate"));
 					irswapTrade.setReceptionReferenceRateIndex(
@@ -93,6 +92,9 @@ public class IRSwapTradeSQL {
 								Tenor.valueOf(results.getString("payment_reference_rate_index_tenor")));
 						irswapTrade.setPaymentReferenceRateIndex(
 								IndexSQL.getIndexById(results.getLong("payment_reference_rate_index_id")));
+						irswapTrade.setPaymentSpread(results.getBigDecimal("payment_spread"));
+						irswapTrade.setPaymentInterestFixing(
+								InterestPayment.valueOf(results.getString("payment_interest_fixing")));
 					}
 					irswapTrade.setPaymentDayCountConvention(DayCountConventionSQL
 							.getDayCountConventionById(results.getLong("payment_day_count_convention_id")));
@@ -104,8 +106,6 @@ public class IRSwapTradeSQL {
 							InterestPayment.valueOf(results.getString("payment_interest_payment")));
 					irswapTrade.setReceptionInterestPayment(
 							InterestPayment.valueOf(results.getString("reception_interest_payment")));
-					irswapTrade.setPaymentInterestFixing(
-							InterestPayment.valueOf(results.getString("payment_interest_fixing")));
 					irswapTrade.setReceptionInterestFixing(
 							InterestPayment.valueOf(results.getString("reception_interest_fixing")));
 				}

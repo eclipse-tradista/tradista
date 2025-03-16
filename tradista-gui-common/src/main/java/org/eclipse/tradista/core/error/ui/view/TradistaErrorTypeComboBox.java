@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.error.ui.view;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 
 import javafx.collections.FXCollections;
@@ -25,6 +26,7 @@ public class TradistaErrorTypeComboBox extends ComboBox<String> {
 
 	public TradistaErrorTypeComboBox() {
 		setItems(FXCollections.observableArrayList(TradistaUtil.getAllErrorTypes()));
+		getItems().add(0, StringUtils.EMPTY);
 	}
 
 }
