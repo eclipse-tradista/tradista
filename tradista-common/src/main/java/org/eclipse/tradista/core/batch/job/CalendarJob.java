@@ -94,8 +94,8 @@ public class CalendarJob extends TradistaJob {
 	}
 
 	private Set<Calendar> toSet(List<Calendar> calendars) {
-		Set<Calendar> calSet = new HashSet<Calendar>();
-		Map<String, Calendar> calMap = new HashMap<String, Calendar>();
+		Set<Calendar> calSet = new HashSet<>();
+		Map<String, Calendar> calMap = new HashMap<>();
 		for (Calendar cal : calendars) {
 			if (calMap.containsKey(cal.getCode())) {
 				Calendar tmpCal = calMap.remove(cal.getCode());
@@ -133,15 +133,18 @@ public class CalendarJob extends TradistaJob {
 
 	@Override
 	public void checkJobProperties() throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isEmpty(fieldSeparator)) {
-			throw new TradistaBusinessException("The field separator is mandatory.");
+			errMsg.append("The field separator is mandatory.\n");
 		}
 		if (StringUtils.isEmpty(filePath)) {
-			throw new TradistaBusinessException("The file path is mandatory.");
+			errMsg.append("The file path is mandatory.");
+		} else {
+			File file = new File(filePath);
+			errMsg.append(ParserUtil.isValidFile(file, true));
 		}
-		File file = new File(filePath);
-		if (!file.exists()) {
-			throw new TradistaBusinessException("The file path must exist.");
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
 
