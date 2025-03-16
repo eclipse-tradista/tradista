@@ -128,10 +128,10 @@ public class IRSwapOptionTradeSQL {
 								Tenor.valueOf(results.getString("payment_reference_rate_index_tenor")));
 						underlying.setPaymentInterestFixing(
 								InterestPayment.valueOf(results.getString("payment_interest_fixing")));
+						underlying.setPaymentSpread(results.getBigDecimal("payment_spread"));
 					}
 					underlying.setReceptionReferenceRateIndexTenor(
 							Tenor.valueOf(results.getString("reception_reference_rate_index_tenor")));
-					underlying.setPaymentSpread(results.getBigDecimal("payment_spread"));
 					underlying.setReceptionSpread(results.getBigDecimal("reception_spread"));
 					java.sql.Date tradeDate = results.getDate("und_trade_date");
 					if (tradeDate != null) {
@@ -323,6 +323,7 @@ public class IRSwapOptionTradeSQL {
 						Tenor.valueOf(rs.getString("UNDERLYING_IRSWAP_payment_reference_rate_index_tenor")));
 				underlying.setPaymentInterestFixing(
 						InterestPayment.valueOf(rs.getString("UNDERLYING_IRSWAP_payment_interest_fixing")));
+				underlying.setPaymentSpread(rs.getBigDecimal("UNDERLYING_IRSWAP_payment_spread"));
 			}
 			underlying.setReceptionDayCountConvention(DayCountConventionSQL
 					.getDayCountConventionById(rs.getLong("UNDERLYING_IRSWAP_reception_day_count_convention_id")));
@@ -330,7 +331,6 @@ public class IRSwapOptionTradeSQL {
 					IndexSQL.getIndexById(rs.getLong("UNDERLYING_IRSWAP_reception_reference_rate_index_id")));
 			underlying.setReceptionReferenceRateIndexTenor(
 					Tenor.valueOf(rs.getString("UNDERLYING_IRSWAP_reception_reference_rate_index_tenor")));
-			underlying.setPaymentSpread(rs.getBigDecimal("UNDERLYING_IRSWAP_payment_spread"));
 			underlying.setReceptionSpread(rs.getBigDecimal("UNDERLYING_IRSWAP_reception_spread"));
 			underlying.setPaymentInterestPayment(
 					InterestPayment.valueOf(rs.getString("UNDERLYING_IRSWAP_payment_interest_payment")));

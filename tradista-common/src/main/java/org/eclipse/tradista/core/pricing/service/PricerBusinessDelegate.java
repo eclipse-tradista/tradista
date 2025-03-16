@@ -91,7 +91,8 @@ public class PricerBusinessDelegate {
 		try {
 			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
 					"org.eclipse.tradista.ir.irswapoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
-			validators.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule", validator);
+			validators.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule",
+					validator);
 		} catch (TradistaTechnicalException tte) {
 			// TODO Add log info
 		}
@@ -530,24 +531,24 @@ public class PricerBusinessDelegate {
 		}
 		return SecurityUtil.runEx(() -> pricerService.generateCashFlows(tradeId, pp, valueDate));
 	}
-	
+
 	public List<CashFlow> generateCashFlows(Trade<?> trade, PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
 
 		StringBuilder errMsg = new StringBuilder();
 		TradeValidator validator;
-		
+
 		if (trade == null) {
 			errMsg.append(TRADE_IS_MANDATORY);
 		} else {
-		validator = TradistaUtil.getTradeValidator(trade.getProductType());
-		try {
-		validator.validateTrade(trade);
-		} catch (TradistaBusinessException tbe) {
-			errMsg.append(tbe.getMessage());
+			validator = TradistaUtil.getTradeValidator(trade.getProductType());
+			try {
+				validator.validateTrade(trade);
+			} catch (TradistaBusinessException tbe) {
+				errMsg.append(tbe.getMessage());
+			}
 		}
-		}		
-		
+
 		if (pp == null) {
 			errMsg.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
 		}
