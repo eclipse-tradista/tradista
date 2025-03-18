@@ -47,7 +47,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert.AlertType;
@@ -59,12 +58,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -83,6 +80,12 @@ import javafx.util.Callback;
  ********************************************************************************/
 
 public class PricingParameterController extends TradistaControllerAdapter {
+
+	private static final String THE_CURRENCY_PAIR_IS_ALREADY_IN_THE_LIST = "The Currency Pair %s.%s is already in the list.%n";
+
+	private static final String PRIMARY_AND_QUOTE_CURRENCIES_MUST_BE_DIFFERENT = "Primary and Quote Currencies must be different.%n";
+
+	private static final String PLEASE_LOAD_A_PRICING_PARAMETERS_SET = "Please load a Pricing Parameters Set";
 
 	@FXML
 	private TableView<PricingParamProperty> pricingParamTable;
@@ -252,7 +255,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					getClass().getResource("/PricingParameterUnrealizedPnlCalculationModule.fxml"));
 			StackPane pane = null;
 			if (pricingParameterModuleControllersList == null) {
-				pricingParameterModuleControllersList = new ArrayList<PricingParameterModuleController>();
+				pricingParameterModuleControllersList = new ArrayList<>();
 			}
 			try {
 				pane = fxmlLoader.load();
@@ -263,9 +266,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			unrealizedPnlCalculationTab.setContent(pane);
 
 			fxmlLoader = new FXMLLoader(getClass().getResource("/PricingParameterFXVolatilitySurfaceModule.fxml"));
-			pane = null;
 			if (pricingParameterModuleControllersList == null) {
-				pricingParameterModuleControllersList = new ArrayList<PricingParameterModuleController>();
+				pricingParameterModuleControllersList = new ArrayList<>();
 			}
 			try {
 				pane = fxmlLoader.load();
@@ -287,7 +289,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					getClass().getResource("/PricingParameterDividendYieldCurveModule.fxml"));
 			StackPane pane = null;
 			if (pricingParameterModuleControllersList == null) {
-				pricingParameterModuleControllersList = new ArrayList<PricingParameterModuleController>();
+				pricingParameterModuleControllersList = new ArrayList<>();
 			}
 			try {
 				pane = fxmlLoader.load();
@@ -302,9 +304,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 			fxmlLoader = new FXMLLoader(
 					getClass().getResource("/PricingParameterEquityOptionVolatilitySurfaceModule.fxml"));
-			pane = null;
 			if (pricingParameterModuleControllersList == null) {
-				pricingParameterModuleControllersList = new ArrayList<PricingParameterModuleController>();
+				pricingParameterModuleControllersList = new ArrayList<>();
 			}
 			try {
 				pane = fxmlLoader.load();
@@ -325,7 +326,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					getClass().getResource("/PricingParameterIRSwapOptionVolatilitySurfaceModule.fxml"));
 			StackPane pane = null;
 			if (pricingParameterModuleControllersList == null) {
-				pricingParameterModuleControllersList = new ArrayList<PricingParameterModuleController>();
+				pricingParameterModuleControllersList = new ArrayList<>();
 			}
 			try {
 				pane = fxmlLoader.load();
@@ -339,39 +340,17 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			irSwapOptionVolatilitySurfaceTab.setContent(pane);
 		}
 
-		Callback<TableColumn<PricingParamProperty, String>, TableCell<PricingParamProperty, String>> paramNameCellFactory = new Callback<TableColumn<PricingParamProperty, String>, TableCell<PricingParamProperty, String>>() {
-			public TableCell<PricingParamProperty, String> call(TableColumn<PricingParamProperty, String> p) {
-				return new PricingParamNameEditingCell();
-			}
-		};
-
-		Callback<TableColumn<PricingParamProperty, String>, TableCell<PricingParamProperty, String>> paramValueCellFactory = new Callback<TableColumn<PricingParamProperty, String>, TableCell<PricingParamProperty, String>>() {
-			public TableCell<PricingParamProperty, String> call(TableColumn<PricingParamProperty, String> p) {
-				return new PricingParamValueEditingCell();
-			}
-		};
-
 		paramName.setCellValueFactory(cellData -> cellData.getValue().getName());
 
-		paramName.setCellFactory(paramNameCellFactory);
+		paramName.setCellFactory(tc -> new PricingParamNameEditingCell());
 
-		paramName.setOnEditCommit(new EventHandler<CellEditEvent<PricingParamProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<PricingParamProperty, String> t) {
-				((PricingParamProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setName(t.getNewValue());
-			}
-		});
+		paramName.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setName(cee.getNewValue()));
 
-		paramValue.setCellFactory(paramValueCellFactory);
+		paramValue.setCellFactory(tc -> new PricingParamValueEditingCell());
 
-		paramValue.setOnEditCommit(new EventHandler<CellEditEvent<PricingParamProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<PricingParamProperty, String> t) {
-				((PricingParamProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setValue(t.getNewValue());
-			}
-		});
+		paramValue.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setValue(cee.getNewValue()));
 
 		paramValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
 
@@ -380,185 +359,81 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		nameTextField.setPromptText("Parameter name");
 		valueTextField.setPromptText("Parameter value");
 
-		Callback<TableColumn<DiscountCurveProperty, Currency>, TableCell<DiscountCurveProperty, Currency>> currencyCellFactory = new Callback<TableColumn<DiscountCurveProperty, Currency>, TableCell<DiscountCurveProperty, Currency>>() {
-			public TableCell<DiscountCurveProperty, Currency> call(TableColumn<DiscountCurveProperty, Currency> p) {
-				return new DiscountCurveCurrencyEditingCell();
-			}
-		};
+		currency.setCellValueFactory(new PropertyValueFactory<>("currency"));
 
-		Callback<TableColumn<DiscountCurveProperty, InterestRateCurve>, TableCell<DiscountCurveProperty, InterestRateCurve>> discountCurveCellFactory = new Callback<TableColumn<DiscountCurveProperty, InterestRateCurve>, TableCell<DiscountCurveProperty, InterestRateCurve>>() {
-			public TableCell<DiscountCurveProperty, InterestRateCurve> call(
-					TableColumn<DiscountCurveProperty, InterestRateCurve> p) {
-				return new DiscountCurveInterestRateCurveEditingCell();
-			}
-		};
+		currency.setCellFactory(tc -> new DiscountCurveCurrencyEditingCell());
 
-		currency.setCellValueFactory(new PropertyValueFactory<DiscountCurveProperty, Currency>("currency"));
-
-		currency.setCellFactory(currencyCellFactory);
-
-		currency.setOnEditCommit(new EventHandler<CellEditEvent<DiscountCurveProperty, Currency>>() {
-			@Override
-			public void handle(CellEditEvent<DiscountCurveProperty, Currency> t) {
-				((DiscountCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setCurrency(t.getNewValue());
-			}
-		});
+		currency.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
+				.setCurrency(cee.getNewValue()));
 
 		currencyComboBox.setPromptText("Currency");
 
-		discountCurve.setCellFactory(discountCurveCellFactory);
+		discountCurve.setCellFactory(tc -> new DiscountCurveInterestRateCurveEditingCell());
 
-		discountCurve.setOnEditCommit(new EventHandler<CellEditEvent<DiscountCurveProperty, InterestRateCurve>>() {
-			@Override
-			public void handle(CellEditEvent<DiscountCurveProperty, InterestRateCurve> t) {
-				((DiscountCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setCurve(t.getNewValue());
-			}
-		});
+		discountCurve.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		discountCurve.setCellValueFactory(new PropertyValueFactory<DiscountCurveProperty, InterestRateCurve>("curve"));
+		discountCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
 
 		discountCurveComboBox.setPromptText("Discount Curve");
 
-		Callback<TableColumn<IndexCurveProperty, Index>, TableCell<IndexCurveProperty, Index>> indexCellFactory = new Callback<TableColumn<IndexCurveProperty, Index>, TableCell<IndexCurveProperty, Index>>() {
-			public TableCell<IndexCurveProperty, Index> call(TableColumn<IndexCurveProperty, Index> p) {
-				return new IndexCurveIndexEditingCell();
-			}
-		};
+		index.setCellValueFactory(new PropertyValueFactory<>("index"));
 
-		Callback<TableColumn<IndexCurveProperty, InterestRateCurve>, TableCell<IndexCurveProperty, InterestRateCurve>> indexCurveCellFactory = new Callback<TableColumn<IndexCurveProperty, InterestRateCurve>, TableCell<IndexCurveProperty, InterestRateCurve>>() {
-			public TableCell<IndexCurveProperty, InterestRateCurve> call(
-					TableColumn<IndexCurveProperty, InterestRateCurve> p) {
-				return new IndexCurveInterestRateCurveEditingCell();
-			}
-		};
+		index.setCellFactory(tc -> new IndexCurveIndexEditingCell());
 
-		index.setCellValueFactory(new PropertyValueFactory<IndexCurveProperty, Index>("index"));
+		index.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setIndex(cee.getNewValue()));
 
-		index.setCellFactory(indexCellFactory);
+		indexCurve.setCellFactory(tc -> new IndexCurveInterestRateCurveEditingCell());
 
-		index.setOnEditCommit(new EventHandler<CellEditEvent<IndexCurveProperty, Index>>() {
-			@Override
-			public void handle(CellEditEvent<IndexCurveProperty, Index> t) {
-				((IndexCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setIndex(t.getNewValue());
-			}
-		});
+		indexCurve.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		indexCurve.setCellFactory(indexCurveCellFactory);
-
-		indexCurve.setOnEditCommit(new EventHandler<CellEditEvent<IndexCurveProperty, InterestRateCurve>>() {
-			@Override
-			public void handle(CellEditEvent<IndexCurveProperty, InterestRateCurve> t) {
-				((IndexCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setCurve(t.getNewValue());
-			}
-		});
-
-		indexCurve.setCellValueFactory(new PropertyValueFactory<IndexCurveProperty, InterestRateCurve>("curve"));
+		indexCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
 
 		indexComboBox.setPromptText("Index");
 
 		indexCurveComboBox.setPromptText("Index Curve");
 
-		Callback<TableColumn<FXCurveProperty, Currency>, TableCell<FXCurveProperty, Currency>> primaryCurrencyCellFactory = new Callback<TableColumn<FXCurveProperty, Currency>, TableCell<FXCurveProperty, Currency>>() {
-			public TableCell<FXCurveProperty, Currency> call(TableColumn<FXCurveProperty, Currency> p) {
-				return new FXCurvePrimaryCurrencyEditingCell();
-			}
-		};
+		primaryCurrency.setCellValueFactory(new PropertyValueFactory<>("primaryCurrency"));
 
-		Callback<TableColumn<FXCurveProperty, Currency>, TableCell<FXCurveProperty, Currency>> quoteCurrencyCellFactory = new Callback<TableColumn<FXCurveProperty, Currency>, TableCell<FXCurveProperty, Currency>>() {
-			public TableCell<FXCurveProperty, Currency> call(TableColumn<FXCurveProperty, Currency> p) {
-				return new FXCurveQuoteCurrencyEditingCell();
-			}
-		};
+		primaryCurrency.setCellFactory(tc -> new FXCurvePrimaryCurrencyEditingCell());
 
-		Callback<TableColumn<FXCurveProperty, FXCurve>, TableCell<FXCurveProperty, FXCurve>> fxCurveCellFactory = new Callback<TableColumn<FXCurveProperty, FXCurve>, TableCell<FXCurveProperty, FXCurve>>() {
-			public TableCell<FXCurveProperty, FXCurve> call(TableColumn<FXCurveProperty, FXCurve> p) {
-				return new FXCurveFXCurveEditingCell();
-			}
-		};
-
-		primaryCurrency.setCellValueFactory(new PropertyValueFactory<FXCurveProperty, Currency>("primaryCurrency"));
-
-		primaryCurrency.setCellFactory(primaryCurrencyCellFactory);
-
-		primaryCurrency.setOnEditCommit(new EventHandler<CellEditEvent<FXCurveProperty, Currency>>() {
-			@Override
-			public void handle(CellEditEvent<FXCurveProperty, Currency> t) {
-				((FXCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setPrimaryCurrency(t.getNewValue());
-			}
-		});
+		primaryCurrency.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
+				.setPrimaryCurrency(cee.getNewValue()));
 
 		primaryCurrencyComboBox.setPromptText("Primary Currency");
 
 		fxCurveComboBox.setPromptText("FX Curve");
 
-		quoteCurrency.setCellValueFactory(new PropertyValueFactory<FXCurveProperty, Currency>("quoteCurrency"));
+		quoteCurrency.setCellValueFactory(new PropertyValueFactory<>("quoteCurrency"));
 
-		quoteCurrency.setCellFactory(quoteCurrencyCellFactory);
+		quoteCurrency.setCellFactory(tc -> new FXCurveQuoteCurrencyEditingCell());
 
-		quoteCurrency.setOnEditCommit(new EventHandler<CellEditEvent<FXCurveProperty, Currency>>() {
-			@Override
-			public void handle(CellEditEvent<FXCurveProperty, Currency> t) {
-				((FXCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setQuoteCurrency(t.getNewValue());
-			}
-		});
+		quoteCurrency.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
+				.setQuoteCurrency(cee.getNewValue()));
 
 		quoteCurrencyComboBox.setPromptText("Quote Currency");
 
-		fxCurve.setCellFactory(fxCurveCellFactory);
+		fxCurve.setCellFactory(tc -> new FXCurveFXCurveEditingCell());
 
-		fxCurve.setOnEditCommit(new EventHandler<CellEditEvent<FXCurveProperty, FXCurve>>() {
-			@Override
-			public void handle(CellEditEvent<FXCurveProperty, FXCurve> t) {
-				((FXCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setCurve(t.getNewValue());
-			}
-		});
+		fxCurve.setOnEditCommit(
+				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		fxCurve.setCellValueFactory(new PropertyValueFactory<FXCurveProperty, FXCurve>("curve"));
-
-		Callback<TableColumn<CustomPricerProperty, String>, TableCell<CustomPricerProperty, String>> customPricerCellFactory = new Callback<TableColumn<CustomPricerProperty, String>, TableCell<CustomPricerProperty, String>>() {
-			public TableCell<CustomPricerProperty, String> call(TableColumn<CustomPricerProperty, String> p) {
-				return new CustomPricerPricerEditingCell();
-			}
-		};
-
-		Callback<TableColumn<CustomPricerProperty, String>, TableCell<CustomPricerProperty, String>> productTypeCellFactory = new Callback<TableColumn<CustomPricerProperty, String>, TableCell<CustomPricerProperty, String>>() {
-			public TableCell<CustomPricerProperty, String> call(TableColumn<CustomPricerProperty, String> p) {
-				return new CustomPricerProductTypeEditingCell();
-			}
-		};
+		fxCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
 
 		productType.setCellValueFactory(cellData -> cellData.getValue().getProductType());
 
-		productType.setCellFactory(productTypeCellFactory);
+		customPricer.setCellFactory(tc -> new CustomPricerPricerEditingCell());
 
-		productType.setOnEditCommit(new EventHandler<CellEditEvent<CustomPricerProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<CustomPricerProperty, String> t) {
-				((CustomPricerProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setProductType(t.getNewValue());
-			}
-		});
-
-		customPricer.setCellFactory(customPricerCellFactory);
-
-		customPricer.setOnEditCommit(new EventHandler<CellEditEvent<CustomPricerProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<CustomPricerProperty, String> t) {
-				((CustomPricerProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setCustomPricer(t.getNewValue());
-			}
-		});
+		customPricer.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
+				.setCustomPricer(cee.getNewValue()));
 
 		customPricer.setCellValueFactory(cellData -> cellData.getValue().getCustomPricer());
 
 		customPricerTextField.setPromptText("Custom Pricer");
+
+		customPricerTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		try {
 			Set<QuoteSet> quoteSets = quoteBusinessDelegate.getAllQuoteSets();
@@ -653,7 +528,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	protected void copy() {
 		boolean ppLoaded = (pricingParameter != null);
 		if (!ppLoaded) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, "Please load a Pricing Parameters Set");
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, PLEASE_LOAD_A_PRICING_PARAMETERS_SET);
 			alert.showAndWait();
 		} else {
 			try {
@@ -689,7 +564,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	protected void save() {
 		try {
 			if (pricingParameter == null) {
-				throw new TradistaBusinessException("Please load a Pricing Parameters Set");
+				throw new TradistaBusinessException(PLEASE_LOAD_A_PRICING_PARAMETERS_SET);
 			}
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 			confirmation.setTitle("Save Pricing Parameters Set");
@@ -697,7 +572,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			confirmation.setContentText("Do you want to save this Pricing Parameters Set?");
 
 			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (result.isPresent() && result.get() == ButtonType.OK) {
 				buildPricingParameter(pricingParameter);
 				pricingParameter.setId(pricerBusinessDelegate.savePricingParameter(pricingParameter));
 			}
@@ -804,7 +679,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (valueTextField.getText().isEmpty()) {
 				errMsg.append(String.format("Please select a Parameter Value.%n"));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -834,7 +709,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (discountCurveComboBox.getValue() == null) {
 				errMsg.append(String.format("Please select a Discount Curve.%n"));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -863,7 +738,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (indexCurveComboBox.getValue() == null) {
 				errMsg.append(String.format("Please select an Index Curve.%n"));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -887,11 +762,11 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				if (quoteCurrencyComboBox.getValue() == null) {
 					errMsg.append(String.format("Please select a Quote Currency.%n"));
 				} else if (quoteCurrencyComboBox.getValue().equals(primaryCurrencyComboBox.getValue())) {
-					errMsg.append(String.format("Primary and Quote Currencies must be different.%n"));
+					errMsg.append(String.format(PRIMARY_AND_QUOTE_CURRENCIES_MUST_BE_DIFFERENT));
 				} else {
 					if (fxCurveTable.getItems().contains(new FXCurveProperty(primaryCurrencyComboBox.getValue(),
 							quoteCurrencyComboBox.getValue(), null))) {
-						errMsg.append(String.format("The Currency Pair %s.%s is already in the list.%n",
+						errMsg.append(String.format(THE_CURRENCY_PAIR_IS_ALREADY_IN_THE_LIST,
 								primaryCurrencyComboBox.getValue(), quoteCurrencyComboBox.getValue()));
 					}
 				}
@@ -899,7 +774,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (fxCurveComboBox.getValue() == null) {
 				errMsg.append(String.format("Please select a FX Curve.%n"));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -930,7 +805,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (customPricerTextField.getText().isEmpty()) {
 				errMsg.append(String.format("Please select a Custom Pricer.%n"));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -948,7 +823,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	protected void delete() {
 		try {
 			if (pricingParameter == null) {
-				throw new TradistaBusinessException("Please load a Pricing Parameters Set");
+				throw new TradistaBusinessException(PLEASE_LOAD_A_PRICING_PARAMETERS_SET);
 			}
 
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
@@ -958,13 +833,13 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					pricingParameter.getName()));
 
 			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (result.isPresent() && result.get() == ButtonType.OK) {
 
 				pricerBusinessDelegate.deletePricingParameter(pricingParameter.getId());
 				TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
 				// Delete the Pricing Param table if the loaded PP doesn't
 				// exist anymore.
-				if (pricingParameter != null && !pricingParam.getItems().contains(pricingParameter)) {
+				if (!pricingParam.getItems().contains(pricingParameter)) {
 					pricingParameter = null;
 					pricingParamTable.setItems(null);
 					discountCurveTable.setItems(null);
@@ -999,7 +874,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		@Override
 		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
+			if (textField != null && textField.getText() != null && !textField.getText().equals(StringUtils.EMPTY)) {
 				setItem(textField.getText());
 			}
 			super.startEdit();
@@ -1013,7 +888,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		public void cancelEdit() {
 			super.cancelEdit();
 
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -1040,19 +915,15 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					commitEdit(textField.getText());
 				}
 			});
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? StringUtils.EMPTY : getItem();
 		}
 	}
 
@@ -1065,7 +936,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		@Override
 		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
+			if (textField != null && textField.getText() != null && !textField.getText().equals(StringUtils.EMPTY)) {
 				setItem(textField.getText());
 			}
 			super.startEdit();
@@ -1078,8 +949,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
-
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -1106,18 +976,18 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			textField.focusedProperty().addListener(new ChangeListener<>() {
 
 				private boolean changing;
 
 				private String oldValue;
 
 				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (arg2) {
+				public void changed(ObservableValue<? extends Boolean> b, Boolean ov, Boolean nv) {
+					if (Boolean.TRUE.equals(nv)) {
 						oldValue = textField.getText();
 					}
-					if (!arg2 && !changing && !textField.getText().equals(oldValue)) {
+					if (Boolean.FALSE.equals(nv) && !changing && !textField.getText().equals(oldValue)) {
 						StringBuilder errMsg = new StringBuilder();
 						if (textField.getText().isEmpty()) {
 							errMsg.append(String.format("The Name cannot be empty.%n"));
@@ -1127,7 +997,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 							errMsg.append(String.format("The Name %s is already in the list.%n", textField.getText()));
 
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -1143,7 +1013,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? StringUtils.EMPTY : getItem();
 		}
 	}
 
@@ -1218,16 +1088,13 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				currencyComboBox.setValue(getItem());
 			}
 			currencyComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			currencyComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!discountCurveTable.getItems()
-								.contains(new DiscountCurveProperty(currencyComboBox.getValue(), null))) {
-							commitEdit(currencyComboBox.getValue());
-						}
-
+			currencyComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					if (!discountCurveTable.getItems()
+							.contains(new DiscountCurveProperty(currencyComboBox.getValue(), null))) {
+						commitEdit(currencyComboBox.getValue());
 					}
+
 				}
 			});
 		}
@@ -1289,12 +1156,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				interestRateCurveComboBox.setValue(getItem());
 			}
 			interestRateCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			interestRateCurveComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(interestRateCurveComboBox.getValue());
-					}
+			interestRateCurveComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					commitEdit(interestRateCurveComboBox.getValue());
 				}
 			});
 		}
@@ -1350,7 +1214,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		private void createIndexComboBox() {
 			indexComboBox = new TradistaIndexComboBox();
-			indexComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
+			indexComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 
 				private boolean changing;
 
@@ -1374,16 +1238,12 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				indexComboBox.setValue(getItem());
 			}
 			indexComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			indexComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!indexCurveTable.getItems()
-								.contains(new IndexCurveProperty(indexComboBox.getValue(), null))) {
-							commitEdit(indexComboBox.getValue());
-						}
-
+			indexComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					if (!indexCurveTable.getItems().contains(new IndexCurveProperty(indexComboBox.getValue(), null))) {
+						commitEdit(indexComboBox.getValue());
 					}
+
 				}
 			});
 		}
@@ -1444,12 +1304,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				interestRateCurveComboBox.setValue(getItem());
 			}
 			interestRateCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			interestRateCurveComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(interestRateCurveComboBox.getValue());
-					}
+			interestRateCurveComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					commitEdit(interestRateCurveComboBox.getValue());
 				}
 			});
 		}
@@ -1514,16 +1371,16 @@ public class PricingParameterController extends TradistaControllerAdapter {
 						Currency newCurrency) {
 					if (!changing && newCurrency != null && oldCurrency != null && !oldCurrency.equals(newCurrency)) {
 						StringBuilder errMsg = new StringBuilder();
-						if (fxCurveTable.getItems().contains(new FXCurveProperty(newCurrency,
-								((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency(), null))) {
-							errMsg.append(String.format("The Currency Pair %s.%s is already in the list.%n",
-									newCurrency, ((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency()));
+						if (fxCurveTable.getItems().contains(
+								new FXCurveProperty(newCurrency, getTableRow().getItem().getQuoteCurrency(), null))) {
+							errMsg.append(String.format(THE_CURRENCY_PAIR_IS_ALREADY_IN_THE_LIST, newCurrency,
+									getTableRow().getItem().getQuoteCurrency()));
 						}
-						if (((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency() != null
-								&& ((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency().equals(newCurrency)) {
-							errMsg.append(String.format("Primary and Quote Currencies must be different.%n"));
+						if (getTableRow().getItem().getQuoteCurrency() != null
+								&& getTableRow().getItem().getQuoteCurrency().equals(newCurrency)) {
+							errMsg.append(String.format(PRIMARY_AND_QUOTE_CURRENCIES_MUST_BE_DIFFERENT));
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -1539,19 +1396,14 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				currencyComboBox.setValue(getItem());
 			}
 			currencyComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			currencyComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!fxCurveTable.getItems().contains(new FXCurveProperty(currencyComboBox.getValue(),
-								((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency(), null))) {
-							if (((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency() == null
-									|| !((FXCurveProperty) getTableRow().getItem()).getQuoteCurrency()
-											.equals(currencyComboBox.getValue())) {
-								commitEdit(currencyComboBox.getValue());
-							}
+			currencyComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					if (!fxCurveTable.getItems().contains(new FXCurveProperty(currencyComboBox.getValue(),
+							getTableRow().getItem().getQuoteCurrency(), null))) {
+						if (getTableRow().getItem().getQuoteCurrency() == null
+								|| !getTableRow().getItem().getQuoteCurrency().equals(currencyComboBox.getValue())) {
+							commitEdit(currencyComboBox.getValue());
 						}
-
 					}
 				}
 			});
@@ -1617,17 +1469,16 @@ public class PricingParameterController extends TradistaControllerAdapter {
 						Currency newCurrency) {
 					if (!changing && newCurrency != null && oldCurrency != null && !oldCurrency.equals(newCurrency)) {
 						StringBuilder errMsg = new StringBuilder();
-						if (fxCurveTable.getItems().contains(new FXCurveProperty(
-								((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency(), newCurrency, null))) {
-							errMsg.append(String.format("The Currency Pair %s.%s is already in the list.%n",
-									((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency(), newCurrency));
+						if (fxCurveTable.getItems().contains(
+								new FXCurveProperty(getTableRow().getItem().getPrimaryCurrency(), newCurrency, null))) {
+							errMsg.append(String.format(THE_CURRENCY_PAIR_IS_ALREADY_IN_THE_LIST,
+									getTableRow().getItem().getPrimaryCurrency(), newCurrency));
 						}
-						if (((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency() != null
-								&& ((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency()
-										.equals(newCurrency)) {
-							errMsg.append(String.format("Primary and Quote Currencies must be different.%n"));
+						if (getTableRow().getItem().getPrimaryCurrency() != null
+								&& getTableRow().getItem().getPrimaryCurrency().equals(newCurrency)) {
+							errMsg.append(String.format(PRIMARY_AND_QUOTE_CURRENCIES_MUST_BE_DIFFERENT));
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -1643,24 +1494,19 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				currencyComboBox.setValue(getItem());
 			}
 			currencyComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			currencyComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!fxCurveTable.getItems()
-								.contains(new FXCurveProperty(
-										((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency(),
-										currencyComboBox.getValue(), null))) {
-							if (((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency() == null
-									|| !((FXCurveProperty) getTableRow().getItem()).getPrimaryCurrency()
-											.equals(currencyComboBox.getValue())) {
-								commitEdit(currencyComboBox.getValue());
-							}
+			currencyComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					if (!fxCurveTable.getItems().contains(new FXCurveProperty(
+							getTableRow().getItem().getPrimaryCurrency(), currencyComboBox.getValue(), null))) {
+						if (getTableRow().getItem().getPrimaryCurrency() == null
+								|| !getTableRow().getItem().getPrimaryCurrency().equals(currencyComboBox.getValue())) {
+							commitEdit(currencyComboBox.getValue());
 						}
-
 					}
+
 				}
 			});
+
 		}
 
 		private String getString() {
@@ -1719,12 +1565,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				fxCurveComboBox.setValue(getItem());
 			}
 			fxCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			fxCurveComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(fxCurveComboBox.getValue());
-					}
+			fxCurveComboBox.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					commitEdit(fxCurveComboBox.getValue());
 				}
 			});
 		}
@@ -1738,42 +1581,26 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		private TextField textField;
 
+		private CustomPricerProperty model;
+
 		public CustomPricerPricerEditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
 			createTextField();
-			setText(textField.getText());
-			setGraphic(textField);
-			textField.selectAll();
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			setText(getItem().toString());
-			setGraphic(null);
 		}
 
 		@Override
 		public void updateItem(String item, boolean empty) {
 			super.updateItem(item, empty);
+			model = getTableRow().getItem();
 			if (empty) {
 				setText(null);
 				setGraphic(null);
 			} else {
-				if (isEditing()) {
+				if (model != null) {
 					if (textField != null) {
 						textField.setText(getString());
 					}
-					setText(null);
 					setGraphic(textField);
+					setText(null);
 				} else {
 					setText(getString());
 					setGraphic(null);
@@ -1784,114 +1611,17 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((b, ov, nv) -> {
+				if (Boolean.FALSE.equals(nv)) {
+					model.setCustomPricer(textField.getText());
+					commitEdit(textField.getText());
 				}
 			});
+			textField.setMaxWidth(Double.MAX_VALUE);
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
-		}
-	}
-
-	private class CustomPricerProductTypeEditingCell extends TableCell<CustomPricerProperty, String> {
-
-		private TradistaProductTypeComboBox productTypeComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createProductTypeComboBox();
-			String productType = productTypeComboBox.getValue();
-			if (productType != null) {
-				setText(productType.toString());
-			}
-			setGraphic(productTypeComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (productTypeComboBox != null) {
-						productTypeComboBox.setValue(getItem());
-					}
-					setGraphic(productTypeComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createProductTypeComboBox() {
-			productTypeComboBox = new TradistaProductTypeComboBox();
-			productTypeComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-
-				private boolean changing;
-
-				@Override
-				public void changed(ObservableValue<? extends String> observableValue, String oldProductType,
-						String newProductType) {
-					if (!changing && newProductType != null && oldProductType != null
-							&& !oldProductType.equals(newProductType)) {
-						StringBuilder errMsg = new StringBuilder();
-						if (customPricerTable.getItems().contains(new CustomPricerProperty(newProductType, null))) {
-							errMsg.append(String.format("The Custom Pricer %s is already in the list.%n",
-									((CustomPricerProperty) getTableRow().getItem()).getProductType(), newProductType));
-						}
-						if (errMsg.length() > 0) {
-							changing = true;
-							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
-							alert.showAndWait();
-							Platform.runLater(() -> {
-								productTypeComboBox.setValue(oldProductType);
-								changing = false;
-							});
-						}
-					}
-				}
-			});
-			if (getItem() != null) {
-				productTypeComboBox.setValue(getItem());
-			}
-			productTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			productTypeComboBox.focusedProperty().addListener(new ChangeListener<>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!customPricerTable.getItems()
-								.contains(new CustomPricerProperty(productTypeComboBox.getValue(), null))) {
-							commitEdit(productTypeComboBox.getValue());
-						}
-
-					}
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
+			return getItem() == null ? StringUtils.EMPTY : getItem();
 		}
 	}
 
@@ -1979,8 +1709,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		pricingParameter.setCustomPricers(customPricerTable.getItems().stream()
 				.collect(Collectors.toMap(p -> p.getProductType().getValue(), p -> p.getCustomPricer().getValue())));
 		if (pricingParameterModuleControllersList != null && !pricingParameterModuleControllersList.isEmpty()) {
-			pricingParameter.setModules(pricingParameterModuleControllersList.stream().map(c -> c.buildModule())
-					.collect(Collectors.toList()));
+			pricingParameter
+					.setModules(pricingParameterModuleControllersList.stream().map(c -> c.buildModule()).toList());
 		} else {
 			pricingParameter.setModules(new ArrayList<>());
 		}
@@ -2275,14 +2005,14 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		@Override
 		public int compareTo(CustomPricerProperty o) {
-			return getProductType().toString().compareTo(o.getProductType().toString());
+			return getProductType().get().compareTo(o.getProductType().get());
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((getProductType() == null) ? 0 : getProductType().hashCode());
+			result = prime * result + ((getProductType().get() == null) ? 0 : getProductType().get().hashCode());
 			return result;
 		}
 
@@ -2298,7 +2028,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (getProductType() == null) {
 				if (other.getProductType() != null)
 					return false;
-			} else if (!getProductType().equals(other.getProductType()))
+			} else if (!getProductType().get().equals(other.getProductType().get()))
 				return false;
 			return true;
 		}
@@ -2366,7 +2096,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	}
 
 	protected void updateWindow() {
-		Map<String, List<String>> errors = new HashMap<String, List<String>>();
+		Map<String, List<String>> errors = new HashMap<>();
 		StringBuilder errMsg = new StringBuilder();
 		boolean isError = false;
 
@@ -2392,7 +2122,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		if (!canGetQuoteSet) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("quote sets");
 			errors.put("get", err);
@@ -2400,7 +2130,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		if (!canGetDiscountCurve) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("discount curves");
 			errors.put("get", err);
@@ -2408,7 +2138,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		if (!canGetIndexCurve) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("index curves");
 			errors.put("get", err);
@@ -2416,7 +2146,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		if (!canGetFXCurve) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("fx curves");
 			errors.put("get", err);
@@ -2455,7 +2185,6 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		marketDataMessage.setVisible(isError || !quoteSetExists);
-
 	}
 
 }
