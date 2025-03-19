@@ -15,7 +15,6 @@ import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,10 +23,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -90,48 +87,31 @@ public class FixingErrorReportController extends TradistaControllerAdapter {
 
 		fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
 
-		errorDate.setCellValueFactory(new Callback<CellDataFeatures<FixingError, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<FixingError, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().getErrorDate().toString());
+		errorDate.setCellValueFactory(
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getErrorDate().toString()));
 
+		solvingDate.setCellValueFactory(cellData -> {
+			String solvingDateString = StringUtils.EMPTY;
+			LocalDateTime solvDate = cellData.getValue().getSolvingDate();
+			if (solvDate != null) {
+				solvingDateString = solvDate.toString();
+			}
+			return new ReadOnlyObjectWrapper<>(solvingDateString);
+		});
+
+		transferId.setCellValueFactory(cellData -> {
+			if (cellData.getValue().getCashTransfer() != null) {
+				return new ReadOnlyObjectWrapper<>(Long.toString(cellData.getValue().getCashTransfer().getId()));
+			} else {
+				return new ReadOnlyObjectWrapper<>(StringUtils.EMPTY);
 			}
 		});
 
-		solvingDate.setCellValueFactory(new Callback<CellDataFeatures<FixingError, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<FixingError, String> p) {
-				String solvingDateString = "";
-				LocalDateTime solvDate = p.getValue().getSolvingDate();
-				if (solvDate != null) {
-					solvingDateString = solvDate.toString();
-				}
-				return new ReadOnlyObjectWrapper<String>(solvingDateString);
-			}
-		});
+		message.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getMessage()));
 
-		transferId.setCellValueFactory(new Callback<CellDataFeatures<FixingError, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<FixingError, String> p) {
-				if (p.getValue().getCashTransfer() != null) {
-					return new ReadOnlyObjectWrapper<String>(Long.toString(p.getValue().getCashTransfer().getId()));
-				} else {
-					return new ReadOnlyObjectWrapper<String>("");
-				}
-			}
-		});
-
-		message.setCellValueFactory(new Callback<CellDataFeatures<FixingError, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<FixingError, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().getMessage());
-			}
-		});
-
-		status.setCellValueFactory(new Callback<CellDataFeatures<FixingError, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<FixingError, String> p) {
-				return new ReadOnlyObjectWrapper<String>(p.getValue().getStatus().toString());
-			}
-		});
+		status.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getStatus().toString()));
 
 		TradistaGUIUtil.fillErrorStatusComboBox(statusComboBox);
-
 	}
 
 	@FXML
@@ -149,7 +129,7 @@ public class FixingErrorReportController extends TradistaControllerAdapter {
 						"You are loading all the fixing errors present in the system, it can take time. Are you sure to continue?");
 
 				Optional<ButtonType> result = confirmation.showAndWait();
-				if (result.get() == ButtonType.OK) {
+				if (result.isPresent() && result.get() == ButtonType.OK) {
 					fillReport();
 				}
 			} else {
@@ -173,7 +153,7 @@ public class FixingErrorReportController extends TradistaControllerAdapter {
 		} catch (NumberFormatException nfe) {
 			errMsg.append(String.format("The transfer id is incorrect: %s.%n", transferIdTextField.getText()));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
@@ -195,8 +175,8 @@ public class FixingErrorReportController extends TradistaControllerAdapter {
 			}
 			report.setItems(data);
 			report.refresh();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}

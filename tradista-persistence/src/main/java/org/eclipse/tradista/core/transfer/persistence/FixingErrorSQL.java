@@ -36,6 +36,12 @@ import org.eclipse.tradista.core.transfer.model.FixingError;
 
 public class FixingErrorSQL {
 
+	private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+	private static final String SPACE_WHERE = " WHERE";
+	private static final String SPACE_WHERE_SPACE = " WHERE ";
+	private static final String SPACE_AND_SPACE = " AND ";
+	private static final String WHERE = "WHERE";
+
 	public static boolean saveFixingErrors(List<FixingError> errors) {
 		boolean bSaved = false;
 
@@ -131,16 +137,19 @@ public class FixingErrorSQL {
 
 			if (errorDateFrom != null && errorDateTo != null) {
 				dateSqlQuery = " WHERE ERROR_DATE >=" + "'"
-						+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(errorDateFrom) + "'" + " AND ERROR_DATE <= "
-						+ "'" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(errorDateTo) + "'";
+						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay()) + "'"
+						+ " AND ERROR_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+								.format(errorDateTo.plusDays(1).atStartOfDay())
+						+ "'";
 			} else {
 				if (errorDateFrom == null && errorDateTo != null) {
-					dateSqlQuery = " WHERE ERROR_DATE <= " + "'"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(errorDateTo) + "'";
+					dateSqlQuery = " WHERE ERROR_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+							.format(errorDateTo.plusDays(1).atStartOfDay()) + "'";
 				}
 				if (errorDateFrom != null && errorDateTo == null) {
 					dateSqlQuery = " WHERE ERROR_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(errorDateFrom) + "'";
+							+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay())
+							+ "'";
 				}
 				if (errorDateFrom == null && errorDateTo == null) {
 					dateSqlQuery += "";
@@ -148,33 +157,35 @@ public class FixingErrorSQL {
 			}
 
 			if (solvingDateFrom != null && solvingDateTo != null) {
-				if (dateSqlQuery.contains("WHERE")) {
-					dateSqlQuery += " AND ";
+				if (dateSqlQuery.contains(WHERE)) {
+					dateSqlQuery += SPACE_AND_SPACE;
 				} else {
-					dateSqlQuery += " WHERE ";
+					dateSqlQuery += SPACE_WHERE_SPACE;
 				}
 				dateSqlQuery += " SOLVING_DATE >=" + "'"
-						+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(solvingDateFrom) + "'"
-						+ " AND SOLVING_DATE <= " + "'"
-						+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(solvingDateTo) + "'";
+						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(solvingDateFrom.atStartOfDay()) + "'"
+						+ " AND SOLVING_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+								.format(solvingDateTo.plusDays(1).atStartOfDay())
+						+ "'";
 			} else {
 				if (solvingDateFrom == null && solvingDateTo != null) {
-					if (dateSqlQuery.contains("WHERE")) {
-						dateSqlQuery += " AND ";
+					if (dateSqlQuery.contains(WHERE)) {
+						dateSqlQuery += SPACE_AND_SPACE;
 					} else {
-						dateSqlQuery += " WHERE ";
+						dateSqlQuery += SPACE_WHERE_SPACE;
 					}
-					dateSqlQuery += " SOLVING_DATE <= " + "'"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(solvingDateTo) + "'";
+					dateSqlQuery += " SOLVING_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+							.format(solvingDateTo.plusDays(1).atStartOfDay()) + "'";
 				}
 				if (solvingDateFrom != null && solvingDateTo == null) {
-					if (dateSqlQuery.contains("WHERE")) {
-						dateSqlQuery += " AND ";
+					if (dateSqlQuery.contains(WHERE)) {
+						dateSqlQuery += SPACE_AND_SPACE;
 					} else {
-						dateSqlQuery += " WHERE ";
+						dateSqlQuery += SPACE_WHERE_SPACE;
 					}
 					dateSqlQuery += " SOLVING_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(solvingDateFrom) + "'";
+							+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(solvingDateFrom.atStartOfDay())
+							+ "'";
 				}
 				if (solvingDateFrom == null && solvingDateTo == null) {
 					dateSqlQuery += "";
@@ -186,10 +197,10 @@ public class FixingErrorSQL {
 			String transferSqlQuery = "";
 
 			if (transferId > 0) {
-				if (sqlQuery.contains("WHERE")) {
+				if (sqlQuery.contains(WHERE)) {
 					transferSqlQuery = " AND";
 				} else {
-					transferSqlQuery = " WHERE";
+					transferSqlQuery = SPACE_WHERE;
 				}
 				transferSqlQuery += " TRANSFER_ID IN (SELECT ID FROM TRANSFER WHERE ID = " + transferId + ")";
 			}
@@ -199,10 +210,10 @@ public class FixingErrorSQL {
 			String statusSqlQuery = "";
 
 			if (status != null) {
-				if (sqlQuery.contains("WHERE")) {
+				if (sqlQuery.contains(WHERE)) {
 					statusSqlQuery = " AND";
 				} else {
-					statusSqlQuery = " WHERE";
+					statusSqlQuery = SPACE_WHERE;
 				}
 				statusSqlQuery += " STATUS = '" + status.name() + "'";
 			}
@@ -210,10 +221,10 @@ public class FixingErrorSQL {
 			sqlQuery += statusSqlQuery;
 			String joinSqlQuery = "";
 
-			if (sqlQuery.contains("WHERE")) {
+			if (sqlQuery.contains(WHERE)) {
 				joinSqlQuery = " AND";
 			} else {
-				joinSqlQuery = " WHERE";
+				joinSqlQuery = SPACE_WHERE;
 			}
 			joinSqlQuery += " ID = ERROR_ID";
 
@@ -222,7 +233,7 @@ public class FixingErrorSQL {
 			try (ResultSet results = stmtGetFixingErrors.executeQuery(sqlQuery)) {
 				while (results.next()) {
 					if (fixingErrors == null) {
-						fixingErrors = new ArrayList<FixingError>();
+						fixingErrors = new ArrayList<>();
 					}
 					FixingError fixingError = new FixingError();
 					fixingError.setId(results.getLong("id"));
@@ -240,7 +251,7 @@ public class FixingErrorSQL {
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+			throw new TradistaTechnicalException(sqle.getMessage());
 		}
 
 		return fixingErrors;
