@@ -25,9 +25,12 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class TradistaDB {
+public final class TradistaDB {
 
 	private static DataSource ds;
+
+	private TradistaDB() {
+	}
 
 	static {
 		try {

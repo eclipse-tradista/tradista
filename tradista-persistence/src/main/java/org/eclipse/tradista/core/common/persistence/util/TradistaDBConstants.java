@@ -1,7 +1,7 @@
-package org.eclipse.tradista.core.common.util;
+package org.eclipse.tradista.core.common.persistence.util;
 
 /********************************************************************************
- * Copyright (c) 2019 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -16,13 +16,13 @@ package org.eclipse.tradista.core.common.util;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaConstants {
+public final class TradistaDBConstants {
 
-	public static final String TRADISTA_PACKAGE = "org.eclipse.tradista";
+	public static final String WHERE = " WHERE ";
+	public static final String AND = " AND ";
+	public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
-	public static final String CORE_PACKAGE = TRADISTA_PACKAGE + ".core";
-
-	private TradistaConstants() {
+	private TradistaDBConstants() {
 	}
 
 }

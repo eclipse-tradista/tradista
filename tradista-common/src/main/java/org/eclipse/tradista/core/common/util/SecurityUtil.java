@@ -38,9 +38,9 @@ import jakarta.ejb.NoSuchEJBException;
 
 public final class SecurityUtil {
 
-	private static AuthenticationContext authenticationContext;
+	private static final String LOGON_DENIED = "Logon denied.";
 
-	private static Credential credential;
+	private static AuthenticationContext authenticationContext;
 
 	public static final String CURRENT_USER = "CURRENT_USER";
 
@@ -57,15 +57,18 @@ public final class SecurityUtil {
 		try {
 			return authenticationContext.runAsSupplierEx(consumer);
 		} catch (EJBException ejbe) {
-			Throwable suppressedException = ejbe.getSuppressed()[0];
-			if (suppressedException != null) {
-				if (suppressedException instanceof RequestSendFailedException) {
-					Throwable supprCauseException = suppressedException.getCause();
-					if (supprCauseException != null) {
-						if (supprCauseException instanceof SaslException) {
-							// TODO Add Log error
-							supprCauseException.printStackTrace();
-							throw new TradistaTechnicalException("Logon denied.");
+			Throwable[] suppressedExceptions = ejbe.getSuppressed();
+			if (suppressedExceptions.length > 0) {
+				Throwable suppressedException = suppressedExceptions[0];
+				if (suppressedException != null) {
+					if (suppressedException instanceof RequestSendFailedException) {
+						Throwable supprCauseException = suppressedException.getCause();
+						if (supprCauseException != null) {
+							if (supprCauseException instanceof SaslException) {
+								// TODO Add Log error
+								supprCauseException.printStackTrace();
+								throw new TradistaTechnicalException(LOGON_DENIED);
+							}
 						}
 					}
 				}
@@ -78,15 +81,18 @@ public final class SecurityUtil {
 		try {
 			return authenticationContext.runAsSupplier(supplier);
 		} catch (RequestSendFailedException rsfe) {
-			Throwable suppressedException = rsfe.getSuppressed()[0];
-			if (suppressedException != null) {
-				if (suppressedException instanceof RequestSendFailedException) {
-					Throwable supprCauseException = suppressedException.getCause();
-					if (supprCauseException != null) {
-						if (supprCauseException instanceof SaslException) {
-							// TODO Add Log error
-							supprCauseException.printStackTrace();
-							throw new TradistaTechnicalException("Logon denied.");
+			Throwable[] suppressedExceptions = rsfe.getSuppressed();
+			if (suppressedExceptions.length > 0) {
+				Throwable suppressedException = suppressedExceptions[0];
+				if (suppressedException != null) {
+					if (suppressedException instanceof RequestSendFailedException) {
+						Throwable supprCauseException = suppressedException.getCause();
+						if (supprCauseException != null) {
+							if (supprCauseException instanceof SaslException) {
+								// TODO Add Log error
+								supprCauseException.printStackTrace();
+								throw new TradistaTechnicalException(LOGON_DENIED);
+							}
 						}
 					}
 				}
@@ -103,15 +109,18 @@ public final class SecurityUtil {
 		try {
 			authenticationContext.run(runnable);
 		} catch (RequestSendFailedException rsfe) {
-			Throwable suppressedException = rsfe.getSuppressed()[0];
-			if (suppressedException != null) {
-				if (suppressedException instanceof RequestSendFailedException) {
-					Throwable supprCauseException = suppressedException.getCause();
-					if (supprCauseException != null) {
-						if (supprCauseException instanceof SaslException) {
-							// TODO Add Log error
-							supprCauseException.printStackTrace();
-							throw new TradistaTechnicalException("Logon denied.");
+			Throwable[] suppressedExceptions = rsfe.getSuppressed();
+			if (suppressedExceptions.length > 0) {
+				Throwable suppressedException = suppressedExceptions[0];
+				if (suppressedException != null) {
+					if (suppressedException instanceof RequestSendFailedException) {
+						Throwable supprCauseException = suppressedException.getCause();
+						if (supprCauseException != null) {
+							if (supprCauseException instanceof SaslException) {
+								// TODO Add Log error
+								supprCauseException.printStackTrace();
+								throw new TradistaTechnicalException(LOGON_DENIED);
+							}
 						}
 					}
 				}
@@ -126,17 +135,20 @@ public final class SecurityUtil {
 
 	private static ExceptionConsumer<Void, TradistaBusinessException> toExConsumer(ExRunnable exRunnable) {
 		try {
-			return (v) -> exRunnable.runEx();
+			return v -> exRunnable.runEx();
 		} catch (RequestSendFailedException rsfe) {
-			Throwable suppressedException = rsfe.getSuppressed()[0];
-			if (suppressedException != null) {
-				if (suppressedException instanceof RequestSendFailedException) {
-					Throwable supprCauseException = suppressedException.getCause();
-					if (supprCauseException != null) {
-						if (supprCauseException instanceof SaslException) {
-							// TODO Add Log error
-							supprCauseException.printStackTrace();
-							throw new TradistaTechnicalException("Logon denied.");
+			Throwable[] suppressedExceptions = rsfe.getSuppressed();
+			if (suppressedExceptions.length > 0) {
+				Throwable suppressedException = suppressedExceptions[0];
+				if (suppressedException != null) {
+					if (suppressedException instanceof RequestSendFailedException) {
+						Throwable supprCauseException = suppressedException.getCause();
+						if (supprCauseException != null) {
+							if (supprCauseException instanceof SaslException) {
+								// TODO Add Log error
+								supprCauseException.printStackTrace();
+								throw new TradistaTechnicalException(LOGON_DENIED);
+							}
 						}
 					}
 				}
@@ -149,19 +161,22 @@ public final class SecurityUtil {
 		}
 	}
 
-	public static <V> void runEx(final ExRunnable exRunnable) throws TradistaBusinessException {
+	public static void runEx(final ExRunnable exRunnable) throws TradistaBusinessException {
 		try {
 			authenticationContext.runExConsumer(toExConsumer(exRunnable), null);
 		} catch (RequestSendFailedException rsfe) {
-			Throwable suppressedException = rsfe.getSuppressed()[0];
-			if (suppressedException != null) {
-				if (suppressedException instanceof RequestSendFailedException) {
-					Throwable supprCauseException = suppressedException.getCause();
-					if (supprCauseException != null) {
-						if (supprCauseException instanceof SaslException) {
-							// TODO Add Log error
-							supprCauseException.printStackTrace();
-							throw new TradistaTechnicalException("Logon denied.");
+			Throwable[] suppressedExceptions = rsfe.getSuppressed();
+			if (suppressedExceptions.length > 0) {
+				Throwable suppressedException = suppressedExceptions[0];
+				if (suppressedException != null) {
+					if (suppressedException instanceof RequestSendFailedException) {
+						Throwable supprCauseException = suppressedException.getCause();
+						if (supprCauseException != null) {
+							if (supprCauseException instanceof SaslException) {
+								// TODO Add Log error
+								supprCauseException.printStackTrace();
+								throw new TradistaTechnicalException(LOGON_DENIED);
+							}
 						}
 					}
 				}
@@ -175,7 +190,7 @@ public final class SecurityUtil {
 	}
 
 	public static void setCredential(String login, String password) {
-		credential = new PasswordCredential(
+		Credential credential = new PasswordCredential(
 				ClearPassword.createRaw(ClearPassword.ALGORITHM_CLEAR, password.toCharArray()));
 		AuthenticationConfiguration adminConfig;
 		adminConfig = AuthenticationConfiguration.empty()
