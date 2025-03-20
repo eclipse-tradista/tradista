@@ -17,6 +17,7 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.*;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -35,10 +36,6 @@ import org.eclipse.tradista.core.error.model.Error.Status;
  ********************************************************************************/
 
 public class ErrorSQL {
-
-	private static final String SPACE_WHERE_SPACE = " WHERE ";
-	private static final String SPACE_AND_SPACE = " AND ";
-	private static final String WHERE = "WHERE";
 
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
 		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();
@@ -90,29 +87,29 @@ public class ErrorSQL {
 		}
 		if (status != null) {
 			if (sqlQuery.toString().contains(WHERE)) {
-				sqlQuery.append(SPACE_AND_SPACE);
+				sqlQuery.append(AND);
 			} else {
-				sqlQuery.append(SPACE_WHERE_SPACE);
+				sqlQuery.append(WHERE);
 			}
 			sqlQuery.append(" STATUS = '" + status.name() + "'");
 		}
 		if (errorDateFrom != null) {
 			if (sqlQuery.toString().contains(WHERE)) {
-				sqlQuery.append(SPACE_AND_SPACE);
+				sqlQuery.append(AND);
 			} else {
-				sqlQuery.append(SPACE_WHERE_SPACE);
+				sqlQuery.append(WHERE);
 			}
 			sqlQuery.append(" ERROR_DATE >= '"
-					+ DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(errorDateFrom.atStartOfDay()) + "'");
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay()) + "'");
 		}
 		if (errorDateTo != null) {
 			if (sqlQuery.toString().contains(WHERE)) {
-				sqlQuery.append(SPACE_AND_SPACE);
+				sqlQuery.append(AND);
 			} else {
-				sqlQuery.append(SPACE_WHERE_SPACE);
+				sqlQuery.append(WHERE);
 			}
 			sqlQuery.append(" ERROR_DATE < '"
-					+ DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(errorDateTo.plusDays(1).atStartOfDay())
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateTo.plusDays(1).atStartOfDay())
 					+ "'");
 		}
 		try (Connection con = TradistaDB.getConnection();
