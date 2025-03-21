@@ -20,7 +20,6 @@ import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,10 +28,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -123,111 +120,71 @@ public class PositionCalculationErrorReportController extends TradistaController
 		positionCalculationErrorBusinessDelegate = new PositionCalculationErrorBusinessDelegate();
 
 		errorDate.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						return new ReadOnlyObjectWrapper<String>(p.getValue().getErrorDate().toString());
-
-					}
-				});
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getErrorDate().toString()));
 
 		valueDate.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						return new ReadOnlyObjectWrapper<String>(p.getValue().getValueDate().toString());
-					}
-				});
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getValueDate().toString()));
 
-		solvingDate.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						String solvingDateString = "";
-						LocalDateTime solvDate = p.getValue().getSolvingDate();
-						if (solvDate != null) {
-							solvingDateString = solvDate.toString();
-						}
-						return new ReadOnlyObjectWrapper<String>(solvingDateString);
-					}
-				});
+		solvingDate.setCellValueFactory(cellData -> {
+			String solvingDateString = StringUtils.EMPTY;
+			LocalDateTime solvDate = cellData.getValue().getSolvingDate();
+			if (solvDate != null) {
+				solvingDateString = solvDate.toString();
+			}
+			return new ReadOnlyObjectWrapper<>(solvingDateString);
+		});
 
-		book.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						return new ReadOnlyObjectWrapper<String>(p.getValue().getBook().getName());
-					}
-				});
+		book.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getBook().getName()));
 
-		productType.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						Trade<? extends Product> trade = p.getValue().getTrade();
-						if (trade != null) {
-							return new ReadOnlyObjectWrapper<String>(trade.getProductType());
-						} else {
-							Product product = p.getValue().getProduct();
-							if (product != null) {
-								return new ReadOnlyObjectWrapper<String>(product.getProductType());
-							}
-						}
-						return null;
-					}
-				});
+		productType.setCellValueFactory(cellData -> {
+			Trade<? extends Product> trade = cellData.getValue().getTrade();
+			if (trade != null) {
+				return new ReadOnlyObjectWrapper<>(trade.getProductType());
+			} else {
+				Product product = cellData.getValue().getProduct();
+				if (product != null) {
+					return new ReadOnlyObjectWrapper<>(product.getProductType());
+				}
+			}
+			return null;
+		});
 
-		productId.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						Product product = p.getValue().getPositionDefinition().getProduct();
-						if (product != null) {
-							return new ReadOnlyObjectWrapper<String>(Long.toString(product.getId()));
-						} else {
-							product = p.getValue().getProduct();
-							if (product != null) {
-								return new ReadOnlyObjectWrapper<String>(Long.toString(product.getId()));
-							}
-						}
-						return new ReadOnlyObjectWrapper<String>("");
-					}
-				});
+		productId.setCellValueFactory(cellData -> {
+			Product product = cellData.getValue().getPositionDefinition().getProduct();
+			if (product != null) {
+				return new ReadOnlyObjectWrapper<>(Long.toString(product.getId()));
+			} else {
+				product = cellData.getValue().getProduct();
+				if (product != null) {
+					return new ReadOnlyObjectWrapper<>(Long.toString(product.getId()));
+				}
+			}
+			return new ReadOnlyObjectWrapper<>(StringUtils.EMPTY);
+		});
 
-		counterparty.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						String shortName = "";
-						LegalEntity cpty = p.getValue().getPositionDefinition().getCounterparty();
-						if (cpty != null) {
-							shortName = cpty.getShortName();
-						}
-						return new ReadOnlyObjectWrapper<String>(shortName);
-					}
-				});
+		counterparty.setCellValueFactory(cellData -> {
+			String shortName = StringUtils.EMPTY;
+			LegalEntity cpty = cellData.getValue().getPositionDefinition().getCounterparty();
+			if (cpty != null) {
+				shortName = cpty.getShortName();
+			}
+			return new ReadOnlyObjectWrapper<>(shortName);
+		});
 
-		tradeId.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						if (p.getValue().getTrade() != null) {
-							return new ReadOnlyObjectWrapper<String>(Long.toString(p.getValue().getTrade().getId()));
-						} else {
-							return new ReadOnlyObjectWrapper<String>("");
-						}
-					}
-				});
+		tradeId.setCellValueFactory(cellData -> {
+			if (cellData.getValue().getTrade() != null) {
+				return new ReadOnlyObjectWrapper<String>(Long.toString(cellData.getValue().getTrade().getId()));
+			} else {
+				return new ReadOnlyObjectWrapper<>(StringUtils.EMPTY);
+			}
+		});
 
-		message.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						return new ReadOnlyObjectWrapper<String>(p.getValue().getMessage());
-					}
-				});
+		message.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getMessage()));
 
-		status.setCellValueFactory(
-				new Callback<CellDataFeatures<PositionCalculationError, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<PositionCalculationError, String> p) {
-						return new ReadOnlyObjectWrapper<String>(p.getValue().getStatus().toString());
-					}
-				});
+		status.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getStatus().toString()));
 
 		TradistaGUIUtil.fillPositionDefinitionComboBox(true, positionDefinitionComboBox);
 		TradistaGUIUtil.fillErrorStatusComboBox(statusComboBox);
-
 	}
 
 	@FXML
@@ -249,7 +206,7 @@ public class PositionCalculationErrorReportController extends TradistaController
 						"You are loading all the position calculation errors present in the system, it can take time. Are you sure to continue?");
 
 				Optional<ButtonType> result = confirmation.showAndWait();
-				if (result.get() == ButtonType.OK) {
+				if (result.isPresent() && result.get() == ButtonType.OK) {
 					fillReport();
 				}
 			} else {
@@ -280,7 +237,7 @@ public class PositionCalculationErrorReportController extends TradistaController
 		} catch (NumberFormatException nfe) {
 			errMsg.append(String.format("The product id is incorrect: %s.%n", productIdTextField.getText()));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
@@ -295,8 +252,8 @@ public class PositionCalculationErrorReportController extends TradistaController
 					Status.getStatus(statusComboBox.getValue()),
 					tradeIdTextField.getText().isEmpty() ? 0 : Long.parseLong(tradeIdTextField.getText()),
 					productIdTextField.getText().isEmpty() ? 0 : Long.parseLong(productIdTextField.getText()),
-					errorDateFromDatePicker.getValue(), errorDateToDatePicker.getValue(),
 					valueDateFromDatePicker.getValue(), valueDateToDatePicker.getValue(),
+					errorDateFromDatePicker.getValue(), errorDateToDatePicker.getValue(),
 					solvingDateFromDatePicker.getValue(), solvingDateToDatePicker.getValue());
 
 			if (errors != null) {
@@ -306,8 +263,8 @@ public class PositionCalculationErrorReportController extends TradistaController
 			}
 			report.setItems(data);
 			report.refresh();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}

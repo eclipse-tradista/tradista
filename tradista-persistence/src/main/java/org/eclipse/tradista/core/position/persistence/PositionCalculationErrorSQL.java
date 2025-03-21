@@ -182,9 +182,11 @@ public class PositionCalculationErrorSQL {
 				} else {
 					dateSqlQuery += WHERE;
 				}
-				dateSqlQuery += " ERROR_DATE >=" + "'" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateFrom)
-						+ "'" + " AND ERROR_DATE <= " + "'"
-						+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateTo) + "'";
+				dateSqlQuery += " ERROR_DATE >=" + "'"
+						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay()) + "'"
+						+ " AND ERROR_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+								.format(errorDateTo.plusDays(1).atStartOfDay())
+						+ "'";
 			} else {
 				if (errorDateFrom == null && errorDateTo != null) {
 					if (dateSqlQuery.contains(WHERE)) {
@@ -192,8 +194,8 @@ public class PositionCalculationErrorSQL {
 					} else {
 						dateSqlQuery += WHERE;
 					}
-					dateSqlQuery += " ERROR_DATE <= " + "'"
-							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateTo) + "'";
+					dateSqlQuery += " ERROR_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+							.format(errorDateTo.plusDays(1).atStartOfDay()) + "'";
 				}
 				if (errorDateFrom != null && errorDateTo == null) {
 					if (dateSqlQuery.contains(WHERE)) {
@@ -202,7 +204,8 @@ public class PositionCalculationErrorSQL {
 						dateSqlQuery += WHERE;
 					}
 					dateSqlQuery += " ERROR_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateFrom) + "'";
+							+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay())
+							+ "'";
 				}
 			}
 
@@ -213,8 +216,9 @@ public class PositionCalculationErrorSQL {
 					dateSqlQuery += WHERE;
 				}
 				dateSqlQuery += " SOLVING_DATE >=" + "'"
-						+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateFrom) + "'"
-						+ " AND SOLVING_DATE <= " + "'" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateTo)
+						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(solvingDateFrom.atStartOfDay()) + "'"
+						+ " AND SOLVING_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+								.format(solvingDateTo.plusDays(1).atStartOfDay())
 						+ "'";
 			} else {
 				if (solvingDateFrom == null && solvingDateTo != null) {
@@ -223,8 +227,8 @@ public class PositionCalculationErrorSQL {
 					} else {
 						dateSqlQuery += WHERE;
 					}
-					dateSqlQuery += " SOLVING_DATE <= " + "'"
-							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateTo) + "'";
+					dateSqlQuery += " SOLVING_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+							.format(solvingDateTo.plusDays(1).atStartOfDay()) + "'";
 				}
 				if (solvingDateFrom != null && solvingDateTo == null) {
 					if (dateSqlQuery.contains(WHERE)) {
@@ -233,7 +237,8 @@ public class PositionCalculationErrorSQL {
 						dateSqlQuery += WHERE;
 					}
 					dateSqlQuery += " SOLVING_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateFrom) + "'";
+							+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(solvingDateFrom.atStartOfDay())
+							+ "'";
 				}
 			}
 
@@ -330,7 +335,7 @@ public class PositionCalculationErrorSQL {
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+			throw new TradistaTechnicalException(sqle.getMessage());
 		}
 
 		return positionCalculationErrors;
