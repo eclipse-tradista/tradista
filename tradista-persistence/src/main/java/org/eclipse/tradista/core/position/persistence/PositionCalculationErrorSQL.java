@@ -13,12 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.*;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -37,11 +39,6 @@ import org.eclipse.tradista.core.trade.persistence.TradeSQL;
  ********************************************************************************/
 
 public class PositionCalculationErrorSQL {
-
-	private static final String SPACE_WHERE_SPACE = " WHERE ";
-	private static final String SPACE_AND_SPACE = " AND ";
-	private static final String WHERE = "WHERE";
-	private static final String MM_DD_YYYY = "MM/dd/yyyy";
 
 	public static boolean savePositionCalculationErrors(List<PositionCalculationError> errors) {
 		boolean bSaved = true;
@@ -163,7 +160,7 @@ public class PositionCalculationErrorSQL {
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmtGetPositionCalculationErrors = con.createStatement()) {
 			String sqlQuery = "SELECT * FROM POSITION_CALCULATION_ERROR, ERROR ";
-			String dateSqlQuery = "";
+			String dateSqlQuery = StringUtils.EMPTY;
 			if (valueDateFrom != null && valueDateTo != null) {
 				dateSqlQuery = " WHERE VALUE_DATE >=" + "'"
 						+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(valueDateFrom) + "'" + " AND VALUE_DATE <= "
@@ -177,16 +174,13 @@ public class PositionCalculationErrorSQL {
 					dateSqlQuery = " WHERE VALUE_DATE >= " + "'"
 							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(valueDateFrom) + "'";
 				}
-				if (valueDateFrom == null && valueDateTo == null) {
-					dateSqlQuery += "";
-				}
 			}
 
 			if (errorDateFrom != null && errorDateTo != null) {
 				if (dateSqlQuery.contains(WHERE)) {
-					dateSqlQuery += SPACE_AND_SPACE;
+					dateSqlQuery += AND;
 				} else {
-					dateSqlQuery += SPACE_WHERE_SPACE;
+					dateSqlQuery += WHERE;
 				}
 				dateSqlQuery += " ERROR_DATE >=" + "'" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateFrom)
 						+ "'" + " AND ERROR_DATE <= " + "'"
@@ -194,32 +188,29 @@ public class PositionCalculationErrorSQL {
 			} else {
 				if (errorDateFrom == null && errorDateTo != null) {
 					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += SPACE_AND_SPACE;
+						dateSqlQuery += AND;
 					} else {
-						dateSqlQuery += SPACE_WHERE_SPACE;
+						dateSqlQuery += WHERE;
 					}
 					dateSqlQuery += " ERROR_DATE <= " + "'"
 							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateTo) + "'";
 				}
 				if (errorDateFrom != null && errorDateTo == null) {
 					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += SPACE_AND_SPACE;
+						dateSqlQuery += AND;
 					} else {
-						dateSqlQuery += SPACE_WHERE_SPACE;
+						dateSqlQuery += WHERE;
 					}
 					dateSqlQuery += " ERROR_DATE >= " + "'"
 							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(errorDateFrom) + "'";
-				}
-				if (errorDateFrom == null && errorDateTo == null) {
-					dateSqlQuery += "";
 				}
 			}
 
 			if (solvingDateFrom != null && solvingDateTo != null) {
 				if (dateSqlQuery.contains(WHERE)) {
-					dateSqlQuery += SPACE_AND_SPACE;
+					dateSqlQuery += AND;
 				} else {
-					dateSqlQuery += SPACE_WHERE_SPACE;
+					dateSqlQuery += WHERE;
 				}
 				dateSqlQuery += " SOLVING_DATE >=" + "'"
 						+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateFrom) + "'"
@@ -228,87 +219,84 @@ public class PositionCalculationErrorSQL {
 			} else {
 				if (solvingDateFrom == null && solvingDateTo != null) {
 					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += SPACE_AND_SPACE;
+						dateSqlQuery += AND;
 					} else {
-						dateSqlQuery += SPACE_WHERE_SPACE;
+						dateSqlQuery += WHERE;
 					}
 					dateSqlQuery += " SOLVING_DATE <= " + "'"
 							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateTo) + "'";
 				}
 				if (solvingDateFrom != null && solvingDateTo == null) {
 					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += SPACE_AND_SPACE;
+						dateSqlQuery += AND;
 					} else {
-						dateSqlQuery += SPACE_WHERE_SPACE;
+						dateSqlQuery += WHERE;
 					}
 					dateSqlQuery += " SOLVING_DATE >= " + "'"
 							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(solvingDateFrom) + "'";
-				}
-				if (solvingDateFrom == null && solvingDateTo == null) {
-					dateSqlQuery += "";
 				}
 			}
 
 			sqlQuery += dateSqlQuery;
 
-			String posDefSqlQuery = "";
+			String posDefSqlQuery = StringUtils.EMPTY;
 
 			if (positionDefinitionId != 0) {
 				if (sqlQuery.contains(WHERE)) {
-					posDefSqlQuery = " AND";
+					posDefSqlQuery = AND;
 				} else {
-					posDefSqlQuery = SPACE_WHERE_SPACE;
+					posDefSqlQuery = WHERE;
 				}
 				posDefSqlQuery += " POSITION_DEFINITION_ID = " + positionDefinitionId;
 			}
 
 			sqlQuery += posDefSqlQuery;
 
-			String statusSqlQuery = "";
+			String statusSqlQuery = StringUtils.EMPTY;
 
 			if (status != null) {
 				if (sqlQuery.contains(WHERE)) {
-					statusSqlQuery = " AND";
+					statusSqlQuery = AND;
 				} else {
-					statusSqlQuery = " WHERE";
+					statusSqlQuery = WHERE;
 				}
 				statusSqlQuery += " STATUS = '" + status.name() + "'";
 			}
 
 			sqlQuery += statusSqlQuery;
 
-			String tradeIdSqlQuery = "";
+			String tradeIdSqlQuery = StringUtils.EMPTY;
 
 			if (tradeId > 0) {
 				if (sqlQuery.contains(WHERE)) {
-					tradeIdSqlQuery = " AND";
+					tradeIdSqlQuery = AND;
 				} else {
-					tradeIdSqlQuery = " WHERE";
+					tradeIdSqlQuery = WHERE;
 				}
 				tradeIdSqlQuery += " TRADE_ID = " + tradeId;
 			}
 
 			sqlQuery += tradeIdSqlQuery;
 
-			String productIdSqlQuery = "";
+			String productIdSqlQuery = StringUtils.EMPTY;
 
 			if (productId > 0) {
 				if (sqlQuery.contains(WHERE)) {
-					productIdSqlQuery = " AND";
+					productIdSqlQuery = AND;
 				} else {
-					productIdSqlQuery = " WHERE";
+					productIdSqlQuery = WHERE;
 				}
 				productIdSqlQuery += " TRADE_ID = " + tradeId;
 			}
 
 			sqlQuery += productIdSqlQuery;
 
-			String joinSqlQuery = "";
+			String joinSqlQuery = StringUtils.EMPTY;
 
 			if (sqlQuery.contains(WHERE)) {
-				joinSqlQuery = " AND";
+				joinSqlQuery = AND;
 			} else {
-				joinSqlQuery = " WHERE";
+				joinSqlQuery = WHERE;
 			}
 			joinSqlQuery += " ID = ERROR_ID";
 
