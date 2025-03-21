@@ -29,6 +29,8 @@ import jakarta.interceptor.InvocationContext;
 
 public class JobFilteringInterceptor extends TradistaAuthorizationFilteringInterceptor {
 
+	private static final String THE_PROCESSING_ORG_WAS_NOT_FOUND = "The processing org %s was not found.";
+	private static final String THIS_JOB_INSTANCE_IS_A_GLOBAL_ONE_AND_YOU_ARE_NOT_ALLOWED_TO_UPDATE_IT = "This job instance %s is a global one and you are not allowed to update it.%n";
 	private BatchBusinessDelegate batchBusinessDelegate;
 
 	public JobFilteringInterceptor() {
@@ -43,77 +45,78 @@ public class JobFilteringInterceptor extends TradistaAuthorizationFilteringInter
 
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameters.length > 0) {
-			if (parameters[0] instanceof TradistaJobInstance) {
+			if (parameterTypes[0].equals(TradistaJobInstance.class)) {
 				TradistaJobInstance jobInstance = (TradistaJobInstance) parameters[0];
 				StringBuilder errMsg = new StringBuilder();
 				User user = getCurrentUser();
 				if (jobInstance.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"This job instance %s is a global one and you are not allowed to update it.%n",
+					errMsg.append(String.format(THIS_JOB_INSTANCE_IS_A_GLOBAL_ONE_AND_YOU_ARE_NOT_ALLOWED_TO_UPDATE_IT,
 							jobInstance.getName()));
 				}
 				if (jobInstance.getProcessingOrg() != null
 						&& !jobInstance.getProcessingOrg().equals(user.getProcessingOrg())) {
-					errMsg.append(
-							String.format("The processing org %s was not found.", jobInstance.getProcessingOrg()));
+					errMsg.append(String.format(THE_PROCESSING_ORG_WAS_NOT_FOUND, jobInstance.getProcessingOrg()));
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}
-			if (parameters.length == 1 && parameters[0] instanceof String) {
-				Method method = ic.getMethod();
+			if (parameters.length == 1 && parameterTypes[0].equals(String.class)) {
 				StringBuilder errMsg = new StringBuilder();
 				if (method.getName().equals("stopJobExecution")) {
 					String jobExecutionId = (String) parameters[0];
 					TradistaJobExecution jobExecution = batchBusinessDelegate.getJobExecutionById(jobExecutionId);
 					if (jobExecution == null) {
-						errMsg.append(String.format(
-								"This job instance %s is a global one and you are not allowed to update it.%n"));
+						errMsg.append(
+								String.format(THIS_JOB_INSTANCE_IS_A_GLOBAL_ONE_AND_YOU_ARE_NOT_ALLOWED_TO_UPDATE_IT));
 					}
 				} else {
-					String po = (String) parameters[0];
-					String userPo = getCurrentUser().getProcessingOrg() != null
-							? getCurrentUser().getProcessingOrg().getShortName()
-							: null;
-					if (po == null) {
-						errMsg.append(String.format(
-								"This job instance %s is a global one and you are not allowed to update it.%n"));
-					}
-					if (po != null && !po.equals(userPo)) {
-						errMsg.append(String.format("The processing org %s was not found.", po));
-					}
-					if (errMsg.length() > 0) {
-						throw new TradistaBusinessException(errMsg.toString());
+					if (method.getName().equals("getAllJobInstances")) {
+						String po = (String) parameters[0];
+						String userPo = getCurrentUser().getProcessingOrg() != null
+								? getCurrentUser().getProcessingOrg().getShortName()
+								: null;
+						if (po == null) {
+							errMsg.append(String
+									.format(THIS_JOB_INSTANCE_IS_A_GLOBAL_ONE_AND_YOU_ARE_NOT_ALLOWED_TO_UPDATE_IT));
+						}
+						if (po != null && !po.equals(userPo)) {
+							errMsg.append(String.format(THE_PROCESSING_ORG_WAS_NOT_FOUND, po));
+						}
+						if (!errMsg.isEmpty()) {
+							throw new TradistaBusinessException(errMsg.toString());
+						}
 					}
 				}
 			}
-			if (parameters.length > 1 && parameters[1] instanceof String) {
+			if (parameters.length > 1 && parameterTypes[1].equals(String.class)) {
 				String po = (String) parameters[1];
 				StringBuilder errMsg = new StringBuilder();
 				String userPo = getCurrentUser().getProcessingOrg() != null
 						? getCurrentUser().getProcessingOrg().getShortName()
 						: null;
 				if (po == null) {
-					errMsg.append(String
-							.format("This job instance %s is a global one and you are not allowed to update it.%n"));
+					errMsg.append(
+							String.format(THIS_JOB_INSTANCE_IS_A_GLOBAL_ONE_AND_YOU_ARE_NOT_ALLOWED_TO_UPDATE_IT));
 				}
 				if (po != null && !po.equals(userPo)) {
-					errMsg.append(String.format("The processing org %s was not found.", po));
+					errMsg.append(String.format(THE_PROCESSING_ORG_WAS_NOT_FOUND, po));
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}
 		}
 	}
 
+	@Override
 	protected Object postFilter(Object value) {
 		if (value != null) {
 			User user = getCurrentUser();
-			if (value instanceof TradistaJobExecution) {
-				TradistaJobExecution jobExecution = (TradistaJobExecution) value;
+			if (value instanceof TradistaJobExecution jobExecution) {
 				if (!jobExecution.getJobInstance().getProcessingOrg().equals(user.getProcessingOrg())) {
 					value = null;
 				}
