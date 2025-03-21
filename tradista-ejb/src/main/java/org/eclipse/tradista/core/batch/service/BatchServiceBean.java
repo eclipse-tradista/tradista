@@ -78,7 +78,7 @@ public class BatchServiceBean implements BatchService {
 
 		for (Class<TradistaJob> klass : classes) {
 			try {
-				jobTypes.put((TradistaUtil.getInstance(klass)).getName(), (Class<? extends TradistaJob>) klass);
+				jobTypes.put((TradistaUtil.getInstance(klass)).getName(), klass);
 			} catch (TradistaTechnicalException tte) {
 				// TODO Auto-generated catch block
 				tte.printStackTrace();
@@ -90,7 +90,7 @@ public class BatchServiceBean implements BatchService {
 
 		try {
 			for (Class<TradistaJob> klass : classes) {
-				jobTypes.put(TradistaUtil.getInstance(klass).getName(), (Class<? extends TradistaJob>) klass);
+				jobTypes.put(TradistaUtil.getInstance(klass).getName(), klass);
 			}
 		} catch (TradistaTechnicalException tte) {
 			// TODO Auto-generated catch block
@@ -200,6 +200,7 @@ public class BatchServiceBean implements BatchService {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Interceptors(JobFilteringInterceptor.class)
 	@Override
 	public Set<TradistaJobInstance> getAllJobInstances(String po) throws TradistaBusinessException {
@@ -230,6 +231,7 @@ public class BatchServiceBean implements BatchService {
 		return jobInstances;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Interceptors(JobFilteringInterceptor.class)
 	@Override
 	public TradistaJobInstance getJobInstanceByNameAndPo(String jobInstanceName, String po)
