@@ -252,9 +252,15 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
+				<version>3.14.0</version>
 				<configuration>
-					<release>17</release>
+					<!-- this release number is the java version used to build
+					Eclipse Tradista. It is explicitely set here so we ensure that builds are
+					always made with the java version that has been validated, even when a newer
+					JDK version is used.
+					If the java version used to build Eclipse Tradista is being upgraded, set the
+					new java version here.-->
+					<release>24</release>
 				</configuration>
 			</plugin>
 		</plugins>

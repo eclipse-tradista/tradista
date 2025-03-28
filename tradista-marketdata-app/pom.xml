@@ -31,7 +31,8 @@
 					<version>8</version>
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
 					<applicationName>marketdata-app</applicationName>
-					<outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+					<outputFileNameMapping>
+						@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
 				</configuration>
 			</plugin>
 		</plugins>

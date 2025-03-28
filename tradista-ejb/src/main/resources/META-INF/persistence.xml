@@ -31,8 +31,6 @@
 		<class>org.eclipse.tradista.security.repo.workflow.guard.IsSubstitutionAllowed
 		</class>
 		<properties>
-			<property name="hibernate.dialect"
-				value="org.hibernate.dialect.DerbyDialect" />
 			<property name="hibernate.show_sql" value="false" />
 		</properties>
 	</persistence-unit>
