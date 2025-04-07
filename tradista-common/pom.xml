@@ -74,6 +74,11 @@
 			<version>${fx-ejb-interface.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tradista.core</groupId>
+			<artifactId>importer-ejb-interface</artifactId>
+			<version>${importer-ejb-interface.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.wildfly.security</groupId>
 			<artifactId>wildfly-elytron</artifactId>
 			<version>2.0.0.Final</version>

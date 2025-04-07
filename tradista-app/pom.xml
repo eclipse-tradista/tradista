@@ -50,20 +50,4 @@
 			<type>war</type>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-ear-plugin</artifactId>
-				<version>3.3.0</version>
-				<configuration>
-					<generateApplicationXml>true</generateApplicationXml>
-					<earSourceDirectory>EarContent</earSourceDirectory>
-					<version>8</version>
-					<applicationName>app</applicationName>
-					<defaultLibBundleDir>lib</defaultLibBundleDir>
-					<outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

@@ -1,7 +1,9 @@
-package org.eclipse.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.message.model;
+
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
- * Copyright (c) 2015 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -16,35 +18,22 @@ package org.eclipse.tradista.core.marketdata.service;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MarketDataProperties {
+public class Message extends TradistaObject {
 
-	private String feedConfigName;
+	private static final long serialVersionUID = -625696923557029488L;
 
-	private String modules;
+	public enum Type {
+		FIX;
 
-	private int frequency;
+		@Override
+		public String toString() {
+			switch (this) {
+			case FIX:
+				return "FIX";
+			}
+			return super.toString();
+		}
 
-	public void setFeedConfigName(String feedConfigName) {
-		this.feedConfigName = feedConfigName;
 	}
 
-	public String getFeedConfigName() {
-		return feedConfigName;
-	}
-
-	public void setModules(String modules) {
-		this.modules = modules;
-	}
-
-	public String getModules() {
-		return modules;
-	}
-
-	public void setFrequency(int frequency) {
-		this.frequency = frequency;
-	}
-
-	public int getFrequency() {
-		return frequency;
-	}
 }

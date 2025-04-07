@@ -187,6 +187,24 @@
 		<web.version>
 			3.0.0-SNAPSHOT
 		</web.version>
+		<importer-app.version>
+			3.0.0-SNAPSHOT
+		</importer-app.version>
+		<importer-ejb.version>
+			3.0.0-SNAPSHOT
+		</importer-ejb.version>
+		<importer-ejb-interface.version>
+			3.0.0-SNAPSHOT
+		</importer-ejb-interface.version>
+		<fix-common.version>
+			3.0.0-SNAPSHOT
+		</fix-common.version>
+		<fix-importer.version>
+			3.0.0-SNAPSHOT
+		</fix-importer.version>
+		<security-fix-importer.version>
+			3.0.0-SNAPSHOT
+		</security-fix-importer.version>
 	</properties>
 	<modules>
 		<module>../tradista-model</module>
@@ -247,6 +265,12 @@
 		<module>../tradista-ir-gui</module>
 		<module>../tradista-client</module>
 		<module>../tradista-web</module>
+		<module>../tradista-importer-app</module>
+		<module>../tradista-importer-ejb</module>
+		<module>../tradista-importer-ejb-interface</module>
+		<module>../tradista-fix-common</module>
+		<module>../tradista-fix-importer</module>
+		<module>../tradista-security-fix-importer</module>
 	</modules>
 	<build>
 		<plugins>
@@ -255,6 +279,19 @@
 				<version>3.10.1</version>
 				<configuration>
 					<release>17</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-ear-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<earSourceDirectory>EarContent</earSourceDirectory>
+					<generateApplicationXml>true</generateApplicationXml>
+					<version>8</version>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+					<applicationName>position-app</applicationName>
+					<outputFileNameMapping>
+						@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
 				</configuration>
 			</plugin>
 		</plugins>

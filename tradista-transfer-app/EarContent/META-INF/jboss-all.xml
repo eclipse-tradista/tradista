@@ -3,6 +3,6 @@
 <jboss umlns="urn:jboss:1.0">
 	<jboss-deployment-dependencies
 		xmlns="urn:jboss:deployment-dependencies:1.0">
-		<dependency name="app-2.2.1-SNAPSHOT.ear" />
+		<dependency name="app-3.0.0-SNAPSHOT.ear" />
 	</jboss-deployment-dependencies>
 </jboss>

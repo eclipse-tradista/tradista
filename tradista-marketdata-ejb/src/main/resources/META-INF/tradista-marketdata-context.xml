@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
-	<bean id="marketDataProperties" class="org.eclipse.tradista.core.marketdata.service.MarketDataProperties">
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans	https://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+	<bean id="marketDataConfiguration"
+		class="org.eclipse.tradista.core.marketdata.service.MarketDataConfiguration">
 		<property name="feedConfigName" value="FeedConfigTest" />
 		<!-- data refresh frequency, expressed in seconds. -->
 		<property name="frequency" value="5" />
-		<property name="modules" value="BloombergApi, Quandl" />
+		<property name="modules" ref="modules" />
 	</bean>
+	<util:set id="modules" set-class="java.util.TreeSet">
+		<value>BloombergApi</value>
+		<value>Quandl</value>
+	</util:set>
 	<bean id="BloombergServerAPIProvider"
 		class="org.eclipse.tradista.core.marketdata.bloombergapi.BloombergServerAPIProvider" />
 	<bean id="BloombergBPipeProvider"
 		class="org.eclipse.tradista.core.marketdata.bloombergapi.BloombergBPipeProvider" />
-	<bean id="QuandlProvider" class="org.eclipse.tradista.core.marketdata.quandl.QuandlProvider" />
+	<bean id="QuandlProvider"
+		class="org.eclipse.tradista.core.marketdata.quandl.QuandlProvider" />
 </beans>

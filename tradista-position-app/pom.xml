@@ -20,20 +20,4 @@
 			<type>ejb</type>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-ear-plugin</artifactId>
-				<version>3.3.0</version>
-				<configuration>
-					<earSourceDirectory>EarContent</earSourceDirectory>
-					<generateApplicationXml>true</generateApplicationXml>
-					<version>8</version>
-					<defaultLibBundleDir>lib</defaultLibBundleDir>
-					<applicationName>position-app</applicationName>
-					<outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

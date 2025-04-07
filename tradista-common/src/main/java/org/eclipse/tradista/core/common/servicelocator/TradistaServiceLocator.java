@@ -31,6 +31,7 @@ import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
 import org.eclipse.tradista.core.marketdata.service.CurveService;
 import org.eclipse.tradista.core.marketdata.service.FXCurveService;
 import org.eclipse.tradista.core.marketdata.service.FeedService;
+import org.eclipse.tradista.core.marketdata.service.ImporterInformationService;
 import org.eclipse.tradista.core.marketdata.service.InterestRateCurveService;
 import org.eclipse.tradista.core.marketdata.service.MarketDataConfigurationService;
 import org.eclipse.tradista.core.marketdata.service.MarketDataInformationService;
@@ -176,6 +177,10 @@ public class TradistaServiceLocator {
 	private static final String MARKET_DATA_EJB = "marketdata-ejb";
 
 	private static final String MARKET_DATA_SERVICE_PACKAGE = "org.eclipse.tradista.core.marketdata.service";
+
+	private static final String IMPORTER_EJB = "importer-ejb";
+
+	private static final String IMPORTER_SERVICE_PACKAGE = "org.eclipse.tradista.core.importer.service";
 
 	private static final String POSITION_APP = "position-app";
 
@@ -669,6 +674,11 @@ public class TradistaServiceLocator {
 	public ProcessingOrgDefaultsService getProcessingOrgDefaultsService() {
 		return (ProcessingOrgDefaultsService) getService(APP, CORE_EJB, PROCESSING_ORG_DEFAULTS_SERVICE_PACKAGE,
 				"ProcessingOrgDefaultsService");
+	}
+
+	public ImporterInformationService getImporterInformationService() {
+		return (ImporterInformationService) getService(APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+				"ImporterInformationService");
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.marketdata.service.MarketDataInformationBusinessDelegate;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.fx.common.service.FXInformationBusinessDelegate;
@@ -48,16 +47,13 @@ public class InformationServiceBean implements InformationService {
 
 	@Override
 	public Map<String, String> getModules() {
-		Map<String, String> modules = new LinkedHashMap<String, String>();
+		Map<String, String> modules = new LinkedHashMap<>();
 
 		// Get the core version
 		modules.put("Core", getClass().getPackage().getImplementationVersion());
 
 		// Get the Market Data version
-		try {
-			modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
-		} catch (TradistaTechnicalException tte) {
-		}
+		modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
 
 		Set<String> prods = productBusinessDelegate.getAvailableProductTypes();
 
@@ -66,7 +62,7 @@ public class InformationServiceBean implements InformationService {
 				String prodFamily = null;
 				try {
 					prodFamily = productBusinessDelegate.getProductFamily(prod);
-				} catch (TradistaBusinessException abe) {
+				} catch (TradistaBusinessException tbe) {
 					// Should not happen here
 				}
 				switch (prodFamily) {

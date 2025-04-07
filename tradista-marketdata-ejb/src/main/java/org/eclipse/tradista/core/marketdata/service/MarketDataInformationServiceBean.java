@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 /********************************************************************************
@@ -30,16 +31,20 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class MarketDataInformationServiceBean implements MarketDataInformationService {
 
+	@EJB
+	private MarketDataConfigurationService marketDataConfigurationService;
+
 	@Override
 	public Map<String, String> getMarketDataModuleVersions() {
 		Map<String, String> map = null;
-		MarketDataConfigurationBusinessDelegate marketDataConfigurationBusinessDelegate = new MarketDataConfigurationBusinessDelegate();
-		Set<String> modules = marketDataConfigurationBusinessDelegate.getModules();
+		Set<String> modules = marketDataConfigurationService.getModules();
 		if (modules != null && !modules.isEmpty()) {
-			map = new TreeMap<String, String>();
+			map = new TreeMap<>();
 			for (String m : modules) {
-				map.put(m, Package.getPackage("org.eclipse.tradista.core.marketdata." + m.toLowerCase())
-						.getImplementationVersion());
+				map.put(m,
+						this.getClass().getClassLoader()
+								.getDefinedPackage("org.eclipse.tradista.core.marketdata." + m.toLowerCase())
+								.getImplementationVersion());
 			}
 		}
 		return map;

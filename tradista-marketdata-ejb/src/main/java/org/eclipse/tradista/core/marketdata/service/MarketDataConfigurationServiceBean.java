@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.marketdata.service;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
@@ -43,6 +42,8 @@ public class MarketDataConfigurationServiceBean implements MarketDataConfigurati
 
 	public static final String CONFIG_FILE_NAME = "tradista-marketdata-context.xml";
 
+	public static final String MARKET_DATA_CONFIGURATION_BEAN = "marketDataConfiguration";
+
 	private FeedConfig feedConfig;
 
 	private String feedConfigName;
@@ -52,7 +53,7 @@ public class MarketDataConfigurationServiceBean implements MarketDataConfigurati
 
 	@PostConstruct
 	public void init() {
-		applicationContext = new ClassPathXmlApplicationContext("/META-INF/tradista-marketdata-context.xml");
+		applicationContext = new ClassPathXmlApplicationContext("/META-INF/" + CONFIG_FILE_NAME);
 		StringBuilder errMsg = new StringBuilder();
 		// check provider
 		try {
@@ -94,7 +95,7 @@ public class MarketDataConfigurationServiceBean implements MarketDataConfigurati
 
 	public String getFeedConfigName() {
 		if (feedConfigName == null) {
-			feedConfigName = ((MarketDataProperties) applicationContext.getBean("marketDataProperties"))
+			feedConfigName = ((MarketDataConfiguration) applicationContext.getBean(MARKET_DATA_CONFIGURATION_BEAN))
 					.getFeedConfigName();
 		}
 		return feedConfigName;
@@ -102,23 +103,12 @@ public class MarketDataConfigurationServiceBean implements MarketDataConfigurati
 
 	@Override
 	public int getFrequency() {
-		return ((MarketDataProperties) applicationContext.getBean("marketDataProperties")).getFrequency();
+		return ((MarketDataConfiguration) applicationContext.getBean(MARKET_DATA_CONFIGURATION_BEAN)).getFrequency();
 	}
 
 	@Override
 	public Set<String> getModules() {
-		Set<String> modules = null;
-		String mods = ((MarketDataProperties) applicationContext.getBean("marketDataProperties")).getModules();
-		if (mods != null && !mods.isEmpty()) {
-			String[] modsArray = mods.split(",");
-			if (modsArray.length > 0) {
-				modules = new TreeSet<String>();
-				for (String m : modsArray) {
-					modules.add(m.trim());
-				}
-			}
-		}
-		return modules;
+		return ((MarketDataConfiguration) applicationContext.getBean(MARKET_DATA_CONFIGURATION_BEAN)).getModules();
 	}
 
 }
