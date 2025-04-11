@@ -1,6 +1,4 @@
-package org.eclipse.tradista.core.importer.model;
-
-import java.util.Objects;
+package org.eclipse.tradista.core.message.model;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -18,45 +16,8 @@ import java.util.Objects;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Importer implements Runnable {
+public class IncomingMessage extends Message {
 
-	private String name;
-
-	public abstract void start();
-
-	public abstract String getType();
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public void run() {
-		start();
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(name);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Importer other = (Importer) obj;
-		return Objects.equals(name, other.name);
-	}
+	private static final long serialVersionUID = 1983583031474077668L;
 
 }

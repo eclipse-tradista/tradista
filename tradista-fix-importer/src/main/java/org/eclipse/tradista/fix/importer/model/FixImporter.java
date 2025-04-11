@@ -1,8 +1,12 @@
 package org.eclipse.tradista.fix.importer.model;
 
 import java.io.InputStream;
+import java.util.Optional;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.message.model.Message;
 
 import quickfix.Application;
 import quickfix.ApplicationAdapter;
@@ -21,7 +25,7 @@ public class FixImporter extends Importer {
 	private String configFileName;
 
 	@Override
-	public void start() {
+	protected void start() {
 		InputStream inputStream = this.getClass().getResourceAsStream(configFileName);
 		SessionSettings settings;
 		SocketAcceptor acceptor;
@@ -51,6 +55,30 @@ public class FixImporter extends Importer {
 
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
+	}
+
+	@Override
+	protected void validateMessage(Object externalMessage) throws TradistaBusinessException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected Message createMessage(Object externalMessage) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected Optional<? extends TradistaObject> processMessage(Object externalMessage) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
+	@Override
+	protected void saveObject(TradistaObject tradistaObject) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

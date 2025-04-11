@@ -226,7 +226,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 			String errorMsg = String.format(
 					"Transfer %d cannot be fixed. Impossible to get the %s price closing value as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
-			fixingError.setMessage(errorMsg);
+			fixingError.setErrorMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 			List<FixingError> errors = new ArrayList<>(1);
 			errors.add(fixingError);

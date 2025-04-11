@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.message.model;
 
+import java.time.LocalDateTime;
+
 import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
@@ -18,22 +20,58 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class Message extends TradistaObject {
+public abstract class Message extends TradistaObject {
 
 	private static final long serialVersionUID = -625696923557029488L;
 
-	public enum Type {
-		FIX;
+	private long objectId;
 
-		@Override
-		public String toString() {
-			switch (this) {
-			case FIX:
-				return "FIX";
-			}
-			return super.toString();
-		}
+	private String type;
 
+	private LocalDateTime creationDateTime;
+
+	private LocalDateTime lastUpdateDateTime;
+
+	private String content;
+
+	public long getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(long objectId) {
+		this.objectId = objectId;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public LocalDateTime getCreationDateTime() {
+		return creationDateTime;
+	}
+
+	public void setCreationDateTime(LocalDateTime creationDateTime) {
+		this.creationDateTime = creationDateTime;
+	}
+
+	public LocalDateTime getLastUpdateDateTime() {
+		return lastUpdateDateTime;
+	}
+
+	public void setLastUpdateDateTime(LocalDateTime lastUpdateDateTime) {
+		this.lastUpdateDateTime = lastUpdateDateTime;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
 	}
 
 }

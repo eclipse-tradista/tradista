@@ -2,7 +2,7 @@ package org.eclipse.tradista.core.importer.service;
 
 import java.util.Set;
 
-import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.importer.Importer;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion

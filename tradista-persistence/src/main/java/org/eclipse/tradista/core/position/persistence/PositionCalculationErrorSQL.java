@@ -57,7 +57,7 @@ public class PositionCalculationErrorSQL {
 			for (PositionCalculationError error : errors) {
 				if (error.getId() == 0) {
 					stmtSaveErrors.setString(1, error.getType());
-					stmtSaveErrors.setString(2, error.getMessage());
+					stmtSaveErrors.setString(2, error.getErrorMessage());
 					stmtSaveErrors.setString(3, error.getStatus().name());
 					stmtSaveErrors.setTimestamp(4, java.sql.Timestamp.valueOf(error.getErrorDate()));
 					stmtSaveErrors.executeUpdate();
@@ -99,7 +99,7 @@ public class PositionCalculationErrorSQL {
 					stmtUpdatePositionCalculationErrors.addBatch();
 
 					stmtUpdateErrors.setString(1, error.getType());
-					stmtUpdateErrors.setString(2, error.getMessage());
+					stmtUpdateErrors.setString(2, error.getErrorMessage());
 					stmtUpdateErrors.setString(3, error.getStatus().name());
 					stmtUpdateErrors.setTimestamp(4, java.sql.Timestamp.valueOf(error.getErrorDate()));
 					stmtUpdateErrors.setLong(5, error.getId());
@@ -314,7 +314,7 @@ public class PositionCalculationErrorSQL {
 					}
 					PositionCalculationError positionCalculationError = new PositionCalculationError();
 					positionCalculationError.setId(results.getLong("id"));
-					positionCalculationError.setMessage(results.getString("message"));
+					positionCalculationError.setErrorMessage(results.getString("message"));
 					Timestamp solvingDate = results.getTimestamp("solving_date");
 					if (solvingDate != null) {
 						positionCalculationError.setSolvingDate(solvingDate.toLocalDateTime());

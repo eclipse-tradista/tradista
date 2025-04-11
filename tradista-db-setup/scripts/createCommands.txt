@@ -1,4 +1,5 @@
 connect 'jdbc:derby://localhost:1527/Tradista;create=true';
+run '../sql/MESSAGE.sql';
 run '../sql/GCBASKET.sql';
 run '../sql/PROCESS.sql';
 run '../sql/GUARD.sql';

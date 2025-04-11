@@ -2,7 +2,7 @@ package org.eclipse.tradista.core.importer.service;
 
 import java.util.Set;
 
-import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.importer.Importer;
 import org.eclipse.tradista.core.marketdata.service.ImporterConfigurationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.context.ApplicationContext;

@@ -173,13 +173,13 @@ public class PositionCalculator {
 											error.setValueDate(valueDate);
 											error.setTrade(trade);
 										}
-										error.setMessage(tbe.getMessage());
+										error.setErrorMessage(tbe.getMessage());
 										error.setErrorDate(LocalDateTime.now());
 									} else {
 										// New error
 										error = new PositionCalculationError();
 										error.setPositionDefinition(posDef);
-										error.setMessage(tbe.getMessage());
+										error.setErrorMessage(tbe.getMessage());
 										error.setValueDate(valueDate);
 										error.setErrorDate(LocalDateTime.now());
 										error.setTrade(trade);
@@ -313,13 +313,13 @@ public class PositionCalculator {
 				error.setValueDate(valueDate);
 				error.setProduct(product);
 			}
-			error.setMessage(tbe.getMessage());
+			error.setErrorMessage(tbe.getMessage());
 			error.setErrorDate(LocalDateTime.now());
 		} else {
 			// New error
 			error = new PositionCalculationError();
 			error.setPositionDefinition(posDef);
-			error.setMessage(tbe.getMessage());
+			error.setErrorMessage(tbe.getMessage());
 			error.setValueDate(valueDate);
 			error.setErrorDate(LocalDateTime.now());
 		}

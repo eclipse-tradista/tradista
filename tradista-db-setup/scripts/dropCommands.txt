@@ -114,5 +114,6 @@ drop table guard;
 drop sequence guard_seq restrict;
 drop table process;
 drop sequence process_seq restrict;
+drop table message;
 disconnect;
 exit;

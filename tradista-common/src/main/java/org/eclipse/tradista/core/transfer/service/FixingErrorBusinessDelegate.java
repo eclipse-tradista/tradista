@@ -75,7 +75,7 @@ public class FixingErrorBusinessDelegate {
 				errorMsg.append(String.format("'To' solving date cannot be before 'From' solving date.%n"));
 			}
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> fixingErrorService.getFixingErrors(transferId, status, errorDateFrom,

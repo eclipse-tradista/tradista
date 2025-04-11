@@ -30,6 +30,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.core</groupId>
+			<artifactId>message-ejb-interface</artifactId>
+			<version>${message-ejb-interface.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>position-ejb-interface</artifactId>
 			<version>${position-ejb-interface.version}</version>
 		</dependency>

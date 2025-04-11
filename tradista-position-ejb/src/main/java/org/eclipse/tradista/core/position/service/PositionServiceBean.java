@@ -160,13 +160,13 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 									error.setValueDate(valueDateTime.toLocalDate());
 									error.setTrade(trade);
 								}
-								error.setMessage(tbe.getMessage());
+								error.setErrorMessage(tbe.getMessage());
 								error.setErrorDate(LocalDateTime.now());
 							} else {
 								// New error
 								error = new PositionCalculationError();
 								error.setPositionDefinition(posDef);
-								error.setMessage(tbe.getMessage());
+								error.setErrorMessage(tbe.getMessage());
 								error.setValueDate(valueDateTime.toLocalDate());
 								error.setErrorDate(LocalDateTime.now());
 								error.setTrade(trade);
@@ -253,13 +253,13 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 									error.setValueDate(valueDateTime.toLocalDate());
 									error.setProduct(product);
 								}
-								error.setMessage(tbe.getMessage());
+								error.setErrorMessage(tbe.getMessage());
 								error.setErrorDate(LocalDateTime.now());
 							} else {
 								// New error
 								error = new PositionCalculationError();
 								error.setPositionDefinition(posDef);
-								error.setMessage(tbe.getMessage());
+								error.setErrorMessage(tbe.getMessage());
 								error.setValueDate(valueDateTime.toLocalDate());
 								error.setErrorDate(LocalDateTime.now());
 								error.setProduct(product);

@@ -31,7 +31,7 @@ public abstract class Error extends TradistaObject {
 
 	private LocalDateTime solvingDate;
 
-	private String message;
+	private String errorMessage;
 
 	private String type;
 
@@ -88,12 +88,12 @@ public abstract class Error extends TradistaObject {
 		this.status = status;
 	}
 
-	public String getMessage() {
-		return message;
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 
-	public void setMessage(String message) {
-		this.message = message;
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
 	public void setType(String type) {

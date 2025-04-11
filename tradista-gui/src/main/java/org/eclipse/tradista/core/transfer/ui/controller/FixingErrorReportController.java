@@ -107,7 +107,7 @@ public class FixingErrorReportController extends TradistaControllerAdapter {
 			}
 		});
 
-		message.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getMessage()));
+		message.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getErrorMessage()));
 
 		status.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getStatus().toString()));
 

@@ -115,7 +115,7 @@ public class FXNDFTransferManager implements TransferManager<FXNDFTradeEvent> {
 					"Transfer %d cannot be fixed. Impossible to get the %s/%s FX closing rate as of %tD in QuoteSet %d.",
 					transfer.getId(), trade.getNonDeliverableCurrency(), trade.getCurrency(), LocalDate.now(),
 					quoteSetId);
-			fixingError.setMessage(errorMsg);
+			fixingError.setErrorMessage(errorMsg);
 			fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 			List<FixingError> errors = new ArrayList<>(1);
 			errors.add(fixingError);
