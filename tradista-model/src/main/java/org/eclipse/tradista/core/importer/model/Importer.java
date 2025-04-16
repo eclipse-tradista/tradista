@@ -1,8 +1,6 @@
-package org.eclipse.tradista.core.importer.service;
+package org.eclipse.tradista.core.importer.model;
 
-import java.util.Set;
-
-import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,25 +18,10 @@ import org.eclipse.tradista.core.importer.model.Importer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImporterConfiguration {
+public interface Importer<X> extends Runnable {
 
-	private Set<String> modules;
+	String getType();
 
-	private Set<Importer> importers;
+	void importMessage(X externalMessage) throws TradistaBusinessException;
 
-	public void setModules(Set<String> modules) {
-		this.modules = modules;
-	}
-
-	public Set<String> getModules() {
-		return modules;
-	}
-
-	public Set<Importer> getImporters() {
-		return importers;
-	}
-
-	public void setImporters(Set<Importer> importers) {
-		this.importers = importers;
-	}
 }

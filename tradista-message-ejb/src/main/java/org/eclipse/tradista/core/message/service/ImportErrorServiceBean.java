@@ -1,8 +1,12 @@
-package org.eclipse.tradista.core.importer.service;
+package org.eclipse.tradista.core.message.service;
 
-import java.util.Set;
+import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.persistence.ImportErrorSQL;
+import org.eclipse.tradista.core.messsage.service.ImportErrorService;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
-import org.eclipse.tradista.core.importer.model.Importer;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.Stateless;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,25 +24,14 @@ import org.eclipse.tradista.core.importer.model.Importer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImporterConfiguration {
+@SecurityDomain(value = "other")
+@PermitAll
+@Stateless
+public class ImportErrorServiceBean implements ImportErrorService {
 
-	private Set<String> modules;
-
-	private Set<Importer> importers;
-
-	public void setModules(Set<String> modules) {
-		this.modules = modules;
+	@Override
+	public long saveImportError(ImportError error) {
+		return ImportErrorSQL.saveImportError(error);
 	}
 
-	public Set<String> getModules() {
-		return modules;
-	}
-
-	public Set<Importer> getImporters() {
-		return importers;
-	}
-
-	public void setImporters(Set<Importer> importers) {
-		this.importers = importers;
-	}
 }

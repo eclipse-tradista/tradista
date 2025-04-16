@@ -38,6 +38,7 @@ import org.eclipse.tradista.core.marketdata.service.MarketDataInformationService
 import org.eclipse.tradista.core.marketdata.service.MarketDataService;
 import org.eclipse.tradista.core.marketdata.service.QuoteService;
 import org.eclipse.tradista.core.marketdata.service.SurfaceService;
+import org.eclipse.tradista.core.messsage.service.ImportErrorService;
 import org.eclipse.tradista.core.messsage.service.MessageService;
 import org.eclipse.tradista.core.position.service.PositionCalculationErrorService;
 import org.eclipse.tradista.core.position.service.PositionDefinitionService;
@@ -179,9 +180,13 @@ public class TradistaServiceLocator {
 
 	private static final String MARKET_DATA_SERVICE_PACKAGE = "org.eclipse.tradista.core.marketdata.service";
 
+	private static final String IMPORTER_APP = "importer-app";
+
 	private static final String IMPORTER_EJB = "importer-ejb";
 
 	private static final String IMPORTER_SERVICE_PACKAGE = "org.eclipse.tradista.core.importer.service";
+
+	private static final String MESSAGE_APP = "message-app";
 
 	private static final String MESSAGE_EJB = "message-ejb";
 
@@ -682,12 +687,16 @@ public class TradistaServiceLocator {
 	}
 
 	public ImporterInformationService getImporterInformationService() {
-		return (ImporterInformationService) getService(APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+		return (ImporterInformationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
 				"ImporterInformationService");
 	}
 
 	public MessageService getMessageService() {
-		return (MessageService) getService(APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "MessageService");
+		return (MessageService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "MessageService");
+	}
+
+	public ImportErrorService getImportErrorService() {
+		return (ImportErrorService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "ImportErrorService");
 	}
 
 }

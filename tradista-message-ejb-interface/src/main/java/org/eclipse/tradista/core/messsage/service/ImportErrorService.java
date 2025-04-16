@@ -1,8 +1,9 @@
-package org.eclipse.tradista.core.importer.service;
+package org.eclipse.tradista.core.messsage.service;
 
-import java.util.Set;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.message.model.ImportError;
 
-import org.eclipse.tradista.core.importer.model.Importer;
+import jakarta.ejb.Remote;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,25 +21,8 @@ import org.eclipse.tradista.core.importer.model.Importer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImporterConfiguration {
+@Remote
+public interface ImportErrorService {
 
-	private Set<String> modules;
-
-	private Set<Importer> importers;
-
-	public void setModules(Set<String> modules) {
-		this.modules = modules;
-	}
-
-	public Set<String> getModules() {
-		return modules;
-	}
-
-	public Set<Importer> getImporters() {
-		return importers;
-	}
-
-	public void setImporters(Set<Importer> importers) {
-		this.importers = importers;
-	}
+	long saveImportError(ImportError error) throws TradistaBusinessException;
 }

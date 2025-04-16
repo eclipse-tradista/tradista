@@ -205,6 +205,15 @@
 		<security-fix-importer.version>
 			3.0.0-SNAPSHOT
 		</security-fix-importer.version>
+		<message-app.version>
+			3.0.0-SNAPSHOT
+		</message-app.version>
+		<message-ejb.version>
+			3.0.0-SNAPSHOT
+		</message-ejb.version>
+		<message-ejb-interface.version>
+			3.0.0-SNAPSHOT
+		</message-ejb-interface.version>
 	</properties>
 	<modules>
 		<module>../tradista-model</module>
@@ -271,6 +280,9 @@
 		<module>../tradista-fix-common</module>
 		<module>../tradista-fix-importer</module>
 		<module>../tradista-security-fix-importer</module>
+		<module>../tradista-message-app</module>
+		<module>../tradista-message-ejb</module>
+		<module>../tradista-message-ejb-interface</module>
 	</modules>
 	<build>
 		<plugins>

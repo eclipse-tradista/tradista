@@ -1,8 +1,6 @@
-package org.eclipse.tradista.core.importer.service;
+package org.eclipse.tradista.gcrepo.fix;
 
-import java.util.Set;
-
-import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.importer.model.IncomingMessageManager;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,25 +18,6 @@ import org.eclipse.tradista.core.importer.model.Importer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImporterConfiguration {
+public class GCRepoFixIncomingMessageManager implements IncomingMessageManager {
 
-	private Set<String> modules;
-
-	private Set<Importer> importers;
-
-	public void setModules(Set<String> modules) {
-		this.modules = modules;
-	}
-
-	public Set<String> getModules() {
-		return modules;
-	}
-
-	public Set<Importer> getImporters() {
-		return importers;
-	}
-
-	public void setImporters(Set<Importer> importers) {
-		this.importers = importers;
-	}
 }

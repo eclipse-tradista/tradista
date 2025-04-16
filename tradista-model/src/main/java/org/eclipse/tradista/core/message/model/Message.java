@@ -3,6 +3,8 @@ package org.eclipse.tradista.core.message.model;
 import java.time.LocalDateTime;
 
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.workflow.model.Status;
+import org.eclipse.tradista.core.workflow.model.WorkflowObject;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,7 +22,7 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Message extends TradistaObject {
+public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private static final long serialVersionUID = -625696923557029488L;
 
@@ -33,6 +35,10 @@ public abstract class Message extends TradistaObject {
 	private LocalDateTime lastUpdateDateTime;
 
 	private String content;
+
+	private Status status;
+
+	private String workflow;
 
 	public long getObjectId() {
 		return objectId;
@@ -72,6 +78,32 @@ public abstract class Message extends TradistaObject {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	@Override
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	@Override
+	public String getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(String name) {
+		this.workflow = name;
+	}
+
+	@Override
+	public Status getStatus() {
+		return status;
+	}
+
+	@Override
+	public Message clone() {
+		Message msg = (Message) super.clone();
+		msg.setStatus((Status) status.clone());
+		return msg;
 	}
 
 }

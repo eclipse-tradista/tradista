@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.message.service;
 
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.persistence.MessageSQL;
 import org.eclipse.tradista.core.messsage.service.MessageService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
