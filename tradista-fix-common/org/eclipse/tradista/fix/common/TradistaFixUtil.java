@@ -1,9 +1,7 @@
-package org.eclipse.tradista.security.gcrepo.workflow.mapping;
-
-import finance.tradista.flow.model.Workflow;
+package org.eclipse.tradista.fix.common;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,16 +16,11 @@ import finance.tradista.flow.model.Workflow;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class GCRepoTradeMapper {
+public final class TradistaFixUtil {
 
-	private GCRepoTradeMapper() {
-	}
+	public static final Pattern FIX_DATE_REGEX = Pattern.compile("^(\\d{4})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])$");
 
-	public static GCRepoTrade map(org.eclipse.tradista.security.gcrepo.model.GCRepoTrade gcRepoTrade,
-			Workflow<GCRepoTrade> wkf) {
-		GCRepoTrade gcRepoTradeResult = new GCRepoTrade(wkf);
-		gcRepoTradeResult.setRepoTrade(gcRepoTrade);
-		return gcRepoTradeResult;
+	private TradistaFixUtil() {
 	}
 
 }

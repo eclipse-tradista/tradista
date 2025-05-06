@@ -4,7 +4,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.workflow.mapping.MessageMapper;
 import org.eclipse.tradista.core.messsage.service.MessageService;
+import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
+
+import finance.tradista.flow.exception.TradistaFlowBusinessException;
+import finance.tradista.flow.model.Workflow;
+import finance.tradista.flow.service.WorkflowManager;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -38,6 +44,29 @@ public class MessageBusinessDelegate {
 			throw new TradistaBusinessException("the message type is mandatory.");
 		}
 		return messageService.saveMessage(message);
+	}
+
+	public void applyAction(Message message, String action) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isEmpty(action)) {
+			errMsg.append(String.format("The action is mandatory.%n"));
+		}
+		if (message == null) {
+			errMsg.append("The message is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		try {
+			Workflow<org.eclipse.tradista.core.message.workflow.mapping.Message> workflow = WorkflowManager
+					.getWorkflowByName(message.getWorkflow());
+			org.eclipse.tradista.core.message.workflow.mapping.Message mappedMessage = MessageMapper.map(message,
+					workflow);
+			mappedMessage = WorkflowManager.applyAction(mappedMessage, action);
+			message.setStatus(StatusMapper.map(mappedMessage.getStatus()));
+		} catch (TradistaFlowBusinessException tfbe) {
+			throw new TradistaBusinessException(tfbe);
+		}
 	}
 
 }

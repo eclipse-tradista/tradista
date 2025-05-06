@@ -1,12 +1,9 @@
-package org.eclipse.tradista.security.specificrepo.workflow.mapping;
-
-import org.eclipse.tradista.core.common.model.TradistaModelUtil;
-import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
+package org.eclipse.tradista.core.message.workflow.mapping;
 
 import finance.tradista.flow.model.Workflow;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -21,18 +18,14 @@ import finance.tradista.flow.model.Workflow;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class SpecificRepoTrade extends RepoTrade {
+public class IncomingMessage extends Message {
 
-	public SpecificRepoTrade(Workflow<? extends SpecificRepoTrade> wkf) {
+	public IncomingMessage(Workflow<? extends IncomingMessage> wkf) {
 		super(wkf);
 	}
 
-	public void setRepoTrade(org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade repoTrade) {
-		this.repoTrade = repoTrade;
-	}
-
-	public org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade getOriginalRepoTrade() {
-		return (org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade) TradistaModelUtil.clone(repoTrade);
+	public void setIncomingMessage(org.eclipse.tradista.core.message.model.IncomingMessage incomingMessage) {
+		this.message = incomingMessage;
 	}
 
 }

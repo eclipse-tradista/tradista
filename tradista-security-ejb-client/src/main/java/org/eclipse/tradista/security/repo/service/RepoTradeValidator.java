@@ -74,8 +74,7 @@ public abstract class RepoTradeValidator extends DefaultTradeValidator {
 			}
 		} else {
 			if (repoTrade.getEndDate() == null) {
-				errMsg.append(
-						String.format("When the GC Repo is not terminable on demand, the end date is mandatory.%n"));
+				errMsg.append(String.format("When the Repo is not terminable on demand, the end date is mandatory.%n"));
 			}
 		}
 

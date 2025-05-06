@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.importer.model;
 
+import org.eclipse.tradista.core.common.model.TradistaObject;
+
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
  * 
@@ -16,6 +18,10 @@ package org.eclipse.tradista.core.importer.model;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public interface IncomingMessageManager {
+public interface IncomingMessageManager<X, Y extends TradistaObject> {
+
+	void checkMessage(X externalMessage, StringBuilder errMsg);
+
+	Y createObject(X externalMessage);
 
 }

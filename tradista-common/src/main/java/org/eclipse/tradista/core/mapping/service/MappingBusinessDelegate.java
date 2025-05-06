@@ -1,9 +1,7 @@
-package org.eclipse.tradista.security.gcrepo.workflow.mapping;
-
-import finance.tradista.flow.model.Workflow;
+package org.eclipse.tradista.core.mapping.service;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,16 +16,6 @@ import finance.tradista.flow.model.Workflow;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class GCRepoTradeMapper {
-
-	private GCRepoTradeMapper() {
-	}
-
-	public static GCRepoTrade map(org.eclipse.tradista.security.gcrepo.model.GCRepoTrade gcRepoTrade,
-			Workflow<GCRepoTrade> wkf) {
-		GCRepoTrade gcRepoTradeResult = new GCRepoTrade(wkf);
-		gcRepoTradeResult.setRepoTrade(gcRepoTrade);
-		return gcRepoTradeResult;
-	}
+public class MappingBusinessDelegate {
 
 }

@@ -23,8 +23,9 @@ public final class SpecificRepoTradeMapper {
 	private SpecificRepoTradeMapper() {
 	}
 
-	public static SpecificRepoTrade map(org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade specificRepoTrade,
-			Workflow wkf) {
+	public static SpecificRepoTrade map(
+			org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade specificRepoTrade,
+			Workflow<SpecificRepoTrade> wkf) {
 		SpecificRepoTrade specificRepoTradeResult = new SpecificRepoTrade(wkf);
 		specificRepoTradeResult.setRepoTrade(specificRepoTrade);
 		return specificRepoTradeResult;

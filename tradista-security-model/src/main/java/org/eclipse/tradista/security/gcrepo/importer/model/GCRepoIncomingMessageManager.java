@@ -1,9 +1,10 @@
-package org.eclipse.tradista.security.gcrepo.workflow.mapping;
+package org.eclipse.tradista.security.gcrepo.importer.model;
 
-import finance.tradista.flow.model.Workflow;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.repo.importer.model.RepoIncomingMessageManager;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,16 +19,14 @@ import finance.tradista.flow.model.Workflow;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class GCRepoTradeMapper {
+public interface GCRepoIncomingMessageManager<X> extends RepoIncomingMessageManager<X, GCRepoTrade> {
 
-	private GCRepoTradeMapper() {
+	@Override
+	public default void checkMessage(X externalMessage, StringBuilder errMsg) {
+		RepoIncomingMessageManager.super.checkMessage(externalMessage, errMsg);
+		checkBasket(externalMessage, errMsg);
 	}
 
-	public static GCRepoTrade map(org.eclipse.tradista.security.gcrepo.model.GCRepoTrade gcRepoTrade,
-			Workflow<GCRepoTrade> wkf) {
-		GCRepoTrade gcRepoTradeResult = new GCRepoTrade(wkf);
-		gcRepoTradeResult.setRepoTrade(gcRepoTrade);
-		return gcRepoTradeResult;
-	}
+	void checkBasket(X externalMessage, StringBuilder errMsg);
 
 }

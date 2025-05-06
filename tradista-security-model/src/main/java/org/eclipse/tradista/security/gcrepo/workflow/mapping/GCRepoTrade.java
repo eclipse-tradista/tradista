@@ -23,7 +23,7 @@ import finance.tradista.flow.model.Workflow;
 
 public class GCRepoTrade extends RepoTrade {
 
-	public GCRepoTrade(Workflow wkf) {
+	public GCRepoTrade(Workflow<GCRepoTrade> wkf) {
 		super(wkf);
 	}
 

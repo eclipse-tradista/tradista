@@ -12,7 +12,7 @@ import quickfix.SessionID;
 import quickfix.UnsupportedMessageType;
 import quickfix.fix44.TradeCaptureReport;
 
-public class ImportApplication extends ApplicationAdapter {
+public class ImportApplication<X extends Message> extends ApplicationAdapter {
 
 	private FixImporter fixImporter;
 
@@ -24,7 +24,7 @@ public class ImportApplication extends ApplicationAdapter {
 	public void fromApp(Message message, SessionID sessionId)
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
 		try {
-			fixImporter.importMessage((TradeCaptureReport) message);
+			fixImporter.importMessage((X) message);
 		} catch (TradistaBusinessException tbe) {
 			// TODO Add logs
 		}

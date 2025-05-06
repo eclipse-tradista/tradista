@@ -19,7 +19,6 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.model.Trade.Direction;
-import org.eclipse.tradista.core.workflow.model.Action;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
@@ -396,7 +395,7 @@ public class GCRepoTradeController implements Serializable {
 
 	public void save() {
 		try {
-			final String actionToApply = (action != null) ? action : Action.NEW;
+			final String actionToApply = (action != null) ? action : ActionConstants.NEW;
 			if (trade.getId() == 0) {
 				trade.setCreationDate(LocalDate.now());
 			}
@@ -443,7 +442,7 @@ public class GCRepoTradeController implements Serializable {
 			trade.setCollateralToAdd(null);
 			trade.setCollateralToRemove(null);
 			trade.setPartialTerminations(null);
-			long tradeId = gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, Action.NEW);
+			long tradeId = gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, ActionConstants.NEW);
 			trade = gcRepoTradeBusinessDelegate.getGCRepoTradeById(tradeId);
 			Set<String> availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(workflow.getName(),
 					trade.getStatus());

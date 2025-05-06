@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.error.model.Error.Status;
@@ -56,12 +57,19 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		try {
 			msg = createMessage(externalMessage);
 			validateMessage(externalMessage);
+			// Surface checks are OK, we validate the message.
+			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
 			Optional<? extends TradistaObject> object = processMessage(externalMessage);
 			if (object.isPresent()) {
 				saveObject(object.get());
 				msg.setObjectId(object.get().getId());
 			}
+			// Mappings are OK, we validate the message.
+			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
 		} catch (TradistaBusinessException tbe) {
+			// There was an issue whether in surface checks or mappings, we invalidate the
+			// message and create an error.
+			messageBusinessDelegate.applyAction(msg, ActionConstants.INVALIDATE);
 			ImportError importError = new ImportError();
 			importError.setErrorDate(LocalDateTime.now());
 			importError.setErrorMessage(tbe.getMessage());
@@ -83,6 +91,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		message.setType(getType());
 		message.setWorkflow(getType());
 		message.setStatus(workflowBusinessDelegate.getInitialStatus(message.getWorkflow()));
+		messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
 		return message;
 	}
 

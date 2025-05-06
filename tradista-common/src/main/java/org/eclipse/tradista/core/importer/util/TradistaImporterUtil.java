@@ -26,12 +26,12 @@ import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 
 public final class TradistaImporterUtil {
 
-	private static Map<String, IncomingMessageManager> incomingMessageManagerCache = new ConcurrentHashMap<>();
+	private static Map<String, IncomingMessageManager<?, ?>> incomingMessageManagerCache = new ConcurrentHashMap<>();
 
 	private TradistaImporterUtil() {
 	}
 
-	public static IncomingMessageManager getIncomingMessageManager(String productType, String messageType)
+	public static IncomingMessageManager<?, ?> getIncomingMessageManager(String productType, String messageType)
 			throws TradistaBusinessException {
 		if (!incomingMessageManagerCache.containsKey(productType)) {
 			String className = "org.eclipse.tradista." + new ProductBusinessDelegate().getProductFamily(productType)

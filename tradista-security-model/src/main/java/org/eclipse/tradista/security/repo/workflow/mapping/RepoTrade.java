@@ -36,9 +36,9 @@ public abstract class RepoTrade implements WorkflowObject {
 
 	protected org.eclipse.tradista.security.repo.model.RepoTrade repoTrade;
 
-	private Workflow wkf;
+	private Workflow<? extends RepoTrade> wkf;
 
-	public RepoTrade(Workflow wkf) {
+	protected RepoTrade(Workflow<? extends RepoTrade> wkf) {
 		this.wkf = wkf;
 	}
 
@@ -200,7 +200,7 @@ public abstract class RepoTrade implements WorkflowObject {
 	}
 
 	public org.eclipse.tradista.security.repo.model.RepoTrade getOriginalRepoTrade() {
-		return (org.eclipse.tradista.security.repo.model.RepoTrade) TradistaModelUtil.clone(repoTrade);
+		return TradistaModelUtil.clone(repoTrade);
 	}
 
 }
