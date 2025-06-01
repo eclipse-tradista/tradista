@@ -8,184 +8,184 @@
 	<packaging>pom</packaging>
 	<properties>
 		<parent.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</parent.version>
 		<ai-app.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-app.version>
 		<ai-business.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-business.version>
 		<ai-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-ejb.version>
 		<ai-ejb-client.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-ejb-client.version>
 		<ai-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-ejb-interface.version>
 		<ai-model.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-model.version>
 		<ai-persistence.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-persistence.version>
 		<ai-gui.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ai-gui.version>
 		<app.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</app.version>
 		<app-client.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</app-client.version>
 		<bloomberg-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</bloomberg-interface.version>
 		<bloomberg-mock-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</bloomberg-mock-interface.version>
 		<core-business.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-business.version>
 		<core-common.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-common.version>
 		<core-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-ejb.version>
 		<core-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-ejb-interface.version>
 		<fx-business.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-business.version>
 		<fx-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-ejb.version>
 		<fx-ejb-client.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-ejb-client.version>
 		<fx-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-ejb-interface.version>
 		<fx-gui.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-gui.version>
 		<fx-model.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-model.version>
 		<fx-persistence.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</fx-persistence.version>
 		<core-gui.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-gui.version>
 		<core-gui-common.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-gui-common.version>
 		<ir-business.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-business.version>
 		<ir-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-ejb.version>
 		<ir-ejb-client.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-ejb-client.version>
 		<ir-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-ejb-interface.version>
 		<ir-gui.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-gui.version>
 		<ir-model.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-model.version>
 		<ir-persistence.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</ir-persistence.version>
 		<marketdata-app.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</marketdata-app.version>
 		<marketdata-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</marketdata-ejb.version>
 		<marketdata-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</marketdata-ejb-interface.version>
 		<mm-business.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-business.version>
 		<mm-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-ejb.version>
 		<mm-ejb-client.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-ejb-client.version>
 		<mm-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-ejb-interface.version>
 		<mm-gui.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-gui.version>
 		<mm-model.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-model.version>
 		<mm-persistence.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</mm-persistence.version>
 		<core-model.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-model.version>
 		<core-persistence.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</core-persistence.version>
 		<position-app.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</position-app.version>
 		<position-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</position-ejb.version>
 		<position-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</position-ejb-interface.version>
 		<quandl-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</quandl-interface.version>
 		<security-business.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-business.version>
 		<security-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-ejb.version>
 		<security-ejb-client.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-ejb-client.version>
 		<security-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-ejb-interface.version>
 		<security-gui.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-gui.version>
 		<security-model.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-model.version>
 		<security-persistence.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</security-persistence.version>
 		<transfer-app.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</transfer-app.version>
 		<transfer-ejb.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</transfer-ejb.version>
 		<transfer-ejb-interface.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</transfer-ejb-interface.version>
 		<web.version>
-			2.2.1-SNAPSHOT
+			2.2.1-RC1
 		</web.version>
 	</properties>
 	<modules>
