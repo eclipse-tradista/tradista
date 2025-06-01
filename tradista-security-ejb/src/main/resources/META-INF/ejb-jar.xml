@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ejb-jar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/ejb-jar_3_2.xsd"
-	version="3.2">
+	xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/ejb-jar_4_0.xsd"
+	version="4.0">
 	<module-name>security-ejb</module-name>
 	<display-name>security-ejb</display-name>
 	<enterprise-beans>
 		<session>
 			<ejb-name>BondTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.security.bond.service.BondTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.security.bond.service.BondTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -36,8 +35,7 @@
 		<session>
 			<ejb-name>EquityTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.security.equity.service.EquityTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -63,8 +61,7 @@
 		<session>
 			<ejb-name>EquityOptionTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -90,8 +87,7 @@
 		<session>
 			<ejb-name>GCRepoTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -117,8 +113,7 @@
 		<session>
 			<ejb-name>SpecificRepoTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
