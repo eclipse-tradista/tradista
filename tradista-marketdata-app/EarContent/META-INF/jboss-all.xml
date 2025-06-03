@@ -1,7 +1,8 @@
 <!-- To be used only if market-app and app are deployed into the same WildFly 
 	instance -->
 <jboss umlns="urn:jboss:1.0">
-  <jboss-deployment-dependencies xmlns="urn:jboss:deployment-dependencies:1.0">
-    <dependency name="app-2.2.1-RC1.ear" />
-  </jboss-deployment-dependencies>
+	<jboss-deployment-dependencies
+		xmlns="urn:jboss:deployment-dependencies:1.0">
+		<dependency name="app-2.2.1.ear" />
+	</jboss-deployment-dependencies>
 </jboss>
