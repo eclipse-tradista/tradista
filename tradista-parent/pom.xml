@@ -8,184 +8,184 @@
 	<packaging>pom</packaging>
 	<properties>
 		<parent.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</parent.version>
 		<ai-app.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-app.version>
 		<ai-business.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-business.version>
 		<ai-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-ejb.version>
 		<ai-ejb-client.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-ejb-client.version>
 		<ai-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-ejb-interface.version>
 		<ai-model.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-model.version>
 		<ai-persistence.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-persistence.version>
 		<ai-gui.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ai-gui.version>
 		<app.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</app.version>
 		<app-client.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</app-client.version>
 		<bloomberg-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</bloomberg-interface.version>
 		<bloomberg-mock-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</bloomberg-mock-interface.version>
 		<core-business.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-business.version>
 		<core-common.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-common.version>
 		<core-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-ejb.version>
 		<core-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-ejb-interface.version>
 		<fx-business.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-business.version>
 		<fx-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-ejb.version>
 		<fx-ejb-client.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-ejb-client.version>
 		<fx-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-ejb-interface.version>
 		<fx-gui.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-gui.version>
 		<fx-model.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-model.version>
 		<fx-persistence.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</fx-persistence.version>
 		<core-gui.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-gui.version>
 		<core-gui-common.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-gui-common.version>
 		<ir-business.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-business.version>
 		<ir-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-ejb.version>
 		<ir-ejb-client.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-ejb-client.version>
 		<ir-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-ejb-interface.version>
 		<ir-gui.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-gui.version>
 		<ir-model.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-model.version>
 		<ir-persistence.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</ir-persistence.version>
 		<marketdata-app.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</marketdata-app.version>
 		<marketdata-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</marketdata-ejb.version>
 		<marketdata-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</marketdata-ejb-interface.version>
 		<mm-business.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-business.version>
 		<mm-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-ejb.version>
 		<mm-ejb-client.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-ejb-client.version>
 		<mm-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-ejb-interface.version>
 		<mm-gui.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-gui.version>
 		<mm-model.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-model.version>
 		<mm-persistence.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</mm-persistence.version>
 		<core-model.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-model.version>
 		<core-persistence.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</core-persistence.version>
 		<position-app.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</position-app.version>
 		<position-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</position-ejb.version>
 		<position-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</position-ejb-interface.version>
 		<quandl-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</quandl-interface.version>
 		<security-business.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-business.version>
 		<security-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-ejb.version>
 		<security-ejb-client.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-ejb-client.version>
 		<security-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-ejb-interface.version>
 		<security-gui.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-gui.version>
 		<security-model.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-model.version>
 		<security-persistence.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</security-persistence.version>
 		<transfer-app.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</transfer-app.version>
 		<transfer-ejb.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</transfer-ejb.version>
 		<transfer-ejb-interface.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</transfer-ejb-interface.version>
 		<web.version>
-			2.2.1
+			3.0.0-SNAPSHOT
 		</web.version>
 	</properties>
 	<modules>
