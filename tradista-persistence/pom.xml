@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
-			<version>10.16.1.1</version>
+			<version>10.17.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -24,15 +24,4 @@
 			<version>${core-common.version}</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
-				<configuration>
-					<release>17</release>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
