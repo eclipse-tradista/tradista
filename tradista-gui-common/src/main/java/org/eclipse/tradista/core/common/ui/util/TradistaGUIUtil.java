@@ -1,9 +1,11 @@
 package org.eclipse.tradista.core.common.ui.util;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -29,6 +31,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.MathProperties;
+import org.eclipse.tradista.core.common.util.TradistaProperties;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -1042,4 +1045,39 @@ public final class TradistaGUIUtil {
 		CompletableFuture.supplyAsync(TradistaUtil::getAllErrorTypes);
 	}
 
+	public static void browse(String page) {
+		new Thread(() -> {
+			try {
+				URI uri = URI.create(
+						TradistaProperties.getTradistaAppProtocol() + "://" + TradistaProperties.getTradistaAppServer()
+								+ ":" + TradistaProperties.getTradistaAppPort() + "/web/pages/" + page + ".xhtml");
+
+				if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+					Desktop.getDesktop().browse(uri);
+					return;
+				}
+
+				String os = System.getProperty("os.name").toLowerCase();
+				String[] command;
+
+				if (os.contains("win")) {
+					command = new String[] { "rundll32", "url.dll,FileProtocolHandler", uri.toString() };
+				} else if (os.contains("mac")) {
+					command = new String[] { "open", uri.toString() };
+				} else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+					command = new String[] { "xdg-open", uri.toString() };
+				} else {
+					// Unsupported OS: cannot open URL
+					return;
+				}
+
+				Process process = Runtime.getRuntime().exec(command);
+				process.getInputStream().close();
+				process.getErrorStream().close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}).start();
+	}
 }

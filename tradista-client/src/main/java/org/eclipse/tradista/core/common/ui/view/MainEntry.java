@@ -448,17 +448,6 @@ public class MainEntry extends Application {
 		}
 	}
 
-	private void browseUrl(String page) {
-		try {
-			Desktop.getDesktop()
-					.browse(URI.create(TradistaProperties.getTradistaAppProtocol() + "://"
-							+ TradistaProperties.getTradistaAppServer() + ":" + TradistaProperties.getTradistaAppPort()
-							+ "/web/pages/" + page + ".xhtml"));
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
-
 	private void setupMenuItem(MenuItem menuItem, String title, String templateName, Rectangle2D primScreenBounds) {
 		menuItem.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent t) {
@@ -467,9 +456,9 @@ public class MainEntry extends Application {
 				if (templateName.equals("GCRepoTrade") || templateName.equals("SpecificRepoTrade")
 						|| templateName.equals("ProcessingOrgDefaults")
 						|| templateName.equals("AllocationConfiguration")) {
-					browseUrl(templateName.toLowerCase());
+					TradistaGUIUtil.browse(templateName.toLowerCase());
 				} else if (templateName.equals("GCRepoProduct")) {
-					browseUrl("gcbasket");
+					TradistaGUIUtil.browse("gcbasket");
 				} else {
 					Pane pane = null;
 					try {
