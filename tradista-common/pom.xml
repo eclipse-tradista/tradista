@@ -11,17 +11,6 @@
 	<groupId>org.eclipse.tradista.core</groupId>
 	<artifactId>core-common</artifactId>
 	<version>${core-common.version}</version>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
-				<configuration>
-					<release>17</release>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -86,12 +75,12 @@
 		<dependency>
 			<groupId>org.wildfly.security</groupId>
 			<artifactId>wildfly-elytron</artifactId>
-			<version>2.0.0.Final</version>
+			<version>2.6.4.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss</groupId>
 			<artifactId>jboss-ejb-client</artifactId>
-			<version>5.0.1.Final</version>
+			<version>5.0.8.Final</version>
 		</dependency>
 	</dependencies>
 </project>
