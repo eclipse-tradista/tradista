@@ -13,6 +13,9 @@ import quickfix.ConfigError;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.field.NoSides;
+import quickfix.field.NoStipulations;
+import quickfix.field.StipulationType;
+import quickfix.field.StipulationValue;
 import quickfix.fix44.TradeCaptureReport;
 
 /********************************************************************************
@@ -54,21 +57,18 @@ public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageMan
 
 	private void checkStipulationTypeAndValue(TradeCaptureReport tcReport, StringBuilder errMsg,
 			final String propertyName, Pattern pattern) {
-		final int NO_STIPULATIONS = 232;
-		final int STIPULATION_TYPE = 233;
-		final int STIPULATION_VALUE = 234;
-		List<Group> stipulationGroups = tcReport.getGroups(NO_STIPULATIONS);
+		List<Group> stipulationGroups = tcReport.getGroups(NoStipulations.FIELD);
 		if (CollectionUtils.isEmpty(stipulationGroups)) {
 			errMsg.append(String.format("There should be at least one NoStipulations group.%n"));
 			return;
 		}
-		for (Group stipulationGroup : tcReport.getGroups(NO_STIPULATIONS)) {
-			if (!stipulationGroup.isSetField(STIPULATION_TYPE)) {
+		for (Group stipulationGroup : tcReport.getGroups(NoStipulations.FIELD)) {
+			if (!stipulationGroup.isSetField(StipulationType.FIELD)) {
 				errMsg.append(String.format("StipulationType field is mandatory.%n"));
 			} else {
 				try {
 					String code = FixImporter.getSessionSettings().getString(propertyName);
-					if (!stipulationGroup.getString(STIPULATION_TYPE).equals(code)) {
+					if (!stipulationGroup.getString(StipulationType.FIELD).equals(code)) {
 						errMsg.append(String.format("StipulationType field should be %s.%n", code));
 					}
 				} catch (ConfigError ce) {
@@ -78,7 +78,7 @@ public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageMan
 					// Not expected here.
 				}
 			}
-			TradistaFixUtil.checkFixField(stipulationGroup, STIPULATION_VALUE, "StipulationValue", pattern, true,
+			TradistaFixUtil.checkFixField(stipulationGroup, StipulationValue.FIELD, "StipulationValue", pattern, true,
 					errMsg);
 		}
 	}

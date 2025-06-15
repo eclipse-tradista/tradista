@@ -3,6 +3,7 @@ package org.eclipse.tradista.core.importer.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -33,7 +34,11 @@ public interface TradeImporter<X> {
 		checkPrice(externalMessage, errMsg);
 		checkCurrency(externalMessage, errMsg);
 		checkCounterparty(externalMessage, errMsg);
+		checkBook(externalMessage, errMsg);
+		checkBuySell(externalMessage, errMsg);
 	}
+
+	void checkBuySell(X externalMessage, StringBuilder errMsg);
 
 	void checkTradeDate(X externalMessage, StringBuilder errMsg);
 
@@ -49,6 +54,8 @@ public interface TradeImporter<X> {
 
 	void checkCounterparty(X externalMessage, StringBuilder errMsg);
 
+	void checkBook(X externalMessage, StringBuilder errMsg);
+
 	LocalDate getTradeDate(X externalMessage);
 
 	LocalDate getSettlementDate(X externalMessage);
@@ -58,5 +65,9 @@ public interface TradeImporter<X> {
 	Currency getCurrency(X externalMessage) throws TradistaBusinessException;
 
 	LegalEntity getCounterparty(X externalMessage) throws TradistaBusinessException;
+
+	Book getBook(X externalMessage) throws TradistaBusinessException;
+
+	boolean getBuySell(X externalMessage) throws TradistaBusinessException;
 
 }

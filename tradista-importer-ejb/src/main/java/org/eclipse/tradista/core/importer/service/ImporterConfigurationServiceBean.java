@@ -52,7 +52,7 @@ public class ImporterConfigurationServiceBean implements ImporterConfigurationSe
 	}
 
 	@Override
-	public Set<Importer> getImporters() {
+	public Set<Importer<?>> getImporters() {
 		return ((ImporterConfiguration) applicationContext.getBean(IMPORTER_CONFIGURATION_BEAN)).getImporters();
 	}
 

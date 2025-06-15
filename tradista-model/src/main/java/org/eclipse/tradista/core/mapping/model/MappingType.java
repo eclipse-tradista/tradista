@@ -1,8 +1,4 @@
-package org.eclipse.tradista.core.mapping.service;
-
-import org.eclipse.tradista.core.mapping.model.MappingType;
-
-import jakarta.ejb.Remote;
+package org.eclipse.tradista.core.mapping.model;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,11 +16,7 @@ import jakarta.ejb.Remote;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Remote
-public interface MappingService {
+public enum MappingType {
 
-	String getMappingValue(String importerName, MappingType mappingType, String value);
-
-	String getOriginalValue(String importerName, MappingType mappingType, String value);
-
+	LegalEntity, Book;
 }

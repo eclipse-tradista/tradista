@@ -1,5 +1,9 @@
 package org.eclipse.tradista.core.mapping.service;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.mapping.model.MappingType;
+
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
  * 
@@ -17,5 +21,33 @@ package org.eclipse.tradista.core.mapping.service;
  ********************************************************************************/
 
 public class MappingBusinessDelegate {
+
+	private MappingService mappingService;
+
+	public MappingBusinessDelegate() {
+		mappingService = TradistaServiceLocator.getInstance().getMappingService();
+	}
+
+	public String getMappingValue(String importerName, MappingType mappingType, String value) {
+		StringBuilder errMsg = new StringBuilder();
+		if (mappingType == null) {
+			errMsg.append(String.format("Mapping type is mandatory.%n"));
+		}
+		if (StringUtils.isEmpty(value)) {
+			errMsg.append("Value is mandatory.");
+		}
+		return mappingService.getMappingValue(importerName, mappingType, value);
+	}
+
+	public String getOriginalValue(String importerName, MappingType mappingType, String value) {
+		StringBuilder errMsg = new StringBuilder();
+		if (mappingType == null) {
+			errMsg.append(String.format("Mapping type is mandatory.%n"));
+		}
+		if (StringUtils.isEmpty(value)) {
+			errMsg.append("Value is mandatory.");
+		}
+		return mappingService.getOriginalValue(importerName, mappingType, value);
+	}
 
 }

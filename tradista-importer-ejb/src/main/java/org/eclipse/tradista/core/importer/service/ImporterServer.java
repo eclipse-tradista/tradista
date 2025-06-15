@@ -41,7 +41,7 @@ public class ImporterServer {
 
 	@PostConstruct
 	public void init() {
-		Set<Importer> importers = importerConfigurationService.getImporters();
+		Set<Importer<?>> importers = importerConfigurationService.getImporters();
 
 		if (importers == null || importers.isEmpty()) {
 			// No importer, we add a log and exit this method.
@@ -49,7 +49,7 @@ public class ImporterServer {
 			return;
 		}
 		ExecutorService executor = Executors.newScheduledThreadPool(importers.size());
-		for (Importer importer : importers) {
+		for (Importer<?> importer : importers) {
 			executor.submit(importer);
 		}
 	}

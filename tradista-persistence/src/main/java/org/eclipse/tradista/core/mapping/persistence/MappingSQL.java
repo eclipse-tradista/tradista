@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.mapping.model.MappingType;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -26,15 +28,23 @@ import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 
 public class MappingSQL {
 
-	public static String getMappingValue(String interfaceName, String mappingType, String value) {
+	public static String getMappingValue(String importerName, MappingType mappingType, String value) {
 		String mappedValue = null;
+		String importerNameSQL = "IMPORTER_NAME = ?";
+		if (StringUtils.isEmpty(importerName)) {
+			importerNameSQL = "IMPORTER_NAME IS NULL";
+		}
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetMappedValueByInterfaceNameMappingTypeAndValue = con.prepareStatement(
-						"SELECT * FROM MAPPING WHERE INTERFACE_NAME = ?, MAPPING_TYPE = ? AND VALUE = ? ")) {
-			stmtGetMappedValueByInterfaceNameMappingTypeAndValue.setString(1, interfaceName);
-			stmtGetMappedValueByInterfaceNameMappingTypeAndValue.setString(2, mappingType);
-			stmtGetMappedValueByInterfaceNameMappingTypeAndValue.setString(3, value);
-			try (ResultSet results = stmtGetMappedValueByInterfaceNameMappingTypeAndValue.executeQuery()) {
+				PreparedStatement stmtGetMappedValueByImporterNameMappingTypeAndValue = con.prepareStatement(
+						"SELECT * FROM MAPPING WHERE " + importerNameSQL + ", MAPPING_TYPE = ? AND VALUE = ? ")) {
+			int i = 1;
+			if (!StringUtils.isEmpty(importerName)) {
+				stmtGetMappedValueByImporterNameMappingTypeAndValue.setString(i, importerName);
+				i++;
+			}
+			stmtGetMappedValueByImporterNameMappingTypeAndValue.setString(i++, mappingType.name());
+			stmtGetMappedValueByImporterNameMappingTypeAndValue.setString(i, value);
+			try (ResultSet results = stmtGetMappedValueByImporterNameMappingTypeAndValue.executeQuery()) {
 				while (results.next()) {
 					mappedValue = results.getString("mapped_value");
 				}
@@ -44,6 +54,34 @@ public class MappingSQL {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return mappedValue;
+	}
+	
+	public static String getOriginalValue(String importerName, MappingType mappingType, String mappedValue) {
+		String value = null;
+		String importerNameSQL = "IMPORTER_NAME = ?";
+		if (StringUtils.isEmpty(importerName)) {
+			importerNameSQL = "IMPORTER_NAME IS NULL";
+		}
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetMappedValueByImporterNameMappingTypeAndMappedValue = con.prepareStatement(
+						"SELECT * FROM MAPPING WHERE " + importerNameSQL + ", MAPPING_TYPE = ? AND MAPPED_VALUE = ? ")) {
+			int i = 1;
+			if (!StringUtils.isEmpty(importerName)) {
+				stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.setString(i, importerName);
+				i++;
+			}
+			stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.setString(i++, mappingType.name());
+			stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.setString(i, mappedValue);
+			try (ResultSet results = stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.executeQuery()) {
+				while (results.next()) {
+					value = results.getString("value");
+				}
+			}
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		return value;
 	}
 
 }

@@ -6,11 +6,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.mapping.model.MappingType;
+import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 import quickfix.FieldMap;
 import quickfix.FieldNotFound;
@@ -38,10 +43,27 @@ public final class TradistaFixUtil {
 	public static final Pattern NUMBER_OF_DAYS_REGEX = Pattern.compile("^\\d+D$");
 	public static final Pattern AMOUNT_REGEX = Pattern.compile("^-?\\d+(\\.\\d+)?$");
 
+	public static final int CONTRA_FIRM_PARTY_ROLE = 17;
+
+	public static final int EXECUTING_FIRM_PARTY_ROLE = 1;
+
+	public static final char BUY_SIDE = '1';
+
+	public static final char SELL_SIDE = '2';
+
 	private static CurrencyBusinessDelegate currencyBusinessDelegate;
+
+	private static MappingBusinessDelegate mappingBusinessDelegate;
+
+	private static LegalEntityBusinessDelegate legalEntityBusinessDelegate;
+
+	private static BookBusinessDelegate bookBusinessDelegate;
 
 	private TradistaFixUtil() {
 		currencyBusinessDelegate = new CurrencyBusinessDelegate();
+		mappingBusinessDelegate = new MappingBusinessDelegate();
+		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
+		bookBusinessDelegate = new BookBusinessDelegate();
 	}
 
 	public static void checkFixDate(FieldMap fieldMap, int tag, String fieldName, boolean isMandatory,
@@ -128,8 +150,32 @@ public final class TradistaFixUtil {
 		return currency;
 	}
 
-	public static LegalEntity parseFixLegalEntity(FieldMap fieldMap, int field) {
-		// TODO To complete
-		return null;
+	public static LegalEntity parseFixLegalEntity(String importerName, FieldMap fieldMap, int tag) {
+		String counterpartyId = null;
+		String mapppedCounterpartyId;
+		LegalEntity legalEntity;
+		try {
+			counterpartyId = fieldMap.getString(tag);
+			mapppedCounterpartyId = mappingBusinessDelegate.getMappingValue(importerName, MappingType.LegalEntity,
+					counterpartyId);
+			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(mapppedCounterpartyId);
+		} catch (FieldNotFound fnfe) {
+			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+		}
+		return legalEntity;
+	}
+
+	public static Book parseFixBook(String importerName, FieldMap fieldMap, int tag) throws TradistaBusinessException {
+		String account = null;
+		String mapppedBookName;
+		Book book;
+		try {
+			account = fieldMap.getString(tag);
+			mapppedBookName = mappingBusinessDelegate.getMappingValue(importerName, MappingType.Book, account);
+			book = bookBusinessDelegate.getBookByName(mapppedBookName);
+		} catch (FieldNotFound fnfe) {
+			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+		}
+		return book;
 	}
 }

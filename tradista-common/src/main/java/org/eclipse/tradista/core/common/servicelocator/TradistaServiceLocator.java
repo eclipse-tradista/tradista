@@ -28,6 +28,7 @@ import org.eclipse.tradista.core.error.service.ErrorService;
 import org.eclipse.tradista.core.exchange.service.ExchangeService;
 import org.eclipse.tradista.core.index.service.IndexService;
 import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
+import org.eclipse.tradista.core.mapping.service.MappingService;
 import org.eclipse.tradista.core.marketdata.service.CurveService;
 import org.eclipse.tradista.core.marketdata.service.FXCurveService;
 import org.eclipse.tradista.core.marketdata.service.FeedService;
@@ -191,6 +192,8 @@ public class TradistaServiceLocator {
 	private static final String MESSAGE_EJB = "message-ejb";
 
 	private static final String MESSAGE_SERVICE_PACKAGE = "org.eclipse.tradista.core.message.service";
+
+	private static final String MAPPING_SERVICE_PACKAGE = "org.eclipse.tradista.core.mapping.service";
 
 	private static final String POSITION_APP = "position-app";
 
@@ -697,6 +700,10 @@ public class TradistaServiceLocator {
 
 	public ImportErrorService getImportErrorService() {
 		return (ImportErrorService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "ImportErrorService");
+	}
+
+	public MappingService getMappingService() {
+		return (MappingService) getService(APP, CORE_EJB, MAPPING_SERVICE_PACKAGE, "MappingService");
 	}
 
 }

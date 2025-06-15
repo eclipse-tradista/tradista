@@ -86,12 +86,6 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 		}
 	}
 
-	@Override
-	protected void saveObject(TradistaObject tradistaObject) throws TradistaBusinessException {
-		// TODO Auto-generated method stub
-
-	}
-
 	public static SessionSettings getSessionSettings() {
 		return settings;
 	}

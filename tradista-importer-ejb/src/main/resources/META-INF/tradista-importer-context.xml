@@ -15,12 +15,20 @@
 	</util:set>
 	<!-- importers -->
 	<util:set id="importers">
-		<!-- add references to importer beans like this : <ref
-		bean="myImporter"/> -->
+		<!-- add references to importer beans like this : <ref bean="myImporter"/> -->
 	</util:set>
 	<!-- importer beans declarations -->
 	<bean id="fixImporter"
 		class="org.eclipse.tradista.fix.importer.model.FixImporter">
-		<property name="configFileName" value="fixImporter.properties" />
+		<property name="configFileName"
+			value="fixImporter.properties" />
+		<property name="name" value="MyFixTest" />
+		<property name="processingOrg" ref="po" />
 	</bean>
+	<bean id="po" factory-bean="legalEntityBusinessDelegate"
+		factory-method="getLegalEntityByShortName">
+		<constructor-arg value="OAC" />
+	</bean>
+	<bean id="legalEntityBusinessDelegate"
+		class="org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate" />
 </beans>

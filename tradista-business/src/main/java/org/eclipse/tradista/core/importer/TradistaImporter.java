@@ -9,6 +9,9 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.importer.model.IncomingMessageManager;
+import org.eclipse.tradista.core.importer.util.TradistaImporterUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
@@ -47,6 +50,8 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 
 	private String name;
 
+	private LegalEntity processingOrg;;
+
 	protected abstract void start();
 
 	protected abstract String getProductType(X externalMessage);
@@ -61,7 +66,9 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
 			Optional<? extends TradistaObject> object = processMessage(externalMessage);
 			if (object.isPresent()) {
-				saveObject(object.get());
+				IncomingMessageManager<X, TradistaObject> incomingMessageManager = getIncomingMessageManager(
+						externalMessage);
+				incomingMessageManager.saveObject(object.get());
 				msg.setObjectId(object.get().getId());
 			}
 			// Mappings are OK, we validate the message.
@@ -95,6 +102,29 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		return message;
 	}
 
+	@SuppressWarnings("unchecked")
+	public IncomingMessageManager<X, TradistaObject> getIncomingMessageManager(X externalMessage,
+			StringBuilder errMsg) {
+		// 1. Get product type from message
+		String productType = getProductType(externalMessage);
+		// 2. Get the incoming message manager for this product type
+		if (productType != null) {
+			try {
+				return (IncomingMessageManager<X, TradistaObject>) TradistaImporterUtil
+						.getIncomingMessageManager(productType, getType());
+			} catch (TradistaBusinessException tbe) {
+				errMsg.append(String.format(
+						"Incoming Message Manager could not be found for product type %s and message type %s",
+						productType, getType()));
+			}
+		}
+		return null;
+	}
+
+	public IncomingMessageManager<X, TradistaObject> getIncomingMessageManager(X externalMessage) {
+		return getIncomingMessageManager(externalMessage, new StringBuilder());
+	}
+
 	/**
 	 * Checks the external message, ensuring it has a valid structure.
 	 * 
@@ -114,14 +144,20 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	protected abstract Optional<? extends TradistaObject> processMessage(X externalMessage)
 			throws TradistaBusinessException;
 
-	protected abstract void saveObject(TradistaObject tradistaObject) throws TradistaBusinessException;
-
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public LegalEntity getProcessingOrg() {
+		return processingOrg;
+	}
+
+	public void setProcessingOrg(LegalEntity processingOrg) {
+		this.processingOrg = processingOrg;
 	}
 
 	@Override

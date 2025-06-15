@@ -22,6 +22,8 @@ public interface IncomingMessageManager<X, Y extends TradistaObject> {
 
 	void checkMessage(X externalMessage, StringBuilder errMsg);
 
+	void saveObject(Y tradistaObject);
+
 	Y createObject(X externalMessage);
 
 }

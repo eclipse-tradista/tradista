@@ -24,7 +24,7 @@ public class ImporterConfiguration {
 
 	private Set<String> modules;
 
-	private Set<Importer> importers;
+	private Set<Importer<?>> importers;
 
 	public void setModules(Set<String> modules) {
 		this.modules = modules;
@@ -34,11 +34,11 @@ public class ImporterConfiguration {
 		return modules;
 	}
 
-	public Set<Importer> getImporters() {
+	public Set<Importer<?>> getImporters() {
 		return importers;
 	}
 
-	public void setImporters(Set<Importer> importers) {
+	public void setImporters(Set<Importer<?>> importers) {
 		this.importers = importers;
 	}
 }

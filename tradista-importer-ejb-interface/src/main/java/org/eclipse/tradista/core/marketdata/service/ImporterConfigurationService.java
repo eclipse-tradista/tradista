@@ -27,6 +27,6 @@ public interface ImporterConfigurationService {
 
 	Set<String> getModules();
 
-	Set<Importer> getImporters();
+	Set<Importer<?>> getImporters();
 
 }
