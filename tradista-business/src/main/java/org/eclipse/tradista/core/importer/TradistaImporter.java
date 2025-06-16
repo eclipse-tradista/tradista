@@ -68,7 +68,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 			if (object.isPresent()) {
 				IncomingMessageManager<X, TradistaObject> incomingMessageManager = getIncomingMessageManager(
 						externalMessage);
-				incomingMessageManager.saveObject(object.get());
+				object.get().setId(incomingMessageManager.saveObject(object.get()));
 				msg.setObjectId(object.get().getId());
 			}
 			// Mappings are OK, we validate the message.

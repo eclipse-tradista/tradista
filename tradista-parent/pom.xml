@@ -188,31 +188,31 @@
 			3.0.0
 		</web.version>
 		<importer-app.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</importer-app.version>
 		<importer-ejb.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</importer-ejb.version>
 		<importer-ejb-interface.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</importer-ejb-interface.version>
 		<fix-common.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</fix-common.version>
 		<fix-importer.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</fix-importer.version>
 		<security-fix-importer.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</security-fix-importer.version>
 		<message-app.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</message-app.version>
 		<message-ejb.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</message-ejb.version>
 		<message-ejb-interface.version>
-			3.0.0-SNAPSHOT
+			3.0.0
 		</message-ejb-interface.version>
 	</properties>
 	<modules>

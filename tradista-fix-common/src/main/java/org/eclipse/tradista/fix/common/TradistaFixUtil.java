@@ -51,6 +51,8 @@ public final class TradistaFixUtil {
 
 	public static final char SELL_SIDE = '2';
 
+	private static final String FIELD_CANNOT_BE_PARSED_AS_EMPTY = "Field %d cannot be parsed as it is empty.";
+
 	private static CurrencyBusinessDelegate currencyBusinessDelegate;
 
 	private static MappingBusinessDelegate mappingBusinessDelegate;
@@ -125,7 +127,7 @@ public final class TradistaFixUtil {
 		try {
 			date = LocalDate.parse(fieldMap.getString(tag), DateTimeFormatter.ofPattern("yyyyMMdd"));
 		} catch (FieldNotFound fnfe) {
-			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		}
 		return date;
 	}
@@ -135,7 +137,7 @@ public final class TradistaFixUtil {
 		try {
 			amount = new BigDecimal(fieldMap.getString(tag));
 		} catch (FieldNotFound fnfe) {
-			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		}
 		return amount;
 	}
@@ -145,7 +147,7 @@ public final class TradistaFixUtil {
 		try {
 			currency = currencyBusinessDelegate.getCurrencyByIsoCode(fieldMap.getString(tag));
 		} catch (FieldNotFound fnfe) {
-			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		}
 		return currency;
 	}
@@ -160,7 +162,7 @@ public final class TradistaFixUtil {
 					counterpartyId);
 			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(mapppedCounterpartyId);
 		} catch (FieldNotFound fnfe) {
-			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		}
 		return legalEntity;
 	}
@@ -174,7 +176,7 @@ public final class TradistaFixUtil {
 			mapppedBookName = mappingBusinessDelegate.getMappingValue(importerName, MappingType.Book, account);
 			book = bookBusinessDelegate.getBookByName(mapppedBookName);
 		} catch (FieldNotFound fnfe) {
-			throw new TradistaTechnicalException(String.format("Field %d cannot be parsed as it is empty.", tag));
+			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		}
 		return book;
 	}

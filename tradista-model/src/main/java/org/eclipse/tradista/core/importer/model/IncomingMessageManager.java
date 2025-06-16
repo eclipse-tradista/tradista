@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.importer.model;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
@@ -22,7 +23,7 @@ public interface IncomingMessageManager<X, Y extends TradistaObject> {
 
 	void checkMessage(X externalMessage, StringBuilder errMsg);
 
-	void saveObject(Y tradistaObject);
+	long saveObject(Y tradistaObject) throws TradistaBusinessException;
 
 	Y createObject(X externalMessage);
 

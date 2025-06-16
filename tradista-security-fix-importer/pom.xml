@@ -28,5 +28,10 @@
 			<artifactId>fix-importer</artifactId>
 			<version>${fix-importer.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.security</groupId>
+			<artifactId>security-ejb-client</artifactId>
+			<version>${security-ejb-client.version}</version>
+		</dependency>
 	</dependencies>
 </project>

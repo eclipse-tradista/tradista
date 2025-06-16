@@ -331,7 +331,6 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 		errMsg.append(String.format("No direction was found (no side set on PO side).%n"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected Optional<? extends TradistaObject> processMessage(TradeCaptureReport tcReport)
 			throws TradistaBusinessException {

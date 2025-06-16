@@ -3,10 +3,12 @@ package org.eclipse.tradista.gcrepo.fix;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.fix.common.TradistaFixUtil;
 import org.eclipse.tradista.fix.importer.model.FixImporter;
 import org.eclipse.tradista.security.gcrepo.importer.model.GCRepoIncomingMessageManager;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
 import org.springframework.util.CollectionUtils;
 
 import quickfix.ConfigError;
@@ -35,6 +37,12 @@ import quickfix.fix44.TradeCaptureReport;
  ********************************************************************************/
 
 public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageManager<TradeCaptureReport> {
+
+	private GCRepoTradeBusinessDelegate gcRepoTradeBusinessDelegate;
+
+	public GCRepoFixIncomingMessageManager() {
+		gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
+	}
 
 	@Override
 	public void checkBasket(TradeCaptureReport tcReport, StringBuilder errMsg) {
@@ -118,6 +126,11 @@ public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageMan
 	@Override
 	public GCRepoTrade createObject(TradeCaptureReport externalMessage) {
 		return new GCRepoTrade();
+	}
+
+	@Override
+	public long saveObject(GCRepoTrade trade) throws TradistaBusinessException {
+		return gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, null);
 	}
 
 }
