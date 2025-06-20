@@ -13,9 +13,11 @@ import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.mapping.model.Mapping;
+import org.eclipse.tradista.core.mapping.model.MappingType;
+import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
-import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
 import org.primefaces.model.DualListModel;
 
 import jakarta.annotation.PostConstruct;
@@ -46,27 +48,15 @@ public class ImporterMappingController implements Serializable {
 
 	private static final long serialVersionUID = -5732691208687962353L;
 
-	private AllocationConfiguration allocationConfiguration;
+	private Set<Mapping> importerMappings;
 
-	private String loadingCriterion;
+	private String importerNameloadingCriterion;
+	
+	private MappingType mappingTypeloadingCriterion;
 
-	private String idOrName;
-
-	private String copyAllocationConfigurationName;
-
-	private String[] allLoadingCriteria = { "Id", "Name" };
-
-	private DualListModel<Book> books;
-
-	private AllocationConfigurationBusinessDelegate allocationConfigurationBusinessDelegate;
-
-	private BookBusinessDelegate bookBusinessDelegate;
-
+	private MappingBusinessDelegate mappingBusinessDelegate;
+	
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
-
-	private List<Book> availableBooks;
-
-	private String allocationConfigurationName;
 
 	private LegalEntity processingOrg;
 
@@ -76,13 +66,7 @@ public class ImporterMappingController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		allocationConfigurationBusinessDelegate = new AllocationConfigurationBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		availableBooks = new ArrayList<>();
-		Set<Book> books = bookBusinessDelegate.getAllBooks();
-		if (books != null) {
-			availableBooks.addAll(books);
-		}
+		mappingBusinessDelegate = new MappingBusinessDelegate();
 		if (ClientUtil.currentUserIsAdmin()) {
 			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
@@ -95,63 +79,7 @@ public class ImporterMappingController implements Serializable {
 	}
 
 	private void initModel() {
-		books = new DualListModel<>(availableBooks, new ArrayList<>());
-	}
-
-	public String getLoadingCriterion() {
-		return loadingCriterion;
-	}
-
-	public void setLoadingCriterion(String loadingCriterion) {
-		this.loadingCriterion = loadingCriterion;
-	}
-
-	public AllocationConfiguration getAllocationConfiguration() {
-		return allocationConfiguration;
-	}
-
-	public void setAllocationConfiguration(AllocationConfiguration allocationConfiguration) {
-		this.allocationConfiguration = allocationConfiguration;
-	}
-
-	public String[] getAllLoadingCriteria() {
-		return allLoadingCriteria;
-	}
-
-	public void setAllLoadingCriteria(String[] allLoadingCriteria) {
-		this.allLoadingCriteria = allLoadingCriteria;
-	}
-
-	public DualListModel<Book> getBooks() {
-		return books;
-	}
-
-	public void setBooks(DualListModel<Book> books) {
-		this.books = books;
-	}
-
-	public String getIdOrName() {
-		return idOrName;
-	}
-
-	public void setIdOrName(String idOrName) {
-		this.idOrName = idOrName;
-	}
-
-	public String getCopyAllocationConfigurationName() {
-		return copyAllocationConfigurationName;
-	}
-
-	public void setCopyAllocationConfigurationName(String copyAllocationConfigurationName) {
-		this.copyAllocationConfigurationName = copyAllocationConfigurationName;
-	}
-
-	public String getAllocationConfigurationName() {
-		return allocationConfigurationName;
-	}
-
-	public void setAllocationConfigurationName(String allocationConfigurationName) {
-		this.allocationConfigurationName = allocationConfigurationName;
+		//books = new DualListModel<>(availableBooks, new ArrayList<>());
 	}
 
 	public LegalEntity getProcessingOrg() {
@@ -180,18 +108,14 @@ public class ImporterMappingController implements Serializable {
 
 	public void save() {
 		try {
-			Set<Book> bookSet = null;
-			if (books.getTarget() != null && !books.getTarget().isEmpty()) {
-				bookSet = new HashSet<>(books.getTarget());
-			}
-			if (allocationConfiguration == null) {
+			if (importerMappings == null) {
 				LegalEntity po;
 				if (ClientUtil.currentUserIsAdmin()) {
 					po = processingOrg;
 				} else {
 					po = ClientUtil.getCurrentUser().getProcessingOrg();
 				}
-				allocationConfiguration = new AllocationConfiguration(allocationConfigurationName, po);
+				importerMappings = new AllocationConfiguration(allocationConfigurationName, po);
 			}
 			allocationConfiguration.setBooks(bookSet);
 			allocationConfiguration.setId(
@@ -201,42 +125,6 @@ public class ImporterMappingController implements Serializable {
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
-		}
-	}
-
-	public void copy() {
-		if (copyAllocationConfigurationName.equals(allocationConfiguration.getName())) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-					"The name of the copied Allocation Configuration must be different than the original one."));
-			return;
-		}
-		try {
-			LegalEntity po;
-			if (ClientUtil.currentUserIsAdmin()) {
-				po = copyProcessingOrg;
-			} else {
-				po = ClientUtil.getCurrentUser().getProcessingOrg();
-			}
-			AllocationConfiguration copyAllocationConfiguration = new AllocationConfiguration(
-					copyAllocationConfigurationName, po);
-			Set<Book> bookSet = null;
-			if (books.getTarget() != null && !books.getTarget().isEmpty()) {
-				bookSet = new HashSet<>(books.getTarget());
-			}
-			copyAllocationConfiguration.setBooks(bookSet);
-			copyAllocationConfiguration.setId(
-					allocationConfigurationBusinessDelegate.saveAllocationConfiguration(copyAllocationConfiguration));
-			allocationConfiguration = copyAllocationConfiguration;
-			allocationConfigurationName = copyAllocationConfigurationName;
-			processingOrg = copyProcessingOrg;
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-					"Allocation Configuration " + allocationConfiguration.getId() + " successfully created"));
-		} catch (TradistaBusinessException tbe) {
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
-		} finally {
-			copyAllocationConfigurationName = null;
-			copyProcessingOrg = null;
 		}
 	}
 
