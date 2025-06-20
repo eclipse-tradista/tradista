@@ -307,7 +307,7 @@
 					<generateApplicationXml>true</generateApplicationXml>
 					<version>8</version>
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
-					<applicationName>position-app</applicationName>
+					<applicationName>${project.artifactId}</applicationName>
 					<outputFileNameMapping>
 						@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
 				</configuration>
