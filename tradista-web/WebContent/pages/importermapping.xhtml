@@ -1,0 +1,152 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Allocation Configuration</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Allocation Configuration</ui:define>
+	<ui:define name="content">
+		<h:form id="importerMappingForm">
+			<p:panel styleClass="tradista-central-component"
+				header="Importer Mapping">
+				<p:panelGrid id="importerMapping" header="Importer Mapping"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
+					<p:messages showDetail="true" closable="true" id="msg">
+						<p:autoUpdate />
+					</p:messages>
+					<p:row>
+						<p:column>
+							<p:outputLabel styleClass="tradista-menu-item"
+								value="Processing Org :"
+								rendered="#{empty userManager.currentUserProcessingOrg}" />
+						</p:column>
+						<p:column>
+							<p:selectOneMenu
+								value="#{importerMappingController.processingOrg}"
+								styleClass="tradista-menu-item"
+								rendered="#{empty userManager.currentUserProcessingOrg}"
+								converter="legalEntityConverter"
+								disabled="#{importerMappingController.importerMapping ne null}">
+								<f:selectItems
+									value="#{importerMappingControllerController.allProcessingOrgs}" />
+							</p:selectOneMenu>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:dataTable id="importerMaapingTable" var="mapping"
+								value="#{importerMappingController.importerMappings}"
+								editable="true" editMode="cell" widgetVar="">
+
+								<p:ajax event="cellEdit"
+									listener="#{importerMappingController.onCellEdit}"
+									update=":form:msgs" />
+
+								<p:column headerText="Original Value">
+									<p:cellEditor>
+										<f:facet name="output">
+											<h:outputText value="#{mapping.originalValue}" />
+										</f:facet>
+										<f:facet name="input">
+											<p:inputText id="originalValueInput"
+												value="#{mapping.originalValue}" style="width:100%" />
+										</f:facet>
+									</p:cellEditor>
+								</p:column>
+
+								<p:column headerText="Mapped Value">
+									<p:cellEditor>
+										<f:facet name="output">
+											<h:outputText value="#{mapping.mappedValue}" />
+										</f:facet>
+										<f:facet name="input">
+											<p:inputText value="#{mapping.mappedValue}"
+												style="width:100%" label="Mapped Value" />
+										</f:facet>
+									</p:cellEditor>
+								</p:column>
+						</p:column>
+					</p:row>
+					<f:facet name="footer">
+						<p:row>
+							<p:column>
+								<p:commandButton value="Save" styleClass="rounded-button"
+									update="@form">
+									<f:actionListener
+										binding="#{allocationConfigurationController.save()}" />
+								</p:commandButton>
+								<p:commandButton value="Copy" type="button"
+									styleClass="rounded-button" update="@form"
+									onclick="PF('copy').show()"
+									rendered="#{allocationConfigurationController.allocationConfiguration ne null}" />
+								<p:commandButton value="New" styleClass="rounded-button"
+									action="#{allocationConfigurationController.clear()}"
+									update="@form" />
+								<p:outputLabel value="Load by Allocation Configuration"
+									styleClass="tradista-menu-item" />
+								<p:selectOneMenu
+									value="#{allocationConfigurationController.loadingCriterion}"
+									styleClass="tradista-menu-item">
+									<f:selectItems
+										value="#{allocationConfigurationController.allLoadingCriteria}" />
+								</p:selectOneMenu>
+								<p:inputText
+									value="#{allocationConfigurationController.idOrName}"
+									styleClass="tradista-menu-item" />
+								<p:commandButton value="Load" styleClass="rounded-button"
+									action="#{allocationConfigurationController.load()}"
+									update="@form" />
+							</p:column>
+						</p:row>
+					</f:facet>
+				</p:panelGrid>
+			</p:panel>
+		</h:form>
+		<h:form>
+			<p:dialog header="Copy an Allocation Configuration" widgetVar="copy"
+				showEffect="fade" modal="true">
+				<p:panelGrid id="allocationConfiguration"
+					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
+					<p:row>
+						<p:column>
+							<p:outputLabel
+								value="Please choose an Allocation Configuration name :" />
+						</p:column>
+						<p:column>
+							<p:inputText
+								value="#{allocationConfigurationController.copyAllocationConfigurationName}" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:outputLabel styleClass="tradista-menu-item"
+								value="Please choose a Processing Org :"
+								rendered="#{empty userManager.currentUserProcessingOrg}" />
+						</p:column>
+						<p:column>
+							<p:selectOneMenu
+								value="#{allocationConfigurationController.copyProcessingOrg}"
+								styleClass="tradista-menu-item"
+								rendered="#{empty userManager.currentUserProcessingOrg}"
+								converter="legalEntityConverter">
+								<f:selectItems
+									value="#{allocationConfigurationController.allProcessingOrgs}" />
+							</p:selectOneMenu>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+				<f:facet name="footer">
+					<p:commandButton value="Ok" styleClass="rounded-button"
+						onclick="PF('copy').hide()"
+						update=":allocationConfigurationForm:allocationConfiguration">
+						<f:actionListener
+							binding="#{allocationConfigurationController.copy()}" />
+					</p:commandButton>
+					<p:commandButton value="Cancel" styleClass="rounded-button"
+						onclick="PF('copy').hide()" />
+				</f:facet>
+			</p:dialog>
+		</h:form>
+	</ui:define>
+</ui:composition>
