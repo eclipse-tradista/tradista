@@ -50,7 +50,7 @@ public abstract class VolatilitySurface<X extends Number, Y extends Number, Z ex
 	public VolatilitySurface(String name, LegalEntity processingOrg) {
 		this.name = name;
 		this.processingOrg = processingOrg;
-		points = new ArrayList<SurfacePoint<X, Y, Z>>();
+		points = new ArrayList<>();
 	}
 
 	public QuoteSet getQuoteSet() {
@@ -144,6 +144,11 @@ public abstract class VolatilitySurface<X extends Number, Y extends Number, Z ex
 			volatilitySurface.points = new ArrayList<>(points);
 		}
 		return volatilitySurface;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 }

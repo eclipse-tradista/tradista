@@ -43,7 +43,7 @@ public class SwaptionVolatilitySurface extends VolatilitySurface<Integer, Intege
 			throw new TradistaBusinessException("The surface points list is empty.");
 		}
 
-		List<BigDecimal> volats = new ArrayList<BigDecimal>();
+		List<BigDecimal> volats = new ArrayList<>();
 
 		for (SurfacePoint<Integer, Integer, BigDecimal> p : points) {
 			if (p.getxAxis() == optionExpiry && p.getyAxis() == swapTenor) {
@@ -56,7 +56,7 @@ public class SwaptionVolatilitySurface extends VolatilitySurface<Integer, Intege
 					"No values found for this option expiry: % and this swap tenor: %s", optionExpiry, swapTenor));
 		}
 
-		BigDecimal avgVolat = BigDecimal.valueOf(0);
+		BigDecimal avgVolat = BigDecimal.ZERO;
 
 		for (BigDecimal v : volats) {
 			avgVolat = avgVolat.add(v);

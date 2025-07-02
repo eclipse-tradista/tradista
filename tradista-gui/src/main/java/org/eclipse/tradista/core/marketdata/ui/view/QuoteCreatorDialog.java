@@ -13,7 +13,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -41,7 +40,7 @@ public class QuoteCreatorDialog extends TradistaDialog<Quote> {
 		Label nameLabel = new Label("Name: ");
 		TextField nameTextField = new TextField();
 		Label typeLabel = new Label("Type: ");
-		ComboBox<QuoteType> typeComboBox = new ComboBox<QuoteType>();
+		ComboBox<QuoteType> typeComboBox = new ComboBox<>();
 		ObservableList<QuoteType> types = FXCollections.observableArrayList(QuoteType.values());
 		typeComboBox.setItems(types);
 		typeComboBox.getSelectionModel().selectFirst();
@@ -56,7 +55,7 @@ public class QuoteCreatorDialog extends TradistaDialog<Quote> {
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, Quote>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public Quote call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -65,7 +64,7 @@ public class QuoteCreatorDialog extends TradistaDialog<Quote> {
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

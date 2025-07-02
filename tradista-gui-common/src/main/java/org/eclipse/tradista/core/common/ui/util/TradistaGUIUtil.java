@@ -172,7 +172,7 @@ public final class TradistaGUIUtil {
 	private TradistaGUIUtil() {
 	}
 
-	public static void resizeComponents(Window window, Number oldWidth) {
+	public static void resizeComponents(Window window) {
 		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 		TradistaGUIUtil.resizeComponentHeights(primScreenBounds, window, 0);
 		TradistaGUIUtil.resizeComponentWidths(primScreenBounds, window, 0);
@@ -189,7 +189,7 @@ public final class TradistaGUIUtil {
 		} else {
 			fontSize = screen.getWidth() / GOLDEN_RATIO_FONT_WIDTH;
 		}
-		fontSize = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, fontSize));
+		fontSize = Math.clamp(fontSize, MIN_FONT_SIZE, MAX_FONT_SIZE);
 		window.getProperties().put(FONT_SIZE, fontSize);
 		if (window.getProperties().containsKey(COMPONENTS_WIDTH)) {
 			componentsWidth = (double) window.getProperties().get(COMPONENTS_WIDTH);
@@ -199,7 +199,7 @@ public final class TradistaGUIUtil {
 		} else {
 			componentsWidth = screen.getWidth() / GOLDEN_RATIO_WIDTH;
 		}
-		componentsWidth = Math.min(MAX_COMPONENT_WIDTH, Math.max(MIN_COMPONENT_WIDTH, componentsWidth));
+		componentsWidth = Math.clamp(componentsWidth, MIN_COMPONENT_WIDTH, MAX_COMPONENT_WIDTH);
 		window.getProperties().put(COMPONENTS_WIDTH, componentsWidth);
 		List<Node> nodes = getAllNodesInWindow(window);
 		if (nodes != null && !nodes.isEmpty()) {
@@ -278,7 +278,7 @@ public final class TradistaGUIUtil {
 		if (StringUtils.isEmpty(style)) {
 			errMsg.append(String.format("Style is mandatory.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
 		if (!node.getStyleClass().contains(style)) {
@@ -294,7 +294,7 @@ public final class TradistaGUIUtil {
 		if (StringUtils.isEmpty(style)) {
 			errMsg.append(String.format("Style is mandatory.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
 		node.getStyleClass().remove(style);
@@ -311,7 +311,7 @@ public final class TradistaGUIUtil {
 		} else {
 			fontSize = screen.getWidth() / GOLDEN_RATIO_FONT_WIDTH;
 		}
-		fontSize = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, fontSize));
+		fontSize = Math.clamp(fontSize, MIN_FONT_SIZE, MAX_FONT_SIZE);
 		window.getProperties().put(FONT_SIZE, fontSize);
 		if (window.getProperties().containsKey(COMPONENTS_HEIGHT)) {
 			componentsHeight = (double) window.getProperties().get(COMPONENTS_HEIGHT);
@@ -321,7 +321,7 @@ public final class TradistaGUIUtil {
 		} else {
 			componentsHeight = screen.getHeight() / GOLDEN_RATIO_HEIGHT;
 		}
-		componentsHeight = Math.min(MAX_COMPONENT_HEIGHT, Math.max(MIN_COMPONENT_HEIGHT, componentsHeight));
+		componentsHeight = Math.clamp(componentsHeight, MIN_COMPONENT_HEIGHT, MAX_COMPONENT_HEIGHT);
 		window.getProperties().put(COMPONENTS_HEIGHT, componentsHeight);
 		List<Node> nodes = getAllNodesInWindow(window);
 		if (nodes != null && !nodes.isEmpty()) {
@@ -909,16 +909,15 @@ public final class TradistaGUIUtil {
 				styleSheetLocation = "/" + new ConfigurationBusinessDelegate().getDefaultStyle() + "Style.css";
 			}
 			pane.getStylesheets().add(styleSheetLocation);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
+			// Not expected here.
 		}
 		pane.getStyleClass().add("root");
 		TradistaGUIUtil.setTradistaIcons(dialog);
 		pBar.progressProperty().bind(task.progressProperty());
 		pBar.minWidthProperty().bind(scene.widthProperty());
-		task.setOnSucceeded(event -> {
-			dialog.close();
-		});
-		task.setOnFailed(event -> task.getException().printStackTrace());
+		task.setOnSucceeded(_ -> dialog.close());
+		task.setOnFailed(_ -> task.getException().printStackTrace());
 
 		dialog.sizeToScene();
 		dialog.setResizable(false);
@@ -943,7 +942,7 @@ public final class TradistaGUIUtil {
 					throw new ParseException("failed to parse entire string: " + amount, position.getIndex());
 				}
 			}
-		} catch (ParseException pe) {
+		} catch (ParseException _) {
 			throw new TradistaBusinessException(String.format("The %s is incorrect: %s.%n", fieldName, amount));
 		}
 	}
@@ -959,7 +958,7 @@ public final class TradistaGUIUtil {
 					throw new ParseException("failed to parse entire string: " + amount, position.getIndex());
 				}
 			}
-		} catch (ParseException pe) {
+		} catch (ParseException _) {
 			throw new TradistaBusinessException(String.format("The %s is incorrect: %s.%n", fieldName, amount));
 		}
 		return n;

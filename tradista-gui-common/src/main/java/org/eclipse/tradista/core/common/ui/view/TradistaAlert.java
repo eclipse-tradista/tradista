@@ -34,12 +34,13 @@ public class TradistaAlert extends Alert {
 		if (style == null) {
 			try {
 				style = new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle();
-			} catch (TradistaBusinessException abe) {
+			} catch (TradistaBusinessException _) {
+				// Not expected here.
 			}
 		}
 		getDialogPane().getStylesheets().add("/" + style + "Style.css");
 		getDialogPane().getStyleClass().add("root");
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 	public TradistaAlert(AlertType alertType) {

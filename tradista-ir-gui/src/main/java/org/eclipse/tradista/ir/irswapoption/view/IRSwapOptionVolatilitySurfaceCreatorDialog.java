@@ -10,7 +10,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -47,18 +46,17 @@ public class IRSwapOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<S
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, SwaptionVolatilitySurface>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public SwaptionVolatilitySurface call(ButtonType b) {
 				if (b == buttonTypeOk) {
-					SwaptionVolatilitySurface surface = new SwaptionVolatilitySurface(nameTextField.getText(),
+					return new SwaptionVolatilitySurface(nameTextField.getText(),
 							ClientUtil.getCurrentUser().getProcessingOrg());
-					return surface;
 				}
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

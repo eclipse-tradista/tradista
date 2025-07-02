@@ -68,4 +68,8 @@ public abstract class Curve<X, Y> extends TradistaObject implements MarketData {
 		return curve;
 	}
 
+	public String toString() {
+		return name;
+	}
+
 }

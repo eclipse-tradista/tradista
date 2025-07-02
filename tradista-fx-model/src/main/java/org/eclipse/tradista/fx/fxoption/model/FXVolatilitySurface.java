@@ -68,7 +68,7 @@ public class FXVolatilitySurface extends VolatilitySurface<Integer, BigDecimal, 
 					String.format("No values found for this option expiry: %d", optionExpiry));
 		}
 
-		BigDecimal avgVolat = BigDecimal.valueOf(0);
+		BigDecimal avgVolat = BigDecimal.ZERO;
 
 		for (BigDecimal v : volats) {
 			avgVolat = avgVolat.add(v);

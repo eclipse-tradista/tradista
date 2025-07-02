@@ -1,5 +1,8 @@
 package org.eclipse.tradista.fx.fxoption.ui.controller;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.VOLATILITY;
+import static org.eclipse.tradista.fx.fxoption.ui.util.FXOptionUIConstants.DELTA;
+
 import java.math.BigDecimal;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -141,25 +144,20 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		super.initialize();
 		fxVolatilitySurfaceBusinessDelegate = new FXVolatilitySurfaceBusinessDelegate();
 
-		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> stringCellFactory = new Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>>() {
-			public TableCell<SurfacePointProperty, String> call(TableColumn<SurfacePointProperty, String> p) {
-				return new StringEditingCell();
-			}
-		};
+		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> stringCellFactory = _ -> new StringEditingCell();
 
-		pointOptionExpiry.setCellValueFactory(new PropertyValueFactory<SurfacePointProperty, String>("optionExpiry"));
+		pointOptionExpiry.setCellValueFactory(new PropertyValueFactory<>("optionExpiry"));
 
-		pointDelta.setCellValueFactory(new PropertyValueFactory<SurfacePointProperty, String>("delta"));
+		pointDelta.setCellValueFactory(new PropertyValueFactory<>("delta"));
 
 		pointVolatility.setCellFactory(stringCellFactory);
 
-		pointVolatility.setOnEditCommit(new EventHandler<CellEditEvent<SurfacePointProperty, String>>() {
+		pointVolatility.setOnEditCommit(new EventHandler<>() {
 			@Override
 			public void handle(CellEditEvent<SurfacePointProperty, String> t) {
 				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), "Volatility");
-					((SurfacePointProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-							.setVolatility(t.getNewValue());
+					TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
+					t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
 				} catch (TradistaBusinessException tbe) {
 					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 					alert.showAndWait();
@@ -168,7 +166,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			}
 		});
 
-		pointVolatility.setCellValueFactory(new PropertyValueFactory<SurfacePointProperty, String>("volatility"));
+		pointVolatility.setCellValueFactory(new PropertyValueFactory<>("volatility"));
 
 		VBox optionExpiryGraphic = new VBox();
 		Label optionExpiryLabel = new Label("Option Expiry");
@@ -178,14 +176,14 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		pointOptionExpiry.setGraphic(optionExpiryGraphic);
 
 		VBox deltaGraphic = new VBox();
-		Label deltaLabel = new Label("Delta");
+		Label deltaLabel = new Label(DELTA);
 		deltaLabel.setMaxWidth(100);
 		deltaGraphic.setAlignment(Pos.CENTER);
 		deltaGraphic.getChildren().addAll(deltaLabel, deltaTextField);
 		pointDelta.setGraphic(deltaGraphic);
 
 		VBox volatilityGraphic = new VBox();
-		Label volatilityLabel = new Label("Volatility");
+		Label volatilityLabel = new Label(VOLATILITY);
 		volatilityLabel.setMaxWidth(100);
 		volatilityGraphic.setAlignment(Pos.CENTER);
 		volatilityGraphic.getChildren().addAll(volatilityLabel, volatilityTextField);
@@ -195,7 +193,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		deltaTextField.setMaxWidth(100);
 		volatilityTextField.setMaxWidth(100);
 
-		volatilitySurface.valueProperty().addListener(new ChangeListener<FXVolatilitySurface>() {
+		volatilitySurface.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends FXVolatilitySurface> ov, FXVolatilitySurface oldSurf,
 					FXVolatilitySurface surf) {
@@ -232,43 +230,39 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 
 					// 2. Set the filter Predicate whenever the filter
 					// changes.
-					optionExpiryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty,
-							// display all
-							// option expiries.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getOptionExpiry().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
+					optionExpiryTextField.textProperty()
+							.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+								// If filter text is
+								// empty,
+								// display all
+								// option expiries.
+								if (newValue == null || newValue.isEmpty()) {
+									return true;
+								}
+								return point.getOptionExpiry().toUpperCase().contains(newValue.toUpperCase());
+							}));
 
-					deltaTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty,
-							// display all
-							// option expiries.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getDelta().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
+					deltaTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+						// If filter text is
+						// empty,
+						// display all
+						// option expiries.
+						if (newValue == null || newValue.isEmpty()) {
+							return true;
+						}
+						return point.getDelta().toUpperCase().contains(newValue.toUpperCase());
+					}));
 
-					volatilityTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is empty, display
-							// all
-							// option expiries.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getVolatility().contains(newValue);
-						});
-					});
+					volatilityTextField.textProperty()
+							.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+								// If filter text is empty, display
+								// all
+								// option expiries.
+								if (newValue == null || newValue.isEmpty()) {
+									return true;
+								}
+								return point.getVolatility().contains(newValue);
+							}));
 
 					pointsTable.setItems(sortedData);
 					pointsTable.refresh();
@@ -319,14 +313,14 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			}
 			surface = new FXVolatilitySurface(name, ClientUtil.getCurrentUser().getProcessingOrg());
 		}
-		surface.setQuotes(new ArrayList<Quote>(selectedQuotesList.getItems()));
+		surface.setQuotes(new ArrayList<>(selectedQuotesList.getItems()));
 
 		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = toSurfacePointList(pointsTable.getItems());
 		surface.setPoints(surfacePoints);
 
 		surface.setQuoteSet(quoteSet.getValue());
 
-		List<BigDecimal> deltas = TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), "Delta");
+		List<BigDecimal> deltas = TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), DELTA);
 		surface.setDeltas(deltas);
 		if (isGeneratedCheckBox.isSelected()) {
 			surface.setInstance(instanceComboBox.getValue());
@@ -429,7 +423,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 	protected void search() {
 		String search = quoteNameTextField.getText();
 		if (quoteNameTextField.getText() != null) {
-			search = FXOptionTrade.FX_OPTION + ".%" + search.replaceAll("%", "") + "%";
+			search = FXOptionTrade.FX_OPTION + ".%" + search.replace("%", "") + "%";
 		}
 		fillQuoteNames(search);
 	}
@@ -437,10 +431,10 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 	@FXML
 	protected void addDelta() {
 		try {
-			BigDecimal delta = TradistaGUIUtil.parseAmount(deltaToAdd.getText(), "Delta");
+			BigDecimal delta = TradistaGUIUtil.parseAmount(deltaToAdd.getText(), DELTA);
 			boolean deltaExists = false;
 			if (selectedDeltas.getItems() != null && !selectedDeltas.getItems().isEmpty()) {
-				for (BigDecimal d : TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), "Delta")) {
+				for (BigDecimal d : TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), DELTA)) {
 					if (d.compareTo(delta) == 0) {
 						deltaExists = true;
 						break;
@@ -465,8 +459,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		try {
 			if (pointsTable.getItems() != null && !pointsTable.getItems().isEmpty()) {
 				for (SurfacePointProperty prop : pointsTable.getItems()) {
-					if (TradistaGUIUtil.parseAmount(prop.getDelta(), "Delta").compareTo(TradistaGUIUtil
-							.parseAmount(selectedDeltas.getSelectionModel().getSelectedItem(), "Delta")) == 0) {
+					if (TradistaGUIUtil.parseAmount(prop.getDelta(), DELTA).compareTo(TradistaGUIUtil
+							.parseAmount(selectedDeltas.getSelectionModel().getSelectedItem(), DELTA)) == 0) {
 						if (!StringUtils.isEmpty(prop.getVolatility())) {
 							TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 							confirmation.setTitle("Remove Delta");
@@ -480,11 +474,11 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 								selectedDeltas.getItems().remove(deltaToBeRemoved);
 								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(
 										pointsTable.getItems());
-								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<>();
 								if (!points.isEmpty()) {
 									for (SurfacePoint<Integer, BigDecimal, BigDecimal> p : points) {
-										if (p.getyAxis().compareTo(
-												TradistaGUIUtil.parseAmount(deltaToBeRemoved, "Delta")) == 0) {
+										if (p.getyAxis()
+												.compareTo(TradistaGUIUtil.parseAmount(deltaToBeRemoved, DELTA)) == 0) {
 											toBeRemoved.add(p);
 										}
 									}
@@ -502,10 +496,10 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			String deltaToBeRemoved = selectedDeltas.getSelectionModel().getSelectedItem();
 			selectedDeltas.getItems().remove(deltaToBeRemoved);
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(pointsTable.getItems());
-			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<>();
 			if (!points.isEmpty()) {
 				for (SurfacePoint<Integer, BigDecimal, BigDecimal> p : points) {
-					if (p.getyAxis().compareTo(TradistaGUIUtil.parseAmount(deltaToBeRemoved, "Delta")) == 0) {
+					if (p.getyAxis().compareTo(TradistaGUIUtil.parseAmount(deltaToBeRemoved, DELTA)) == 0) {
 						toBeRemoved.add(p);
 					}
 				}
@@ -524,7 +518,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 	protected void generate() {
 		List<String> quoteNames = toQuoteStringList(selectedQuotesList.getItems());
 		try {
-			List<BigDecimal> deltas = TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), "Delta");
+			List<BigDecimal> deltas = TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), DELTA);
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints;
 			surfacePoints = fxVolatilitySurfaceBusinessDelegate.generate(algorithmComboBox.getValue(),
 					interpolatorComboBox.getValue(), instanceComboBox.getValue(), quoteDate.getValue(),
@@ -558,9 +552,9 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 	}
 
 	public static List<BigDecimal> toDeltaList(ObservableList<DeltaProperty> items) throws TradistaBusinessException {
-		List<BigDecimal> deltaList = new ArrayList<BigDecimal>();
+		List<BigDecimal> deltaList = new ArrayList<>();
 		for (DeltaProperty delta : items) {
-			deltaList.add(TradistaGUIUtil.parseAmount(delta.getValue().getValue(), "Delta"));
+			deltaList.add(TradistaGUIUtil.parseAmount(delta.getValue().getValue(), DELTA));
 		}
 
 		return deltaList;
@@ -575,7 +569,6 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 
 		@Override
 		public void startEdit() {
-			// if (!isEmpty()) {
 			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
 				setItem(textField.getText());
 			}
@@ -584,14 +577,13 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			setText(textField.getText());
 			setGraphic(textField);
 			textField.selectAll();
-			// }
 		}
 
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
 
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -619,11 +611,10 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			textField.focusedProperty().addListener(new ChangeListener<>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
+					if (arg2 != null && !arg2) {
 						commitEdit(textField.getText());
 					}
 				}
@@ -632,7 +623,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? "" : getItem();
 		}
 	}
 
@@ -658,8 +649,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
-
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -687,11 +677,10 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			textField.focusedProperty().addListener(new ChangeListener<>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
+					if (arg2 != null && !arg2) {
 						commitEdit(textField.getText());
 					}
 				}
@@ -700,7 +689,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? "" : getItem();
 		}
 	}
 
@@ -708,12 +697,12 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			throws TradistaBusinessException {
 		if (data != null) {
 			Collection<Number> optionExpiries = fxVolatilitySurfaceBusinessDelegate.getAllOptionExpiries();
-			List<BigDecimal> deltas = TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), "Delta");
+			List<BigDecimal> deltas = TradistaGUIUtil.parseAmounts(selectedDeltas.getItems(), DELTA);
 
 			for (Number optionExpiry : optionExpiries) {
 				for (BigDecimal delta : deltas) {
-					SurfacePoint<Integer, BigDecimal, BigDecimal> point = new SurfacePoint<Integer, BigDecimal, BigDecimal>(
-							(Integer) optionExpiry, delta, null);
+					SurfacePoint<Integer, BigDecimal, BigDecimal> point = new SurfacePoint<>((Integer) optionExpiry,
+							delta, null);
 					if (!data.contains(point)) {
 						data.add(point);
 					}
@@ -729,7 +718,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 
 	private List<SurfacePointProperty> toSurfacePointPropertyList(
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> data) {
-		List<SurfacePointProperty> surfacePointPropertyList = new ArrayList<SurfacePointProperty>();
+		List<SurfacePointProperty> surfacePointPropertyList = new ArrayList<>();
 		for (SurfacePoint<Integer, BigDecimal, BigDecimal> point : data) {
 			String optionExpiry = toPeriodString(point.getxAxis());
 			String delta = TradistaGUIUtil.formatAmount(point.getyAxis());
@@ -744,7 +733,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 
 	private List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toSurfacePointList(List<SurfacePointProperty> data)
 			throws TradistaBusinessException {
-		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePointList = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePointList = new ArrayList<>();
 		if (data != null && !data.isEmpty()) {
 			for (SurfacePointProperty point : data) {
 				try {
@@ -752,10 +741,10 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 					if (!optionExpiry.isEmpty()) {
 						String volatility = point.getVolatility();
 						if (volatility != null && !volatility.isEmpty()) {
-							surfacePointList.add(new SurfacePoint<Integer, BigDecimal, BigDecimal>(
+							surfacePointList.add(new SurfacePoint<>(
 									fxVolatilitySurfaceBusinessDelegate.getOptionExpiryValue(optionExpiry),
-									TradistaGUIUtil.parseAmount(point.getDelta(), "Delta"),
-									TradistaGUIUtil.parseAmount(point.getVolatility(), "Volatility")));
+									TradistaGUIUtil.parseAmount(point.getDelta(), DELTA),
+									TradistaGUIUtil.parseAmount(point.getVolatility(), VOLATILITY)));
 						}
 					}
 				} catch (DateTimeParseException dtpe) {
@@ -805,7 +794,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 	}
 
 	private List<String> toQuoteStringList(List<Quote> data) {
-		List<String> nameList = new ArrayList<String>();
+		List<String> nameList = new ArrayList<>();
 		for (Quote quote : data) {
 			nameList.add(quote.getName());
 		}

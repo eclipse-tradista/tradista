@@ -62,7 +62,7 @@ public class SurfaceServiceBean implements SurfaceService {
 				Set<FXVolatilitySurface> fxSurfaces = new FXVolatilitySurfaceBusinessDelegate()
 						.getAllFXVolatilitySurfaces();
 				if (fxSurfaces != null && !fxSurfaces.isEmpty()) {
-					surfaces = new ArrayList<VolatilitySurface<?, ?, ?>>();
+					surfaces = new ArrayList<>();
 					surfaces.addAll(fxSurfaces);
 				}
 			}
@@ -71,7 +71,7 @@ public class SurfaceServiceBean implements SurfaceService {
 						.getAllEquityOptionVolatilitySurfaces();
 				if (equityOptionSurfaces != null && !equityOptionSurfaces.isEmpty()) {
 					if (surfaces == null) {
-						surfaces = new ArrayList<VolatilitySurface<?, ?, ?>>();
+						surfaces = new ArrayList<>();
 					}
 					surfaces.addAll(equityOptionSurfaces);
 				}
@@ -81,7 +81,7 @@ public class SurfaceServiceBean implements SurfaceService {
 						.getAllSwaptionVolatilitySurfaces();
 				if (swaptionVolatilitySurfaces != null && !swaptionVolatilitySurfaces.isEmpty()) {
 					if (surfaces == null) {
-						surfaces = new ArrayList<VolatilitySurface<?, ?, ?>>();
+						surfaces = new ArrayList<>();
 					}
 					surfaces.addAll(swaptionVolatilitySurfaces);
 				}
@@ -91,7 +91,7 @@ public class SurfaceServiceBean implements SurfaceService {
 				Set<SwaptionVolatilitySurface> swaptionVolatilitySurfaces = new SwaptionVolatilitySurfaceBusinessDelegate()
 						.getAllSwaptionVolatilitySurfaces();
 				if (swaptionVolatilitySurfaces != null && !swaptionVolatilitySurfaces.isEmpty()) {
-					surfaces = new ArrayList<VolatilitySurface<?, ?, ?>>();
+					surfaces = new ArrayList<>();
 					surfaces.addAll(swaptionVolatilitySurfaces);
 				}
 			}
@@ -100,7 +100,7 @@ public class SurfaceServiceBean implements SurfaceService {
 				Set<FXVolatilitySurface> fxSurfaces = new FXVolatilitySurfaceBusinessDelegate()
 						.getAllFXVolatilitySurfaces();
 				if (fxSurfaces != null && !fxSurfaces.isEmpty()) {
-					surfaces = new ArrayList<VolatilitySurface<?, ?, ?>>();
+					surfaces = new ArrayList<>();
 					surfaces.addAll(fxSurfaces);
 				}
 			}
@@ -109,7 +109,7 @@ public class SurfaceServiceBean implements SurfaceService {
 				Set<EquityOptionVolatilitySurface> equityOptionSurfaces = new EquityOptionVolatilitySurfaceBusinessDelegate()
 						.getAllEquityOptionVolatilitySurfaces();
 				if (equityOptionSurfaces != null && !equityOptionSurfaces.isEmpty()) {
-					surfaces = new ArrayList<VolatilitySurface<?, ?, ?>>();
+					surfaces = new ArrayList<>();
 					surfaces.addAll(equityOptionSurfaces);
 				}
 			}

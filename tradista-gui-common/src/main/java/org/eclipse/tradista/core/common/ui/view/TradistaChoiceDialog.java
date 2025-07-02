@@ -36,10 +36,11 @@ public class TradistaChoiceDialog<T> extends ChoiceDialog<T> {
 			getDialogPane().getStylesheets().add(
 					"/" + new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
 							+ "Style.css");
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
+			// Not expected here.
 		}
 		getDialogPane().getStyleClass().add("root");
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 	public TradistaChoiceDialog(T value, Set<T> values) {
@@ -50,10 +51,11 @@ public class TradistaChoiceDialog<T> extends ChoiceDialog<T> {
 			getDialogPane().getStylesheets().add(
 					"/" + new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
 							+ "Style.css");
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
+			// Not expected here.
 		}
 		getDialogPane().getStyleClass().add("root");
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }
