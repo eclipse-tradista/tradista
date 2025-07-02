@@ -13,41 +13,11 @@
 	<version>${importer-app.version}</version>
 	<packaging>ear</packaging>
 	<dependencies>
-		<!--		<dependency>-->
-		<!--			<groupId>org.eclipse.tradista.core</groupId>-->
-		<!--			<artifactId>core-ejb</artifactId>-->
-		<!--			<version>${core-ejb.version}</version>-->
-		<!--			<type>ejb</type>-->
-		<!--		</dependency>-->
-		<!--		<dependency>-->
-		<!--			<groupId>org.eclipse.tradista.fx</groupId>-->
-		<!--			<artifactId>fx-ejb</artifactId>-->
-		<!--			<version>${fx-ejb.version}</version>-->
-		<!--			<type>ejb</type>-->
-		<!--		</dependency>-->
-		<!--		<dependency>-->
-		<!--			<groupId>org.eclipse.tradista.mm</groupId>-->
-		<!--			<artifactId>mm-ejb</artifactId>-->
-		<!--			<version>${mm-ejb.version}</version>-->
-		<!--			<type>ejb</type>-->
-		<!--		</dependency>-->
-		<!--		<dependency>-->
-		<!--			<groupId>org.eclipse.tradista.ir</groupId>-->
-		<!--			<artifactId>ir-ejb</artifactId>-->
-		<!--			<version>${ir-ejb.version}</version>-->
-		<!--			<type>ejb</type>-->
-		<!--		</dependency>-->
-		<!--		<dependency>-->
-		<!--			<groupId>org.eclipse.tradista.security</groupId>-->
-		<!--			<artifactId>security-ejb</artifactId>-->
-		<!--			<version>${security-ejb.version}</version>-->
-		<!--			<type>ejb</type>-->
-		<!--		</dependency>-->
-		<!--		<dependency>-->
-		<!--			<groupId>org.eclipse.tradista.app</groupId>-->
-		<!--			<artifactId>web</artifactId>-->
-		<!--			<version>${web.version}</version>-->
-		<!--			<type>war</type>-->
-		<!--		</dependency>-->
+		<dependency>
+			<groupId>org.eclipse.tradista.core</groupId>
+			<artifactId>importer-ejb</artifactId>
+			<version>${importer-ejb.version}</version>
+			<type>ejb</type>
+		</dependency>
 	</dependencies>
 </project>

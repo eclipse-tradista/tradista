@@ -25,15 +25,17 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-ear-plugin</artifactId>
-					<version>3.3.0</version>
+					<version>3.4.0</version>
 					<configuration>
-						<!-- I need to add this fileNameMapping tag because net.sf.tweety and 
+						<!-- I need to add this fileNameMapping tag because
+						net.sf.tweety and 
 							net.sf.tweety.logics have artifacts with the same jar name: commons. This 
 							leads to classpath problems. -->
-						<outputFileNameMapping>@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+						<outputFileNameMapping>
+							@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
 						<earSourceDirectory>EarContent</earSourceDirectory>
 						<generateApplicationXml>true</generateApplicationXml>
-						<version>8</version>
+						<version>10</version>
 						<defaultLibBundleDir>lib</defaultLibBundleDir>
 						<applicationName>ai-app</applicationName>
 					</configuration>

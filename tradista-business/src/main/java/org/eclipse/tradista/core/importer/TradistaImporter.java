@@ -36,6 +36,8 @@ import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 
 public abstract class TradistaImporter<X> implements Importer<X> {
 
+	private static final long serialVersionUID = 576180882976539818L;
+
 	private MessageBusinessDelegate messageBusinessDelegate;
 
 	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
@@ -50,7 +52,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 
 	private String name;
 
-	private LegalEntity processingOrg;;
+	private LegalEntity processingOrg;
 
 	protected abstract void start();
 
@@ -112,7 +114,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 			try {
 				return (IncomingMessageManager<X, TradistaObject>) TradistaImporterUtil
 						.getIncomingMessageManager(productType, getType());
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 				errMsg.append(String.format(
 						"Incoming Message Manager could not be found for product type %s and message type %s",
 						productType, getType()));
@@ -144,6 +146,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	protected abstract Optional<? extends TradistaObject> processMessage(X externalMessage)
 			throws TradistaBusinessException;
 
+	@Override
 	public String getName() {
 		return name;
 	}

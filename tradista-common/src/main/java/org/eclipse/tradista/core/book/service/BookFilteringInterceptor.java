@@ -59,7 +59,7 @@ public class BookFilteringInterceptor extends TradistaAuthorizationFilteringInte
 			if (book.getProcessingOrg() != null && !book.getProcessingOrg().equals(user.getProcessingOrg())) {
 				errMsg.append(String.format("The processing org %s was not found.", book.getProcessingOrg()));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 		}

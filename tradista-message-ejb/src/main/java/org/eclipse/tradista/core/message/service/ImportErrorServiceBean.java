@@ -2,7 +2,6 @@ package org.eclipse.tradista.core.message.service;
 
 import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.persistence.ImportErrorSQL;
-import org.eclipse.tradista.core.messsage.service.ImportErrorService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;

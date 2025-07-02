@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
-import org.eclipse.tradista.core.marketdata.service.ImporterInformationService;
+import org.eclipse.tradista.core.importer.service.ImporterInformationService;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion

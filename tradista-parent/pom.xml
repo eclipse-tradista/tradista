@@ -301,15 +301,34 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-ear-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.4.0</version>
 				<configuration>
 					<earSourceDirectory>EarContent</earSourceDirectory>
 					<generateApplicationXml>true</generateApplicationXml>
-					<version>8</version>
+					<version>10</version>
 					<defaultLibBundleDir>lib</defaultLibBundleDir>
 					<applicationName>${project.artifactId}</applicationName>
 					<outputFileNameMapping>
 						@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-ejb-plugin</artifactId>
+				<version>3.2.1</version>
+				<configuration>
+					<ejbVersion>4.0</ejbVersion>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.4.0</version>
+				<configuration>
+					<warSourceDirectory>WebContent</warSourceDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

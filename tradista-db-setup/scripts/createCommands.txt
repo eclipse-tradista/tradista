@@ -1,5 +1,4 @@
 connect 'jdbc:derby://localhost:1527/Tradista;create=true';
-run '../sql/MAPPING.sql';
 run '../sql/MESSAGE.sql';
 run '../sql/GCBASKET.sql';
 run '../sql/PROCESS.sql';
@@ -15,6 +14,8 @@ run '../sql/CONDITIONALACTION.sql';
 run '../sql/CONDITIONALACTION_STATUS.sql';
 run '../sql/CONDITIONALACTION_SIMPLEACTION.sql';
 run '../sql/LEGAL_ENTITY.sql';
+run '../sql/INTERFACE_MAPPING_SET.sql';
+run '../sql/MAPPING.sql';
 run '../sql/ALLOCATION_CONFIGURATION.sql';
 run '../sql/USER.sql';
 run '../sql/UI_CONFIGURATION.sql';

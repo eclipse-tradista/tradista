@@ -1,4 +1,4 @@
-package org.eclipse.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.importer.service;
 
 import java.util.Map;
 

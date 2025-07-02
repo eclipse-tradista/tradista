@@ -26,21 +26,22 @@ import org.eclipse.tradista.core.daterule.service.DateRuleService;
 import org.eclipse.tradista.core.daycountconvention.service.DayCountConventionService;
 import org.eclipse.tradista.core.error.service.ErrorService;
 import org.eclipse.tradista.core.exchange.service.ExchangeService;
+import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
+import org.eclipse.tradista.core.importer.service.ImporterInformationService;
 import org.eclipse.tradista.core.index.service.IndexService;
 import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
 import org.eclipse.tradista.core.mapping.service.MappingService;
 import org.eclipse.tradista.core.marketdata.service.CurveService;
 import org.eclipse.tradista.core.marketdata.service.FXCurveService;
 import org.eclipse.tradista.core.marketdata.service.FeedService;
-import org.eclipse.tradista.core.marketdata.service.ImporterInformationService;
 import org.eclipse.tradista.core.marketdata.service.InterestRateCurveService;
 import org.eclipse.tradista.core.marketdata.service.MarketDataConfigurationService;
 import org.eclipse.tradista.core.marketdata.service.MarketDataInformationService;
 import org.eclipse.tradista.core.marketdata.service.MarketDataService;
 import org.eclipse.tradista.core.marketdata.service.QuoteService;
 import org.eclipse.tradista.core.marketdata.service.SurfaceService;
-import org.eclipse.tradista.core.messsage.service.ImportErrorService;
-import org.eclipse.tradista.core.messsage.service.MessageService;
+import org.eclipse.tradista.core.message.service.ImportErrorService;
+import org.eclipse.tradista.core.message.service.MessageService;
 import org.eclipse.tradista.core.position.service.PositionCalculationErrorService;
 import org.eclipse.tradista.core.position.service.PositionDefinitionService;
 import org.eclipse.tradista.core.position.service.PositionService;
@@ -692,6 +693,11 @@ public class TradistaServiceLocator {
 	public ImporterInformationService getImporterInformationService() {
 		return (ImporterInformationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
 				"ImporterInformationService");
+	}
+
+	public ImporterConfigurationService getImporterConfigurationService() {
+		return (ImporterConfigurationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+				"ImporterConfigurationService");
 	}
 
 	public MessageService getMessageService() {

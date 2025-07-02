@@ -1,8 +1,11 @@
 package org.eclipse.tradista.core.mapping.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
+import org.eclipse.tradista.core.mapping.validator.InterfaceMappingSetValidator;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -24,30 +27,67 @@ public class MappingBusinessDelegate {
 
 	private MappingService mappingService;
 
+	private InterfaceMappingSetValidator interfaceMappingSetValidator;
+
 	public MappingBusinessDelegate() {
 		mappingService = TradistaServiceLocator.getInstance().getMappingService();
+		interfaceMappingSetValidator = new InterfaceMappingSetValidator();
 	}
 
-	public String getMappingValue(String importerName, MappingType mappingType, String value) {
+	public String getMappingValue(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction, String value) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (mappingType == null) {
-			errMsg.append(String.format("Mapping type is mandatory.%n"));
+			errMsg.append(String.format("the mapping type is mandatory.%n"));
+		}
+		if (direction == null) {
+			errMsg.append(String.format("The direction is mandatory.%n"));
 		}
 		if (StringUtils.isEmpty(value)) {
-			errMsg.append("Value is mandatory.");
+			errMsg.append("the value is mandatory.");
 		}
-		return mappingService.getMappingValue(importerName, mappingType, value);
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return mappingService.getMappingValue(interfaceName, mappingType, direction, value);
 	}
 
-	public String getOriginalValue(String importerName, MappingType mappingType, String value) {
+	public String getOriginalValue(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction, String value) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (mappingType == null) {
-			errMsg.append(String.format("Mapping type is mandatory.%n"));
+			errMsg.append(String.format("the mapping type is mandatory.%n"));
+		}
+		if (direction == null) {
+			errMsg.append("The direction is mandatory.");
 		}
 		if (StringUtils.isEmpty(value)) {
-			errMsg.append("Value is mandatory.");
+			errMsg.append(String.format("the value is mandatory.%n"));
 		}
-		return mappingService.getOriginalValue(importerName, mappingType, value);
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return mappingService.getOriginalValue(interfaceName, mappingType, direction, value);
+	}
+
+	public long saveInterfaceMappingSet(InterfaceMappingSet ims) throws TradistaBusinessException {
+		interfaceMappingSetValidator.validateInterfaceMappingSet(ims);
+		return mappingService.saveInterfaceMappingSet(ims);
+	}
+
+	public InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (mappingType == null) {
+			errMsg.append(String.format("The mapping type is mandatory.%n"));
+		}
+		if (direction == null) {
+			errMsg.append(String.format("The direction is mandatory.%n"));
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return mappingService.getInterfaceMappingSet(interfaceName, mappingType, direction);
 	}
 
 }

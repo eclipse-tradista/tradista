@@ -1,11 +1,13 @@
 package org.eclipse.tradista.core.message.service;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.service.MessageService;
 import org.eclipse.tradista.core.message.workflow.mapping.MessageMapper;
-import org.eclipse.tradista.core.messsage.service.MessageService;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 
 import finance.tradista.flow.exception.TradistaFlowBusinessException;
@@ -28,7 +30,9 @@ import finance.tradista.flow.service.WorkflowManager;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MessageBusinessDelegate {
+public class MessageBusinessDelegate implements Serializable {
+
+	private static final long serialVersionUID = -3861846524598598760L;
 
 	private MessageService messageService;
 

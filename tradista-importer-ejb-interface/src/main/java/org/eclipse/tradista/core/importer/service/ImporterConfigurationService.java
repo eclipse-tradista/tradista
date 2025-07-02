@@ -1,14 +1,14 @@
-package org.eclipse.tradista.core.legalentity.service;
+package org.eclipse.tradista.core.importer.service;
 
 import java.util.Set;
+import java.util.SortedSet;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.importer.model.Importer;
 
 import jakarta.ejb.Remote;
 
 /********************************************************************************
- * Copyright (c) 2015 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -24,21 +24,12 @@ import jakarta.ejb.Remote;
  ********************************************************************************/
 
 @Remote
-public interface LegalEntityService {
+public interface ImporterConfigurationService {
 
-	Set<LegalEntity> getAllLegalEntities();
+	Set<String> getModules();
 
-	long saveLegalEntity(LegalEntity legalEntity) throws TradistaBusinessException;
+	Set<Importer<?>> getAllImporters();
 
-	Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role);
+	SortedSet<String> getAllImporterNames();
 
-	LegalEntity getLegalEntityByShortName(String shortName);
-
-	LegalEntity getLegalEntityByLongName(String longName);
-
-	LegalEntity getLegalEntityById(long id);
-
-	Set<LegalEntity> getAllProcessingOrgs();
-
-	Set<LegalEntity> getAllCounterparties();
 }

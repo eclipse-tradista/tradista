@@ -23,6 +23,11 @@ public final class TradistaDBConstants {
 	public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 	public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
+	// Common field names.
+	public static final String ID = "ID";
+	public static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
+	public static final String BOOK_ID = "BOOK_ID";
+
 	private TradistaDBConstants() {
 	}
 

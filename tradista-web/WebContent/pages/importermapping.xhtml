@@ -16,137 +16,109 @@
 						<p:autoUpdate />
 					</p:messages>
 					<p:row>
-						<p:column>
-							<p:outputLabel styleClass="tradista-menu-item"
-								value="Processing Org :"
-								rendered="#{empty userManager.currentUserProcessingOrg}" />
-						</p:column>
-						<p:column>
-							<p:selectOneMenu
-								value="#{importerMappingController.processingOrg}"
-								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
-								converter="legalEntityConverter"
-								disabled="#{importerMappingController.importerMapping ne null}">
-								<f:selectItems
-									value="#{importerMappingControllerController.allProcessingOrgs}" />
-							</p:selectOneMenu>
-						</p:column>
+						<p:toolbar
+							rendered="#{importerMappingController.interfaceMappingSet ne null}">
+							<p:toolbarGroup>
+								<p:commandButton value="New Mapping" icon="pi pi-plus"
+									actionListener="#{importerMappingController.addMapping}"
+									update=":importerMappingForm:importerMappingTable"
+									styleClass="rounded-button">
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
 					</p:row>
 					<p:row>
 						<p:column>
-							<p:dataTable id="importerMaapingTable" var="mapping"
-								value="#{importerMappingController.importerMappings}"
+							<p:dataTable id="importerMappingTable" var="mapping"
+								value="#{importerMappingController.interfaceMappingSet.mappings}"
 								editable="true" editMode="cell" widgetVar="">
-
+								<f:facet name="header">
+									<p:outputLabel
+										value="#{importerMappingController.interfaceMappingSet ne null ? (importerMappingController.interfaceMappingSet.interfaceName ne null ? importerMappingController.interfaceMappingSet.interfaceName : 'Global Mapping') : ''}"
+										styleClass="tradista-menu-item" />
+									<p:outputLabel
+										value="#{importerMappingController.interfaceMappingSet ne null ? importerMappingController.interfaceMappingSet.mappingType : ''}"
+										styleClass="tradista-menu-item" />
+								</f:facet>
 								<p:ajax event="cellEdit"
-									listener="#{importerMappingController.onCellEdit}"
-									update=":form:msgs" />
-
+									listener="#{importerMappingController.onMappingAdded}" />
 								<p:column headerText="Original Value">
+									<f:attribute name="colKey" value="originalValue" />
 									<p:cellEditor>
 										<f:facet name="output">
-											<h:outputText value="#{mapping.originalValue}" />
+											<h:outputText value="#{mapping.value}" />
 										</f:facet>
 										<f:facet name="input">
-											<p:inputText id="originalValueInput"
-												value="#{mapping.originalValue}" style="width:100%" />
+											<p:inputText id="originalValueInput" value="#{mapping.value}" />
 										</f:facet>
 									</p:cellEditor>
 								</p:column>
-
 								<p:column headerText="Mapped Value">
 									<p:cellEditor>
 										<f:facet name="output">
 											<h:outputText value="#{mapping.mappedValue}" />
 										</f:facet>
 										<f:facet name="input">
-											<p:inputText value="#{mapping.mappedValue}"
-												style="width:100%" label="Mapped Value" />
+											<p:selectOneMenu value="#{mapping.mappedValue}">
+												<f:selectItems
+													value="#{importerMappingController.availableLegalEntityShortNames}"
+													var="legalEntity" itemLabel="#{legalEntity}"
+													itemValue="#{legalEntity}" />
+											</p:selectOneMenu>
 										</f:facet>
 									</p:cellEditor>
 								</p:column>
+								<p:column exportable="false" headerText="Actions">
+									<p:commandButton class="rounded-button" icon="pi pi-trash"
+										actionListener="#{importerMappingController.removeMapping(mapping)}"
+										update=":importerMappingForm:importerMappingTable">
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
 						</p:column>
 					</p:row>
 					<f:facet name="footer">
 						<p:row>
 							<p:column>
-								<p:commandButton value="Save" styleClass="rounded-button"
-									update="@form">
-									<f:actionListener
-										binding="#{allocationConfigurationController.save()}" />
-								</p:commandButton>
-								<p:commandButton value="Copy" type="button"
-									styleClass="rounded-button" update="@form"
-									onclick="PF('copy').show()"
-									rendered="#{allocationConfigurationController.allocationConfiguration ne null}" />
-								<p:commandButton value="New" styleClass="rounded-button"
-									action="#{allocationConfigurationController.clear()}"
-									update="@form" />
-								<p:outputLabel value="Load by Allocation Configuration"
+								<p:outputLabel value="Load Importer Mapping :"
+									styleClass="tradista-menu-item" />
+								<p:spacer width="5" height="1" />
+								<p:outputLabel value="Importer Name :"
 									styleClass="tradista-menu-item" />
 								<p:selectOneMenu
-									value="#{allocationConfigurationController.loadingCriterion}"
-									styleClass="tradista-menu-item">
+									value="#{importerMappingController.importerNameLoadingCriterion}"
+									styleClass="tradista-menu-item" label="Importer">
 									<f:selectItems
-										value="#{allocationConfigurationController.allLoadingCriteria}" />
+										value="#{importerMappingController.allImporterNames}" />
 								</p:selectOneMenu>
-								<p:inputText
-									value="#{allocationConfigurationController.idOrName}"
+								<p:outputLabel value="Mapping Type :"
 									styleClass="tradista-menu-item" />
+								<p:selectOneMenu
+									value="#{importerMappingController.mappingTypeLoadingCriterion}"
+									styleClass="tradista-menu-item" label="Mapping Type">
+									<f:selectItems
+										value="#{importerMappingController.allMappingTypes}" />
+								</p:selectOneMenu>
+								<p:selectOneMenu
+									value="#{importerMappingController.processingOrg}"
+									styleClass="tradista-menu-item"
+									rendered="#{empty userManager.currentUserProcessingOrg}"
+									converter="legalEntityConverter">
+									<f:selectItems
+										value="#{importerMappingController.allProcessingOrgs}" />
+								</p:selectOneMenu>
 								<p:commandButton value="Load" styleClass="rounded-button"
-									action="#{allocationConfigurationController.load()}"
-									update="@form" />
+									action="#{importerMappingController.load()}" update="@form" />
+								<p:commandButton value="Save" styleClass="rounded-button"
+									rendered="#{importerMappingController.interfaceMappingSet ne null}"
+									update="@form">
+									<f:actionListener binding="#{importerMappingController.save()}" />
+								</p:commandButton>
 							</p:column>
 						</p:row>
 					</f:facet>
 				</p:panelGrid>
 			</p:panel>
-		</h:form>
-		<h:form>
-			<p:dialog header="Copy an Allocation Configuration" widgetVar="copy"
-				showEffect="fade" modal="true">
-				<p:panelGrid id="allocationConfiguration"
-					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
-					<p:row>
-						<p:column>
-							<p:outputLabel
-								value="Please choose an Allocation Configuration name :" />
-						</p:column>
-						<p:column>
-							<p:inputText
-								value="#{allocationConfigurationController.copyAllocationConfigurationName}" />
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column>
-							<p:outputLabel styleClass="tradista-menu-item"
-								value="Please choose a Processing Org :"
-								rendered="#{empty userManager.currentUserProcessingOrg}" />
-						</p:column>
-						<p:column>
-							<p:selectOneMenu
-								value="#{allocationConfigurationController.copyProcessingOrg}"
-								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
-								converter="legalEntityConverter">
-								<f:selectItems
-									value="#{allocationConfigurationController.allProcessingOrgs}" />
-							</p:selectOneMenu>
-						</p:column>
-					</p:row>
-				</p:panelGrid>
-				<f:facet name="footer">
-					<p:commandButton value="Ok" styleClass="rounded-button"
-						onclick="PF('copy').hide()"
-						update=":allocationConfigurationForm:allocationConfiguration">
-						<f:actionListener
-							binding="#{allocationConfigurationController.copy()}" />
-					</p:commandButton>
-					<p:commandButton value="Cancel" styleClass="rounded-button"
-						onclick="PF('copy').hide()" />
-				</f:facet>
-			</p:dialog>
 		</h:form>
 	</ui:define>
 </ui:composition>

@@ -1,10 +1,12 @@
 package org.eclipse.tradista.core.message.service;
 
+import java.io.Serializable;
+
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.message.model.ImportError;
-import org.eclipse.tradista.core.messsage.service.ImportErrorService;
+import org.eclipse.tradista.core.message.service.ImportErrorService;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -22,8 +24,10 @@ import org.eclipse.tradista.core.messsage.service.ImportErrorService;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImportErrorBusinessDelegate {
+public class ImportErrorBusinessDelegate implements Serializable {
 
+	private static final long serialVersionUID = 5689135570381210814L;
+	
 	private ImportErrorService importErrorService;
 
 	public ImportErrorBusinessDelegate() {

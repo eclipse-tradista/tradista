@@ -6,8 +6,12 @@
 						http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 	<bean id="importerConfiguration"
 		class="org.eclipse.tradista.core.importer.service.ImporterConfiguration">
-		<property name="modules" ref="modules" />
-		<property name="importers" ref="importers" />
+		<property name="modules">
+			<ref bean="modules" />
+		</property>
+		<property name="importers">
+			<ref bean="importers" />
+		</property>
 	</bean>
 	<!-- modules -->
 	<util:set id="modules" set-class="java.util.TreeSet">
@@ -16,14 +20,20 @@
 	<!-- importers -->
 	<util:set id="importers">
 		<!-- add references to importer beans like this : <ref bean="myImporter"/> -->
+		<ref bean="fixImporter" />
 	</util:set>
 	<!-- importer beans declarations -->
 	<bean id="fixImporter"
-		class="org.eclipse.tradista.fix.importer.model.FixImporter">
-		<property name="configFileName"
-			value="fixImporter.properties" />
-		<property name="name" value="MyFixTest" />
-		<property name="processingOrg" ref="po" />
+		class="org.eclipse.tradista.fix.importer.model.TradeCaptureReportImporter">
+		<constructor-arg type="String">
+			<value>MyFixTest</value>
+		</constructor-arg>
+		<constructor-arg type="String">
+			<value>fixImporter.properties</value>
+		</constructor-arg>
+		<constructor-arg>
+			<idref bean="po" />
+		</constructor-arg>
 	</bean>
 	<bean id="po" factory-bean="legalEntityBusinessDelegate"
 		factory-method="getLegalEntityByShortName">

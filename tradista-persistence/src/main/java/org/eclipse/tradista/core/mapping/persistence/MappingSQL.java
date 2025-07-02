@@ -1,14 +1,24 @@
 package org.eclipse.tradista.core.mapping.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 import org.eclipse.tradista.core.mapping.model.MappingType;
+import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -28,25 +38,36 @@ import org.eclipse.tradista.core.mapping.model.MappingType;
 
 public class MappingSQL {
 
-	public static String getMappingValue(String importerName, MappingType mappingType, String value) {
+	private static final String INTERFACE_NAME = "INTERFACE_NAME";
+	private static final String MAPPING_TYPE = "MAPPING_TYPE";
+	private static final String VALUE = "VALUE";
+	private static final String MAPPED_VALUE = "MAPPED_VALUE";
+	private static final String IS_INCOMING = "IS_INCOMING";
+
+	public static String getMappingValue(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction, String value) {
 		String mappedValue = null;
-		String importerNameSQL = "IMPORTER_NAME = ?";
-		if (StringUtils.isEmpty(importerName)) {
-			importerNameSQL = "IMPORTER_NAME IS NULL";
+		String interfaceNameSQL = INTERFACE_NAME + " = ?";
+		if (StringUtils.isEmpty(interfaceName)) {
+			interfaceNameSQL = INTERFACE_NAME + " IS NULL";
 		}
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetMappedValueByImporterNameMappingTypeAndValue = con.prepareStatement(
-						"SELECT * FROM MAPPING WHERE " + importerNameSQL + ", MAPPING_TYPE = ? AND VALUE = ? ")) {
+				PreparedStatement stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndValue = con
+						.prepareStatement("SELECT * FROM MAPPING, INTERFACE_MAPPING_SET" + WHERE + interfaceNameSQL
+								+ AND + "INTERFACE_MAPPING_SET.ID = MAPPING.INTERFACE_MAPPING_SET_ID" + AND
+								+ MAPPING_TYPE + "= ?" + AND + VALUE + "= ? " + AND + IS_INCOMING + "= ?")) {
 			int i = 1;
-			if (!StringUtils.isEmpty(importerName)) {
-				stmtGetMappedValueByImporterNameMappingTypeAndValue.setString(i, importerName);
+			if (!StringUtils.isEmpty(interfaceName)) {
+				stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndValue.setString(i, interfaceName);
 				i++;
 			}
-			stmtGetMappedValueByImporterNameMappingTypeAndValue.setString(i++, mappingType.name());
-			stmtGetMappedValueByImporterNameMappingTypeAndValue.setString(i, value);
-			try (ResultSet results = stmtGetMappedValueByImporterNameMappingTypeAndValue.executeQuery()) {
+			stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndValue.setString(i++, mappingType.name());
+			stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndValue.setString(i++, value);
+			stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndValue.setBoolean(i,
+					direction.equals(InterfaceMappingSet.Direction.INCOMING));
+			try (ResultSet results = stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndValue.executeQuery()) {
 				while (results.next()) {
-					mappedValue = results.getString("mapped_value");
+					mappedValue = results.getString(MAPPED_VALUE);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -55,26 +76,32 @@ public class MappingSQL {
 		}
 		return mappedValue;
 	}
-	
-	public static String getOriginalValue(String importerName, MappingType mappingType, String mappedValue) {
+
+	public static String getOriginalValue(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction, String mappedValue) {
 		String value = null;
-		String importerNameSQL = "IMPORTER_NAME = ?";
-		if (StringUtils.isEmpty(importerName)) {
-			importerNameSQL = "IMPORTER_NAME IS NULL";
+		String interfaceNameSQL = INTERFACE_NAME + " = ?";
+		if (StringUtils.isEmpty(interfaceName)) {
+			interfaceNameSQL = INTERFACE_NAME + " IS NULL";
 		}
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetMappedValueByImporterNameMappingTypeAndMappedValue = con.prepareStatement(
-						"SELECT * FROM MAPPING WHERE " + importerNameSQL + ", MAPPING_TYPE = ? AND MAPPED_VALUE = ? ")) {
+				PreparedStatement stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndMappedValue = con
+						.prepareStatement("SELECT * FROM MAPPING, INTERFACE_MAPPING_SET" + WHERE + interfaceNameSQL
+								+ AND + "INTERFACE_MAPPING_SET.ID = MAPPING.INTERFACE_MAPPING_SET_ID" + AND
+								+ MAPPING_TYPE + "= ?" + AND + MAPPED_VALUE + "= ? " + AND + IS_INCOMING + "= ?")) {
 			int i = 1;
-			if (!StringUtils.isEmpty(importerName)) {
-				stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.setString(i, importerName);
+			if (!StringUtils.isEmpty(interfaceName)) {
+				stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndMappedValue.setString(i, interfaceName);
 				i++;
 			}
-			stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.setString(i++, mappingType.name());
-			stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.setString(i, mappedValue);
-			try (ResultSet results = stmtGetMappedValueByImporterNameMappingTypeAndMappedValue.executeQuery()) {
+			stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndMappedValue.setString(i++, mappingType.name());
+			stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndMappedValue.setString(i++, mappedValue);
+			stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndMappedValue.setBoolean(i,
+					direction.equals(InterfaceMappingSet.Direction.INCOMING));
+			try (ResultSet results = stmtGetMappedValueByInterfaceNameMappingTypeDirectionAndMappedValue
+					.executeQuery()) {
 				while (results.next()) {
-					value = results.getString("value");
+					value = results.getString(VALUE);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -82,6 +109,114 @@ public class MappingSQL {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return value;
+	}
+
+	public static long saveInterfaceMappingSet(InterfaceMappingSet ims) {
+		long interfaceMappingSetId = 0;
+
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtSaveInterfaceMappingSet = (ims.getId() == 0)
+						? con.prepareStatement(
+								"INSERT INTO INTERFACE_MAPPING_SET(" + INTERFACE_NAME + "," + MAPPING_TYPE + ","
+										+ IS_INCOMING + "," + PROCESSING_ORG_ID + ") VALUES (?, ?, ?, ?)",
+								Statement.RETURN_GENERATED_KEYS)
+						: con.prepareStatement(
+								"UPDATE INTERFACE_MAPPING_SET SET " + INTERFACE_NAME + " = ?," + MAPPING_TYPE + " = ?,"
+										+ IS_INCOMING + " = ?," + PROCESSING_ORG_ID + " = ?" + WHERE + ID + " = ?");
+				PreparedStatement stmtDeleteMapping = con
+						.prepareStatement("DELETE FROM MAPPING WHERE INTERFACE_MAPPING_SET_ID = ?");
+				PreparedStatement stmtSaveMapping = con.prepareStatement("INSERT INTO MAPPING VALUES (?, ?, ?)");) {
+			if (ims.getId() != 0) {
+				stmtSaveInterfaceMappingSet.setLong(5, ims.getId());
+			}
+			stmtSaveInterfaceMappingSet.setString(1, ims.getInterfaceName());
+			stmtSaveInterfaceMappingSet.setString(2, ims.getMappingType().name());
+			stmtSaveInterfaceMappingSet.setBoolean(3, ims.isIncoming());
+			stmtSaveInterfaceMappingSet.setLong(4, ims.getProcessingOrg().getId());
+
+			stmtSaveInterfaceMappingSet.executeUpdate();
+
+			if (ims.getId() == 0) {
+				try (ResultSet generatedKeys = stmtSaveInterfaceMappingSet.getGeneratedKeys()) {
+					if (generatedKeys.next()) {
+						interfaceMappingSetId = generatedKeys.getLong(1);
+					} else {
+						throw new SQLException("Creating interface mapping set failed, no generated key obtained.");
+					}
+				}
+			} else {
+				interfaceMappingSetId = ims.getId();
+			}
+			if (ims.getId() != 0) {
+				stmtDeleteMapping.setLong(1, ims.getId());
+				stmtDeleteMapping.executeUpdate();
+			}
+			if (!CollectionUtils.isEmpty(ims.getMappings())) {
+				for (Mapping mapping : ims.getMappings()) {
+					stmtSaveMapping.clearParameters();
+					stmtSaveMapping.setString(1, mapping.getValue());
+					stmtSaveMapping.setString(2, mapping.getMappedValue());
+					stmtSaveMapping.setLong(3, interfaceMappingSetId);
+					stmtSaveMapping.addBatch();
+				}
+			}
+
+			stmtSaveMapping.executeBatch();
+
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		ims.setId(interfaceMappingSetId);
+		return interfaceMappingSetId;
+	}
+
+	public static InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction) {
+		InterfaceMappingSet ims = null;
+		String interfaceNameSQL = INTERFACE_NAME + " = ?";
+		if (StringUtils.isEmpty(interfaceName)) {
+			interfaceNameSQL = INTERFACE_NAME + " IS NULL";
+			interfaceName = null;
+		}
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo = con
+						.prepareStatement("SELECT " + ID + "," + INTERFACE_NAME + "," + MAPPING_TYPE + "," + IS_INCOMING
+								+ "," + PROCESSING_ORG_ID + "," + VALUE + "," + MAPPED_VALUE
+								+ " FROM INTERFACE_MAPPING_SET LEFT OUTER JOIN MAPPING ON INTERFACE_MAPPING_SET.ID = MAPPING.INTERFACE_MAPPING_SET_ID "
+								+ WHERE + interfaceNameSQL + AND + MAPPING_TYPE + " = ?" + AND + IS_INCOMING
+								+ "= ?");) {
+			int i = 1;
+			if (!StringUtils.isEmpty(interfaceName)) {
+				stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setString(i, interfaceName);
+				i++;
+			}
+			stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setString(i++, mappingType.name());
+			stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setBoolean(i,
+					direction.equals(InterfaceMappingSet.Direction.INCOMING));
+			ResultSet results = stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.executeQuery();
+			while (results.next()) {
+				if (ims == null) {
+					ims = new InterfaceMappingSet(interfaceName, mappingType, direction,
+							LegalEntitySQL.getLegalEntityById(results.getLong(PROCESSING_ORG_ID)));
+					ims.setId(results.getLong(ID));
+				}
+				if (results.getString(VALUE) != null) {
+					System.out.println("IMS hashcode: " + ims.hashCode());
+					System.out.println("IMS id" + ims.getId());
+					System.out.println("IMS " + ims);
+					System.out.println("IMS mapping type hashcode " + ims.getMappingType().hashCode());
+					System.out.println("IMS po hashcode  " + ims.getProcessingOrg().hashCode());
+					System.out.println("IMS direction hashcode " + ims.getDirection().hashCode());
+					System.out.println("ClassLoader of IMS direction: " + ims.getDirection().getClass().getClassLoader());
+					ims.addMapping(results.getString(VALUE), results.getString(MAPPED_VALUE));
+				}
+			}
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		return ims;
 	}
 
 }

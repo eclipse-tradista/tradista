@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.mapping.service;
 
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 
 import jakarta.ejb.Remote;
@@ -23,8 +24,15 @@ import jakarta.ejb.Remote;
 @Remote
 public interface MappingService {
 
-	String getMappingValue(String importerName, MappingType mappingType, String value);
+	String getMappingValue(String importerName, MappingType mappingType, InterfaceMappingSet.Direction direction,
+			String value);
 
-	String getOriginalValue(String importerName, MappingType mappingType, String value);
+	String getOriginalValue(String importerName, MappingType mappingType, InterfaceMappingSet.Direction direction,
+			String value);
+
+	long saveInterfaceMappingSet(InterfaceMappingSet ims);
+
+	InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction);
 
 }

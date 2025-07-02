@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.mapping.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.persistence.MappingSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -30,25 +31,38 @@ import jakarta.ejb.Stateless;
 public class MappingServiceBean implements MappingService {
 
 	@Override
-	public String getMappingValue(String importerName, MappingType mappingType, String value) {
-		String mappedValue = MappingSQL.getMappingValue(importerName, mappingType, value);
-		if (StringUtils.isEmpty(mappedValue) && !StringUtils.isEmpty(importerName)) {
+	public String getMappingValue(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction, String value) {
+		String mappedValue = MappingSQL.getMappingValue(interfaceName, mappingType, direction, value);
+		if (StringUtils.isEmpty(mappedValue) && !StringUtils.isEmpty(interfaceName)) {
 			// if mapping is not found, we try to search for a global mapping, ie applying
-			// to all importers
-			mappedValue = MappingSQL.getMappingValue(null, mappingType, value);
+			// to all interfaces
+			mappedValue = MappingSQL.getMappingValue(null, mappingType, direction, value);
 		}
 		return mappedValue;
 	}
 
 	@Override
-	public String getOriginalValue(String importerName, MappingType mappingType, String mappedValue) {
-		String value = MappingSQL.getOriginalValue(importerName, mappingType, mappedValue);
-		if (StringUtils.isEmpty(value) && !StringUtils.isEmpty(importerName)) {
+	public String getOriginalValue(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction, String mappedValue) {
+		String value = MappingSQL.getOriginalValue(interfaceName, mappingType, direction, mappedValue);
+		if (StringUtils.isEmpty(value) && !StringUtils.isEmpty(interfaceName)) {
 			// if mapping is not found, we try to search for a global mapping, ie applying
-			// to all importers
-			value = MappingSQL.getOriginalValue(null, mappingType, mappedValue);
+			// to all interfaces
+			value = MappingSQL.getOriginalValue(null, mappingType, direction, mappedValue);
 		}
 		return value;
+	}
+
+	@Override
+	public long saveInterfaceMappingSet(InterfaceMappingSet ims) {
+		return MappingSQL.saveInterfaceMappingSet(ims);
+	}
+
+	@Override
+	public InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
+			InterfaceMappingSet.Direction direction) {
+		return MappingSQL.getInterfaceMappingSet(interfaceName, mappingType, direction);
 	}
 
 }

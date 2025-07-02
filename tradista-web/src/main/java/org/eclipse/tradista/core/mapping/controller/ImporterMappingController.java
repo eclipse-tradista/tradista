@@ -1,27 +1,31 @@
 package org.eclipse.tradista.core.mapping.controller;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.eclipse.tradista.core.mapping.model.Mapping;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
-import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
-import org.primefaces.model.DualListModel;
+import org.primefaces.component.datatable.DataTable;
+import org.primefaces.event.CellEditEvent;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
@@ -48,15 +52,17 @@ public class ImporterMappingController implements Serializable {
 
 	private static final long serialVersionUID = -5732691208687962353L;
 
-	private Set<Mapping> importerMappings;
+	private InterfaceMappingSet interfaceMappingSet;
 
-	private String importerNameloadingCriterion;
-	
-	private MappingType mappingTypeloadingCriterion;
+	private String importerNameLoadingCriterion;
+
+	private MappingType mappingTypeLoadingCriterion;
 
 	private MappingBusinessDelegate mappingBusinessDelegate;
-	
+
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
+
+	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
 	private LegalEntity processingOrg;
 
@@ -64,22 +70,42 @@ public class ImporterMappingController implements Serializable {
 
 	private SortedSet<LegalEntity> allProcessingOrgs;
 
+	private MappingType[] allMappingTypes;
+
+	private Set<String> allImporterNames;
+
+	private SortedSet<String> availableLegalEntityShortNames;
+
 	@PostConstruct
 	public void init() {
+		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
+		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		mappingBusinessDelegate = new MappingBusinessDelegate();
+		Set<String> allImpNames;
 		if (ClientUtil.currentUserIsAdmin()) {
-			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
 			allProcessingOrgs = new TreeSet<>();
 			if (processingOrgs != null) {
 				allProcessingOrgs.addAll(processingOrgs);
 			}
 		}
-		initModel();
-	}
+		Set<LegalEntity> legalEntities = legalEntityBusinessDelegate.getAllLegalEntities();
+		availableLegalEntityShortNames = new TreeSet<>();
+		if (legalEntities != null) {
+			availableLegalEntityShortNames
+					.addAll(legalEntities.stream().map(le -> le.getShortName()).collect(Collectors.toSet()));
+		}
+		allImporterNames = new HashSet<>();
+		allImporterNames.add(StringUtils.EMPTY);
 
-	private void initModel() {
-		//books = new DualListModel<>(availableBooks, new ArrayList<>());
+		allImpNames = importerConfigurationBusinessDelegate.getAllImporterNames();
+
+		if (allImpNames != null) {
+			allImporterNames.addAll(allImpNames);
+		}
+
+		allMappingTypes = MappingType.values();
+		Arrays.sort(allMappingTypes);
 	}
 
 	public LegalEntity getProcessingOrg() {
@@ -108,20 +134,9 @@ public class ImporterMappingController implements Serializable {
 
 	public void save() {
 		try {
-			if (importerMappings == null) {
-				LegalEntity po;
-				if (ClientUtil.currentUserIsAdmin()) {
-					po = processingOrg;
-				} else {
-					po = ClientUtil.getCurrentUser().getProcessingOrg();
-				}
-				importerMappings = new AllocationConfiguration(allocationConfigurationName, po);
-			}
-			allocationConfiguration.setBooks(bookSet);
-			allocationConfiguration.setId(
-					allocationConfigurationBusinessDelegate.saveAllocationConfiguration(allocationConfiguration));
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-					"Allocation Configuration " + allocationConfiguration.getId() + " successfully saved"));
+			interfaceMappingSet.setId(mappingBusinessDelegate.saveInterfaceMappingSet(interfaceMappingSet));
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully saved"));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -129,51 +144,138 @@ public class ImporterMappingController implements Serializable {
 	}
 
 	public void load() {
-		AllocationConfiguration allocationConfiguration;
 		try {
-			if (loadingCriterion.equals("Id")) {
-				allocationConfiguration = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationById(Long.parseLong(idOrName));
-			} else {
-				allocationConfiguration = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationByName(idOrName);
-			}
-			if (allocationConfiguration != null) {
-				this.allocationConfiguration = allocationConfiguration;
-				allocationConfigurationName = allocationConfiguration.getName();
-				List<Book> allocConfigBooks = new ArrayList<>();
-				if (allocationConfiguration.getBooks() != null) {
-					allocConfigBooks = new ArrayList<>(allocationConfiguration.getBooks());
-					final List<Book> tmpAllocConfigBooks = allocConfigBooks;
-					books.setSource(books.getSource().stream().filter(s -> !tmpAllocConfigBooks.contains(s)).toList());
+			interfaceMappingSet = mappingBusinessDelegate.getInterfaceMappingSet(importerNameLoadingCriterion,
+					mappingTypeLoadingCriterion, InterfaceMappingSet.Direction.INCOMING);
+			if (interfaceMappingSet == null) {
+				LegalEntity po;
+				if (ClientUtil.currentUserIsAdmin()) {
+					po = processingOrg;
 				} else {
-					books.setSource(availableBooks);
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
 				}
-				books.setTarget(allocConfigBooks);
-				processingOrg = allocationConfiguration.getProcessingOrg();
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-						"Allocation Configuration " + allocationConfiguration.getId() + " successfully loaded."));
-			} else {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Error", "Allocation Configuration " + idOrName + " was not found."));
+				interfaceMappingSet = new InterfaceMappingSet(importerNameLoadingCriterion, mappingTypeLoadingCriterion,
+						InterfaceMappingSet.Direction.INCOMING, po);
 			}
-		} catch (NumberFormatException nfe) {
+			// We reinitialize the set of available legal entity short names
+			Set<LegalEntity> legalEntities = legalEntityBusinessDelegate.getAllLegalEntities();
+			availableLegalEntityShortNames.clear();
+			if (legalEntities != null) {
+				availableLegalEntityShortNames
+						.addAll(legalEntities.stream().map(le -> le.getShortName()).collect(Collectors.toSet()));
+			}
+			Set<Mapping> mappings = interfaceMappingSet.getMappings();
+			if (!CollectionUtils.isEmpty(mappings)) {
+				availableLegalEntityShortNames.removeAll(mappings.stream().map(Mapping::getMappedValue).toList());
+			}
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
+					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully loaded."));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 		}
-
 	}
 
-	public void clear() {
-		allocationConfiguration = null;
-		allocationConfigurationName = null;
-		processingOrg = null;
-		initModel();
-		FacesContext.getCurrentInstance().addMessage(null,
-				new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Form cleared"));
+	@SuppressWarnings({ "unchecked" })
+	public void onMappingAdded(CellEditEvent<String> event) {
+		if (interfaceMappingSet != null) {
+			Set<Mapping> mappings = interfaceMappingSet.getMappings();
+			if (!CollectionUtils.isEmpty(mappings)) {
+				Map<String, Object> attributes = ((UIComponent) event.getColumn()).getAttributes();
+				boolean isOriginalValueColumn = "originalValue".equals(attributes.get("colKey"));
+				DataTable table = (DataTable) ((UIComponent) event.getColumn()).getParent();
+				Set<Mapping> rows = (Set<Mapping>) table.getValue();
+				Set<String> seen = new HashSet<>();
+				boolean hasDuplicate = false;
+				for (Mapping mapping : rows) {
+					String value = isOriginalValueColumn ? mapping.getValue() : mapping.getMappedValue();
+					if (!StringUtils.isBlank(value)) {
+						if (!seen.add(value)) {
+							hasDuplicate = true;
+							break;
+						}
+					}
+				}
+				if (hasDuplicate) {
+					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+							"Warning", String.format("%s is already mapped.", event.getNewValue())));
+					Mapping mapping = (Mapping) event.getRowData();
+					if (isOriginalValueColumn) {
+						mapping.setValue(event.getOldValue());
+					} else {
+						mapping.setMappedValue(event.getOldValue());
+					}
+				}
+				if (!isOriginalValueColumn) {
+					// availableLegalEntityShortNames.removeAll(mappings.stream().map(Mapping::getMappedValue).toList());
+				}
+			}
+		}
+	}
+
+	public void addMapping() {
+		if (interfaceMappingSet != null) {
+			if (CollectionUtils.isEmpty(availableLegalEntityShortNames)) {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+						"Warning", "All Legal Entities are already mapped."));
+			} else {
+				interfaceMappingSet.addMapping(StringUtils.EMPTY, StringUtils.EMPTY);
+			}
+		}
+	}
+
+	public void removeMapping(Mapping mapping) {
+		if (interfaceMappingSet != null) {
+			interfaceMappingSet.removeMapping(mapping);
+		}
+	}
+
+	public InterfaceMappingSet getInterfaceMappingSet() {
+		return interfaceMappingSet;
+	}
+
+	public void setInterfaceMappingSet(InterfaceMappingSet interfaceMappingSet) {
+		this.interfaceMappingSet = interfaceMappingSet;
+	}
+
+	public String getImporterNameLoadingCriterion() {
+		return importerNameLoadingCriterion;
+	}
+
+	public void setImporterNameLoadingCriterion(String importerNameLoadingCriterion) {
+		this.importerNameLoadingCriterion = importerNameLoadingCriterion;
+	}
+
+	public MappingType getMappingTypeLoadingCriterion() {
+		return mappingTypeLoadingCriterion;
+	}
+
+	public void setMappingTypeLoadingCriterion(MappingType mappingTypeLoadingCriterion) {
+		this.mappingTypeLoadingCriterion = mappingTypeLoadingCriterion;
+	}
+
+	public MappingType[] getAllMappingTypes() {
+		return allMappingTypes;
+	}
+
+	public void setAllMappingTypes(MappingType[] allMappingTypes) {
+		this.allMappingTypes = allMappingTypes;
+	}
+
+	public Set<String> getAllImporterNames() {
+		return allImporterNames;
+	}
+
+	public void setAllImporterNames(Set<String> allImporterNames) {
+		this.allImporterNames = allImporterNames;
+	}
+
+	public SortedSet<String> getAvailableLegalEntityShortNames() {
+		return availableLegalEntityShortNames;
+	}
+
+	public void setAvailableLegalEntityShortNames(SortedSet<String> allLegalEntityShortNames) {
+		this.availableLegalEntityShortNames = allLegalEntityShortNames;
 	}
 
 }

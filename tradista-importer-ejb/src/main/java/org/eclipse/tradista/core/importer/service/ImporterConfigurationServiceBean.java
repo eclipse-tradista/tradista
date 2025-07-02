@@ -1,12 +1,16 @@
 package org.eclipse.tradista.core.importer.service;
 
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.importer.model.Importer;
-import org.eclipse.tradista.core.marketdata.service.ImporterConfigurationService;
+import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
@@ -52,8 +56,17 @@ public class ImporterConfigurationServiceBean implements ImporterConfigurationSe
 	}
 
 	@Override
-	public Set<Importer<?>> getImporters() {
+	public Set<Importer<?>> getAllImporters() {
 		return ((ImporterConfiguration) applicationContext.getBean(IMPORTER_CONFIGURATION_BEAN)).getImporters();
+	}
+
+	@Override
+	public SortedSet<String> getAllImporterNames() {
+		Set<Importer<?>> allImporters = getAllImporters();
+		if (!CollectionUtils.isEmpty(allImporters)) {
+			return allImporters.stream().map(i -> i.getName()).collect(Collectors.toCollection(TreeSet::new));
+		}
+		return null;
 	}
 
 }

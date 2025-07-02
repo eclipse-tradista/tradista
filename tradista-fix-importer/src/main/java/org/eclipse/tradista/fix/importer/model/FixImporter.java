@@ -19,8 +19,8 @@ package org.eclipse.tradista.fix.importer.model;
 import java.io.InputStream;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.importer.TradistaImporter;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.fix.importer.processing.ImportApplication;
 
 import quickfix.ConfigError;
@@ -45,6 +45,12 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 	private MessageCracker messageCracker;
 
 	private static SessionSettings settings;
+
+	protected FixImporter(String name, String configFileName, LegalEntity po) {
+		setName(name);
+		this.configFileName = configFileName;
+		setProcessingOrg(po);
+	}
 
 	@Override
 	protected void start() {
@@ -71,10 +77,6 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 
 	public String getConfigFileName() {
 		return configFileName;
-	}
-
-	public void setConfigFileName(String configFileName) {
-		this.configFileName = configFileName;
 	}
 
 	@Override

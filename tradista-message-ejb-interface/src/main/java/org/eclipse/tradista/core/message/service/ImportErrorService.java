@@ -1,8 +1,7 @@
-package org.eclipse.tradista.core.marketdata.service;
+package org.eclipse.tradista.core.message.service;
 
-import java.util.Set;
-
-import org.eclipse.tradista.core.importer.model.Importer;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.message.model.ImportError;
 
 import jakarta.ejb.Remote;
 
@@ -23,10 +22,7 @@ import jakarta.ejb.Remote;
  ********************************************************************************/
 
 @Remote
-public interface ImporterConfigurationService {
+public interface ImportErrorService {
 
-	Set<String> getModules();
-
-	Set<Importer<?>> getImporters();
-
+	long saveImportError(ImportError error) throws TradistaBusinessException;
 }

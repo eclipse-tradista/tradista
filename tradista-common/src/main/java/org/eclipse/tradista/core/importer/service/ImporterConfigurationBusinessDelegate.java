@@ -1,9 +1,10 @@
-package org.eclipse.tradista.core.messsage.service;
+package org.eclipse.tradista.core.importer.service;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.message.model.ImportError;
+import java.util.SortedSet;
 
-import jakarta.ejb.Remote;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -21,8 +22,16 @@ import jakarta.ejb.Remote;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Remote
-public interface ImportErrorService {
+public class ImporterConfigurationBusinessDelegate {
 
-	long saveImportError(ImportError error) throws TradistaBusinessException;
+	private ImporterConfigurationService importerConfigurationService;
+
+	public ImporterConfigurationBusinessDelegate() {
+		importerConfigurationService = TradistaServiceLocator.getInstance().getImporterConfigurationService();
+	}
+
+	public SortedSet<String> getAllImporterNames() {
+		return SecurityUtil.run(() -> importerConfigurationService.getAllImporterNames());
+	}
+
 }

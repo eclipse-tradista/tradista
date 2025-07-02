@@ -102,6 +102,8 @@ drop table action;
 drop sequence action_seq restrict;
 drop table status;
 drop sequence status_seq restrict;
+drop table mapping;
+drop table interface_mapping_set;
 -- tables below have no dependency
 drop table legal_entity;
 drop table index;
@@ -115,6 +117,5 @@ drop sequence guard_seq restrict;
 drop table process;
 drop sequence process_seq restrict;
 drop table message;
-drop table mapping;
 disconnect;
 exit;

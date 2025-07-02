@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.importer.model;
 
+import java.io.Serializable;
+
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 
 /********************************************************************************
@@ -18,9 +20,11 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public interface Importer<X> extends Runnable {
+public interface Importer<X> extends Runnable, Serializable {
 
 	String getType();
+
+	String getName();
 
 	void importMessage(X externalMessage) throws TradistaBusinessException;
 

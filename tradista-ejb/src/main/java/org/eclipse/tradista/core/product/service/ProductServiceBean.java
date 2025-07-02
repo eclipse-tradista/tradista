@@ -10,6 +10,7 @@ import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
@@ -45,11 +46,11 @@ public class ProductServiceBean implements ProductService {
 			in.close();
 			for (Object product : prop.keySet()) {
 				if (products == null) {
-					products = new HashSet<String>();
+					products = new HashSet<>();
 				}
 				products.add((String) product);
 			}
-		} catch (Exception e) {
+		} catch (Exception _) {
 		}
 		return products;
 	}
@@ -71,15 +72,15 @@ public class ProductServiceBean implements ProductService {
 	public Set<Product> getAllProducts() {
 		Set<Product> allProducts = null;
 		Set<String> listableProductTypes = new ProductBusinessDelegate().getAvailableListableProductTypes();
-		if (listableProductTypes != null & !listableProductTypes.isEmpty()) {
-			allProducts = new HashSet<Product>();
+		if (!CollectionUtils.isEmpty(listableProductTypes)) {
+			allProducts = new HashSet<>();
 			for (String productType : listableProductTypes) {
 				try {
 					Set<? extends Product> products = getAllProductsByType(productType);
 					if (products != null && !products.isEmpty()) {
 						allProducts.addAll(products);
 					}
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Should not happen here.
 				}
 			}

@@ -1,4 +1,4 @@
-package org.eclipse.tradista.core.messsage.service;
+package org.eclipse.tradista.core.message.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.message.model.Message;

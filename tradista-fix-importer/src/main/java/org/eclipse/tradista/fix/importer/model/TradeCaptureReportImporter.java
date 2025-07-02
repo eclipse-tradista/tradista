@@ -12,10 +12,12 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.importer.model.IncomingMessageManager;
 import org.eclipse.tradista.core.importer.model.TradeImporter;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.fix.common.TradistaFixUtil;
+import org.eclipse.tradista.fix.importer.util.TradistaFixImporterUtil;
 
 import quickfix.FieldNotFound;
 import quickfix.Group;
@@ -53,11 +55,15 @@ import quickfix.fix44.TradeCaptureReport;
 public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 		implements TradeImporter<TradeCaptureReport> {
 
+	private static final long serialVersionUID = 6939818228319837494L;
+
 	private String importedProcessingOrg;
 
-	public TradeCaptureReportImporter() {
+	public TradeCaptureReportImporter(String name, String configFileName, LegalEntity po)
+			throws TradistaBusinessException {
+		super(name, configFileName, po);
 		importedProcessingOrg = new MappingBusinessDelegate().getOriginalValue(getName(), MappingType.LegalEntity,
-				getProcessingOrg().getShortName());
+				InterfaceMappingSet.Direction.INCOMING, getProcessingOrg().getShortName());
 	}
 
 	@Handler
@@ -91,15 +97,15 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	}
 
 	public void checkTradeDate(TradeCaptureReport tcReport, StringBuilder errMsg) {
-		TradistaFixUtil.checkFixDate(tcReport, TradeDate.FIELD, "TradeDate", true, errMsg);
+		TradistaFixImporterUtil.checkFixDate(tcReport, TradeDate.FIELD, "TradeDate", true, errMsg);
 	}
 
 	public void checkSettlementDate(TradeCaptureReport tcReport, StringBuilder errMsg) {
-		TradistaFixUtil.checkFixDate(tcReport, SettlDate.FIELD, "SettlDate", true, errMsg);
+		TradistaFixImporterUtil.checkFixDate(tcReport, SettlDate.FIELD, "SettlDate", true, errMsg);
 	}
 
 	public void checkNotional(TradeCaptureReport tcReport, StringBuilder errMsg) {
-		TradistaFixUtil.checkFixAmount(tcReport, LastQty.FIELD, "LastQty", true, errMsg);
+		TradistaFixImporterUtil.checkFixAmount(tcReport, LastQty.FIELD, "LastQty", true, errMsg);
 	}
 
 	public void checkPrice(TradeCaptureReport tcReport, StringBuilder errMsg) {
@@ -181,7 +187,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 			if (noSides.getValue() != TWO) {
 				errMsg.append(String.format("NoSides field should be %c.%n", TWO));
 			}
-		} catch (FieldNotFound fnfe) {
+		} catch (FieldNotFound _) {
 			// Not expected here
 		}
 	}
@@ -222,7 +228,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 		if (tcReport.isSetSymbol()) {
 			try {
 				symbol = tcReport.getSymbol();
-			} catch (FieldNotFound fnfe) {
+			} catch (FieldNotFound _) {
 				// Not expected here.
 			}
 		}
@@ -259,7 +265,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 									return;
 								}
 							}
-						} catch (FieldNotFound fnfe) {
+						} catch (FieldNotFound _) {
 							// Not expected here.
 						}
 					}
@@ -289,7 +295,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 									}
 								}
 							}
-						} catch (FieldNotFound fnfe) {
+						} catch (FieldNotFound _) {
 							// Not expected here.
 						}
 					}
@@ -320,7 +326,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 									}
 								}
 							}
-						} catch (FieldNotFound fnfe) {
+						} catch (FieldNotFound _) {
 							// Not expected here.
 						}
 					}
@@ -357,24 +363,24 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 
 	@Override
 	public LocalDate getTradeDate(TradeCaptureReport tcReport) {
-		return TradistaFixUtil.parseFixDate(tcReport, TradeDate.FIELD);
+		return TradistaFixImporterUtil.parseFixDate(tcReport, TradeDate.FIELD);
 	}
 
 	@Override
 	public LocalDate getSettlementDate(TradeCaptureReport tcReport) {
-		return TradistaFixUtil.parseFixDate(tcReport, SettlDate.FIELD);
+		return TradistaFixImporterUtil.parseFixDate(tcReport, SettlDate.FIELD);
 	}
 
 	@Override
 	public BigDecimal getNotional(TradeCaptureReport tcReport) {
-		return TradistaFixUtil.parseFixAmount(tcReport, LastQty.FIELD);
+		return TradistaFixImporterUtil.parseFixAmount(tcReport, LastQty.FIELD);
 	}
 
 	@Override
 	public Currency getCurrency(TradeCaptureReport tcReport) throws TradistaBusinessException {
 		if (tcReport.isSetNoSides()) {
 			for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
-				return TradistaFixUtil.parseFixCurrency(sideGroup, quickfix.field.Currency.FIELD);
+				return TradistaFixImporterUtil.parseFixCurrency(sideGroup, quickfix.field.Currency.FIELD);
 			}
 		}
 		return null;
@@ -393,10 +399,10 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 							partyId = partyGroup.getString(PartyID.FIELD);
 							if (partyRole == TradistaFixUtil.CONTRA_FIRM_PARTY_ROLE
 									&& !importedProcessingOrg.equals(partyId)) {
-								return TradistaFixUtil.parseFixLegalEntity(getName(), partyGroup,
+								return TradistaFixImporterUtil.parseFixLegalEntity(getName(), partyGroup,
 										quickfix.field.PartyID.FIELD);
 							}
-						} catch (FieldNotFound fnfe) {
+						} catch (FieldNotFound _) {
 							// Not expected here.
 						}
 
@@ -419,12 +425,12 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 								String partyId = partyGroup.getString(PartyID.FIELD);
 								if (!StringUtils.isEmpty(partyId) && partyId.equals(importedProcessingOrg)) {
 									if (((TradeCaptureReport.NoSides) sideGroup).isSetAccount()) {
-										return TradistaFixUtil.parseFixBook(getName(), sideGroup,
+										return TradistaFixImporterUtil.parseFixBook(getName(), sideGroup,
 												quickfix.field.Account.FIELD);
 									}
 								}
 							}
-						} catch (FieldNotFound fnfe) {
+						} catch (FieldNotFound _) {
 							// Not expected here.
 						}
 					}
@@ -453,7 +459,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 									}
 								}
 							}
-						} catch (FieldNotFound fnfe) {
+						} catch (FieldNotFound _) {
 							// Not expected here.
 						}
 					}

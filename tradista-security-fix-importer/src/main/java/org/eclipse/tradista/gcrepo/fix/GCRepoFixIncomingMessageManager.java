@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.fix.common.TradistaFixUtil;
 import org.eclipse.tradista.fix.importer.model.FixImporter;
+import org.eclipse.tradista.fix.importer.util.TradistaFixImporterUtil;
 import org.eclipse.tradista.security.gcrepo.importer.model.GCRepoIncomingMessageManager;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
@@ -60,7 +60,7 @@ public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageMan
 
 	@Override
 	public void checkRightOfSubstitution(TradeCaptureReport tcReport, StringBuilder errMsg) {
-		checkStipulationTypeAndValue(tcReport, errMsg, "RightOfSubstitution", TradistaFixUtil.YES_NO_REGEX);
+		checkStipulationTypeAndValue(tcReport, errMsg, "RightOfSubstitution", TradistaFixImporterUtil.YES_NO_REGEX);
 	}
 
 	private void checkStipulationTypeAndValue(TradeCaptureReport tcReport, StringBuilder errMsg,
@@ -86,14 +86,14 @@ public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageMan
 					// Not expected here.
 				}
 			}
-			TradistaFixUtil.checkFixField(stipulationGroup, StipulationValue.FIELD, "StipulationValue", pattern, true,
-					errMsg);
+			TradistaFixImporterUtil.checkFixField(stipulationGroup, StipulationValue.FIELD, "StipulationValue", pattern,
+					true, errMsg);
 		}
 	}
 
 	@Override
 	public void checkRightOfReuse(TradeCaptureReport tcReport, StringBuilder errMsg) {
-		checkStipulationTypeAndValue(tcReport, errMsg, "RightOfReuse", TradistaFixUtil.YES_NO_REGEX);
+		checkStipulationTypeAndValue(tcReport, errMsg, "RightOfReuse", TradistaFixImporterUtil.YES_NO_REGEX);
 	}
 
 	@Override
@@ -114,13 +114,13 @@ public class GCRepoFixIncomingMessageManager implements GCRepoIncomingMessageMan
 	@Override
 	public boolean extractTerminableOnDemand(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		int errMsgLength = errMsg.length();
-		checkStipulationTypeAndValue(tcReport, errMsg, "TerminableOnDemand", TradistaFixUtil.YES_NO_REGEX);
+		checkStipulationTypeAndValue(tcReport, errMsg, "TerminableOnDemand", TradistaFixImporterUtil.YES_NO_REGEX);
 		return errMsgLength == errMsg.length();
 	}
 
 	@Override
 	public void checkNoticePeriod(TradeCaptureReport tcReport, StringBuilder errMsg) {
-		checkStipulationTypeAndValue(tcReport, errMsg, "NoticePeriod", TradistaFixUtil.NUMBER_OF_DAYS_REGEX);
+		checkStipulationTypeAndValue(tcReport, errMsg, "NoticePeriod", TradistaFixImporterUtil.NUMBER_OF_DAYS_REGEX);
 	}
 
 	@Override
