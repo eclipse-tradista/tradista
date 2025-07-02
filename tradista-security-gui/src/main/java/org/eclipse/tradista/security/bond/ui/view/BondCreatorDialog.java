@@ -11,7 +11,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -39,7 +38,7 @@ public class BondCreatorDialog extends TradistaDialog<Bond> {
 		Label isinLabel = new Label("ISIN: ");
 		TextField isinTextField = new TextField();
 		Label exchangeLabel = new Label("Exchange: ");
-		ComboBox<Exchange> exchangeComboBox = new ComboBox<Exchange>();
+		ComboBox<Exchange> exchangeComboBox = new ComboBox<>();
 		TradistaGUIUtil.fillExchangeComboBox(exchangeComboBox);
 		exchangeComboBox.setValue(exchange);
 		GridPane grid = new GridPane();
@@ -53,17 +52,16 @@ public class BondCreatorDialog extends TradistaDialog<Bond> {
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, Bond>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public Bond call(ButtonType b) {
 				if (b == buttonTypeOk) {
-					Bond bond = new Bond(exchangeComboBox.getValue(), isinTextField.getText());
-					return bond;
+					return new Bond(exchangeComboBox.getValue(), isinTextField.getText());
 				}
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

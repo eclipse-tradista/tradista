@@ -77,7 +77,7 @@ public class EquityOptionVolatilitySurfaceValidator {
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

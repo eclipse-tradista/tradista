@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.irswapoption.ui.controller;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.VOLATILITY;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -87,13 +89,34 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	private TextField addTextField;
 
 	@FXML
-	private Button saveButton, generateButton, deleteButton, addButton, includeButton, excludeButton;
+	private Button saveButton;
+
+	@FXML
+	private Button generateButton;
+
+	@FXML
+	private Button deleteButton;
+
+	@FXML
+	private Button addButton;
+
+	@FXML
+	private Button includeButton;
+
+	@FXML
+	private Button excludeButton;
 
 	@FXML
 	private CheckBox isGeneratedCheckBox;
 
 	@FXML
-	private ComboBox<String> algorithmComboBox, interpolatorComboBox, instanceComboBox;
+	private ComboBox<String> algorithmComboBox;
+
+	@FXML
+	private ComboBox<String> interpolatorComboBox;
+
+	@FXML
+	private ComboBox<String> instanceComboBox;
 
 	@FXML
 	private DatePicker quoteDate;
@@ -111,11 +134,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		super.initialize();
 		swaptionVolatilitySurfaceBusinessDelegate = new SwaptionVolatilitySurfaceBusinessDelegate();
 
-		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> cellFactory = new Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>>() {
-			public TableCell<SurfacePointProperty, String> call(TableColumn<SurfacePointProperty, String> p) {
-				return new EditingCell();
-			}
-		};
+		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> cellFactory = _ -> new EditingCell();
 
 		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().getOptionExpiry());
 
@@ -123,13 +142,12 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 		pointVolatility.setCellFactory(cellFactory);
 
-		pointVolatility.setOnEditCommit(new EventHandler<CellEditEvent<SurfacePointProperty, String>>() {
+		pointVolatility.setOnEditCommit(new EventHandler<>() {
 			@Override
 			public void handle(CellEditEvent<SurfacePointProperty, String> t) {
 				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), "Volatility");
-					((SurfacePointProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-							.setVolatility(t.getNewValue());
+					TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
+					t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
 				} catch (TradistaBusinessException tbe) {
 					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 					alert.showAndWait();
@@ -155,7 +173,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		pointSwapLength.setGraphic(swapLengthGraphic);
 
 		VBox volatilityGraphic = new VBox();
-		Label volatilityLabel = new Label("Volatility");
+		Label volatilityLabel = new Label(VOLATILITY);
 		volatilityLabel.setMaxWidth(100);
 		volatilityGraphic.setAlignment(Pos.CENTER);
 		volatilityGraphic.getChildren().addAll(volatilityLabel, volatilityTextField);
@@ -167,7 +185,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 		quoteDate.setValue(LocalDate.now());
 
-		volatilitySurface.valueProperty().addListener(new ChangeListener<SwaptionVolatilitySurface>() {
+		volatilitySurface.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends SwaptionVolatilitySurface> ov,
 					SwaptionVolatilitySurface oldSurf, SwaptionVolatilitySurface surf) {
@@ -201,7 +219,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 					// 2. Set the filter Predicate whenever the filter
 					// changes.
-					optionExpiryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+					optionExpiryTextField.textProperty().addListener((_, _, newValue) -> {
 						filteredData.setPredicate(point -> {
 							// If filter text is
 							// empty, display
@@ -213,7 +231,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 						});
 					});
 
-					swapLengthTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+					swapLengthTextField.textProperty().addListener((_, _, newValue) -> {
 						filteredData.setPredicate(point -> {
 							// If filter text is
 							// empty, display
@@ -225,7 +243,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 						});
 					});
 
-					volatilityTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+					volatilityTextField.textProperty().addListener((_, _, newValue) -> {
 						filteredData.setPredicate(point -> {
 							// If filter text is empty, display
 							// all persons.
@@ -273,7 +291,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			}
 			surface = new SwaptionVolatilitySurface(name, ClientUtil.getCurrentUser().getProcessingOrg());
 		}
-		surface.setQuotes(new ArrayList<Quote>(selectedQuotesList.getItems()));
+		surface.setQuotes(new ArrayList<>(selectedQuotesList.getItems()));
 
 		List<SurfacePoint<Integer, Integer, BigDecimal>> surfacePoints = toSurfacePointList(pointsTable.getItems());
 		surface.setPoints(surfacePoints);
@@ -403,7 +421,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	protected void search() {
 		String search = quoteNameTextField.getText();
 		if (quoteNameTextField.getText() != null) {
-			search = IRSwapOptionTrade.IR_SWAP_OPTION + ".%" + search.replaceAll("%", "") + "%";
+			search = IRSwapOptionTrade.IR_SWAP_OPTION + ".%" + search.replace("%", "") + "%";
 		}
 		fillQuoteNames(search);
 	}
@@ -447,8 +465,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
-
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -476,11 +493,10 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			textField.focusedProperty().addListener(new ChangeListener<>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
+					if (arg2 != null && !arg2) {
 						commitEdit(textField.getText());
 					}
 				}
@@ -489,7 +505,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? "" : getItem();
 		}
 	}
 
@@ -518,7 +534,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 	private List<SurfacePointProperty> toSurfacePointPropertyList(
 			List<SurfacePoint<Integer, Integer, BigDecimal>> data) {
-		List<SurfacePointProperty> surfacePointPropertyList = new ArrayList<SurfacePointProperty>();
+		List<SurfacePointProperty> surfacePointPropertyList = new ArrayList<>();
 		for (SurfacePoint<Integer, Integer, BigDecimal> point : data) {
 			String optionExpiry = toPeriodString(point.getxAxis());
 			String swapLength = toPeriodString(point.getyAxis());
@@ -532,17 +548,16 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 	private List<SurfacePoint<Integer, Integer, BigDecimal>> toSurfacePointList(List<SurfacePointProperty> data)
 			throws TradistaBusinessException {
-		List<SurfacePoint<Integer, Integer, BigDecimal>> surfacePointList = new ArrayList<SurfacePoint<Integer, Integer, BigDecimal>>();
+		List<SurfacePoint<Integer, Integer, BigDecimal>> surfacePointList = new ArrayList<>();
 		for (SurfacePointProperty point : data) {
 			try {
 				String optionExpiry = point.getOptionExpiry().getValue();
 				String swapLength = point.getSwapLength().getValue();
 				if (!optionExpiry.isEmpty() && !swapLength.isEmpty()) {
-					surfacePointList.add(new SurfacePoint<Integer, Integer, BigDecimal>(
-							toPeriodInteger(point.getOptionExpiry().getValue()),
+					surfacePointList.add(new SurfacePoint<>(toPeriodInteger(point.getOptionExpiry().getValue()),
 							toPeriodInteger(point.getSwapLength().getValue()),
 							point.getVolatility().getValue().isEmpty() ? null
-									: TradistaGUIUtil.parseAmount(point.getVolatility().getValue(), "Volatility")));
+									: TradistaGUIUtil.parseAmount(point.getVolatility().getValue(), VOLATILITY)));
 				}
 			} catch (DateTimeParseException dtpe) {
 				// TODO Auto-generated catch block
@@ -619,7 +634,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	}
 
 	private List<Long> toQuoteIdList(List<Quote> data) {
-		List<Long> idList = new ArrayList<Long>();
+		List<Long> idList = new ArrayList<>();
 		for (Quote quote : data) {
 			idList.add(quote.getId());
 		}

@@ -70,10 +70,6 @@ public class FXCurve extends GenerableCurve {
 		this.quoteCurrencyIRCurve = quoteCurrencyIRCurve;
 	}
 
-	public String toString() {
-		return this.getName();
-	}
-
 	@Override
 	public FXCurve clone() {
 		FXCurve curve = (FXCurve) super.clone();

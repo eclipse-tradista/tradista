@@ -36,10 +36,12 @@ public class MarketDataInformationServiceBean implements MarketDataInformationSe
 		MarketDataConfigurationBusinessDelegate marketDataConfigurationBusinessDelegate = new MarketDataConfigurationBusinessDelegate();
 		Set<String> modules = marketDataConfigurationBusinessDelegate.getModules();
 		if (modules != null && !modules.isEmpty()) {
-			map = new TreeMap<String, String>();
+			map = new TreeMap<>();
 			for (String m : modules) {
-				map.put(m, Package.getPackage("org.eclipse.tradista.core.marketdata." + m.toLowerCase())
-						.getImplementationVersion());
+				map.put(m,
+						this.getClass().getClassLoader()
+								.getDefinedPackage("org.eclipse.tradista.core.marketdata." + m.toLowerCase())
+								.getImplementationVersion());
 			}
 		}
 		return map;

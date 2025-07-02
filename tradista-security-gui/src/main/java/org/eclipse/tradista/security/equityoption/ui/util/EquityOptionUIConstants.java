@@ -1,9 +1,7 @@
-package org.eclipse.tradista.core.marketdata.model;
-
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+package org.eclipse.tradista.security.equityoption.ui.util;
 
 /********************************************************************************
- * Copyright (c) 2014 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,18 +16,11 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class InterestRateCurve extends GenerableCurve {
+public final class EquityOptionUIConstants {
 
-	private static final long serialVersionUID = 1L;
+	public static final String STRIKE_PRICE_RATIO = "Strike/Price ratio";
 
-	public static final String INTEREST_RATE_CURVE = "InterestRateCurve";
-
-	public InterestRateCurve(String name, LegalEntity po) {
-		super(name, po);
+	private EquityOptionUIConstants() {
 	}
 
-	public String getType() {
-		return INTEREST_RATE_CURVE;
-	}
-	
 }

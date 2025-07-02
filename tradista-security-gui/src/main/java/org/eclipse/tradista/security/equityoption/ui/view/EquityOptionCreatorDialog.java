@@ -26,7 +26,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -55,47 +54,46 @@ public class EquityOptionCreatorDialog extends TradistaDialog<EquityOption> {
 		TextField codeTextField = new TextField();
 		codeTextField.setText(equityOption.getCode());
 		Label contractSpecificationLabel = new Label("Contract Specification: ");
-		ComboBox<EquityOptionContractSpecification> contractSpecificationComboBox = new ComboBox<EquityOptionContractSpecification>();
+		ComboBox<EquityOptionContractSpecification> contractSpecificationComboBox = new ComboBox<>();
 		TradistaSecurityGUIUtil.fillEquityOptionContractSpecificationComboBox(contractSpecificationComboBox);
 		DatePicker maturityDateDatePicker = new DatePicker();
-		contractSpecificationComboBox.getSelectionModel().selectedItemProperty()
-				.addListener(new ChangeListener<EquityOptionContractSpecification>() {
-					@Override
-					public void changed(ObservableValue<? extends EquityOptionContractSpecification> arg0,
-							EquityOptionContractSpecification arg1, EquityOptionContractSpecification newEocs) {
-						if (newEocs != null) {
-							maturityDateDatePicker.setValue(null);
-							LocalDate startDate = LocalDate.now().minusYears(10);
-							Set<LocalDate> maturityDates = new DateRuleBusinessDelegate()
-									.generateDates(newEocs.getMaturityDatesDateRule(), startDate, Period.ofYears(100));
-							final Callback<DatePicker, DateCell> maturityDayCellFactory = new Callback<DatePicker, DateCell>() {
-								public DateCell call(final DatePicker datePicker) {
-									return new DateCell() {
+		contractSpecificationComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
+			@Override
+			public void changed(ObservableValue<? extends EquityOptionContractSpecification> arg0,
+					EquityOptionContractSpecification arg1, EquityOptionContractSpecification newEocs) {
+				if (newEocs != null) {
+					maturityDateDatePicker.setValue(null);
+					LocalDate startDate = LocalDate.now().minusYears(10);
+					Set<LocalDate> maturityDates = new DateRuleBusinessDelegate()
+							.generateDates(newEocs.getMaturityDatesDateRule(), startDate, Period.ofYears(100));
+					final Callback<DatePicker, DateCell> maturityDayCellFactory = new Callback<>() {
+						public DateCell call(final DatePicker datePicker) {
+							return new DateCell() {
 
-										private boolean isAvailable(LocalDate date) {
-											if (contractSpecificationComboBox.getValue() != null) {
-												return maturityDates.contains(date);
-											}
-											return true;
-										}
+								private boolean isAvailable(LocalDate date) {
+									if (contractSpecificationComboBox.getValue() != null) {
+										return maturityDates.contains(date);
+									}
+									return true;
+								}
 
-										@Override
-										public void updateItem(LocalDate item, boolean empty) {
-											super.updateItem(item, empty);
-											if (!isAvailable(item)) {
-												setDisable(true);
-											}
-										}
-									};
+								@Override
+								public void updateItem(LocalDate item, boolean empty) {
+									super.updateItem(item, empty);
+									if (!isAvailable(item)) {
+										setDisable(true);
+									}
 								}
 							};
-							maturityDateDatePicker.setDayCellFactory(maturityDayCellFactory);
 						}
-					}
-				});
+					};
+					maturityDateDatePicker.setDayCellFactory(maturityDayCellFactory);
+				}
+			}
+		});
 		contractSpecificationComboBox.setValue(equityOption.getEquityOptionContractSpecification());
 		Label typeLabel = new Label("Type: ");
-		ComboBox<OptionTrade.Type> typeComboBox = new ComboBox<OptionTrade.Type>();
+		ComboBox<OptionTrade.Type> typeComboBox = new ComboBox<>();
 		TradistaGUIUtil.fillOptionTypeComboBox(typeComboBox);
 		typeComboBox.setValue(equityOption.getType());
 		Label maturityDateLabel = new Label("Maturity Date: ");
@@ -123,7 +121,7 @@ public class EquityOptionCreatorDialog extends TradistaDialog<EquityOption> {
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
 
-		setResultConverter(new Callback<ButtonType, EquityOption>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public EquityOption call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -131,7 +129,7 @@ public class EquityOptionCreatorDialog extends TradistaDialog<EquityOption> {
 					BigDecimal strike = null;
 					try {
 						strike = TradistaGUIUtil.parseAmount(strikeTextField.getText(), "Strike");
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						Alert error = new Alert(AlertType.ERROR);
 						error.setContentText(
 								String.format("The strike (%s) is not a valid number.", strikeTextField.getText()));
@@ -144,7 +142,7 @@ public class EquityOptionCreatorDialog extends TradistaDialog<EquityOption> {
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

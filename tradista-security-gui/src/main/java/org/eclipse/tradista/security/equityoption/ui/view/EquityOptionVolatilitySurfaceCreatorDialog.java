@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.equityoption.ui.view;
 
+import static org.eclipse.tradista.security.equityoption.ui.util.EquityOptionUIConstants.STRIKE_PRICE_RATIO;
+
 import java.math.BigDecimal;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -22,7 +24,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -52,10 +53,10 @@ public class EquityOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<E
 		TextField nameTextField = new TextField();
 		Label addDeltaLabel = new Label("Add a Strike/Price ratio: ");
 		TextField addStrikePriceRatioTextField = new TextField();
-		TableView<StrikeProperty> selectedStrikePriceRatios = new TableView<StrikeProperty>();
-		TableColumn<StrikeProperty, String> strikePriceRatioValue = new TableColumn<StrikeProperty, String>();
-		selectedStrikePriceRatios.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		strikePriceRatioValue.setText("Strike/Price ratio");
+		TableView<StrikeProperty> selectedStrikePriceRatios = new TableView<>();
+		TableColumn<StrikeProperty, String> strikePriceRatioValue = new TableColumn<>();
+		selectedStrikePriceRatios.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+		strikePriceRatioValue.setText(STRIKE_PRICE_RATIO);
 		selectedStrikePriceRatios.getColumns().add(strikePriceRatioValue);
 		strikePriceRatioValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
 		GridPane grid = new GridPane();
@@ -75,30 +76,25 @@ public class EquityOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<E
 		grid.add(buttonsGrid, 2, 3);
 		getDialogPane().setContent(grid);
 
-		delete.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent arg0) {
-				selectedStrikePriceRatios.getItems()
-						.remove(selectedStrikePriceRatios.getSelectionModel().getSelectedItem());
-			}
-		});
+		delete.setOnAction(_ -> selectedStrikePriceRatios.getItems()
+				.remove(selectedStrikePriceRatios.getSelectionModel().getSelectedItem()));
 
-		add.setOnAction(new EventHandler<ActionEvent>() {
+		add.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
 					BigDecimal strikePriceRatio;
 
 					strikePriceRatio = TradistaGUIUtil.parseAmount(addStrikePriceRatioTextField.getText(),
-							"Strike/Price Ratio");
+							STRIKE_PRICE_RATIO);
 
 					boolean strikeExists = false;
 					if (selectedStrikePriceRatios.getItems() != null
 							&& !selectedStrikePriceRatios.getItems().isEmpty()) {
 						for (StrikeProperty prop : selectedStrikePriceRatios.getItems()) {
-							if (TradistaGUIUtil.parseAmount(prop.getValue().toString(), "Strike/Price Ratio")
+							if (TradistaGUIUtil.parseAmount(prop.getValue().getValue(), STRIKE_PRICE_RATIO)
 									.compareTo(TradistaGUIUtil.parseAmount(addStrikePriceRatioTextField.getText(),
-											"Strike/Price Ratio")) == 0) {
+											STRIKE_PRICE_RATIO)) == 0) {
 								strikeExists = true;
 								break;
 							}
@@ -108,8 +104,8 @@ public class EquityOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<E
 						selectedStrikePriceRatios.getItems()
 								.add(new StrikeProperty(TradistaGUIUtil.formatAmount(strikePriceRatio)));
 					}
-				} catch (TradistaBusinessException abe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+				} catch (TradistaBusinessException tbe) {
+					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 					alert.showAndWait();
 
 				}
@@ -120,7 +116,7 @@ public class EquityOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<E
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, EquityOptionVolatilitySurface>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public EquityOptionVolatilitySurface call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -130,15 +126,15 @@ public class EquityOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<E
 						surface.setStrikes(EquityOptionVolatilitySurfacesController
 								.toStrikeList(selectedStrikePriceRatios.getItems()));
 						return surface;
-					} catch (TradistaBusinessException abe) {
-						TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+					} catch (TradistaBusinessException tbe) {
+						TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 						alert.showAndWait();
 					}
 				}
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

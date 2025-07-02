@@ -71,7 +71,7 @@ public class QuoteProperty {
 			String quoteName, QuoteType quoteType) {
 
 		if (data == null) {
-			data = new ArrayList<QuoteValue>();
+			data = new ArrayList<>();
 		}
 
 		// Get the number of days in that month
@@ -107,7 +107,7 @@ public class QuoteProperty {
 	}
 
 	public static List<QuoteProperty> toQuotePropertyList(Collection<QuoteValue> data) {
-		List<QuoteProperty> quotePropertyList = new ArrayList<QuoteProperty>();
+		List<QuoteProperty> quotePropertyList = new ArrayList<>();
 		for (QuoteValue quoteValue : data) {
 			quotePropertyList
 					.add(new QuoteProperty(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(quoteValue.getDate()),
