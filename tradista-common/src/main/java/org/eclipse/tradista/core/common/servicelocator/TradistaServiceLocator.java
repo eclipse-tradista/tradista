@@ -608,7 +608,8 @@ public class TradistaServiceLocator {
 	}
 
 	public SurfaceService getSurfaceService() {
-		return (SurfaceService) getService(APP, CORE_EJB, MARKET_DATA_SERVICE_PACKAGE, "SurfaceService");
+		return (SurfaceService) getService(MARKET_DATA_APP, MARKET_DATA_EJB, MARKET_DATA_SERVICE_PACKAGE,
+				"SurfaceService");
 	}
 
 	public InformationService getInformationService() {

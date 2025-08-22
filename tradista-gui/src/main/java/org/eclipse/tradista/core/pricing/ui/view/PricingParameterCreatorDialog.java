@@ -17,7 +17,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -46,7 +45,7 @@ public class PricingParameterCreatorDialog extends TradistaDialog<PricingParamet
 		Label nameLabel = new Label("Name: ");
 		Label quoteSetLabel = new Label("Quote set: ");
 		TextField nameTextField = new TextField();
-		ComboBox<QuoteSet> quoteSetComboBox = new ComboBox<QuoteSet>();
+		ComboBox<QuoteSet> quoteSetComboBox = new ComboBox<>();
 		Set<QuoteSet> quoteSets = quoteBusinessDelegate.getAllQuoteSets();
 		ObservableList<QuoteSet> qs;
 		if (quoteSets == null || quoteSets.isEmpty()) {
@@ -67,7 +66,7 @@ public class PricingParameterCreatorDialog extends TradistaDialog<PricingParamet
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, PricingParameter>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public PricingParameter call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -77,7 +76,7 @@ public class PricingParameterCreatorDialog extends TradistaDialog<PricingParamet
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

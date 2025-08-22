@@ -40,6 +40,26 @@
 			<version>${core-persistence.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tradista.fx</groupId>
+			<artifactId>fx-ejb-client</artifactId>
+			<version>${fx-ejb-client.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.ir</groupId>
+			<artifactId>ir-ejb-client</artifactId>
+			<version>${ir-ejb-client.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.mm</groupId>
+			<artifactId>mm-ejb-client</artifactId>
+			<version>${mm-ejb-client.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.security</groupId>
+			<artifactId>security-ejb-client</artifactId>
+			<version>${security-ejb-client.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.jboss.ejb3</groupId>
 			<artifactId>jboss-ejb3-ext-api</artifactId>
 			<version>2.4.0.Final</version>

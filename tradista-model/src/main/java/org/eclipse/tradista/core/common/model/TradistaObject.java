@@ -30,11 +30,11 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 7708737499544151077L;
 
-	public TradistaObject(long id) {
+	protected TradistaObject(long id) {
 		this.id = id;
 	}
 
-	public TradistaObject() {
+	protected TradistaObject() {
 	}
 
 	private long id;
@@ -115,8 +115,8 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 					if (otherValue == null) {
 						return false;
 					}
-					if (value instanceof BigDecimal) {
-						if (((BigDecimal) value).compareTo((BigDecimal) otherValue) != 0) {
+					if (value instanceof BigDecimal bd) {
+						if (bd.compareTo((BigDecimal) otherValue) != 0) {
 							return false;
 						}
 					} else if (!value.equals(otherValue)) {
@@ -133,8 +133,8 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 	}
 
 	private List<Field> getIds(Class<? extends TradistaObject> klass) {
-		final List<Field> fields = new ArrayList<Field>();
-		final List<Field> allFields = new ArrayList<Field>(Arrays.asList(klass.getDeclaredFields()));
+		final List<Field> fields = new ArrayList<>();
+		final List<Field> allFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
 		for (final Field field : allFields) {
 			if (field.isAnnotationPresent(Id.class)) {
 				fields.add(field);
@@ -171,7 +171,7 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 	@SuppressWarnings("unchecked")
 	public List<Field> getAllIds() {
 		Class<? extends TradistaObject> klass = (Class<? extends TradistaObject>) this.getClass().getSuperclass();
-		List<Field> ids = new ArrayList<Field>();
+		List<Field> ids = new ArrayList<>();
 		while (!klass.equals(TradistaObject.class)) {
 			ids.addAll(getIds(klass));
 			klass = (Class<? extends TradistaObject>) klass.getSuperclass();
@@ -200,7 +200,7 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 		TradistaObject clone = null;
 		try {
 			clone = (TradistaObject) super.clone();
-		} catch (CloneNotSupportedException e) {
+		} catch (CloneNotSupportedException _) {
 			// Not expected, TradistaObject and subclasses are Cloneable
 		}
 		return clone;

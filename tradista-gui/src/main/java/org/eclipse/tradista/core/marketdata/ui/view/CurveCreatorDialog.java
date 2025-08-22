@@ -19,7 +19,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -47,7 +46,7 @@ public class CurveCreatorDialog extends TradistaDialog<Curve<LocalDate, BigDecim
 		Label nameLabel = new Label("Name: ");
 		TextField nameTextField = new TextField();
 		Label typeLabel = new Label("Type: ");
-		ComboBox<String> typeComboBox = new ComboBox<String>();
+		ComboBox<String> typeComboBox = new ComboBox<>();
 		typeComboBox.setItems(FXCollections.observableArrayList(new CurveBusinessDelegate().getAllCurveTypes()));
 		typeComboBox.getSelectionModel().selectFirst();
 		GridPane grid = new GridPane();
@@ -61,7 +60,7 @@ public class CurveCreatorDialog extends TradistaDialog<Curve<LocalDate, BigDecim
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, Curve<LocalDate, BigDecimal>>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public Curve<LocalDate, BigDecimal> call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -78,7 +77,7 @@ public class CurveCreatorDialog extends TradistaDialog<Curve<LocalDate, BigDecim
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

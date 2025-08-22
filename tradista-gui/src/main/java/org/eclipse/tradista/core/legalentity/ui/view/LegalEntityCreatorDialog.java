@@ -9,7 +9,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -49,7 +48,7 @@ public class LegalEntityCreatorDialog extends TradistaDialog<LegalEntity> {
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, LegalEntity>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public LegalEntity call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -60,7 +59,7 @@ public class LegalEntityCreatorDialog extends TradistaDialog<LegalEntity> {
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

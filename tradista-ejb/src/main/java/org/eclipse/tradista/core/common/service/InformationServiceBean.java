@@ -5,16 +5,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.marketdata.service.MarketDataInformationBusinessDelegate;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
-import org.eclipse.tradista.fx.common.service.FXInformationBusinessDelegate;
-import org.eclipse.tradista.ir.common.service.IRInformationBusinessDelegate;
-import org.eclipse.tradista.mm.common.service.MMInformationBusinessDelegate;
-import org.eclipse.tradista.security.common.service.SecurityInformationBusinessDelegate;
+import org.eclipse.tradista.fx.common.service.FXInformationService;
+import org.eclipse.tradista.ir.common.service.IRInformationService;
+import org.eclipse.tradista.mm.common.service.MMInformationService;
+import org.eclipse.tradista.security.common.service.SecurityInformationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 /********************************************************************************
@@ -38,7 +40,19 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class InformationServiceBean implements InformationService {
 
-	ProductBusinessDelegate productBusinessDelegate;
+	private ProductBusinessDelegate productBusinessDelegate;
+
+	@EJB
+	private FXInformationService fxInformationService;
+
+	@EJB
+	private MMInformationService mmInformationService;
+
+	@EJB
+	private IRInformationService irInformationService;
+
+	@EJB
+	private SecurityInformationService securityInformationService;
 
 	@PostConstruct
 	private void init() {
@@ -53,7 +67,10 @@ public class InformationServiceBean implements InformationService {
 		modules.put("Core", getClass().getPackage().getImplementationVersion());
 
 		// Get the Market Data version
-		modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
+		try {
+			modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
+		} catch (TradistaTechnicalException _) {
+		}
 
 		Set<String> prods = productBusinessDelegate.getAvailableProductTypes();
 
@@ -62,24 +79,24 @@ public class InformationServiceBean implements InformationService {
 				String prodFamily = null;
 				try {
 					prodFamily = productBusinessDelegate.getProductFamily(prod);
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Should not happen here
 				}
 				switch (prodFamily) {
 				case ("fx"): {
-					modules.put("FX", new FXInformationBusinessDelegate().getFXModuleVersion());
+					modules.put("FX", fxInformationService.getFXModuleVersion());
 					break;
 				}
 				case ("mm"): {
-					modules.put("MM", new MMInformationBusinessDelegate().getMMModuleVersion());
+					modules.put("MM", mmInformationService.getMMModuleVersion());
 					break;
 				}
 				case ("ir"): {
-					modules.put("IR", new IRInformationBusinessDelegate().getIRModuleVersion());
+					modules.put("IR", irInformationService.getIRModuleVersion());
 					break;
 				}
 				case ("security"): {
-					modules.put("Security", new SecurityInformationBusinessDelegate().getSecurityModuleVersion());
+					modules.put("Security", securityInformationService.getSecurityModuleVersion());
 					break;
 				}
 				}

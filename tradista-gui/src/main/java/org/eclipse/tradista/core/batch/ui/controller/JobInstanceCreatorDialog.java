@@ -14,7 +14,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -45,7 +44,7 @@ public class JobInstanceCreatorDialog extends TradistaDialog<TradistaJobInstance
 		Label nameLabel = new Label("Name: ");
 		Label quoteSetLabel = new Label("Job type: ");
 		TextField nameTextField = new TextField();
-		ComboBox<String> jobTypeComboBox = new ComboBox<String>();
+		ComboBox<String> jobTypeComboBox = new ComboBox<>();
 		ObservableList<String> jobTypes = FXCollections
 				.observableArrayList(new BatchBusinessDelegate().getAllJobTypes());
 		jobTypeComboBox.setItems(jobTypes);
@@ -61,7 +60,7 @@ public class JobInstanceCreatorDialog extends TradistaDialog<TradistaJobInstance
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, TradistaJobInstance>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public TradistaJobInstance call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -71,7 +70,7 @@ public class JobInstanceCreatorDialog extends TradistaDialog<TradistaJobInstance
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

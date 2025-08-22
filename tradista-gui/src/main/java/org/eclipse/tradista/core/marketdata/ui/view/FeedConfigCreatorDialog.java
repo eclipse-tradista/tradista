@@ -13,7 +13,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -41,7 +40,7 @@ public class FeedConfigCreatorDialog extends TradistaDialog<FeedConfig> {
 		Label nameLabel = new Label("Name: ");
 		Label typeLabel = new Label("Feed Type: ");
 		TextField nameTextField = new TextField();
-		ComboBox<FeedType> feedTypeComboBox = new ComboBox<FeedType>();
+		ComboBox<FeedType> feedTypeComboBox = new ComboBox<>();
 		feedTypeComboBox.setItems(FXCollections.observableArrayList(FeedType.values()));
 		feedTypeComboBox.getSelectionModel().selectFirst();
 		GridPane grid = new GridPane();
@@ -55,7 +54,7 @@ public class FeedConfigCreatorDialog extends TradistaDialog<FeedConfig> {
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, FeedConfig>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public FeedConfig call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -65,7 +64,7 @@ public class FeedConfigCreatorDialog extends TradistaDialog<FeedConfig> {
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

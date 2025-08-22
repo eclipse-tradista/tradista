@@ -23,8 +23,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
+
+import static org.eclipse.tradista.fx.fxoption.ui.util.FXOptionUIConstants.DELTA;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -52,10 +53,10 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 		TextField nameTextField = new TextField();
 		Label addDeltaLabel = new Label("Add a delta: ");
 		TextField addDeltaTextField = new TextField();
-		TableView<DeltaProperty> selectedDeltas = new TableView<DeltaProperty>();
-		TableColumn<DeltaProperty, String> deltaValue = new TableColumn<DeltaProperty, String>();
-		selectedDeltas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		deltaValue.setText("Delta");
+		TableView<DeltaProperty> selectedDeltas = new TableView<>();
+		TableColumn<DeltaProperty, String> deltaValue = new TableColumn<>();
+		selectedDeltas.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+		deltaValue.setText(DELTA);
 		selectedDeltas.getColumns().add(deltaValue);
 		deltaValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
 		GridPane grid = new GridPane();
@@ -75,23 +76,18 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 		grid.add(buttonsGrid, 2, 3);
 		getDialogPane().setContent(grid);
 
-		delete.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent arg0) {
-				selectedDeltas.getItems().remove(selectedDeltas.getSelectionModel().getSelectedItem());
-			}
-		});
+		delete.setOnAction(_ -> selectedDeltas.getItems().remove(selectedDeltas.getSelectionModel().getSelectedItem()));
 
-		add.setOnAction(new EventHandler<ActionEvent>() {
+		add.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
 					if (!StringUtils.isBlank(addDeltaTextField.getText())) {
-						BigDecimal delta = TradistaGUIUtil.parseAmount(addDeltaTextField.getText(), "Delta");
+						BigDecimal delta = TradistaGUIUtil.parseAmount(addDeltaTextField.getText(), DELTA);
 						boolean deltaExists = false;
 						if (selectedDeltas.getItems() != null && !selectedDeltas.getItems().isEmpty()) {
 							for (DeltaProperty prop : selectedDeltas.getItems()) {
-								if (TradistaGUIUtil.parseAmount(prop.getValue().getValue(), "Delta")
+								if (TradistaGUIUtil.parseAmount(prop.getValue().getValue(), DELTA)
 										.compareTo(delta) == 0) {
 									deltaExists = true;
 									break;
@@ -113,7 +109,7 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<ButtonType, FXVolatilitySurface>() {
+		setResultConverter(new Callback<>() {
 			@Override
 			public FXVolatilitySurface call(ButtonType b) {
 				if (b == buttonTypeOk) {
@@ -122,15 +118,15 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 								ClientUtil.getCurrentUser().getProcessingOrg());
 						surface.setDeltas(FXVolatilitySurfacesController.toDeltaList(selectedDeltas.getItems()));
 						return surface;
-					} catch (TradistaBusinessException abe) {
-						TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+					} catch (TradistaBusinessException tbe) {
+						TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 						alert.showAndWait();
 					}
 				}
 				return null;
 			}
 		});
-		TradistaGUIUtil.resizeComponents((Stage) getDialogPane().getScene().getWindow(), 0);
+		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 
 }

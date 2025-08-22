@@ -202,13 +202,6 @@ public class MappingSQL {
 					ims.setId(results.getLong(ID));
 				}
 				if (results.getString(VALUE) != null) {
-					System.out.println("IMS hashcode: " + ims.hashCode());
-					System.out.println("IMS id" + ims.getId());
-					System.out.println("IMS " + ims);
-					System.out.println("IMS mapping type hashcode " + ims.getMappingType().hashCode());
-					System.out.println("IMS po hashcode  " + ims.getProcessingOrg().hashCode());
-					System.out.println("IMS direction hashcode " + ims.getDirection().hashCode());
-					System.out.println("ClassLoader of IMS direction: " + ims.getDirection().getClass().getClassLoader());
 					ims.addMapping(results.getString(VALUE), results.getString(MAPPED_VALUE));
 				}
 			}

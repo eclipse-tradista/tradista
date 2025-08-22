@@ -237,7 +237,8 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 			if (!new IRSwapTradeBusinessDelegate().isBusinessDay(irSwapOptionTrade.getUnderlying(),
 					irSwapOptionTrade.getUnderlyingSettlementDate())) {
 				errMsg.append(String.format(
-						"In case of cash settlement, the underlying settlement date must be a business day for the currency (%s) of the underlying.%n"));
+						"In case of cash settlement, the underlying settlement date must be a business day for the currency (%s) of the underlying.%n",
+						irSwapOptionTrade.getUnderlying().getCurrency()));
 			}
 		}
 
@@ -277,7 +278,7 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 			errMsg.append(String.format("The premium (%s) must be positive.%n", trade.getAmount().doubleValue()));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

@@ -1,5 +1,8 @@
 package org.eclipse.tradista.security.equityoption.ui.controller;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.VOLATILITY;
+import static org.eclipse.tradista.security.equityoption.ui.util.EquityOptionUIConstants.STRIKE_PRICE_RATIO;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -85,19 +88,43 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	private ComboBox<EquityOptionVolatilitySurface> volatilitySurface;
 
 	@FXML
-	private Button saveButton, generateButton, deleteButton, addButton, includeButton, excludeButton;
+	private Button saveButton;
+
+	@FXML
+	private Button generateButton;
+
+	@FXML
+	private Button deleteButton;
+
+	@FXML
+	private Button addButton;
+
+	@FXML
+	private Button includeButton;
+
+	@FXML
+	private Button excludeButton;
 
 	@FXML
 	private CheckBox isGeneratedCheckBox;
 
 	@FXML
-	private ComboBox<String> algorithmComboBox, interpolatorComboBox, instanceComboBox;
+	private ComboBox<String> algorithmComboBox;
+
+	@FXML
+	private ComboBox<String> interpolatorComboBox;
+
+	@FXML
+	private ComboBox<String> instanceComboBox;
 
 	@FXML
 	private DatePicker quoteDate;
 
 	@FXML
-	private Button addStrike, removeStrike;
+	private Button addStrike;
+
+	@FXML
+	private Button removeStrike;
 
 	@FXML
 	private ListView<String> selectedStrikes;
@@ -120,11 +147,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		super.initialize();
 		equityOptionVolatilitySurfaceBusinessDelegate = new EquityOptionVolatilitySurfaceBusinessDelegate();
 
-		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> stringCellFactory = new Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>>() {
-			public TableCell<SurfacePointProperty, String> call(TableColumn<SurfacePointProperty, String> p) {
-				return new StringEditingCell();
-			}
-		};
+		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> stringCellFactory = _ -> new StringEditingCell();
 
 		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().getOptionExpiry());
 
@@ -132,13 +155,12 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 		pointVolatility.setCellFactory(stringCellFactory);
 
-		pointVolatility.setOnEditCommit(new EventHandler<CellEditEvent<SurfacePointProperty, String>>() {
+		pointVolatility.setOnEditCommit(new EventHandler<>() {
 			@Override
 			public void handle(CellEditEvent<SurfacePointProperty, String> t) {
 				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), "Volatility");
-					((SurfacePointProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-							.setVolatility(t.getNewValue());
+					TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
+					t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
 				} catch (TradistaBusinessException tbe) {
 					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 					alert.showAndWait();
@@ -163,7 +185,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		pointStrike.setGraphic(strikeGraphic);
 
 		VBox volatilityGraphic = new VBox();
-		Label volatilityLabel = new Label("Volatility");
+		Label volatilityLabel = new Label(VOLATILITY);
 		volatilityLabel.setMaxWidth(100);
 		volatilityGraphic.setAlignment(Pos.CENTER);
 		volatilityGraphic.getChildren().addAll(volatilityLabel, volatilityTextField);
@@ -175,7 +197,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 		quoteDate.setValue(LocalDate.now());
 
-		volatilitySurface.valueProperty().addListener(new ChangeListener<EquityOptionVolatilitySurface>() {
+		volatilitySurface.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends EquityOptionVolatilitySurface> ov,
 					EquityOptionVolatilitySurface oldSurf, EquityOptionVolatilitySurface surf) {
@@ -214,43 +236,40 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 					// 2. Set the filter Predicate whenever the filter
 					// changes.
-					optionExpiryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty,
-							// display all
-							// persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getOptionExpiry().toString().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
+					optionExpiryTextField.textProperty()
+							.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+								// If filter text is
+								// empty,
+								// display all
+								// persons.
+								if (newValue == null || newValue.isEmpty()) {
+									return true;
+								}
+								return point.getOptionExpiry().toString().toUpperCase()
+										.contains(newValue.toUpperCase());
+							}));
 
-					strikeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty,
-							// display all
-							// persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getStrike().getValue().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
+					strikeTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+						// If filter text is
+						// empty,
+						// display all
+						// persons.
+						if (newValue == null || newValue.isEmpty()) {
+							return true;
+						}
+						return point.getStrike().getValue().toUpperCase().contains(newValue.toUpperCase());
+					}));
 
-					volatilityTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is empty, display
-							// all
-							// persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getVolatility().toString().contains(newValue);
-						});
-					});
+					volatilityTextField.textProperty()
+							.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+								// If filter text is empty, display
+								// all
+								// persons.
+								if (newValue == null || newValue.isEmpty()) {
+									return true;
+								}
+								return point.getVolatility().toString().contains(newValue);
+							}));
 
 					pointsTable.setItems(sortedData);
 					pointsTable.refresh();
@@ -293,14 +312,14 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 			}
 			surface = new EquityOptionVolatilitySurface(name, ClientUtil.getCurrentUser().getProcessingOrg());
 		}
-		surface.setQuotes(new ArrayList<Quote>(selectedQuotesList.getItems()));
+		surface.setQuotes(new ArrayList<>(selectedQuotesList.getItems()));
 
 		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = toSurfacePointList(pointsTable.getItems());
 		surface.setPoints(surfacePoints);
 
 		surface.setQuoteSet(quoteSet.getValue());
 
-		List<BigDecimal> strikes = TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), "Strike/Price Ratio");
+		List<BigDecimal> strikes = TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), STRIKE_PRICE_RATIO);
 		surface.setStrikes(strikes);
 		if (isGeneratedCheckBox.isSelected()) {
 			surface.setInstance(instanceComboBox.getValue());
@@ -407,7 +426,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	protected void search() {
 		String search = quoteNameTextField.getText();
 		if (quoteNameTextField.getText() != null) {
-			search = EquityOption.EQUITY_OPTION + ".%" + search.replaceAll("%", "") + "%";
+			search = EquityOption.EQUITY_OPTION + ".%" + search.replace("%", "") + "%";
 		}
 		fillQuoteNames(search);
 	}
@@ -434,10 +453,10 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	@FXML
 	protected void addStrike() {
 		try {
-			BigDecimal strike = TradistaGUIUtil.parseAmount(strikeToAdd.getText(), "Strike/Price Ratio");
+			BigDecimal strike = TradistaGUIUtil.parseAmount(strikeToAdd.getText(), STRIKE_PRICE_RATIO);
 			boolean strikeExists = false;
 			if (selectedStrikes.getItems() != null && !selectedStrikes.getItems().isEmpty()) {
-				for (BigDecimal s : TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), "Strike/Price Ratio")) {
+				for (BigDecimal s : TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), STRIKE_PRICE_RATIO)) {
 					if (s.compareTo(strike) == 0) {
 						strikeExists = true;
 						break;
@@ -451,9 +470,9 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 				pointsTable.setItems(FXCollections.observableArrayList(properties));
 				pointsTable.refresh();
 			}
-		} catch (TradistaBusinessException abe) {
+		} catch (TradistaBusinessException _) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR,
-					String.format("The Strike/Price ratio (%s) is incorrect.", strikeToAdd.getText()));
+					String.format("The %s (%s) is incorrect.", STRIKE_PRICE_RATIO, strikeToAdd.getText()));
 			alert.showAndWait();
 		}
 	}
@@ -463,9 +482,9 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		try {
 			if (pointsTable.getItems() != null && !pointsTable.getItems().isEmpty()) {
 				for (SurfacePointProperty prop : pointsTable.getItems()) {
-					if (TradistaGUIUtil.parseAmount(prop.getStrike().getValue(), "Strike/Price Ratio").compareTo(
+					if (TradistaGUIUtil.parseAmount(prop.getStrike().getValue(), STRIKE_PRICE_RATIO).compareTo(
 							TradistaGUIUtil.parseAmount(selectedStrikes.getSelectionModel().getSelectedItem(),
-									"Strike/Price Ratio")) == 0) {
+									STRIKE_PRICE_RATIO)) == 0) {
 						if (!StringUtils.isEmpty(prop.getVolatility().getValue())) {
 							TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 							confirmation.setTitle("Remove Strike/Price Ratio");
@@ -480,11 +499,11 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 								selectedStrikes.getItems().remove(strikePriceRatioToBeRemoved);
 								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(
 										pointsTable.getItems());
-								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<>();
 								if (!points.isEmpty()) {
 									for (SurfacePoint<Integer, BigDecimal, BigDecimal> p : points) {
 										if (p.getyAxis().compareTo(TradistaGUIUtil
-												.parseAmount(strikePriceRatioToBeRemoved, "Strike/Price Ratio")) == 0) {
+												.parseAmount(strikePriceRatioToBeRemoved, STRIKE_PRICE_RATIO)) == 0) {
 											toBeRemoved.add(p);
 										}
 									}
@@ -502,7 +521,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 			String strikePriceRatioToBeRemoved = selectedStrikes.getSelectionModel().getSelectedItem();
 			selectedStrikes.getItems().remove(strikePriceRatioToBeRemoved);
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(pointsTable.getItems());
-			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<>();
 			if (!points.isEmpty()) {
 				for (SurfacePoint<Integer, BigDecimal, BigDecimal> p : points) {
 					if (p.getyAxis().compareTo(
@@ -527,7 +546,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints;
 		try {
 			List<String> quoteNames = toQuoteStringList(selectedQuotesList.getItems());
-			List<BigDecimal> strikes = TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), "Strike/Price Ratio");
+			List<BigDecimal> strikes = TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), STRIKE_PRICE_RATIO);
 
 			surfacePoints = equityOptionVolatilitySurfaceBusinessDelegate.generate(algorithmComboBox.getValue(),
 					interpolatorComboBox.getValue(), instanceComboBox.getValue(), quoteDate.getValue(),
@@ -542,9 +561,9 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	}
 
 	public static List<BigDecimal> toStrikeList(ObservableList<StrikeProperty> items) throws TradistaBusinessException {
-		List<BigDecimal> strikeList = new ArrayList<BigDecimal>();
+		List<BigDecimal> strikeList = new ArrayList<>();
 		for (StrikeProperty strike : items) {
-			strikeList.add(TradistaGUIUtil.parseAmount(strike.getValue().toString(), "Strike/Price Ratio"));
+			strikeList.add(TradistaGUIUtil.parseAmount(strike.getValue().getValue(), STRIKE_PRICE_RATIO));
 		}
 		return strikeList;
 	}
@@ -571,8 +590,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
-
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -600,11 +618,10 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			textField.focusedProperty().addListener(new ChangeListener<>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
+					if (arg2 != null && !arg2) {
 						commitEdit(textField.getText());
 					}
 				}
@@ -613,7 +630,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? "" : getItem();
 		}
 	}
 
@@ -639,8 +656,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		@Override
 		public void cancelEdit() {
 			super.cancelEdit();
-
-			setText(getItem().toString());
+			setText(getItem());
 			setGraphic(null);
 		}
 
@@ -668,11 +684,10 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			textField.focusedProperty().addListener(new ChangeListener<>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
+					if (arg2 != null && !arg2) {
 						commitEdit(textField.getText());
 					}
 				}
@@ -681,7 +696,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? "" : getItem();
 		}
 	}
 
@@ -690,10 +705,9 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		if (data != null) {
 			Collection<Number> optionLifetimes = equityOptionVolatilitySurfaceBusinessDelegate.getAllOptionExpiries();
 			for (Number optionLifetime : optionLifetimes) {
-				for (BigDecimal strike : TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(),
-						"Strike/Price Ratio")) {
-					SurfacePoint<Integer, BigDecimal, BigDecimal> point = new SurfacePoint<Integer, BigDecimal, BigDecimal>(
-							(Integer) optionLifetime, strike, null);
+				for (BigDecimal strike : TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), STRIKE_PRICE_RATIO)) {
+					SurfacePoint<Integer, BigDecimal, BigDecimal> point = new SurfacePoint<>((Integer) optionLifetime,
+							strike, null);
 					if (!data.contains(point)) {
 						data.add(point);
 					}
@@ -709,7 +723,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 	private List<SurfacePointProperty> toSurfacePointPropertyList(
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> data) {
-		List<SurfacePointProperty> surfacePointPropertyList = new ArrayList<SurfacePointProperty>();
+		List<SurfacePointProperty> surfacePointPropertyList = new ArrayList<>();
 		if (data != null && !data.isEmpty()) {
 			try {
 				for (SurfacePoint<Integer, BigDecimal, BigDecimal> point : data) {
@@ -732,7 +746,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	}
 
 	private List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toSurfacePointList(List<SurfacePointProperty> data) {
-		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePointList = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePointList = new ArrayList<>();
 		try {
 			for (SurfacePointProperty point : data) {
 				try {
@@ -741,11 +755,11 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 					String strike = point.getStrike().getValue();
 					if (!optionExpiry.isEmpty() && !volatility.isEmpty()) {
 
-						surfacePointList.add(new SurfacePoint<Integer, BigDecimal, BigDecimal>(
+						surfacePointList.add(new SurfacePoint<>(
 								equityOptionVolatilitySurfaceBusinessDelegate
 										.getOptionExpiryValue(point.getOptionExpiry().getValue()),
-								TradistaGUIUtil.parseAmount(strike, "Strike/Price Ratio"),
-								TradistaGUIUtil.parseAmount(volatility, "Volatility")));
+								TradistaGUIUtil.parseAmount(strike, STRIKE_PRICE_RATIO),
+								TradistaGUIUtil.parseAmount(volatility, VOLATILITY)));
 
 					}
 				} catch (DateTimeParseException dtpe) {
@@ -762,7 +776,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	}
 
 	private List<String> toQuoteStringList(List<Quote> data) {
-		List<String> nameList = new ArrayList<String>();
+		List<String> nameList = new ArrayList<>();
 		for (Quote quote : data) {
 			nameList.add(quote.getName());
 		}

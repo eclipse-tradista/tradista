@@ -49,8 +49,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -236,371 +234,373 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 
 	private ChangeListener<Trade.Direction> directionListener;
 
+	private static final String BOND_PRICE_NOT_AVAILABLE_AS_OF_TRADE_DATE_IN_QUOTE_SET = "Bond %s price is not available as of Trade Date (%tD) in QuoteSet %s.";
+
+	private static final String CANNOT_GET_BOND_PRICE_AS_OF_TRADE_DATE_IN_QUOTE_SET = "Cannot get bond %s price as of Trade Date (%tD) in QuoteSet %s, please contact support.";
+
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 		super.initialize();
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(1));
-		tradeType.setText("Bond Trade");
+		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+			quoteValues = Collections.synchronizedSet(HashSet.newHashSet(1));
+			tradeType.setText("Bond Trade");
 
-		bondBusinessDelegate = new BondBusinessDelegate();
-		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
-		pricerBusinessDelegate = new PricerBusinessDelegate();
-		bondTradeBusinessDelegate = new BondTradeBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
+			bondBusinessDelegate = new BondBusinessDelegate();
+			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
+			pricerBusinessDelegate = new PricerBusinessDelegate();
+			bondTradeBusinessDelegate = new BondTradeBusinessDelegate();
+			bookBusinessDelegate = new BookBusinessDelegate();
+			bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
 
-		tradeDate.setValue(LocalDate.now());
+			tradeDate.setValue(LocalDate.now());
 
-		// Quotes initialization
-		quoteName.setCellValueFactory(cellData -> cellData.getValue().getName());
-		quoteDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
-		quoteType.setCellValueFactory(cellData -> cellData.getValue().getType());
+			// Quotes initialization
+			quoteName.setCellValueFactory(cellData -> cellData.getValue().getName());
+			quoteDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
+			quoteType.setCellValueFactory(cellData -> cellData.getValue().getType());
 
-		quoteBid.setCellValueFactory(cellData -> cellData.getValue().getBid());
-		quoteAsk.setCellValueFactory(cellData -> cellData.getValue().getAsk());
-		quoteOpen.setCellValueFactory(cellData -> cellData.getValue().getOpen());
-		quoteClose.setCellValueFactory(cellData -> cellData.getValue().getClose());
-		quoteHigh.setCellValueFactory(cellData -> cellData.getValue().getHigh());
-		quoteLow.setCellValueFactory(cellData -> cellData.getValue().getLow());
-		quoteLast.setCellValueFactory(cellData -> cellData.getValue().getLast());
-		quoteEnteredDate.setCellValueFactory(cellData -> cellData.getValue().getEnteredDate());
-		quoteSourceName.setCellValueFactory(cellData -> cellData.getValue().getSourceName());
+			quoteBid.setCellValueFactory(cellData -> cellData.getValue().getBid());
+			quoteAsk.setCellValueFactory(cellData -> cellData.getValue().getAsk());
+			quoteOpen.setCellValueFactory(cellData -> cellData.getValue().getOpen());
+			quoteClose.setCellValueFactory(cellData -> cellData.getValue().getClose());
+			quoteHigh.setCellValueFactory(cellData -> cellData.getValue().getHigh());
+			quoteLow.setCellValueFactory(cellData -> cellData.getValue().getLow());
+			quoteLast.setCellValueFactory(cellData -> cellData.getValue().getLast());
+			quoteEnteredDate.setCellValueFactory(cellData -> cellData.getValue().getEnteredDate());
+			quoteSourceName.setCellValueFactory(cellData -> cellData.getValue().getSourceName());
 
-		// CashFlows table
-		cfDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
-		cfAmount.setCellValueFactory(cellData -> cellData.getValue().getAmount());
-		cfCurrency.setCellValueFactory(cellData -> cellData.getValue().getCurrency());
-		cfPurpose.setCellValueFactory(cellData -> cellData.getValue().getPurpose());
-		cfDirection.setCellValueFactory(cellData -> cellData.getValue().getDirection());
-		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
-		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
+			// CashFlows table
+			cfDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
+			cfAmount.setCellValueFactory(cellData -> cellData.getValue().getAmount());
+			cfCurrency.setCellValueFactory(cellData -> cellData.getValue().getCurrency());
+			cfPurpose.setCellValueFactory(cellData -> cellData.getValue().getPurpose());
+			cfDirection.setCellValueFactory(cellData -> cellData.getValue().getDirection());
+			cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
+			cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
-			@Override
-			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
-					QuoteSet newValue) {
-				if (newValue != null && bond.getValue() != null && selectedQuoteDate.getValue() != null) {
-					String bondQuote = Bond.BOND + "." + bond.getValue().getIsin() + "."
-							+ bond.getValue().getExchange();
-					String bondIndex = null;
-					if (bond.getValue().getCouponType().equals("Float")) {
-						bondIndex = Index.INDEX + "." + bond.getValue().getReferenceRateIndex().getName() + "."
-								+ bond.getValue().getCouponFrequency() + "%";
-					}
-					fillQuotesTable(newValue, selectedQuoteDate.getValue(), bondQuote, bondIndex);
-				}
-			}
-		});
-
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
-			@Override
-			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
-					LocalDate newValue) {
-				if (newValue != null && bond.getValue() != null) {
-					String bondQuote = Bond.BOND + "." + bond.getValue().getIsin() + "."
-							+ bond.getValue().getExchange();
-					String bondIndex = null;
-					if (bond.getValue().getCouponType().equals("Float")) {
-						bondIndex = Index.INDEX + "." + bond.getValue().getReferenceRateIndex().getName() + "."
-								+ bond.getValue().getCouponFrequency() + "%";
-					}
-					fillQuotesTable(selectedQuoteSet.getValue(), newValue, bondQuote, bondIndex);
-				}
-			}
-		});
-
-		bond.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Bond>() {
-			@Override
-			public void changed(ObservableValue<? extends Bond> observableValue, Bond oldValue, Bond newValue) {
-				// newValue is null on first call to refresh.
-				if (newValue != null) {
-					String bondQuote = Bond.BOND + "." + newValue.getIsin() + "." + newValue.getExchange();
-					String bondIndex = null;
-					if (newValue.getCouponType().equals("Float")) {
-						bondIndex = Index.INDEX + "." + newValue.getReferenceRateIndex().getName() + "."
-								+ newValue.getCouponFrequency() + "%";
-					}
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), bondQuote, bondIndex);
-					if (pricingParameter.getValue() != null) {
-						InterestRateCurve discountCurve = pricingParameter.getValue()
-								.getDiscountCurve(newValue.getCurrency());
-						if (discountCurve != null) {
-							cfDiscountCurve.setText(discountCurve.getName());
-							TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
-						} else {
-							cfDiscountCurve.setText(String.format(
-									"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
-									pricingParameter.getValue().getName(), newValue.getCurrency()));
-							TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
+			selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
+						QuoteSet newValue) {
+					if (newValue != null && bond.getValue() != null && selectedQuoteDate.getValue() != null) {
+						String bondQuote = Bond.BOND + "." + bond.getValue().getIsin() + "."
+								+ bond.getValue().getExchange();
+						String bondIndex = null;
+						if (bond.getValue().getCouponType().equals("Float")) {
+							bondIndex = Index.INDEX + "." + bond.getValue().getReferenceRateIndex().getName() + "."
+									+ bond.getValue().getCouponFrequency() + "%";
 						}
+						fillQuotesTable(newValue, selectedQuoteDate.getValue(), bondQuote, bondIndex);
 					}
 				}
-			}
-		});
+			});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
-			@Override
-			public void changed(ObservableValue<? extends PricerMeasure> observableValue,
-					PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
-				// newPricerMeasure is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricerMeasure != null) {
-					TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
-							pricingMethod);
-				}
-			}
-		});
-
-		TradistaGUIUtil.fillComboBox(bondBusinessDelegate.getAllBonds(), bond);
-
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
-			@Override
-			public void changed(ObservableValue<? extends PricingParameter> observableValue,
-					PricingParameter oldPricingParameter, PricingParameter newPricingParam) {
-				// newPricingParam is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricingParam != null) {
-					Pricer pricer = null;
-					try {
-						pricer = pricerBusinessDelegate.getPricer(Bond.BOND, newPricingParam);
-					} catch (TradistaBusinessException tbe) {
-						// Will never happen in this case.
-					}
-					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
-					pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
-					pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
-
-					if (bond.getValue() != null) {
-						InterestRateCurve discountCurve = newPricingParam
-								.getDiscountCurve(bond.getValue().getCurrency());
-						if (discountCurve != null) {
-							cfDiscountCurve.setText(discountCurve.getName());
-							TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
-						} else {
-							cfDiscountCurve.setText(String.format(
-									"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
-									newPricingParam.getName(), bond.getValue().getCurrency()));
-							TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
+			selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
+						LocalDate newValue) {
+					if (newValue != null && bond.getValue() != null) {
+						String bondQuote = Bond.BOND + "." + bond.getValue().getIsin() + "."
+								+ bond.getValue().getExchange();
+						String bondIndex = null;
+						if (bond.getValue().getCouponType().equals("Float")) {
+							bondIndex = Index.INDEX + "." + bond.getValue().getReferenceRateIndex().getName() + "."
+									+ bond.getValue().getCouponFrequency() + "%";
 						}
+						fillQuotesTable(selectedQuoteSet.getValue(), newValue, bondQuote, bondIndex);
 					}
 				}
-			}
-		});
+			});
 
-		pricingDate.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-			}
-		});
-
-		pricingDate.setValue(LocalDate.now());
-		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
-			@Override
-			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
-				if (newValue != null) {
-					bookChartPane.updateBookChart(newValue);
-				}
-			}
-		});
-
-		final Callback<DatePicker, DateCell> dayCellFactory = new Callback<DatePicker, DateCell>() {
-			public DateCell call(final DatePicker datePicker) {
-				return new DateCell() {
-
-					BondTrade bondTrade;
-
-					private boolean isAvailable(LocalDate date) {
-						if (bondTrade == null) {
-							bondTrade = new BondTrade();
-							bondTrade.setProduct(bond.getValue());
+			bond.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends Bond> observableValue, Bond oldValue, Bond newValue) {
+					// newValue is null on first call to refresh.
+					if (newValue != null) {
+						String bondQuote = Bond.BOND + "." + newValue.getIsin() + "." + newValue.getExchange();
+						String bondIndex = null;
+						if (newValue.getCouponType().equals("Float")) {
+							bondIndex = Index.INDEX + "." + newValue.getReferenceRateIndex().getName() + "."
+									+ newValue.getCouponFrequency() + "%";
 						}
-						if (bondTrade.getProduct() != null) {
-							try {
-								return bondTradeBusinessDelegate.isBusinessDay(bondTrade, date);
-							} catch (TradistaBusinessException tbe) {
-								// TODO Auto-generated catch block
-								tbe.printStackTrace();
+						fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(), bondQuote,
+								bondIndex);
+						if (pricingParameter.getValue() != null) {
+							InterestRateCurve discountCurve = pricingParameter.getValue()
+									.getDiscountCurve(newValue.getCurrency());
+							if (discountCurve != null) {
+								cfDiscountCurve.setText(discountCurve.getName());
+								TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+							} else {
+								cfDiscountCurve.setText(String.format(
+										"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+										pricingParameter.getValue().getName(), newValue.getCurrency()));
+								TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
 							}
-							return false;
-						} else {
-							return true;
 						}
 					}
+				}
+			});
 
-					@Override
-					public void updateItem(LocalDate item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!isAvailable(item)) {
-							setDisable(true);
+			pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends PricerMeasure> observableValue,
+						PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
+					// newPricerMeasure is null when we do "setItems" in
+					// the first call of the refresh method
+					if (newPricerMeasure != null) {
+						TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
+								pricingMethod);
+					}
+				}
+			});
+
+			TradistaGUIUtil.fillComboBox(bondBusinessDelegate.getAllBonds(), bond);
+
+			pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends PricingParameter> observableValue,
+						PricingParameter oldPricingParameter, PricingParameter newPricingParam) {
+					// newPricingParam is null when we do "setItems" in
+					// the first call of the refresh method
+					if (newPricingParam != null) {
+						Pricer pricer = null;
+						try {
+							pricer = pricerBusinessDelegate.getPricer(Bond.BOND, newPricingParam);
+						} catch (TradistaBusinessException _) {
+							// Will never happen in this case.
+						}
+						TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
+						pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
+						pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
+
+						if (bond.getValue() != null) {
+							InterestRateCurve discountCurve = newPricingParam
+									.getDiscountCurve(bond.getValue().getCurrency());
+							if (discountCurve != null) {
+								cfDiscountCurve.setText(discountCurve.getName());
+								TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+							} else {
+								cfDiscountCurve.setText(String.format(
+										"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+										newPricingParam.getName(), bond.getValue().getCurrency()));
+								TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
+							}
 						}
 					}
-				};
-			}
-		};
+				}
+			});
 
-		tradeDate.setDayCellFactory(dayCellFactory);
-		selectedQuoteDate.setDayCellFactory(dayCellFactory);
+			pricingDate.setOnAction(_ -> cfPricingDate
+					.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+			pricingDate.setValue(LocalDate.now());
+			cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		tradeDateListener = new ChangeListener<LocalDate>() {
-			@Override
-			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
-				if (newDate != null && bond.getValue() != null && selectedQuoteSet.getValue() != null) {
+			book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
+					if (newValue != null) {
+						bookChartPane.updateBookChart(newValue);
+					}
+				}
+			});
 
-					if (!newDate.isAfter(LocalDate.now())) {
-						Task<Void> task = new Task<Void>() {
-							@Override
-							public Void call() {
+			final Callback<DatePicker, DateCell> dayCellFactory = new Callback<>() {
+				public DateCell call(final DatePicker datePicker) {
+					return new DateCell() {
+
+						BondTrade bondTrade;
+
+						private boolean isAvailable(LocalDate date) {
+							if (bondTrade == null) {
+								bondTrade = new BondTrade();
+								bondTrade.setProduct(bond.getValue());
+							}
+							if (bondTrade.getProduct() != null) {
 								try {
-									BigDecimal price = getTradePrice(newDate, buySell.getValue(), bond.getValue(),
-											selectedQuoteSet.getValue().getId());
-									isQuoteSetServiceError = false;
-									if (price == null) {
+									return bondTradeBusinessDelegate.isBusinessDay(bondTrade, date);
+								} catch (TradistaBusinessException tbe) {
+									// TODO Auto-generated catch block
+									tbe.printStackTrace();
+								}
+								return false;
+							} else {
+								return true;
+							}
+						}
+
+						@Override
+						public void updateItem(LocalDate item, boolean empty) {
+							super.updateItem(item, empty);
+							if (!isAvailable(item)) {
+								setDisable(true);
+							}
+						}
+					};
+				}
+			};
+
+			tradeDate.setDayCellFactory(dayCellFactory);
+			selectedQuoteDate.setDayCellFactory(dayCellFactory);
+
+			tradeDateListener = new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
+					if (newDate != null && bond.getValue() != null && selectedQuoteSet.getValue() != null) {
+
+						if (!newDate.isAfter(LocalDate.now())) {
+							Task<Void> task = new Task<Void>() {
+								@Override
+								public Void call() {
+									try {
+										BigDecimal price = getTradePrice(newDate, buySell.getValue(), bond.getValue(),
+												selectedQuoteSet.getValue().getId());
+										isQuoteSetServiceError = false;
+										if (price == null) {
+											Platform.runLater(() -> {
+												TradistaGUIUtil.unapplyErrorStyle(priceWarning);
+												TradistaGUIUtil.applyWarningStyle(priceWarning);
+												priceWarning.setVisible(true);
+												priceWarning.setText(String.format(
+														BOND_PRICE_NOT_AVAILABLE_AS_OF_TRADE_DATE_IN_QUOTE_SET,
+														bond.getValue(), newDate, selectedQuoteSet.getValue()));
+											});
+										} else {
+											Platform.runLater(() -> {
+												tradePrice.setText(TradistaGUIUtil.formatAmount(price));
+												priceWarning.setVisible(false);
+											});
+										}
+									} catch (TradistaTechnicalException _) {
+										isQuoteSetServiceError = true;
 										Platform.runLater(() -> {
-											TradistaGUIUtil.unapplyErrorStyle(priceWarning);
-											TradistaGUIUtil.applyWarningStyle(priceWarning);
+											TradistaGUIUtil.applyErrorStyle(priceWarning);
+											TradistaGUIUtil.unapplyWarningStyle(priceWarning);
+											priceWarning.setText(
+													String.format(CANNOT_GET_BOND_PRICE_AS_OF_TRADE_DATE_IN_QUOTE_SET,
+															bond.getValue(), newDate, selectedQuoteSet.getValue()));
 											priceWarning.setVisible(true);
-											priceWarning.setText(String.format(
-													"Bond %s price is not available as of Trade Date (%tD) in QuoteSet %s.",
-													bond.getValue(), newDate, selectedQuoteSet.getValue()));
-										});
-									} else {
-										Platform.runLater(() -> {
-											tradePrice.setText(TradistaGUIUtil.formatAmount(price));
-											priceWarning.setVisible(false);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
-									isQuoteSetServiceError = true;
-									Platform.runLater(() -> {
-										TradistaGUIUtil.applyErrorStyle(priceWarning);
-										TradistaGUIUtil.unapplyWarningStyle(priceWarning);
-										priceWarning.setText(String.format(
-												"Cannot get bond %s price as of Trade Date (%tD) in QuoteSet %s, please contact support.",
-												bond.getValue(), newDate, selectedQuoteSet.getValue()));
-										priceWarning.setVisible(true);
-									});
+									return null;
 								}
-								return null;
-							}
-						};
-						exec.submit(task);
+							};
+							exec.submit(task);
+						}
+
 					}
-
 				}
-			}
-		};
+			};
 
-		directionListener = new ChangeListener<Trade.Direction>() {
-			@Override
-			public void changed(ObservableValue<? extends Trade.Direction> arg0, Trade.Direction arg1,
-					Trade.Direction newDirection) {
-				if (tradeDate.getValue() != null && bond.getValue() != null && selectedQuoteSet.getValue() != null) {
+			directionListener = new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends Trade.Direction> arg0, Trade.Direction arg1,
+						Trade.Direction newDirection) {
+					if (tradeDate.getValue() != null && bond.getValue() != null
+							&& selectedQuoteSet.getValue() != null) {
 
-					if (!tradeDate.getValue().isAfter(LocalDate.now())) {
-						Task<Void> task = new Task<Void>() {
-							@Override
-							public Void call() {
-								try {
-									BigDecimal price = getTradePrice(tradeDate.getValue(), newDirection,
-											bond.getValue(), selectedQuoteSet.getValue().getId());
-									isQuoteSetServiceError = false;
-									if (price == null) {
+						if (!tradeDate.getValue().isAfter(LocalDate.now())) {
+							Task<Void> task = new Task<Void>() {
+								@Override
+								public Void call() {
+									try {
+										BigDecimal price = getTradePrice(tradeDate.getValue(), newDirection,
+												bond.getValue(), selectedQuoteSet.getValue().getId());
+										isQuoteSetServiceError = false;
+										if (price == null) {
+											Platform.runLater(() -> {
+												TradistaGUIUtil.unapplyErrorStyle(priceWarning);
+												TradistaGUIUtil.applyWarningStyle(priceWarning);
+												priceWarning.setVisible(true);
+												priceWarning.setText(String.format(
+														BOND_PRICE_NOT_AVAILABLE_AS_OF_TRADE_DATE_IN_QUOTE_SET,
+														bond.getValue(), tradeDate.getValue(),
+														selectedQuoteSet.getValue()));
+											});
+										} else {
+											Platform.runLater(() -> {
+												tradePrice.setText(TradistaGUIUtil.formatAmount(price));
+												priceWarning.setVisible(false);
+											});
+										}
+									} catch (TradistaTechnicalException _) {
+										isQuoteSetServiceError = true;
 										Platform.runLater(() -> {
-											TradistaGUIUtil.unapplyErrorStyle(priceWarning);
-											TradistaGUIUtil.applyWarningStyle(priceWarning);
+											TradistaGUIUtil.applyErrorStyle(priceWarning);
+											TradistaGUIUtil.unapplyWarningStyle(priceWarning);
+											priceWarning.setText(
+													String.format(CANNOT_GET_BOND_PRICE_AS_OF_TRADE_DATE_IN_QUOTE_SET,
+															bond.getValue(), tradeDate.getValue(),
+															selectedQuoteSet.getValue()));
 											priceWarning.setVisible(true);
-											priceWarning.setText(String.format(
-													"Bond %s price is not available as of Trade Date (%tD) in QuoteSet %s.",
-													bond.getValue(), tradeDate.getValue(),
-													selectedQuoteSet.getValue()));
-										});
-									} else {
-										Platform.runLater(() -> {
-											tradePrice.setText(TradistaGUIUtil.formatAmount(price));
-											priceWarning.setVisible(false);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
-									isQuoteSetServiceError = true;
-									Platform.runLater(() -> {
-										TradistaGUIUtil.applyErrorStyle(priceWarning);
-										TradistaGUIUtil.unapplyWarningStyle(priceWarning);
-										priceWarning.setText(String.format(
-												"Cannot get bond %s price as of Trade Date (%tD) in QuoteSet %s, please contact support.",
-												bond.getValue(), tradeDate.getValue(), selectedQuoteSet.getValue()));
-										priceWarning.setVisible(true);
-									});
+									return null;
 								}
-								return null;
-							}
-						};
-						exec.submit(task);
+							};
+							exec.submit(task);
+						}
 					}
 				}
-			}
-		};
+			};
 
-		bondListener = new ChangeListener<Bond>() {
-			@Override
-			public void changed(ObservableValue<? extends Bond> arg0, Bond arg1, Bond newBond) {
-				if (tradeDate.getValue() != null && newBond != null && selectedQuoteSet.getValue() != null) {
+			bondListener = new ChangeListener<>() {
+				@Override
+				public void changed(ObservableValue<? extends Bond> arg0, Bond arg1, Bond newBond) {
+					if (tradeDate.getValue() != null && newBond != null && selectedQuoteSet.getValue() != null) {
 
-					if (!tradeDate.getValue().isAfter(LocalDate.now())) {
-						Task<Void> task = new Task<Void>() {
-							@Override
-							public Void call() {
-								try {
-									BigDecimal price = getTradePrice(tradeDate.getValue(), buySell.getValue(), newBond,
-											selectedQuoteSet.getValue().getId());
-									isQuoteSetServiceError = false;
-									if (price == null) {
+						if (!tradeDate.getValue().isAfter(LocalDate.now())) {
+							Task<Void> task = new Task<Void>() {
+								@Override
+								public Void call() {
+									try {
+										BigDecimal price = getTradePrice(tradeDate.getValue(), buySell.getValue(),
+												newBond, selectedQuoteSet.getValue().getId());
+										isQuoteSetServiceError = false;
+										if (price == null) {
+											Platform.runLater(() -> {
+												TradistaGUIUtil.unapplyErrorStyle(priceWarning);
+												TradistaGUIUtil.applyWarningStyle(priceWarning);
+												priceWarning.setVisible(true);
+												priceWarning.setText(String.format(
+														BOND_PRICE_NOT_AVAILABLE_AS_OF_TRADE_DATE_IN_QUOTE_SET, newBond,
+														tradeDate.getValue(), selectedQuoteSet.getValue()));
+											});
+										} else {
+											Platform.runLater(() -> {
+												tradePrice.setText(TradistaGUIUtil.formatAmount(price));
+												priceWarning.setVisible(false);
+											});
+										}
+									} catch (TradistaTechnicalException _) {
+										isQuoteSetServiceError = true;
 										Platform.runLater(() -> {
-											TradistaGUIUtil.unapplyErrorStyle(priceWarning);
-											TradistaGUIUtil.applyWarningStyle(priceWarning);
-											priceWarning.setVisible(true);
+											TradistaGUIUtil.applyErrorStyle(priceWarning);
+											TradistaGUIUtil.unapplyWarningStyle(priceWarning);
 											priceWarning.setText(String.format(
-													"Bond %s price is not available as of Trade Date (%tD) in QuoteSet %s.",
-													newBond, tradeDate.getValue(), selectedQuoteSet.getValue()));
-										});
-									} else {
-										Platform.runLater(() -> {
-											tradePrice.setText(TradistaGUIUtil.formatAmount(price));
-											priceWarning.setVisible(false);
+													CANNOT_GET_BOND_PRICE_AS_OF_TRADE_DATE_IN_QUOTE_SET, newBond,
+													tradeDate.getValue(), selectedQuoteSet.getValue()));
+											priceWarning.setVisible(true);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
-									isQuoteSetServiceError = true;
-									Platform.runLater(() -> {
-										TradistaGUIUtil.applyErrorStyle(priceWarning);
-										TradistaGUIUtil.unapplyWarningStyle(priceWarning);
-										priceWarning.setText(String.format(
-												"Cannot get bond %s price as of Trade Date (%tD) in QuoteSet %s, please contact support.",
-												newBond, tradeDate.getValue(), selectedQuoteSet.getValue()));
-										priceWarning.setVisible(true);
-									});
+									return null;
 								}
-								return null;
-							}
-						};
-						exec.submit(task);
+							};
+							exec.submit(task);
+						}
+
 					}
-
 				}
-			}
-		};
+			};
 
-		addListeners();
+			addListeners();
 
-		TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
-		TradistaGUIUtil.fillCurrencyComboBox(pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
-		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
-		TradistaGUIUtil.fillTradeDirectionComboBox(buySell);
-
+			TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
+			TradistaGUIUtil.fillCurrencyComboBox(pricingCurrency);
+			TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+			TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
+			TradistaGUIUtil.fillTradeDirectionComboBox(buySell);
+		}
 	}
 
 	private void addListeners() {
@@ -726,7 +726,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -774,7 +774,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 			trade.setCounterparty(counterparty.getValue());
 			trade.setBook(book.getValue());
 
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}
@@ -810,12 +810,12 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
@@ -854,7 +854,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

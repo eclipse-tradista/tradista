@@ -6,7 +6,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.importer.model.Importer;
-import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

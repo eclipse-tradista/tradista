@@ -1,8 +1,10 @@
 package org.eclipse.tradista.core.mapping.controller;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -10,6 +12,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
@@ -62,11 +66,11 @@ public class ImporterMappingController implements Serializable {
 
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	private BookBusinessDelegate bookBusinessDelegate;
+
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
 	private LegalEntity processingOrg;
-
-	private LegalEntity copyProcessingOrg;
 
 	private SortedSet<LegalEntity> allProcessingOrgs;
 
@@ -74,13 +78,18 @@ public class ImporterMappingController implements Serializable {
 
 	private Set<String> allImporterNames;
 
-	private SortedSet<String> availableLegalEntityShortNames;
+	private SortedSet<String> allLegalEntityShortNames;
+
+	private SortedSet<String> allBookNames;
+
+	private List<Mapping> displayedMappings;
 
 	@PostConstruct
 	public void init() {
 		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		mappingBusinessDelegate = new MappingBusinessDelegate();
+		bookBusinessDelegate = new BookBusinessDelegate();
 		Set<String> allImpNames;
 		if (ClientUtil.currentUserIsAdmin()) {
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
@@ -88,12 +97,6 @@ public class ImporterMappingController implements Serializable {
 			if (processingOrgs != null) {
 				allProcessingOrgs.addAll(processingOrgs);
 			}
-		}
-		Set<LegalEntity> legalEntities = legalEntityBusinessDelegate.getAllLegalEntities();
-		availableLegalEntityShortNames = new TreeSet<>();
-		if (legalEntities != null) {
-			availableLegalEntityShortNames
-					.addAll(legalEntities.stream().map(le -> le.getShortName()).collect(Collectors.toSet()));
 		}
 		allImporterNames = new HashSet<>();
 		allImporterNames.add(StringUtils.EMPTY);
@@ -116,14 +119,6 @@ public class ImporterMappingController implements Serializable {
 		this.processingOrg = processingOrg;
 	}
 
-	public LegalEntity getCopyProcessingOrg() {
-		return copyProcessingOrg;
-	}
-
-	public void setCopyProcessingOrg(LegalEntity copyProcessingOrg) {
-		this.copyProcessingOrg = copyProcessingOrg;
-	}
-
 	public SortedSet<LegalEntity> getAllProcessingOrgs() {
 		return allProcessingOrgs;
 	}
@@ -134,6 +129,7 @@ public class ImporterMappingController implements Serializable {
 
 	public void save() {
 		try {
+			interfaceMappingSet.setMappings(new HashSet<>(displayedMappings));
 			interfaceMappingSet.setId(mappingBusinessDelegate.saveInterfaceMappingSet(interfaceMappingSet));
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully saved"));
@@ -157,17 +153,7 @@ public class ImporterMappingController implements Serializable {
 				interfaceMappingSet = new InterfaceMappingSet(importerNameLoadingCriterion, mappingTypeLoadingCriterion,
 						InterfaceMappingSet.Direction.INCOMING, po);
 			}
-			// We reinitialize the set of available legal entity short names
-			Set<LegalEntity> legalEntities = legalEntityBusinessDelegate.getAllLegalEntities();
-			availableLegalEntityShortNames.clear();
-			if (legalEntities != null) {
-				availableLegalEntityShortNames
-						.addAll(legalEntities.stream().map(le -> le.getShortName()).collect(Collectors.toSet()));
-			}
-			Set<Mapping> mappings = interfaceMappingSet.getMappings();
-			if (!CollectionUtils.isEmpty(mappings)) {
-				availableLegalEntityShortNames.removeAll(mappings.stream().map(Mapping::getMappedValue).toList());
-			}
+			displayedMappings = new ArrayList<>(interfaceMappingSet.getMappings());
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully loaded."));
 		} catch (TradistaBusinessException tbe) {
@@ -179,14 +165,24 @@ public class ImporterMappingController implements Serializable {
 	@SuppressWarnings({ "unchecked" })
 	public void onMappingAdded(CellEditEvent<String> event) {
 		if (interfaceMappingSet != null) {
-			Set<Mapping> mappings = interfaceMappingSet.getMappings();
-			if (!CollectionUtils.isEmpty(mappings)) {
+			if (!CollectionUtils.isEmpty(displayedMappings)) {
 				Map<String, Object> attributes = ((UIComponent) event.getColumn()).getAttributes();
 				boolean isOriginalValueColumn = "originalValue".equals(attributes.get("colKey"));
 				DataTable table = (DataTable) ((UIComponent) event.getColumn()).getParent();
-				Set<Mapping> rows = (Set<Mapping>) table.getValue();
+				List<Mapping> rows = (List<Mapping>) table.getValue();
 				Set<String> seen = new HashSet<>();
 				boolean hasDuplicate = false;
+				if (StringUtils.isBlank(event.getNewValue())) {
+					FacesContext.getCurrentInstance().addMessage(null,
+							new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "The mapping cannot be blank."));
+					Mapping mapping = (Mapping) event.getRowData();
+					if (isOriginalValueColumn) {
+						mapping.setValue(event.getOldValue());
+					} else {
+						mapping.setMappedValue(event.getOldValue());
+					}
+					return;
+				}
 				for (Mapping mapping : rows) {
 					String value = isOriginalValueColumn ? mapping.getValue() : mapping.getMappedValue();
 					if (!StringUtils.isBlank(value)) {
@@ -206,28 +202,46 @@ public class ImporterMappingController implements Serializable {
 						mapping.setMappedValue(event.getOldValue());
 					}
 				}
-				if (!isOriginalValueColumn) {
-					// availableLegalEntityShortNames.removeAll(mappings.stream().map(Mapping::getMappedValue).toList());
-				}
 			}
 		}
 	}
 
 	public void addMapping() {
 		if (interfaceMappingSet != null) {
-			if (CollectionUtils.isEmpty(availableLegalEntityShortNames)) {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
-						"Warning", "All Legal Entities are already mapped."));
-			} else {
-				interfaceMappingSet.addMapping(StringUtils.EMPTY, StringUtils.EMPTY);
-			}
+			displayedMappings.add(interfaceMappingSet.new Mapping(StringUtils.EMPTY, StringUtils.EMPTY));
 		}
 	}
 
 	public void removeMapping(Mapping mapping) {
 		if (interfaceMappingSet != null) {
-			interfaceMappingSet.removeMapping(mapping);
+			displayedMappings.remove(mapping);
 		}
+	}
+
+	public SortedSet<String> getMappableObjects() {
+		if (interfaceMappingSet != null) {
+			if (interfaceMappingSet.getMappingType().equals(MappingType.LegalEntity)) {
+				if (allLegalEntityShortNames == null) {
+					Set<LegalEntity> legalEntities = legalEntityBusinessDelegate.getAllLegalEntities();
+					allLegalEntityShortNames = new TreeSet<>();
+					if (legalEntities != null) {
+						allLegalEntityShortNames.addAll(
+								legalEntities.stream().map(LegalEntity::getShortName).collect(Collectors.toSet()));
+					}
+				}
+				return allLegalEntityShortNames;
+			} else {
+				if (allBookNames == null) {
+					Set<Book> books = bookBusinessDelegate.getAllBooks();
+					allBookNames = new TreeSet<>();
+					if (books != null) {
+						allBookNames.addAll(books.stream().map(Book::getName).collect(Collectors.toSet()));
+					}
+				}
+				return allBookNames;
+			}
+		}
+		return null;
 	}
 
 	public InterfaceMappingSet getInterfaceMappingSet() {
@@ -270,12 +284,28 @@ public class ImporterMappingController implements Serializable {
 		this.allImporterNames = allImporterNames;
 	}
 
-	public SortedSet<String> getAvailableLegalEntityShortNames() {
-		return availableLegalEntityShortNames;
+	public SortedSet<String> getAllLegalEntityShortNames() {
+		return allLegalEntityShortNames;
 	}
 
-	public void setAvailableLegalEntityShortNames(SortedSet<String> allLegalEntityShortNames) {
-		this.availableLegalEntityShortNames = allLegalEntityShortNames;
+	public void setAllLegalEntityShortNames(SortedSet<String> allLegalEntityShortNames) {
+		this.allLegalEntityShortNames = allLegalEntityShortNames;
+	}
+
+	public SortedSet<String> getAllBookNames() {
+		return allBookNames;
+	}
+
+	public void setAllBookNames(SortedSet<String> allBookNames) {
+		this.allBookNames = allBookNames;
+	}
+
+	public List<Mapping> getDisplayedMappings() {
+		return displayedMappings;
+	}
+
+	public void setDisplayedMappings(List<Mapping> displayedMapings) {
+		this.displayedMappings = displayedMapings;
 	}
 
 }

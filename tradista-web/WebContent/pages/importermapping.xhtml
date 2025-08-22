@@ -13,7 +13,6 @@
 					styleClass="tradista-nested"
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
 					<p:messages showDetail="true" closable="true" id="msg">
-						<p:autoUpdate />
 					</p:messages>
 					<p:row>
 						<p:toolbar
@@ -30,8 +29,10 @@
 					<p:row>
 						<p:column>
 							<p:dataTable id="importerMappingTable" var="mapping"
-								value="#{importerMappingController.interfaceMappingSet.mappings}"
-								editable="true" editMode="cell" widgetVar="">
+								value="#{importerMappingController.displayedMappings}"
+								editable="true" editMode="cell" widgetVar=""
+								allowUnsorting="true" sortMode="single"
+								tableStyleClass="tradista-datatable" size="small">
 								<f:facet name="header">
 									<p:outputLabel
 										value="#{importerMappingController.interfaceMappingSet ne null ? (importerMappingController.interfaceMappingSet.interfaceName ne null ? importerMappingController.interfaceMappingSet.interfaceName : 'Global Mapping') : ''}"
@@ -42,7 +43,7 @@
 								</f:facet>
 								<p:ajax event="cellEdit"
 									listener="#{importerMappingController.onMappingAdded}" />
-								<p:column headerText="Original Value">
+								<p:column headerText="Original Value" sortBy="#{mapping.value}">
 									<f:attribute name="colKey" value="originalValue" />
 									<p:cellEditor>
 										<f:facet name="output">
@@ -53,7 +54,8 @@
 										</f:facet>
 									</p:cellEditor>
 								</p:column>
-								<p:column headerText="Mapped Value">
+								<p:column headerText="Mapped Value"
+									sortBy="#{mapping.mappedValue}">
 									<p:cellEditor>
 										<f:facet name="output">
 											<h:outputText value="#{mapping.mappedValue}" />
@@ -61,9 +63,8 @@
 										<f:facet name="input">
 											<p:selectOneMenu value="#{mapping.mappedValue}">
 												<f:selectItems
-													value="#{importerMappingController.availableLegalEntityShortNames}"
-													var="legalEntity" itemLabel="#{legalEntity}"
-													itemValue="#{legalEntity}" />
+													value="#{importerMappingController.mappableObjects}"
+													var="mValue" itemLabel="#{mValue}" itemValue="#{mValue}" />
 											</p:selectOneMenu>
 										</f:facet>
 									</p:cellEditor>

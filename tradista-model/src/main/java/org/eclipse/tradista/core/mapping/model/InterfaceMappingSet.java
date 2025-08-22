@@ -1,11 +1,10 @@
 package org.eclipse.tradista.core.mapping.model;
 
-import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
@@ -33,23 +32,29 @@ public class InterfaceMappingSet extends TradistaObject {
 		INCOMING, OUTGOING;
 	}
 
-	public class Mapping implements Serializable {
+	public class Mapping extends TradistaObject {
 
 		private static final long serialVersionUID = 3025216935232998072L;
 
+		@Id
+		private InterfaceMappingSet enclosingInstance;
+
+		@Id
 		private String value;
 
 		private String mappedValue;
 
-		protected Mapping(String value, String mappedValue) {
+		public Mapping(String value, String mappedValue) {
 			this.value = value;
 			this.mappedValue = mappedValue;
+			enclosingInstance = InterfaceMappingSet.this;
 		}
 
 		public String getValue() {
 			return value;
 		}
 
+		// Setter added because used by Primefaces in a datatable
 		public void setValue(String value) {
 			this.value = value;
 		}
@@ -60,33 +65,6 @@ public class InterfaceMappingSet extends TradistaObject {
 
 		public void setMappedValue(String mappedValue) {
 			this.mappedValue = mappedValue;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getEnclosingInstance().hashCode();
-			result = prime * result + Objects.hash(value);
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Mapping other = (Mapping) obj;
-			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))
-				return false;
-			return Objects.equals(value, other.value);
-		}
-
-		private InterfaceMappingSet getEnclosingInstance() {
-			return InterfaceMappingSet.this;
 		}
 	}
 
@@ -125,8 +103,9 @@ public class InterfaceMappingSet extends TradistaObject {
 		return direction;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Set<Mapping> getMappings() {
-		return mappings;
+		return (Set<Mapping>) TradistaModelUtil.deepCopy(mappings);
 	}
 
 	public void setMappings(Set<Mapping> mappings) {
@@ -134,7 +113,7 @@ public class InterfaceMappingSet extends TradistaObject {
 	}
 
 	public LegalEntity getProcessingOrg() {
-		return processingOrg;
+		return TradistaModelUtil.clone(processingOrg);
 	}
 
 	public void addMapping(String value, String mappedValue) {
@@ -142,23 +121,20 @@ public class InterfaceMappingSet extends TradistaObject {
 	}
 
 	public void removeMapping(Mapping mapping) {
-		System.out.println(mappings.toArray()[1].hashCode());
-		System.out.println(mapping.hashCode());
-		System.out.println(mappings.toArray()[1].equals(mapping));
-		System.out.println(mapping.equals(mappings.toArray()[1]));
-		System.out.println(mappings.contains(mapping));
-		System.out.println("IMS hashcode: " + hashCode());
-		System.out.println("IMS id" + getId());
-		System.out.println("IMS " + this);
-		System.out.println("IMS mapping type hashcode " + getMappingType().hashCode());
-		System.out.println("IMS po hashcode  " + getProcessingOrg().hashCode());
-		System.out.println("IMS direction hashcode " + getDirection().hashCode());
-		System.out.println("ClassLoader of IMS direction: " + getDirection().getClass().getClassLoader());
 		mappings.remove(mapping);
 	}
 
 	public boolean isIncoming() {
 		return direction.equals(Direction.INCOMING);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public InterfaceMappingSet clone() {
+		InterfaceMappingSet ims = (InterfaceMappingSet) super.clone();
+		ims.mappings = (Set<Mapping>) TradistaModelUtil.deepCopy(mappings);
+		ims.processingOrg = TradistaModelUtil.clone(processingOrg);
+		return ims;
 	}
 
 }

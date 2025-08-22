@@ -62,6 +62,7 @@ public class Book extends TradistaObject {
 		return book;
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}
