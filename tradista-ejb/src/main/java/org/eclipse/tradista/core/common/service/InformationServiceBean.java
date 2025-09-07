@@ -67,10 +67,7 @@ public class InformationServiceBean implements InformationService {
 		modules.put("Core", getClass().getPackage().getImplementationVersion());
 
 		// Get the Market Data version
-		try {
-			modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
-		} catch (TradistaTechnicalException _) {
-		}
+		modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
 
 		Set<String> prods = productBusinessDelegate.getAvailableProductTypes();
 

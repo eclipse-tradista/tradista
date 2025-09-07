@@ -50,7 +50,7 @@ public class ImporterConfigurationServiceBean implements ImporterConfigurationSe
 	}
 
 	@Override
-	public Set<String> getModules() {
+	public SortedSet<String> getModules() {
 		return ((ImporterConfiguration) applicationContext.getBean(IMPORTER_CONFIGURATION_BEAN)).getModules();
 	}
 
@@ -66,6 +66,11 @@ public class ImporterConfigurationServiceBean implements ImporterConfigurationSe
 			return allImporters.stream().map(i -> i.getName()).collect(Collectors.toCollection(TreeSet::new));
 		}
 		return null;
+	}
+
+	@Override
+	public Importer<?> getImporterByName(String name) {
+		return getAllImporters().stream().filter(i -> i.getName().equals(name)).findFirst().get();
 	}
 
 }

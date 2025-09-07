@@ -28,6 +28,8 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private long objectId;
 
+	private String objectType;
+
 	private String type;
 
 	private LocalDateTime creationDateTime;
@@ -40,12 +42,22 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private String workflow;
 
+	private String interfaceName;
+
 	public long getObjectId() {
 		return objectId;
 	}
 
 	public void setObjectId(long objectId) {
 		this.objectId = objectId;
+	}
+
+	public String getObjectType() {
+		return objectType;
+	}
+
+	public void setObjectType(String objectType) {
+		this.objectType = objectType;
 	}
 
 	public String getType() {
@@ -78,6 +90,14 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	public String getInterfaceName() {
+		return interfaceName;
+	}
+
+	public void setInterfaceName(String interfaceName) {
+		this.interfaceName = interfaceName;
 	}
 
 	@Override

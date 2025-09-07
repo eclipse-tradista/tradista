@@ -1,11 +1,8 @@
-package org.eclipse.tradista.core.importer.service;
+package org.eclipse.tradista.core.message.util;
 
-import java.util.Set;
-import java.util.SortedSet;
-
-import org.eclipse.tradista.core.importer.model.Importer;
-
-import jakarta.ejb.Remote;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.trade.model.Trade;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -23,15 +20,19 @@ import jakarta.ejb.Remote;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Remote
-public interface ImporterConfigurationService {
+public final class MessageUtil {
 
-	SortedSet<String> getModules();
+	private MessageUtil() {
+	}
 
-	Set<Importer<?>> getAllImporters();
-
-	SortedSet<String> getAllImporterNames();
-
-	Importer<?> getImporterByName(String name);
+	public static String getObjectType(Class<? extends TradistaObject> klass) {
+		if (klass == null) {
+			throw new TradistaTechnicalException("Class is mandatory to determine the message object type");
+		}
+		if (klass.equals(Trade.class)) {
+			return Trade.class.getSimpleName();
+		}
+		return null;
+	}
 
 }

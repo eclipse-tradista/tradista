@@ -38,6 +38,8 @@ import quickfix.fix44.Message;
 
 public abstract class FixImporter<X extends Message> extends TradistaImporter<X> {
 
+	private static final long serialVersionUID = 2843562569558766619L;
+
 	public static final String FIX = "Fix";
 
 	private String configFileName;

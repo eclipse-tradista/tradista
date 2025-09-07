@@ -10,7 +10,6 @@ import quickfix.IncorrectTagValue;
 import quickfix.Message;
 import quickfix.SessionID;
 import quickfix.UnsupportedMessageType;
-import quickfix.fix44.TradeCaptureReport;
 
 public class ImportApplication<X extends Message> extends ApplicationAdapter {
 

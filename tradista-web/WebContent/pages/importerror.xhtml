@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Import Error</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Import Error</ui:define>
+	<ui:define name="content">
+		<h:form id="importerErrorForm">
+			<p:panel header="Importer Error Report">
+				<p:panelGrid id="importerError" header="Importer Error"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-4 ui-md-4 ui-lg-4, ui-g-8 ui-md-8 ui-lg-8">
+					<p:messages showDetail="true" closable="true" id="msg" />
+					<p:row>
+						<p:column>
+							<p:panelGrid columns="2" columnClasses="medium-column,,">
+								<p:row>
+									<p:outputLabel value="Importer Type"
+										for="importerTypeAutoComplete" />
+									<p:autoComplete id="importerTypeAutoComplete" multiple="true"
+										value="#{importErrorReportController.selectedImporterTypes}"
+										completeMethod="#{importErrorReportController.completeImporterType}"
+										showEmptyMessage="false" unique="true" forceSelection="true"
+										scrollHeight="250" dropdown="true"
+										disabled="#{not empty importErrorReportController.selectedImporterNames}">
+										<p:ajax event="itemSelect"
+											listener="#{importErrorReportController.onTypeChange}"
+											update="importerTypeAutoComplete importerNameAutoComplete" />
+										<p:ajax event="itemUnselect"
+											listener="#{importErrorReportController.onTypeChange}"
+											update="importerTypeAutoComplete importerNameAutoComplete" />
+									</p:autoComplete>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Importer Name"
+										for="importerNameAutoComplete" />
+									<p:autoComplete id="importerNameAutoComplete" multiple="true"
+										value="#{importErrorReportController.selectedImporterNames}"
+										completeMethod="#{importErrorReportController.completeImporterName}"
+										showEmptyMessage="false" unique="true" forceSelection="true"
+										scrollHeight="250" dropdown="true"
+										disabled="#{not empty importErrorReportController.selectedImporterTypes}">
+										<p:ajax event="itemSelect"
+											listener="#{importErrorReportController.onNameChange}"
+											update="importerTypeAutoComplete importerNameAutoComplete" />
+										<p:ajax event="itemUnselect"
+											listener="#{importErrorReportController.onNameChange}"
+											update="importerTypeAutoComplete importerNameAutoComplete" />
+									</p:autoComplete>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Message Id" for="messageIdComboBox" />
+									<p:inputNumber id="messageIdComboBox"
+										value="#{importErrorReportController.messageId}" />
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Error Status" for="statusButton" />
+									<p:selectManyButton
+										value="#{importErrorReportController.statuses}"
+										id="statusButton" converter="statusConverter">
+										<f:selectItems
+											value="#{importErrorReportController.allStatuses}" />
+									</p:selectManyButton>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Error Date Range"
+										for="errorDatesDatePicker" />
+									<p:datePicker id="errorDatesDatePicker"
+										value="#{importErrorReportController.errorDates}"
+										pattern="dd/MM/yyyy" selectionMode="range"
+										styleClass="tradista-large-datepicker" />
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Solving Date Range"
+										for="solvingDatesDatePicker" />
+									<p:datePicker id="solvingDatesDatePicker"
+										value="#{importErrorReportController.solvingDates}"
+										pattern="dd/MM/yyyy" selectionMode="range"
+										styleClass="tradista-large-datepicker" />
+								</p:row>
+								<p:row>
+									<p:column>
+										<p:commandButton value="Load" styleClass="rounded-button"
+											update="importerErrorTable"
+											action="#{importErrorReportController.load}" />
+									</p:column>
+								</p:row>
+							</p:panelGrid>
+						</p:column>
+						<p:column>
+							<p:dataTable id="importerErrorTable" var="error"
+								value="#{importErrorReportController.errors}"
+								allowUnsorting="true" sortMode="single"
+								tableStyleClass="tradista-datatable" size="small">
+								<p:column headerText="Error Date" sortBy="#{error.errorDate}">
+									<p:outputLabel value="#{error.errorDate}">
+										<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+									</p:outputLabel>
+								</p:column>
+								<p:column headerText="Solving Date"
+									sortBy="#{error.solvingDate}">
+									<p:outputLabel value="#{error.solvingDate}">
+										<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+									</p:outputLabel>
+								</p:column>
+								<p:column headerText="Message Id" sortBy="#{error.message.id}">
+									<p:outputLabel value="#{error.message.id}" />
+								</p:column>
+								<p:column headerText="Object Id"
+									sortBy="#{error.message.objectId}">
+									<p:outputLabel value="#{error.message.objectId}" />
+								</p:column>
+								<p:column headerText="Object Type"
+									sortBy="#{error.message.objectType}">
+									<p:outputLabel value="#{error.message.objectType}" />
+								</p:column>
+								<p:column headerText="Status" sortBy="#{error.status}">
+									<p:outputLabel value="#{error.status}" />
+								</p:column>
+								<p:column headerText="Error Message"
+									sortBy="#{error.errorMessage}">
+									<p:outputLabel value="#{error.errorMessage}" />
+								</p:column>
+							</p:dataTable>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

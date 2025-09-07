@@ -1,5 +1,10 @@
 package org.eclipse.tradista.core.message.service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.persistence.ImportErrorSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -31,6 +36,13 @@ public class ImportErrorServiceBean implements ImportErrorService {
 	@Override
 	public long saveImportError(ImportError error) {
 		return ImportErrorSQL.saveImportError(error);
+	}
+	
+	@Override
+	public List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId, Status status,
+			LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo) {
+		return ImportErrorSQL.getImportErrors(importerTypes, importerNames, messageId, status,
+				errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 	}
 
 }

@@ -16,6 +16,7 @@ import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
+import org.eclipse.tradista.core.message.util.MessageUtil;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 
 /********************************************************************************
@@ -72,6 +73,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 						externalMessage);
 				object.get().setId(incomingMessageManager.saveObject(object.get()));
 				msg.setObjectId(object.get().getId());
+				msg.setObjectType(MessageUtil.getObjectType(object.get().getClass()));
 			}
 			// Mappings are OK, we validate the message.
 			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);

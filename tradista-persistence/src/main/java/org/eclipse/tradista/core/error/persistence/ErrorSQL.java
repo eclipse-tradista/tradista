@@ -36,6 +36,12 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
  ********************************************************************************/
 
 public class ErrorSQL {
+	
+	public static final String MESSAGE = "MESSAGE";
+	
+	public static final String ERROR_DATE = "ERROR_DATE";
+	
+	public static final String SOLVING_DATE = "SOLVING_DATE";
 
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
 		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();

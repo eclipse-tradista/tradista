@@ -69,6 +69,7 @@ drop table equity_option_contract_specification;
 drop table week_end;
 drop table holiday;
 drop table date_rule_calendar;
+drop table import_error;
 drop table error;
 drop table month;
 drop table date_rule_sub_date_rule;

@@ -24,6 +24,7 @@ run '../sql/DATE_RULE_SUB_DATE_RULE.sql';
 run '../sql/MONTH.sql';
 run '../sql/INDEX.sql';
 run '../sql/ERROR.sql';
+run '../sql/IMPORT_ERROR.sql';
 run '../sql/BOOK.sql';
 run '../sql/ALLOCATION_CONFIGURATION_BOOK.sql';
 run '../sql/CALENDAR.sql';

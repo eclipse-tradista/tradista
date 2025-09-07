@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.importer.service;
 
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.eclipse.tradista.core.importer.model.Importer;
 
@@ -22,15 +23,15 @@ import org.eclipse.tradista.core.importer.model.Importer;
 
 public class ImporterConfiguration {
 
-	private Set<String> modules;
+	private SortedSet<String> modules;
 
 	private Set<Importer<?>> importers;
 
-	public void setModules(Set<String> modules) {
+	public void setModules(SortedSet<String> modules) {
 		this.modules = modules;
 	}
 
-	public Set<String> getModules() {
+	public SortedSet<String> getModules() {
 		return modules;
 	}
 

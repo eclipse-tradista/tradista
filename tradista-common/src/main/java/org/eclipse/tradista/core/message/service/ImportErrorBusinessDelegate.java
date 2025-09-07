@@ -1,12 +1,17 @@
 package org.eclipse.tradista.core.message.service;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.error.util.ErrorUtil;
 import org.eclipse.tradista.core.message.model.ImportError;
-import org.eclipse.tradista.core.message.service.ImportErrorService;
+import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -27,7 +32,7 @@ import org.eclipse.tradista.core.message.service.ImportErrorService;
 public class ImportErrorBusinessDelegate implements Serializable {
 
 	private static final long serialVersionUID = 5689135570381210814L;
-	
+
 	private ImportErrorService importErrorService;
 
 	public ImportErrorBusinessDelegate() {
@@ -39,6 +44,21 @@ public class ImportErrorBusinessDelegate implements Serializable {
 			throw new TradistaBusinessException("The import error cannot be null.");
 		}
 		return SecurityUtil.runEx(() -> importErrorService.saveImportError(error));
+	}
+
+	public List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
+			Status status, LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,
+			LocalDate solvingDateTo) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (!CollectionUtils.isEmpty(importerTypes) && !CollectionUtils.isEmpty(importerNames)) {
+			errMsg.append("You must select either Importer Types or Names but not both.");
+		}
+		ErrorUtil.checkErrorDates(errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo, errMsg);
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return SecurityUtil.runEx(() -> importErrorService.getImportErrors(importerTypes, importerNames, messageId,
+				status, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo));
 	}
 
 }

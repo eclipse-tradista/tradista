@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
-import org.eclipse.tradista.core.importer.service.ImporterInformationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;

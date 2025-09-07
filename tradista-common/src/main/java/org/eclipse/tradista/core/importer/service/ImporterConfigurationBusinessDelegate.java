@@ -2,9 +2,11 @@ package org.eclipse.tradista.core.importer.service;
 
 import java.util.SortedSet;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
-import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
+import org.eclipse.tradista.core.importer.model.Importer;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -32,6 +34,17 @@ public class ImporterConfigurationBusinessDelegate {
 
 	public SortedSet<String> getAllImporterNames() {
 		return SecurityUtil.run(() -> importerConfigurationService.getAllImporterNames());
+	}
+
+	public SortedSet<String> getModules() {
+		return SecurityUtil.run(() -> importerConfigurationService.getModules());
+	}
+
+	public Importer<?> getImporterByName(String name) throws TradistaBusinessException {
+		if (StringUtils.isBlank(name)) {
+			throw new TradistaBusinessException("The name is mandatory.");
+		}
+		return SecurityUtil.run(() -> importerConfigurationService.getImporterByName(name));
 	}
 
 }
