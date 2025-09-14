@@ -1,10 +1,21 @@
 package org.eclipse.tradista.core.workflow.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.workflow.model.Status;
@@ -27,6 +38,8 @@ import org.eclipse.tradista.core.workflow.model.Status;
 
 public class StatusSQL {
 
+	public static final String STATUS = "STATUS";
+
 	public static Status getStatusById(long id) {
 		Status status = null;
 		try (Connection con = TradistaDB.getConnection();
@@ -47,6 +60,29 @@ public class StatusSQL {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return status;
+	}
+
+	public static Set<String> getWorkflowStatusNames(Set<String> workflowNames) {
+		Set<String> statusNames = null;
+		String workflowNamesSQL = StringUtils.join(workflowNames, ",");
+
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetWorkflowStatusNames = con.prepareStatement(
+						SELECT + NAME + FROM + STATUS + ", WORKFLOW" + WHERE + STATUS + "." + ID + " = WORKFLOW." + ID
+								+ AND + "WORKFLOW." + NAME + IN + "('" + workflowNamesSQL + "')")) {
+			try (ResultSet results = stmtGetWorkflowStatusNames.executeQuery()) {
+				while (results.next()) {
+					if (statusNames == null) {
+						statusNames = new HashSet<>();
+					}
+					statusNames.add(results.getString(NAME));
+				}
+			}
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		return statusNames;
 	}
 
 }

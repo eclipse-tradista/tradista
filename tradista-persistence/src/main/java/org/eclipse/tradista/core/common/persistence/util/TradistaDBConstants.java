@@ -22,6 +22,7 @@ public final class TradistaDBConstants {
 	public static final String FROM = " FROM ";
 	public static final String WHERE = " WHERE ";
 	public static final String AND = " AND ";
+	public static final String IN = " IN ";
 	public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 	public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
@@ -29,6 +30,8 @@ public final class TradistaDBConstants {
 	public static final String ID = "ID";
 	public static final String TYPE = "TYPE";
 	public static final String STATUS = "STATUS";
+	public static final String NAME = "NAME";
+	public static final String STATUS_ID = "STATUS_ID";
 	public static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
 	public static final String BOOK_ID = "BOOK_ID";
 	public static final String CREATION_DATE = "CREATION_DATE";

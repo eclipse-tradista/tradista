@@ -69,4 +69,8 @@ public class WorkflowBusinessDelegate implements Serializable {
 		return SecurityUtil.runEx(() -> workflowService.getInitialStatus(workflowName));
 	}
 
+	public Set<String> getAllMessageStatusNames() {
+		return SecurityUtil.run(() -> workflowService.getAllMessageStatusNames());
+	}
+
 }

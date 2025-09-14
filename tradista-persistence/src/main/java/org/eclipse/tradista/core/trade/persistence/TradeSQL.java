@@ -1,5 +1,10 @@
 package org.eclipse.tradista.core.trade.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,9 +48,6 @@ import org.eclipse.tradista.core.workflow.persistence.StatusSQL;
 
 public class TradeSQL {
 
-	private static final String AND = " AND ";
-	private static final String WHERE = "WHERE";
-	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final String BOND = "Bond";
 	private static final String FRA = "FRA";
 	private static final String FX = "FX";
@@ -62,7 +64,6 @@ public class TradeSQL {
 	private static final String FX_OPTION = "FXOption";
 	private static final String GC_REPO = "GCRepo";
 	private static final String SPECIFIC_REPO = "SpecificRepo";
-	private static final String ID = "ID";
 	private static final String BUY_SELL = "BUY_SELL";
 	private static final String COUNTERPARTY_ID = "COUNTERPARTY_ID";
 	private static final String BOOK_ID = "BOOK_ID";
@@ -247,7 +248,7 @@ public class TradeSQL {
 			if (minCreationDate != null || maxCreationDate != null || minTradeDate != null || maxTradeDate != null) {
 				if (minCreationDate != null) {
 					query += " WHERE CREATION_DATE >= '"
-							+ DateTimeFormatter.ofPattern(DATE_FORMAT).format(minCreationDate) + "'";
+							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(minCreationDate) + "'";
 				}
 				if (maxCreationDate != null) {
 					if (query.contains(WHERE)) {
@@ -255,7 +256,7 @@ public class TradeSQL {
 					} else {
 						query += WHERE;
 					}
-					query += " CREATION_DATE <= '" + DateTimeFormatter.ofPattern(DATE_FORMAT).format(maxCreationDate)
+					query += " CREATION_DATE <= '" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(maxCreationDate)
 							+ "'";
 				}
 				if (minTradeDate != null) {
@@ -264,7 +265,7 @@ public class TradeSQL {
 					} else {
 						query += WHERE;
 					}
-					query += " TRADE_DATE >= '" + DateTimeFormatter.ofPattern(DATE_FORMAT).format(minTradeDate) + "'";
+					query += " TRADE_DATE >= '" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(minTradeDate) + "'";
 				}
 				if (maxTradeDate != null) {
 					if (query.contains(WHERE)) {
@@ -272,7 +273,7 @@ public class TradeSQL {
 					} else {
 						query += WHERE;
 					}
-					query += " TRADE_DATE <= '" + DateTimeFormatter.ofPattern(DATE_FORMAT).format(maxTradeDate) + "'";
+					query += " TRADE_DATE <= '" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(maxTradeDate) + "'";
 				}
 			}
 			try (ResultSet results = stmt.executeQuery(query)) {

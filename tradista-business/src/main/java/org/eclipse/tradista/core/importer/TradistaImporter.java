@@ -100,7 +100,6 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		message.setCreationDateTime(now);
 		message.setLastUpdateDateTime(now);
 		message.setType(getType());
-		message.setWorkflow(getType());
 		message.setStatus(workflowBusinessDelegate.getInitialStatus(message.getWorkflow()));
 		messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
 		return message;

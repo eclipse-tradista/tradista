@@ -1,5 +1,11 @@
 package org.eclipse.tradista.core.message.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.tradista.core.common.util.TradistaConstants;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.message.persistence.MessageSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -31,6 +37,20 @@ public class MessageServiceBean implements MessageService {
 	@Override
 	public long saveMessage(Message message) {
 		return MessageSQL.saveMessage(message);
+	}
+
+	@Override
+	public List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames,
+			long objectId, Set<String> objectTypes, Set<String> statuses, LocalDateTime creationDateTimeFrom,
+			LocalDateTime creationDateTimeTo, LocalDateTime lastUpdateDateTimeFrom,
+			LocalDateTime lastUpdateDateTimeTo) {
+		return MessageSQL.getMessages(id, isIncoming, types, interfaceNames, objectId, objectTypes, statuses,
+				creationDateTimeFrom, creationDateTimeTo, lastUpdateDateTimeFrom, lastUpdateDateTimeTo);
+	}
+
+	@Override
+	public Set<String> getAllMessageTypes() {
+		return TradistaUtil.getDistinctValuesFromProperties(TradistaConstants.META_INF, "messageTypes");
 	}
 
 }

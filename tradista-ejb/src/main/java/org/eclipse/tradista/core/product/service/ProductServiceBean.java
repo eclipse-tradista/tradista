@@ -1,14 +1,13 @@
 package org.eclipse.tradista.core.product.service;
 
-import java.io.InputStream;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaConstants;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
-import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.util.CollectionUtils;
 
@@ -38,21 +37,7 @@ public class ProductServiceBean implements ProductService {
 
 	@Override
 	public Set<String> getAvailableProductTypes() {
-		Set<String> products = null;
-		Properties prop = new Properties();
-		InputStream in = TradeSQL.class.getResourceAsStream("/META-INF/products.properties");
-		try {
-			prop.load(in);
-			in.close();
-			for (Object product : prop.keySet()) {
-				if (products == null) {
-					products = new HashSet<>();
-				}
-				products.add((String) product);
-			}
-		} catch (Exception _) {
-		}
-		return products;
+		return TradistaUtil.getDistinctValuesFromProperties(TradistaConstants.META_INF, "products");
 	}
 
 	@Override

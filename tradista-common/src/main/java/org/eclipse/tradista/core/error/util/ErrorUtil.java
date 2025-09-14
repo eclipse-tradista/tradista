@@ -3,6 +3,8 @@ package org.eclipse.tradista.core.error.util;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.util.DateUtil;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -26,17 +28,14 @@ public final class ErrorUtil {
 	}
 
 	public static void checkErrorDates(LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,
-			LocalDate solvingDateTo, StringBuilder errMsg) throws TradistaBusinessException {
-		if (errorDateFrom != null && errorDateTo != null) {
-			if (errorDateTo.isBefore(errorDateFrom)) {
-				errMsg.append(String.format("'To' error date cannot be before 'From' error date.%n"));
-			}
-		}
-		if (solvingDateFrom != null && solvingDateTo != null) {
-			if (solvingDateTo.isBefore(solvingDateFrom)) {
-				errMsg.append(String.format("'To' solving date cannot be before 'From' solving date.%n"));
-			}
-		}
+			LocalDate solvingDateTo, StringBuilder errMsg) {
+		if (errMsg == null) {
+            throw new TradistaTechnicalException("StringBuilder for error messages cannot be null");
+        }
+		DateUtil.checkNotAfter(errorDateFrom, errorDateTo, "Error Date From", "Error Date To",
+				errMsg);
+		DateUtil.checkNotAfter(solvingDateFrom, solvingDateTo, "Solving Date From", "Solving Date To",
+				errMsg);
 	}
 
 	public static void checkErrorDates(LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,

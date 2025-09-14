@@ -40,8 +40,6 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private Status status;
 
-	private String workflow;
-
 	private String interfaceName;
 
 	public long getObjectId() {
@@ -107,11 +105,7 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	@Override
 	public String getWorkflow() {
-		return workflow;
-	}
-
-	public void setWorkflow(String name) {
-		this.workflow = name;
+		return type;
 	}
 
 	@Override

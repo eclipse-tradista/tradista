@@ -1,12 +1,6 @@
-package org.eclipse.tradista.core.message.service;
+package org.eclipse.tradista.core.common.persistence.util;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-
-import org.eclipse.tradista.core.message.model.Message;
-
-import jakarta.ejb.Remote;
+import org.apache.commons.lang3.StringUtils;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -24,14 +18,17 @@ import jakarta.ejb.Remote;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Remote
-public interface MessageService {
-
-	long saveMessage(Message message);
-
-	List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames, long objectId,
-			Set<String> objectTypes, Set<String> statuses, LocalDateTime creationDateTimeFrom,
-			LocalDateTime creationDateTimeTo, LocalDateTime lastUpdateDateTimeFrom, LocalDateTime lastUpdateDateTimeTo);
-
-	Set<String> getAllMessageTypes();
+public record Table(String name, String id) {
+	public Table {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(name)) {
+			errMsg.append(String.format("name cannot be blank.%n"));
+		}
+		if (StringUtils.isBlank(id)) {
+			errMsg.append(String.format("id cannot be blank.%n"));
+		}
+		if (!errMsg.isEmpty()) {
+			throw new IllegalArgumentException(errMsg.toString());
+		}
+	}
 }

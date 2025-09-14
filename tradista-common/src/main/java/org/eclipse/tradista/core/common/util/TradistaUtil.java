@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.common.util;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -281,6 +283,24 @@ public final class TradistaUtil {
 			throw new TradistaTechnicalException(
 					String.format("Could not create class from this name '%s' : %s", className, cnfe));
 		}
+	}
+
+	public static Set<String> getDistinctValuesFromProperties(String directory, String fileName) {
+		Set<String> values = null;
+		Properties prop = new Properties();
+		InputStream in = TradistaUtil.class.getResourceAsStream("/" + directory + "/" + fileName + ".properties");
+		try {
+			prop.load(in);
+			in.close();
+			for (Object product : prop.keySet()) {
+				if (values == null) {
+					values = new HashSet<>();
+				}
+				values.add((String) product);
+			}
+		} catch (Exception _) {
+		}
+		return values;
 	}
 
 }
