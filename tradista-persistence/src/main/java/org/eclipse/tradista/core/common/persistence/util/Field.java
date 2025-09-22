@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.common.persistence.util;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 
 /********************************************************************************
@@ -18,14 +20,14 @@ import org.apache.commons.lang3.StringUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public record Table(String name, String id) {
-	public Table {
+public record Field(String name, Table table, String... alias) {
+	public Field {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(name)) {
 			errMsg.append(String.format("name cannot be blank.%n"));
 		}
-		if (StringUtils.isBlank(id)) {
-			errMsg.append(String.format("id cannot be blank.%n"));
+		if (table == null) {
+			errMsg.append("table is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new IllegalArgumentException(errMsg.toString());
@@ -33,7 +35,25 @@ public record Table(String name, String id) {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(name, table);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Field other = (Field) obj;
+		return Objects.equals(name, other.name) && Objects.equals(table, other.table);
+	}
+
+	@Override
 	public String toString() {
-		return name();
+		return table().name() + "." + name() + StringUtils.SPACE
+				+ ((alias().length > 1) ? alias()[0] : StringUtils.EMPTY);
 	}
 }

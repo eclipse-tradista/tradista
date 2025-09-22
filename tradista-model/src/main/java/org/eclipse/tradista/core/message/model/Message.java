@@ -98,6 +98,8 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 		this.interfaceName = interfaceName;
 	}
 
+	public abstract boolean isIncoming();
+
 	@Override
 	public void setStatus(Status status) {
 		this.status = status;

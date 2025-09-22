@@ -107,7 +107,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 				canBeOTC = productBusinessDelegate.canBeOTC(posDef.getProductType());
 				canBeListed = productBusinessDelegate.canBeListed(posDef.getProductType());
 			}
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen at this stage as every position
 			// definitions should have a product type.
 		}

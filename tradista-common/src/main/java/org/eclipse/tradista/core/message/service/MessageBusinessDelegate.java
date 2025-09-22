@@ -117,5 +117,9 @@ public class MessageBusinessDelegate implements Serializable {
 	public Set<String> getAllMessageTypes() {
 		return SecurityUtil.run(() -> messageService.getAllMessageTypes());
 	}
+	
+	public Set<String> getAllObjectTypes() {
+		return SecurityUtil.run(() -> messageService.getAllObjectTypes());
+	}
 
 }

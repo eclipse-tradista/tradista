@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.message.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
@@ -10,6 +11,8 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+
+import static org.eclipse.tradista.core.workflow.persistence.StatusSQL.STATUS_TABLE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,6 +28,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
@@ -50,22 +54,23 @@ import org.springframework.util.CollectionUtils;
 
 public class MessageSQL {
 
-	private static final String INCOMING = "INCOMING";
+	public static final Table MESSAGE_TABLE = new Table("MESSAGE", ID);
 
-	private static final String OBJECT_ID = "OBJECT_ID";
+	private static final Field ID_FIELD = new Field(ID, MESSAGE_TABLE);
+	private static final Field INCOMING_FIELD = new Field("INCOMING", MESSAGE_TABLE);
+	private static final Field OBJECT_ID_FIELD = new Field("OBJECT_ID", MESSAGE_TABLE);
+	private static final Field OBJECT_TYPE_FIELD = new Field("OBJECT_TYPE", MESSAGE_TABLE);
+	private static final Field CONTENT_FIELD = new Field("CONTENT", MESSAGE_TABLE);
+	private static final Field TYPE_FIELD = new Field(TYPE, MESSAGE_TABLE);
+	public static final Field INTERFACE_NAME_FIELD = new Field("INTERFACE_NAME", MESSAGE_TABLE);
+	private static final Field CREATION_DATE_FIELD = new Field(CREATION_DATE, MESSAGE_TABLE);
+	private static final Field LAST_UPDATE_DATE_FIELD = new Field(LAST_UPDATE_DATE, MESSAGE_TABLE);
+	private static final Field STATUS_ID_FIELD = new Field(STATUS_ID, MESSAGE_TABLE);
 
-	private static final String OBJECT_TYPE = "OBJECT_TYPE";
+	private static final Field[] FIELDS = { ID_FIELD, INCOMING_FIELD, OBJECT_ID_FIELD, OBJECT_TYPE_FIELD, CONTENT_FIELD,
+			TYPE_FIELD, INTERFACE_NAME_FIELD, CREATION_DATE_FIELD, LAST_UPDATE_DATE_FIELD, STATUS_ID_FIELD };
 
-	private static final String CONTENT = "CONTENT";
-
-	public static final String MESSAGE = "MESSAGE";
-
-	public static final String INTERFACE_NAME = "INTERFACE_NAME";
-
-	private static final String[] FIELDS = { ID, INCOMING, OBJECT_ID, OBJECT_TYPE, CONTENT, TYPE, INTERFACE_NAME,
-			CREATION_DATE, LAST_UPDATE_DATE, STATUS_ID };
-
-	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, new Table(MESSAGE, ID));
+	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, MESSAGE_TABLE);
 
 	public static long saveMessage(Message message) {
 
@@ -73,13 +78,15 @@ public class MessageSQL {
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveMessage = (message.getId() != 0)
-						? con.prepareStatement("UPDATE " + MESSAGE + " SET " + INCOMING + "=?," + CREATION_DATE + "=?,"
-								+ LAST_UPDATE_DATE + "=?," + TYPE + "=?," + INTERFACE_NAME + "=?," + OBJECT_ID + "=?,"
-								+ OBJECT_TYPE + "=?," + CONTENT + "=?," + STATUS_ID + "=?" + WHERE + ID + "= ?")
+						? con.prepareStatement("UPDATE " + MESSAGE_TABLE + " SET " + INCOMING_FIELD + "=?,"
+								+ CREATION_DATE + "=?," + LAST_UPDATE_DATE + "=?," + TYPE + "=?," + INTERFACE_NAME_FIELD
+								+ "=?," + OBJECT_ID_FIELD + "=?," + OBJECT_TYPE_FIELD + "=?," + CONTENT_FIELD + "=?,"
+								+ STATUS_ID + "=?" + WHERE + ID + "= ?")
 						: con.prepareStatement(
-								"INSERT INTO " + MESSAGE + "(" + INCOMING + "," + CREATION_DATE + "," + LAST_UPDATE_DATE
-										+ "," + TYPE + "," + INTERFACE_NAME + "," + OBJECT_ID + "," + OBJECT_TYPE + ","
-										+ CONTENT + "," + STATUS_ID + ") VALUES (?,?,?,?,?,?,?,?,?)",
+								"INSERT INTO " + MESSAGE_TABLE + "(" + INCOMING_FIELD + "," + CREATION_DATE + ","
+										+ LAST_UPDATE_DATE + "," + TYPE + "," + INTERFACE_NAME_FIELD + ","
+										+ OBJECT_ID_FIELD + "," + OBJECT_TYPE_FIELD + "," + CONTENT_FIELD + ","
+										+ STATUS_ID + ") VALUES (?,?,?,?,?,?,?,?,?)",
 								Statement.RETURN_GENERATED_KEYS)) {
 			if (message.getId() != 0) {
 				stmtSaveMessage.setLong(10, message.getId());
@@ -125,9 +132,11 @@ public class MessageSQL {
 
 	public static Message getMessageById(long id) {
 		Message message = null;
+		StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
+		sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ID_FIELD, "?");
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetMessageById = con.prepareStatement(SELECT_QUERY + WHERE + ID + " = ?")) {
+				PreparedStatement stmtGetMessageById = con.prepareStatement(sqlQuery.toString())) {
 			stmtGetMessageById.setLong(1, id);
 			try (ResultSet results = stmtGetMessageById.executeQuery()) {
 				while (results.next()) {
@@ -138,11 +147,12 @@ public class MessageSQL {
 					message.setId(results.getLong(ID));
 					message.setCreationDateTime(results.getTimestamp(CREATION_DATE).toLocalDateTime());
 					message.setLastUpdateDateTime(results.getTimestamp(LAST_UPDATE_DATE).toLocalDateTime());
-					message.setObjectId(results.getLong(OBJECT_ID));
-					message.setObjectType(results.getString(OBJECT_TYPE));
-					message.setInterfaceName(results.getString(INTERFACE_NAME));
-					message.setContent(results.getString(CONTENT));
+					message.setObjectId(results.getLong(OBJECT_ID_FIELD.name()));
+					message.setObjectType(results.getString(OBJECT_TYPE_FIELD.name()));
+					message.setInterfaceName(results.getString(INTERFACE_NAME_FIELD.name()));
+					message.setContent(results.getString(CONTENT_FIELD.name()));
 					message.setStatus(StatusSQL.getStatusById(results.getLong(STATUS_ID)));
+					message.setType(results.getString(TYPE_FIELD.name()));
 				}
 			}
 		} catch (SQLException sqle) {
@@ -160,16 +170,16 @@ public class MessageSQL {
 
 		try (Connection con = TradistaDB.getConnection(); Statement stmtGetMessages = con.createStatement()) {
 			StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ID, id);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, INCOMING, isIncoming);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, TYPE, types);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, INTERFACE_NAME, interfaceNames);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, OBJECT_ID, objectId);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, OBJECT_TYPE, objectTypes);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE, creationDateTimeFrom, true);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE, creationDateTimeTo, false);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE, lastUpdateDateTimeFrom, true);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE, lastUpdateDateTimeTo, false);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ID_FIELD, id);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, INCOMING_FIELD, isIncoming);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, TYPE_FIELD, types);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, INTERFACE_NAME_FIELD, interfaceNames);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, OBJECT_ID_FIELD, objectId);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, OBJECT_TYPE_FIELD, objectTypes);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeFrom, true);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeTo, false);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeFrom, true);
+			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeTo, false);
 
 			String statusesSqlQuery = StringUtils.EMPTY;
 			if (!CollectionUtils.isEmpty(statuses)) {
@@ -179,8 +189,8 @@ public class MessageSQL {
 				} else {
 					statusesSqlQuery = WHERE;
 				}
-				statusesSqlQuery += STATUS_ID + " IN (" + SELECT + ID + FROM + StatusSQL.STATUS + WHERE + ID + " = "
-						+ STATUS_ID + AND + NAME + " IN ('" + statusNamesSql + "'))";
+				statusesSqlQuery += STATUS_ID + IN + " (" + SELECT + ID + FROM + STATUS_TABLE + WHERE + ID + " = "
+						+ STATUS_ID + AND + NAME + IN + " ('" + statusNamesSql + "'))";
 			}
 
 			sqlQuery.append(statusesSqlQuery);
@@ -198,11 +208,12 @@ public class MessageSQL {
 					message.setId(results.getLong(ID));
 					message.setCreationDateTime(results.getTimestamp(CREATION_DATE).toLocalDateTime());
 					message.setLastUpdateDateTime(results.getTimestamp(LAST_UPDATE_DATE).toLocalDateTime());
-					message.setObjectId(results.getLong(OBJECT_ID));
-					message.setObjectType(results.getString(OBJECT_TYPE));
-					message.setInterfaceName(results.getString(INTERFACE_NAME));
-					message.setContent(results.getString(CONTENT));
+					message.setObjectId(results.getLong(OBJECT_ID_FIELD.name()));
+					message.setObjectType(results.getString(OBJECT_TYPE_FIELD.name()));
+					message.setInterfaceName(results.getString(INTERFACE_NAME_FIELD.name()));
+					message.setContent(results.getString(CONTENT_FIELD.name()));
 					message.setStatus(StatusSQL.getStatusById(results.getLong(STATUS_ID)));
+					message.setType(results.getString(TYPE_FIELD.name()));
 					messages.add(message);
 				}
 			}

@@ -53,4 +53,9 @@ public class MessageServiceBean implements MessageService {
 		return TradistaUtil.getDistinctValuesFromProperties(TradistaConstants.META_INF, "messageTypes");
 	}
 
+	@Override
+	public Set<String> getAllObjectTypes() {
+		return TradistaUtil.getDistinctValuesFromProperties(TradistaConstants.META_INF, "objectTypes");
+	}
+
 }

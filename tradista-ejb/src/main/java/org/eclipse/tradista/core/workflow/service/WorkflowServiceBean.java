@@ -8,8 +8,8 @@ import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.core.workflow.model.mapping.WorkflowMapper;
-import org.eclipse.tradista.core.workflow.persistence.StatusSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.util.CollectionUtils;
 
 import finance.tradista.flow.exception.TradistaFlowBusinessException;
 import finance.tradista.flow.service.WorkflowManager;
@@ -37,9 +37,9 @@ import jakarta.ejb.Stateless;
 @PermitAll
 @Stateless
 public class WorkflowServiceBean implements WorkflowService {
-	
+
 	private MessageBusinessDelegate messageBusinessDelegate;
-	
+
 	@PostConstruct
 	private void initialize() {
 		messageBusinessDelegate = new MessageBusinessDelegate();
@@ -96,7 +96,13 @@ public class WorkflowServiceBean implements WorkflowService {
 	@Override
 	public Set<String> getAllMessageStatusNames() {
 		Set<String> messageTypes = messageBusinessDelegate.getAllMessageTypes();
-		return StatusSQL.getWorkflowStatusNames(messageTypes);
+		if (!CollectionUtils.isEmpty(messageTypes)) {
+			try {
+				return WorkflowManager.getStatusesByWorkflowNames(messageTypes.toArray(new String[0]));
+			} catch (TradistaFlowBusinessException _) {
+			}
+		}
+		return null;
 	}
 
 }

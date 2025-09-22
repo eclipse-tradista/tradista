@@ -221,7 +221,7 @@ public final class RepoTransferUtil {
 					for (Transfer transfer : existingPotentialCollateralTransfers) {
 						try {
 							transferBusinessDelegate.deleteTransfer(transfer.getId());
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Not expected here
 						}
 					}

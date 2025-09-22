@@ -41,17 +41,17 @@
 										scrollHeight="250" dropdown="true"
 										disabled="#{not empty messageReportController.selectedTypes or not empty messageReportController.selectedObjectTypes}">
 										<p:ajax event="itemSelect"
-											listener="#{messageReportController.onNameChange}"
+											listener="#{messageReportController.onInterfaceNameChange}"
 											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
 										<p:ajax event="itemUnselect"
-											listener="#{messageReportController.onNameChange}"
+											listener="#{messageReportController.onInterfaceNameChange}"
 											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
 									</p:autoComplete>
 								</p:row>
 								<p:row>
 									<p:outputLabel value="Object Type" for="objectTypeAutoComplete" />
 									<p:autoComplete id="objectTypeAutoComplete" multiple="true"
-										value="#{messageReportController.selectedObjectType}"
+										value="#{messageReportController.selectedObjectTypes}"
 										completeMethod="#{messageReportController.completeObjectType}"
 										showEmptyMessage="false" unique="true" forceSelection="true"
 										scrollHeight="250" dropdown="true"
@@ -72,7 +72,7 @@
 								<p:row>
 									<p:outputLabel value="Direction" for="directionButton" />
 									<p:selectManyButton
-										value="#{messageReportController.directions}"
+										value="#{messageReportController.selectedDirections}"
 										id="directionButton">
 										<f:selectItems
 											value="#{messageReportController.allDirections}" />
@@ -87,17 +87,19 @@
 									<p:outputLabel value="Creation Date Range"
 										for="creationDatesDatePicker" />
 									<p:datePicker id="creationDatesDatePicker"
-										value="#{messageReportController.creationDates}"
+										value="#{messageReportController.creationDateTimes}"
 										pattern="dd/MM/yyyy" selectionMode="range"
-										styleClass="tradista-large-datepicker" />
+										styleClass="tradista-large-datepicker" showTime="true"
+										timeInput="true" />
 								</p:row>
 								<p:row>
 									<p:outputLabel value="Last Update Date Range"
 										for="lastUpdateDatesDatePicker" />
 									<p:datePicker id="lastUpdateDatesDatePicker"
-										value="#{messageReportController.solvingDates}"
+										value="#{messageReportController.lastUpdateDateTimes}"
 										pattern="dd/MM/yyyy" selectionMode="range"
-										styleClass="tradista-large-datepicker" />
+										styleClass="tradista-large-datepicker" showTime="true"
+										timeInput="true" />
 								</p:row>
 								<p:row>
 									<p:column>
@@ -117,20 +119,22 @@
 									<p:outputLabel value="#{msg.id}" />
 								</p:column>
 								<p:column headerText="Direction"
-									sortBy="#{msg.isIncoming ? 'Incoming' : 'Outgoing'}">
+									sortBy="#{msg.isIncoming() ? 'Incoming' : 'Outgoing'}">
 									<p:outputLabel
-										value="#{msg.isIncoming ? 'Incoming' : 'Outgoing'}" />
+										value="#{msg.isIncoming() ? 'Incoming' : 'Outgoing'}" />
 								</p:column>
 								<p:column headerText="Creation Date"
 									sortBy="#{msg.creationDate}">
-									<p:outputLabel value="#{msg.creationDate}">
-										<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+									<p:outputLabel value="#{msg.creationDateTime}">
+										<f:convertDateTime type="localDateTime"
+											pattern="dd/MM/yyyy hh:mm:ss" />
 									</p:outputLabel>
 								</p:column>
 								<p:column headerText="Last Update Date"
-									sortBy="#{msg.lastUpdateDate}">
-									<p:outputLabel value="#{msg.lastUpdateDate}">
-										<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+									sortBy="#{msg.lastUpdateDateTime}">
+									<p:outputLabel value="#{msg.lastUpdateDateTime}">
+										<f:convertDateTime type="localDateTime"
+											pattern="dd/MM/yyyy hh:mm:ss" />
 									</p:outputLabel>
 								</p:column>
 								<p:column headerText="Type" sortBy="#{msg.type}">
@@ -146,8 +150,8 @@
 								<p:column headerText="Object Type" sortBy="#{msg.objectType}">
 									<p:outputLabel value="#{msg.objectType}" />
 								</p:column>
-								<p:column headerText="Status" sortBy="#{error.status}">
-									<p:outputLabel value="#{error.status}" />
+								<p:column headerText="Status" sortBy="#{msg.status}">
+									<p:outputLabel value="#{msg.status}" />
 								</p:column>
 								<p:column headerText="Content" sortBy="#{msg.content}">
 									<p:outputLabel value="#{msg.content}" />

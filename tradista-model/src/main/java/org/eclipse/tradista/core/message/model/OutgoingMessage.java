@@ -20,4 +20,9 @@ public class OutgoingMessage extends Message {
 
 	private static final long serialVersionUID = -5209881033542006944L;
 
+	@Override
+	public boolean isIncoming() {
+		return false;
+	}
+
 }

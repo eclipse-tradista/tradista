@@ -57,7 +57,7 @@ public class TransferBusinessDelegate {
 		}
 		StringBuilder errMsg = new StringBuilder();
 		validateTransfer(transfer, errMsg);
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> transferService.saveTransfer(transfer));
@@ -71,7 +71,7 @@ public class TransferBusinessDelegate {
 		for (Transfer transfer : transfers) {
 			validateTransfer(transfer, errMsg);
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.run(() -> transferService.saveTransfers(transfers));
@@ -85,31 +85,29 @@ public class TransferBusinessDelegate {
 			errMsg.append("The transfer status cannot be null.");
 		} else {
 			if (transfer.getDirection() == null && transfer.getStatus().equals(Transfer.Status.KNOWN)) {
-				errMsg.append(String.format("The transfer direction cannot be null when the transfer status is  %s.",
+				errMsg.append(String.format("The transfer direction cannot be null when the transfer status is %s.",
 						Transfer.Status.KNOWN));
 			}
-			if (transfer instanceof CashTransfer) {
-				if (((CashTransfer) transfer).getAmount() == null
-						&& transfer.getStatus().equals(Transfer.Status.KNOWN)) {
-					errMsg.append(String.format("The transfer amount cannot be null when the transfer status is  %s.",
+			if (transfer instanceof CashTransfer ct) {
+				if (ct.getAmount() == null && transfer.getStatus().equals(Transfer.Status.KNOWN)) {
+					errMsg.append(String.format("The transfer amount cannot be null when the transfer status is %s.",
 							Transfer.Status.KNOWN));
 				}
 			}
-			if (transfer instanceof ProductTransfer) {
-				if (((ProductTransfer) transfer).getQuantity() == null
-						&& transfer.getStatus().equals(Transfer.Status.KNOWN)) {
-					errMsg.append(String.format("The transfer quantity cannot be null when the transfer status is  %s.",
+			if (transfer instanceof ProductTransfer pt) {
+				if (pt.getQuantity() == null && transfer.getStatus().equals(Transfer.Status.KNOWN)) {
+					errMsg.append(String.format("The transfer quantity cannot be null when the transfer status is %s.",
 							Transfer.Status.KNOWN));
 				}
 			}
 		}
-		if (transfer instanceof CashTransfer) {
-			if (((CashTransfer) transfer).getAmount() != null && transfer.getFixingDateTime() == null) {
+		if (transfer instanceof CashTransfer ct) {
+			if (ct.getAmount() != null && transfer.getFixingDateTime() == null) {
 				errMsg.append("The transfer amount must be null when the fixing date is null.");
 			}
 		}
-		if (transfer instanceof ProductTransfer) {
-			if (((ProductTransfer) transfer).getQuantity() != null && transfer.getFixingDateTime() == null) {
+		if (transfer instanceof ProductTransfer pt) {
+			if (pt.getQuantity() != null && transfer.getFixingDateTime() == null) {
 				errMsg.append("The transfer quantity must be null when the fixing date is null.");
 			}
 		}
@@ -123,7 +121,7 @@ public class TransferBusinessDelegate {
 			throw new TradistaBusinessException("The TradeEvent cannot be null.");
 		}
 
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
 
 		if (event.getTrade() == null) {
 			errMsg.append(String.format("The TradeEvent trade cannot be null.%n"));
@@ -131,7 +129,7 @@ public class TransferBusinessDelegate {
 
 		// TODO Should we validate the trade and the old trade here ?
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -141,17 +139,17 @@ public class TransferBusinessDelegate {
 
 	public List<Transfer> getTransfersByTradeIdAndPurpose(long tradeId, TransferPurpose purpose, boolean includeCancel)
 			throws TradistaBusinessException {
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
 
 		if (purpose == null) {
-			errMsg.append("The transferServiceRequest purpose cannot be null.%n");
+			errMsg.append(String.format("The transferServiceRequest purpose cannot be null.%n"));
 		}
 
 		if (tradeId <= 0) {
-			errMsg.append("The transferServiceRequest trade id must be positive.%n");
+			errMsg.append("The transferServiceRequest trade id must be positive.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -160,13 +158,13 @@ public class TransferBusinessDelegate {
 	}
 
 	public List<Transfer> getTransfersByTradeId(long tradeId) throws TradistaBusinessException {
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
 
 		if (tradeId <= 0) {
-			errMsg.append("The trade id must be positive.%n");
+			errMsg.append("The trade id must be positive.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -204,7 +202,7 @@ public class TransferBusinessDelegate {
 		}
 		if (startFixingDate != null && endFixingDate != null) {
 			if (endFixingDate.isBefore(startFixingDate)) {
-				errorMsg.append("'To' fixing date cannot be before 'From' fixing date.");
+				errorMsg.append(String.format("'To' fixing date cannot be before 'From' fixing date.%n"));
 			}
 		}
 		if (startSettlementDate != null && endSettlementDate != null) {
@@ -212,7 +210,7 @@ public class TransferBusinessDelegate {
 				errorMsg.append("'To' settlement date cannot be before 'From' settlement date.");
 			}
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		return SecurityUtil.run(() -> transferService.getTransfers(type, status, direction, purpose, tradeId, productId,

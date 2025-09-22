@@ -1,16 +1,15 @@
 package org.eclipse.tradista.core.message.ui.controller;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
-import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 import org.springframework.util.CollectionUtils;
 
@@ -40,7 +39,6 @@ import jakarta.inject.Named;
 @ViewScoped
 public class MessageReportController implements Serializable {
 
-
 	private static final long serialVersionUID = -4933473879177821174L;
 
 	private List<Message> messages;
@@ -51,42 +49,60 @@ public class MessageReportController implements Serializable {
 
 	private List<String> selectedInterfaceNames;
 
-	private Set<String> allIInterfaceNames;
-	
+	private Set<String> allInterfaceNames;
+
 	private List<String> selectedObjectTypes;
 
-	private Set<String> allIObjectTypes;
+	private Set<String> allObjectTypes;
 
-	private long messageId;
+	private List<String> selectedDirections;
 
-	private LocalDate[] creationDates;
+	private Set<String> allDirections;
 
-	private LocalDate[] lastUpdateDates;
+	private Long messageId;
 
-	private List<String> statuses;
+	private Long objectId;
+
+	private LocalDateTime[] creationDateTimes;
+
+	private LocalDateTime[] lastUpdateDateTimes;
+
+	private List<String> selectedStatuses;
 
 	private Set<String> allStatuses;
 
 	private MessageBusinessDelegate messageBusinessDelegate;
-	
+
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
+
+	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
 	@PostConstruct
 	public void init() {
 		messageBusinessDelegate = new MessageBusinessDelegate();
 		workflowBusinessDelegate = new WorkflowBusinessDelegate();
+		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
 		allStatuses = workflowBusinessDelegate.getAllMessageStatusNames();
 		allTypes = messageBusinessDelegate.getAllMessageTypes();
+		allDirections = Set.of("Incoming", "Outgoing");
+		allObjectTypes = messageBusinessDelegate.getAllObjectTypes();
+		// For now, interfaces are only importers
+		allInterfaceNames = importerConfigurationBusinessDelegate.getAllImporterNames();
 	}
 
-	public List<String> completeImporterType(String query) {
+	public List<String> completeType(String query) {
 		String queryLowerCase = query.toLowerCase();
-		return allImporterTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
+		return allTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
 	}
 
-	public List<String> completeImporterName(String query) {
+	public List<String> completeInterfaceName(String query) {
 		String queryLowerCase = query.toLowerCase();
-		return allImporterNames.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
+		return allInterfaceNames.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
+	}
+
+	public List<String> completeObjectType(String query) {
+		String queryLowerCase = query.toLowerCase();
+		return allObjectTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
 	}
 
 	public List<Message> getMessages() {
@@ -121,62 +137,48 @@ public class MessageReportController implements Serializable {
 		this.selectedObjectTypes = selectedObjectTypes;
 	}
 
-	public long getMessageId() {
+	public Long getMessageId() {
 		return messageId;
 	}
 
-	public void setMessageId(long messageId) {
+	public void setMessageId(Long messageId) {
 		this.messageId = messageId;
 	}
 
-	public LocalDate[] getSolvingDates() {
-		return creationDates;
-	}
-
-	public void setSolvingDates(LocalDate[] solvingDates) {
-		this.creationDates = solvingDates;
-	}
-
-	public LocalDate[] getErrorDates() {
-		return lastUpdateDates;
-	}
-
-	public void setErrorDates(LocalDate[] errorDates) {
-		this.lastUpdateDates = errorDates;
-	}
-
 	public void load() {
-		Status status = null;
-		Set<String> impTypes = null;
-		Set<String> impNames = null;
-		LocalDate errorDateFrom = lastUpdateDates != null ? lastUpdateDates[0] : null;
-		LocalDate errorDateTo = lastUpdateDates != null ? lastUpdateDates[1] : null;
-		LocalDate solvingDateFrom = creationDates != null ? creationDates[0] : null;
-		LocalDate solvingDateTo = creationDates != null ? creationDates[1] : null;
-		if (selectedImporterTypes != null) {
-			impTypes = new HashSet<>(selectedImporterTypes);
+		Set<String> statuses = null;
+		Set<String> types = null;
+		Set<String> interfaceNames = null;
+		Set<String> objectTypes = null;
+		Boolean direction = null;
+		LocalDateTime lastUpdateDateFrom = lastUpdateDateTimes != null ? lastUpdateDateTimes[0] : null;
+		LocalDateTime lastUpdateDateTo = lastUpdateDateTimes != null ? lastUpdateDateTimes[1] : null;
+		LocalDateTime creationDateFrom = creationDateTimes != null ? creationDateTimes[0] : null;
+		LocalDateTime creationDateTo = creationDateTimes != null ? creationDateTimes[1] : null;
+		long msgId = messageId == null ? 0 : messageId.longValue();
+		long objId = objectId == null ? 0 : objectId.longValue();
+		if (selectedTypes != null) {
+			types = new HashSet<>(selectedTypes);
 		}
-		if (selectedImporterNames != null) {
-			impNames = new HashSet<>(selectedImporterNames);
+		if (selectedInterfaceNames != null) {
+			interfaceNames = new HashSet<>(selectedInterfaceNames);
 		}
-		if (!CollectionUtils.isEmpty(statuses) && statuses.size() == 1) {
-			status = statuses.getFirst();
+		if (selectedObjectTypes != null) {
+			objectTypes = new HashSet<>(selectedObjectTypes);
+		}
+		if (selectedStatuses != null) {
+			statuses = new HashSet<>(selectedStatuses);
+		}
+		if (!CollectionUtils.isEmpty(selectedDirections) && selectedDirections.size() == 1) {
+			direction = Boolean.valueOf(selectedDirections.getFirst().equals("Incoming"));
 		}
 		try {
-			errors = importErrorBusinessDelegate.getImportErrors(impTypes, impNames, messageId, status, errorDateFrom,
-					errorDateTo, solvingDateFrom, solvingDateTo);
+			messages = messageBusinessDelegate.getMessages(msgId, direction, types, interfaceNames, objId, objectTypes,
+					statuses, lastUpdateDateFrom, lastUpdateDateTo, creationDateFrom, creationDateTo);
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage("msg",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 		}
-	}
-
-	public List<String> getStatuses() {
-		return statuses;
-	}
-
-	public void setStatuses(List<String> statuses) {
-		this.statuses = statuses;
 	}
 
 	public Set<String> getAllStatuses() {
@@ -188,15 +190,102 @@ public class MessageReportController implements Serializable {
 	}
 
 	public void onTypeChange() {
-		if (!CollectionUtils.isEmpty(selectedImporterTypes) && !CollectionUtils.isEmpty(selectedImporterNames)) {
-			selectedImporterNames.clear();
+		if (!CollectionUtils.isEmpty(selectedTypes) && !CollectionUtils.isEmpty(selectedInterfaceNames)) {
+			selectedInterfaceNames.clear();
+		}
+		if (!CollectionUtils.isEmpty(selectedTypes) && !CollectionUtils.isEmpty(selectedObjectTypes)) {
+			selectedObjectTypes.clear();
 		}
 	}
 
-	public void onNameChange() {
-		if (!CollectionUtils.isEmpty(selectedImporterNames) && !CollectionUtils.isEmpty(selectedImporterTypes)) {
-			selectedImporterTypes.clear();
+	public void onInterfaceNameChange() {
+		if (!CollectionUtils.isEmpty(selectedInterfaceNames) && !CollectionUtils.isEmpty(selectedTypes)) {
+			selectedTypes.clear();
 		}
+		if (!CollectionUtils.isEmpty(selectedInterfaceNames) && !CollectionUtils.isEmpty(selectedObjectTypes)) {
+			selectedObjectTypes.clear();
+		}
+	}
+
+	public void onObjectTypeChange() {
+		if (!CollectionUtils.isEmpty(selectedObjectTypes) && !CollectionUtils.isEmpty(selectedInterfaceNames)) {
+			selectedInterfaceNames.clear();
+		}
+		if (!CollectionUtils.isEmpty(selectedObjectTypes) && !CollectionUtils.isEmpty(selectedTypes)) {
+			selectedTypes.clear();
+		}
+	}
+
+	public List<String> getSelectedDirections() {
+		return selectedDirections;
+	}
+
+	public void setSelectedDirections(List<String> selectedDirections) {
+		this.selectedDirections = selectedDirections;
+	}
+
+	public Set<String> getAllDirections() {
+		return allDirections;
+	}
+
+	public void setAllDirections(Set<String> allDirections) {
+		this.allDirections = allDirections;
+	}
+
+	public Long getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(Long objectId) {
+		this.objectId = objectId;
+	}
+
+	public List<String> getSelectedStatuses() {
+		return selectedStatuses;
+	}
+
+	public void setSelectedStatuses(List<String> selectedStatuses) {
+		this.selectedStatuses = selectedStatuses;
+	}
+
+	public Set<String> getAllTypes() {
+		return allTypes;
+	}
+
+	public void setAllTypes(Set<String> allTypes) {
+		this.allTypes = allTypes;
+	}
+
+	public Set<String> getAllInterfaceNames() {
+		return allInterfaceNames;
+	}
+
+	public void setAllInterfaceNames(Set<String> allInterfaceNames) {
+		this.allInterfaceNames = allInterfaceNames;
+	}
+
+	public Set<String> getAllObjectTypes() {
+		return allObjectTypes;
+	}
+
+	public void setAllObjectTypes(Set<String> allObjectTypes) {
+		this.allObjectTypes = allObjectTypes;
+	}
+
+	public LocalDateTime[] getCreationDateTimes() {
+		return creationDateTimes;
+	}
+
+	public void setCreationDateTimes(LocalDateTime[] creationDateTimes) {
+		this.creationDateTimes = creationDateTimes;
+	}
+
+	public LocalDateTime[] getLastUpdateDateTimes() {
+		return lastUpdateDateTimes;
+	}
+
+	public void setLastUpdateDateTimes(LocalDateTime[] lastUpdateDateTimes) {
+		this.lastUpdateDateTimes = lastUpdateDateTimes;
 	}
 
 }

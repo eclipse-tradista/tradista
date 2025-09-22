@@ -85,17 +85,17 @@ public class PositionCalculator {
 				.getAllRealTimePositionDefinitions();
 		PricerBusinessDelegate pricerBusinessDelegate = new PricerBusinessDelegate();
 		ProductBusinessDelegate productBusinessDelegate = new ProductBusinessDelegate();
-		List<PositionCalculationError> errors = new ArrayList<PositionCalculationError>();
-		List<Position> positions = new ArrayList<Position>();
-		Set<Long> solved = new HashSet<Long>();
+		List<PositionCalculationError> errors = new ArrayList<>();
+		List<Position> positions = new ArrayList<>();
+		Set<Long> solved = new HashSet<>();
 		if (allRealTimePositionDefinitions != null) {
-			List<PositionCalculationError> posErrors = new ArrayList<PositionCalculationError>();
+			List<PositionCalculationError> posErrors = new ArrayList<>();
 			List<PositionCalculationError> existingErrors = null;
 			try {
 				existingErrors = positionCalculationErrorService.getPositionCalculationErrors(0,
-						org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0, LocalDate.now(), LocalDate.now(),
-						null, null, null, null);
-			} catch (TradistaBusinessException abe) {
+						org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0, LocalDate.now(),
+						LocalDate.now(), null, null, null, null);
+			} catch (TradistaBusinessException _) {
 				// Should not happen at this stage because dates are consistent.
 			}
 
@@ -118,7 +118,7 @@ public class PositionCalculator {
 						canBeOTC = productBusinessDelegate.canBeOTC(posDef.getProductType());
 						canBeListed = productBusinessDelegate.canBeListed(posDef.getProductType());
 					}
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Should not happen at this stage as every position
 					// definitions should have a product type.
 				}

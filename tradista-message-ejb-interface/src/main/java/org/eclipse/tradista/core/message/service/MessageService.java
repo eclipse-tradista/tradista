@@ -34,4 +34,6 @@ public interface MessageService {
 			LocalDateTime creationDateTimeTo, LocalDateTime lastUpdateDateTimeFrom, LocalDateTime lastUpdateDateTimeTo);
 
 	Set<String> getAllMessageTypes();
+
+	Set<String> getAllObjectTypes();
 }

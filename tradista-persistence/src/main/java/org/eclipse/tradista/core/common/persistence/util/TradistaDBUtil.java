@@ -39,12 +39,11 @@ public final class TradistaDBUtil {
 	private TradistaDBUtil() {
 	}
 
-	public static String buildSelectQuery(String[] fieldNames, Table... tables) {
+	public static String buildSelectQuery(Field[] fields, Table... tables) {
 		StringBuilder errMsg = new StringBuilder();
 		StringBuilder select = new StringBuilder(SELECT);
-		new Table(null, null);
-		if (ArrayUtils.isEmpty(fieldNames)) {
-			errMsg.append(String.format("The field names cannot be null or empty.%n"));
+		if (ArrayUtils.isEmpty(fields)) {
+			errMsg.append(String.format("The fields cannot be null or empty.%n"));
 		}
 		if (tables == null) {
 			errMsg.append(String.format("The table cannot be null.%n"));
@@ -52,11 +51,11 @@ public final class TradistaDBUtil {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
-		select.append(StringUtils.join(fieldNames, ","));
-		select.append(FROM + StringUtils.join(Arrays.stream(tables).map(t -> t.name()).toList(), ","));
+		select.append(StringUtils.join(Arrays.stream(fields).map(f -> f.toString()).toList(), ","));
+		select.append(FROM + StringUtils.join(Arrays.stream(tables).map(Table::name).toList(), ","));
 		if (tables.length > 1) {
 			Table previousTable = null;
-			String sqlKeyword = StringUtils.EMPTY;
+			String sqlKeyword = null;
 			for (Table t : tables) {
 				if (previousTable != null) {
 					if (select.indexOf(WHERE) != -1) {
@@ -64,8 +63,8 @@ public final class TradistaDBUtil {
 					} else {
 						sqlKeyword = WHERE;
 					}
-					select.append(sqlKeyword)
-							.append(previousTable.name() + "." + previousTable.id() + " = " + t.name() + "." + t.id());
+					select.append(sqlKeyword).append(previousTable.name()).append(".").append(previousTable.id())
+							.append(" = ").append(t.name()).append(".").append(t.id());
 				}
 				previousTable = t;
 			}
@@ -73,15 +72,14 @@ public final class TradistaDBUtil {
 		return select.toString();
 	}
 
-	public static StringBuilder addFilter(StringBuilder sqlQuery, String fieldName, Object value,
-			boolean... isLowerBound) {
+	public static StringBuilder addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
 		StringBuilder errMsg = new StringBuilder();
 		String filterSqlQuery = StringUtils.EMPTY;
 		if (StringUtils.isBlank(sqlQuery)) {
 			errMsg.append(String.format("The SQL query cannot be null or empty.%n"));
 		}
-		if (StringUtils.isBlank(fieldName)) {
-			errMsg.append(String.format("The field name cannot be blank.%n"));
+		if (field == null) {
+			errMsg.append("The field is mandatory.%n");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
@@ -104,7 +102,7 @@ public final class TradistaDBUtil {
 				filterSqlQuery = WHERE;
 			}
 			switch (value) {
-			case Collection<?> c -> filterSqlQuery += fieldName + " IN ('" + StringUtils.join(c, "','") + "')";
+			case Collection<?> c -> filterSqlQuery += field + " IN ('" + StringUtils.join(c, "','") + "')";
 			case LocalDate ld -> {
 				String operator;
 				String formattedValue = DateTimeFormatter.ofPattern(MM_DD_YYYY).format(ld);
@@ -117,7 +115,7 @@ public final class TradistaDBUtil {
 				} else {
 					operator = " = ";
 				}
-				filterSqlQuery += fieldName + operator + "'" + formattedValue + "'";
+				filterSqlQuery += field + operator + "'" + formattedValue + "'";
 			}
 			case LocalDateTime ldt -> {
 				String operator;
@@ -131,10 +129,10 @@ public final class TradistaDBUtil {
 				} else {
 					operator = " = ";
 				}
-				filterSqlQuery += fieldName + operator + "'" + formattedValue + "'";
+				filterSqlQuery += field + operator + "'" + formattedValue + "'";
 			}
-			case Enum<?> e -> filterSqlQuery += fieldName + "=" + e.name();
-			default -> filterSqlQuery += fieldName + "=" + value.toString();
+			case Enum<?> e -> filterSqlQuery += field + "=" + e.name();
+			default -> filterSqlQuery += field + "=" + value.toString();
 			}
 		}
 		return sqlQuery.append(filterSqlQuery);
