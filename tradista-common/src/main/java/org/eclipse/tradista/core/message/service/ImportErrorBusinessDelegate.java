@@ -11,6 +11,8 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.error.util.ErrorUtil;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
@@ -35,8 +37,14 @@ public class ImportErrorBusinessDelegate implements Serializable {
 
 	private ImportErrorService importErrorService;
 
+	private MessageBusinessDelegate messageBusinessDelegate;
+
+	private WorkflowBusinessDelegate workflowBusinessDelegate;
+
 	public ImportErrorBusinessDelegate() {
 		importErrorService = TradistaServiceLocator.getInstance().getImportErrorService();
+		messageBusinessDelegate = new MessageBusinessDelegate();
+		workflowBusinessDelegate = new WorkflowBusinessDelegate();
 	}
 
 	public long saveImportError(ImportError error) throws TradistaBusinessException {
@@ -59,6 +67,23 @@ public class ImportErrorBusinessDelegate implements Serializable {
 		}
 		return SecurityUtil.runEx(() -> importErrorService.getImportErrors(importerTypes, importerNames, messageId,
 				status, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo));
+	}
+
+	public void solve(ImportError error) throws TradistaBusinessException {
+		// RETRY is for now treated as a special action. See it makes sense to make this
+		// configurable.
+		final String RETRY = "RETRY";
+		if (error == null) {
+			throw new TradistaBusinessException("The import error cannot be null.");
+		}
+		Message message = error.getMessage();
+		if (message != null) {
+			Set<String> availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(message.getWorkflow(),
+					message.getStatus());
+			if (!CollectionUtils.isEmpty(availableActions) && availableActions.contains(RETRY)) {
+				messageBusinessDelegate.saveMessage(message, RETRY);
+			}
+		}
 	}
 
 }

@@ -66,6 +66,8 @@ public class ImportErrorReportController implements Serializable {
 
 	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
 
+	private ImportError selectedError;
+
 	@PostConstruct
 	public void init() {
 		allStatuses = Status.values();
@@ -175,6 +177,16 @@ public class ImportErrorReportController implements Serializable {
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 		}
 	}
+	
+	public void solve() {
+
+		try {
+			importErrorBusinessDelegate.solve(selectedError);
+		} catch (TradistaBusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public List<Status> getStatuses() {
 		return statuses;
@@ -202,6 +214,14 @@ public class ImportErrorReportController implements Serializable {
 		if (!CollectionUtils.isEmpty(selectedImporterNames) && !CollectionUtils.isEmpty(selectedImporterTypes)) {
 			selectedImporterTypes.clear();
 		}
+	}
+
+	public ImportError getSelectedError() {
+		return selectedError;
+	}
+
+	public void setSelectedError(ImportError selectedError) {
+		this.selectedError = selectedError;
 	}
 
 }

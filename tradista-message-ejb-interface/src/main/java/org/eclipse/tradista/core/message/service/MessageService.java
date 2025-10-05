@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.message.model.Message;
 
 import jakarta.ejb.Remote;
@@ -28,6 +29,8 @@ import jakarta.ejb.Remote;
 public interface MessageService {
 
 	long saveMessage(Message message);
+
+	void applyAction(Message message, String action) throws TradistaBusinessException;
 
 	List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames, long objectId,
 			Set<String> objectTypes, Set<String> statuses, LocalDateTime creationDateTimeFrom,

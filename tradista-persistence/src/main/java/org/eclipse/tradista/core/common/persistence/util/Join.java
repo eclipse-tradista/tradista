@@ -1,8 +1,9 @@
 package org.eclipse.tradista.core.common.persistence.util;
 
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,27 +21,37 @@ import org.apache.commons.lang3.StringUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public record Field(String name, Table table, String... alias) {
-	public Field {
+public record Join(Field[] fields) {
+
+	public Join {
 		StringBuilder errMsg = new StringBuilder();
-		if (StringUtils.isBlank(name)) {
-			errMsg.append(String.format("name cannot be blank.%n"));
-		}
-		if (table == null) {
-			errMsg.append("table is mandatory.");
+		if (ArrayUtils.isEmpty(fields)) {
+			errMsg.append("fields are mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new IllegalArgumentException(errMsg.toString());
 		}
 	}
 
-	public String getNameOrAlias() {
-		return alias.length > 0 ? alias[0] : name();
+	public String getJoinField(Table table) {
+		Optional<Field> field = Arrays.stream(fields).filter(f -> f.table().equals(table)).findFirst();
+		String fieldName = null;
+		if (field.isPresent()) {
+			if (field.get().alias().length > 1) {
+				fieldName = field.get().alias()[0];
+			} else {
+				fieldName = field.get().name();
+			}
+		}
+		return fieldName;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, table);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(fields);
+		return result;
 	}
 
 	@Override
@@ -51,13 +62,12 @@ public record Field(String name, Table table, String... alias) {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Field other = (Field) obj;
-		return Objects.equals(name, other.name) && Objects.equals(table, other.table);
+		Join other = (Join) obj;
+		return Arrays.equals(fields, other.fields);
 	}
 
 	@Override
 	public String toString() {
-		return table().name() + "." + name() + StringUtils.SPACE
-				+ ((alias().length > 0) ? alias()[0] : StringUtils.EMPTY);
+		return Arrays.toString(fields);
 	}
 }

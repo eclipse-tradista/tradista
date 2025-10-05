@@ -6,9 +6,9 @@
 	<ui:define name="title">Eclipse Tradista Import Error</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Import Error</ui:define>
 	<ui:define name="content">
-		<h:form id="importerErrorForm">
+		<h:form id="importErrorForm">
 			<p:panel header="Importer Error Report">
-				<p:panelGrid id="importerError" header="Importer Error"
+				<p:panelGrid id="importError" header="Importer Error"
 					styleClass="tradista-nested"
 					columnClasses="ui-g-4 ui-md-4 ui-lg-4, ui-g-8 ui-md-8 ui-lg-8">
 					<p:messages showDetail="true" closable="true" id="msg" />
@@ -82,17 +82,19 @@
 								<p:row>
 									<p:column>
 										<p:commandButton value="Load" styleClass="rounded-button"
-											update="importerErrorTable"
+											update="importErrorTable"
 											action="#{importErrorReportController.load}" />
 									</p:column>
 								</p:row>
 							</p:panelGrid>
 						</p:column>
 						<p:column>
-							<p:dataTable id="importerErrorTable" var="error"
+							<p:dataTable id="importErrorTable" var="error"
 								value="#{importErrorReportController.errors}"
 								allowUnsorting="true" sortMode="single"
-								tableStyleClass="tradista-datatable" size="small">
+								tableStyleClass="tradista-datatable" size="small"
+								selection="#{importErrorReportController.selectedError}"
+								selectionMode="single" rowKey="#{error.id}">
 								<p:column headerText="Error Date" sortBy="#{error.errorDate}">
 									<p:outputLabel value="#{error.errorDate}">
 										<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
@@ -123,6 +125,10 @@
 									<p:outputLabel value="#{error.errorMessage}" />
 								</p:column>
 							</p:dataTable>
+							<p:contextMenu id="contextMenu" for="importErrorTable">
+								<p:menuitem value="Try to solve"
+									action="#{importErrorReportController.solve}" />
+							</p:contextMenu>
 						</p:column>
 					</p:row>
 				</p:panelGrid>

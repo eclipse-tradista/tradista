@@ -114,7 +114,12 @@
 							<p:dataTable id="messageTable" var="msg"
 								value="#{messageReportController.messages}"
 								allowUnsorting="true" sortMode="single"
-								tableStyleClass="tradista-datatable" size="small">
+								tableStyleClass="tradista-datatable" size="small"
+								selection="#{messageReportController.selectedMsg}"
+								selectionMode="single" rowKey="#{msg.id}">
+								<p:ajax event="contextMenu"
+									listener="#{messageReportController.onContextMenuLoad()}"
+									update="messageForm:contextMenu" />
 								<p:column headerText="Message Id" sortBy="#{msg.id}">
 									<p:outputLabel value="#{msg.id}" />
 								</p:column>
@@ -157,6 +162,8 @@
 									<p:outputLabel value="#{msg.content}" />
 								</p:column>
 							</p:dataTable>
+							<p:contextMenu id="contextMenu" for="messageTable"
+								model="#{messageReportController.contextMenuModel}" />
 						</p:column>
 					</p:row>
 				</p:panelGrid>

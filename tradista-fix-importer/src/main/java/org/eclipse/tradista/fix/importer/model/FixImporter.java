@@ -19,6 +19,7 @@ package org.eclipse.tradista.fix.importer.model;
 import java.io.InputStream;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.importer.TradistaImporter;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.fix.importer.processing.ImportApplication;
@@ -28,9 +29,12 @@ import quickfix.DefaultMessageFactory;
 import quickfix.FieldNotFound;
 import quickfix.FileStoreFactory;
 import quickfix.IncorrectTagValue;
+import quickfix.InvalidMessage;
 import quickfix.LogFactory;
 import quickfix.MessageCracker;
+import quickfix.MessageUtils;
 import quickfix.ScreenLogFactory;
+import quickfix.Session;
 import quickfix.SessionSettings;
 import quickfix.SocketAcceptor;
 import quickfix.UnsupportedMessageType;
@@ -47,6 +51,8 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 	private MessageCracker messageCracker;
 
 	private static SessionSettings settings;
+
+	private static Session session;
 
 	protected FixImporter(String name, String configFileName, LegalEntity po) {
 		setName(name);
@@ -66,9 +72,8 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 			LogFactory logFactory = new ScreenLogFactory(settings);
 			acceptor = new SocketAcceptor(application, storeFactory, settings, logFactory, new DefaultMessageFactory());
 			acceptor.start();
-		} catch (ConfigError ce) {
+		} catch (ConfigError _) {
 			// TODO Add error logs
-			return;
 		}
 	}
 
@@ -92,6 +97,23 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 
 	public static SessionSettings getSessionSettings() {
 		return settings;
+	}
+
+	private static Session getSession() {
+		if (session == null) {
+			session = Session.lookupSession(settings.sectionIterator().next());
+		}
+		return session;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public X buildMessage(String externalMessage) {
+		try {
+			return (X) MessageUtils.parse(getSession(), externalMessage);
+		} catch (InvalidMessage ie) {
+			throw new TradistaTechnicalException(ie.getMessage());
+		}
 	}
 
 }

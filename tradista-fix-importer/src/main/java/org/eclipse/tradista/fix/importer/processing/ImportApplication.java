@@ -24,7 +24,7 @@ public class ImportApplication<X extends Message> extends ApplicationAdapter {
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
 		try {
 			fixImporter.importMessage((X) message);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// TODO Add logs
 		}
 	}

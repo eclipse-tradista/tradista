@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.workflow.model.Status;
@@ -45,12 +46,16 @@ public class StatusSQL {
 	private static final Field[] FIELDS = { ID_FIELD, WORKFLOW_ID_FIELD, NAME_FIELD, WORKFLOW_NAME_FIELD,
 			ID_FIELD_WORKFLOW };
 
-	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, STATUS_TABLE, WORKFLOW_TABLE);
+	private static final Table[] TABLES = { STATUS_TABLE, WORKFLOW_TABLE };
+
+	private static final Join JOIN = new Join(new Field[] { WORKFLOW_ID_FIELD, ID_FIELD_WORKFLOW });
+
+	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, TABLES, JOIN);
 
 	public static Status getStatusById(long id) {
 		Status status = null;
 		StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
-		sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ID_FIELD, "?");
+		sqlQuery = TradistaDBUtil.addParameterizedFilter(sqlQuery, ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetStatusById = con.prepareStatement(sqlQuery.toString())) {
 			stmtGetStatusById.setLong(1, id);
@@ -58,7 +63,7 @@ public class StatusSQL {
 				while (results.next()) {
 					status = new Status();
 					status.setId(results.getLong(ID));
-					status.setWorkflowName(results.getString(WORKFLOW_NAME_FIELD.name()));
+					status.setWorkflowName(results.getString(WORKFLOW_NAME_FIELD.getNameOrAlias()));
 					status.setName(results.getString(NAME));
 				}
 			}

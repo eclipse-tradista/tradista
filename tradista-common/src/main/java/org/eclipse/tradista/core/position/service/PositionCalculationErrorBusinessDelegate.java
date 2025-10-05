@@ -8,6 +8,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.error.util.ErrorUtil;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
 
 /********************************************************************************
@@ -74,16 +75,7 @@ public class PositionCalculationErrorBusinessDelegate {
 				errorMsg.append(String.format("'To' value date cannot be before 'From' value date.%n"));
 			}
 		}
-		if (errorDateFrom != null && errorDateTo != null) {
-			if (errorDateTo.isBefore(errorDateFrom)) {
-				errorMsg.append(String.format("'To' error date cannot be before 'From' error date.%n"));
-			}
-		}
-		if (solvingDateFrom != null && solvingDateTo != null) {
-			if (solvingDateTo.isBefore(solvingDateFrom)) {
-				errorMsg.append(String.format("'To' solving date cannot be before 'From' solving date.%n"));
-			}
-		}
+		ErrorUtil.checkErrorDates(errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo, errorMsg);
 		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}

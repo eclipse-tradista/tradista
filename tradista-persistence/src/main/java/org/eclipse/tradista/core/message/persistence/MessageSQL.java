@@ -70,7 +70,7 @@ public class MessageSQL {
 	private static final Field[] FIELDS = { ID_FIELD, INCOMING_FIELD, OBJECT_ID_FIELD, OBJECT_TYPE_FIELD, CONTENT_FIELD,
 			TYPE_FIELD, INTERFACE_NAME_FIELD, CREATION_DATE_FIELD, LAST_UPDATE_DATE_FIELD, STATUS_ID_FIELD };
 
-	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, MESSAGE_TABLE);
+	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, new Table[] { MESSAGE_TABLE });
 
 	public static long saveMessage(Message message) {
 
@@ -133,7 +133,7 @@ public class MessageSQL {
 	public static Message getMessageById(long id) {
 		Message message = null;
 		StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
-		sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ID_FIELD, "?");
+		sqlQuery = TradistaDBUtil.addParameterizedFilter(sqlQuery, ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetMessageById = con.prepareStatement(sqlQuery.toString())) {

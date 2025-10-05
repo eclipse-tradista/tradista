@@ -135,7 +135,7 @@ public final class SecurityUtil {
 
 	private static ExceptionConsumer<Void, TradistaBusinessException> toExConsumer(ExRunnable exRunnable) {
 		try {
-			return v -> exRunnable.runEx();
+			return _ -> exRunnable.runEx();
 		} catch (RequestSendFailedException rsfe) {
 			Throwable[] suppressedExceptions = rsfe.getSuppressed();
 			if (suppressedExceptions.length > 0) {

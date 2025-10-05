@@ -101,6 +101,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		message.setLastUpdateDateTime(now);
 		message.setType(getType());
 		message.setStatus(workflowBusinessDelegate.getInitialStatus(message.getWorkflow()));
+		message.setInterfaceName(getName());
 		messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
 		return message;
 	}
@@ -136,16 +137,6 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	 *                                   validation
 	 */
 	protected abstract void validateMessage(X externalMessage) throws TradistaBusinessException;
-
-	/**
-	 * Process the message, optionally creating an object in Eclipse Tradista
-	 * 
-	 * @param externalMessage the message to be imported in Eclipse Tradista
-	 * @throws TradistaBusinessException if there was an error during the message
-	 *                                   processing
-	 */
-	protected abstract Optional<? extends TradistaObject> processMessage(X externalMessage)
-			throws TradistaBusinessException;
 
 	@Override
 	public String getName() {

@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.position.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
@@ -57,11 +56,13 @@ public class PositionCalculationErrorFilteringInterceptor extends TradistaAuthor
 						String.format("The Position Definition %s was not found.", posDefId));
 			}
 		}
-		long tradeId = (long) parameters[2];
-		if (tradeId != 0) {
-			Trade<?> trade = tradeBusinessDelegate.getTradeById(tradeId, false);
-			if (trade == null) {
-				throw new TradistaBusinessException(String.format("The trade %d was not found.", tradeId));
+		if (parameters.length > 2) {
+			long tradeId = (long) parameters[2];
+			if (tradeId != 0) {
+				Trade<?> trade = tradeBusinessDelegate.getTradeById(tradeId, false);
+				if (trade == null) {
+					throw new TradistaBusinessException(String.format("The trade %d was not found.", tradeId));
+				}
 			}
 		}
 	}
@@ -73,7 +74,7 @@ public class PositionCalculationErrorFilteringInterceptor extends TradistaAuthor
 				List<PositionCalculationError> positions = (List<PositionCalculationError>) value;
 				User user = getCurrentUser();
 				value = positions.stream().filter(p -> p.getBook().getProcessingOrg().equals(user.getProcessingOrg()))
-						.collect(Collectors.toList());
+						.toList();
 			}
 		}
 		return value;

@@ -57,14 +57,16 @@ public class ImportErrorSQL {
 
 	public static final String ERROR_ID = "ERROR_ID";
 
-	private static final Table IMPORT_ERROR_TABLE = new Table("IMPORT_ERROR", ID);
+	private static final Table IMPORT_ERROR_TABLE = new Table("IMPORT_ERROR", ERROR_ID);
 
 	private static final Field MESSAGE_ID_FIELD = new Field("MESSAGE_ID", IMPORT_ERROR_TABLE);
 
 	private static final Field[] FIELDS = { ID_FIELD, TYPE_FIELD, STATUS_FIELD, MESSAGE_FIELD, ERROR_DATE_FIELD,
 			SOLVING_DATE_FIELD, MESSAGE_ID_FIELD };
+	
+	private static final Table[] TABLES = { IMPORT_ERROR_TABLE, ERROR_TABLE};
 
-	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, IMPORT_ERROR_TABLE, ERROR_TABLE);
+	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, TABLES);
 
 	public static long saveImportError(ImportError error) {
 		long errorId = 0;

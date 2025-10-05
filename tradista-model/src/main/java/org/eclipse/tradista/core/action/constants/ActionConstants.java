@@ -29,4 +29,6 @@ public final class ActionConstants {
 
 	public static final String INVALIDATE = "INVALIDATE";
 
+	public static final String RETRY = "RETRY";
+
 }

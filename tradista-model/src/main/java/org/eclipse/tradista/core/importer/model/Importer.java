@@ -1,8 +1,10 @@
 package org.eclipse.tradista.core.importer.model;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -27,5 +29,16 @@ public interface Importer<X> extends Runnable, Serializable {
 	String getName();
 
 	void importMessage(X externalMessage) throws TradistaBusinessException;
+
+	/**
+	 * Process the message, optionally creating an object in Eclipse Tradista
+	 * 
+	 * @param externalMessage the message to be imported in Eclipse Tradista
+	 * @throws TradistaBusinessException if there was an error during the message
+	 *                                   processing
+	 */
+	Optional<? extends TradistaObject> processMessage(X externalMessage) throws TradistaBusinessException;
+
+	X buildMessage(String externalMessage);
 
 }

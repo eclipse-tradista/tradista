@@ -2,8 +2,10 @@ package org.eclipse.tradista.core.message.ui.controller;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -11,6 +13,10 @@ import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessD
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
+import org.primefaces.model.menu.DefaultMenuItem;
+import org.primefaces.model.menu.DefaultMenuModel;
+import org.primefaces.model.menu.DefaultSubMenu;
+import org.primefaces.model.menu.MenuModel;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
@@ -76,6 +82,10 @@ public class MessageReportController implements Serializable {
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
 
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
+
+	private Message selectedMsg;
+
+	private MenuModel contextMenuModel;
 
 	@PostConstruct
 	public void init() {
@@ -216,6 +226,42 @@ public class MessageReportController implements Serializable {
 		}
 	}
 
+	public void onContextMenuLoad() {
+		contextMenuModel = new DefaultMenuModel();
+		DefaultSubMenu subMenu = DefaultSubMenu.builder().label("Apply Action").build();
+
+		Set<String> availableActions = null;
+		try {
+			availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(selectedMsg.getWorkflow(),
+					selectedMsg.getStatus());
+		} catch (TradistaBusinessException tbe) {
+			FacesContext.getCurrentInstance().addMessage("msg",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+		}
+
+		// For now, we hard code the authorized action to "RETRY" but the long term
+		// solution is to have an authorization mechanism for workflow actions.
+		if (!CollectionUtils.isEmpty(availableActions)) {
+			subMenu.getElements().addAll(availableActions.stream().filter("RETRY"::equals).map(a -> {
+				Map<String, List<String>> params = new HashMap<>();
+				params.put("action", List.of(a));
+				return DefaultMenuItem.builder().value(a).command("#{messageReportController.applyMsgAction()}")
+						.params(params).build();
+			}).toList());
+		}
+		contextMenuModel.getElements().add(subMenu);
+	}
+
+	public void applyMsgAction() {
+		String action = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("action");
+		try {
+			messageBusinessDelegate.saveMessage(selectedMsg, action);
+		} catch (TradistaBusinessException tbe) {
+			FacesContext.getCurrentInstance().addMessage("msg",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+		}
+	}
+
 	public List<String> getSelectedDirections() {
 		return selectedDirections;
 	}
@@ -286,6 +332,22 @@ public class MessageReportController implements Serializable {
 
 	public void setLastUpdateDateTimes(LocalDateTime[] lastUpdateDateTimes) {
 		this.lastUpdateDateTimes = lastUpdateDateTimes;
+	}
+
+	public Message getSelectedMsg() {
+		return selectedMsg;
+	}
+
+	public void setSelectedMsg(Message selectedMsg) {
+		this.selectedMsg = selectedMsg;
+	}
+
+	public MenuModel getContextMenuModel() {
+		return contextMenuModel;
+	}
+
+	public void setMsgSubMenu(MenuModel contextMenuModel) {
+		this.contextMenuModel = contextMenuModel;
 	}
 
 }

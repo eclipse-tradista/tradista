@@ -39,19 +39,29 @@ public final class TradistaDBUtil {
 	private TradistaDBUtil() {
 	}
 
-	public static String buildSelectQuery(Field[] fields, Table... tables) {
+	/**
+	 * Build a select SQL query, given fields, tables and optional join conditions.
+	 * 
+	 * @param fields The fields to be retrieved
+	 * @param tables The tables to be queried
+	 * @param join   optional in case specific join conditions are needed (by
+	 *               default a natural join is used)
+	 * @throws TradistaTechnicalException if no field or no table is specified.
+	 * @return A SQL query.
+	 */
+	public static String buildSelectQuery(Field[] fields, Table[] tables, Join... join) {
 		StringBuilder errMsg = new StringBuilder();
 		StringBuilder select = new StringBuilder(SELECT);
 		if (ArrayUtils.isEmpty(fields)) {
 			errMsg.append(String.format("The fields cannot be null or empty.%n"));
 		}
 		if (tables == null) {
-			errMsg.append(String.format("The table cannot be null.%n"));
+			errMsg.append("The tables cannot be null.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
-		select.append(StringUtils.join(Arrays.stream(fields).map(f -> f.toString()).toList(), ","));
+		select.append(StringUtils.join(Arrays.stream(fields).map(Object::toString).toList(), ","));
 		select.append(FROM + StringUtils.join(Arrays.stream(tables).map(Table::name).toList(), ","));
 		if (tables.length > 1) {
 			Table previousTable = null;
@@ -63,8 +73,17 @@ public final class TradistaDBUtil {
 					} else {
 						sqlKeyword = WHERE;
 					}
-					select.append(sqlKeyword).append(previousTable.name()).append(".").append(previousTable.id())
-							.append(" = ").append(t.name()).append(".").append(t.id());
+					String joinOne;
+					String joinTwo;
+					if (join.length == 0) {
+						joinOne = previousTable.id();
+						joinTwo = t.id();
+					} else {
+						joinOne = join[0].getJoinField(previousTable);
+						joinTwo = join[0].getJoinField(t);
+					}
+					select.append(new StringBuilder(sqlKeyword).append(previousTable.name()).append(".").append(joinOne)
+							.append(" = ").append(t.name()).append(".").append(joinTwo));
 				}
 				previousTable = t;
 			}
@@ -79,7 +98,7 @@ public final class TradistaDBUtil {
 			errMsg.append(String.format("The SQL query cannot be null or empty.%n"));
 		}
 		if (field == null) {
-			errMsg.append("The field is mandatory.%n");
+			errMsg.append("The field is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
@@ -101,41 +120,71 @@ public final class TradistaDBUtil {
 			} else {
 				filterSqlQuery = WHERE;
 			}
-			switch (value) {
-			case Collection<?> c -> filterSqlQuery += field + " IN ('" + StringUtils.join(c, "','") + "')";
-			case LocalDate ld -> {
-				String operator;
-				String formattedValue = DateTimeFormatter.ofPattern(MM_DD_YYYY).format(ld);
-				if (isLowerBound != null) {
-					if (isLowerBound[0]) {
-						operator = " >= ";
-					} else {
-						operator = " <= ";
-					}
+			String operator;
+			if (isLowerBound.length > 0) {
+				if (isLowerBound[0]) {
+					operator = " >= ";
 				} else {
-					operator = " = ";
+					operator = " <= ";
 				}
-				filterSqlQuery += field + operator + "'" + formattedValue + "'";
+			} else {
+				operator = " = ";
+			}
+			switch (value) {
+			case Collection<?> c ->
+				filterSqlQuery += field + " IN (" + wrapWithQuotes(StringUtils.join(c, "','")) + ")";
+			case LocalDate ld -> {
+				String formattedValue = DateTimeFormatter.ofPattern(MM_DD_YYYY).format(ld);
+				filterSqlQuery += field + operator + wrapWithQuotes(formattedValue);
 			}
 			case LocalDateTime ldt -> {
-				String operator;
 				String formattedValue = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(ldt);
-				if (isLowerBound != null) {
-					if (isLowerBound[0]) {
-						operator = " >= ";
-					} else {
-						operator = " <= ";
-					}
-				} else {
-					operator = " = ";
-				}
-				filterSqlQuery += field + operator + "'" + formattedValue + "'";
+				filterSqlQuery += field + operator + wrapWithQuotes(formattedValue);
 			}
-			case Enum<?> e -> filterSqlQuery += field + "=" + e.name();
-			default -> filterSqlQuery += field + "=" + value.toString();
+			case Enum<?> e -> filterSqlQuery += field + "=" + wrapWithQuotes(e.name());
+			case Number n -> filterSqlQuery += field + operator + n;
+			default -> filterSqlQuery += field + "=" + wrapWithQuotes(value.toString());
 			}
 		}
 		return sqlQuery.append(filterSqlQuery);
+	}
+
+	public static StringBuilder addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
+		StringBuilder errMsg = new StringBuilder();
+		String filterSqlQuery = null;
+		if (StringUtils.isBlank(sqlQuery)) {
+			errMsg.append(String.format("The SQL query cannot be null or empty.%n"));
+		}
+		if (field == null) {
+			errMsg.append("The field is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
+		if (sqlQuery.indexOf(WHERE) != -1) {
+			filterSqlQuery = AND;
+		} else {
+			filterSqlQuery = WHERE;
+		}
+		String operator;
+		if (isLowerBound.length > 0) {
+			if (isLowerBound[0]) {
+				operator = " >= ";
+			} else {
+				operator = " <= ";
+			}
+		} else {
+			operator = " = ";
+		}
+		filterSqlQuery += field + operator + "?";
+		return sqlQuery.append(filterSqlQuery);
+	}
+
+	public static String wrapWithQuotes(String value) {
+		if (value == null) {
+			throw new TradistaTechnicalException("Cannot wrap with quotes a null value.");
+		}
+		return StringUtils.wrap(value, '\'');
 	}
 
 }

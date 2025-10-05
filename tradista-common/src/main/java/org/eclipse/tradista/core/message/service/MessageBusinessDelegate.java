@@ -11,13 +11,7 @@ import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.message.model.Message;
-import org.eclipse.tradista.core.message.workflow.mapping.MessageMapper;
-import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.springframework.util.CollectionUtils;
-
-import finance.tradista.flow.exception.TradistaFlowBusinessException;
-import finance.tradista.flow.model.Workflow;
-import finance.tradista.flow.service.WorkflowManager;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -68,6 +62,34 @@ public class MessageBusinessDelegate implements Serializable {
 		return messageService.saveMessage(message);
 	}
 
+	public long saveMessage(Message message, String action) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (message == null) {
+			throw new TradistaBusinessException("the message cannot be null.");
+		}
+		if (StringUtils.isBlank(message.getType())) {
+			errMsg.append(String.format("the message type is mandatory.%n"));
+		}
+		if (StringUtils.isBlank(message.getObjectType()) && message.getObjectId() > 0) {
+			errMsg.append(String.format("the message object type cannot be blank when the object id is positive.%n"));
+		}
+		if (!StringUtils.isBlank(message.getObjectType()) && message.getObjectId() <= 0) {
+			errMsg.append(String.format("the message object id should be positive when the object type is present.%n"));
+		}
+		if (message.getStatus() == null) {
+			errMsg.append("The status is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		// We apply the action without saving
+		if (!StringUtils.isBlank(action)) {
+			applyAction(message, action);
+		}
+		// if no issue, we save the message
+		return SecurityUtil.run(() -> messageService.saveMessage(message));
+	}
+
 	public void applyAction(Message message, String action) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(action)) {
@@ -79,16 +101,7 @@ public class MessageBusinessDelegate implements Serializable {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		try {
-			Workflow<org.eclipse.tradista.core.message.workflow.mapping.Message> workflow = WorkflowManager
-					.getWorkflowByName(message.getWorkflow());
-			org.eclipse.tradista.core.message.workflow.mapping.Message mappedMessage = MessageMapper.map(message,
-					workflow);
-			mappedMessage = WorkflowManager.applyAction(mappedMessage, action);
-			message.setStatus(StatusMapper.map(mappedMessage.getStatus()));
-		} catch (TradistaFlowBusinessException tfbe) {
-			throw new TradistaBusinessException(tfbe);
-		}
+		SecurityUtil.runEx(() -> messageService.applyAction(message, action));
 	}
 
 	public List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames,
@@ -117,7 +130,7 @@ public class MessageBusinessDelegate implements Serializable {
 	public Set<String> getAllMessageTypes() {
 		return SecurityUtil.run(() -> messageService.getAllMessageTypes());
 	}
-	
+
 	public Set<String> getAllObjectTypes() {
 		return SecurityUtil.run(() -> messageService.getAllObjectTypes());
 	}

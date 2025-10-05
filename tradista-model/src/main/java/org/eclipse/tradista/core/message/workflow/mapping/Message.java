@@ -68,4 +68,20 @@ public abstract class Message implements WorkflowObject {
 		}
 		return message;
 	}
+
+	public String geInterfaceName() {
+		String interfaceName = null;
+		if (message != null) {
+			interfaceName = message.getInterfaceName();
+		}
+		return interfaceName;
+	}
+
+	public String geContent() {
+		String content = null;
+		if (message != null) {
+			content = message.getContent();
+		}
+		return content;
+	}
 }

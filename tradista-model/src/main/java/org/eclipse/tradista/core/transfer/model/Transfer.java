@@ -236,4 +236,12 @@ public abstract class Transfer extends TradistaObject {
 		return transfer;
 	}
 
+	public boolean isCash() {
+		return getType() == Type.CASH;
+	}
+
+	public boolean isProduct() {
+		return getType() == Type.PRODUCT;
+	}
+
 }
