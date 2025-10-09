@@ -116,4 +116,14 @@ public abstract class Error extends TradistaObject {
 	 */
 	public abstract String getSubjectKey();
 
+	public void solve() {
+		setStatus(Status.SOLVED);
+		setSolvingDate(LocalDateTime.now());
+	}
+
+	public void update(String errorMessage) {
+		setErrorMessage(errorMessage);
+		setErrorDate(LocalDateTime.now());
+	}
+
 }

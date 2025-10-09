@@ -1,15 +1,13 @@
-package org.eclipse.tradista.core.message.service;
+package org.eclipse.tradista.core.message.ui.converter;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.io.Serializable;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.error.model.Error.Status;
-import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 
-import jakarta.ejb.Remote;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.convert.Converter;
+import jakarta.faces.convert.FacesConverter;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -27,14 +25,22 @@ import jakarta.ejb.Remote;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Remote
-public interface ImportErrorService {
+@FacesConverter("importErrorTypeConverter")
+public class ImportErrorTypeConverter implements Serializable, Converter<ImportErrorType> {
 
-	long saveImportError(ImportError error) throws TradistaBusinessException;
+	private static final long serialVersionUID = 997442674372705101L;
 
-	List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
-			Status status, ImportErrorType importErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
-			LocalDate solvingDateFrom, LocalDate solvingDateTo);
+	public ImportErrorTypeConverter() {
+	}
 
-	ImportError getImportError(long msgId, ImportErrorType importErrorType);
+	@Override
+	public ImportErrorType getAsObject(FacesContext context, UIComponent component, String value) {
+		return ImportErrorType.valueOf(value.toUpperCase());
+	}
+
+	@Override
+	public String getAsString(FacesContext context, UIComponent component, ImportErrorType importErrorType) {
+		return importErrorType.toString();
+	}
+
 }

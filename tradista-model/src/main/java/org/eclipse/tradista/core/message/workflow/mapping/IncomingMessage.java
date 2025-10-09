@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.message.workflow.mapping;
 
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
+
 import finance.tradista.flow.model.Workflow;
 
 /********************************************************************************
@@ -26,6 +28,11 @@ public class IncomingMessage extends Message {
 
 	public void setIncomingMessage(org.eclipse.tradista.core.message.model.IncomingMessage incomingMessage) {
 		this.message = incomingMessage;
+	}
+
+	@Override
+	public org.eclipse.tradista.core.message.model.IncomingMessage getOriginalMessage() {
+		return (org.eclipse.tradista.core.message.model.IncomingMessage) TradistaModelUtil.clone(message);
 	}
 
 }

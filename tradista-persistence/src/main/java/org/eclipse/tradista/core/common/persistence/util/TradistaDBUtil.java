@@ -91,7 +91,7 @@ public final class TradistaDBUtil {
 		return select.toString();
 	}
 
-	public static StringBuilder addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
+	public static void addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
 		StringBuilder errMsg = new StringBuilder();
 		String filterSqlQuery = StringUtils.EMPTY;
 		if (StringUtils.isBlank(sqlQuery)) {
@@ -146,10 +146,10 @@ public final class TradistaDBUtil {
 			default -> filterSqlQuery += field + "=" + wrapWithQuotes(value.toString());
 			}
 		}
-		return sqlQuery.append(filterSqlQuery);
+		sqlQuery.append(filterSqlQuery);
 	}
 
-	public static StringBuilder addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
+	public static void addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
 		StringBuilder errMsg = new StringBuilder();
 		String filterSqlQuery = null;
 		if (StringUtils.isBlank(sqlQuery)) {
@@ -177,7 +177,7 @@ public final class TradistaDBUtil {
 			operator = " = ";
 		}
 		filterSqlQuery += field + operator + "?";
-		return sqlQuery.append(filterSqlQuery);
+		sqlQuery.append(filterSqlQuery);
 	}
 
 	public static String wrapWithQuotes(String value) {

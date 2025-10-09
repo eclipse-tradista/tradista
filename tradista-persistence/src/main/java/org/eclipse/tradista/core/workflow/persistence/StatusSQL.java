@@ -55,7 +55,7 @@ public class StatusSQL {
 	public static Status getStatusById(long id) {
 		Status status = null;
 		StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
-		sqlQuery = TradistaDBUtil.addParameterizedFilter(sqlQuery, ID_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sqlQuery, ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetStatusById = con.prepareStatement(sqlQuery.toString())) {
 			stmtGetStatusById.setLong(1, id);

@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.message.workflow.mapping;
 
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 
 import finance.tradista.flow.model.Status;
@@ -91,5 +92,9 @@ public abstract class Message implements WorkflowObject {
 			id = message.getId();
 		}
 		return id;
+	}
+
+	public org.eclipse.tradista.core.message.model.Message getOriginalMessage() {
+		return TradistaModelUtil.clone(message);
 	}
 }

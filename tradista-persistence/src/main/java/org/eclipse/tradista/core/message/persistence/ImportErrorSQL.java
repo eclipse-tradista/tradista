@@ -1,9 +1,9 @@
 package org.eclipse.tradista.core.message.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
@@ -62,8 +62,10 @@ public class ImportErrorSQL {
 
 	private static final Field MESSAGE_ID_FIELD = new Field("MESSAGE_ID", IMPORT_ERROR_TABLE);
 
+	private static final Field IMPORT_ERROR_TYPE_FIELD = new Field("IMPORT_ERROR_TYPE", IMPORT_ERROR_TABLE);
+
 	private static final Field[] FIELDS = { ID_FIELD, TYPE_FIELD, STATUS_FIELD, MESSAGE_FIELD, ERROR_DATE_FIELD,
-			SOLVING_DATE_FIELD, MESSAGE_ID_FIELD };
+			SOLVING_DATE_FIELD, MESSAGE_ID_FIELD, IMPORT_ERROR_TYPE_FIELD };
 
 	private static final Table[] TABLES = { IMPORT_ERROR_TABLE, ERROR_TABLE };
 
@@ -123,8 +125,8 @@ public class ImportErrorSQL {
 	}
 
 	public static List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames,
-			long messageId, Status status, LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,
-			LocalDate solvingDateTo) {
+			long messageId, Status status, ImportErrorType importErrorType, LocalDate errorDateFrom,
+			LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo) {
 		List<ImportError> importErrors = null;
 
 		try (Connection con = TradistaDB.getConnection(); Statement stmtGetImportErrors = con.createStatement()) {
@@ -159,10 +161,10 @@ public class ImportErrorSQL {
 
 			sqlQuery.append(importerNamesSqlQuery);
 
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateFrom, true);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateTo, false);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, SOLVING_DATE_FIELD, solvingDateFrom, true);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, SOLVING_DATE_FIELD, solvingDateTo, false);
+			TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateFrom, true);
+			TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateTo, false);
+			TradistaDBUtil.addFilter(sqlQuery, SOLVING_DATE_FIELD, solvingDateFrom, true);
+			TradistaDBUtil.addFilter(sqlQuery, SOLVING_DATE_FIELD, solvingDateTo, false);
 
 			String messageSqlQuery = StringUtils.EMPTY;
 
@@ -178,7 +180,9 @@ public class ImportErrorSQL {
 
 			sqlQuery.append(messageSqlQuery);
 
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, STATUS_FIELD, status);
+			TradistaDBUtil.addFilter(sqlQuery, STATUS_FIELD, status);
+
+			TradistaDBUtil.addFilter(sqlQuery, IMPORT_ERROR_TYPE_FIELD, importErrorType);
 
 			try (ResultSet results = stmtGetImportErrors.executeQuery(sqlQuery.toString())) {
 				while (results.next()) {
@@ -195,6 +199,8 @@ public class ImportErrorSQL {
 					importError.setErrorDate(results.getTimestamp(ERROR_DATE_FIELD.name()).toLocalDateTime());
 					importError.setStatus(Status.valueOf(results.getString(STATUS)));
 					importError.setMessage(MessageSQL.getMessageById(results.getLong(MESSAGE_ID_FIELD.name())));
+					importError.setImportErrorType(
+							ImportErrorType.valueOf(results.getString(IMPORT_ERROR_TYPE_FIELD.name())));
 					importErrors.add(importError);
 				}
 			}
@@ -207,8 +213,39 @@ public class ImportErrorSQL {
 	}
 
 	public static ImportError getImportError(long msgId, ImportErrorType importErrorType) {
-		// TODO Auto-generated method stub
-		return null;
+		ImportError importError = null;
+		StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
+
+		TradistaDBUtil.addParameterizedFilter(sqlQuery, MESSAGE_ID_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sqlQuery, IMPORT_ERROR_TYPE_FIELD);
+
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetImportError = con.prepareStatement(sqlQuery.toString())) {
+
+			stmtGetImportError.setLong(1, msgId);
+			stmtGetImportError.setString(2, importErrorType.name());
+			try (ResultSet results = stmtGetImportError.executeQuery(sqlQuery.toString())) {
+				while (results.next()) {
+					importError = new ImportError();
+					importError.setId(results.getLong(ID));
+					importError.setErrorMessage(results.getString(MESSAGE_FIELD.name()));
+					Timestamp solvingDate = results.getTimestamp(SOLVING_DATE_FIELD.name());
+					if (solvingDate != null) {
+						importError.setSolvingDate(solvingDate.toLocalDateTime());
+					}
+					importError.setErrorDate(results.getTimestamp(ERROR_DATE_FIELD.name()).toLocalDateTime());
+					importError.setStatus(Status.valueOf(results.getString(STATUS)));
+					importError.setMessage(MessageSQL.getMessageById(results.getLong(MESSAGE_ID_FIELD.name())));
+					importError
+							.setImportErrorType(ImportErrorType.valueOf(results.getString(IMPORT_ERROR_TABLE.name())));
+				}
+			}
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle.getMessage());
+		}
+
+		return importError;
 	}
 
 }

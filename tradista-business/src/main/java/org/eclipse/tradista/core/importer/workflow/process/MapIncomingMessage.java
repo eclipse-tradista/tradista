@@ -29,21 +29,25 @@ public class MapIncomingMessage extends Process<IncomingMessage> {
 					.getImporterByName(msg.geInterfaceName());
 			// Build the message object from a string
 			Object msgObject = importer.buildMessage(msg.geContent());
+			ImportError existingMappingError = null;
 			// Apply the mapping
 			try {
-				importer.processMessage(msgObject);
+				existingMappingError = importErrorBusinessDelegate.getImportError(msg.getId(),
+						ImportError.ImportErrorType.MAPPING);
+				importer.processMessage(msgObject, msg.getOriginalMessage());
 				// If ok, solve the existing mapping error if any
+				if (existingMappingError != null) {
+					existingMappingError.solve();
+				}
 			} catch (TradistaBusinessException tbe) {
 				// Update the existing mapping error if any, otherwise create a new one.
-				ImportError existingMappingError = importErrorBusinessDelegate.getImportErrors(msg.getId(), ImportError.ImportErrorType.MAPPING);
-//				ImportError importError = new ImportError();
-//				importError.setErrorDate(LocalDateTime.now());
-//				importError.setErrorMessage(tbe.getMessage());
-//				importError.setStatus(Status.UNSOLVED);
-//				importError.setMessage(msg);
-//				importErrorBusinessDelegate.saveImportError(importError);
+				if (existingMappingError != null) {
+					existingMappingError.update(tbe.getMessage());
+				}
 			}
-
+			if (existingMappingError != null) {
+				importErrorBusinessDelegate.saveImportError(existingMappingError);
+			}
 		});
 	}
 

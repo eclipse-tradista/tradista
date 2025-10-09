@@ -38,14 +38,15 @@ public class ImportErrorServiceBean implements ImportErrorService {
 	public long saveImportError(ImportError error) {
 		return ImportErrorSQL.saveImportError(error);
 	}
-	
+
 	@Override
-	public List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId, Status status,
-			LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo) {
-		return ImportErrorSQL.getImportErrors(importerTypes, importerNames, messageId, status,
+	public List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
+			Status status, ImportErrorType importErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
+			LocalDate solvingDateFrom, LocalDate solvingDateTo) {
+		return ImportErrorSQL.getImportErrors(importerTypes, importerNames, messageId, status, importErrorType,
 				errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 	}
-	
+
 	public ImportError getImportError(long msgId, ImportErrorType importErrorType) {
 		return ImportErrorSQL.getImportError(msgId, importErrorType);
 	}

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.Message;
@@ -242,7 +243,7 @@ public class MessageReportController implements Serializable {
 		// For now, we hard code the authorized action to "RETRY" but the long term
 		// solution is to have an authorization mechanism for workflow actions.
 		if (!CollectionUtils.isEmpty(availableActions)) {
-			subMenu.getElements().addAll(availableActions.stream().filter("RETRY"::equals).map(a -> {
+			subMenu.getElements().addAll(availableActions.stream().filter(ActionConstants.RETRY::equals).map(a -> {
 				Map<String, List<String>> params = new HashMap<>();
 				params.put("action", List.of(a));
 				return DefaultMenuItem.builder().value(a).command("#{messageReportController.applyMsgAction()}")

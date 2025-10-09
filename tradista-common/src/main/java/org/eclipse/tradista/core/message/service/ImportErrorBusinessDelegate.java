@@ -57,8 +57,8 @@ public class ImportErrorBusinessDelegate implements Serializable {
 	}
 
 	public List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
-			Status status, LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,
-			LocalDate solvingDateTo) throws TradistaBusinessException {
+			Status status, ImportErrorType importErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
+			LocalDate solvingDateFrom, LocalDate solvingDateTo) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (!CollectionUtils.isEmpty(importerTypes) && !CollectionUtils.isEmpty(importerNames)) {
 			errMsg.append("You must select either Importer Types or Names but not both.");
@@ -68,10 +68,10 @@ public class ImportErrorBusinessDelegate implements Serializable {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> importErrorService.getImportErrors(importerTypes, importerNames, messageId,
-				status, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo));
+				status, importErrorType, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo));
 	}
 
-	public void solve(ImportError error) throws TradistaBusinessException {
+	public void tryToSolve(ImportError error) throws TradistaBusinessException {
 		if (error == null) {
 			throw new TradistaBusinessException("The import error cannot be null.");
 		}

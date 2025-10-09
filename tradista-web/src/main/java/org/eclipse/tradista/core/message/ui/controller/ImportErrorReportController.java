@@ -11,6 +11,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
 import org.springframework.util.CollectionUtils;
 
@@ -52,7 +53,7 @@ public class ImportErrorReportController implements Serializable {
 
 	private Set<String> allImporterNames;
 
-	private long messageId;
+	private Long messageId;
 
 	private LocalDate[] solvingDates;
 
@@ -61,6 +62,10 @@ public class ImportErrorReportController implements Serializable {
 	private List<Status> statuses;
 
 	private Status[] allStatuses;
+
+	private List<ImportErrorType> importErrorTypes;
+
+	private ImportErrorType[] allImportErrorTypes;
 
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
@@ -72,6 +77,7 @@ public class ImportErrorReportController implements Serializable {
 	public void init() {
 		allStatuses = Status.values();
 		statuses = new ArrayList<>(List.of(Status.UNSOLVED));
+		allImportErrorTypes = ImportErrorType.values();
 		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
 		importErrorBusinessDelegate = new ImportErrorBusinessDelegate();
 		allImporterNames = importerConfigurationBusinessDelegate.getAllImporterNames();
@@ -128,11 +134,11 @@ public class ImportErrorReportController implements Serializable {
 		this.allImporterTypes = allImporterTypes;
 	}
 
-	public long getMessageId() {
+	public Long getMessageId() {
 		return messageId;
 	}
 
-	public void setMessageId(long messageId) {
+	public void setMessageId(Long messageId) {
 		this.messageId = messageId;
 	}
 
@@ -154,12 +160,14 @@ public class ImportErrorReportController implements Serializable {
 
 	public void load() {
 		Status status = null;
+		ImportErrorType importErrorType = null;
 		Set<String> impTypes = null;
 		Set<String> impNames = null;
 		LocalDate errorDateFrom = errorDates != null ? errorDates[0] : null;
 		LocalDate errorDateTo = errorDates != null ? errorDates[1] : null;
 		LocalDate solvingDateFrom = solvingDates != null ? solvingDates[0] : null;
 		LocalDate solvingDateTo = solvingDates != null ? solvingDates[1] : null;
+		long msgId = messageId == null ? 0 : messageId;
 		if (selectedImporterTypes != null) {
 			impTypes = new HashSet<>(selectedImporterTypes);
 		}
@@ -169,22 +177,24 @@ public class ImportErrorReportController implements Serializable {
 		if (!CollectionUtils.isEmpty(statuses) && statuses.size() == 1) {
 			status = statuses.getFirst();
 		}
+		if (!CollectionUtils.isEmpty(importErrorTypes) && importErrorTypes.size() == 1) {
+			importErrorType = importErrorTypes.getFirst();
+		}
 		try {
-			errors = importErrorBusinessDelegate.getImportErrors(impTypes, impNames, messageId, status, errorDateFrom,
-					errorDateTo, solvingDateFrom, solvingDateTo);
+			errors = importErrorBusinessDelegate.getImportErrors(impTypes, impNames, msgId, status, importErrorType,
+					errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage("msg",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 		}
 	}
-	
-	public void solve() {
 
+	public void tryToSolve() {
 		try {
-			importErrorBusinessDelegate.solve(selectedError);
-		} catch (TradistaBusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			importErrorBusinessDelegate.tryToSolve(selectedError);
+		} catch (TradistaBusinessException tbe) {
+			FacesContext.getCurrentInstance().addMessage("msg",
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 		}
 	}
 
@@ -222,6 +232,22 @@ public class ImportErrorReportController implements Serializable {
 
 	public void setSelectedError(ImportError selectedError) {
 		this.selectedError = selectedError;
+	}
+
+	public List<ImportErrorType> getImportErrorTypes() {
+		return importErrorTypes;
+	}
+
+	public void setImportErrorTypes(List<ImportErrorType> importErrorTypes) {
+		this.importErrorTypes = importErrorTypes;
+	}
+
+	public ImportErrorType[] getAllImportErrorTypes() {
+		return allImportErrorTypes;
+	}
+
+	public void setAllImportErrorTypes(ImportErrorType[] allImportErrorTypes) {
+		this.allImportErrorTypes = allImportErrorTypes;
 	}
 
 }

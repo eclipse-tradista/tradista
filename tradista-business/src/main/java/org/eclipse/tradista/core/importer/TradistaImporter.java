@@ -67,14 +67,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 			validateMessage(externalMessage);
 			// Surface checks are OK, we validate the message.
 			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
-			Optional<? extends TradistaObject> object = processMessage(externalMessage);
-			if (object.isPresent()) {
-				IncomingMessageManager<X, TradistaObject> incomingMessageManager = getIncomingMessageManager(
-						externalMessage);
-				object.get().setId(incomingMessageManager.saveObject(object.get()));
-				msg.setObjectId(object.get().getId());
-				msg.setObjectType(MessageUtil.getObjectType(object.get().getClass()));
-			}
+			processMessage(externalMessage, msg);
 			// Mappings are OK, we validate the message.
 			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
 		} catch (TradistaBusinessException tbe) {
@@ -90,6 +83,17 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		}
 		if (msg != null) {
 			messageBusinessDelegate.saveMessage(msg);
+		}
+	}
+
+	public void persistObject(X externalMessage, IncomingMessage msg, Optional<? extends TradistaObject> object)
+			throws TradistaBusinessException {
+		if (object.isPresent()) {
+			IncomingMessageManager<X, TradistaObject> incomingMessageManager = getIncomingMessageManager(
+					externalMessage);
+			object.get().setId(incomingMessageManager.saveObject(object.get()));
+			msg.setObjectId(object.get().getId());
+			msg.setObjectType(MessageUtil.getObjectType(object.get().getClass()));
 		}
 	}
 

@@ -133,7 +133,7 @@ public class MessageSQL {
 	public static Message getMessageById(long id) {
 		Message message = null;
 		StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
-		sqlQuery = TradistaDBUtil.addParameterizedFilter(sqlQuery, ID_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sqlQuery, ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetMessageById = con.prepareStatement(sqlQuery.toString())) {
@@ -170,16 +170,16 @@ public class MessageSQL {
 
 		try (Connection con = TradistaDB.getConnection(); Statement stmtGetMessages = con.createStatement()) {
 			StringBuilder sqlQuery = new StringBuilder(SELECT_QUERY);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, ID_FIELD, id);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, INCOMING_FIELD, isIncoming);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, TYPE_FIELD, types);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, INTERFACE_NAME_FIELD, interfaceNames);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, OBJECT_ID_FIELD, objectId);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, OBJECT_TYPE_FIELD, objectTypes);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeFrom, true);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeTo, false);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeFrom, true);
-			sqlQuery = TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeTo, false);
+			TradistaDBUtil.addFilter(sqlQuery, ID_FIELD, id);
+			TradistaDBUtil.addFilter(sqlQuery, INCOMING_FIELD, isIncoming);
+			TradistaDBUtil.addFilter(sqlQuery, TYPE_FIELD, types);
+			TradistaDBUtil.addFilter(sqlQuery, INTERFACE_NAME_FIELD, interfaceNames);
+			TradistaDBUtil.addFilter(sqlQuery, OBJECT_ID_FIELD, objectId);
+			TradistaDBUtil.addFilter(sqlQuery, OBJECT_TYPE_FIELD, objectTypes);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeFrom, true);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeTo, false);
+			TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeFrom, true);
+			TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeTo, false);
 
 			String statusesSqlQuery = StringUtils.EMPTY;
 			if (!CollectionUtils.isEmpty(statuses)) {
