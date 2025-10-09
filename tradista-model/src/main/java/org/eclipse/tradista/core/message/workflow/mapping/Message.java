@@ -84,4 +84,12 @@ public abstract class Message implements WorkflowObject {
 		}
 		return content;
 	}
+
+	public long getId() {
+		long id = 0;
+		if (message != null) {
+			id = message.getId();
+		}
+		return id;
+	}
 }

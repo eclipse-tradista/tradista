@@ -22,6 +22,40 @@ public class ImportError extends MessageError {
 
 	public static final String IMPORT = "Import";
 
+	public enum ImportErrorType {
+		STRUCTURE, MAPPING;
+
+		@Override
+		public String toString() {
+			switch (this) {
+			case STRUCTURE:
+				return "Structure";
+			case MAPPING:
+				return "Mapping";
+			}
+			return super.toString();
+		}
+
+		/**
+		 * Gets a Type from a display name. Display names are used in GUIs. A display
+		 * name of a Type is the result of its toString() method.
+		 * 
+		 * @param type
+		 * @return
+		 */
+		public static ImportErrorType getType(String displayName) {
+			switch (displayName) {
+			case "Structure":
+				return STRUCTURE;
+			case "Mapping":
+				return MAPPING;
+			}
+			return null;
+		}
+	}
+
+	private ImportErrorType importErrorType;
+
 	@Override
 	public String getType() {
 		return IMPORT;
@@ -35,4 +69,19 @@ public class ImportError extends MessageError {
 			return null;
 	}
 
+	public ImportErrorType getImportErrorType() {
+		return importErrorType;
+	}
+
+	public void setImportErrorType(ImportErrorType importErrorType) {
+		this.importErrorType = importErrorType;
+	}
+
+	public boolean isMapping() {
+		return importErrorType == ImportErrorType.MAPPING;
+	}
+
+	public boolean isStructure() {
+		return importErrorType == ImportErrorType.STRUCTURE;
+	}
 }

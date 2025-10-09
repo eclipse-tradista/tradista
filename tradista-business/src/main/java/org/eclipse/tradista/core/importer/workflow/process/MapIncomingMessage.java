@@ -1,12 +1,10 @@
 package org.eclipse.tradista.core.importer.workflow.process;
 
-import java.time.LocalDateTime;
-
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.model.Importer;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
 import org.eclipse.tradista.core.message.workflow.mapping.IncomingMessage;
 
 import finance.tradista.flow.model.Process;
@@ -19,9 +17,12 @@ public class MapIncomingMessage extends Process<IncomingMessage> {
 
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
+	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
+
 	@SuppressWarnings("unchecked")
 	public MapIncomingMessage() {
 		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
+		importErrorBusinessDelegate = new ImportErrorBusinessDelegate();
 		setTask(msg -> {
 			// Load the importer
 			Importer<Object> importer = (Importer<Object>) importerConfigurationBusinessDelegate
@@ -34,6 +35,7 @@ public class MapIncomingMessage extends Process<IncomingMessage> {
 				// If ok, solve the existing mapping error if any
 			} catch (TradistaBusinessException tbe) {
 				// Update the existing mapping error if any, otherwise create a new one.
+				ImportError existingMappingError = importErrorBusinessDelegate.getImportErrors(msg.getId(), ImportError.ImportErrorType.MAPPING);
 //				ImportError importError = new ImportError();
 //				importError.setErrorDate(LocalDateTime.now());
 //				importError.setErrorMessage(tbe.getMessage());

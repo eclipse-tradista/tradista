@@ -35,6 +35,7 @@ import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
@@ -63,8 +64,8 @@ public class ImportErrorSQL {
 
 	private static final Field[] FIELDS = { ID_FIELD, TYPE_FIELD, STATUS_FIELD, MESSAGE_FIELD, ERROR_DATE_FIELD,
 			SOLVING_DATE_FIELD, MESSAGE_ID_FIELD };
-	
-	private static final Table[] TABLES = { IMPORT_ERROR_TABLE, ERROR_TABLE};
+
+	private static final Table[] TABLES = { IMPORT_ERROR_TABLE, ERROR_TABLE };
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, TABLES);
 
@@ -203,6 +204,11 @@ public class ImportErrorSQL {
 		}
 
 		return importErrors;
+	}
+
+	public static ImportError getImportError(long msgId, ImportErrorType importErrorType) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

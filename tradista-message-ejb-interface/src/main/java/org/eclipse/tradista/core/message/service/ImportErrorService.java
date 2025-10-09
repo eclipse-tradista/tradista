@@ -7,6 +7,7 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 
 import jakarta.ejb.Remote;
 
@@ -34,4 +35,6 @@ public interface ImportErrorService {
 	List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
 			Status status, LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,
 			LocalDate solvingDateTo);
+
+	ImportError getImportError(long msgId, ImportErrorType importErrorType);
 }

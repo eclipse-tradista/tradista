@@ -5,12 +5,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.error.util.ErrorUtil;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 import org.springframework.util.CollectionUtils;
@@ -70,9 +72,6 @@ public class ImportErrorBusinessDelegate implements Serializable {
 	}
 
 	public void solve(ImportError error) throws TradistaBusinessException {
-		// RETRY is for now treated as a special action. See it makes sense to make this
-		// configurable.
-		final String RETRY = "RETRY";
 		if (error == null) {
 			throw new TradistaBusinessException("The import error cannot be null.");
 		}
@@ -80,10 +79,26 @@ public class ImportErrorBusinessDelegate implements Serializable {
 		if (message != null) {
 			Set<String> availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(message.getWorkflow(),
 					message.getStatus());
-			if (!CollectionUtils.isEmpty(availableActions) && availableActions.contains(RETRY)) {
-				messageBusinessDelegate.saveMessage(message, RETRY);
+			// RETRY is for now treated as a special action. See it makes sense to make this
+			// configurable.
+			if (!CollectionUtils.isEmpty(availableActions) && availableActions.contains(ActionConstants.RETRY)) {
+				messageBusinessDelegate.saveMessage(message, ActionConstants.RETRY);
 			}
 		}
+	}
+
+	public ImportError getImportError(long msgId, ImportErrorType importErrorType) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (msgId <= 0) {
+			errMsg.append(String.format("The message id must be positive.%n"));
+		}
+		if (importErrorType == null) {
+			errMsg.append("The import error type is mandatory");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return importErrorService.getImportError(msgId, importErrorType);
 	}
 
 }
