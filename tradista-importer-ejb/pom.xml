@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>org.jboss.ejb3</groupId>
 			<artifactId>jboss-ejb3-ext-api</artifactId>
-			<version>2.3.0.Final</version>
+			<version>2.4.0.Final</version>
 		</dependency>
 	</dependencies>
 </project>

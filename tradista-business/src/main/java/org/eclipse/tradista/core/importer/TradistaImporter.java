@@ -39,11 +39,11 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 
 	private static final long serialVersionUID = 576180882976539818L;
 
-	private MessageBusinessDelegate messageBusinessDelegate;
+	private transient MessageBusinessDelegate messageBusinessDelegate;
 
-	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
+	private transient ImportErrorBusinessDelegate importErrorBusinessDelegate;
 
-	private WorkflowBusinessDelegate workflowBusinessDelegate;
+	private transient WorkflowBusinessDelegate workflowBusinessDelegate;
 
 	protected TradistaImporter() {
 		messageBusinessDelegate = new MessageBusinessDelegate();

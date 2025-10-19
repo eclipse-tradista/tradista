@@ -338,7 +338,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	}
 
 	@Override
-	public Optional<? extends TradistaObject> processMessage(TradeCaptureReport tcReport)
+	public Optional<? extends TradistaObject> parseMessage(TradeCaptureReport tcReport)
 			throws TradistaBusinessException {
 		Trade<?> trade = null;
 		// Create the right trade type, based on the product type.

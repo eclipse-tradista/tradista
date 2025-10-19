@@ -5,6 +5,7 @@ import java.util.SortedSet;
 
 import org.eclipse.tradista.core.importer.model.Importer;
 
+import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 
 /********************************************************************************

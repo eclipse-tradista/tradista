@@ -1,0 +1,11 @@
+<jboss-deployment-structure>
+	<deployment>
+		<dependencies>
+			<module name="org.eclipse.tradista.core.model" slot="main"
+				export="true" />
+		</dependencies>
+		<class-loading>
+			<parent-first>true</parent-first>
+		</class-loading>
+	</deployment>
+</jboss-deployment-structure>

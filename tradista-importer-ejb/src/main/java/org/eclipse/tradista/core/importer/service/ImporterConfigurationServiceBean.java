@@ -5,6 +5,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.eclipse.tradista.core.common.util.TradistaConstants;
 import org.eclipse.tradista.core.importer.model.Importer;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.context.ApplicationContext;
@@ -46,7 +47,8 @@ public class ImporterConfigurationServiceBean implements ImporterConfigurationSe
 
 	@PostConstruct
 	public void init() {
-		applicationContext = new ClassPathXmlApplicationContext("/META-INF/" + CONFIG_FILE_NAME);
+		applicationContext = new ClassPathXmlApplicationContext(
+				"/" + TradistaConstants.META_INF + "/" + CONFIG_FILE_NAME);
 	}
 
 	@Override

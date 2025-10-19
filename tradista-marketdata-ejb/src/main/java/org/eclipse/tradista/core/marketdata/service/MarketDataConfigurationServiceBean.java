@@ -66,7 +66,7 @@ public class MarketDataConfigurationServiceBean implements MarketDataConfigurati
 		if (frequency <= 0) {
 			errMsg.append(String.format("The frequency is incorrect: %s, it must be positive.", frequency));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
 	}

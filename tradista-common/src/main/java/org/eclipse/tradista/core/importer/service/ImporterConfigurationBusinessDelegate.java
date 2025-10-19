@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.importer.service;
 
+import java.io.Serializable;
 import java.util.SortedSet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,9 @@ import org.eclipse.tradista.core.importer.model.Importer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImporterConfigurationBusinessDelegate {
+public class ImporterConfigurationBusinessDelegate implements Serializable {
+
+	private static final long serialVersionUID = 5009162317625344647L;
 
 	private ImporterConfigurationService importerConfigurationService;
 

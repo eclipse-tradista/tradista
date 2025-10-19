@@ -9,15 +9,18 @@ import org.eclipse.tradista.core.message.workflow.mapping.IncomingMessage;
 
 import finance.tradista.flow.model.Process;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 
 @Entity
 public class MapIncomingMessage extends Process<IncomingMessage> {
 
 	private static final long serialVersionUID = 8845899160138325978L;
 
-	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
+	@Transient
+	private transient ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
-	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
+	@Transient
+	private transient ImportErrorBusinessDelegate importErrorBusinessDelegate;
 
 	@SuppressWarnings("unchecked")
 	public MapIncomingMessage() {
@@ -26,9 +29,9 @@ public class MapIncomingMessage extends Process<IncomingMessage> {
 		setTask(msg -> {
 			// Load the importer
 			Importer<Object> importer = (Importer<Object>) importerConfigurationBusinessDelegate
-					.getImporterByName(msg.geInterfaceName());
+					.getImporterByName(msg.getInterfaceName());
 			// Build the message object from a string
-			Object msgObject = importer.buildMessage(msg.geContent());
+			Object msgObject = importer.buildMessage(msg.getContent());
 			ImportError existingMappingError = null;
 			// Apply the mapping
 			try {
