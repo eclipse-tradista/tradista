@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.core.model" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="core-model-3.0.0.jar"/>
+    </resources>
+	
+	<dependencies>
+        <module name="org.eclipse.tradista.org.quartz-scheduler.quartz" export="true"/>
+		<module name="org.eclipse.tradista.org.springframework.spring-context-support" export="true"/>
+    </dependencies>
+
+</module>

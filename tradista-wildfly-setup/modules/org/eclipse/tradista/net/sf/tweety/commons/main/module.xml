@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.net.sf.tweety.commons" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="commons-1.12.jar"/>
+    </resources>
+	
+	<dependencies>
+        <module name="org.eclipse.tradista.ch.qos.logback.logback-core" />
+		<module name="org.eclipse.tradista.ch.qos.logback.logback-classic" />
+		<module name="org.eclipse.tradista.org.slf4j.log4j-over-slf4j" export="true" />
+    </dependencies>
+
+</module>

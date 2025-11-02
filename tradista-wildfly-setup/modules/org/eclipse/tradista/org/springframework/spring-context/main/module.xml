@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.springframework.spring-context" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="spring-context-6.2.11.jar"/>
+    </resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.org.springframework.spring-core" export="true"/>
+		<module name="org.eclipse.tradista.org.springframework.spring-beans" export="true"/>
+		<module name="org.eclipse.tradista.org.springframework.spring-expression" export="true"/>
+		<module name="org.eclipse.tradista.org.springframework.spring-aop" export="true"/>
+		<module name="java.xml"/>
+    </dependencies>
+
+</module>

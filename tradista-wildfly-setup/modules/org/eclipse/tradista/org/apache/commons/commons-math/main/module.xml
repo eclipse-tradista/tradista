@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.apache.commons.commons-math" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="commons-math-2.1.jar"/>
+    </resources>
+
+</module>

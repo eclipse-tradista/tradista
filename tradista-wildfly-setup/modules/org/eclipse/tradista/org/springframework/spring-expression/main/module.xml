@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.springframework.spring-expression" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="spring-expression-6.2.11.jar"/>
+    </resources>
+	
+	<dependencies>
+		<module name="org.eclipse.tradista.org.springframework.spring-core" export="true"/>
+	</dependencies>
+
+</module>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.net.sf.tweety.logics.fol" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="fol-1.17.jar"/>
+    </resources>
+	
+	<dependencies>
+        <module name="org.eclipse.tradista.net.sf.tweety.logics.commons" export="true"/>
+		<module name="org.eclipse.tradista.net.sf.tweety.plugin" export="true"/>
+    </dependencies>
+
+</module>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.ojalgo.ojalgo" xmlns="urn:jboss:module:1.9">
+
+    <resources>
+        <resource-root path="ojalgo-35.0.jar"/>
+    </resources>
+
+</module>
