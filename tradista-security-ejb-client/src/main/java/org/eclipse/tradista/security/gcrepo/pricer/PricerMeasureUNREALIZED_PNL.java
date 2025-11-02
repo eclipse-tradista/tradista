@@ -1,15 +1,15 @@
 package org.eclipse.tradista.security.gcrepo.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.Pricing;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
-import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -27,14 +27,12 @@ import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
+public class PricerMeasureUNREALIZED_PNL extends PricerMeasureGCRepo {
 
 	private static final long serialVersionUID = 345448912387510519L;
-	
-	private GCRepoPricerBusinessDelegate gcRepoPricerBusinessDelegate;
 
-	public PricerMeasureUNREALIZED_PNL() {
-		gcRepoPricerBusinessDelegate = new GCRepoPricerBusinessDelegate();
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		init();
 	}
 
 	@Pricing(defaultUNREALIZED_PNL = true)

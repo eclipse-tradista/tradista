@@ -43,7 +43,7 @@ public class CSVParser extends TradistaParser {
 			if (config != null) {
 				String fieldSeparator = config.get("fieldSeparator");
 				if (fieldSeparator != null && !fieldSeparator.isEmpty()) {
-					csvFormat.withRecordSeparator(fieldSeparator.substring(0, 1));
+					csvFormat = csvFormat.builder().setRecordSeparator(fieldSeparator.substring(0, 1)).get();
 				}
 			}
 			parser = org.apache.commons.csv.CSVParser.parse(file, StandardCharsets.ISO_8859_1, csvFormat);

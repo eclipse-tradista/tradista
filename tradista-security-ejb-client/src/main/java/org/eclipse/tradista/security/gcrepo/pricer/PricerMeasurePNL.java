@@ -1,15 +1,15 @@
 package org.eclipse.tradista.security.gcrepo.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.Pricing;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
-import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -27,19 +27,17 @@ import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class PricerMeasurePNL extends PricerMeasure {
+public class PricerMeasurePNL extends PricerMeasureGCRepo {
 
 	private static final long serialVersionUID = -1458411100012713536L;
 
-	private GCRepoPricerBusinessDelegate gcRepoPricerBusinessDelegate;
-
-	public PricerMeasurePNL() {
-		gcRepoPricerBusinessDelegate = new GCRepoPricerBusinessDelegate();
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		init();
 	}
 
 	@Pricing(defaultPNL = true)
-	public BigDecimal defaultPNL(PricingParameter params, GCRepoTrade trade, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal defaultPNL(PricingParameter params, GCRepoTrade trade, Currency currency, LocalDate pricingDate)
+			throws TradistaBusinessException {
 
 		return gcRepoPricerBusinessDelegate.pnlDefault(trade, currency, pricingDate, params);
 	}

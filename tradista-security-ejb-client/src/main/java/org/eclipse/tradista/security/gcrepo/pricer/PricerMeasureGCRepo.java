@@ -1,10 +1,10 @@
-package org.eclipse.tradista.security.repo.workflow.mapping;
+package org.eclipse.tradista.security.gcrepo.pricer;
 
-import org.eclipse.tradista.flow.model.Workflow;
-import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
+import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
+import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -19,20 +19,17 @@ import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class RepoTradeMapper {
+public abstract class PricerMeasureGCRepo extends PricerMeasure {
 
-	private RepoTradeMapper() {
+	private static final long serialVersionUID = 5861393611790526132L;
+
+	protected transient GCRepoPricerBusinessDelegate gcRepoPricerBusinessDelegate;
+
+	protected PricerMeasureGCRepo() {
+		init();
 	}
 
-	public static org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade map(GCRepoTrade gcRepoTrade,
-			Workflow wkf) {
-
-		org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade gcRepoTradeResult = new org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade(
-				wkf);
-		gcRepoTradeResult.setRepoTrade(gcRepoTrade);
-
-		return gcRepoTradeResult;
-
+	protected void init() {
+		gcRepoPricerBusinessDelegate = new GCRepoPricerBusinessDelegate();
 	}
-
 }

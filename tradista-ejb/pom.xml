@@ -13,6 +13,27 @@
 	<version>${core-ejb.version}</version>
 	<packaging>ejb</packaging>
 	<dependencies>
+		<!-- spring-dao is needed at runtime by Spring's SchedulerFactoryBean.
+		The exclusions are needed otherwise there's a conflict during class loading
+		that leads to a ClassNotFoundException -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework</groupId>-->
+		<!--			<artifactId>spring-dao</artifactId>-->
+		<!--			<version>2.0.8</version>-->
+		<!--			<scope>runtime</scope>-->
+		<!--			<exclusions>-->
+		<!--				<exclusion>-->
+		<!--					<groupId>*</groupId>-->
+		<!--					<artifactId>*</artifactId>-->
+		<!--				</exclusion>-->
+		<!--			</exclusions>-->
+		<!--		</dependency>-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>6.2.11</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-persistence</artifactId>
@@ -22,21 +43,6 @@
 			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-business</artifactId>
 			<version>${core-business.version}</version>
-		</dependency>
-		<!-- spring-dao is needed at runtime by Spring's SchedulerFactoryBean.
-		The exclusions are needed otherwise there's a conflict during class loading
-		that leads to a ClassNotFoundException -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-dao</artifactId>
-			<version>2.0.8</version>
-			<scope>runtime</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.platform</groupId>

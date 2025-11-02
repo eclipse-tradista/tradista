@@ -11,6 +11,7 @@ import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.validator.MessageValidator;
 import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
@@ -29,59 +30,24 @@ import org.springframework.util.CollectionUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MessageBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -3861846524598598760L;
+public class MessageBusinessDelegate {
 
 	private MessageService messageService;
 
+	private MessageValidator messageValidator;
+
 	public MessageBusinessDelegate() {
 		messageService = TradistaServiceLocator.getInstance().getMessageService();
+		messageValidator = new MessageValidator();
 	}
 
 	public long saveMessage(Message message) throws TradistaBusinessException {
-		StringBuilder errMsg = new StringBuilder();
-		if (message == null) {
-			throw new TradistaBusinessException("the message cannot be null.");
-		}
-		if (StringUtils.isBlank(message.getType())) {
-			errMsg.append(String.format("the message type is mandatory.%n"));
-		}
-		if (StringUtils.isBlank(message.getObjectType()) && message.getObjectId() > 0) {
-			errMsg.append(String.format("the message object type cannot be blank when the object id is positive.%n"));
-		}
-		if (!StringUtils.isBlank(message.getObjectType()) && message.getObjectId() <= 0) {
-			errMsg.append(String.format("the message object id should be positive when the object type is present.%n"));
-		}
-		if (message.getStatus() == null) {
-			errMsg.append("The status is mandatory.");
-		}
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
+		messageValidator.validateMessage(message);
 		return messageService.saveMessage(message);
 	}
 
 	public long saveMessage(Message message, String action) throws TradistaBusinessException {
-		StringBuilder errMsg = new StringBuilder();
-		if (message == null) {
-			throw new TradistaBusinessException("the message cannot be null.");
-		}
-		if (StringUtils.isBlank(message.getType())) {
-			errMsg.append(String.format("the message type is mandatory.%n"));
-		}
-		if (StringUtils.isBlank(message.getObjectType()) && message.getObjectId() > 0) {
-			errMsg.append(String.format("the message object type cannot be blank when the object id is positive.%n"));
-		}
-		if (!StringUtils.isBlank(message.getObjectType()) && message.getObjectId() <= 0) {
-			errMsg.append(String.format("the message object id should be positive when the object type is present.%n"));
-		}
-		if (message.getStatus() == null) {
-			errMsg.append("The status is mandatory.");
-		}
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
+		messageValidator.validateMessage(message);
 		// We apply the action without saving
 		if (!StringUtils.isBlank(action)) {
 			applyAction(message, action);

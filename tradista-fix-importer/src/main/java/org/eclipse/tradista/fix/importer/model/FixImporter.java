@@ -1,5 +1,8 @@
 package org.eclipse.tradista.fix.importer.model;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
  * 
@@ -42,8 +45,6 @@ import quickfix.fix44.Message;
 
 public abstract class FixImporter<X extends Message> extends TradistaImporter<X> {
 
-	private static final long serialVersionUID = 2843562569558766619L;
-
 	public static final String FIX = "Fix";
 
 	private String configFileName;
@@ -63,16 +64,15 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 	@Override
 	protected void start() {
 		messageCracker = new MessageCracker(this);
-		InputStream inputStream = this.getClass().getResourceAsStream(configFileName);
-		SocketAcceptor acceptor;
-		try {
+		try (InputStream inputStream = new FileInputStream(configFileName)) {
+			SocketAcceptor acceptor;
 			settings = new SessionSettings(inputStream);
 			ImportApplication<Message> application = new ImportApplication<>(this);
 			FileStoreFactory storeFactory = new FileStoreFactory(settings);
 			LogFactory logFactory = new ScreenLogFactory(settings);
 			acceptor = new SocketAcceptor(application, storeFactory, settings, logFactory, new DefaultMessageFactory());
 			acceptor.start();
-		} catch (ConfigError _) {
+		} catch (ConfigError | IOException _) {
 			// TODO Add error logs
 		}
 	}

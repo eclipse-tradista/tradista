@@ -1,4 +1,10 @@
-package org.eclipse.tradista.fix.common;
+package org.eclipse.tradista.core.importer.service;
+
+import java.util.Set;
+
+import org.eclipse.tradista.core.importer.model.Importer;
+
+import jakarta.ejb.Local;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -16,11 +22,11 @@ package org.eclipse.tradista.fix.common;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaFixUtil {
+@Local
+public interface LocalImporterConfigurationService {
 
-	public static final Pattern FIX_DATE_REGEX = Pattern.compile("^(\\d{4})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])$");
+	Set<Importer<?>> getAllImporters();
 
-	private TradistaFixUtil() {
-	}
+	Importer<?> getImporterByName(String name);
 
 }

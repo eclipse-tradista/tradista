@@ -55,7 +55,6 @@ import quickfix.fix44.TradeCaptureReport;
 public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 		implements TradeImporter<TradeCaptureReport> {
 
-	private static final long serialVersionUID = 6939818228319837494L;
 
 	private String importedProcessingOrg;
 

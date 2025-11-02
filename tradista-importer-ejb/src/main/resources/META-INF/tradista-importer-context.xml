@@ -2,8 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-						http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+						http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	<context:property-placeholder
+		system-properties-mode="OVERRIDE" />
 	<bean id="importerConfiguration"
 		class="org.eclipse.tradista.core.importer.service.ImporterConfiguration">
 		<property name="modules">
@@ -29,7 +33,7 @@
 			<value>MyFixTest</value>
 		</constructor-arg>
 		<constructor-arg type="String">
-			<value>fixImporter.properties</value>
+			<value>${jboss.server.config.dir}/fixImporter.properties</value>
 		</constructor-arg>
 		<constructor-arg>
 			<idref bean="po" />

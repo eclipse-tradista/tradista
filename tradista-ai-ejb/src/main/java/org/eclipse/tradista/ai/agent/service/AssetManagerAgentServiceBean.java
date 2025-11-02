@@ -115,13 +115,13 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 				.getOpenPositionsFromCashInventoryByCurrencyAndBookIds(0, agent.getMandate().getBook().getId());
 
 		if (cashPosition != null && !cashPosition.isEmpty()) {
-			Set<Currency> currencies = new HashSet<>(cashPosition.size());
+			Set<Currency> currencies = HashSet.newHashSet(cashPosition.size());
 			Map<String, Boolean> npvBooleans = new HashMap<>();
 			Map<String, BigDecimal> npvs = new HashMap<>();
 			for (CashInventory inv : cashPosition) {
 				currencies.add(inv.getCurrency());
 			}
-			Set<Currency> authorizedCurrencies = new HashSet<>(agent.getMandate().getCurrencyAllocations().size());
+			Set<Currency> authorizedCurrencies = HashSet.newHashSet(agent.getMandate().getCurrencyAllocations().size());
 			for (String isoCode : agent.getMandate().getCurrencyAllocations().keySet()) {
 				authorizedCurrencies.add(currencyBusinessDelegate.getCurrencyByIsoCode(isoCode));
 			}
@@ -187,7 +187,7 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 			}
 
 			// 6. Ask for achat(x,y) for each possible currencies
-			buyFxs = new HashMap<>(npvBooleans.size());
+			buyFxs = HashMap.newHashMap(npvBooleans.size());
 			for (Currency c1 : authorizedCurrencies) {
 				for (Currency c2 : currencies) {
 					if (!c1.equals(c2)) {

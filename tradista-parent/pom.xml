@@ -139,6 +139,9 @@
 		<core-model.version>
 			3.0.0
 		</core-model.version>
+		<core-model-mapping.version>
+			3.0.0
+		</core-model-mapping.version>
 		<core-persistence.version>
 			3.0.0
 		</core-persistence.version>
@@ -172,6 +175,9 @@
 		<security-model.version>
 			3.0.0
 		</security-model.version>
+		<security-model-mapping.version>
+			3.0.0
+		</security-model-mapping.version>
 		<security-persistence.version>
 			3.0.0
 		</security-persistence.version>
@@ -217,12 +223,14 @@
 	</properties>
 	<modules>
 		<module>../tradista-model</module>
+		<module>../tradista-model-mapping</module>
 		<module>../tradista-ejb-interface</module>
 		<module>../tradista-ir-model</module>
 		<module>../tradista-ir-ejb-interface</module>
 		<module>../tradista-mm-model</module>
 		<module>../tradista-mm-ejb-interface</module>
 		<module>../tradista-security-model</module>
+		<module>../tradista-security-model-mapping</module>
 		<module>../tradista-security-ejb-interface</module>
 		<module>../tradista-fx-model</module>
 		<module>../tradista-fx-ejb-interface</module>

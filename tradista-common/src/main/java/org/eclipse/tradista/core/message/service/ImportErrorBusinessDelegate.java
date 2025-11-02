@@ -33,9 +33,7 @@ import org.springframework.util.CollectionUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ImportErrorBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = 5689135570381210814L;
+public class ImportErrorBusinessDelegate {
 
 	private ImportErrorService importErrorService;
 

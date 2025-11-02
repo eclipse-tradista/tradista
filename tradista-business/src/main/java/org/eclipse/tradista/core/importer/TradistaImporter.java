@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.model.Importer;
@@ -37,13 +38,11 @@ import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 
 public abstract class TradistaImporter<X> implements Importer<X> {
 
-	private static final long serialVersionUID = 576180882976539818L;
+	private MessageBusinessDelegate messageBusinessDelegate;
 
-	private transient MessageBusinessDelegate messageBusinessDelegate;
+	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
 
-	private transient ImportErrorBusinessDelegate importErrorBusinessDelegate;
-
-	private transient WorkflowBusinessDelegate workflowBusinessDelegate;
+	private WorkflowBusinessDelegate workflowBusinessDelegate;
 
 	protected TradistaImporter() {
 		messageBusinessDelegate = new MessageBusinessDelegate();
@@ -70,13 +69,13 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 			processMessage(externalMessage, msg);
 			// Mappings are OK, we validate the message.
 			messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			// There was an issue whether in surface checks or mappings, we invalidate the
 			// message and create an error.
 			messageBusinessDelegate.applyAction(msg, ActionConstants.INVALIDATE);
 			ImportError importError = new ImportError();
 			importError.setErrorDate(LocalDateTime.now());
-			importError.setErrorMessage(tbe.getMessage());
+			importError.setErrorMessage(te.getMessage());
 			importError.setStatus(Status.UNSOLVED);
 			importError.setMessage(msg);
 			importErrorBusinessDelegate.saveImportError(importError);

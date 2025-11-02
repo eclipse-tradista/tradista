@@ -1,6 +1,5 @@
 package org.eclipse.tradista.core.importer.model;
 
-import java.io.Serializable;
 import java.util.Optional;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -23,7 +22,7 @@ import org.eclipse.tradista.core.message.model.IncomingMessage;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public interface Importer<X> extends Runnable, Serializable {
+public interface Importer<X> extends Runnable {
 
 	String getType();
 
@@ -50,8 +49,7 @@ public interface Importer<X> extends Runnable, Serializable {
 	 * @throws TradistaBusinessException if there was an error during the message
 	 *                                   processing
 	 */
-	default void processMessage(X externalMessage, IncomingMessage msg)
-			throws TradistaBusinessException {
+	default void processMessage(X externalMessage, IncomingMessage msg) throws TradistaBusinessException {
 		persistObject(externalMessage, msg, parseMessage(externalMessage));
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.TradistaConstants;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.message.model.Message;
@@ -14,6 +15,7 @@ import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import finance.tradista.flow.exception.TradistaFlowBusinessException;
+import finance.tradista.flow.exception.TradistaFlowTechnicalException;
 import finance.tradista.flow.model.Workflow;
 import finance.tradista.flow.service.WorkflowManager;
 import jakarta.annotation.security.PermitAll;
@@ -44,7 +46,7 @@ public class MessageServiceBean implements MessageService {
 	public long saveMessage(Message message) {
 		return MessageSQL.saveMessage(message);
 	}
-	
+
 	@Override
 	public void applyAction(Message message, String action) throws TradistaBusinessException {
 		try {
@@ -56,6 +58,8 @@ public class MessageServiceBean implements MessageService {
 			message.setStatus(StatusMapper.map(mappedMessage.getStatus()));
 		} catch (TradistaFlowBusinessException tfbe) {
 			throw new TradistaBusinessException(tfbe);
+		} catch (TradistaFlowTechnicalException tfte) {
+			throw new TradistaTechnicalException(tfte);
 		}
 	}
 

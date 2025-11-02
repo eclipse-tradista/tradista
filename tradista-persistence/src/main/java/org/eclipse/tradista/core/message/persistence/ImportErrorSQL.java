@@ -78,11 +78,12 @@ public class ImportErrorSQL {
 				PreparedStatement stmtSaveError = con.prepareStatement(
 						"INSERT INTO ERROR(TYPE, MESSAGE, STATUS, ERROR_DATE) VALUES(?, ?, ?, ?)",
 						Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement stmtSaveImportError = con.prepareStatement("INSERT INTO IMPORT_ERROR VALUES(?, ?)");
+				PreparedStatement stmtSaveImportError = con.prepareStatement(
+						"INSERT INTO IMPORT_ERROR(ERROR_ID, MESSAGE_ID, IMPORT_ERROR_TYPE) VALUES(?, ?, ?)");
 				PreparedStatement stmtUpdateError = con
 						.prepareStatement("UPDATE ERROR SET TYPE=?, MESSAGE=?, STATUS=?, ERROR_DATE=? WHERE ID=?");
-				PreparedStatement stmtUpdateImportError = con
-						.prepareStatement("UPDATE IMPORT_ERROR SET MESSAGE_ID = ? WHERE ERROR_ID=?")) {
+				PreparedStatement stmtUpdateImportError = con.prepareStatement(
+						"UPDATE IMPORT_ERROR SET MESSAGE_ID = ?, IMPORT_ERROR_TYPE = ? WHERE ERROR_ID=?")) {
 			if (error.getId() == 0) {
 				stmtSaveError.setString(1, error.getType());
 				stmtSaveError.setString(2, error.getErrorMessage());
@@ -102,10 +103,12 @@ public class ImportErrorSQL {
 				}
 				stmtSaveImportError.setLong(1, error.getId());
 				stmtSaveImportError.setLong(2, error.getMessage().getId());
+				stmtSaveImportError.setString(3, error.getImportErrorType().name());
 				stmtSaveImportError.executeUpdate();
 			} else {
 				stmtUpdateImportError.setLong(1, error.getMessage().getId());
-				stmtUpdateImportError.setLong(2, error.getId());
+				stmtUpdateImportError.setString(2, error.getImportErrorType().name());
+				stmtUpdateImportError.setLong(3, error.getId());
 				stmtUpdateImportError.executeUpdate();
 
 				stmtUpdateError.setString(1, error.getType());
@@ -224,7 +227,7 @@ public class ImportErrorSQL {
 
 			stmtGetImportError.setLong(1, msgId);
 			stmtGetImportError.setString(2, importErrorType.name());
-			try (ResultSet results = stmtGetImportError.executeQuery(sqlQuery.toString())) {
+			try (ResultSet results = stmtGetImportError.executeQuery()) {
 				while (results.next()) {
 					importError = new ImportError();
 					importError.setId(results.getLong(ID));
@@ -236,8 +239,8 @@ public class ImportErrorSQL {
 					importError.setErrorDate(results.getTimestamp(ERROR_DATE_FIELD.name()).toLocalDateTime());
 					importError.setStatus(Status.valueOf(results.getString(STATUS)));
 					importError.setMessage(MessageSQL.getMessageById(results.getLong(MESSAGE_ID_FIELD.name())));
-					importError
-							.setImportErrorType(ImportErrorType.valueOf(results.getString(IMPORT_ERROR_TABLE.name())));
+					importError.setImportErrorType(
+							ImportErrorType.valueOf(results.getString(IMPORT_ERROR_TYPE_FIELD.name())));
 				}
 			}
 		} catch (SQLException sqle) {

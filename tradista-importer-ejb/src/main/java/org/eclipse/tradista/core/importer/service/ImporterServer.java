@@ -36,20 +36,21 @@ import jakarta.ejb.Startup;
 public class ImporterServer {
 
 	@EJB
-	private ImporterConfigurationService importerConfigurationService;
+	private LocalImporterConfigurationService localImporterConfigurationService;
 
 	@PostConstruct
 	public void init() {
-		Set<Importer<?>> importers = importerConfigurationService.getAllImporters();
+		Set<Importer<?>> importers = localImporterConfigurationService.getAllImporters();
 
 		if (importers == null || importers.isEmpty()) {
 			// No importer, we add a log and exit this method.
 			// TODO: Add logs
 			return;
 		}
-		ExecutorService executor = Executors.newScheduledThreadPool(importers.size());
-		for (Importer<?> importer : importers) {
-			executor.submit(importer);
+		try (ExecutorService executor = Executors.newScheduledThreadPool(importers.size())) {
+			for (Importer<?> importer : importers) {
+				executor.submit(importer);
+			}
 		}
 	}
 

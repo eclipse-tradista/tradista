@@ -28,6 +28,8 @@ import org.eclipse.tradista.core.error.service.ErrorService;
 import org.eclipse.tradista.core.exchange.service.ExchangeService;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterInformationService;
+import org.eclipse.tradista.core.importer.service.ImporterService;
+import org.eclipse.tradista.core.importer.service.LocalImporterConfigurationService;
 import org.eclipse.tradista.core.index.service.IndexService;
 import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
 import org.eclipse.tradista.core.mapping.service.MappingService;
@@ -711,6 +713,20 @@ public class TradistaServiceLocator {
 
 	public MappingService getMappingService() {
 		return (MappingService) getService(APP, CORE_EJB, MAPPING_SERVICE_PACKAGE, "MappingService");
+	}
+
+	/**
+	 * Local use only (remote access won't work)
+	 * 
+	 * @return a LocalImporterConfigurationService instance
+	 */
+	public LocalImporterConfigurationService getLocalImporterConfigurationService() {
+		return (LocalImporterConfigurationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+				"LocalImporterConfigurationService");
+	}
+
+	public ImporterService getImporterService() {
+		return (ImporterService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE, "ImporterService");
 	}
 
 }

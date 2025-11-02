@@ -32,9 +32,6 @@ import org.eclipse.tradista.fx.fx.validator.FXTradeValidator;
 
 public class FXPricerBusinessDelegate implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7137084591554434226L;
 
 	private FXPricerService fxPricerService;

@@ -24,9 +24,6 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 
 public abstract class Function<X> implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1449344242599084561L;
 
 	private X returnType;
@@ -48,7 +45,7 @@ public abstract class Function<X> implements Serializable {
 	}
 
 	public Function() {
-		parameterTypes = new ArrayList<Parameter>();
+		parameterTypes = new ArrayList<>();
 	}
 
 	public X getReturnType() {
@@ -95,7 +92,7 @@ public abstract class Function<X> implements Serializable {
 			}
 			pos++;
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

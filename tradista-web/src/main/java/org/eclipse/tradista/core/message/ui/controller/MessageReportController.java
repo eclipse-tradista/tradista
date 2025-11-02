@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
@@ -257,9 +258,9 @@ public class MessageReportController implements Serializable {
 		String action = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("action");
 		try {
 			messageBusinessDelegate.saveMessage(selectedMsg, action);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage("msg",
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
