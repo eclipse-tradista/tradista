@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.org.quartz-scheduler.quartz" xmlns="urn:jboss:module:1.9">
+<module name="org.eclipse.tradista.org.quartz-scheduler.quartz"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="quartz-2.5.0.jar"/>
-    </resources>
-	
+	<resources>
+		<resource-root path="quartz-2.5.0.jar" />
+	</resources>
+
 	<dependencies>
-		<module name="org.eclipse.tradista.org.slf4j.slf4j-api" export="true"/>
-		<module name="java.desktop"/>
-		<module name="java.sql"/>
-		<module name="java.naming"/>
-		<module name="jakarta.transaction.api"/>
-		<module name="java.rmi"/>
+		<module name="org.eclipse.tradista.org.slf4j.slf4j-api"
+			export="true" />
+		<module name="org.eclipse.tradista.core.model" export="true" />
+		<module name="java.desktop" />
+		<module name="java.sql" />
+		<module name="java.naming" />
+		<module name="jakarta.transaction.api" />
+		<module name="java.rmi" />
 	</dependencies>
 
 </module>

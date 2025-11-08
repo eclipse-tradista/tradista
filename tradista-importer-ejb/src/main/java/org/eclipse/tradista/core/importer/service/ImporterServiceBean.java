@@ -52,7 +52,6 @@ public class ImporterServiceBean implements ImporterService {
 				.getImporterByName(msg.getInterfaceName());
 		ImportError existingMappingError = importErrorBusinessDelegate.getImportError(msg.getId(),
 				ImportError.ImportErrorType.MAPPING);
-		;
 		try {
 			// Build the message object from a string
 			Object msgObject = importer.buildMessage(msg.getContent());

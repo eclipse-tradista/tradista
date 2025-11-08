@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.net.sf.tweety.graphs" xmlns="urn:jboss:module:1.9">
+<module name="org.eclipse.tradista.net.sf.tweety.graphs"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="graphs-1.12.jar"/>
-    </resources>
-	
+	<resources>
+		<resource-root path="graphs-1.12.jar" />
+	</resources>
+
 	<dependencies>
-		<module name="org.eclipse.tradista.gov.nist.math.jama" export="true"/>
-		<module name="org.eclipse.tradista.net.sf.tweety.math" export="true"/>
-    </dependencies>
+		<module name="org.eclipse.tradista.gov.nist.math.jama"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.math"
+			export="true" />
+	</dependencies>
 
 </module>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.ch.qos.logback.logback-core" xmlns="urn:jboss:module:1.9">
+<module name="org.eclipse.tradista.ch.qos.logback.logback-core"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="logback-core-0.9.30.jar"/>
-    </resources>
+	<resources>
+		<resource-root path="logback-core-0.9.30.jar" />
+	</resources>
 
 </module>

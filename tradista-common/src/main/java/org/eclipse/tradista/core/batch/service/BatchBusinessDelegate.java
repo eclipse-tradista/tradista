@@ -50,7 +50,7 @@ public class BatchBusinessDelegate {
 		if (StringUtils.isBlank(jobInstance.getJobType())) {
 			errMsg.append(String.format("The job type cannot be empty.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.runEx(() -> batchService.saveJobInstance(jobInstance));
@@ -61,7 +61,7 @@ public class BatchBusinessDelegate {
 		if (StringUtils.isBlank(jobInstanceName)) {
 			errMsg.append(String.format("The job instance cannot be null.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.run(() -> batchService.deleteJobInstance(jobInstanceName, po));

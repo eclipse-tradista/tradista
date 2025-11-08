@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.org.springframework.spring-context-support" xmlns="urn:jboss:module:1.9">
+<module
+	name="org.eclipse.tradista.org.springframework.spring-context-support"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="spring-context-support-6.2.11.jar"/>
-    </resources>
-	
+	<resources>
+		<resource-root path="spring-context-support-6.2.11.jar" />
+	</resources>
+
 	<dependencies>
-        <module name="org.eclipse.tradista.org.quartz-scheduler.quartz" export="true"/>
-		<module name="org.eclipse.tradista.org.springframework.spring-beans" export="true"/>
-		<module name="org.eclipse.tradista.org.springframework.spring-core" export="true"/>
-		<module name="org.eclipse.tradista.org.springframework.spring-context" export="true"/>
-		<module name="org.eclipse.tradista.org.springframework.spring-tx" export="true"/>
-		<module name="javax.api"/>
-    </dependencies>
+		<module name="org.eclipse.tradista.org.quartz-scheduler.quartz"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.org.springframework.spring-beans"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.org.springframework.spring-core"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.org.springframework.spring-context"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.org.springframework.spring-tx"
+			export="true" />
+		<module name="javax.api" />
+	</dependencies>
 
 </module>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.jspf.core" xmlns="urn:jboss:module:1.9">
+<module name="org.eclipse.tradista.jspf.core"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="core-1.0.2.jar"/>
-    </resources>
+	<resources>
+		<resource-root path="core-1.0.2.jar" />
+	</resources>
 
 </module>

@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.net.sf.tweety.beliefdynamics" xmlns="urn:jboss:module:1.9">
+<module name="org.eclipse.tradista.net.sf.tweety.beliefdynamics"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="beliefdynamics-1.12.jar"/>
-    </resources>
-	
+	<resources>
+		<resource-root path="beliefdynamics-1.12.jar" />
+	</resources>
+
 	<dependencies>
-        <module name="org.eclipse.tradista.net.sf.tweety.agents" export="true" />
-		<module name="org.eclipse.tradista.net.sf.tweety.arg.deductive" export="true" />
-		<module name="org.eclipse.tradista.net.sf.tweety.arg.dung" export="true" />
-    </dependencies>
+		<module name="org.eclipse.tradista.net.sf.tweety.agents"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.arg.deductive"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.arg.dung"
+			export="true" />
+	</dependencies>
 
 </module>

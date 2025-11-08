@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
@@ -41,10 +42,7 @@ public class ImporterInformationServiceBean implements ImporterInformationServic
 		if (modules != null && !modules.isEmpty()) {
 			map = new TreeMap<>();
 			for (String m : modules) {
-				map.put(m,
-						this.getClass().getClassLoader()
-								.getDefinedPackage("org.eclipse.tradista.core.importer." + m.toLowerCase())
-								.getImplementationVersion());
+				map.put(m, TradistaUtil.getModuleVersion("core.importer." + m));
 			}
 		}
 		return map;

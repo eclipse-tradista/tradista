@@ -1,5 +1,6 @@
 package org.eclipse.tradista.security.common.service;
 
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
@@ -28,6 +29,6 @@ public class SecurityInformationServiceBean implements SecurityInformationServic
 
 	@Override
 	public String getSecurityModuleVersion() {
-		return getClass().getPackage().getImplementationVersion();
+		return TradistaUtil.getModuleVersion("security.common.service", this.getClass().getClassLoader());
 	}
 }

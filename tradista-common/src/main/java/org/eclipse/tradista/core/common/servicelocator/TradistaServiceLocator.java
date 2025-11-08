@@ -619,7 +619,7 @@ public class TradistaServiceLocator {
 	}
 
 	public MarketDataInformationService getMarketDataInformationService() {
-		return (MarketDataInformationService) getService(APP, MARKET_DATA_EJB, MARKET_DATA_SERVICE_PACKAGE,
+		return (MarketDataInformationService) getService(MARKET_DATA_APP, MARKET_DATA_EJB, MARKET_DATA_SERVICE_PACKAGE,
 				"MarketDataInformationService");
 	}
 

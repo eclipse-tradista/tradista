@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="org.eclipse.tradista.org.slf4j.log4j-over-slf4j" xmlns="urn:jboss:module:1.9">
+<module name="org.eclipse.tradista.org.slf4j.log4j-over-slf4j"
+	xmlns="urn:jboss:module:1.9">
 
-    <resources>
-        <resource-root path="log4j-over-slf4j-1.6.3.jar"/>
-    </resources>
+	<resources>
+		<resource-root path="log4j-over-slf4j-1.6.3.jar" />
+	</resources>
 
 	<dependencies>
-		<module name="org.eclipse.tradista.org.slf4j.slf4j-api" export="true" />
-    </dependencies>
+		<module name="org.eclipse.tradista.org.slf4j.slf4j-api"
+			export="true" />
+	</dependencies>
 
 </module>
