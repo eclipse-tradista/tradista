@@ -273,7 +273,7 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 		Set<Product> products = productBusinessDelegate.getAllProducts();
 		Map<String, BigDecimal> bookProductContent = null;
 		if (products != null && !products.isEmpty()) {
-			bookProductContent = new HashMap<>(products.size());
+			bookProductContent = HashMap.newHashMap(products.size());
 			for (Product prod : products) {
 				BigDecimal qty = ProductInventorySQL.getQuantityByDateProductAndBookIds(prod.getId(), bookId, date);
 				if (qty.signum() != 0) {
