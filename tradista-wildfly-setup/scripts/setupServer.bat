@@ -1,5 +1,2 @@
-set DB_HOST=localhost
-set DB_PORT=1527
-set SERVICE_ACCOUNT=oli
-set SERVICE_ACCOUNT_PASSWORD=oli
+xcopy ..\modules\org "%WILDFLY_HOME%\modules\org" /E /I /Y
 %WILDFLY_HOME%\bin\jboss-cli.bat --connect --file=./commands.cli
