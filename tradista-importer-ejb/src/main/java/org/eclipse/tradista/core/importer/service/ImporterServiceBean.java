@@ -6,12 +6,14 @@ import org.eclipse.tradista.core.importer.model.Importer;
 import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
+import org.eclipse.tradista.core.message.service.MessageAuthorizationFilteringInterceptor;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -44,6 +46,7 @@ public class ImporterServiceBean implements ImporterService {
 		importErrorBusinessDelegate = new ImportErrorBusinessDelegate();
 	}
 
+	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
 	public void mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException {

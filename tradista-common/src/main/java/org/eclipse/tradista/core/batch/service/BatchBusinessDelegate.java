@@ -90,7 +90,7 @@ public class BatchBusinessDelegate {
 		if (executionDate == null) {
 			errMsg.append(String.format("The execution date cannot be null.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> batchService.getJobExecutions(executionDate, po));
@@ -101,7 +101,7 @@ public class BatchBusinessDelegate {
 		if (StringUtils.isBlank(jobInstanceName)) {
 			errMsg.append(String.format("The job instance name cannot be empty.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.run(() -> batchService.runJobInstance(jobInstanceName, po));
@@ -118,7 +118,7 @@ public class BatchBusinessDelegate {
 		if (StringUtils.isBlank(jobExecutionId)) {
 			errMsg.append(String.format("The job execution id cannot be empty.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.run(() -> batchService.stopJobExecution(jobExecutionId));
@@ -148,7 +148,7 @@ public class BatchBusinessDelegate {
 		}
 		// iterate though the list of fields declared in the class and
 		// retrieve the name specified in the @JobProperty annotation
-		final List<Field> allFields = new ArrayList<Field>(Arrays.asList(klass.getDeclaredFields()));
+		final List<Field> allFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
 		for (final Field field : allFields) {
 			if (field.isAnnotationPresent(JobProperty.class)) {
 				jobPropertyNames.add(field.getAnnotation(JobProperty.class).name());
@@ -169,7 +169,7 @@ public class BatchBusinessDelegate {
 			errMsg.append("The property name is mandatory.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -182,7 +182,7 @@ public class BatchBusinessDelegate {
 
 		// iterate though the list of fields declared in the class and
 		// retrieve the name specified in the @JobProperty annotation
-		final List<Field> allFields = new ArrayList<Field>(Arrays.asList(klass.getDeclaredFields()));
+		final List<Field> allFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
 		for (final Field field : allFields) {
 			if (field.isAnnotationPresent(JobProperty.class)) {
 				if (propertyName.equals(field.getAnnotation(JobProperty.class).name())) {
@@ -201,7 +201,7 @@ public class BatchBusinessDelegate {
 		if (StringUtils.isEmpty(jobExecutionId)) {
 			errMsg.append(String.format("The job execution id is mandatory.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> batchService.getJobExecutionById(jobExecutionId));

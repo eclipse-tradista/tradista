@@ -20,6 +20,7 @@ import finance.tradista.flow.model.Workflow;
 import finance.tradista.flow.service.WorkflowManager;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -42,11 +43,13 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class MessageServiceBean implements MessageService {
 
+	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@Override
 	public long saveMessage(Message message) {
 		return MessageSQL.saveMessage(message);
 	}
 
+	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@Override
 	public void applyAction(Message message, String action) throws TradistaBusinessException {
 		try {
@@ -63,6 +66,7 @@ public class MessageServiceBean implements MessageService {
 		}
 	}
 
+	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@Override
 	public List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames,
 			long objectId, Set<String> objectTypes, Set<String> statuses, LocalDateTime creationDateTimeFrom,

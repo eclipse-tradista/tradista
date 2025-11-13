@@ -12,6 +12,7 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
+import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -34,11 +35,13 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class ImportErrorServiceBean implements ImportErrorService {
 
+	@Interceptors(ImportErrorAuthorizationFilteringInterceptor.class)
 	@Override
 	public long saveImportError(ImportError error) {
 		return ImportErrorSQL.saveImportError(error);
 	}
 
+	@Interceptors(ImportErrorAuthorizationFilteringInterceptor.class)
 	@Override
 	public List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
 			Status status, ImportErrorType importErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
@@ -47,6 +50,8 @@ public class ImportErrorServiceBean implements ImportErrorService {
 				errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 	}
 
+	@Interceptors(ImportErrorAuthorizationFilteringInterceptor.class)
+	@Override
 	public ImportError getImportError(long msgId, ImportErrorType importErrorType) {
 		return ImportErrorSQL.getImportError(msgId, importErrorType);
 	}
