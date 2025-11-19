@@ -120,7 +120,7 @@ public class SpecificRepoPricerServiceBean implements SpecificRepoPricerService 
 	@Override
 	public BigDecimal getApproximatedConvexity(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
-		return RepoPricerUtil.getApproximatedConvexity(trade, currency, pricingDate, params);
+		return RepoPricerUtil.getApproximatedConvexity(trade, pricingDate, params);
 	}
 
 }

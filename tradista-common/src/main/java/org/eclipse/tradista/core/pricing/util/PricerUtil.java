@@ -54,6 +54,8 @@ public final class PricerUtil {
 
 	private static final String QUOTE_SET_ID_MUST_BE_POSITIVE = "The quote set id must be positive.%n";
 
+	public static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100);
+
 	private PricerUtil() {
 	}
 

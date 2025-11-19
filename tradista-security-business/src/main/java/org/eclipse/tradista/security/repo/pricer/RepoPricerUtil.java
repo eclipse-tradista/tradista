@@ -13,7 +13,6 @@ import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.DateUtil;
-import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
@@ -41,6 +40,8 @@ import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralM
 import org.eclipse.tradista.security.repo.model.RepoTrade;
 import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
 
+import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
+
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
  * 
@@ -64,8 +65,6 @@ public final class RepoPricerUtil {
 	private static ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
 
 	private static QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
-
-	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 
 	private static BondPricerBusinessDelegate bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
 
@@ -96,8 +95,8 @@ public final class RepoPricerUtil {
 		return mtm;
 	}
 
-	private static BigDecimal calculateCollateralMarketToMarket(RepoTrade trade, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	private static BigDecimal calculateCollateralMarketToMarket(RepoTrade trade, LocalDate pricingDate)
+			throws TradistaBusinessException {
 		// 1. Get the current collateral
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
@@ -169,7 +168,7 @@ public final class RepoPricerUtil {
 			// TODO Add log warn
 		}
 
-		exposure = calculateExposure(trade, currency, pricingDate, params);
+		exposure = calculateExposure(trade, pricingDate, params);
 
 		if (!currency.equals(trade.getCurrency())) {
 			exposure = PricerUtil.convertAmount(exposure, trade.getCurrency(), currency, pricingDate,
@@ -180,8 +179,8 @@ public final class RepoPricerUtil {
 		return exposure;
 	}
 
-	private static BigDecimal calculateExposure(RepoTrade trade, Currency currency, LocalDate pricingDate,
-			PricingParameter params) throws TradistaBusinessException {
+	private static BigDecimal calculateExposure(RepoTrade trade, LocalDate pricingDate, PricingParameter params)
+			throws TradistaBusinessException {
 		BigDecimal exposure;
 		BigDecimal collateralValue;
 		BigDecimal borrowedCashValue;
@@ -190,7 +189,7 @@ public final class RepoPricerUtil {
 		borrowedCashValue = calculateCashValue(trade, pricingDate, params);
 
 		// 2. Get the collateral value
-		collateralValue = calculateCollateralValue(trade, currency, pricingDate);
+		collateralValue = calculateCollateralValue(trade, pricingDate);
 
 		// 3. Deduce the exposition
 		// For the trade buyer (cash taker), exposure is collateral value - borrowed
@@ -204,16 +203,16 @@ public final class RepoPricerUtil {
 		return exposure;
 	}
 
-	private static BigDecimal calculateCollateralValue(RepoTrade trade, Currency currency, LocalDate pricingDate)
+	private static BigDecimal calculateCollateralValue(RepoTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException {
 		BigDecimal collateralValue;
 		// 1. Get the collateral MTM
-		collateralValue = calculateCollateralMarketToMarket(trade, currency, pricingDate);
+		collateralValue = calculateCollateralMarketToMarket(trade, pricingDate);
 		// 2. Apply the margin rate (by convention, margin rate is noted as follows:
 		// 105
 		// for 5%)
-		BigDecimal marginRate = trade.getMarginRate().divide(BigDecimal.valueOf(100));
-		collateralValue = collateralValue.divide(marginRate);
+		BigDecimal marginRate = PricerUtil.divide(trade.getMarginRate(), ONE_HUNDRED);
+		collateralValue = PricerUtil.divide(collateralValue, marginRate);
 		return collateralValue;
 	}
 
@@ -225,11 +224,11 @@ public final class RepoPricerUtil {
 		// 1. Determinate the repo rate
 		if (trade.isFixedRepoRate()) {
 			rate = trade.getRepoRate();
-			rate = rate.divide(new BigDecimal(100));
+			rate = PricerUtil.divide(rate, ONE_HUNDRED);
 		} else {
 			if (!pricingDate.isAfter(LocalDate.now())) {
 				rate = getFloatingRate(trade, pricingDate);
-				rate = rate.divide(new BigDecimal(100));
+				rate = PricerUtil.divide(rate, ONE_HUNDRED);
 			} else {
 				InterestRateCurve indexCurve = params.getIndexCurves().get(trade.getIndex());
 				try {
@@ -277,7 +276,7 @@ public final class RepoPricerUtil {
 	}
 
 	public static BigDecimal getCurrentExposure(RepoTrade trade) throws TradistaBusinessException {
-		return calculateExposure(trade, trade.getCurrency(), LocalDate.now(), null);
+		return calculateExposure(trade, LocalDate.now(), null);
 	}
 
 	public static BigDecimal getCurrentCashValue(RepoTrade trade) throws TradistaBusinessException {
@@ -285,7 +284,7 @@ public final class RepoPricerUtil {
 	}
 
 	public static BigDecimal getCurrentCollateralValue(RepoTrade trade) throws TradistaBusinessException {
-		return calculateCollateralValue(trade, trade.getCurrency(), LocalDate.now());
+		return calculateCollateralValue(trade, LocalDate.now());
 	}
 
 	public static List<CashFlow> generateCashFlows(PricingParameter params, RepoTrade trade, LocalDate pricingDate)
@@ -358,8 +357,7 @@ public final class RepoPricerUtil {
 							throw new TradistaBusinessException(pe.getMessage());
 						}
 					}
-					repoRate = repoRate.divide(new BigDecimal(100), configurationBusinessDelegate.getScale(),
-							configurationBusinessDelegate.getRoundingMode());
+					repoRate = PricerUtil.divide(repoRate, ONE_HUNDRED);
 					interestAmount = pt.getValue().multiply(repoRate)
 							.multiply(PricerUtil.daysToYear(new DayCountConvention(DayCountConvention.ACT_360),
 									trade.getSettlementDate(), pt.getKey()));
@@ -396,8 +394,7 @@ public final class RepoPricerUtil {
 		BigDecimal amount;
 		CashFlow.Direction direction;
 		if (trade.isFixedRepoRate()) {
-			BigDecimal repoRate = trade.getRepoRate().divide(new BigDecimal(100),
-					configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode());
+			BigDecimal repoRate = PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED);
 			BigDecimal interestAmount = trade.getAmount().multiply(repoRate).multiply(PricerUtil.daysToYear(
 					new DayCountConvention(DayCountConvention.ACT_360), trade.getSettlementDate(), trade.getEndDate()));
 			amount = trade.getAmount().add(interestAmount);
@@ -416,21 +413,20 @@ public final class RepoPricerUtil {
 					} else {
 						errorMsg.append(String.format("%tD ", date));
 					}
-				} catch (PricerException pe) {
+				} catch (PricerException _) {
 					errorMsg.append(String.format("%tD ", date));
 				}
 			}
-			if (errorMsg.length() > 0) {
+			if (!errorMsg.isEmpty()) {
 				errorMsg = new StringBuilder(
 						"Repo closing leg cashflow cannot be calculated. Impossible to calculate the rate for dates : ")
 						.append(errorMsg);
 				throw new TradistaBusinessException(errorMsg.toString());
 			}
 
-			repoRate = repoRate.divide(new BigDecimal(dates.size()));
+			repoRate = PricerUtil.divide(repoRate, new BigDecimal(dates.size()));
 			repoRate = repoRate.add(trade.getIndexOffset());
-			repoRate = repoRate.divide(new BigDecimal(100), configurationBusinessDelegate.getScale(),
-					configurationBusinessDelegate.getRoundingMode());
+			repoRate = PricerUtil.divide(repoRate, ONE_HUNDRED);
 
 			amount = trade.getAmount().multiply(repoRate);
 		}
@@ -736,8 +732,7 @@ public final class RepoPricerUtil {
 
 		// 6. Calculate the delta : repo trade value variation in pricing currency /
 		// collateral prices variation in pricing currency
-		return repoTradeValueVariation.divide(collateralsPricesVariation,
-				configurationBusinessDelegate.getRoundingMode());
+		return PricerUtil.divide(repoTradeValueVariation, collateralsPricesVariation);
 	}
 
 	public static BigDecimal getPendingCollateralValue(RepoTrade trade,
@@ -745,7 +740,7 @@ public final class RepoPricerUtil {
 			Map<Security, Map<Book, BigDecimal>> removedSecurities) throws TradistaBusinessException {
 		BigDecimal collateralValue = getCurrentCollateralValue(trade);
 		BigDecimal pendingCollateralValue = BigDecimal.ZERO;
-		BigDecimal marginRate = trade.getMarginRate().divide(BigDecimal.valueOf(100));
+		BigDecimal marginRate = PricerUtil.divide(trade.getMarginRate(), ONE_HUNDRED);
 
 		// Add collateral added from the GUI
 		if (!ObjectUtils.isEmpty(addedSecurities)) {
@@ -762,8 +757,8 @@ public final class RepoPricerUtil {
 		return collateralValue.add(pendingCollateralValue);
 	}
 
-	public static BigDecimal getApproximatedConvexity(RepoTrade trade, Currency currency, LocalDate pricingDate,
-			PricingParameter params) throws TradistaBusinessException {
+	public static BigDecimal getApproximatedConvexity(RepoTrade trade, LocalDate pricingDate, PricingParameter params)
+			throws TradistaBusinessException {
 		if (!pricingDate.isAfter(trade.getSettlementDate())) {
 			throw new TradistaBusinessException(
 					"Convexity cannot be calculated when the pricing date is not after the repo trade settlement date");
@@ -784,19 +779,19 @@ public final class RepoPricerUtil {
 		BigDecimal ir;
 		try {
 			if (!pricingDate.isAfter(LocalDate.now())) {
-				ir = PricerUtil.getDiscountFactor(paramTradeCurrIRCurve.getId(), trade.getEndDate())
-						.divide(BigDecimal.valueOf(100));
+				ir = PricerUtil.divide(PricerUtil.getDiscountFactor(paramTradeCurrIRCurve.getId(), trade.getEndDate()),
+						ONE_HUNDRED);
 			} else {
-				ir = PricerUtil.getForwardRate(paramTradeCurrIRCurve.getId(), pricingDate, trade.getEndDate(), null)
-						.divide(BigDecimal.valueOf(100));
+				ir = PricerUtil.divide(
+						PricerUtil.getForwardRate(paramTradeCurrIRCurve.getId(), pricingDate, trade.getEndDate(), null),
+						ONE_HUNDRED);
 			}
 		} catch (PricerException pe) {
 			throw new TradistaBusinessException(pe);
 		}
 
-		return ((tradeDuration.multiply(tradeDuration)).add(tradeDuration)).divide(
-				(BigDecimal.ONE.add(ir)).multiply((BigDecimal.ONE.add(ir))),
-				configurationBusinessDelegate.getRoundingMode());
+		return PricerUtil.divide(tradeDuration.multiply(tradeDuration).add(tradeDuration),
+				BigDecimal.ONE.add(ir).multiply(BigDecimal.ONE.add(ir)));
 	}
 
 }
