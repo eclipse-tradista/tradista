@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.repo.importer.model;
 
+import java.math.BigDecimal;
+
 import org.eclipse.tradista.core.importer.model.IncomingMessageManager;
 import org.eclipse.tradista.security.repo.model.RepoTrade;
 
@@ -46,5 +48,17 @@ public interface RepoIncomingMessageManager<X, Y extends RepoTrade> extends Inco
 	boolean extractTerminableOnDemand(X externalMessage, StringBuilder errMsg);
 
 	void checkNoticePeriod(X externalMessage, StringBuilder errMsg);
+
+	BigDecimal getMarginRate(X externalMessage);
+
+	boolean getRightOfSubstitution(X externalMessage);
+
+	boolean getRightOfReuse(X externalMessage);
+
+	boolean getCrossCurrencyCollateral(X externalMessage);
+
+	boolean getTerminableOnDemand(X externalMessage);
+
+	short getNoticePeriod(X externalMessage);
 
 }

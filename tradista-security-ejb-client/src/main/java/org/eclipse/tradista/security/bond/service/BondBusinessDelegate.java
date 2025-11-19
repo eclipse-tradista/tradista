@@ -66,7 +66,7 @@ public class BondBusinessDelegate {
 				errorMsg.append("'To' maturity date cannot be before 'From' maturity date.");
 			}
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		return SecurityUtil.run(

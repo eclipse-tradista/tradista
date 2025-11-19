@@ -1,8 +1,7 @@
-package org.eclipse.tradista.security.gcrepo.importer.model;
+package org.eclipse.tradista.security.specificrepo.importer.model;
 
-import org.eclipse.tradista.security.gcrepo.model.GCBasket;
-import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.repo.importer.model.RepoIncomingMessageManager;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -20,16 +19,21 @@ import org.eclipse.tradista.security.repo.importer.model.RepoIncomingMessageMana
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public interface GCRepoIncomingMessageManager<X> extends RepoIncomingMessageManager<X, GCRepoTrade> {
+public interface SpecificRepoIncomingMessageManager<X> extends RepoIncomingMessageManager<X, SpecificRepoTrade> {
 
 	@Override
 	public default void checkMessage(X externalMessage, StringBuilder errMsg) {
 		RepoIncomingMessageManager.super.checkMessage(externalMessage, errMsg);
-		checkBasket(externalMessage, errMsg);
+		checkIsin(externalMessage, errMsg);
+		checkExchangeCode(externalMessage, errMsg);
 	}
 
-	void checkBasket(X externalMessage, StringBuilder errMsg);
-	
-	GCBasket getBasket(X externalMessage);
+	void checkIsin(X externalMessage, StringBuilder errMsg);
+
+	void checkExchangeCode(X externalMessage, StringBuilder errMsg);
+
+	String getIsin(X externalMessage);
+
+	String getExchangeCode(X externalMessage);
 
 }

@@ -16,7 +16,7 @@ package org.eclipse.tradista.fix.common;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaFixUtil {
+public final class TradistaFixConstants {
 
 	public static final int CONTRA_FIRM_PARTY_ROLE = 17;
 
@@ -26,6 +26,6 @@ public final class TradistaFixUtil {
 
 	public static final char SELL_SIDE = '2';
 
-	private TradistaFixUtil() {
+	private TradistaFixConstants() {
 	}
 }

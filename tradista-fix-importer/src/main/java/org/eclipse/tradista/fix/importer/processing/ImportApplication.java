@@ -11,14 +11,15 @@ import quickfix.Message;
 import quickfix.SessionID;
 import quickfix.UnsupportedMessageType;
 
-public class ImportApplication<X extends Message> extends ApplicationAdapter {
+public class ImportApplication<X extends quickfix.fix44.Message> extends ApplicationAdapter {
 
-	private FixImporter fixImporter;
+	private FixImporter<X> fixImporter;
 
-	public ImportApplication(FixImporter fixImporter) {
+	public ImportApplication(FixImporter<X> fixImporter) {
 		this.fixImporter = fixImporter;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void fromApp(Message message, SessionID sessionId)
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
@@ -27,6 +28,17 @@ public class ImportApplication<X extends Message> extends ApplicationAdapter {
 		} catch (TradistaBusinessException _) {
 			// TODO Add logs
 		}
+	}
+
+	@Override
+	public void toAdmin(Message message, SessionID sessionId) {
+		System.out.println("ToAdmin");
+		System.out.println(message);
+	}
+
+	@Override
+	public void toApp(Message message, SessionID sessionId) {
+		System.out.println("ToApp");
 	}
 
 }

@@ -42,7 +42,7 @@ public class BondQuoteValidator extends DefaultQuoteValidator {
 			errMsg.append(
 					String.format("The bond %s in the exchange %s must exist in the system.%n", data[1], data[2]));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

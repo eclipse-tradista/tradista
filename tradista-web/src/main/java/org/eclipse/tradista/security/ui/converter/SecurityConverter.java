@@ -2,9 +2,9 @@ package org.eclipse.tradista.security.ui.converter;
 
 import java.io.Serializable;
 
-import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.common.model.Security;
-import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
+import org.eclipse.tradista.security.common.service.SecurityBusinessDelegate;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
@@ -31,12 +31,10 @@ import jakarta.faces.convert.FacesConverter;
 public class SecurityConverter implements Serializable, Converter<Security> {
 
 	private static final long serialVersionUID = 3469069244088871255L;
-	private BondBusinessDelegate bondBusinessDelegate;
-	private EquityBusinessDelegate equityBusinessDelegate;
+	private SecurityBusinessDelegate securityBusinessDelegate;
 
 	public SecurityConverter() {
-		bondBusinessDelegate = new BondBusinessDelegate();
-		equityBusinessDelegate = new EquityBusinessDelegate();
+		securityBusinessDelegate = new SecurityBusinessDelegate();
 	}
 
 	@Override
@@ -55,9 +53,10 @@ public class SecurityConverter implements Serializable, Converter<Security> {
 			String[] values = value.split(" - ");
 			String isin = values[0];
 			String exchange = values[1];
-			security = bondBusinessDelegate.getBondByIsinAndExchangeCode(isin, exchange);
-			if (security == null) {
-				security = equityBusinessDelegate.getEquityByIsinAndExchangeCode(isin, exchange);
+			try {
+				security = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(isin, exchange);
+			} catch (TradistaBusinessException _) {
+				// Not expected here.
 			}
 		}
 		return security;

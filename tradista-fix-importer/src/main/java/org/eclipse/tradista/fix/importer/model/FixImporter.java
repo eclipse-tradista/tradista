@@ -67,13 +67,14 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 		try (InputStream inputStream = new FileInputStream(configFileName)) {
 			SocketAcceptor acceptor;
 			settings = new SessionSettings(inputStream);
-			ImportApplication<Message> application = new ImportApplication<>(this);
+			ImportApplication<X> application = new ImportApplication<>(this);
 			FileStoreFactory storeFactory = new FileStoreFactory(settings);
 			LogFactory logFactory = new ScreenLogFactory(settings);
 			acceptor = new SocketAcceptor(application, storeFactory, settings, logFactory, new DefaultMessageFactory());
 			acceptor.start();
-		} catch (ConfigError | IOException _) {
+		} catch (ConfigError | IOException e) {
 			// TODO Add error logs
+			e.printStackTrace();
 		}
 	}
 

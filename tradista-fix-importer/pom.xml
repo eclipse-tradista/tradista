@@ -12,7 +12,7 @@
 	<artifactId>fix-importer</artifactId>
 	<version>${fix-importer.version}</version>
 	<dependencies>
-	<dependency>
+		<dependency>
 			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-business</artifactId>
 			<version>${core-business.version}</version>
