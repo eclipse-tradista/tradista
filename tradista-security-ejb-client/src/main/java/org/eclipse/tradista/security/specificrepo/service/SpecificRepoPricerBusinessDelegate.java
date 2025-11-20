@@ -66,14 +66,14 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 		if (pricingDate == null) {
 			errorMsg.append(String.format(PRICING_DATE_IS_MANDATORY));
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		validator.validateTrade(trade);
 		return SecurityUtil.runEx(() -> specificRepoPricerService.generateCashFlows(pp, trade, pricingDate));
 	}
 
-	public BigDecimal getCollateralMarketToMarket(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
+	public BigDecimal getCollateralMarkToMarket(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (trade == null) {
@@ -100,14 +100,14 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 						pricingDate));
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(
-				() -> specificRepoPricerService.getCollateralMarketToMarket(trade, currency, pricingDate, params));
+		return SecurityUtil
+				.runEx(() -> specificRepoPricerService.getCollateralMarkToMarket(trade, currency, pricingDate, params));
 	}
 
-	public BigDecimal getCurrentCollateralMarketToMarket(SpecificRepoTrade trade) throws TradistaBusinessException {
+	public BigDecimal getCurrentCollateralMarkToMarket(SpecificRepoTrade trade) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (trade == null) {
 			errMsg.append(String.format(TRADE_IS_MANDATORY));
@@ -124,10 +124,10 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> specificRepoPricerService.getCurrentCollateralMarketToMarket(trade));
+		return SecurityUtil.runEx(() -> specificRepoPricerService.getCurrentCollateralMarkToMarket(trade));
 	}
 
-	public BigDecimal getCollateralMarketToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
+	public BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (po == null) {
@@ -149,7 +149,7 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil
-				.runEx(() -> specificRepoPricerService.getCollateralMarketToMarket(securities, po, pricingDate));
+				.runEx(() -> specificRepoPricerService.getCollateralMarkToMarket(securities, po, pricingDate));
 	}
 
 	public BigDecimal getExposure(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
@@ -191,6 +191,9 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 					}
 				}
 			}
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> specificRepoPricerService.getExposure(trade, currency, pricingDate, params));
 	}

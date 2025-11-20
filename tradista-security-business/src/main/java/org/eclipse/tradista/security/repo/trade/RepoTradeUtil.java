@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.repo.trade;
 
+import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -12,7 +14,6 @@ import java.util.stream.Collectors;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
@@ -59,8 +60,6 @@ public final class RepoTradeUtil {
 
 	private static QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
 
-	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-
 	private RepoTradeUtil() {
 	}
 
@@ -72,7 +71,7 @@ public final class RepoTradeUtil {
 		try {
 			givenCollateral = transferBusinessDelegate.getTransfers(Type.PRODUCT, Transfer.Status.KNOWN, Direction.PAY,
 					TransferPurpose.COLLATERAL_SETTLEMENT, trade.getId(), 0, 0, 0, null, null, null, null, null, null);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Not expected here.
 		}
 
@@ -81,7 +80,7 @@ public final class RepoTradeUtil {
 					.filter(t -> t.getSettlementDate() == null || t.getSettlementDate().isBefore(LocalDate.now())
 							|| t.getSettlementDate().isEqual(LocalDate.now()))
 					.toList();
-			securities = new HashMap<>(givenCollateral.size());
+			securities = HashMap.newHashMap(givenCollateral.size());
 			for (Transfer t : givenCollateral) {
 				if (securities.containsKey(t.getProduct())) {
 					Map<Book, BigDecimal> bookMap = securities.get(t.getProduct());
@@ -101,7 +100,7 @@ public final class RepoTradeUtil {
 			returnedCollateral = transferBusinessDelegate.getTransfers(Type.PRODUCT, Transfer.Status.KNOWN,
 					Direction.RECEIVE, TransferPurpose.RETURNED_COLLATERAL, trade.getId(), 0, 0, 0, null, null, null,
 					null, null, null);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Not expected here.
 		}
 		if (returnedCollateral != null && !returnedCollateral.isEmpty()) {
@@ -111,7 +110,7 @@ public final class RepoTradeUtil {
 					.toList();
 			if (!returnedCollateral.isEmpty()) {
 				if (securities == null) {
-					securities = new HashMap<>(returnedCollateral.size());
+					securities = HashMap.newHashMap(returnedCollateral.size());
 				}
 				for (Transfer t : returnedCollateral) {
 					if (securities.containsKey(t.getProduct())) {
@@ -198,12 +197,12 @@ public final class RepoTradeUtil {
 		}
 	}
 
-	public static BigDecimal getClosingLegPayment(RepoTrade trade, long quoteSetId, DayCountConvention dcc) throws TradistaBusinessException {
+	public static BigDecimal getClosingLegPayment(RepoTrade trade, long quoteSetId, DayCountConvention dcc)
+			throws TradistaBusinessException {
 		BigDecimal amount = trade.getAmount();
 		BigDecimal repoRate;
 		if (trade.isFixedRepoRate()) {
-			repoRate = trade.getRepoRate().divide(new BigDecimal(100), configurationBusinessDelegate.getScale(),
-					configurationBusinessDelegate.getRoundingMode());
+			repoRate = PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED);
 		} else {
 
 			String quoteName = Index.INDEX + "." + trade.getIndex() + "." + trade.getIndexTenor();
@@ -239,10 +238,9 @@ public final class RepoTradeUtil {
 				throw new TradistaBusinessException(errorMsg.toString());
 			}
 
-			repoRate = repoRate.divide(new BigDecimal(dates.size()));
+			repoRate = PricerUtil.divide(repoRate, new BigDecimal(dates.size()));
 			repoRate = repoRate.add(trade.getIndexOffset());
-			repoRate = repoRate.divide(new BigDecimal(100), configurationBusinessDelegate.getScale(),
-					configurationBusinessDelegate.getRoundingMode());
+			repoRate = PricerUtil.divide(repoRate, ONE_HUNDRED);
 		}
 
 		// 3. Multiply notional by repo rate (applying the accrual factor) then add it

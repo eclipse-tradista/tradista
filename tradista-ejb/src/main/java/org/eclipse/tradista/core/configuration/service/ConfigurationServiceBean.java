@@ -50,7 +50,7 @@ public class ConfigurationServiceBean implements LocalConfigurationService, Conf
 	@Override
 	public Scheduler getScheduler() {
 		Scheduler scheduler;
-		// Instanciating the scheduler
+		// Instantiating the scheduler
 		scheduler = (Scheduler) applicationContext.getBean("TradistaScheduler");
 
 		return scheduler;

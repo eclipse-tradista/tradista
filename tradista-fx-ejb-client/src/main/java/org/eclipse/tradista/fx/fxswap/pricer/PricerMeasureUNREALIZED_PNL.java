@@ -46,8 +46,8 @@ public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 	}
 
 	@Pricing(defaultUNREALIZED_PNL = true)
-	public BigDecimal marketToMarket(PricingParameter params, FXSwapTrade trade, Currency currency,
-			LocalDate pricingDate) throws PricerException, TradistaBusinessException {
+	public BigDecimal markToMarket(PricingParameter params, FXSwapTrade trade, Currency currency, LocalDate pricingDate)
+			throws PricerException, TradistaBusinessException {
 
 		return fxSwapPricerBusinessDelegate.unrealizedPnlMarkToMarket(params, trade, currency, pricingDate);
 	}
