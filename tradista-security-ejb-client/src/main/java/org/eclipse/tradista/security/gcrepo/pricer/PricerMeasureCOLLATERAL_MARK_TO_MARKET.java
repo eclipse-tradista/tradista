@@ -42,6 +42,6 @@ public class PricerMeasureCOLLATERAL_MARK_TO_MARKET extends PricerMeasureGCRepo 
 	@Pricing
 	public BigDecimal mtm(PricingParameter params, GCRepoTrade trade, Currency currency, LocalDate pricingDate)
 			throws TradistaBusinessException {
-		return gcRepoPricerBusinessDelegate.getCollateralMarketToMarket(trade, currency, pricingDate, params);
+		return gcRepoPricerBusinessDelegate.getCollateralMarkToMarket(trade, currency, pricingDate, params);
 	}
 }

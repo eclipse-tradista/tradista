@@ -70,7 +70,7 @@ public class GCRepoPricerBusinessDelegate {
 		return SecurityUtil.runEx(() -> gcRepoPricerService.generateCashFlows(pp, trade, pricingDate));
 	}
 
-	public BigDecimal getCollateralMarketToMarket(GCRepoTrade trade, Currency currency, LocalDate pricingDate,
+	public BigDecimal getCollateralMarkToMarket(GCRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (trade == null) {
@@ -97,14 +97,14 @@ public class GCRepoPricerBusinessDelegate {
 						pricingDate));
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil
-				.runEx(() -> gcRepoPricerService.getCollateralMarketToMarket(trade, currency, pricingDate, params));
+				.runEx(() -> gcRepoPricerService.getCollateralMarkToMarket(trade, currency, pricingDate, params));
 	}
 
-	public BigDecimal getCurrentCollateralMarketToMarket(GCRepoTrade trade) throws TradistaBusinessException {
+	public BigDecimal getCurrentCollateralMarkToMarket(GCRepoTrade trade) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (trade == null) {
 			errMsg.append(String.format(TRADE_IS_MANDATORY));
@@ -121,10 +121,10 @@ public class GCRepoPricerBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> gcRepoPricerService.getCurrentCollateralMarketToMarket(trade));
+		return SecurityUtil.runEx(() -> gcRepoPricerService.getCurrentCollateralMarkToMarket(trade));
 	}
 
-	public BigDecimal getCollateralMarketToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
+	public BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (po == null) {
@@ -145,7 +145,7 @@ public class GCRepoPricerBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> gcRepoPricerService.getCollateralMarketToMarket(securities, po, pricingDate));
+		return SecurityUtil.runEx(() -> gcRepoPricerService.getCollateralMarkToMarket(securities, po, pricingDate));
 	}
 
 	public BigDecimal getExposure(GCRepoTrade trade, Currency currency, LocalDate pricingDate, PricingParameter params)
@@ -187,6 +187,9 @@ public class GCRepoPricerBusinessDelegate {
 					}
 				}
 			}
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> gcRepoPricerService.getExposure(trade, currency, pricingDate, params));
 	}

@@ -174,7 +174,7 @@ public class BondDefinitionController implements TradistaController {
 		TradistaGUIUtil.fillExchangeComboBox(exchange);
 		TradistaGUIUtil.fillIndexComboBox(referenceRateIndex);
 
-		capFloorCollar.valueProperty().addListener(new ChangeListener<Bond.CapFloorCollar>() {
+		capFloorCollar.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Bond.CapFloorCollar> observableValue,
 					Bond.CapFloorCollar oldValue, Bond.CapFloorCollar newValue) {
@@ -214,7 +214,7 @@ public class BondDefinitionController implements TradistaController {
 			}
 		});
 
-		couponType.valueProperty().addListener(new ChangeListener<String>() {
+		couponType.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
 				boolean isFloat = (newValue != null && newValue.equals("Float"));
@@ -288,7 +288,7 @@ public class BondDefinitionController implements TradistaController {
 				bond.setRedemptionPrice(TradistaGUIUtil.parseAmount(redemptionPrice.getText(), "Redemption Price"));
 				bond.setRedemptionCurrency(redemptionCurrency.getValue());
 			}
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}
@@ -372,12 +372,12 @@ public class BondDefinitionController implements TradistaController {
 				} else {
 					throw new TradistaBusinessException("Please specify a product id or ISIN.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The product id is incorrect: %s", load.getText()));
 			}
 
 			if (loadingCriterion.getValue().equals("id")) {
-				bonds = new HashSet<Bond>(1);
+				bonds = HashSet.newHashSet(1);
 				Bond bond = bondBusinessDelegate.getBondById(bondId);
 				if (bond != null) {
 					bonds.add(bond);
@@ -391,13 +391,13 @@ public class BondDefinitionController implements TradistaController {
 			}
 
 			if (bonds.size() > 1) {
-				ChoiceDialog<Bond> dialog = new ChoiceDialog<Bond>((Bond) bonds.toArray()[0], bonds);
+				ChoiceDialog<Bond> dialog = new ChoiceDialog<>((Bond) bonds.toArray()[0], bonds);
 				dialog.setTitle("Bond Selection");
 				dialog.setHeaderText("Please choose a Bond");
 				dialog.setContentText("Selected Bond:");
 
 				Optional<Bond> result = dialog.showAndWait();
-				result.ifPresent(bond -> load(bond));
+				result.ifPresent(this::load);
 			} else {
 				load((Bond) bonds.toArray()[0]);
 			}
@@ -512,7 +512,7 @@ public class BondDefinitionController implements TradistaController {
 		} catch (TradistaBusinessException abe) {
 			errMsg.append(abe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
