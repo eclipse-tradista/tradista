@@ -43,20 +43,20 @@ import jakarta.interceptor.Interceptors;
 public class SpecificRepoPricerServiceBean implements SpecificRepoPricerService {
 
 	@Override
-	public BigDecimal getCollateralMarketToMarket(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
+	public BigDecimal getCollateralMarkToMarket(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
-		return RepoPricerUtil.getCollateralMarketToMarket(trade, currency, pricingDate, params);
+		return RepoPricerUtil.getCollateralMarkToMarket(trade, currency, pricingDate, params);
 	}
 
 	@Override
-	public BigDecimal getCurrentCollateralMarketToMarket(SpecificRepoTrade trade) throws TradistaBusinessException {
-		return RepoPricerUtil.getCurrentCollateralMarketToMarket(trade);
+	public BigDecimal getCurrentCollateralMarkToMarket(SpecificRepoTrade trade) throws TradistaBusinessException {
+		return RepoPricerUtil.getCurrentCollateralMarkToMarket(trade);
 	}
 
 	@Override
-	public BigDecimal getCollateralMarketToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
+	public BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
 			LocalDate pricingDate) throws TradistaBusinessException {
-		return RepoPricerUtil.getCollateralMarketToMarket(securities, po, pricingDate);
+		return RepoPricerUtil.getCollateralMarkToMarket(securities, po, pricingDate);
 	}
 
 	@Override

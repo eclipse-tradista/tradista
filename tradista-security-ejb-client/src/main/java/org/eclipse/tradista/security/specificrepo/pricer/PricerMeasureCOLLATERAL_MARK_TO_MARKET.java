@@ -44,6 +44,6 @@ public class PricerMeasureCOLLATERAL_MARK_TO_MARKET extends PricerMeasure {
 	@Pricing
 	public BigDecimal mtm(PricingParameter params, SpecificRepoTrade trade, Currency currency, LocalDate pricingDate)
 			throws TradistaBusinessException {
-		return specificRepoPricerBusinessDelegate.getCollateralMarketToMarket(trade, currency, pricingDate, params);
+		return specificRepoPricerBusinessDelegate.getCollateralMarkToMarket(trade, currency, pricingDate, params);
 	}
 }

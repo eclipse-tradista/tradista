@@ -38,16 +38,16 @@ public interface GCRepoPricerService {
 	List<CashFlow> generateCashFlows(PricingParameter params, GCRepoTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException;
 
-	BigDecimal getCollateralMarketToMarket(GCRepoTrade trade, Currency currency, LocalDate pricingDate,
+	BigDecimal getCollateralMarkToMarket(GCRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException;
 
-	BigDecimal getCollateralMarketToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
+	BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
 			LocalDate pricingDate) throws TradistaBusinessException;
 
 	BigDecimal getExposure(GCRepoTrade trade, Currency currency, LocalDate pricingDate, PricingParameter params)
 			throws TradistaBusinessException;
 
-	BigDecimal getCurrentCollateralMarketToMarket(GCRepoTrade trade) throws TradistaBusinessException;
+	BigDecimal getCurrentCollateralMarkToMarket(GCRepoTrade trade) throws TradistaBusinessException;
 
 	BigDecimal getCurrentExposure(GCRepoTrade trade) throws TradistaBusinessException;
 

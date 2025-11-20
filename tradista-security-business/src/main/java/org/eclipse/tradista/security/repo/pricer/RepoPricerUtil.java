@@ -71,7 +71,7 @@ public final class RepoPricerUtil {
 	private RepoPricerUtil() {
 	}
 
-	public static BigDecimal getCollateralMarketToMarket(RepoTrade trade, Currency currency, LocalDate pricingDate,
+	public static BigDecimal getCollateralMarkToMarket(RepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
 		BigDecimal mtm;
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
@@ -84,7 +84,7 @@ public final class RepoPricerUtil {
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		mtm = getCollateralMarketToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate);
+		mtm = getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate);
 
 		if (!currency.equals(trade.getCurrency())) {
 			mtm = PricerUtil.convertAmount(mtm, trade.getCurrency(), currency, pricingDate,
@@ -95,24 +95,24 @@ public final class RepoPricerUtil {
 		return mtm;
 	}
 
-	private static BigDecimal calculateCollateralMarketToMarket(RepoTrade trade, LocalDate pricingDate)
+	private static BigDecimal calculateCollateralMarkToMarket(RepoTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException {
 		// 1. Get the current collateral
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		return getCollateralMarketToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate);
+		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate);
 	}
 
-	public static BigDecimal getCurrentCollateralMarketToMarket(RepoTrade trade) throws TradistaBusinessException {
+	public static BigDecimal getCurrentCollateralMarkToMarket(RepoTrade trade) throws TradistaBusinessException {
 		// 1. Get the current collateral
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		return getCollateralMarketToMarket(securities, trade.getBook().getProcessingOrg(), LocalDate.now());
+		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), LocalDate.now());
 	}
 
-	public static BigDecimal getCollateralMarketToMarket(Map<Security, Map<Book, BigDecimal>> securities,
+	public static BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities,
 			LegalEntity po, LocalDate pricingDate) throws TradistaBusinessException {
 
 		BigDecimal mtm = BigDecimal.ZERO;
@@ -207,7 +207,7 @@ public final class RepoPricerUtil {
 			throws TradistaBusinessException {
 		BigDecimal collateralValue;
 		// 1. Get the collateral MTM
-		collateralValue = calculateCollateralMarketToMarket(trade, pricingDate);
+		collateralValue = calculateCollateralMarkToMarket(trade, pricingDate);
 		// 2. Apply the margin rate (by convention, margin rate is noted as follows:
 		// 105
 		// for 5%)
@@ -745,12 +745,12 @@ public final class RepoPricerUtil {
 		// Add collateral added from the GUI
 		if (!ObjectUtils.isEmpty(addedSecurities)) {
 			pendingCollateralValue = pendingCollateralValue.add(
-					getCollateralMarketToMarket(addedSecurities, trade.getBook().getProcessingOrg(), LocalDate.now()));
+					getCollateralMarkToMarket(addedSecurities, trade.getBook().getProcessingOrg(), LocalDate.now()));
 		}
 
 		// Remove collateral removed from the GUI
 		if (!ObjectUtils.isEmpty(removedSecurities)) {
-			pendingCollateralValue = pendingCollateralValue.subtract(getCollateralMarketToMarket(removedSecurities,
+			pendingCollateralValue = pendingCollateralValue.subtract(getCollateralMarkToMarket(removedSecurities,
 					trade.getBook().getProcessingOrg(), LocalDate.now()));
 		}
 		pendingCollateralValue = PricerUtil.divide(pendingCollateralValue, marginRate);
