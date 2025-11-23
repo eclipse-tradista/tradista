@@ -5,4 +5,15 @@
 	version="4.0">
 	<module-name>core-ejb</module-name>
 	<display-name>core-ejb</display-name>
+	<interceptors>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor>
+	</interceptors>
+	<assembly-descriptor>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+	</assembly-descriptor>
 </ejb-jar>

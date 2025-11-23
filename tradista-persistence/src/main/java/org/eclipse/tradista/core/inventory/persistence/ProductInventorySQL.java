@@ -442,7 +442,7 @@ public class ProductInventorySQL {
 			try (ResultSet results = stmtGetInventories.executeQuery(query)) {
 				while (results.next()) {
 					if (inventories == null) {
-						inventories = new TreeSet<ProductInventory>();
+						inventories = new TreeSet<>();
 					}
 					ProductInventory inventory = new ProductInventory(BookSQL.getBookById(results.getLong("book_id")),
 							results.getDate("from_date").toLocalDate(),

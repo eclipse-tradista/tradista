@@ -108,7 +108,6 @@ public class TransferSQL {
 				transfers.add(transfer);
 			}
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		return transfers;
@@ -151,7 +150,12 @@ public class TransferSQL {
 				stmtSaveTransfer.setNull(5, java.sql.Types.BIGINT);
 			}
 			stmtSaveTransfer.setTimestamp(6, Timestamp.valueOf(transfer.getCreationDateTime()));
-			stmtSaveTransfer.setTimestamp(7, Timestamp.valueOf(transfer.getFixingDateTime()));
+			LocalDateTime fixingDateTime = transfer.getFixingDateTime();
+			if (fixingDateTime != null) {
+				stmtSaveTransfer.setTimestamp(7, Timestamp.valueOf(fixingDateTime));
+			} else {
+				stmtSaveTransfer.setNull(7, java.sql.Types.TIMESTAMP);
+			}
 			stmtSaveTransfer.setDate(8, Date.valueOf(transfer.getSettlementDate()));
 			stmtSaveTransfer.setString(9, transfer.getPurpose().name());
 			if (transfer.getType().equals(Transfer.Type.CASH)) {
@@ -182,8 +186,7 @@ public class TransferSQL {
 				transferId = transfer.getId();
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle.getMessage());
+			throw new TradistaTechnicalException(sqle);
 		}
 
 		return transferId;
@@ -222,7 +225,12 @@ public class TransferSQL {
 							stmtUpdateTransfer.setNull(5, java.sql.Types.BIGINT);
 						}
 						stmtUpdateTransfer.setTimestamp(6, Timestamp.valueOf(transfer.getCreationDateTime()));
-						stmtUpdateTransfer.setTimestamp(7, Timestamp.valueOf(transfer.getFixingDateTime()));
+						LocalDateTime fixingDateTime = transfer.getFixingDateTime();
+						if (fixingDateTime != null) {
+							stmtUpdateTransfer.setTimestamp(7, Timestamp.valueOf(fixingDateTime));
+						} else {
+							stmtUpdateTransfer.setNull(7, java.sql.Types.TIMESTAMP);
+						}
 						stmtUpdateTransfer.setDate(8, Date.valueOf(transfer.getSettlementDate()));
 						stmtUpdateTransfer.setString(9, transfer.getPurpose().name());
 						if (transfer.getType().equals(Transfer.Type.CASH)) {
@@ -290,7 +298,6 @@ public class TransferSQL {
 				stmtUpdateTransfer.executeBatch();
 
 			} catch (SQLException sqle) {
-				sqle.printStackTrace();
 				throw new TradistaTechnicalException(sqle);
 			}
 		}
@@ -302,7 +309,6 @@ public class TransferSQL {
 			stmtDeleteTransfer.setLong(1, transferId);
 			stmtDeleteTransfer.executeUpdate();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -359,7 +365,6 @@ public class TransferSQL {
 				}
 			}
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		return transfer;
@@ -425,7 +430,6 @@ public class TransferSQL {
 				}
 			}
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		return transfers;
@@ -486,7 +490,6 @@ public class TransferSQL {
 				}
 			}
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		return transfers;
@@ -539,7 +542,6 @@ public class TransferSQL {
 				}
 			}
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		return transfers;
@@ -731,7 +733,6 @@ public class TransferSQL {
 				transfers.add(transfer);
 			}
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		return transfers;
