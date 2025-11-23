@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.pricing.util;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
@@ -125,7 +124,7 @@ public final class PricerUtil {
 			}
 			try {
 				return getForwardRate(indexCurveId, valueDate, DateUtil.addTenor(valueDate, tenor), dcc);
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 				// Should not happen here.
 			}
 		} else {
@@ -146,8 +145,8 @@ public final class PricerUtil {
 										Tenor.NO_TENOR));
 					}
 					try {
-						rate = PricerUtil.getValueAsOfDateFromCurve(indexCurveId, DateUtil.addTenor(valueDate, tenor));
-					} catch (TradistaBusinessException tbe) {
+						rate = getValueAsOfDateFromCurve(indexCurveId, DateUtil.addTenor(valueDate, tenor));
+					} catch (TradistaBusinessException _) {
 						// Should not happen here.
 					}
 				}
@@ -204,8 +203,8 @@ public final class PricerUtil {
 		}
 
 		if (minValue != null && maxValue != null) {
-			BigDecimal progressionByDay = (maxValue.subtract(minValue)).divide(
-					new BigDecimal(daysNumberMin + daysNumberMax), configurationBusinessDelegate.getRoundingMode());
+			BigDecimal progressionByDay = divide((maxValue.subtract(minValue)),
+					new BigDecimal(daysNumberMin + daysNumberMax));
 			return minValue.add(progressionByDay.multiply(new BigDecimal(daysNumberMin)));
 		}
 
@@ -270,9 +269,8 @@ public final class PricerUtil {
 				}
 
 				if (minValue != null && maxValue != null) {
-					BigDecimal progressionByDay = (maxValue.subtract(minValue)).divide(
-							new BigDecimal(daysNumberMin + daysNumberMax),
-							configurationBusinessDelegate.getRoundingMode());
+					BigDecimal progressionByDay = divide((maxValue.subtract(minValue)),
+							new BigDecimal(daysNumberMin + daysNumberMax));
 					if (values == null) {
 						values = new HashMap<>();
 					}
@@ -332,9 +330,8 @@ public final class PricerUtil {
 				}
 
 				if (valueMax != null) {
-					BigDecimal progressionByDay = (valueMax.subtract(valueMin)).divide(
-							new BigDecimal(daysNumberMin + daysNumberMax),
-							configurationBusinessDelegate.getRoundingMode());
+					BigDecimal progressionByDay = divide((valueMax.subtract(valueMin)),
+							new BigDecimal(daysNumberMin + daysNumberMax));
 					return valueMin.add(progressionByDay.multiply(new BigDecimal(daysNumberMin)));
 				}
 			}
@@ -377,11 +374,10 @@ public final class PricerUtil {
 			errMsg.append(String.format(DATE_CANNOT_BE_NULL));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		BigDecimal discountFactor = PricerUtil.getDiscountFactor(curveId, pricingDate, date, dcc);
-		return amount.multiply(discountFactor);
+		return amount.multiply(getDiscountFactor(curveId, pricingDate, date, dcc));
 
 	}
 
@@ -416,24 +412,20 @@ public final class PricerUtil {
 			errMsg.append(String.format(DATE_CANNOT_BE_NULL));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
 		if (dcc == null) {
 			dcc = new DayCountConvention(DayCountConvention.ACT_365);
 		}
-		BigDecimal rateAtDate = PricerUtil.getDiscountFactor(curveId, date).divide(BigDecimal.valueOf(100),
-				configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode());
-		BigDecimal rateAtPricingDate = PricerUtil.getDiscountFactor(curveId, pricingDate).divide(
-				BigDecimal.valueOf(100), configurationBusinessDelegate.getScale(),
-				configurationBusinessDelegate.getRoundingMode());
+		BigDecimal rateAtDate = divide(getDiscountFactor(curveId, date), ONE_HUNDRED);
+		BigDecimal rateAtPricingDate = divide(getDiscountFactor(curveId, pricingDate), ONE_HUNDRED);
 		BigDecimal fractionNowtoPricingDate = daysToYear(dcc, LocalDate.now(), pricingDate);
 		BigDecimal fractionNowToDate = daysToYear(dcc, LocalDate.now(), date);
-		return BigDecimal.valueOf(Math.exp(rateAtDate.negate().multiply(fractionNowToDate).doubleValue()))
-				.divide(BigDecimal
-						.valueOf(Math.exp(rateAtPricingDate.negate().multiply(fractionNowtoPricingDate).doubleValue())),
-						configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode());
+		return divide(BigDecimal.valueOf(Math.exp(rateAtDate.negate().multiply(fractionNowToDate).doubleValue())),
+				BigDecimal.valueOf(
+						Math.exp(rateAtPricingDate.negate().multiply(fractionNowtoPricingDate).doubleValue())));
 
 	}
 
@@ -454,18 +446,14 @@ public final class PricerUtil {
 			errMsg.append(String.format("The Discount curve id must be positive.%n"));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
 		if (cashFlows != null) {
 			for (CashFlow cf : cashFlows) {
-				BigDecimal discountedAmount = PricerUtil.discountAmount(cf.getAmount(), discountCurveId, valueDate,
-						cf.getDate(), dcc);
-				cf.setDiscountedAmount(discountedAmount);
-				BigDecimal discountFactor = PricerUtil.getDiscountFactor(discountCurveId, valueDate, cf.getDate(),
-						null);
-				cf.setDiscountFactor(discountFactor);
+				cf.setDiscountedAmount(discountAmount(cf.getAmount(), discountCurveId, valueDate, cf.getDate(), dcc));
+				cf.setDiscountFactor(getDiscountFactor(discountCurveId, valueDate, cf.getDate(), null));
 			}
 		}
 	}
@@ -487,16 +475,12 @@ public final class PricerUtil {
 			errMsg.append(String.format("The Discount curve id must be positive.%n"));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
-		BigDecimal discountedAmount = PricerUtil.discountAmount(cf.getAmount(), discountCurveId, valueDate,
-				cf.getDate(), dcc);
-		cf.setDiscountedAmount(discountedAmount);
-		BigDecimal discountFactor = PricerUtil.getDiscountFactor(discountCurveId, valueDate, cf.getDate(), null);
-		cf.setDiscountFactor(discountFactor);
-
+		cf.setDiscountedAmount(discountAmount(cf.getAmount(), discountCurveId, valueDate, cf.getDate(), dcc));
+		cf.setDiscountFactor(getDiscountFactor(discountCurveId, valueDate, cf.getDate(), null));
 	}
 
 	/**
@@ -636,10 +620,8 @@ public final class PricerUtil {
 				}
 
 				if (valueMax != null) {
-					BigDecimal progressionByDay = (valueMax.subtract(valueMin)).divide(
-							new BigDecimal(daysNumberMin + daysNumberMax), configurationBusinessDelegate.getScale(),
-
-							configurationBusinessDelegate.getRoundingMode());
+					BigDecimal progressionByDay = divide(valueMax.subtract(valueMin),
+							new BigDecimal(daysNumberMin + daysNumberMax));
 					return valueMin.add(progressionByDay.multiply(new BigDecimal(daysNumberMin)));
 				}
 			}
@@ -655,20 +637,18 @@ public final class PricerUtil {
 	}
 
 	public static BigDecimal daysToYear(Tenor tenor) {
-		int scale = configurationBusinessDelegate.getScale();
-		RoundingMode roundingMode = configurationBusinessDelegate.getRoundingMode();
 		BigDecimal daysToYear = null;
 		if (tenor.equals(Tenor.EIGHTEEN_MONTHS)) {
 			daysToYear = BigDecimal.valueOf(1.5);
 		}
 		if (tenor.equals(Tenor.FIVE_MONTHS)) {
-			daysToYear = BigDecimal.valueOf(5).divide(BigDecimal.valueOf(12), scale, roundingMode);
+			daysToYear = divide(BigDecimal.valueOf(5), BigDecimal.valueOf(12));
 		}
 		if (tenor.equals(Tenor.FOUR_MONTHS)) {
-			daysToYear = BigDecimal.valueOf(4).divide(BigDecimal.valueOf(12), scale, roundingMode);
+			daysToYear = divide(BigDecimal.valueOf(4), BigDecimal.valueOf(12));
 		}
 		if (tenor.equals(Tenor.ONE_MONTH)) {
-			daysToYear = BigDecimal.ONE.divide(BigDecimal.valueOf(12), scale, roundingMode);
+			daysToYear = divide(BigDecimal.ONE, BigDecimal.valueOf(12));
 		}
 		if (tenor.equals(Tenor.ONE_YEAR)) {
 			daysToYear = BigDecimal.ONE;
@@ -680,7 +660,7 @@ public final class PricerUtil {
 			daysToYear = BigDecimal.valueOf(0.25);
 		}
 		if (tenor.equals(Tenor.TWO_MONTHS)) {
-			daysToYear = BigDecimal.ONE.divide(BigDecimal.valueOf(6), scale, roundingMode);
+			daysToYear = divide(BigDecimal.ONE, BigDecimal.valueOf(6));
 		}
 		if (tenor.equals(Tenor.TWO_YEARS)) {
 			daysToYear = BigDecimal.valueOf(2);
@@ -689,50 +669,50 @@ public final class PricerUtil {
 	}
 
 	public static BigDecimal daysToYear(DayCountConvention dcc, LocalDate startDate, LocalDate endDate) {
-		int scale = configurationBusinessDelegate.getScale();
-		RoundingMode roundingMode = configurationBusinessDelegate.getRoundingMode();
 		if (dcc == null) {
 			dcc = new DayCountConvention(DayCountConvention.ACT_365);
 		}
 		switch (dcc.getName()) {
 		case DayCountConvention.ACT_360: {
 			BigDecimal diff = BigDecimal.valueOf(ChronoUnit.DAYS.between(startDate, endDate));
-			return diff.divide(BigDecimal.valueOf(360), scale, roundingMode);
+			return divide(diff, BigDecimal.valueOf(360));
 		}
 		case DayCountConvention.ACT_365: {
 			BigDecimal diff = BigDecimal.valueOf(ChronoUnit.DAYS.between(startDate, endDate));
-			return diff.divide(BigDecimal.valueOf(365), scale, roundingMode);
+			return divide(diff, BigDecimal.valueOf(365));
 		}
 		case "ACT/366": {
 			BigDecimal diff = BigDecimal.valueOf(ChronoUnit.DAYS.between(startDate, endDate));
-			return diff.divide(BigDecimal.valueOf(366), scale, roundingMode);
+			return divide(diff, BigDecimal.valueOf(366));
 		}
 		case "ACT/ACT": {
 			BigDecimal diff = BigDecimal.valueOf(ChronoUnit.DAYS.between(startDate, endDate));
 			int divider = Year.isLeap(startDate.getYear()) ? 366 : 365;
-			return diff.divide(BigDecimal.valueOf(divider), scale, roundingMode);
+			return divide(diff, BigDecimal.valueOf(divider));
 		}
 		case "ACT Fixed/365": {
 			BigDecimal diff = BigDecimal.valueOf(ChronoUnit.DAYS.between(startDate, endDate));
-			return diff.divide(BigDecimal.valueOf(365), scale, roundingMode);
+			return divide(diff, BigDecimal.valueOf(365));
 		}
 		case "30/360": {
-			return ((BigDecimal.valueOf(360).multiply(BigDecimal.valueOf(endDate.getYear() - startDate.getYear())))
-					.add(BigDecimal.valueOf(30)
-							.multiply(BigDecimal.valueOf(endDate.getMonthValue() - startDate.getMonthValue())))
-					.add(BigDecimal.valueOf(endDate.getDayOfMonth() - startDate.getDayOfMonth())))
-					.divide(BigDecimal.valueOf(360), scale, roundingMode);
+			return divide(
+					(BigDecimal.valueOf(360).multiply(BigDecimal.valueOf(endDate.getYear() - startDate.getYear())))
+							.add(BigDecimal.valueOf(30)
+									.multiply(BigDecimal.valueOf(endDate.getMonthValue() - startDate.getMonthValue())))
+							.add(BigDecimal.valueOf(endDate.getDayOfMonth() - startDate.getDayOfMonth())),
+					BigDecimal.valueOf(360));
 		}
 		case "30E/360": {
 			int startDay = Math.min(30, startDate.getDayOfMonth());
 			int endDay = Math.min(30, endDate.getDayOfMonth());
-			return ((BigDecimal.valueOf(360).multiply(BigDecimal.valueOf(endDate.getYear() - startDate.getYear())))
-					.add(BigDecimal.valueOf(30)
-							.multiply(BigDecimal.valueOf(endDate.getMonthValue() - startDate.getMonthValue())))
-					.add(BigDecimal.valueOf(endDay - startDay))).divide(BigDecimal.valueOf(360), scale, roundingMode);
+			return divide(
+					(BigDecimal.valueOf(360).multiply(BigDecimal.valueOf(endDate.getYear() - startDate.getYear())))
+							.add(BigDecimal.valueOf(30)
+									.multiply(BigDecimal.valueOf(endDate.getMonthValue() - startDate.getMonthValue())))
+							.add(BigDecimal.valueOf(endDay - startDay)),
+					BigDecimal.valueOf(360));
 		}
 		}
-
 		return null;
 	}
 
@@ -746,16 +726,11 @@ public final class PricerUtil {
 		BigDecimal a3 = new BigDecimal("1.781477937");
 		BigDecimal a4 = new BigDecimal("-1.821255978");
 		BigDecimal a5 = new BigDecimal("1.330274429");
-		int scale = configurationBusinessDelegate.getScale();
-		RoundingMode roundingMode = configurationBusinessDelegate.getRoundingMode();
-
 		l = Math.abs(x);
-		k = BigDecimal.ONE.divide(BigDecimal.ONE.add(new BigDecimal("0.2316419").multiply(BigDecimal.valueOf(l))),
-				scale, roundingMode);
-		w = BigDecimal.ONE.subtract(BigDecimal.ONE
-				.divide(BigDecimal
-						.valueOf(Math.sqrt(BigDecimal.valueOf(2).multiply(BigDecimal.valueOf(Math.PI)).doubleValue())),
-						scale, roundingMode)
+		k = divide(BigDecimal.ONE, BigDecimal.ONE.add(new BigDecimal("0.2316419").multiply(BigDecimal.valueOf(l))));
+		w = BigDecimal.ONE.subtract(divide(BigDecimal.ONE,
+				BigDecimal
+						.valueOf(Math.sqrt(BigDecimal.valueOf(2).multiply(BigDecimal.valueOf(Math.PI)).doubleValue())))
 				.multiply(BigDecimal.valueOf(Math.exp(-l * l / 2))).multiply(a1.multiply(k).add(a2.multiply(k.pow(2)))
 						.add(a3.multiply(k.pow(3))).add(a4.multiply(k.pow(4))).add(a5.multiply(k.pow(5)))));
 
@@ -807,20 +782,19 @@ public final class PricerUtil {
 						"A forward date can only be calculated if the starting date is before the end date.%n"));
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
 		if (dcc == null) {
 			dcc = new DayCountConvention(DayCountConvention.ACT_365);
 		}
-		BigDecimal r1 = PricerUtil.getValueAsOfDateFromCurve(curveId, startDate);
-		BigDecimal r2 = PricerUtil.getValueAsOfDateFromCurve(curveId, endDate);
-		BigDecimal t2 = PricerUtil.daysToYear(dcc, now, endDate);
-		BigDecimal t1 = PricerUtil.daysToYear(dcc, now, startDate);
+		BigDecimal r1 = getValueAsOfDateFromCurve(curveId, startDate);
+		BigDecimal r2 = getValueAsOfDateFromCurve(curveId, endDate);
+		BigDecimal t2 = daysToYear(dcc, now, endDate);
+		BigDecimal t1 = daysToYear(dcc, now, startDate);
 
-		return ((r2.multiply(t2)).subtract(r1.multiply(t1))).divide(t2.subtract(t1),
-				configurationBusinessDelegate.getRoundingMode());
+		return divide((r2.multiply(t2)).subtract(r1.multiply(t1)), t2.subtract(t1));
 	}
 
 	public static BigDecimal getFXClosingRate(Currency primaryCurrency, Currency quoteCurrency, LocalDate date,
@@ -838,20 +812,19 @@ public final class PricerUtil {
 		if (quoteSetId <= 0) {
 			errorMessage.append(String.format(QUOTE_SET_ID_MUST_BE_POSITIVE));
 		}
-		if (errorMessage.length() > 0) {
+		if (!errorMessage.isEmpty()) {
 			throw new TradistaBusinessException(errorMessage.toString());
 		}
 		String fxQuote = "FX." + primaryCurrency.getIsoCode() + "." + quoteCurrency.getIsoCode();
 		String fxQuoteInv = "FX." + quoteCurrency.getIsoCode() + "." + primaryCurrency.getIsoCode();
 
-		Map<String, BigDecimal> exchangeRates = PricerUtil.getValuesAsOfDateFromQuote(quoteSetId,
-				QuoteType.EXCHANGE_RATE, QuoteValue.CLOSE, date, false, fxQuote, fxQuoteInv);
+		Map<String, BigDecimal> exchangeRates = getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EXCHANGE_RATE,
+				QuoteValue.CLOSE, date, false, fxQuote, fxQuoteInv);
 		if (exchangeRates != null) {
 			if (exchangeRates.containsKey(fxQuote)) {
 				return exchangeRates.get(fxQuote);
 			} else {
-				return BigDecimal.ONE.divide(exchangeRates.get(fxQuoteInv), configurationBusinessDelegate.getScale(),
-						configurationBusinessDelegate.getRoundingMode());
+				return divide(BigDecimal.ONE, exchangeRates.get(fxQuoteInv));
 			}
 		}
 		return null;
@@ -872,13 +845,13 @@ public final class PricerUtil {
 		if (quoteSetId <= 0) {
 			errorMessage.append(String.format(QUOTE_SET_ID_MUST_BE_POSITIVE));
 		}
-		if (errorMessage.length() > 0) {
+		if (!errorMessage.isEmpty()) {
 			throw new TradistaBusinessException(errorMessage.toString());
 		}
 		String equityPriceQuote = "Equity." + equityIsin + "." + equityExchangeCode;
 
-		Map<String, BigDecimal> exchangeRates = PricerUtil.getValuesAsOfDateFromQuote(quoteSetId,
-				QuoteType.EQUITY_PRICE, QuoteValue.CLOSE, date, false, equityPriceQuote);
+		Map<String, BigDecimal> exchangeRates = getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EQUITY_PRICE,
+				QuoteValue.CLOSE, date, false, equityPriceQuote);
 		if (exchangeRates != null) {
 			if (exchangeRates.containsKey(equityPriceQuote)) {
 				return exchangeRates.get(equityPriceQuote);
@@ -902,12 +875,11 @@ public final class PricerUtil {
 		if (date == null) {
 			errorMessage.append(String.format(DATE_CANNOT_BE_NULL));
 		}
-		if (errorMessage.length() > 0) {
+		if (!errorMessage.isEmpty()) {
 			throw new TradistaBusinessException(errorMessage.toString());
 		}
-		return amount.multiply(BigDecimal.ONE.divide(
-				PricerUtil.getFXExchangeRate(targetCurrency, sourceCurrency, date, quoteSetId, fxCurveId),
-				configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode()));
+		return amount.multiply(
+				divide(BigDecimal.ONE, getFXExchangeRate(targetCurrency, sourceCurrency, date, quoteSetId, fxCurveId)));
 	}
 
 	public static BigDecimal getFXExchangeRate(Currency primaryCurrency, Currency quoteCurrency, LocalDate date,
@@ -922,14 +894,14 @@ public final class PricerUtil {
 		if (date == null) {
 			errorMessage.append(String.format(DATE_CANNOT_BE_NULL));
 		}
-		if (errorMessage.length() > 0) {
+		if (!errorMessage.isEmpty()) {
 			throw new TradistaBusinessException(errorMessage.toString());
 		}
 		if (!primaryCurrency.equals(quoteCurrency)) {
 			BigDecimal exchangeRate = null;
 			LocalDate now = LocalDate.now();
 			if (date.isBefore(now)) {
-				exchangeRate = PricerUtil.getFXClosingRate(primaryCurrency, quoteCurrency, date, quoteSetId);
+				exchangeRate = getFXClosingRate(primaryCurrency, quoteCurrency, date, quoteSetId);
 				if (exchangeRate != null) {
 					return exchangeRate;
 				}
@@ -941,38 +913,34 @@ public final class PricerUtil {
 				}
 				String fxQuote = "FX." + primaryCurrency.getIsoCode() + "." + quoteCurrency.getIsoCode();
 				String fxQuoteInv = "FX." + quoteCurrency.getIsoCode() + "." + primaryCurrency.getIsoCode();
-				Map<String, BigDecimal> exchangeRates = PricerUtil.getValuesAsOfDateFromQuote(quoteSetId,
-						QuoteType.EXCHANGE_RATE, QuoteValue.CLOSE, date, false, fxQuote, fxQuoteInv);
+				Map<String, BigDecimal> exchangeRates = getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EXCHANGE_RATE,
+						QuoteValue.CLOSE, date, false, fxQuote, fxQuoteInv);
 				if (exchangeRates != null) {
 					if (exchangeRates.containsKey(fxQuote)) {
 						return exchangeRates.get(fxQuote);
 					} else {
-						return BigDecimal.ONE.divide(exchangeRates.get(fxQuoteInv),
-								configurationBusinessDelegate.getScale(),
-								configurationBusinessDelegate.getRoundingMode());
+						return divide(BigDecimal.ONE, exchangeRates.get(fxQuoteInv));
 					}
 				}
 
-				exchangeRates = PricerUtil.getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EXCHANGE_RATE,
-						QuoteValue.LAST, date, false, fxQuote, fxQuoteInv);
+				exchangeRates = getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EXCHANGE_RATE, QuoteValue.LAST, date,
+						false, fxQuote, fxQuoteInv);
 				if (exchangeRates != null) {
 					if (exchangeRates.containsKey(fxQuote)) {
 						return exchangeRates.get(fxQuote);
 					} else {
-						return BigDecimal.ONE.divide(exchangeRates.get(fxQuoteInv),
-								configurationBusinessDelegate.getScale(),
-								configurationBusinessDelegate.getRoundingMode());
+						return divide(BigDecimal.ONE, exchangeRates.get(fxQuoteInv));
 					}
 				}
 			}
 
 			if (fxCurveId > 0) {
 				try {
-					exchangeRate = PricerUtil.getValueAsOfDateFromCurve(fxCurveId, date);
+					exchangeRate = getValueAsOfDateFromCurve(fxCurveId, date);
 					if (exchangeRate != null) {
 						return exchangeRate;
 					}
-				} catch (PricerException pe) {
+				} catch (PricerException _) {
 				}
 			}
 
@@ -1000,14 +968,14 @@ public final class PricerUtil {
 		if (date == null) {
 			errorMessage.append(String.format(DATE_CANNOT_BE_NULL));
 		}
-		if (errorMessage.length() > 0) {
+		if (!errorMessage.isEmpty()) {
 			throw new TradistaBusinessException(errorMessage.toString());
 		}
 
 		BigDecimal equityPrice = null;
 		LocalDate now = LocalDate.now();
 		if (date.isBefore(now)) {
-			equityPrice = PricerUtil.getEquityClosingPrice(equityIsin, equityExchangeCode, date, quoteSetId);
+			equityPrice = getEquityClosingPrice(equityIsin, equityExchangeCode, date, quoteSetId);
 			if (equityPrice != null) {
 				return equityPrice;
 			}
@@ -1018,16 +986,16 @@ public final class PricerUtil {
 						"The quote set id is mandatory when the conversion date is the current date.");
 			}
 			String equityPriceQuote = "Equity." + equityIsin + "." + equityExchangeCode;
-			Map<String, BigDecimal> equityPriceMap = PricerUtil.getValuesAsOfDateFromQuote(quoteSetId,
-					QuoteType.EQUITY_PRICE, QuoteValue.CLOSE, date, false, equityPriceQuote);
+			Map<String, BigDecimal> equityPriceMap = getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EQUITY_PRICE,
+					QuoteValue.CLOSE, date, false, equityPriceQuote);
 			if (equityPriceMap != null) {
 				if (equityPriceMap.containsKey(equityPriceQuote)) {
 					return equityPriceMap.get(equityPriceQuote);
 				}
 			}
 
-			equityPriceMap = PricerUtil.getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EQUITY_PRICE, QuoteValue.LAST,
-					date, false, equityPriceQuote);
+			equityPriceMap = getValuesAsOfDateFromQuote(quoteSetId, QuoteType.EQUITY_PRICE, QuoteValue.LAST, date,
+					false, equityPriceQuote);
 			if (equityPriceMap != null) {
 				if (equityPriceMap.containsKey(equityPriceQuote)) {
 					return equityPriceMap.get(equityPriceQuote);
@@ -1049,14 +1017,13 @@ public final class PricerUtil {
 				try {
 					BigDecimal cfAmount;
 					if (valueDate != null) {
-						cfAmount = PricerUtil.discountAmount(cf.getAmount(), curveId, valueDate, cf.getDate(), dcc);
+						cfAmount = discountAmount(cf.getAmount(), curveId, valueDate, cf.getDate(), dcc);
 					} else {
 						cfAmount = cf.getAmount();
 					}
 
 					if (valueCurrency != null) {
-						cfAmount = PricerUtil.convertAmount(cfAmount, cf.getCurrency(), valueCurrency, cf.getDate(), 0,
-								0);
+						cfAmount = convertAmount(cfAmount, cf.getCurrency(), valueCurrency, cf.getDate(), 0, 0);
 					}
 					totalFlowsAmount = totalFlowsAmount.add(cfAmount);
 				} catch (PricerException pe) {
@@ -1082,6 +1049,47 @@ public final class PricerUtil {
 	public static BigDecimal divide(BigDecimal dividend, BigDecimal divisor) {
 		return dividend.divide(divisor, configurationBusinessDelegate.getScale(),
 				configurationBusinessDelegate.getRoundingMode());
+	}
+
+	public static BigDecimal getAccruedInterest(BigDecimal amount, BigDecimal rate, LocalDate startDate,
+			LocalDate valueDate, DayCountConvention dcc) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+
+		if (amount == null) {
+			errMsg.append(String.format("The amount is mandatory.%n"));
+		}
+
+		if (rate == null) {
+			errMsg.append(String.format("The rate is mandatory.%n"));
+		}
+
+		if (startDate == null) {
+			errMsg.append(String.format("The start date is mandatory.%n"));
+		}
+
+		if (valueDate == null) {
+			errMsg.append(String.format("The value date is mandatory.%n"));
+		}
+
+		if (startDate != null && valueDate != null && valueDate.isBefore(startDate)) {
+			errMsg.append(String.format("The value date (%tD) cannot be before the start date (%tD).%n", startDate,
+					valueDate));
+		}
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+
+		if (dcc == null) {
+			dcc = new DayCountConvention(DayCountConvention.ACT_365);
+		}
+
+		return amount.multiply(rate.multiply(daysToYear(dcc, startDate, valueDate)));
+	}
+
+	public static BigDecimal getAccruedInterest(BigDecimal amount, BigDecimal rate, LocalDate startDate,
+			LocalDate valueDate) throws TradistaBusinessException {
+		return getAccruedInterest(amount, rate, startDate, valueDate, null);
 	}
 
 }

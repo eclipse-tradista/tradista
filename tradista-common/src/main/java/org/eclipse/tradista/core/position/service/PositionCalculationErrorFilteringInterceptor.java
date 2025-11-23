@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.position.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
@@ -73,7 +72,7 @@ public class PositionCalculationErrorFilteringInterceptor extends TradistaAuthor
 				List<PositionCalculationError> positions = (List<PositionCalculationError>) value;
 				User user = getCurrentUser();
 				value = positions.stream().filter(p -> p.getBook().getProcessingOrg().equals(user.getProcessingOrg()))
-						.collect(Collectors.toList());
+						.toList();
 			}
 		}
 		return value;

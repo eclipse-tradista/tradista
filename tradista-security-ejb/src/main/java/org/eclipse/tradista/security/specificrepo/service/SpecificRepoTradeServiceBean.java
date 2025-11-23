@@ -6,10 +6,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
+import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 import org.eclipse.tradista.security.specificrepo.messaging.SpecificRepoTradeEvent;
 import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 import org.eclipse.tradista.security.specificrepo.persistence.SpecificRepoTradeSQL;
@@ -17,6 +19,7 @@ import org.eclipse.tradista.security.specificrepo.workflow.mapping.SpecificRepoT
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import finance.tradista.flow.exception.TradistaFlowBusinessException;
+import finance.tradista.flow.exception.TradistaFlowTechnicalException;
 import finance.tradista.flow.model.Workflow;
 import finance.tradista.flow.service.WorkflowManager;
 import jakarta.annotation.PostConstruct;
@@ -74,13 +77,15 @@ public class SpecificRepoTradeServiceBean implements SpecificRepoTradeService {
 
 		if (!StringUtils.isEmpty(action)) {
 			try {
-				Workflow workflow = WorkflowManager.getWorkflowByName(trade.getWorkflow());
+				Workflow<RepoTrade> workflow = WorkflowManager.getWorkflowByName(trade.getWorkflow());
 				org.eclipse.tradista.security.specificrepo.workflow.mapping.SpecificRepoTrade mappedTrade = SpecificRepoTradeMapper
 						.map(trade, workflow);
 				mappedTrade = WorkflowManager.applyAction(mappedTrade, action);
 				trade.setStatus(StatusMapper.map(mappedTrade.getStatus()));
 			} catch (TradistaFlowBusinessException tfbe) {
 				throw new TradistaBusinessException(tfbe);
+			} catch (TradistaFlowTechnicalException tfte) {
+				throw new TradistaTechnicalException(tfte);
 			}
 		}
 

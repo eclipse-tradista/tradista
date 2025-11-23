@@ -112,8 +112,8 @@ public final class RepoPricerUtil {
 		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), LocalDate.now());
 	}
 
-	public static BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities,
-			LegalEntity po, LocalDate pricingDate) throws TradistaBusinessException {
+	public static BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
+			LocalDate pricingDate) throws TradistaBusinessException {
 
 		BigDecimal mtm = BigDecimal.ZERO;
 
@@ -240,9 +240,9 @@ public final class RepoPricerUtil {
 			}
 		}
 
-		// 2. Calculate the borrowed cash
-		borrowedCashValue = trade.getAmount().add(
-				trade.getAmount().multiply(rate.multiply(PricerUtil.daysToYear(LocalDate.now(), trade.getEndDate()))));
+		// 2. Calculate the borrowed cash value
+		borrowedCashValue = trade.getAmount().add(PricerUtil.getAccruedInterest(trade.getAmount(), rate,
+				trade.getSettlementDate(), pricingDate, new DayCountConvention(DayCountConvention.ACT_360)));
 		return borrowedCashValue;
 	}
 
@@ -750,8 +750,8 @@ public final class RepoPricerUtil {
 
 		// Remove collateral removed from the GUI
 		if (!ObjectUtils.isEmpty(removedSecurities)) {
-			pendingCollateralValue = pendingCollateralValue.subtract(getCollateralMarkToMarket(removedSecurities,
-					trade.getBook().getProcessingOrg(), LocalDate.now()));
+			pendingCollateralValue = pendingCollateralValue.subtract(
+					getCollateralMarkToMarket(removedSecurities, trade.getBook().getProcessingOrg(), LocalDate.now()));
 		}
 		pendingCollateralValue = PricerUtil.divide(pendingCollateralValue, marginRate);
 		return collateralValue.add(pendingCollateralValue);

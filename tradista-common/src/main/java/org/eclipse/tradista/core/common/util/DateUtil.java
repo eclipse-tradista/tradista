@@ -24,7 +24,10 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class DateUtil {
+public final class DateUtil {
+
+	private DateUtil() {
+	}
 
 	/**
 	 * Days difference between two dates (Absolute value). As it is the absolute
@@ -35,8 +38,7 @@ public class DateUtil {
 	 * @return the difference between two dates, expressed in days
 	 */
 	public static int difference(LocalDate firstDate, LocalDate secondDate) {
-		int diff = Math.abs((int) ChronoUnit.DAYS.between(firstDate, secondDate));
-		return diff;
+		return Math.abs((int) ChronoUnit.DAYS.between(firstDate, secondDate));
 	}
 
 	/**
