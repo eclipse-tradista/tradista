@@ -509,22 +509,24 @@ public final class RepoPricerUtil {
 			pnl = openingLegAmount;
 
 			// Payment for the closing leg
-			if (pricingDate.isAfter(trade.getEndDate()) || pricingDate.equals(trade.getEndDate())) {
+			if (trade.getEndDate() != null) {
+				if (pricingDate.isAfter(trade.getEndDate()) || pricingDate.equals(trade.getEndDate())) {
 
-				// 1. Get the closing payment amount
-				BigDecimal closingLegAmount = RepoTradeUtil.getClosingLegPayment(trade, params.getQuoteSet().getId(),
-						new DayCountConvention(DayCountConvention.ACT_360));
+					// 1. Get the closing payment amount
+					BigDecimal closingLegAmount = RepoTradeUtil.getClosingLegPayment(trade,
+							params.getQuoteSet().getId(), new DayCountConvention(DayCountConvention.ACT_360));
 
-				// Finally apply the conversion to the pricing currency
-				closingLegAmount = PricerUtil.convertAmount(closingLegAmount, tradeCurrency, currency, pricingDate,
-						params.getQuoteSet().getId(), paramFXCurve != null ? paramFXCurve.getId() : 0);
+					// Finally apply the conversion to the pricing currency
+					closingLegAmount = PricerUtil.convertAmount(closingLegAmount, tradeCurrency, currency, pricingDate,
+							params.getQuoteSet().getId(), paramFXCurve != null ? paramFXCurve.getId() : 0);
 
-				if (trade.isBuy()) {
-					closingLegAmount = closingLegAmount.negate();
+					if (trade.isBuy()) {
+						closingLegAmount = closingLegAmount.negate();
+					}
+
+					pnl = pnl.add(closingLegAmount);
+
 				}
-
-				pnl = pnl.add(closingLegAmount);
-
 			}
 
 			// Add the partial terminations
@@ -553,10 +555,12 @@ public final class RepoPricerUtil {
 			PricingParameter params) throws TradistaBusinessException {
 		BigDecimal pnl = BigDecimal.ZERO;
 		DayCountConvention dcc = new DayCountConvention(DayCountConvention.ACT_360);
-		if (pricingDate.isAfter(trade.getEndDate()) || pricingDate.equals(trade.getEndDate())) {
-			// if pricing date is equal to or after the repo end date,
-			// the pnl is already realized
-			return pnl;
+		if (trade.getEndDate() != null) {
+			if (pricingDate.isAfter(trade.getEndDate()) || pricingDate.equals(trade.getEndDate())) {
+				// if pricing date is equal to or after the repo end date,
+				// the pnl is already realized
+				return pnl;
+			}
 		}
 
 		// Payment for the opening leg
@@ -597,40 +601,42 @@ public final class RepoPricerUtil {
 		}
 
 		// Payment for the closing leg
-		if (LocalDate.now().isBefore(trade.getEndDate())) {
-			try {
-				Currency tradeCurrency = trade.getCurrency();
-				CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
-				FXCurve paramFXCurve = params.getFxCurves().get(pair);
-				if (paramFXCurve == null) {
-					// TODO Add log warn
+		if (trade.getEndDate() != null) {
+			if (LocalDate.now().isBefore(trade.getEndDate())) {
+				try {
+					Currency tradeCurrency = trade.getCurrency();
+					CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
+					FXCurve paramFXCurve = params.getFxCurves().get(pair);
+					if (paramFXCurve == null) {
+						// TODO Add log warn
+					}
+					// 1. Primary currency IR curve retrieval
+					InterestRateCurve paramTradeCurrIRCurve = params.getDiscountCurves().get(tradeCurrency);
+					if (paramTradeCurrIRCurve == null) {
+						throw new TradistaBusinessException(
+								String.format(PP_DOES_NOT_CONTAIN_DISCOUNT_CURVE, params.getName(), tradeCurrency));
+					}
+					// 2. Get the closing payment amount
+					BigDecimal amount = RepoTradeUtil.getClosingLegPayment(trade, params.getQuoteSet().getId(), dcc);
+
+					// 3. Discount the closing leg payment
+					BigDecimal discountedClosingLegPayment = PricerUtil.discountAmount(amount,
+							paramTradeCurrIRCurve.getId(), pricingDate, trade.getSettlementDate(), dcc);
+
+					// Finally apply the conversion to the pricing currency
+					discountedClosingLegPayment = PricerUtil.convertAmount(discountedClosingLegPayment, tradeCurrency,
+							currency, pricingDate, params.getQuoteSet().getId(),
+							paramFXCurve != null ? paramFXCurve.getId() : 0);
+
+					if (trade.isBuy()) {
+						discountedClosingLegPayment = discountedClosingLegPayment.negate();
+					}
+
+					pnl = pnl.add(discountedClosingLegPayment);
+				} catch (PricerException pe) {
+					pe.printStackTrace();
+					throw new TradistaBusinessException(pe.getMessage());
 				}
-				// 1. Primary currency IR curve retrieval
-				InterestRateCurve paramTradeCurrIRCurve = params.getDiscountCurves().get(tradeCurrency);
-				if (paramTradeCurrIRCurve == null) {
-					throw new TradistaBusinessException(
-							String.format(PP_DOES_NOT_CONTAIN_DISCOUNT_CURVE, params.getName(), tradeCurrency));
-				}
-				// 2. Get the closing payment amount
-				BigDecimal amount = RepoTradeUtil.getClosingLegPayment(trade, params.getQuoteSet().getId(), dcc);
-
-				// 3. Discount the closing leg payment
-				BigDecimal discountedClosingLegPayment = PricerUtil.discountAmount(amount,
-						paramTradeCurrIRCurve.getId(), pricingDate, trade.getSettlementDate(), dcc);
-
-				// Finally apply the conversion to the pricing currency
-				discountedClosingLegPayment = PricerUtil.convertAmount(discountedClosingLegPayment, tradeCurrency,
-						currency, pricingDate, params.getQuoteSet().getId(),
-						paramFXCurve != null ? paramFXCurve.getId() : 0);
-
-				if (trade.isBuy()) {
-					discountedClosingLegPayment = discountedClosingLegPayment.negate();
-				}
-
-				pnl = pnl.add(discountedClosingLegPayment);
-			} catch (PricerException pe) {
-				pe.printStackTrace();
-				throw new TradistaBusinessException(pe.getMessage());
 			}
 		}
 
