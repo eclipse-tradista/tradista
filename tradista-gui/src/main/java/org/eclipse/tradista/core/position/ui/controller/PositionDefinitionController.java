@@ -159,14 +159,20 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 				positionDefinition.setBook(book.getValue());
 				if (!counterparty.getValue().equals(BlankLegalEntity.getInstance())) {
 					positionDefinition.setCounterparty(counterparty.getValue());
+				} else {
+					positionDefinition.setCounterparty(null);
 				}
 				positionDefinition.setCurrency(currency.getValue());
 				positionDefinition.setPricingParameter(pricingParameter.getValue());
 				if (product.getValue() != null && !product.getValue().equals(BlankProduct.getInstance())) {
 					positionDefinition.setProduct(product.getValue());
+				} else {
+					positionDefinition.setProduct(null);
 				}
 				if (productType.getValue() != null && !productType.getValue().equals(StringUtils.EMPTY)) {
 					positionDefinition.setProductType(productType.getValue());
+				} else {
+					positionDefinition.setProductType(null);
 				}
 				positionDefinition.setRealTime(isRealTime.isSelected());
 				positionDefinition.setId(positionBusinessDelegate.savePositionDefinition(positionDefinition));

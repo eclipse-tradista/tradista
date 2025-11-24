@@ -93,8 +93,8 @@ public class PositionCalculator {
 			List<PositionCalculationError> existingErrors = null;
 			try {
 				existingErrors = positionCalculationErrorService.getPositionCalculationErrors(0,
-						org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0, LocalDate.now(), LocalDate.now(),
-						null, null, null, null);
+						org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED, 0, 0, LocalDate.now(),
+						LocalDate.now(), null, null, null, null);
 			} catch (TradistaBusinessException abe) {
 				// Should not happen at this stage because dates are consistent.
 			}
@@ -108,13 +108,6 @@ public class PositionCalculator {
 				BigDecimal quantity = null;
 				try {
 					if (posDef.getProductType() != null) {
-						if (!productBusinessDelegate.getAllProducts().contains(posDef.getProduct())) {
-							addError(posErrors, existingErrors, valueDate, posDef, posDef.getProduct(),
-									new TradistaBusinessException(String.format(
-											"%s is not found among the allowed product types. Please contact your administrator.",
-											posDef.getProductType())));
-							continue;
-						}
 						canBeOTC = productBusinessDelegate.canBeOTC(posDef.getProductType());
 						canBeListed = productBusinessDelegate.canBeListed(posDef.getProductType());
 					}

@@ -29,8 +29,11 @@ public class PositionDefinitionBusinessDelegate {
 
 	private PositionDefinitionService positionDefinitionService;
 
+	private ProductBusinessDelegate productBusinessDelegate;
+
 	public PositionDefinitionBusinessDelegate() {
 		positionDefinitionService = TradistaServiceLocator.getInstance().getPositionDefinitionService();
+		productBusinessDelegate = new ProductBusinessDelegate();
 	}
 
 	public PositionDefinition getPositionDefinitionByName(String name) throws TradistaBusinessException {
@@ -94,21 +97,33 @@ public class PositionDefinitionBusinessDelegate {
 			errMsg.append(String
 					.format("The Position Definition and Pricing Parameters Set processing orgs must be the same.%n"));
 		}
-		if (!StringUtils.isEmpty(positionDefinition.getProductType())) {
-			if (new ProductBusinessDelegate().canBeListed(positionDefinition.getProductType())
+		if (!StringUtils.isBlank(positionDefinition.getProductType())) {
+			if (productBusinessDelegate.canBeListed(positionDefinition.getProductType())
 					&& positionDefinition.getCounterparty() != null) {
 				errMsg.append(String.format(
 						"It is not possible to define a position on listed products for a specific counterparty.%n"));
 			}
-		}
-		if (positionDefinition.getProduct() != null) {
-			if (positionDefinition.getProductType() != null) {
-				if (!positionDefinition.getProduct().getProductType().equals(positionDefinition.getProductType()))
-					errMsg.append(String.format("The product %s should have the % product type.%n",
-							positionDefinition.getProduct(), positionDefinition.getProductType()));
+			if (!productBusinessDelegate.getAllProductTypes().contains(positionDefinition.getProductType())) {
+				errMsg.append((String.format(
+						"%s is not found among the allowed product types. Please contact your administrator.%n",
+						positionDefinition.getProductType())));
 			}
 		}
-		if (errMsg.length() > 0) {
+
+		if (positionDefinition.getProduct() != null) {
+			if (!productBusinessDelegate.getAllProducts().contains(positionDefinition.getProduct())) {
+				errMsg.append(
+						(String.format("%s cannot be found among the products.%n", positionDefinition.getProduct())));
+			}
+		}
+
+		if (positionDefinition.getProduct() != null && positionDefinition.getProductType() != null) {
+			if (!positionDefinition.getProduct().getProductType().equals(positionDefinition.getProductType()))
+				errMsg.append(String.format("The product %s should have the % product type.%n",
+						positionDefinition.getProduct(), positionDefinition.getProductType()));
+		}
+
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
