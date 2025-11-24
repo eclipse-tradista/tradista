@@ -43,12 +43,13 @@ public class CashInventorySQL {
 		CashInventory cashInventory = null;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds = con.prepareStatement(
-						"SELECT * FROM CASH_INVENTORY WHERE CURRENCY_ID = ? AND BOOK_ID = ? AND FROM_DATE = (SELECT MAX(FROM_DATE) FROM CASH_INVENTORY WHERE CURRENCY_ID = ? AND BOOK_ID = ? AND FROM_DATE <= ?)")) {
+						"SELECT * FROM CASH_INVENTORY WHERE CURRENCY_ID = ? AND BOOK_ID = ? AND FROM_DATE = (SELECT MAX(FROM_DATE) FROM CASH_INVENTORY WHERE CURRENCY_ID = ? AND BOOK_ID = ? AND FROM_DATE <= ?) AND (TO_DATE IS NULL OR TO_DATE >= ?)")) {
 			stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.setLong(1, currencyId);
 			stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.setLong(2, bookId);
 			stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.setLong(3, currencyId);
 			stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.setLong(4, bookId);
 			stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.setDate(5, Date.valueOf(date));
+			stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.setDate(6, Date.valueOf(date));
 			try (ResultSet results = stmtGetLastCashInventoryBeforeDateByCurrencyAndBookIds.executeQuery()) {
 				while (results.next()) {
 					if (cashInventory == null) {
