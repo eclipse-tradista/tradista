@@ -504,12 +504,12 @@ public class GCRepoTradeController implements Serializable {
 				FacesContext.getCurrentInstance().addMessage(TRADE_MSG, new FacesMessage(FacesMessage.SEVERITY_ERROR,
 						"Error", "Trade " + idToBeLoaded + " was not found."));
 			}
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 
 	}

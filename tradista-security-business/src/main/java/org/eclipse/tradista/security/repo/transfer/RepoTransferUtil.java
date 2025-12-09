@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.repo.transfer;
 
+import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.transfer.model.CashTransfer;
@@ -48,8 +49,6 @@ import org.springframework.util.CollectionUtils;
 
 public final class RepoTransferUtil {
 
-	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-
 	private static TransferBusinessDelegate transferBusinessDelegate = new TransferBusinessDelegate();
 
 	private static FixingErrorBusinessDelegate fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
@@ -83,7 +82,7 @@ public final class RepoTransferUtil {
 	}
 
 	public static List<CashTransfer> createOrUpdateCashPaymentClosingLeg(List<Transfer> existingCashTransfers,
-			RepoTrade trade, BigDecimal notionalReduction) {
+			RepoTrade trade, BigDecimal notionalReduction) throws TradistaBusinessException {
 
 		List<CashTransfer> cashPayments = new ArrayList<>();
 
@@ -95,26 +94,27 @@ public final class RepoTransferUtil {
 					cashPayments.add((CashTransfer) t);
 				});
 			}
-			// Returned cash settlement (closing leg)
-			CashTransfer newCashPayment = new CashTransfer(trade.getBook(), TransferPurpose.RETURNED_CASH_PLUS_INTEREST,
-					trade.getEndDate(), trade, trade.getCurrency());
-			if (trade.isFixedRepoRate()) {
-				BigDecimal repoRate = trade.getRepoRate().divide(new BigDecimal(100),
-						configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode());
-				BigDecimal interestAmount = trade.getAmount().multiply(repoRate)
-						.multiply(PricerUtil.daysToYear(new DayCountConvention(DayCountConvention.ACT_360),
-								trade.getSettlementDate(), trade.getEndDate()));
-				newCashPayment.setAmount(trade.getAmount().add(interestAmount));
-				newCashPayment.setStatus(Transfer.Status.KNOWN);
-				newCashPayment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-			} else {
-				newCashPayment.setStatus(Transfer.Status.UNKNOWN);
+			// In case of terminable on demand repos without confirmed end date, no
+			// transfer is generated yet for the closing leg payment.
+			if (trade.getEndDate() != null) {
+				// Returned cash settlement (closing leg)
+				CashTransfer newCashPayment = new CashTransfer(trade.getBook(),
+						TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(), trade, trade.getCurrency());
+				if (trade.isFixedRepoRate()) {
+					BigDecimal interestAmount = PricerUtil.getAccruedInterest(trade.getAmount(),
+							PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED), trade.getSettlementDate(),
+							trade.getEndDate(), new DayCountConvention(DayCountConvention.ACT_360));
+					newCashPayment.setAmount(trade.getAmount().add(interestAmount));
+					newCashPayment.setStatus(Transfer.Status.KNOWN);
+					newCashPayment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
+				} else {
+					newCashPayment.setStatus(Transfer.Status.UNKNOWN);
+				}
+				newCashPayment.setCreationDateTime(LocalDateTime.now());
+				newCashPayment.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
+
+				cashPayments.add(newCashPayment);
 			}
-			newCashPayment.setCreationDateTime(LocalDateTime.now());
-			newCashPayment.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
-
-			cashPayments.add(newCashPayment);
-
 		} else {
 			// Partial termination
 
@@ -125,11 +125,9 @@ public final class RepoTransferUtil {
 
 			BigDecimal interestAmount = null;
 			if (trade.isFixedRepoRate()) {
-				BigDecimal repoRate = trade.getRepoRate().divide(new BigDecimal(100),
-						configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode());
-				interestAmount = notionalReduction.multiply(repoRate)
-						.multiply(PricerUtil.daysToYear(new DayCountConvention(DayCountConvention.ACT_360),
-								trade.getSettlementDate(), LocalDate.now()));
+				interestAmount = PricerUtil.getAccruedInterest(notionalReduction,
+						PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED), trade.getSettlementDate(), LocalDate.now(),
+						new DayCountConvention(DayCountConvention.ACT_360));
 				cashPartialPayment.setStatus(Transfer.Status.KNOWN);
 				cashPartialPayment.setAmount(notionalReduction.add(interestAmount));
 				cashPartialPayment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
@@ -147,20 +145,24 @@ public final class RepoTransferUtil {
 			}
 
 			// 2. Return of the remaining cash + interest as of trade end date
-			CashTransfer reducedCashPayment = new CashTransfer(trade.getBook(),
-					TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(), trade, trade.getCurrency());
-			if (trade.isFixedRepoRate()) {
-				Map<Transfer, Transfer> existingReturnedCashTransfersMap = existingCashTransfers.stream()
-						.collect(Collectors.toMap(Function.identity(), Function.identity()));
-				BigDecimal repoRate = trade.getRepoRate().divide(new BigDecimal(100),
-						configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode());
-				BigDecimal reducedNotional = trade.getAmount().subtract(notionalReduction);
-				interestAmount = reducedNotional.multiply(repoRate).multiply(PricerUtil.daysToYear(
-						new DayCountConvention(DayCountConvention.ACT_360), LocalDate.now(), trade.getEndDate()));
-				CashTransfer existingReturnedCashTransfer = (CashTransfer) existingReturnedCashTransfersMap
-						.get(reducedCashPayment);
-				existingReturnedCashTransfer.setAmount(trade.getAmount().add(interestAmount));
-				cashPayments.add(existingReturnedCashTransfer);
+
+			// In case of terminable on demand repos without confirmed end date, no
+			// transfer is generated yet for the closing leg payment.
+			if (trade.getEndDate() != null) {
+				CashTransfer reducedCashPayment = new CashTransfer(trade.getBook(),
+						TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(), trade, trade.getCurrency());
+				if (trade.isFixedRepoRate()) {
+					Map<Transfer, Transfer> existingReturnedCashTransfersMap = existingCashTransfers.stream()
+							.collect(Collectors.toMap(Function.identity(), Function.identity()));
+					BigDecimal reducedNotional = trade.getAmount().subtract(notionalReduction);
+					interestAmount = PricerUtil.getAccruedInterest(reducedNotional,
+							PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED), LocalDate.now(), trade.getEndDate(),
+							new DayCountConvention(DayCountConvention.ACT_360));
+					CashTransfer existingReturnedCashTransfer = (CashTransfer) existingReturnedCashTransfersMap
+							.get(reducedCashPayment);
+					existingReturnedCashTransfer.setAmount(trade.getAmount().add(interestAmount));
+					cashPayments.add(existingReturnedCashTransfer);
+				}
 			}
 		}
 
@@ -188,7 +190,6 @@ public final class RepoTransferUtil {
 				generatePotentialCollateralTransfer(trade, newCollateralPayments, existingPotentialCollateralTransfers,
 						collateralPaymentsToBeSaved, specificRepoTrade.getSecurity(), false);
 			} else if (trade instanceof GCRepoTrade gcRepoTrade) {
-
 				Set<Security> basketSec = gcRepoTrade.getGcBasket().getSecurities();
 				if (!CollectionUtils.isEmpty(basketSec)) {
 					for (Security sec : basketSec) {
@@ -277,7 +278,7 @@ public final class RepoTransferUtil {
 							if (existingTransfer.getQuantity().equals(BigDecimal.ZERO)) {
 								try {
 									transferBusinessDelegate.deleteTransfer(existingTransfer.getId());
-								} catch (TradistaBusinessException tbe) {
+								} catch (TradistaBusinessException _) {
 									// Not expected here
 								}
 							} else {
@@ -345,12 +346,11 @@ public final class RepoTransferUtil {
 					for (Transfer transfer : existingPotentialCollateralTransfers) {
 						try {
 							transferBusinessDelegate.deleteTransfer(transfer.getId());
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Not expected here.
 						}
 					}
 				}
-
 			}
 
 			// 2.2 Create or update allocation transfers
@@ -358,25 +358,27 @@ public final class RepoTransferUtil {
 					.filter(t -> !t.getStatus().equals(Status.POTENTIAL)).toList();
 			Map<Transfer, Transfer> existingCollateralTransfersMap = existingCollateralTransfers.stream()
 					.collect(Collectors.toMap(Function.identity(), Function.identity()));
-			if (trade.getCollateralToAdd() != null) {
-				for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToAdd().entrySet()) {
-					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
-						ProductTransfer newCollateralPayment = new ProductTransfer(bookEntry.getKey(), entry.getKey(),
-								TransferPurpose.RETURNED_COLLATERAL, trade.getEndDate(), trade);
-						newCollateralPayment.setCreationDateTime(LocalDateTime.now());
-						newCollateralPayment
-								.setDirection(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY);
-						newCollateralPayment.setQuantity(bookEntry.getValue());
-						newCollateralPayment.setFixingDateTime(LocalDateTime.now());
-						newCollateralPayment.setStatus(Transfer.Status.KNOWN);
-						if (existingCollateralTransfers.contains(newCollateralPayment)) {
-							ProductTransfer existingTransfer = (ProductTransfer) existingCollateralTransfersMap
-									.get(newCollateralPayment);
-							existingTransfer.setQuantity(
-									existingTransfer.getQuantity().add(newCollateralPayment.getQuantity()));
-							collateralPaymentsToBeSaved.add(existingTransfer);
-						} else {
-							collateralPaymentsToBeSaved.add(newCollateralPayment);
+			if (trade.getEndDate() != null) {
+				if (trade.getCollateralToAdd() != null) {
+					for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToAdd().entrySet()) {
+						for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
+							ProductTransfer newCollateralPayment = new ProductTransfer(bookEntry.getKey(),
+									entry.getKey(), TransferPurpose.RETURNED_COLLATERAL, trade.getEndDate(), trade);
+							newCollateralPayment.setCreationDateTime(LocalDateTime.now());
+							newCollateralPayment
+									.setDirection(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY);
+							newCollateralPayment.setQuantity(bookEntry.getValue());
+							newCollateralPayment.setFixingDateTime(LocalDateTime.now());
+							newCollateralPayment.setStatus(Transfer.Status.KNOWN);
+							if (existingCollateralTransfers.contains(newCollateralPayment)) {
+								ProductTransfer existingTransfer = (ProductTransfer) existingCollateralTransfersMap
+										.get(newCollateralPayment);
+								existingTransfer.setQuantity(
+										existingTransfer.getQuantity().add(newCollateralPayment.getQuantity()));
+								collateralPaymentsToBeSaved.add(existingTransfer);
+							} else {
+								collateralPaymentsToBeSaved.add(newCollateralPayment);
+							}
 						}
 					}
 				}
@@ -404,7 +406,7 @@ public final class RepoTransferUtil {
 							if (substitutedCollateralTransfer.getQuantity().equals(BigDecimal.ZERO)) {
 								try {
 									transferBusinessDelegate.deleteTransfer(substitutedCollateralTransfer.getId());
-								} catch (TradistaBusinessException tbe) {
+								} catch (TradistaBusinessException _) {
 									// Not expected here
 								}
 							} else {
@@ -444,12 +446,12 @@ public final class RepoTransferUtil {
 			collateralPaymentsToBeSaved.add(newCollateralPayment);
 		}
 		newCollateralPayments.add(newCollateralPayment);
-
 	}
 
 	public static void fixCashTransfer(CashTransfer transfer, long quoteSetId) throws TradistaBusinessException {
 		RepoTrade trade = (RepoTrade) transfer.getTrade();
-		BigDecimal amount = RepoTradeUtil.getClosingLegPayment(trade, quoteSetId, new DayCountConvention(DayCountConvention.ACT_360));
+		BigDecimal amount = RepoTradeUtil.getClosingLegPayment(trade, quoteSetId,
+				new DayCountConvention(DayCountConvention.ACT_360));
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());

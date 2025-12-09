@@ -11,6 +11,7 @@ import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 import org.eclipse.tradista.core.index.model.Index;
@@ -422,9 +423,9 @@ public class SpecificRepoTradeController implements Serializable {
 			originalCashAmount = trade.getAmount();
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Trade " + trade.getId() + " successfully saved"));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -457,13 +458,13 @@ public class SpecificRepoTradeController implements Serializable {
 			originalCashAmount = trade.getAmount();
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Trade " + trade.getId() + " successfully created"));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			trade.setId(oldId);
 			trade.setCollateralToAdd(oldCollateralToAdd);
 			trade.setCollateralToRemove(oldCollateralToRemove);
 			trade.setPartialTerminations(oldPartialTerminations);
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -508,12 +509,12 @@ public class SpecificRepoTradeController implements Serializable {
 				FacesContext.getCurrentInstance().addMessage(TRADE_MSG, new FacesMessage(FacesMessage.SEVERITY_ERROR,
 						"Error", "Trade " + idToBeLoaded + " was not found."));
 			}
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 
 	}

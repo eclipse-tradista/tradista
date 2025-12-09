@@ -34,7 +34,8 @@
 		<session>
 			<ejb-name>FXNDFTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.fx.fxndf.service.FXNDFTradeServiceBean</ejb-class>
+				org.eclipse.tradista.fx.fxndf.service.FXNDFTradeServiceBean
+			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -60,7 +61,8 @@
 		<session>
 			<ejb-name>FXOptionTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.fx.fxoption.service.FXOptionTradeServiceBean</ejb-class>
+				org.eclipse.tradista.fx.fxoption.service.FXOptionTradeServiceBean
+			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -86,7 +88,8 @@
 		<session>
 			<ejb-name>FXSwapTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.fx.fxswap.service.FXSwapTradeServiceBean</ejb-class>
+				org.eclipse.tradista.fx.fxswap.service.FXSwapTradeServiceBean
+			</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -110,4 +113,15 @@
 			</resource-ref>
 		</session>
 	</enterprise-beans>
+	<interceptors>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor>
+	</interceptors>
+	<assembly-descriptor>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+	</assembly-descriptor>
 </ejb-jar>

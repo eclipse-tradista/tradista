@@ -44,12 +44,13 @@ public class ProductInventorySQL {
 		ProductInventory inventory = null;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetLastInventoryBeforeDateByProductAndBookIds = con.prepareStatement(
-						"SELECT * FROM PRODUCT_INVENTORY WHERE PRODUCT_ID = ? AND BOOK_ID = ? AND FROM_DATE = (SELECT MAX(FROM_DATE) FROM PRODUCT_INVENTORY WHERE PRODUCT_ID = ? AND BOOK_ID = ? AND FROM_DATE <= ?)")) {
+						"SELECT * FROM PRODUCT_INVENTORY WHERE PRODUCT_ID = ? AND BOOK_ID = ? AND FROM_DATE = (SELECT MAX(FROM_DATE) FROM PRODUCT_INVENTORY WHERE PRODUCT_ID = ? AND BOOK_ID = ? AND FROM_DATE <= ? AND (TO_DATE IS NULL OR TO_DATE >= ?))")) {
 			stmtGetLastInventoryBeforeDateByProductAndBookIds.setLong(1, productId);
 			stmtGetLastInventoryBeforeDateByProductAndBookIds.setLong(2, bookId);
 			stmtGetLastInventoryBeforeDateByProductAndBookIds.setLong(3, productId);
 			stmtGetLastInventoryBeforeDateByProductAndBookIds.setLong(4, bookId);
 			stmtGetLastInventoryBeforeDateByProductAndBookIds.setDate(5, Date.valueOf(date));
+			stmtGetLastInventoryBeforeDateByProductAndBookIds.setDate(6, Date.valueOf(date));
 			try (ResultSet results = stmtGetLastInventoryBeforeDateByProductAndBookIds.executeQuery()) {
 				while (results.next()) {
 					if (inventory == null) {
@@ -442,7 +443,7 @@ public class ProductInventorySQL {
 			try (ResultSet results = stmtGetInventories.executeQuery(query)) {
 				while (results.next()) {
 					if (inventories == null) {
-						inventories = new TreeSet<ProductInventory>();
+						inventories = new TreeSet<>();
 					}
 					ProductInventory inventory = new ProductInventory(BookSQL.getBookById(results.getLong("book_id")),
 							results.getDate("from_date").toLocalDate(),

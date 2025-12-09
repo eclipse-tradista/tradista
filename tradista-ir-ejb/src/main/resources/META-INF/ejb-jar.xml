@@ -9,8 +9,7 @@
 		<session>
 			<ejb-name>FutureTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.ir.future.service.FutureTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.ir.future.service.FutureTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -61,8 +60,7 @@
 		<session>
 			<ejb-name>CcySwapTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -88,8 +86,7 @@
 		<session>
 			<ejb-name>IRCapFloorCollarTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -115,8 +112,7 @@
 		<session>
 			<ejb-name>IRSwapTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.ir.irswap.service.IRSwapTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.ir.irswap.service.IRSwapTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -142,8 +138,7 @@
 		<session>
 			<ejb-name>IRSwapOptionTradeServiceBean</ejb-name>
 			<ejb-class>
-				org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean
-			</ejb-class>
+				org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
 			<resource-ref>
 				<res-ref-name>ConnectionFactory</res-ref-name>
@@ -167,4 +162,15 @@
 			</resource-ref>
 		</session>
 	</enterprise-beans>
+	<interceptors>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor>
+	</interceptors>
+	<assembly-descriptor>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+	</assembly-descriptor>
 </ejb-jar>
