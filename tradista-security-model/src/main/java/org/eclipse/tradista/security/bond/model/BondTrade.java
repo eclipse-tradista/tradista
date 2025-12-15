@@ -40,15 +40,6 @@ public class BondTrade extends Trade<Bond> {
 		this.quantity = quantity;
 	}
 
-	public BondTrade(Bond product) {
-		super(product);
-		// TODO Auto-generated constructor stub
-	}
-
-	public BondTrade() {
-		super();
-	}
-
 	@Override
 	public Currency getCurrency() {
 		if (getProduct() != null) {

@@ -54,6 +54,7 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 		this.quantity = quantity;
 	}
 
+	@Override
 	public String getProductType() {
 		return Future.FUTURE;
 	}
@@ -92,14 +93,17 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 		return getProduct().getDayCountConvention();
 	}
 
+	@Override
 	public void setDayCountConvention(DayCountConvention dayCountConvention) {
 		// Forbidden to set the DCC. DCC is defined by the product.
 	}
 
+	@Override
 	public Index getReferenceRateIndex() {
 		return getProduct().getReferenceRateIndex();
 	}
 
+	@Override
 	public Tenor getReferenceRateIndexTenor() {
 		return getProduct().getReferenceRateIndexTenor();
 	}

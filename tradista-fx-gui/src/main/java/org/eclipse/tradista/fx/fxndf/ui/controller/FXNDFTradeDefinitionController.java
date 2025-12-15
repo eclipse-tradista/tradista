@@ -564,17 +564,21 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 				buildTrade();
 				oldTradeId = trade.getId();
+				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(fxNDFTradeBusinessDelegate.saveFXNDFTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
+				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -592,7 +596,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -657,7 +661,6 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new FXNDFTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -673,7 +676,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			trade.setNonDeliverableCurrency(nonDeliverableCurrency.getSelectionModel().getSelectedItem());
 			trade.setBook(book.getValue());
 			trade.setCounterparty(counterparty.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}

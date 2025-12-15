@@ -93,11 +93,12 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 			messageCracker.crack(fixMessage, null);
 		} catch (UnsupportedMessageType | FieldNotFound | IncorrectTagValue e) {
 			throw new TradistaBusinessException(e);
+		} catch (RuntimeException e) {
+			switch (e) {
+			case TradistaTechnicalException tte -> throw tte;
+			default -> throw new TradistaTechnicalException(e);
+			}
 		}
-	}
-
-	public static SessionSettings getSessionSettings() {
-		return settings;
 	}
 
 	private static Session getSession() {
@@ -112,8 +113,8 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 	public X buildMessage(String externalMessage) {
 		try {
 			return (X) MessageUtils.parse(getSession(), externalMessage);
-		} catch (InvalidMessage ie) {
-			throw new TradistaTechnicalException(ie.getMessage());
+		} catch (InvalidMessage im) {
+			throw new TradistaTechnicalException(im.getMessage());
 		}
 	}
 

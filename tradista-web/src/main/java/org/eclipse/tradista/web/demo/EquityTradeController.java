@@ -213,7 +213,6 @@ public class EquityTradeController implements Serializable {
 
 	public void save() {
 		try {
-			equityTrade.setCreationDate(LocalDate.now());
 			long tradeId = equityTradeBusinessDelegate.saveEquityTrade(equityTrade);
 			if (equityTrade.getId() == 0) {
 				equityTrade.setId(tradeId);
@@ -229,7 +228,6 @@ public class EquityTradeController implements Serializable {
 	public void copy() {
 		long oldId = equityTrade.getId();
 		try {
-			equityTrade.setCreationDate(LocalDate.now());
 			equityTrade.setId(0);
 			long tradeId = equityTradeBusinessDelegate.saveEquityTrade(equityTrade);
 			equityTrade.setId(tradeId);
@@ -258,7 +256,7 @@ public class EquityTradeController implements Serializable {
 			equityTrade.setTradeDate(eqTrade.getTradeDate());
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Trade " + equityTrade.getId() + " successfully loaded"));
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
 		} catch (TradistaBusinessException tbe) {

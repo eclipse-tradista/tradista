@@ -30,7 +30,7 @@ public interface MessageService {
 
 	long saveMessage(Message message);
 
-	void applyAction(Message message, String action) throws TradistaBusinessException;
+	Message applyAction(Message message, String action) throws TradistaBusinessException;
 
 	List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames, long objectId,
 			Set<String> objectTypes, Set<String> statuses, LocalDateTime creationDateTimeFrom,

@@ -45,9 +45,9 @@ public class SpecificRepoTradeSQL {
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetTradeById = con.prepareStatement(
-						"SELECT * FROM SPECIFICREPO_TRADE INNER JOIN TRADE ON TRADE.ID = SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID INNER JOIN REPO_TRADE ON REPO_TRADE.REPO_TRADE_ID = SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID"
-								+ " LEFT OUTER JOIN PARTIAL_TERMINATION ON PARTIAL_TERMINATION.TRADE_ID = SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID"
-								+ " WHERE SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID = ?")) {
+						"SELECT * FROM REPO_TRADE INNER JOIN TRADE ON TRADE.ID = REPO_TRADE.REPO_TRADE_ID"
+								+ " LEFT OUTER JOIN PARTIAL_TERMINATION ON PARTIAL_TERMINATION.TRADE_ID = REPO_TRADE.REPO_TRADE_ID"
+								+ " WHERE REPO_TRADE.REPO_TRADE_ID = ?")) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
@@ -61,7 +61,7 @@ public class SpecificRepoTradeSQL {
 					}
 					TradeSQL.setTradeCommonFields(specificRepoTrade, results);
 					specificRepoTrade.setCrossCurrencyCollateral(results.getBoolean("cross_currency_collateral"));
-					long securityId = results.getLong("security_id");
+					long securityId = results.getLong("product_id");
 					Security security = BondSQL.getBondById(securityId);
 					if (security == null) {
 						security = EquitySQL.getEquityById(securityId);
@@ -105,18 +105,13 @@ public class SpecificRepoTradeSQL {
 						"INSERT INTO REPO_TRADE(CROSS_CURRENCY_COLLATERAL, END_DATE, INDEX_ID, INDEX_TENOR, INDEX_OFFSET, MARGIN_RATE, NOTICE_PERIOD, REPO_RATE, RIGHT_OF_REUSE, RIGHT_OF_SUBSTITUTION, TERMINABLE_ON_DEMAND, REPO_TRADE_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ")
 						: con.prepareStatement(
 								"UPDATE REPO_TRADE SET CROSS_CURRENCY_COLLATERAL = ?, END_DATE = ?, INDEX_ID = ?, INDEX_TENOR = ?, INDEX_OFFSET = ?, MARGIN_RATE = ?, NOTICE_PERIOD = ?, REPO_RATE = ?, RIGHT_OF_REUSE = ?, RIGHT_OF_SUBSTITUTION = ?, TERMINABLE_ON_DEMAND = ? WHERE REPO_TRADE_ID = ?");
-				PreparedStatement stmtSaveSpecificRepoTrade = (trade.getId() == 0)
-						? con.prepareStatement(
-								"INSERT INTO SPECIFICREPO_TRADE(SECURITY_ID, SPECIFICREPO_TRADE_ID) VALUES (?, ?) ")
-						: con.prepareStatement(
-								"UPDATE SPECIFICREPO_TRADE SET SECURITY_ID = ? WHERE SPECIFICREPO_TRADE_ID = ?");
 				PreparedStatement stmtDeletePartialTerminations = con
 						.prepareStatement("DELETE FROM PARTIAL_TERMINATION WHERE TRADE_ID = ?");
 				PreparedStatement stmtSavePartialTermination = con.prepareStatement(
 						"INSERT INTO PARTIAL_TERMINATION(TRADE_ID, DATE, REDUCTION) VALUES(?, ?, ?)")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(10, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(10, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(10, trade.getId());
 				stmtDeletePartialTerminations.setLong(1, trade.getId());
@@ -124,7 +119,7 @@ public class SpecificRepoTradeSQL {
 			}
 			stmtSaveTrade.setBoolean(1, isBuy);
 			stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			stmtSaveTrade.setNull(3, java.sql.Types.BIGINT);
+			stmtSaveTrade.setLong(3, trade.getSecurity().getId());
 			stmtSaveTrade.setLong(4, trade.getCounterparty().getId());
 			stmtSaveTrade.setBigDecimal(5, trade.getAmount());
 			stmtSaveTrade.setLong(6, trade.getBook().getId());
@@ -184,12 +179,7 @@ public class SpecificRepoTradeSQL {
 			stmtSaveRepoTrade.setLong(12, tradeId);
 			stmtSaveRepoTrade.executeUpdate();
 
-			stmtSaveSpecificRepoTrade.setLong(1, trade.getSecurity().getId());
-			stmtSaveSpecificRepoTrade.setLong(2, tradeId);
-			stmtSaveSpecificRepoTrade.executeUpdate();
-
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);
@@ -204,12 +194,12 @@ public class SpecificRepoTradeSQL {
 
 		SpecificRepoTrade specificRepoTrade = null;
 		try {
-			if (rs.getLong("specificrepo_trade_id") == 0) {
+			if (rs.getLong("repo_trade_id") == 0) {
 				return null;
 			}
 			specificRepoTrade = new SpecificRepoTrade();
 			specificRepoTrade.setCrossCurrencyCollateral(rs.getBoolean("cross_currency_collateral"));
-			long securityId = rs.getLong("security_id");
+			long securityId = rs.getLong("product_id");
 			Security security = BondSQL.getBondById(securityId);
 			if (security == null) {
 				security = EquitySQL.getEquityById(securityId);
@@ -231,13 +221,12 @@ public class SpecificRepoTradeSQL {
 			specificRepoTrade.setRightOfReuse(rs.getBoolean("right_of_reuse"));
 			specificRepoTrade.setRightOfSubstitution(rs.getBoolean("right_of_substitution"));
 			specificRepoTrade.setTerminableOnDemand(rs.getBoolean("terminable_on_demand"));
-			specificRepoTrade.setPartialTerminations(
-					SpecificRepoTradeSQL.getPartialTerminations(rs.getLong("specificrepo_trade_id")));
+			specificRepoTrade
+					.setPartialTerminations(SpecificRepoTradeSQL.getPartialTerminations(rs.getLong("repo_trade_id")));
 
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(specificRepoTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -261,7 +250,6 @@ public class SpecificRepoTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return partialTerminations;

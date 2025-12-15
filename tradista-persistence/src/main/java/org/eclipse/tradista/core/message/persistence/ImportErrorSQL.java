@@ -101,7 +101,7 @@ public class ImportErrorSQL {
 				} else {
 					errorId = error.getId();
 				}
-				stmtSaveImportError.setLong(1, error.getId());
+				stmtSaveImportError.setLong(1, errorId);
 				stmtSaveImportError.setLong(2, error.getMessage().getId());
 				stmtSaveImportError.setString(3, error.getImportErrorType().name());
 				stmtSaveImportError.executeUpdate();

@@ -43,6 +43,7 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 		}
 	}
 
+	@Override
 	public Exchange getExchange() {
 		// Exchange is the one of FX
 		return new FXTrade().getExchange();

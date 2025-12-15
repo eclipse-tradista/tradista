@@ -1,4 +1,4 @@
-package org.eclipse.tradista.security.repo.importer.model;
+package org.eclipse.tradista.security.repo.incomingmessage;
 
 import java.math.BigDecimal;
 
@@ -27,13 +27,28 @@ import org.eclipse.tradista.security.repo.model.RepoTrade;
 public interface RepoIncomingMessageManager<X, Y extends RepoTrade> extends IncomingMessageManager<X, Y> {
 
 	@Override
-	public default void checkMessage(X externalMessage, StringBuilder errMsg) {
+	public default void validateMessage(X externalMessage, StringBuilder errMsg) {
 		checkMarginRate(externalMessage, errMsg);
 		checkRightOfSubstitution(externalMessage, errMsg);
 		checkRightOfReuse(externalMessage, errMsg);
 		checkCrossCurrencyCollateral(externalMessage, errMsg);
-		if (extractTerminableOnDemand(externalMessage, errMsg)) {
+		checkTerminableOnDemand(externalMessage, errMsg);
+		checkRepoRate(externalMessage, errMsg);
+		if (isTerminableOnDemand(externalMessage)) {
 			checkNoticePeriod(externalMessage, errMsg);
+		}
+	}
+
+	@Override
+	public default void fillObject(X externalMessage, Y trade) {
+		trade.setMarginRate(getMarginRate(externalMessage));
+		trade.setRightOfSubstitution(hasRightOfSubstitution(externalMessage));
+		trade.setRightOfReuse(hasRightOfReuse(externalMessage));
+		trade.setCrossCurrencyCollateral(allowsCrossCurrencyCollateral(externalMessage));
+		trade.setTerminableOnDemand(isTerminableOnDemand(externalMessage));
+		trade.setRepoRate(getRepoRate(externalMessage));
+		if (trade.isTerminableOnDemand()) {
+			trade.setNoticePeriod(getNoticePeriod(externalMessage));
 		}
 	}
 
@@ -45,19 +60,23 @@ public interface RepoIncomingMessageManager<X, Y extends RepoTrade> extends Inco
 
 	void checkCrossCurrencyCollateral(X externalMessage, StringBuilder errMsg);
 
-	boolean extractTerminableOnDemand(X externalMessage, StringBuilder errMsg);
-
 	void checkNoticePeriod(X externalMessage, StringBuilder errMsg);
+
+	void checkTerminableOnDemand(X externalMessage, StringBuilder errMsg);
+
+	void checkRepoRate(X externalMessage, StringBuilder errMsg);
 
 	BigDecimal getMarginRate(X externalMessage);
 
-	boolean getRightOfSubstitution(X externalMessage);
+	BigDecimal getRepoRate(X externalMessage);
 
-	boolean getRightOfReuse(X externalMessage);
+	boolean hasRightOfSubstitution(X externalMessage);
 
-	boolean getCrossCurrencyCollateral(X externalMessage);
+	boolean hasRightOfReuse(X externalMessage);
 
-	boolean getTerminableOnDemand(X externalMessage);
+	boolean allowsCrossCurrencyCollateral(X externalMessage);
+
+	boolean isTerminableOnDemand(X externalMessage);
 
 	short getNoticePeriod(X externalMessage);
 

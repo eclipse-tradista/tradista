@@ -1,4 +1,4 @@
-package org.eclipse.tradista.core.importer.model;
+package org.eclipse.tradista.core.trade.incomingmessage;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -7,6 +7,9 @@ import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.workflow.model.Workflow;
+import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -26,6 +29,8 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 public interface TradeImporter<X> {
 
+	static WorkflowBusinessDelegate workflowBusinessDelegate = new WorkflowBusinessDelegate();
+
 	default void validateTradeMessage(X externalMessage, StringBuilder errMsg) {
 		checkTradeDate(externalMessage, errMsg);
 		checkSettlementDate(externalMessage, errMsg);
@@ -36,6 +41,20 @@ public interface TradeImporter<X> {
 		checkCounterparty(externalMessage, errMsg);
 		checkBook(externalMessage, errMsg);
 		checkBuySell(externalMessage, errMsg);
+	}
+
+	default void fillObject(X externalMessage, Trade<?> trade) throws TradistaBusinessException {
+		Workflow workflow;
+		trade.setTradeDate(getTradeDate(externalMessage));
+		trade.setSettlementDate(getSettlementDate(externalMessage));
+		// For several product types, 'amount' represents the notional
+		trade.setAmount(getNotional(externalMessage));
+		trade.setCurrency(getCurrency(externalMessage));
+		trade.setCounterparty(getCounterparty(externalMessage));
+		trade.setBook(getBook(externalMessage));
+		trade.setBuySell(getBuySell(externalMessage));
+		workflow = workflowBusinessDelegate.getWorkflowByName(trade.getProductType());
+		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 	}
 
 	void checkBuySell(X externalMessage, StringBuilder errMsg);

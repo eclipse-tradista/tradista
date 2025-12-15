@@ -51,7 +51,7 @@ public class MessageServiceBean implements MessageService {
 
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@Override
-	public void applyAction(Message message, String action) throws TradistaBusinessException {
+	public Message applyAction(Message message, String action) throws TradistaBusinessException {
 		try {
 			Workflow<org.eclipse.tradista.core.message.workflow.mapping.Message> workflow = WorkflowManager
 					.getWorkflowByName(message.getWorkflow());
@@ -59,6 +59,7 @@ public class MessageServiceBean implements MessageService {
 					workflow);
 			mappedMessage = WorkflowManager.applyAction(mappedMessage, action);
 			message.setStatus(StatusMapper.map(mappedMessage.getStatus()));
+			return message;
 		} catch (TradistaFlowBusinessException tfbe) {
 			throw new TradistaBusinessException(tfbe);
 		} catch (TradistaFlowTechnicalException tfte) {

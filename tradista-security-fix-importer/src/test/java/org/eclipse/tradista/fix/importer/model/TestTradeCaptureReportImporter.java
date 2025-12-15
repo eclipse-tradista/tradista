@@ -1,8 +1,46 @@
 package org.eclipse.tradista.fix.importer.model;
 
-import quickfix.*;
-import quickfix.field.*;
+import quickfix.Application;
+import quickfix.ApplicationAdapter;
+import quickfix.BooleanField;
+import quickfix.DecimalField;
+import quickfix.DefaultMessageFactory;
+import quickfix.IntField;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.MessageStoreFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.Account;
+import quickfix.field.Currency;
+import quickfix.field.ExecType;
+import quickfix.field.LastPx;
+import quickfix.field.LastQty;
+import quickfix.field.MarginRatio;
+import quickfix.field.MaturityDate;
+import quickfix.field.NoSides;
+import quickfix.field.OrdStatus;
+import quickfix.field.OrderID;
+import quickfix.field.PartyID;
+import quickfix.field.PartyRole;
+import quickfix.field.PreviouslyReported;
+import quickfix.field.Product;
+import quickfix.field.RepoCollateralSecurityType;
+import quickfix.field.SecurityExchange;
+import quickfix.field.SecurityID;
+import quickfix.field.SecurityIDSource;
+import quickfix.field.SettlCurrency;
+import quickfix.field.SettlDate;
+import quickfix.field.Side;
+import quickfix.field.Symbol;
+import quickfix.field.TradeDate;
+import quickfix.field.TradeReportID;
+import quickfix.field.TransactTime;
 import quickfix.fix44.TradeCaptureReport;
+import quickfix.fix44.TradeCaptureReportRequest.NoPartyIDs;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -75,22 +113,59 @@ public class TestTradeCaptureReportImporter {
 
 		tcr.set(new TradeReportID("TRD-TEST-001"));
 		tcr.set(new Symbol("CH0001234567"));
-		tcr.setField(new SecurityID("CH0001234567"));
+		tcr.setField(new TradeDate("20251210"));
+		tcr.setField(new SettlDate("20251211"));
+		tcr.setField(new MaturityDate("20261211"));
+		tcr.setField(new PreviouslyReported(false));
+		tcr.setField(new SecurityID("XAAA"));
 		tcr.setField(new SecurityIDSource(SecurityIDSource.ISIN_NUMBER));
 
 		// GC repo fields
 		tcr.setField(new Product(Product.OTHER));
 		tcr.setField(new RepoCollateralSecurityType("GC"));
-		tcr.setField(new SecurityExchange("XSWX"));
+		tcr.setField(new SecurityExchange("DEMO"));
+		tcr.setField(new MarginRatio(5.5));
+		// Repo Rate
+		tcr.setField(new DecimalField(227, 5));
 
 		// Price / Quantity
 		tcr.setField(new LastPx(99.85));
 		tcr.setField(new LastQty(1000000));
 
 		// Status
-		tcr.setField(new ExecType(ExecType.FILL));
+		tcr.setField(new ExecType(ExecType.TRADE));
 		tcr.setField(new OrdStatus(OrdStatus.FILLED));
 		tcr.setField(new TransactTime());
+
+		tcr.setField(new BooleanField(9001, true));
+		tcr.setField(new BooleanField(9002, true));
+		tcr.setField(new BooleanField(9003, true));
+		tcr.setField(new IntField(9004, 5));
+
+		tcr.setInt(NoSides.FIELD, 2);
+
+		TradeCaptureReport.NoSides buy = new TradeCaptureReport.NoSides();
+		buy.set(new Side(Side.BUY));
+		buy.set(new OrderID("ORDER-001"));
+		buy.set(new Currency("USD"));
+		buy.set(new SettlCurrency("USD"));
+		NoPartyIDs ctpy = new NoPartyIDs();
+		ctpy.set(new PartyID("53"));
+		ctpy.set(new PartyRole(17));
+		buy.addGroup(ctpy);
+		tcr.addGroup(buy);
+
+		TradeCaptureReport.NoSides sell = new TradeCaptureReport.NoSides();
+		sell.set(new Side(Side.SELL));
+		sell.set(new OrderID("ORDER-002"));
+		sell.set(new Currency("USD"));
+		sell.set(new SettlCurrency("USD"));
+		NoPartyIDs po = new NoPartyIDs();
+		po.set(new PartyID("52"));
+		po.set(new PartyRole(1));
+		po.setField(new Account("444"));
+		sell.addGroup(po);
+		tcr.addGroup(sell);
 
 		Session.sendToTarget(tcr, sessionID);
 		System.out.println("Test FIX TradeCaptureReport message sent.");

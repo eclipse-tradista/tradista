@@ -100,8 +100,6 @@ public class FXOptionTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxOptionTrade;
@@ -156,8 +154,6 @@ public class FXOptionTradeSQL {
 
 			fxOptionTrade.setUnderlying(underlying);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -185,7 +181,7 @@ public class FXOptionTradeSQL {
 								"UPDATE VANILLA_OPTION_TRADE SET STYLE=?, TYPE=?, MATURITY_DATE=?, EXERCISE_DATE=?, UNDERLYING_TRADE_ID=?, SETTLEMENT_TYPE=?, SETTLEMENT_DATE_OFFSET=?, STRIKE=? WHERE VANILLA_OPTION_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}
@@ -230,8 +226,6 @@ public class FXOptionTradeSQL {
 			stmtSaveFXOptionTrade.setLong(9, tradeId);
 			stmtSaveFXOptionTrade.executeUpdate();
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);

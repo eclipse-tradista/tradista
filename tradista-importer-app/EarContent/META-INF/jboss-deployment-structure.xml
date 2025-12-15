@@ -1,8 +1,9 @@
 <jboss-deployment-structure>
 	<deployment>
 		<dependencies>
-			<module name="org.eclipse.tradista.core.model" export="true">
-			</module>
+			<module name="org.eclipse.tradista.core.model" export="true" />
+			<module name="org.eclipse.tradista.security.model"
+				export="true" />
 			<module
 				name="org.eclipse.tradista.org.springframework.spring-beans"
 				export="true">

@@ -1,10 +1,8 @@
 package org.eclipse.tradista.core.message.util;
 
-import java.util.Set;
-
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
-import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
+import org.eclipse.tradista.core.trade.model.Trade;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -24,21 +22,17 @@ import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
 
 public final class MessageUtil {
 
-	private static Set<String> allObjectTypes;
-
 	private MessageUtil() {
-		allObjectTypes = new MessageBusinessDelegate().getAllObjectTypes();
 	}
 
-	public static String getObjectType(Class<? extends TradistaObject> klass) {
-		if (klass == null) {
-			throw new TradistaTechnicalException("Class is mandatory to determine the message object type");
+	public static String getObjectType(TradistaObject object) {
+		if (object == null) {
+			throw new TradistaTechnicalException("The object is mandatory to determine the message object type");
 		}
-		String classSimpleName = klass.getSimpleName();
-		if (allObjectTypes.contains(classSimpleName)) {
-			return classSimpleName;
-		}
-		return null;
+		return switch (object) {
+		case Trade<?> _ -> "Trade";
+		default -> null;
+		};
 	}
 
 }

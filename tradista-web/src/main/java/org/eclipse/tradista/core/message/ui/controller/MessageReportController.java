@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.message.ui.controller;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -185,8 +186,9 @@ public class MessageReportController implements Serializable {
 			direction = Boolean.valueOf(selectedDirections.getFirst().equals("Incoming"));
 		}
 		try {
-			messages = messageBusinessDelegate.getMessages(msgId, direction, types, interfaceNames, objId, objectTypes,
-					statuses, lastUpdateDateFrom, lastUpdateDateTo, creationDateFrom, creationDateTo);
+			messages = new ArrayList<>(
+					messageBusinessDelegate.getMessages(msgId, direction, types, interfaceNames, objId, objectTypes,
+							statuses, lastUpdateDateFrom, lastUpdateDateTo, creationDateFrom, creationDateTo));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage("msg",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));

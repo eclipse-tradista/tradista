@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.transfer.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
 
 import jakarta.annotation.Resource;
@@ -41,7 +42,7 @@ public class TransferMessageDrivenBean implements MessageListener {
 			TradeEvent<?> tradeEvent = (TradeEvent<?>) objectMessage.getObject();
 			TransferBusinessDelegate transferBusinessDelegate = new TransferBusinessDelegate();
 			transferBusinessDelegate.createTransfers(tradeEvent);
-		} catch (JMSException | TradistaBusinessException e) {
+		} catch (JMSException | TradistaBusinessException | TradistaTechnicalException e) {
 			e.printStackTrace();
 			context.setRollbackOnly();
 		}

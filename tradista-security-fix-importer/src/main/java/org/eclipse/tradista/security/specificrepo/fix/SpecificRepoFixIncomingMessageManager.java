@@ -1,13 +1,7 @@
-package org.eclipse.tradista.specificrepo.fix;
+package org.eclipse.tradista.security.specificrepo.fix;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
-import org.eclipse.tradista.repo.fix.RepoFixIncomingMessageManager;
-import org.eclipse.tradista.security.common.model.Security;
-import org.eclipse.tradista.security.common.service.SecurityBusinessDelegate;
-import org.eclipse.tradista.security.specificrepo.importer.model.SpecificRepoIncomingMessageManager;
-import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
-import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeBusinessDelegate;
+import org.eclipse.tradista.security.repo.fix.RepoFixIncomingMessageManager;
+import org.eclipse.tradista.security.specificrepo.incomingmessage.SpecificRepoIncomingMessageManager;
 
 import quickfix.FieldNotFound;
 import quickfix.field.SecurityExchange;
@@ -33,34 +27,13 @@ import quickfix.fix44.TradeCaptureReport;
 public class SpecificRepoFixIncomingMessageManager extends RepoFixIncomingMessageManager
 		implements SpecificRepoIncomingMessageManager<TradeCaptureReport> {
 
-	private SpecificRepoTradeBusinessDelegate specificRepoTradeBusinessDelegate;
-	
-	private SecurityBusinessDelegate securityBusinessDelegate;
-
-	public SpecificRepoFixIncomingMessageManager() {
-		specificRepoTradeBusinessDelegate = new SpecificRepoTradeBusinessDelegate();
-		securityBusinessDelegate = new SecurityBusinessDelegate();
-	}
-
-	@Override
-	public SpecificRepoTrade createObject(TradeCaptureReport tcReport) {
-		SpecificRepoTrade trade = new SpecificRepoTrade();
-		trade.setProduct(getSecurity(tcReport));
-		return (SpecificRepoTrade) fillObject(tcReport, trade);
-	}
-
-	@Override
-	public long saveObject(SpecificRepoTrade trade) throws TradistaBusinessException {
-		return specificRepoTradeBusinessDelegate.saveSpecificRepoTrade(trade, null);
-	}
-
 	@Override
 	public void checkIsin(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (!tcReport.isSetSecurityID()) {
 			errMsg.append(String.format("SecurityID field is mandatory.%n"));
 		}
 	}
-	
+
 	@Override
 	public void checkExchangeCode(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (!tcReport.isSetSecurityExchange()) {
@@ -68,15 +41,6 @@ public class SpecificRepoFixIncomingMessageManager extends RepoFixIncomingMessag
 		}
 	}
 
-	public Security getSecurity(TradeCaptureReport tcReport) {
-		try {
-			return securityBusinessDelegate.getSecurityByIsinAndExchangeCode(getIsin(tcReport), getExchangeCode(tcReport));
-		} catch (TradistaBusinessException tbe) {
-			throw new TradistaTechnicalException(String
-					.format("There was an issue loading the security: %s", tbe.getMessage()));
-		}
-	}
-	
 	@Override
 	public String getExchangeCode(TradeCaptureReport tcReport) {
 		String exchangeCode = null;
@@ -87,7 +51,7 @@ public class SpecificRepoFixIncomingMessageManager extends RepoFixIncomingMessag
 		}
 		return exchangeCode;
 	}
-	
+
 	@Override
 	public String getIsin(TradeCaptureReport tcReport) {
 		String isin = null;

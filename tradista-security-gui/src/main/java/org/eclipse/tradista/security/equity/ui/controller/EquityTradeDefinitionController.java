@@ -624,7 +624,6 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new EquityTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			if (!tradePrice.getText().isEmpty()) {
@@ -639,7 +638,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			trade.setBuySell(buySell.getSelectionModel().getSelectedItem().equals(Trade.Direction.BUY));
 			trade.setCounterparty(counterparty.getValue());
 			trade.setBook(book.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen at this stage.
 		}
 	}
@@ -674,6 +673,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -681,11 +681,14 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 
 				buildTrade();
 				oldTradeId = trade.getId();
+				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(equityTradeBusinessDelegate.saveEquityTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
+				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}

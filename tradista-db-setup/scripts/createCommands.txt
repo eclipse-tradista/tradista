@@ -75,7 +75,6 @@ run '../sql/BOND.sql';
 run '../sql/TRADE.sql';
 run '../sql/PARTIAL_TERMINATION.sql';
 run '../sql/REPO_TRADE.sql';
-run '../sql/SPECIFICREPO_TRADE.sql';
 run '../sql/GCREPO_TRADE.sql';
 run '../sql/TRANSFER.sql';
 run '../sql/FIXING_ERROR.sql';

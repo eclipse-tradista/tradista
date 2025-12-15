@@ -1,8 +1,10 @@
-package org.eclipse.tradista.security.gcrepo.importer.model;
+package org.eclipse.tradista.security.gcrepo.incomingmessage;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
-import org.eclipse.tradista.security.repo.importer.model.RepoIncomingMessageManager;
+import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
+import org.eclipse.tradista.security.repo.incomingmessage.RepoIncomingMessageManager;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -22,14 +24,29 @@ import org.eclipse.tradista.security.repo.importer.model.RepoIncomingMessageMana
 
 public interface GCRepoIncomingMessageManager<X> extends RepoIncomingMessageManager<X, GCRepoTrade> {
 
+	static GCRepoTradeBusinessDelegate gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
+
 	@Override
-	public default void checkMessage(X externalMessage, StringBuilder errMsg) {
-		RepoIncomingMessageManager.super.checkMessage(externalMessage, errMsg);
+	public default void validateMessage(X externalMessage, StringBuilder errMsg) {
+		RepoIncomingMessageManager.super.validateMessage(externalMessage, errMsg);
 		checkBasket(externalMessage, errMsg);
 	}
 
+	@Override
+	public default GCRepoTrade createObject(X externalMessage) {
+		GCRepoTrade trade = new GCRepoTrade();
+		trade.setGcBasket(getBasket(externalMessage));
+		fillObject(externalMessage, trade);
+		return trade;
+	}
+
+	@Override
+	public default long saveObject(GCRepoTrade trade) throws TradistaBusinessException {
+		return gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, null);
+	}
+
 	void checkBasket(X externalMessage, StringBuilder errMsg);
-	
+
 	GCBasket getBasket(X externalMessage);
 
 }

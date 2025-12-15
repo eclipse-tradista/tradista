@@ -10,11 +10,11 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.importer.model.IncomingMessageManager;
-import org.eclipse.tradista.core.importer.model.TradeImporter;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
+import org.eclipse.tradista.core.trade.incomingmessage.TradeImporter;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.fix.common.TradistaFixConstants;
 import org.eclipse.tradista.fix.importer.util.TradistaFixImporterUtil;
@@ -24,6 +24,7 @@ import quickfix.Group;
 import quickfix.IncorrectTagValue;
 import quickfix.MessageCracker.Handler;
 import quickfix.SessionID;
+import quickfix.field.Account;
 import quickfix.field.ExecType;
 import quickfix.field.LastQty;
 import quickfix.field.NoPartyIDs;
@@ -32,6 +33,7 @@ import quickfix.field.OrdStatus;
 import quickfix.field.PartyID;
 import quickfix.field.PartyRole;
 import quickfix.field.SettlDate;
+import quickfix.field.Side;
 import quickfix.field.Symbol;
 import quickfix.field.TradeDate;
 import quickfix.fix44.TradeCaptureReport;
@@ -87,7 +89,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 
 		if (incomingMessageManager != null) {
 			// Use the incoming message manager to check the message.
-			incomingMessageManager.checkMessage(tcReport, errMsg);
+			incomingMessageManager.validateMessage(tcReport, errMsg);
 		}
 
 		if (!errMsg.isEmpty()) {
@@ -142,7 +144,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 
 			if (execType.getValue() != 'F' && execType.getValue() != '0' && execType.getValue() != 'H'
 					&& execType.getValue() != 'G') {
-				throw new IncorrectTagValue(execType.getField());
+				throw new IncorrectTagValue(execType.getField(), String.valueOf(execType.getValue()));
 			}
 		} catch (FieldNotFound | IncorrectTagValue e) {
 			errMsg.append(e);
@@ -174,7 +176,8 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 
 	/**
 	 * No sides expected value is 2. The currency must be found in the Nosides
-	 * group, as long as the party id.
+	 * group, as long as the party id. (No sides existence has been previously
+	 * checked by QuickFixJ)
 	 * 
 	 * @param tcReport the fix message (TradeCaptureReport type)
 	 * @param errMsg   the error message
@@ -182,15 +185,10 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	private void checkNoSides(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		try {
 			NoSides noSides = null;
-			final char TWO = '2';
-			if (!tcReport.isSetNoSides()) {
-				errMsg.append(String.format("NoSides field is mandatory.%n"));
-				return;
-			}
-
+			final int TWO = 2;
 			noSides = tcReport.getNoSides();
 			if (noSides.getValue() != TWO) {
-				errMsg.append(String.format("NoSides field should be %c.%n", TWO));
+				errMsg.append(String.format("NoSides field should be %d.%n", TWO));
 			}
 		} catch (FieldNotFound _) {
 			// Not expected here
@@ -251,7 +249,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	public void checkCurrency(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (tcReport.isSetNoSides()) {
 			for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
-				if (!((TradeCaptureReport.NoSides) sideGroup).isSetCurrency()) {
+				if (!sideGroup.isSetField(quickfix.field.Currency.FIELD)) {
 					errMsg.append(String.format("Currency field is mandatory.%n"));
 				}
 			}
@@ -262,7 +260,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	public void checkCounterparty(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (tcReport.isSetNoSides()) {
 			for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
-				if (!((TradeCaptureReport.NoSides) sideGroup).isSetNoPartyIDs()) {
+				if (!(sideGroup.isSetField(NoPartyIDs.FIELD))) {
 					errMsg.append(String.format(NO_PARTY_IDS_FIELD_IS_MANDATORY));
 				} else {
 					for (Group partyGroup : sideGroup.getGroups(NoPartyIDs.FIELD)) {
@@ -290,7 +288,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	public void checkBook(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (tcReport.isSetNoSides()) {
 			for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
-				if (!((TradeCaptureReport.NoSides) sideGroup).isSetNoPartyIDs()) {
+				if (!sideGroup.isSetField(NoPartyIDs.FIELD)) {
 					errMsg.append(String.format(NO_PARTY_IDS_FIELD_IS_MANDATORY));
 				} else {
 					for (Group partyGroup : sideGroup.getGroups(NoPartyIDs.FIELD)) {
@@ -299,7 +297,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 							if (partyRole == TradistaFixConstants.EXECUTING_FIRM_PARTY_ROLE) {
 								String partyId = partyGroup.getString(PartyID.FIELD);
 								if (!StringUtils.isEmpty(partyId) && partyId.equals(importedProcessingOrg)) {
-									if (((TradeCaptureReport.NoSides) sideGroup).isSetAccount()) {
+									if (sideGroup.isSetField(Account.FIELD)) {
 										return;
 									}
 								}
@@ -319,7 +317,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	public void checkBuySell(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (tcReport.isSetNoSides()) {
 			for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
-				if (!((TradeCaptureReport.NoSides) sideGroup).isSetNoPartyIDs()) {
+				if (!sideGroup.isSetField(NoPartyIDs.FIELD)) {
 					errMsg.append(String.format(NO_PARTY_IDS_FIELD_IS_MANDATORY));
 				} else {
 					for (Group partyGroup : sideGroup.getGroups(NoPartyIDs.FIELD)) {
@@ -328,10 +326,8 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 							if (partyRole == TradistaFixConstants.EXECUTING_FIRM_PARTY_ROLE) {
 								String partyId = partyGroup.getString(PartyID.FIELD);
 								if (!StringUtils.isEmpty(partyId) && partyId.equals(importedProcessingOrg)) {
-									if (((TradeCaptureReport.NoSides) sideGroup).isSetAccount()) {
-										if (((TradeCaptureReport.NoSides) sideGroup).isSetSide()) {
-											return;
-										}
+									if (sideGroup.isSetField(Side.FIELD)) {
+										return;
 									}
 								}
 							}
@@ -342,7 +338,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 				}
 			}
 		}
-		// If we are here, it means the book was not found
+		// If we are here, it means the direction was not found
 		errMsg.append(String.format("No direction was found (no side set on PO side).%n"));
 	}
 
@@ -350,23 +346,16 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 	public Optional<? extends TradistaObject> parseMessage(TradeCaptureReport tcReport)
 			throws TradistaBusinessException {
 		Trade<?> trade = null;
-		// Create the right trade type, based on the product type.
 
 		IncomingMessageManager<TradeCaptureReport, TradistaObject> incomingMessageManager = getIncomingMessageManager(
 				tcReport);
 
 		if (incomingMessageManager != null) {
+			// Create the right trade type, based on the product type.
 			trade = (Trade<?>) incomingMessageManager.createObject(tcReport);
 		}
 
-		trade.setTradeDate(getTradeDate(tcReport));
-		trade.setSettlementDate(getSettlementDate(tcReport));
-		// For several product types, 'amount' represents the notional
-		trade.setAmount(getNotional(tcReport));
-		trade.setCurrency(getCurrency(tcReport));
-		trade.setCounterparty(getCounterparty(tcReport));
-		trade.setBook(getBook(tcReport));
-		trade.setBuySell(getBuySell(tcReport));
+		fillObject(tcReport, trade);
 		return Optional.of(trade);
 	}
 
@@ -433,7 +422,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 							if (partyRole == TradistaFixConstants.EXECUTING_FIRM_PARTY_ROLE) {
 								String partyId = partyGroup.getString(PartyID.FIELD);
 								if (!StringUtils.isEmpty(partyId) && partyId.equals(importedProcessingOrg)) {
-									if (((TradeCaptureReport.NoSides) sideGroup).isSetAccount()) {
+									if (sideGroup.isSetField(Account.FIELD)) {
 										return TradistaFixImporterUtil.parseFixBook(getName(), sideGroup,
 												quickfix.field.Account.FIELD);
 									}
@@ -460,11 +449,9 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 							if (partyRole == TradistaFixConstants.EXECUTING_FIRM_PARTY_ROLE) {
 								String partyId = partyGroup.getString(PartyID.FIELD);
 								if (!StringUtils.isEmpty(partyId) && partyId.equals(importedProcessingOrg)) {
-									if (((TradeCaptureReport.NoSides) sideGroup).isSetAccount()) {
-										if (((TradeCaptureReport.NoSides) sideGroup).isSetSide()) {
-											return (((TradeCaptureReport.NoSides) sideGroup).getSide()
-													.getValue() == TradistaFixConstants.BUY_SIDE);
-										}
+									if (sideGroup.isSetField(Side.FIELD)) {
+										return (sideGroup.getInt(Side.FIELD) == Integer
+												.valueOf(TradistaFixConstants.BUY_SIDE));
 									}
 								}
 							}

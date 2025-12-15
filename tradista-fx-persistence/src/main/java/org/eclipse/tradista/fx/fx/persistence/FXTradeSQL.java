@@ -76,7 +76,7 @@ public class FXTradeSQL {
 			if (fxspotTrade != null) {
 				try {
 					fxTradeBusinessDelegate.determinateType(fxspotTrade);
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Should not appear here.
 				}
 			}
@@ -110,8 +110,6 @@ public class FXTradeSQL {
 			fxTradeBusinessDelegate.determinateType(fxspotTrade);
 
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -132,7 +130,7 @@ public class FXTradeSQL {
 								"UPDATE FXSPOT_TRADE SET CURRENCY_ONE_ID=?, AMOUNT_ONE=? WHERE FXSPOT_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}
@@ -171,8 +169,6 @@ public class FXTradeSQL {
 			stmtSaveFXSpotTrade.setLong(3, tradeId);
 			stmtSaveFXSpotTrade.executeUpdate();
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);

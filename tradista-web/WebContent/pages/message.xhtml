@@ -129,7 +129,7 @@
 										value="#{msg.isIncoming() ? 'Incoming' : 'Outgoing'}" />
 								</p:column>
 								<p:column headerText="Creation Date"
-									sortBy="#{msg.creationDate}">
+									sortBy="#{msg.creationDateTime}">
 									<p:outputLabel value="#{msg.creationDateTime}">
 										<f:convertDateTime type="localDateTime"
 											pattern="dd/MM/yyyy hh:mm:ss" />

@@ -111,7 +111,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trades;
@@ -155,7 +154,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trade;
@@ -195,7 +193,6 @@ public class TradeSQL {
 			}
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -304,7 +301,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trades;
@@ -379,7 +375,6 @@ public class TradeSQL {
 			// think so.
 			join += " LEFT OUTER JOIN REPO_TRADE ON REPO_TRADE.REPO_TRADE_ID=TRADE.ID";
 			join += " LEFT OUTER JOIN GCREPO_TRADE ON GCREPO_TRADE.GCREPO_TRADE_ID=REPO_TRADE.REPO_TRADE_ID";
-			join += " LEFT OUTER JOIN SPECIFICREPO_TRADE ON SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID=REPO_TRADE.REPO_TRADE_ID";
 			join += " LEFT OUTER JOIN TRADE UND_EQUITY_TRADE ON UNDERLYING_EQUITY.EQUITY_TRADE_ID=UND_EQUITY_TRADE.ID";
 			join += " LEFT OUTER JOIN TRADE UND_FXSPOT_TRADE ON UNDERLYING_FXSPOT.FXSPOT_TRADE_ID=UND_FXSPOT_TRADE.ID";
 			join += " LEFT OUTER JOIN TRADE UND_IRSWAP_TRADE ON UNDERLYING_IRSWAP.IRSWAP_TRADE_ID=UND_IRSWAP_TRADE.ID";
@@ -636,9 +631,6 @@ public class TradeSQL {
 			aliases.append("GCREPO_TRADE.GCREPO_TRADE_ID GCREPO_TRADE_ID,");
 			aliases.append("GCREPO_TRADE.GCBASKET_ID GCBASKET_ID,");
 
-			aliases.append("SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID SPECIFICREPO_TRADE_ID,");
-			aliases.append("SPECIFICREPO_TRADE.SECURITY_ID SECURITY_ID");
-
 			return aliases.toString();
 		}
 
@@ -807,10 +799,7 @@ public class TradeSQL {
 			aliases.append("REPO_TRADE.CROSS_CURRENCY_COLLATERAL CROSS_CURRENCY_COLLATERAL,");
 			aliases.append("REPO_TRADE.TERMINABLE_ON_DEMAND TERMINABLE_ON_DEMAND,");
 			aliases.append("REPO_TRADE.NOTICE_PERIOD NOTICE_PERIOD,");
-			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE,");
-
-			aliases.append("SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID SPECIFICREPO_TRADE_ID,");
-			aliases.append("SPECIFICREPO_TRADE.SECURITY_ID SECURITY_ID");
+			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE");
 			break;
 		}
 		case FX_OPTION: {
@@ -950,7 +939,7 @@ public class TradeSQL {
 			break;
 		}
 		case SPECIFIC_REPO: {
-			where += "TRADE.ID = REPO_TRADE.REPO_TRADE_ID AND REPO_TRADE.REPO_TRADE_ID = SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID";
+			where += "TRADE.ID = REPO_TRADE.REPO_TRADE_ID";
 			break;
 		}
 		case CCY_SWAP: {
@@ -1025,7 +1014,7 @@ public class TradeSQL {
 		case GC_REPO:
 			return "REPO_TRADE, GCREPO_TRADE";
 		case SPECIFIC_REPO:
-			return "REPO_TRADE, SPECIFICREPO_TRADE";
+			return "REPO_TRADE";
 		case FXNDF:
 			return "FXNDF_TRADE";
 		case IR_SWAP:

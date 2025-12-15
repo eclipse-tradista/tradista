@@ -66,14 +66,18 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 
 	private String workflow;
 
+	private LocalDate creationDate;
+
 	// true : BUY, false : SELL
 	private boolean buySell;
 
-	public Trade(P product) {
+	protected Trade(P product) {
+		this();
 		this.product = product;
 	}
 
-	public Trade() {
+	protected Trade() {
+		creationDate = LocalDate.now();
 	}
 
 	@Override
@@ -162,8 +166,6 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 	public void setCreationDate(LocalDate creationDate) {
 		this.creationDate = creationDate;
 	}
-
-	private LocalDate creationDate;
 
 	public P getProduct() {
 		return TradistaModelUtil.clone(product);

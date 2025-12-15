@@ -737,6 +737,8 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
 		long oldUnderlyingTradeId = 0;
+		LocalDate oldCreationDate = null;
+		LocalDate oldUnderlyingCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -745,7 +747,10 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldUnderlyingTradeId = trade.getUnderlying().getId();
+				oldCreationDate = trade.getCreationDate();
+				oldUnderlyingCreationDate = trade.getUnderlying().getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.getUnderlying().setId(0);
 				trade.setId(irSwapOptionTradeBusinessDelegate.saveIRSwapOptionTrade(trade));
 				IRSwapOptionTrade existingTrade = irSwapOptionTradeBusinessDelegate
@@ -757,6 +762,8 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
 				trade.getUnderlying().setId(oldUnderlyingTradeId);
+				trade.setCreationDate(oldCreationDate);
+				trade.getUnderlying().setCreationDate(oldUnderlyingCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -871,7 +878,6 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new IRSwapOptionTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -910,7 +916,6 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 			// Building the underlying
 			if (trade.getUnderlying() == null) {
 				trade.setUnderlying(new SingleCurrencyIRSwapTrade());
-				trade.getUnderlying().setCreationDate(LocalDate.now());
 			}
 
 			if (!notionalAmount.getText().isEmpty()) {
@@ -975,7 +980,7 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 			trade.getUnderlying().setPaymentInterestFixing(paymentInterestFixing.getValue());
 			trade.getUnderlying().setReceptionInterestFixing(receptionInterestFixing.getValue());
 
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}

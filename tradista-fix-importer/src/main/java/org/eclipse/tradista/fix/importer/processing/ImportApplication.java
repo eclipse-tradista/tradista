@@ -1,7 +1,10 @@
 package org.eclipse.tradista.fix.importer.processing;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
 import org.eclipse.tradista.fix.importer.model.FixImporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import quickfix.ApplicationAdapter;
 import quickfix.FieldNotFound;
@@ -10,6 +13,7 @@ import quickfix.IncorrectTagValue;
 import quickfix.Message;
 import quickfix.SessionID;
 import quickfix.UnsupportedMessageType;
+import quickfix.field.MsgType;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -29,6 +33,8 @@ import quickfix.UnsupportedMessageType;
 
 public class ImportApplication<X extends quickfix.fix44.Message> extends ApplicationAdapter {
 
+	private static final Logger logger = LoggerFactory.getLogger(ImportApplication.class);
+
 	private FixImporter<X> fixImporter;
 
 	public ImportApplication(FixImporter<X> fixImporter) {
@@ -41,20 +47,26 @@ public class ImportApplication<X extends quickfix.fix44.Message> extends Applica
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
 		try {
 			fixImporter.importMessage((X) message);
-		} catch (TradistaBusinessException _) {
-			// TODO Add logs
+		} catch (TradistaBusinessException tbe) {
+			logger.error("Unexpected TradistaBusinessException during import", tbe);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void toAdmin(Message message, SessionID sessionId) {
-		System.out.println("ToAdmin");
-		System.out.println(message);
-	}
-
-	@Override
-	public void toApp(Message message, SessionID sessionId) {
-		System.out.println("ToApp");
+		try {
+			if (message.getHeader().getString(MsgType.FIELD).equals(MsgType.REJECT)) {
+				try {
+					fixImporter.handleError(fixImporter.createMessage((X) message),
+							"There was a structure issue in the message. Please consult Importer App logs.");
+				} catch (TradistaBusinessException _) {
+					// Nothing more to do. In case of exception, it has already been logged.
+				}
+			}
+		} catch (FieldNotFound _) {
+			// Not expected here.
+		}
 	}
 
 }

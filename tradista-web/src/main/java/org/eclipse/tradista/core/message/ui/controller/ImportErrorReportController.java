@@ -181,8 +181,8 @@ public class ImportErrorReportController implements Serializable {
 			importErrorType = importErrorTypes.getFirst();
 		}
 		try {
-			errors = importErrorBusinessDelegate.getImportErrors(impTypes, impNames, msgId, status, importErrorType,
-					errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
+			errors = new ArrayList<>(importErrorBusinessDelegate.getImportErrors(impTypes, impNames, msgId, status,
+					importErrorType, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage("msg",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));

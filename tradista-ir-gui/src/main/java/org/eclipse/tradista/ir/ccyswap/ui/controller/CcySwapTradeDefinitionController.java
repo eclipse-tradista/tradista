@@ -859,17 +859,21 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 				buildTrade();
 				oldTradeId = trade.getId();
+				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(ccySwapTradeBusinessDelegate.saveCcySwapTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				trade.setId(oldTradeId);
+				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
@@ -899,7 +903,6 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new CcySwapTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			if (!notionalAmountOne.getText().isEmpty()) {
@@ -940,12 +943,11 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			trade.setBook(book.getValue());
 			trade.setBuySell(buySell.getValue().equals(Trade.Direction.BUY));
 			trade.setCounterparty(counterparty.getValue());
-			trade.setCreationDate(LocalDate.now());
 			trade.setTradeDate(tradeDate.getValue());
 			trade.setPaymentInterestPayment(paymentInterestPayment.getValue());
 			trade.setReceptionInterestPayment(receptionInterestPayment.getValue());
 			trade.setReceptionInterestFixing(receptionInterestFixing.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen at this stage.
 		}
 	}

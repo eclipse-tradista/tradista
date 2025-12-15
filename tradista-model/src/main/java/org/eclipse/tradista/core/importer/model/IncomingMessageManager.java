@@ -21,10 +21,12 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
 
 public interface IncomingMessageManager<X, Y extends TradistaObject> {
 
-	void checkMessage(X externalMessage, StringBuilder errMsg);
+	void validateMessage(X externalMessage, StringBuilder errMsg);
 
 	long saveObject(Y tradistaObject) throws TradistaBusinessException;
 
 	Y createObject(X externalMessage);
+
+	void fillObject(X externalMessage, Y trade);
 
 }

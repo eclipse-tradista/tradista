@@ -27,7 +27,7 @@ public class FXNDFTrade extends AbstractFXTrade<Product> {
 
 	private static final long serialVersionUID = -4927177189578884165L;
 
-	public static String FX_NDF = "FXNDF";
+	public static final String FX_NDF = "FXNDF";
 
 	private Currency nonDeliverableCurrency;
 
@@ -49,6 +49,7 @@ public class FXNDFTrade extends AbstractFXTrade<Product> {
 		this.ndfRate = ndfRate;
 	}
 
+	@Override
 	public String getProductType() {
 		return FX_NDF;
 	}

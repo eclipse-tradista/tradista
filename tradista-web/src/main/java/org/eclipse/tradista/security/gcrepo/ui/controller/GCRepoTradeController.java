@@ -397,9 +397,7 @@ public class GCRepoTradeController implements Serializable {
 	public void save() {
 		try {
 			final String actionToApply = (action != null) ? action : ActionConstants.NEW;
-			if (trade.getId() == 0) {
-				trade.setCreationDate(LocalDate.now());
-			}
+
 			if (interestType == null || interestType.equals("Fixed")) {
 				trade.setIndex(null);
 				trade.setIndexTenor(null);
@@ -469,6 +467,7 @@ public class GCRepoTradeController implements Serializable {
 			tradeId = Long.parseLong(idToBeLoaded);
 			GCRepoTrade gcTrade = gcRepoTradeBusinessDelegate.getGCRepoTradeById(tradeId);
 			if (gcTrade != null) {
+				trade.setCreationDate(gcTrade.getCreationDate());
 				trade.setId(gcTrade.getId());
 				trade.setBuySell(gcTrade.isBuy());
 				trade.setCounterparty(gcTrade.getCounterparty());

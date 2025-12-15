@@ -74,7 +74,6 @@ public class EquityTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityTrade;
@@ -94,7 +93,7 @@ public class EquityTradeSQL {
 						: con.prepareStatement("UPDATE EQUITY_TRADE SET QUANTITY = ? WHERE EQUITY_TRADE_ID = ?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(8, trade.getId());
 			}
@@ -186,7 +185,7 @@ public class EquityTradeSQL {
 
 				while (results.next()) {
 					if (equityTrades == null) {
-						equityTrades = new ArrayList<EquityTrade>();
+						equityTrades = new ArrayList<>();
 					}
 					EquityTrade equityTrade = new EquityTrade();
 					equityTrade.setProduct(EquitySQL.getEquityById(results.getLong("product_id")));
@@ -204,7 +203,6 @@ public class EquityTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityTrades;

@@ -108,7 +108,6 @@ public class EquityOptionTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptionTrade;
@@ -136,7 +135,7 @@ public class EquityOptionTradeSQL {
 								"UPDATE VANILLA_OPTION_TRADE SET STYLE = ?, TYPE = ?, STRIKE = ?, MATURITY_DATE = ?, EXERCISE_DATE = ?, UNDERLYING_TRADE_ID = ?, SETTLEMENT_TYPE = ?, SETTLEMENT_DATE_OFFSET = ?, QUANTITY = ? WHERE VANILLA_OPTION_TRADE_ID = ?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}
@@ -244,7 +243,6 @@ public class EquityOptionTradeSQL {
 			equityOptionTrade.setUnderlying(underlying);
 
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -325,7 +323,6 @@ public class EquityOptionTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptionTrades;

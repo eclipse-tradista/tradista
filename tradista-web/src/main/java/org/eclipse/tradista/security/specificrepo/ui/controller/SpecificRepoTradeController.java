@@ -402,9 +402,7 @@ public class SpecificRepoTradeController implements Serializable {
 	public void save() {
 		try {
 			final String actionToApply = (action != null) ? action : ActionConstants.NEW;
-			if (trade.getId() == 0) {
-				trade.setCreationDate(LocalDate.now());
-			}
+
 			if (interestType == null || interestType.equals(FIXED)) {
 				trade.setIndex(null);
 				trade.setIndexTenor(null);
@@ -472,37 +470,38 @@ public class SpecificRepoTradeController implements Serializable {
 		long tradeId;
 		try {
 			tradeId = Long.parseLong(idToBeLoaded);
-			SpecificRepoTrade specialTrade = specificRepoTradeBusinessDelegate.getSpecificRepoTradeById(tradeId);
-			if (specialTrade != null) {
-				trade.setId(specialTrade.getId());
-				trade.setBuySell(specialTrade.isBuy());
-				trade.setCounterparty(specialTrade.getCounterparty());
-				trade.setCurrency(specialTrade.getCurrency());
-				trade.setProduct(specialTrade.getProduct());
-				trade.setAmount(specialTrade.getAmount());
-				trade.setSettlementDate(specialTrade.getSettlementDate());
-				trade.setTradeDate(specialTrade.getTradeDate());
-				trade.setBook(specialTrade.getBook());
-				trade.setCreationDate(specialTrade.getCreationDate());
-				trade.setCrossCurrencyCollateral(specialTrade.isCrossCurrencyCollateral());
-				trade.setSecurity(specialTrade.getSecurity());
-				trade.setEndDate(specialTrade.getEndDate());
-				trade.setIndex(specialTrade.getIndex());
-				trade.setIndexOffset(specialTrade.getIndexOffset());
-				trade.setMarginRate(specialTrade.getMarginRate());
-				trade.setNoticePeriod(specialTrade.getNoticePeriod());
-				trade.setRepoRate(specialTrade.getRepoRate());
-				trade.setRightOfReuse(specialTrade.isRightOfReuse());
-				trade.setRightOfSubstitution(specialTrade.isRightOfSubstitution());
-				trade.setTerminableOnDemand(specialTrade.isTerminableOnDemand());
-				trade.setStatus(specialTrade.getStatus());
-				trade.setPartialTerminations(specialTrade.getPartialTerminations());
+			SpecificRepoTrade specificRepoTrade = specificRepoTradeBusinessDelegate.getSpecificRepoTradeById(tradeId);
+			if (specificRepoTrade != null) {
+				trade.setCreationDate(specificRepoTrade.getCreationDate());
+				trade.setId(specificRepoTrade.getId());
+				trade.setBuySell(specificRepoTrade.isBuy());
+				trade.setCounterparty(specificRepoTrade.getCounterparty());
+				trade.setCurrency(specificRepoTrade.getCurrency());
+				trade.setProduct(specificRepoTrade.getProduct());
+				trade.setAmount(specificRepoTrade.getAmount());
+				trade.setSettlementDate(specificRepoTrade.getSettlementDate());
+				trade.setTradeDate(specificRepoTrade.getTradeDate());
+				trade.setBook(specificRepoTrade.getBook());
+				trade.setCreationDate(specificRepoTrade.getCreationDate());
+				trade.setCrossCurrencyCollateral(specificRepoTrade.isCrossCurrencyCollateral());
+				trade.setSecurity(specificRepoTrade.getSecurity());
+				trade.setEndDate(specificRepoTrade.getEndDate());
+				trade.setIndex(specificRepoTrade.getIndex());
+				trade.setIndexOffset(specificRepoTrade.getIndexOffset());
+				trade.setMarginRate(specificRepoTrade.getMarginRate());
+				trade.setNoticePeriod(specificRepoTrade.getNoticePeriod());
+				trade.setRepoRate(specificRepoTrade.getRepoRate());
+				trade.setRightOfReuse(specificRepoTrade.isRightOfReuse());
+				trade.setRightOfSubstitution(specificRepoTrade.isRightOfSubstitution());
+				trade.setTerminableOnDemand(specificRepoTrade.isTerminableOnDemand());
+				trade.setStatus(specificRepoTrade.getStatus());
+				trade.setPartialTerminations(specificRepoTrade.getPartialTerminations());
 				Set<String> availableActions = workflowBusinessDelegate
-						.getAvailableActionsFromStatus(workflow.getName(), specialTrade.getStatus());
+						.getAvailableActionsFromStatus(workflow.getName(), specificRepoTrade.getStatus());
 				if (availableActions != null && !availableActions.isEmpty()) {
 					allAvailableActions = availableActions.toArray(new String[availableActions.size()]);
 				}
-				originalCashAmount = specialTrade.getAmount();
+				originalCashAmount = specificRepoTrade.getAmount();
 				FacesContext.getCurrentInstance().addMessage(TRADE_MSG, new FacesMessage(FacesMessage.SEVERITY_INFO,
 						"Info", "Trade " + trade.getId() + " successfully loaded."));
 			} else {

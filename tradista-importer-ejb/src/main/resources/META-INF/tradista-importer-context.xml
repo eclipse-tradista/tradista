@@ -36,12 +36,12 @@
 			<value>${jboss.server.config.dir}/fixImporter.properties</value>
 		</constructor-arg>
 		<constructor-arg>
-			<idref bean="po" />
+			<ref bean="po" />
 		</constructor-arg>
 	</bean>
 	<bean id="po" factory-bean="legalEntityBusinessDelegate"
 		factory-method="getLegalEntityByShortName">
-		<constructor-arg value="OAC" />
+		<constructor-arg value="AOC" />
 	</bean>
 	<bean id="legalEntityBusinessDelegate"
 		class="org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate" />

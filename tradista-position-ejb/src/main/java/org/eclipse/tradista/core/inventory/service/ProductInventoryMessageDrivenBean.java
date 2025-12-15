@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.inventory.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
 import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
 import org.eclipse.tradista.core.transfer.model.Transfer;
@@ -47,7 +48,7 @@ public class ProductInventoryMessageDrivenBean implements MessageListener {
 			ProductTransferEvent event = (ProductTransferEvent) objectMessage.getObject();
 
 			// Important to have a class level lock here, otherwise deadlock can occur.
-			synchronized (this.getClass()) {
+			synchronized (ProductInventoryMessageDrivenBean.class) {
 				// If there was already a transfer, first we erase the trace of this
 				// old transfer in the inventory
 				// Note: old transfer is not null only when it was KNOWN
@@ -67,7 +68,7 @@ public class ProductInventoryMessageDrivenBean implements MessageListener {
 				}
 			}
 
-		} catch (JMSException | TradistaBusinessException e) {
+		} catch (JMSException | TradistaBusinessException | TradistaTechnicalException e) {
 			e.printStackTrace();
 			context.setRollbackOnly();
 		}

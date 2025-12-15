@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.inventory.service;
 
 import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.transfer.messaging.CashTransferEvent;
 import org.eclipse.tradista.core.transfer.model.Transfer;
 
@@ -47,7 +48,7 @@ public class CashInventoryMessageDrivenBean implements MessageListener {
 			CashTransferEvent event = (CashTransferEvent) objectMessage.getObject();
 
 			// Important to have a class level lock here, otherwise deadlock can occur.
-			synchronized (this.getClass()) {
+			synchronized (CashInventoryMessageDrivenBean.class) {
 				// If there was already a transfer, first we erase the trace of this
 				// old transfer in
 				// the inventory
@@ -68,7 +69,7 @@ public class CashInventoryMessageDrivenBean implements MessageListener {
 				}
 			}
 
-		} catch (JMSException | TradistaBusinessException e) {
+		} catch (JMSException | TradistaBusinessException | TradistaTechnicalException e) {
 			e.printStackTrace();
 			context.setRollbackOnly();
 		}

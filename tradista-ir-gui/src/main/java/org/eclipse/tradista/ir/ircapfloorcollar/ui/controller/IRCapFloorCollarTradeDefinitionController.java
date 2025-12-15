@@ -500,6 +500,8 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
 		long oldIrForwardTradeId = 0;
+		LocalDate oldCreationDate = null;
+		LocalDate oldIrForwardCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 
@@ -509,7 +511,10 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldIrForwardTradeId = trade.getIrForwardTrade().getId();
+				oldCreationDate = trade.getCreationDate();
+				oldIrForwardCreationDate = trade.getIrForwardTrade().getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(irCapFloorCollarTradeBusinessDelegate.saveIRCapFloorCollarTrade(trade));
 				IRCapFloorCollarTrade existingTrade = irCapFloorCollarTradeBusinessDelegate
 						.getIRCapFloorCollarTradeById(trade.getId());
@@ -520,6 +525,8 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
 				trade.getIrForwardTrade().setId(oldIrForwardTradeId);
+				trade.setCreationDate(oldCreationDate);
+				trade.getIrForwardTrade().setCreationDate(oldIrForwardCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -609,7 +616,6 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 	private IRCapFloorCollarTrade buildTrade() {
 		if (this.trade == null) {
 			trade = new IRCapFloorCollarTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -630,8 +636,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 			// Building the ir forward trade
 			if (trade.getIrForwardTrade() == null) {
-				trade.setIrForwardTrade(new IRForwardTrade<Product>());
-				trade.getIrForwardTrade().setCreationDate(LocalDate.now());
+				trade.setIrForwardTrade(new IRForwardTrade<>());
 			}
 
 			if (!notionalAmount.getText().isEmpty()) {
@@ -652,7 +657,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			trade.getIrForwardTrade().setCounterparty(counterparty.getValue());
 			trade.getIrForwardTrade().setInterestPayment(interestPayment.getValue());
 			trade.getIrForwardTrade().setInterestFixing(interestFixing.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen here.
 		}
 

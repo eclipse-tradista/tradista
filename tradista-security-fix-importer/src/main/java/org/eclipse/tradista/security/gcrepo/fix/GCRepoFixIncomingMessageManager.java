@@ -1,11 +1,8 @@
-package org.eclipse.tradista.gcrepo.fix;
+package org.eclipse.tradista.security.gcrepo.fix;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.repo.fix.RepoFixIncomingMessageManager;
-import org.eclipse.tradista.security.gcrepo.importer.model.GCRepoIncomingMessageManager;
+import org.eclipse.tradista.security.gcrepo.incomingmessage.GCRepoIncomingMessageManager;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
-import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
-import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
+import org.eclipse.tradista.security.repo.fix.RepoFixIncomingMessageManager;
 
 import quickfix.FieldNotFound;
 import quickfix.field.SecurityID;
@@ -30,12 +27,6 @@ import quickfix.fix44.TradeCaptureReport;
 public class GCRepoFixIncomingMessageManager extends RepoFixIncomingMessageManager
 		implements GCRepoIncomingMessageManager<TradeCaptureReport> {
 
-	private GCRepoTradeBusinessDelegate gcRepoTradeBusinessDelegate;
-
-	public GCRepoFixIncomingMessageManager() {
-		gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
-	}
-
 	@Override
 	public void checkBasket(TradeCaptureReport tcReport, StringBuilder errMsg) {
 		if (!tcReport.isSetSecurityID()) {
@@ -52,18 +43,6 @@ public class GCRepoFixIncomingMessageManager extends RepoFixIncomingMessageManag
 			// Not expected here.
 		}
 		return basket;
-	}
-
-	@Override
-	public GCRepoTrade createObject(TradeCaptureReport tcReport) {
-		GCRepoTrade trade = new GCRepoTrade();
-		trade.setGcBasket(getBasket(tcReport));
-		return (GCRepoTrade) fillObject(tcReport, trade);
-	}
-
-	@Override
-	public long saveObject(GCRepoTrade trade) throws TradistaBusinessException {
-		return gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, null);
 	}
 
 }

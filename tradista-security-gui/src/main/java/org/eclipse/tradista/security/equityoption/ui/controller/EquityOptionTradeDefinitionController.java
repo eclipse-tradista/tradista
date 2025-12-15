@@ -761,6 +761,8 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 		Optional<ButtonType> result = confirmation.showAndWait();
 		long oldTradeId = 0;
 		long oldUnderlyingTradeId = 0;
+		LocalDate oldCreationDate = null;
+		LocalDate oldUnderlyingCreationDate = null;
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
@@ -768,7 +770,10 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldUnderlyingTradeId = trade.getUnderlying().getId();
+				oldCreationDate = trade.getCreationDate();
+				oldUnderlyingCreationDate = trade.getUnderlying().getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.getUnderlying().setId(0);
 				trade.setId(equityOptionTradeBusinessDelegate.saveEquityOptionTrade(trade));
 				EquityOptionTrade existingTrade = equityOptionTradeBusinessDelegate
@@ -780,6 +785,8 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
 				trade.getUnderlying().setId(oldUnderlyingTradeId);
+				trade.setCreationDate(oldCreationDate);
+				trade.getUnderlying().setCreationDate(oldUnderlyingCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -789,7 +796,6 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new EquityOptionTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -825,7 +831,6 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 			// Building the underlying
 			if (trade.getUnderlying() == null) {
 				trade.setUnderlying(new EquityTrade());
-				trade.getUnderlying().setCreationDate(LocalDate.now());
 			}
 
 			trade.getUnderlying().setProduct(equity.getValue());

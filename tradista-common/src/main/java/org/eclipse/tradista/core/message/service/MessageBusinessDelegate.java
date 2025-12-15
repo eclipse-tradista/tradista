@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.message.service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,15 +48,16 @@ public class MessageBusinessDelegate {
 
 	public long saveMessage(Message message, String action) throws TradistaBusinessException {
 		messageValidator.validateMessage(message);
-		// We apply the action without saving
 		if (!StringUtils.isBlank(action)) {
-			applyAction(message, action);
+			final Message msg = applyAction(message, action);
+			// If there was no error, we save the message
+			return SecurityUtil.run(() -> messageService.saveMessage(msg));
+		} else {
+			return SecurityUtil.run(() -> messageService.saveMessage(message));
 		}
-		// if no issue, we save the message
-		return SecurityUtil.run(() -> messageService.saveMessage(message));
 	}
 
-	public void applyAction(Message message, String action) throws TradistaBusinessException {
+	public Message applyAction(Message message, String action) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(action)) {
 			errMsg.append(String.format("The action is mandatory.%n"));
@@ -66,7 +68,7 @@ public class MessageBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		SecurityUtil.runEx(() -> messageService.applyAction(message, action));
+		return SecurityUtil.runEx(() -> messageService.applyAction(message, action));
 	}
 
 	public List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames,
@@ -74,7 +76,9 @@ public class MessageBusinessDelegate {
 			LocalDateTime creationDateTimeTo, LocalDateTime lastUpdateDateTimeFrom, LocalDateTime lastUpdateDateTimeTo)
 			throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
-		List<Set<?>> sets = List.of(types, interfaceNames, objectTypes);
+		List<Set<?>> sets = List.of(types == null ? new HashSet<String>() : types,
+				interfaceNames == null ? new HashSet<String>() : interfaceNames,
+				objectTypes == null ? new HashSet<String>() : objectTypes);
 		long nonEmptyCount = sets.stream().filter(set -> !CollectionUtils.isEmpty(set)).count();
 
 		if (nonEmptyCount > 1) {

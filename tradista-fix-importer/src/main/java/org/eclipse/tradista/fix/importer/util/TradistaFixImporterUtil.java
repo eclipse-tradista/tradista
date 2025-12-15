@@ -41,7 +41,6 @@ public final class TradistaFixImporterUtil {
 
 	public static final Pattern DATE_REGEX = Pattern.compile("^(\\d{4})(0[1-9]|1[0-2])(0[1-9]|1\\d|2\\d|3[01])$");
 	public static final Pattern YES_NO_REGEX = Pattern.compile("^[YN]$");
-	public static final Pattern NUMBER_OF_DAYS_REGEX = Pattern.compile("^\\d+D$");
 	public static final Pattern AMOUNT_REGEX = Pattern.compile("^-?\\d+(\\.\\d+)?$");
 
 	private static final String FIELD_CANNOT_BE_PARSED_AS_EMPTY = "Field %d cannot be parsed as it is empty.";
@@ -156,8 +155,8 @@ public final class TradistaFixImporterUtil {
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		} catch (TradistaBusinessException tbe) {
-			throw new TradistaTechnicalException(String
-					.format("There was an issue retrieving the counterparty in tag %d: %s", tag, tbe.getMessage()));
+			throw new TradistaTechnicalException(String.format(
+					"There was an issue retrieving the mapped counterparty from tag %d: %s", tag, tbe.getMessage()));
 		}
 		return legalEntity;
 	}
@@ -174,8 +173,8 @@ public final class TradistaFixImporterUtil {
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		} catch (TradistaBusinessException tbe) {
-			throw new TradistaTechnicalException(
-					String.format("There was an issue retrieving the book in tag %d: %s", tag, tbe.getMessage()));
+			throw new TradistaTechnicalException(String
+					.format("There was an issue retrieving the mapped book from tag %d: %s", tag, tbe.getMessage()));
 		}
 		return book;
 	}

@@ -111,8 +111,6 @@ public class IRSwapTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return irswapTrade;
@@ -132,7 +130,7 @@ public class IRSwapTradeSQL {
 								"UPDATE IRSWAP_TRADE SET MATURITY_DATE=?, PAYMENT_FREQUENCY=?, RECEPTION_FREQUENCY=?, PAYMENT_FIXED_INTEREST_RATE=?, PAYMENT_REFERENCE_RATE_INDEX_ID=?, RECEPTION_REFERENCE_RATE_INDEX_ID=?, PAYMENT_REFERENCE_RATE_INDEX_TENOR=?, RECEPTION_REFERENCE_RATE_INDEX_TENOR=?, PAYMENT_SPREAD=?, RECEPTION_SPREAD=?, PAYMENT_DAY_COUNT_CONVENTION_ID=?, RECEPTION_DAY_COUNT_CONVENTION_ID=?, MATURITY_TENOR=?, PAYMENT_INTEREST_PAYMENT=?, PAYMENT_INTEREST_FIXING=?, RECEPTION_INTEREST_PAYMENT=?, RECEPTION_INTEREST_FIXING=? WHERE IRSWAP_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}

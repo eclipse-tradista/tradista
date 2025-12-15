@@ -293,11 +293,11 @@ public final class TradistaUtil {
 		try {
 			prop.load(in);
 			in.close();
-			for (Object product : prop.keySet()) {
+			for (Object value : prop.keySet()) {
 				if (values == null) {
 					values = new HashSet<>();
 				}
-				values.add((String) product);
+				values.add((String) value);
 			}
 		} catch (Exception _) {
 		}
