@@ -4,10 +4,12 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.util.TradistaConstants;
 import org.eclipse.tradista.core.importer.model.Importer;
+import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.interceptor.Interceptors;
@@ -28,6 +30,8 @@ import jakarta.interceptor.Interceptors;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+@SecurityDomain(value = "other")
+@PermitAll
 @Startup
 @Singleton
 public class LocalImporterConfigurationServiceBean implements LocalImporterConfigurationService {

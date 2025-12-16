@@ -322,7 +322,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-ejb-plugin</artifactId>
-				<version>3.2.1</version>
+				<version>3.3.0</version>
 				<configuration>
 					<ejbVersion>4.0</ejbVersion>
 					<archive>
@@ -334,7 +334,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.4.0</version>
+				<version>3.5.1</version>
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
 				</configuration>

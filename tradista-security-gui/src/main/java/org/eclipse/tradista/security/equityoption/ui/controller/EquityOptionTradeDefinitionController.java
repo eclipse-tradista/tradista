@@ -775,6 +775,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 				trade.setId(0);
 				trade.setCreationDate(LocalDate.now());
 				trade.getUnderlying().setId(0);
+				trade.getUnderlying().setCreationDate(oldUnderlyingCreationDate);
 				trade.setId(equityOptionTradeBusinessDelegate.saveEquityOptionTrade(trade));
 				EquityOptionTrade existingTrade = equityOptionTradeBusinessDelegate
 						.getEquityOptionTradeById(trade.getId());

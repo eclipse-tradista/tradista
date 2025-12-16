@@ -499,6 +499,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				trade.setId(0);
 				trade.setCreationDate(LocalDate.now());
 				trade.getUnderlying().setId(0);
+				trade.getUnderlying().setCreationDate(oldUnderlyingCreationDate);
 				trade.setId(fxOptionTradeBusinessDelegate.saveFXOptionTrade(trade));
 				FXOptionTrade existingTrade = fxOptionTradeBusinessDelegate.getFXOptionTradeById(trade.getId());
 				if (existingTrade.getUnderlying() != null) {

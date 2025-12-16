@@ -3,7 +3,7 @@
 	xmlns="urn:jboss:module:1.9">
 
 	<resources>
-		<resource-root path="spring-tx-6.2.11.jar" />
+		<resource-root path="spring-tx-6.2.15.jar" />
 	</resources>
 
 	<dependencies>
