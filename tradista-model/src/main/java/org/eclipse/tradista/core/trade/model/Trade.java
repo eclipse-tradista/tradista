@@ -38,13 +38,11 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 
 		@Override
 		public String toString() {
-			switch (this) {
-			case BUY:
-				return "Buy";
-			case SELL:
-				return "Sell";
-			}
-			return super.toString();
+			return switch (this) {
+			case BUY -> "Buy";
+			case SELL -> "Sell";
+			default -> super.toString();
+			};
 		}
 	}
 

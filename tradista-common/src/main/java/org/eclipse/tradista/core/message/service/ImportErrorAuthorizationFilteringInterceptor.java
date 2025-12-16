@@ -7,7 +7,6 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.Message;
-import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.interceptor.AroundInvoke;
@@ -80,7 +79,8 @@ public class ImportErrorAuthorizationFilteringInterceptor extends TradistaAuthor
 			}
 			if (value instanceof ImportError error) {
 				value = messageBusinessDelegate.getMessages(error.getMessage().getId(), null, null, null, 0, null, null,
-						null, null, null, null);
+						null, null, null, null) == null ? null : value;
+
 			}
 		}
 		return value;

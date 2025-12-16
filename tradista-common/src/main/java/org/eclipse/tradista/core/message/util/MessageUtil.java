@@ -22,6 +22,18 @@ import org.eclipse.tradista.core.trade.model.Trade;
 
 public final class MessageUtil {
 
+	public enum ObjectTypes {
+		TRADE;
+
+		@Override
+		public String toString() {
+			return switch (this) {
+			case TRADE -> "Trade";
+			default -> super.toString();
+			};
+		}
+	}
+
 	private MessageUtil() {
 	}
 
@@ -30,7 +42,7 @@ public final class MessageUtil {
 			throw new TradistaTechnicalException("The object is mandatory to determine the message object type");
 		}
 		return switch (object) {
-		case Trade<?> _ -> "Trade";
+		case Trade<?> _ -> MessageUtil.ObjectTypes.TRADE.toString();
 		default -> null;
 		};
 	}

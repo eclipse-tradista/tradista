@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.util.MessageUtil;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 import org.eclipse.tradista.core.user.model.User;
@@ -61,10 +62,10 @@ public class MessageAuthorizationFilteringInterceptor extends TradistaAuthorizat
 				}
 			}
 			if (message.getObjectId() != 0) {
-				if ("Trade".equals(message.getObjectType())) {
+				if (MessageUtil.ObjectTypes.TRADE.toString().equals(message.getObjectType())) {
 					Trade<?> trade = tradeBusinessDelegate.getTradeById(message.getObjectId());
 					if (trade == null) {
-						errMsg.append(String.format("The trade %d was not found.%n", message.getObjectId()));
+						errMsg.append(String.format("The trade %d was not found.", message.getObjectId()));
 					}
 				}
 			}
@@ -83,7 +84,8 @@ public class MessageAuthorizationFilteringInterceptor extends TradistaAuthorizat
 				List<Message> messages = (List<Message>) value;
 				value = messages.stream().filter(m -> {
 					try {
-						return (m.getObjectId() == 0) || (!"Trade".equals(m.getObjectType()))
+						return (m.getObjectId() == 0)
+								|| (!MessageUtil.ObjectTypes.TRADE.toString().equals(m.getObjectType()))
 								|| (tradeBusinessDelegate.getTradeById(m.getObjectId()).getBook().getProcessingOrg()
 										.equals(user.getProcessingOrg()));
 					} catch (TradistaBusinessException _) {

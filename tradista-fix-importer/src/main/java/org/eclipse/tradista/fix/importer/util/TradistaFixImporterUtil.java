@@ -143,14 +143,31 @@ public final class TradistaFixImporterUtil {
 		return currency;
 	}
 
-	public static LegalEntity parseFixLegalEntity(String importerName, FieldMap fieldMap, int tag) {
+	public static LegalEntity parseFixLegalEntity(String importerName, FieldMap fieldMap, int tag, long poId)
+			throws TradistaBusinessException {
 		String counterpartyId = null;
 		String mapppedCounterpartyId;
 		LegalEntity legalEntity;
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(importerName)) {
+			errMsg.append(String.format("the importer name is mandatory.%n"));
+		}
+		if (fieldMap == null) {
+			errMsg.append(String.format("The field map is mandatory.%n"));
+		}
+		if (tag <= 0) {
+			errMsg.append(String.format("The tag (%d) must be positive.%n", tag));
+		}
+		if (poId <= 0) {
+			errMsg.append(String.format("The processing org id (%d) must be positive.%n", poId));
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
 		try {
 			counterpartyId = fieldMap.getString(tag);
 			mapppedCounterpartyId = mappingBusinessDelegate.getMappingValue(importerName, MappingType.LegalEntity,
-					InterfaceMappingSet.Direction.INCOMING, counterpartyId);
+					InterfaceMappingSet.Direction.INCOMING, counterpartyId, poId);
 			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(mapppedCounterpartyId);
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
@@ -161,14 +178,31 @@ public final class TradistaFixImporterUtil {
 		return legalEntity;
 	}
 
-	public static Book parseFixBook(String importerName, FieldMap fieldMap, int tag) {
+	public static Book parseFixBook(String importerName, FieldMap fieldMap, int tag, long poId)
+			throws TradistaBusinessException {
 		String account = null;
 		String mapppedBookName;
 		Book book;
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(importerName)) {
+			errMsg.append(String.format("the importer name is mandatory.%n"));
+		}
+		if (fieldMap == null) {
+			errMsg.append(String.format("The field map is mandatory.%n"));
+		}
+		if (tag <= 0) {
+			errMsg.append(String.format("The tag (%d) must be positive.%n", tag));
+		}
+		if (poId <= 0) {
+			errMsg.append(String.format("The processing org id (%d) must be positive.%n", poId));
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
 		try {
 			account = fieldMap.getString(tag);
 			mapppedBookName = mappingBusinessDelegate.getMappingValue(importerName, MappingType.Book,
-					InterfaceMappingSet.Direction.INCOMING, account);
+					InterfaceMappingSet.Direction.INCOMING, account, poId);
 			book = bookBusinessDelegate.getBookByName(mapppedBookName);
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));

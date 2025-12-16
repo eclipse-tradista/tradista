@@ -171,6 +171,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		this.name = name;
 	}
 
+	@Override
 	public LegalEntity getProcessingOrg() {
 		return processingOrg;
 	}

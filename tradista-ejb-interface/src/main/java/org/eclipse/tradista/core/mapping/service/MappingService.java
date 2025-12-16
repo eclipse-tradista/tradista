@@ -25,10 +25,10 @@ import jakarta.ejb.Remote;
 public interface MappingService {
 
 	String getMappingValue(String importerName, MappingType mappingType, InterfaceMappingSet.Direction direction,
-			String value);
+			String value, long poId);
 
 	String getOriginalValue(String importerName, MappingType mappingType, InterfaceMappingSet.Direction direction,
-			String value);
+			String value, long poId);
 
 	long saveInterfaceMappingSet(InterfaceMappingSet ims);
 

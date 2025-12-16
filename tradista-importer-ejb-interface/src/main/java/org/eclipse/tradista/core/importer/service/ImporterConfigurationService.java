@@ -1,9 +1,6 @@
 package org.eclipse.tradista.core.importer.service;
 
-import java.util.Set;
 import java.util.SortedSet;
-
-import org.eclipse.tradista.core.importer.model.Importer;
 
 import jakarta.ejb.Remote;
 
@@ -28,10 +25,6 @@ public interface ImporterConfigurationService {
 
 	SortedSet<String> getModules();
 
-	Set<Importer<?>> getAllImporters();
-
 	SortedSet<String> getAllImporterNames();
 
-	Importer<?> getImporterByName(String name);
-	
 }

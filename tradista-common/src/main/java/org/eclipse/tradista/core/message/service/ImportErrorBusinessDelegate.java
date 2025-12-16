@@ -90,7 +90,7 @@ public class ImportErrorBusinessDelegate {
 			errMsg.append(String.format("The message id must be positive.%n"));
 		}
 		if (importErrorType == null) {
-			errMsg.append("The import error type is mandatory");
+			errMsg.append("The import error type is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());

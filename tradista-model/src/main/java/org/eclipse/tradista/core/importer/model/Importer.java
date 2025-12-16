@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 
 /********************************************************************************
@@ -27,6 +28,8 @@ public interface Importer<X> extends Runnable {
 	String getType();
 
 	String getName();
+
+	LegalEntity getProcessingOrg();
 
 	void importMessage(X externalMessage) throws TradistaBusinessException;
 

@@ -10,6 +10,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
+import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -43,11 +44,13 @@ public class LocalImporterConfigurationServiceBean implements LocalImporterConfi
 				"/" + TradistaConstants.META_INF + "/" + CONFIG_FILE_NAME);
 	}
 
+	@Interceptors(ImporterConfigurationAuthorizationFilteringInterceptor.class)
 	@Override
 	public Set<Importer<?>> getAllImporters() {
 		return ((ImporterConfiguration) applicationContext.getBean(IMPORTER_CONFIGURATION_BEAN)).getImporters();
 	}
 
+	@Interceptors(ImporterConfigurationAuthorizationFilteringInterceptor.class)
 	@Override
 	public Importer<?> getImporterByName(String name) {
 		return getAllImporters().stream().filter(i -> i.getName().equals(name)).findFirst().get();

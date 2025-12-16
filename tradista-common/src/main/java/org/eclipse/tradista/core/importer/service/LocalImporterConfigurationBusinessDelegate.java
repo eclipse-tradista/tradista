@@ -1,7 +1,5 @@
 package org.eclipse.tradista.core.importer.service;
 
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
@@ -37,8 +35,5 @@ public class LocalImporterConfigurationBusinessDelegate extends ImporterConfigur
 		}
 		return localImporterConfigurationService.getImporterByName(name);
 	}
-	
-	public Set<Importer<?>> getAllImporters() throws TradistaBusinessException {
-		return localImporterConfigurationService.getAllImporters();
-	}
+
 }

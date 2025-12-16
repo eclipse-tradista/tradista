@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
@@ -39,6 +40,9 @@ import jakarta.ejb.Startup;
 @Singleton
 public class ImporterConfigurationServiceBean implements ImporterConfigurationService {
 
+	@EJB
+	private LocalImporterConfigurationService localImporterConfigurationService;
+
 	private static ApplicationContext applicationContext;
 
 	private static final String CONFIG_FILE_NAME = "tradista-importer-context.xml";
@@ -57,22 +61,12 @@ public class ImporterConfigurationServiceBean implements ImporterConfigurationSe
 	}
 
 	@Override
-	public Set<Importer<?>> getAllImporters() {
-		return ((ImporterConfiguration) applicationContext.getBean(IMPORTER_CONFIGURATION_BEAN)).getImporters();
-	}
-
-	@Override
 	public SortedSet<String> getAllImporterNames() {
-		Set<Importer<?>> allImporters = getAllImporters();
+		Set<Importer<?>> allImporters = localImporterConfigurationService.getAllImporters();
 		if (!CollectionUtils.isEmpty(allImporters)) {
 			return allImporters.stream().map(i -> i.getName()).collect(Collectors.toCollection(TreeSet::new));
 		}
 		return null;
-	}
-
-	@Override
-	public Importer<?> getImporterByName(String name) {
-		return getAllImporters().stream().filter(i -> i.getName().equals(name)).findFirst().get();
 	}
 
 }

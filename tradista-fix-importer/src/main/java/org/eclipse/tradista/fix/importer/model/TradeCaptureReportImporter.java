@@ -65,7 +65,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 			throws TradistaBusinessException {
 		super(name, configFileName, po);
 		importedProcessingOrg = new MappingBusinessDelegate().getOriginalValue(getName(), MappingType.LegalEntity,
-				InterfaceMappingSet.Direction.INCOMING, getProcessingOrg().getShortName());
+				InterfaceMappingSet.Direction.INCOMING, getProcessingOrg().getShortName(), getProcessingOrg().getId());
 	}
 
 	@Handler
@@ -398,7 +398,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 							if (partyRole == TradistaFixConstants.CONTRA_FIRM_PARTY_ROLE
 									&& !importedProcessingOrg.equals(partyId)) {
 								return TradistaFixImporterUtil.parseFixLegalEntity(getName(), partyGroup,
-										quickfix.field.PartyID.FIELD);
+										quickfix.field.PartyID.FIELD, getProcessingOrg().getId());
 							}
 						} catch (FieldNotFound _) {
 							// Not expected here.
@@ -424,7 +424,7 @@ public class TradeCaptureReportImporter extends FixImporter<TradeCaptureReport>
 								if (!StringUtils.isEmpty(partyId) && partyId.equals(importedProcessingOrg)) {
 									if (sideGroup.isSetField(Account.FIELD)) {
 										return TradistaFixImporterUtil.parseFixBook(getName(), sideGroup,
-												quickfix.field.Account.FIELD);
+												quickfix.field.Account.FIELD, getProcessingOrg().getId());
 									}
 								}
 							}
