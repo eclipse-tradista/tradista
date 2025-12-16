@@ -1,5 +1,9 @@
 package org.eclipse.tradista.fix.importer.model;
 
+import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import quickfix.Application;
 import quickfix.ApplicationAdapter;
 import quickfix.BooleanField;
@@ -59,6 +63,8 @@ import quickfix.fix44.TradeCaptureReportRequest.NoPartyIDs;
  ********************************************************************************/
 
 public class TestTradeCaptureReportImporter {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TestTradeCaptureReportImporter.class);
 
 	public static void main(String[] args) throws Exception {
 
@@ -98,14 +104,14 @@ public class TestTradeCaptureReportImporter {
 		}
 
 		if (!Session.lookupSession(sessionID).isLoggedOn()) {
-			System.err.println("Connection to Tradista importer not possible.");
+			logger.error("Connection to Tradista importer not possible.");
 			initiator.stop();
 			return;
 		}
 
-		System.out.println("Connected to Tradista importer.");
+		logger.info("Connected to Tradista importer.");
 
-		System.out.println("Connected, sending the test FIX TradeCaptureReport message...");
+		logger.info("Connected, sending the test FIX TradeCaptureReport message...");
 		// ------------------------------
 		// Building the TradeCaptureReport message
 		// ------------------------------
@@ -168,11 +174,11 @@ public class TestTradeCaptureReportImporter {
 		tcr.addGroup(sell);
 
 		Session.sendToTarget(tcr, sessionID);
-		System.out.println("Test FIX TradeCaptureReport message sent.");
+		logger.info("Test FIX TradeCaptureReport message sent.");
 
 		// Stop initiator
-		Thread.sleep(1000);
+		//Thread.sleep(1000);
 		initiator.stop();
-		System.out.println("Test terminated");
+		logger.info("Test terminated");
 	}
 }
