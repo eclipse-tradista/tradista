@@ -291,7 +291,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 		super.initialize();
 
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(2));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(2));
 		tradeType.setText("IR Swap trade");
 
 		pricerBusinessDelegate = new PricerBusinessDelegate();
@@ -326,7 +326,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener((q, ov, nv) -> {
+		selectedQuoteSet.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -349,7 +349,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener((d, ov, nv) -> {
+		selectedQuoteDate.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -372,7 +372,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener((i, ov, nv) -> {
+		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -395,7 +395,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((t, ov, nv) -> {
+		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -416,7 +416,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		paymentReferenceRateIndex.getSelectionModel().selectedItemProperty().addListener((i, ov, nv) -> {
+		paymentReferenceRateIndex.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -438,7 +438,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		paymentReferenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((t, ov, nv) -> {
+		paymentReferenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -461,18 +461,18 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 		});
 
 		pricingDate.setOnAction(
-				ae -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+				_ -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
 
 		pricingDate.setValue(LocalDate.now());
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		book.getSelectionModel().selectedItemProperty().addListener((b, ov, nv) -> {
+		book.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				bookChartPane.updateBookChart(nv);
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((pm, ov, nv) -> {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			// nv is null when we do "setItems" in
 			// the first call of the refresh method
 			if (nv != null) {
@@ -482,14 +482,14 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener((pm, ov, nv) -> {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			// nv is null when we do "setItems" in
 			// the first call of the refresh method
 			if (nv != null) {
 				Pricer pricer = null;
 				try {
 					pricer = pricerBusinessDelegate.getPricer(IRSwapTrade.IR_SWAP, nv);
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Will never happen in this case.
 				}
 				TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
@@ -511,7 +511,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		currency.getSelectionModel().selectedItemProperty().addListener((c, ov, nv) -> {
+		currency.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			// nv is null on first call to refresh.
 			if (nv != null) {
 				if (pricingParameter.getValue() != null) {
@@ -529,7 +529,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		interestsToPayFixed.selectedProperty().addListener((b, ov, nv) -> {
+		interestsToPayFixed.selectedProperty().addListener((_, _, nv) -> {
 			paymentFixedInterestRateLabel.setVisible(nv);
 			fixedInterestRate.setVisible(nv);
 			paymentReferenceRateIndexLabel.setVisible(!nv);
@@ -542,7 +542,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			paymentInterestFixingLabel.setVisible(!nv);
 		});
 
-		maturityTenor.valueProperty().addListener((t, ov, nv) -> {
+		maturityTenor.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				boolean tenorIsSpecified = (!nv.equals(Tenor.NO_TENOR));
 				maturityDate.setDisable(tenorIsSpecified);
@@ -550,7 +550,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 					if (settlementDate.getValue() != null) {
 						try {
 							maturityDate.setValue(DateUtil.addTenor(settlementDate.getValue().minusDays(1), nv));
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Should not appear here.
 						}
 					} else {
@@ -560,34 +560,34 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		settlementDate.valueProperty().addListener((ld, ov, nv) -> {
+		settlementDate.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				boolean tenorIsSpecified = (!maturityTenor.getValue().equals(Tenor.NO_TENOR));
 				if (tenorIsSpecified) {
 					try {
 						maturityDate.setValue(DateUtil.addTenor(nv.minusDays(1), maturityTenor.getValue()));
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// Should not appear here.
 					}
 				}
 			}
 		});
 
-		referenceRateIndex.valueProperty().addListener((i, ov, nv) -> {
+		referenceRateIndex.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				receptionInterestFixing.setValue(
 						nv.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD : InterestPayment.END_OF_PERIOD);
 			}
 		});
 
-		paymentReferenceRateIndex.valueProperty().addListener((i, ov, nv) -> {
+		paymentReferenceRateIndex.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				paymentInterestFixing.setValue(
 						nv.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD : InterestPayment.END_OF_PERIOD);
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = dp ->
+		final Callback<DatePicker, DateCell> businessDayCellFactory = _ ->
 
 		new DateCell() {
 

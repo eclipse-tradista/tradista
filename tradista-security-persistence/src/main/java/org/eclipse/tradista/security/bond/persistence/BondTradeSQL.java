@@ -110,7 +110,6 @@ public class BondTradeSQL {
 			stmtSaveBondTrade.setLong(2, tradeId);
 			stmtSaveBondTrade.executeUpdate();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);
@@ -135,7 +134,6 @@ public class BondTradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(bondTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 

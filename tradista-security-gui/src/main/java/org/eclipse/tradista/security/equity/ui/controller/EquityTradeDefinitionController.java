@@ -240,7 +240,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 		super.initialize();
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		tradeType.setText("Equity Trade");
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(1));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(1));
 
 		equityBusinessDelegate = new EquityBusinessDelegate();
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
@@ -275,7 +275,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
 					QuoteSet newValue) {
@@ -287,7 +287,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -300,7 +300,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		equity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Equity>() {
+		equity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Equity> observableValue, Equity oldValue, Equity newValue) {
 				LocalDate quoteDate = selectedQuoteDate.getValue();
@@ -326,7 +326,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> observableValue,
 					PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
@@ -339,7 +339,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> observableValue,
 					PricingParameter oldPricingParam, PricingParameter newPricingParam) {
@@ -373,7 +373,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		pricingDate.setOnAction(new EventHandler<ActionEvent>() {
+		pricingDate.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent event) {
 				cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
@@ -383,7 +383,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 		pricingDate.setValue(LocalDate.now());
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
+		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
 				if (newValue != null) {
@@ -392,7 +392,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		});
 
-		final Callback<DatePicker, DateCell> dayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> dayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -426,7 +426,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 		tradeDate.setDayCellFactory(dayCellFactory);
 		selectedQuoteDate.setDayCellFactory(dayCellFactory);
 
-		tradeDateListener = new ChangeListener<LocalDate>() {
+		tradeDateListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null && equity.getValue() != null && selectedQuoteSet.getValue() != null) {
@@ -475,7 +475,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		};
 
-		directionListener = new ChangeListener<Trade.Direction>() {
+		directionListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Trade.Direction> arg0, Trade.Direction arg1,
 					Trade.Direction newDirection) {
@@ -507,7 +507,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 											priceWarning.setVisible(false);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
+								} catch (TradistaTechnicalException _) {
 									isQuoteSetServiceError = true;
 									Platform.runLater(() -> {
 										TradistaGUIUtil.applyErrorStyle(priceWarning);
@@ -528,7 +528,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 			}
 		};
 
-		equityListener = new ChangeListener<Equity>() {
+		equityListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Equity> arg0, Equity arg1, Equity newEquity) {
 				if (tradeDate.getValue() != null && newEquity != null && selectedQuoteSet.getValue() != null) {
@@ -556,7 +556,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 											priceWarning.setVisible(false);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
+								} catch (TradistaTechnicalException _) {
 									isQuoteSetServiceError = true;
 									Platform.runLater(() -> {
 										TradistaGUIUtil.applyErrorStyle(priceWarning);
@@ -706,7 +706,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -749,8 +749,8 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 						FXCollections.observableArrayList(CashFlowProperty.toCashFlowPropertyList(cashFlows)));
 				generate.setText("Refresh");
 			}
-		} catch (TradistaBusinessException abe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -786,12 +786,12 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
@@ -822,15 +822,15 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 		StringBuilder errMsg = new StringBuilder();
 		try {
 			TradistaGUIUtil.checkAmount(tradePrice.getText(), "Trade Price");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
 		try {
 			TradistaGUIUtil.checkAmount(quantity.getText(), "Quantity");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

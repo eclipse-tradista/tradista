@@ -300,10 +300,10 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 	public void initialize() {
 
 		super.initialize();
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(4));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(4));
 		tradeType.setText("Cross-Currencies Swap trade");
 
-		selectedQuoteSet.valueProperty().addListener((q, ov, nv) -> {
+		selectedQuoteSet.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -367,7 +367,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteDate.valueProperty().addListener((ld, ov, nv) -> {
+		selectedQuoteDate.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -396,7 +396,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener((i, ov, nv) -> {
+		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -429,7 +429,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		paymentReferenceRateIndex.getSelectionModel().selectedItemProperty().addListener((i, ov, nv) -> {
+		paymentReferenceRateIndex.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -462,7 +462,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((t, ov, nv) -> {
+		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((_, _, _) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -491,7 +491,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		paymentReferenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((t, ov, nv) -> {
+		paymentReferenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((_, _, _) -> {
 			if (selectedQuoteDate.getValue() != null) {
 				String irSwapRate = null;
 				String irSwapReferenceRate = null;
@@ -520,7 +520,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		currencyOne.getSelectionModel().selectedItemProperty().addListener((c, ov, nv) -> {
+		currencyOne.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				if (selectedQuoteDate.getValue() != null) {
 					String irSwapRate = null;
@@ -566,7 +566,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		currencyTwo.getSelectionModel().selectedItemProperty().addListener((c, ov, nv) -> {
+		currencyTwo.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				if (selectedQuoteDate.getValue() != null) {
 					String irSwapRate = null;
@@ -612,7 +612,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((pm, ov, nv) -> {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			// nv is null when we do "setItems" in
 			// the first call of the refresh method
 			if (nv != null) {
@@ -622,14 +622,14 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 
 		TradistaGUIUtil.fillCurrencyComboBox(currencyOne, currencyTwo, pricingCurrency);
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener((pp, ov, nv) -> {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			// nv is null when we do "setItems" in
 			// the first call of the refresh method
 			if (nv != null) {
 				Pricer pricer = null;
 				try {
 					pricer = pricerBusinessDelegate.getPricer(CcySwapTrade.CCY_SWAP, nv);
-				} catch (TradistaBusinessException abe) {
+				} catch (TradistaBusinessException _) {
 					// Will never happen in this case.
 				}
 				TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
@@ -667,18 +667,18 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 		});
 
 		pricingDate.setOnAction(
-				ae -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+				_ -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
 
 		pricingDate.setValue(LocalDate.now());
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		book.getSelectionModel().selectedItemProperty().addListener((b, ov, nv) -> {
+		book.getSelectionModel().selectedItemProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				bookChartPane.updateBookChart(nv);
 			}
 		});
 
-		interestsToPayFixed.selectedProperty().addListener((b, ov, nv) -> {
+		interestsToPayFixed.selectedProperty().addListener((_, _, nv) -> {
 			paymentFixedInterestRateLabel.setVisible(nv);
 			fixedInterestRate.setVisible(nv);
 			paymentReferenceRateIndexLabel.setVisible(!nv);
@@ -691,7 +691,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			paymentInterestFixingLabel.setVisible(!nv);
 		});
 
-		maturityTenor.valueProperty().addListener((t, ov, nv) -> {
+		maturityTenor.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				boolean tenorIsSpecified = (!nv.equals(Tenor.NO_TENOR));
 				maturityDate.setDisable(tenorIsSpecified);
@@ -699,7 +699,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 					if (settlementDate.getValue() != null) {
 						try {
 							maturityDate.setValue(DateUtil.addTenor(settlementDate.getValue().minusDays(1), nv));
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Should not appear here.
 						}
 					} else {
@@ -710,20 +710,20 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 			}
 		});
 
-		settlementDate.valueProperty().addListener((ld, ov, nv) -> {
+		settlementDate.valueProperty().addListener((_, _, nv) -> {
 			if (nv != null) {
 				boolean tenorIsSpecified = (!maturityTenor.getValue().equals(Tenor.NO_TENOR));
 				if (tenorIsSpecified) {
 					try {
 						maturityDate.setValue(DateUtil.addTenor(nv.minusDays(1), maturityTenor.getValue()));
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// Should not appear here.
 					}
 				}
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = dp -> new DateCell() {
+		final Callback<DatePicker, DateCell> businessDayCellFactory = _ -> new DateCell() {
 
 			CcySwapTrade irSwapTrade;
 
@@ -776,7 +776,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -1051,7 +1051,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

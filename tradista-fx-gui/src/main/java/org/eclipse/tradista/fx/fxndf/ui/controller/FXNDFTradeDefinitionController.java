@@ -233,7 +233,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 		currencyBusinessDelegate = new CurrencyBusinessDelegate();
 		fxNDFTradeBusinessDelegate = new FXNDFTradeBusinessDelegate();
 		fxNDFPricerBusinessDelegate = new FXNDFPricerBusinessDelegate();
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(2));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(2));
 		tradeType.setText("FX NDF Trade");
 
 		final Calendar calendar = fxNDFTradeBusinessDelegate.getFXExchange().getCalendar();
@@ -287,7 +287,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			// Won't happen because 'now' cannot be null
 		}
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> arg0, QuoteSet oldValue, QuoteSet newValue) {
 				if (newValue != null && settlementCurrency.getValue() != null
@@ -305,7 +305,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -321,7 +321,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		settlementCurrency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		settlementCurrency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency oldValue, Currency newValue) {
 				if (newValue != null) {
@@ -349,7 +349,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		nonDeliverableCurrency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		nonDeliverableCurrency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency arg1, Currency arg2) {
 				if (selectedQuoteDate.getValue() != null && settlementCurrency.getValue() != null && arg2 != null) {
@@ -363,7 +363,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> arg0, PricerMeasure arg1,
 					PricerMeasure newPricerMeasure) {
@@ -376,7 +376,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> arg0, PricingParameter arg1,
 					PricingParameter newPricingParam) {
@@ -410,7 +410,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		pricingDate.setOnAction(new EventHandler<ActionEvent>() {
+		pricingDate.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent event) {
 				cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
@@ -420,7 +420,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 		pricingDate.setValue(LocalDate.now());
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		nonDeliverableCurrency.valueProperty().addListener(new ChangeListener<Currency>() {
+		nonDeliverableCurrency.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency arg1, Currency newValue) {
 				if (settlementDate.getValue() != null) {
@@ -438,7 +438,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		settlementDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		settlementDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null) {
@@ -456,7 +456,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		});
 
-		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -491,7 +491,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			}
 		};
 
-		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -713,12 +713,12 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
@@ -760,7 +760,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

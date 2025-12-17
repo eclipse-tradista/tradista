@@ -502,6 +502,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 		long oldIrForwardTradeId = 0;
 		LocalDate oldCreationDate = null;
 		LocalDate oldIrForwardCreationDate = null;
+		IRForwardTrade<Product> irForwardTrade = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 
@@ -515,7 +516,10 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				oldIrForwardCreationDate = trade.getIrForwardTrade().getCreationDate();
 				trade.setId(0);
 				trade.setCreationDate(LocalDate.now());
-				trade.getIrForwardTrade().setCreationDate(LocalDate.now());
+				irForwardTrade = trade.getIrForwardTrade();
+				irForwardTrade.setId(0);
+				irForwardTrade.setCreationDate(LocalDate.now());
+				trade.setIrForwardTrade(irForwardTrade);
 				trade.setId(irCapFloorCollarTradeBusinessDelegate.saveIRCapFloorCollarTrade(trade));
 				IRCapFloorCollarTrade existingTrade = irCapFloorCollarTradeBusinessDelegate
 						.getIRCapFloorCollarTradeById(trade.getId());
@@ -525,9 +529,10 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.getIrForwardTrade().setId(oldIrForwardTradeId);
 				trade.setCreationDate(oldCreationDate);
-				trade.getIrForwardTrade().setCreationDate(oldIrForwardCreationDate);
+				irForwardTrade.setId(oldIrForwardTradeId);
+				irForwardTrade.setCreationDate(oldIrForwardCreationDate);
+				trade.setIrForwardTrade(irForwardTrade);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -696,12 +701,12 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
