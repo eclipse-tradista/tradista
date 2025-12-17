@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.net.sf.tweety.agents"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="agents-1.12.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.net.sf.tweety.commons"
+			export="true" />
+	</dependencies>
+
+</module>

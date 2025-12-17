@@ -20,7 +20,7 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class Status extends TradistaObject {
+public class Status extends TradistaObject implements Comparable<Status> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,6 +64,11 @@ public class Status extends TradistaObject {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(Status status) {
+		return name.compareTo(status.name);
 	}
 
 }

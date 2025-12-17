@@ -20,10 +20,9 @@ import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefa
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import org.eclipse.tradista.core.status.constants.StatusConstants;
 import org.eclipse.tradista.security.bond.model.Bond;
-import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
 import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.common.service.SecurityBusinessDelegate;
 import org.eclipse.tradista.security.equity.model.Equity;
-import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
@@ -71,13 +70,11 @@ public class GCRepoCollateralController implements Serializable {
 
 	private ProductInventoryBusinessDelegate productInventoryBusinessDelegate;
 
-	private BondBusinessDelegate bondBusinessDelegate;
-
-	private EquityBusinessDelegate equityBusinessDelegate;
-
 	private BookBusinessDelegate bookBusinessDelegate;
 
 	private ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate;
+
+	private SecurityBusinessDelegate securityBusinessDelegate;
 
 	private String context;
 
@@ -154,10 +151,9 @@ public class GCRepoCollateralController implements Serializable {
 		gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
 		gcRepoPricerBusinessDelegate = new GCRepoPricerBusinessDelegate();
 		productInventoryBusinessDelegate = new ProductInventoryBusinessDelegate();
-		bondBusinessDelegate = new BondBusinessDelegate();
-		equityBusinessDelegate = new EquityBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
 		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
+		securityBusinessDelegate = new SecurityBusinessDelegate();
 		DoughnutChart dc = new DoughnutChart();
 		dc.setData(DoughnutChart.data());
 		dc.getData().addDataset(new DoughnutDataset());
@@ -750,14 +746,13 @@ public class GCRepoCollateralController implements Serializable {
 		}
 		Map<Security, Map<Book, BigDecimal>> securities = new HashMap<>();
 		for (Collateral col : collateralSet) {
-			Security security = bondBusinessDelegate.getBondByIsinAndExchangeCode(col.getSecurity(), col.getExchange());
-			if (security == null) {
-				security = equityBusinessDelegate.getEquityByIsinAndExchangeCode(col.getSecurity(), col.getExchange());
-			}
+			Security security = null;
 			Book book = null;
 			try {
+				security = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(col.getSecurity(),
+						col.getExchange());
 				book = bookBusinessDelegate.getBookByName(col.getBook());
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 				// Not expected here
 			}
 			Map<Book, BigDecimal> bookMap = null;

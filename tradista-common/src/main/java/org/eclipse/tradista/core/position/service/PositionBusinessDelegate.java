@@ -60,7 +60,7 @@ public class PositionBusinessDelegate {
 			errMsg.append(String.format("The value date time is mandatory.%n"));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
@@ -92,7 +92,7 @@ public class PositionBusinessDelegate {
 		if (valueDateTime == null) {
 			errMsg.append(String.format("The value date time cannot be null.%n"));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.runEx(() -> positionService.calculatePosition(positionDefinitionName, valueDateTime));

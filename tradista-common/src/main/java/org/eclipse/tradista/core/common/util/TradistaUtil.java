@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.common.util;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,11 +8,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.error.model.Error;
@@ -281,6 +284,68 @@ public final class TradistaUtil {
 			throw new TradistaTechnicalException(
 					String.format("Could not create class from this name '%s' : %s", className, cnfe));
 		}
+	}
+
+	public static Set<String> getDistinctValuesFromProperties(String directory, String fileName) {
+		Set<String> values = null;
+		Properties prop = new Properties();
+		InputStream in = TradistaUtil.class.getResourceAsStream("/" + directory + "/" + fileName + ".properties");
+		try {
+			prop.load(in);
+			in.close();
+			for (Object value : prop.keySet()) {
+				if (values == null) {
+					values = new HashSet<>();
+				}
+				values.add((String) value);
+			}
+		} catch (Exception _) {
+		}
+		return values;
+	}
+
+	public static String getModuleVersion(String packageName, ClassLoader classLoader) {
+		if (classLoader == null) {
+			return getModuleVersion(packageName);
+		}
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(packageName)) {
+			errMsg.append("The package name cannot be blank.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
+		String fullPackageName = "org.eclipse.tradista." + packageName.toLowerCase();
+		while (classLoader != null) {
+			Package p = classLoader.getDefinedPackage(fullPackageName);
+			if (p != null) {
+				return p.getImplementationVersion();
+			}
+			classLoader = classLoader.getParent();
+		}
+		// package not found. We try with TradistaUtil's class loader.
+		return getModuleVersion(packageName);
+	}
+
+	public static String getModuleVersion(String packageName) {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(packageName)) {
+			errMsg.append("The package name cannot be blank.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
+		ClassLoader classLoader = TradistaUtil.class.getClassLoader();
+		String fullPackageName = "org.eclipse.tradista." + packageName.toLowerCase();
+		while (classLoader != null) {
+			Package p = classLoader.getDefinedPackage(fullPackageName);
+			if (p != null) {
+				return p.getImplementationVersion();
+			}
+			classLoader = classLoader.getParent();
+		}
+		// package not found.
+		return null;
 	}
 
 }

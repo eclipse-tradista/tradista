@@ -301,7 +301,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 				tradeDate.setValue(nextBusinessDay);
 				selectedQuoteDate.setValue(nextBusinessDay);
 			}
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Won't happen because 'now' cannot be null
 		}
 
@@ -330,7 +330,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 				.setCellValueFactory(cellDiscountAmount -> cellDiscountAmount.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellDiscountFactor -> cellDiscountFactor.getValue().getDiscountFactor());
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -345,7 +345,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		currencyOne.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		currencyOne.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency oldCurrency, Currency newCurrency) {
 
@@ -376,7 +376,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		currencyTwo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		currencyTwo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency oldCurrency, Currency newCurrency) {
 				if (newCurrency != null) {
@@ -404,7 +404,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		exchangeRateListener = new ChangeListener<String>() {
+		exchangeRateListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (!StringUtils.isEmpty(amountTwo.getText()) && !StringUtils.isEmpty(newValue)) {
@@ -416,13 +416,13 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 									.formatAmount(amtTwo.divide(exchRate, configurationBusinessDelegate.getScale(),
 											configurationBusinessDelegate.getRoundingMode())));
 						}
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 					}
 				}
 			}
 		};
 
-		amountTwoListener = new ChangeListener<String>() {
+		amountTwoListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				if (!StringUtils.isEmpty(newValue) && !StringUtils.isEmpty(exchangeRate.getText())) {
@@ -432,13 +432,13 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 						amountOne.setText(TradistaGUIUtil
 								.formatAmount(amtTwo.divide(exchRate, configurationBusinessDelegate.getScale(),
 										configurationBusinessDelegate.getRoundingMode())));
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 					}
 				}
 			}
 		};
 
-		currencyTwoListener = new ChangeListener<Currency>() {
+		currencyTwoListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency oldCurrency, Currency newCurrency) {
 				if (newCurrency != null) {
@@ -469,7 +469,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 												exchangeRateWarning.setVisible(false);
 											});
 										}
-									} catch (TradistaTechnicalException tte) {
+									} catch (TradistaTechnicalException _) {
 										isQuoteSetServiceError = true;
 										Platform.runLater(() -> {
 											TradistaGUIUtil.applyErrorStyle(exchangeRateWarning);
@@ -495,7 +495,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		};
 
-		currencyOneListener = new ChangeListener<Currency>() {
+		currencyOneListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency oldCurrency, Currency newCurrency) {
 				if (newCurrency != null) {
@@ -526,7 +526,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 												exchangeRateWarning.setVisible(false);
 											});
 										}
-									} catch (TradistaTechnicalException tte) {
+									} catch (TradistaTechnicalException _) {
 										isQuoteSetServiceError = true;
 										Platform.runLater(() -> {
 											TradistaGUIUtil.applyErrorStyle(exchangeRateWarning);
@@ -553,7 +553,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		};
 
-		tradeDateListener = new ChangeListener<LocalDate>() {
+		tradeDateListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null && currencyTwo.getValue() != null && currencyOne.getValue() != null
@@ -584,7 +584,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 											exchangeRateWarning.setVisible(false);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
+								} catch (TradistaTechnicalException _) {
 									isQuoteSetServiceError = true;
 									Platform.runLater(() -> {
 										TradistaGUIUtil.applyErrorStyle(exchangeRateWarning);
@@ -605,7 +605,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		};
 
-		directionListener = new ChangeListener<Trade.Direction>() {
+		directionListener = new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Trade.Direction> arg0, Trade.Direction arg1,
 					Trade.Direction newDirection) {
@@ -637,7 +637,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 											exchangeRateWarning.setVisible(false);
 										});
 									}
-								} catch (TradistaTechnicalException tte) {
+								} catch (TradistaTechnicalException _) {
 									isQuoteSetServiceError = true;
 									Platform.runLater(() -> {
 										TradistaGUIUtil.applyErrorStyle(exchangeRateWarning);
@@ -660,7 +660,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 		addListeners();
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> arg0, PricerMeasure arg1,
 					PricerMeasure newPricerMeasure) {
@@ -676,7 +676,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		// SHOULD BE EMBEDDED IN A SEPARATE CUSTOM COMPONENT -> WAIT FOR SCENE
 		// BUILDER 3.0 TO CORRECTLY HANDLE CUSTOM COMPONENTS
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> arg0, PricingParameter arg1,
 					PricingParameter newPricingParam) {
@@ -723,7 +723,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		pricingDate.setOnAction(new EventHandler<ActionEvent>() {
+		pricingDate.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent event) {
 				cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
@@ -734,7 +734,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		// END
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
+		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
 				if (newValue != null) {
@@ -743,7 +743,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		tradeDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		tradeDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (settlementDate.getValue() != null) {
@@ -758,7 +758,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 						} else {
 							tradeType.setText("FX Spot Trade");
 						}
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// if there is a null value leading to this abe, we don
 						// nothing.
 					}
@@ -766,7 +766,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		settlementDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		settlementDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null && tradeDate.getValue() != null) {
@@ -781,7 +781,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 						} else {
 							tradeType.setText("FX Spot Trade");
 						}
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// if there is a null value leading to this exception, we do
 						// nothing.
 					}
@@ -789,7 +789,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		});
 
-		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -821,7 +821,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 		};
 
-		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -836,7 +836,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 						}
 						try {
 							isAvailable = fxTradeBusinessDelegate.getFXExchange().getCalendar().isBusinessDay(date);
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Won't happen because 'date' cannot be null
 						}
 
@@ -935,6 +935,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -942,11 +943,14 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 				buildTrade();
 				oldTradeId = trade.getId();
+				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(fxTradeBusinessDelegate.saveFXTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
+				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -964,7 +968,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -1000,7 +1004,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		}
 		try {
 			exchangeRate.setText(TradistaGUIUtil.formatAmount(fxTradeBusinessDelegate.getExchangeRate(trade)));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 		}
 		addListeners();
 	}
@@ -1039,7 +1043,6 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new FXTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -1055,7 +1058,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			}
 			trade.setCurrencyOne(this.currencyOne.getSelectionModel().getSelectedItem());
 			trade.setCurrency(this.currencyTwo.getSelectionModel().getSelectedItem());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen at this stage.
 		}
 	}
@@ -1136,7 +1139,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		} catch (TradistaBusinessException abe) {
 			errMsg.append(abe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

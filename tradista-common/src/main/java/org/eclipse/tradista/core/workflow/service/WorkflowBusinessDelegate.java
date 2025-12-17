@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.workflow.service;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,9 @@ import org.eclipse.tradista.core.workflow.model.Workflow;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class WorkflowBusinessDelegate {
+public class WorkflowBusinessDelegate implements Serializable {
+
+	private static final long serialVersionUID = -6547608476545550504L;
 
 	private WorkflowService workflowService;
 
@@ -64,6 +67,10 @@ public class WorkflowBusinessDelegate {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> workflowService.getInitialStatus(workflowName));
+	}
+
+	public Set<String> getAllMessageStatusNames() {
+		return SecurityUtil.run(() -> workflowService.getAllMessageStatusNames());
 	}
 
 }

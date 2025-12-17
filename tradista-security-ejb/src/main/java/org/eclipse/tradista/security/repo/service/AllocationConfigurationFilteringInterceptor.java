@@ -48,7 +48,7 @@ public class AllocationConfigurationFilteringInterceptor extends TradistaAuthori
 					errMsg.append(String.format("You are not allowed to save this Allocation Configuration.%n"));
 				}
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 		}

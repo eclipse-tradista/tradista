@@ -1,0 +1,107 @@
+package org.eclipse.tradista.core.message.service;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.DateUtil;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.validator.MessageValidator;
+import org.springframework.util.CollectionUtils;
+
+/********************************************************************************
+ * Copyright (c) 2025 Olivier Asuncion
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+
+public class MessageBusinessDelegate {
+
+	private MessageService messageService;
+
+	private MessageValidator messageValidator;
+
+	public MessageBusinessDelegate() {
+		messageService = TradistaServiceLocator.getInstance().getMessageService();
+		messageValidator = new MessageValidator();
+	}
+
+	public long saveMessage(Message message) throws TradistaBusinessException {
+		messageValidator.validateMessage(message);
+		return messageService.saveMessage(message);
+	}
+
+	public long saveMessage(Message message, String action) throws TradistaBusinessException {
+		messageValidator.validateMessage(message);
+		if (!StringUtils.isBlank(action)) {
+			final Message msg = applyAction(message, action);
+			// If there was no error, we save the message
+			return SecurityUtil.run(() -> messageService.saveMessage(msg));
+		} else {
+			return SecurityUtil.run(() -> messageService.saveMessage(message));
+		}
+	}
+
+	public Message applyAction(Message message, String action) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(action)) {
+			errMsg.append(String.format("The action is mandatory.%n"));
+		}
+		if (message == null) {
+			errMsg.append("The message is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return SecurityUtil.runEx(() -> messageService.applyAction(message, action));
+	}
+
+	public List<Message> getMessages(long id, Boolean isIncoming, Set<String> types, Set<String> interfaceNames,
+			long objectId, Set<String> objectTypes, Set<String> statuses, LocalDateTime creationDateTimeFrom,
+			LocalDateTime creationDateTimeTo, LocalDateTime lastUpdateDateTimeFrom, LocalDateTime lastUpdateDateTimeTo)
+			throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		List<Set<?>> sets = List.of(types == null ? new HashSet<String>() : types,
+				interfaceNames == null ? new HashSet<String>() : interfaceNames,
+				objectTypes == null ? new HashSet<String>() : objectTypes);
+		long nonEmptyCount = sets.stream().filter(set -> !CollectionUtils.isEmpty(set)).count();
+
+		if (nonEmptyCount > 1) {
+			errMsg.append("You must select only one among Types, Interface Names or Object Types.");
+		}
+		DateUtil.checkNotAfter(creationDateTimeFrom, creationDateTimeTo, "Creation Date From", "Creation Date To",
+				errMsg);
+		DateUtil.checkNotAfter(lastUpdateDateTimeFrom, lastUpdateDateTimeTo, "Last Update From", "Last Update To",
+				errMsg);
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return SecurityUtil.runEx(
+				() -> messageService.getMessages(id, isIncoming, types, interfaceNames, objectId, objectTypes, statuses,
+						creationDateTimeFrom, creationDateTimeTo, lastUpdateDateTimeFrom, lastUpdateDateTimeTo));
+	}
+
+	public Set<String> getAllMessageTypes() {
+		return SecurityUtil.run(() -> messageService.getAllMessageTypes());
+	}
+
+	public Set<String> getAllObjectTypes() {
+		return SecurityUtil.run(() -> messageService.getAllObjectTypes());
+	}
+
+}

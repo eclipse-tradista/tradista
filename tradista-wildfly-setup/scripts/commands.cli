@@ -7,6 +7,14 @@
 /system-property=SERVICE_ACCOUNT_PASSWORD:add(value=oli)
 
 #Setup commands:
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.ai.model"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.core.model"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.fx.model"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.ir.model"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.mm.model"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.security.model"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.org.springframework.spring-beans"}])
+/subsystem=ee:write-attribute(name=global-modules, value=[{"name"=>"org.eclipse.tradista.org.springframework.spring-context"}])
 module add --name=org.apache.derby --resources=${env.DERBY_HOME}\lib\derbyclient.jar;${env.DERBY_HOME}\lib\derbyshared.jar;${env.DERBY_HOME}\lib\derbytools.jar --dependencies=javax.api
 /subsystem=datasources/jdbc-driver=org.apache.derby:add(driver-name="org.apache.derby",driver-module-name="org.apache.derby",driver-datasource-class-name="org.apache.derby.jdbc.ClientConnectionPoolDataSource")
 /subsystem=datasources/data-source=tradistaDS:add(connection-url="jdbc:derby://${DB_HOST}:${DB_PORT}/Tradista;create=true",driver-name="org.apache.derby",enabled=true,jta=true,use-ccm=false,background-validation=false,validate-on-match=false,jndi-name="java:/TradistaDataSource",share-prepared-statements=false,initial-pool-size="10",min-pool-size="10",max-pool-size="50")

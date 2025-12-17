@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.net.sf.tweety.lp.asp"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="asp-1.12.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.net.sf.tweety.commons"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.net.sf.tweety.beliefdynamics"
+			export="true" />
+	</dependencies>
+
+</module>

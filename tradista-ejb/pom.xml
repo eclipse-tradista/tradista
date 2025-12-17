@@ -14,6 +14,12 @@
 	<packaging>ejb</packaging>
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>6.2.15</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-persistence</artifactId>
 			<version>${core-persistence.version}</version>
@@ -22,21 +28,6 @@
 			<groupId>org.eclipse.tradista.core</groupId>
 			<artifactId>core-business</artifactId>
 			<version>${core-business.version}</version>
-		</dependency>
-		<!-- spring-dao is needed at runtime by Spring's SchedulerFactoryBean.
-		The exclusions are needed otherwise there's a conflict during class loading
-		that leads to a ClassNotFoundException -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-dao</artifactId>
-			<version>2.0.8</version>
-			<scope>runtime</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.platform</groupId>
@@ -50,20 +41,4 @@
 			<version>2.4.0.Final</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-ejb-plugin</artifactId>
-				<version>3.2.1</version>
-				<configuration>
-					<ejbVersion>4.0</ejbVersion>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

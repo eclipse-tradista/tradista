@@ -113,8 +113,6 @@ public class IRCapFloorCollarTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return irCapFloorCollarTrade;
@@ -169,8 +167,6 @@ public class IRCapFloorCollarTradeSQL {
 
 			irCapFloorCollarTrade.setIrForwardTrade(irForward);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -191,7 +187,7 @@ public class IRCapFloorCollarTradeSQL {
 								"UPDATE IRCAP_FLOOR_COLLAR_TRADE SET CAP_STRIKE=?, FLOOR_STRIKE=?, IRFORWARD_TRADE_ID=? WHERE IRCAP_FLOOR_COLLAR_TRADE_ID = ?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}
@@ -235,8 +231,6 @@ public class IRCapFloorCollarTradeSQL {
 			stmtSaveIRCapFloorCollarTrade.executeUpdate();
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);

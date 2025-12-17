@@ -11,7 +11,6 @@ import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterc
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
-import org.eclipse.tradista.security.repo.workflow.mapping.RepoTrade;
 import org.eclipse.tradista.security.specificrepo.messaging.SpecificRepoTradeEvent;
 import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 import org.eclipse.tradista.security.specificrepo.persistence.SpecificRepoTradeSQL;
@@ -77,7 +76,8 @@ public class SpecificRepoTradeServiceBean implements SpecificRepoTradeService {
 
 		if (!StringUtils.isEmpty(action)) {
 			try {
-				Workflow<RepoTrade> workflow = WorkflowManager.getWorkflowByName(trade.getWorkflow());
+				Workflow<org.eclipse.tradista.security.specificrepo.workflow.mapping.SpecificRepoTrade> workflow = WorkflowManager
+						.getWorkflowByName(trade.getWorkflow());
 				org.eclipse.tradista.security.specificrepo.workflow.mapping.SpecificRepoTrade mappedTrade = SpecificRepoTradeMapper
 						.map(trade, workflow);
 				mappedTrade = WorkflowManager.applyAction(mappedTrade, action);

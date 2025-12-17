@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.scala-lang.scala-library"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="scala-library-2.10.3.jar" />
+	</resources>
+
+</module>

@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -21,8 +20,8 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
-import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
+import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -95,8 +94,6 @@ public class LoanDepositTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return mmTrade;
@@ -122,7 +119,7 @@ public class LoanDepositTradeSQL {
 				direction = LoanDepositTrade.Direction.DEPOSIT.name();
 			}
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}

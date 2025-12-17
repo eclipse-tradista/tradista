@@ -1,0 +1,26 @@
+<jboss-deployment-structure>
+	<deployment>
+		<dependencies>
+			<module name="org.eclipse.tradista.core.model" export="true" />
+			<module name="org.eclipse.tradista.security.model"
+				export="true" />
+			<module
+				name="org.eclipse.tradista.org.springframework.spring-beans"
+				export="true">
+				<imports>
+					<include path="META-INF/" />
+				</imports>
+			</module>
+			<module
+				name="org.eclipse.tradista.org.springframework.spring-context"
+				export="true">
+				<imports>
+					<include path="META-INF/" />
+				</imports>
+			</module>
+		</dependencies>
+		<exclusions>
+			<module name="org.hibernate" />
+		</exclusions>
+	</deployment>
+</jboss-deployment-structure>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.security.model"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="security-model-3.0.0.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.core.model" export="true" />
+	</dependencies>
+
+</module>

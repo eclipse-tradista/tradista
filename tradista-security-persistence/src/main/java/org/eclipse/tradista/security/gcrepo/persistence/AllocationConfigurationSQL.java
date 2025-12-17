@@ -1,5 +1,9 @@
 package org.eclipse.tradista.security.gcrepo.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +19,7 @@ import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
-import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
+import org.eclipse.tradista.security.repo.model.AllocationConfiguration;;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -36,9 +40,6 @@ import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 public class AllocationConfigurationSQL {
 
 	private static final String NAME = "NAME";
-	private static final String ID = "ID";
-	private static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
-	private static final String BOOK_ID = "BOOK_ID";
 
 	public static long saveAllocationConfiguration(AllocationConfiguration allocationConfiguration) {
 		long allocationConfigurationId = 0;

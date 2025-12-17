@@ -26,8 +26,6 @@ public abstract class Action extends TradistaObject {
 
 	private static final long serialVersionUID = 1L;
 
-	public static String NEW = "NEW";
-
 	private String name;
 
 	private String workflowName;

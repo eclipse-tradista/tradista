@@ -2,9 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
-	<bean id="positionProperties" class="org.eclipse.tradista.core.position.service.PositionProperties">
-		<!--  data refresh frequency, expressed in seconds. -->
+	https://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id="positionProperties"
+		class="org.eclipse.tradista.core.position.service.PositionProperties">
+		<!-- data refresh frequency, expressed in seconds. -->
 		<property name="frequency" value="10" />
-	</bean>	
+	</bean>
 </beans>

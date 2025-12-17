@@ -55,7 +55,7 @@ public class CashInventoryServiceBean implements CashInventoryService {
 		boolean foundSameCashInventory = false;
 		boolean cashInventoryFound = false;
 		LocalDate firstCashInventoryFromDateAfterTradeSettlementDate = null;
-		Set<CashInventory> cashInventoriesToBeSaved = new HashSet<CashInventory>();
+		Set<CashInventory> cashInventoriesToBeSaved = new HashSet<>();
 
 		// 1. Gets the last inventory before the trade date for this currency
 		// and
@@ -121,8 +121,8 @@ public class CashInventoryServiceBean implements CashInventoryService {
 		}
 
 		// Remove the inventories with quantity = 0 and To == null
-		Set<Long> cashInventoryIdsToBeDeleted = new HashSet<Long>();
-		Set<CashInventory> cashInventoriesToBeDeleted = new HashSet<CashInventory>();
+		Set<Long> cashInventoryIdsToBeDeleted = new HashSet<>();
+		Set<CashInventory> cashInventoriesToBeDeleted = new HashSet<>();
 		for (CashInventory inv : cashInventoriesToBeSaved) {
 			if (inv.getAmount().signum() == 0 && inv.getTo() == null) {
 				if (inv.getId() > 0) {
@@ -144,11 +144,11 @@ public class CashInventoryServiceBean implements CashInventoryService {
 	}
 
 	private void fusionContiguousCashInventories(long currencyId, long bookId) {
-		Map<LocalDate, CashInventory> cashInventories = new HashMap<LocalDate, CashInventory>();
+		Map<LocalDate, CashInventory> cashInventories = new HashMap<>();
 		Set<CashInventory> cashInventoriesByCurrencyAndBookIds = CashInventorySQL
 				.getCashInventoriesByCurrencyAndBookIds(currencyId, bookId);
-		Set<CashInventory> cashInventoriesToBeSaved = new HashSet<CashInventory>();
-		Set<Long> cashInventoryIdsToBeDeleted = new HashSet<Long>();
+		Set<CashInventory> cashInventoriesToBeSaved = new HashSet<>();
+		Set<Long> cashInventoryIdsToBeDeleted = new HashSet<>();
 
 		if (cashInventoriesByCurrencyAndBookIds != null && !cashInventoriesByCurrencyAndBookIds.isEmpty()) {
 			for (CashInventory inv : cashInventoriesByCurrencyAndBookIds) {
@@ -205,7 +205,7 @@ public class CashInventoryServiceBean implements CashInventoryService {
 		Set<Currency> currencies = CurrencySQL.getAllCurrencies();
 		Map<String, BigDecimal> bookCashContent = null;
 		if (currencies != null && !currencies.isEmpty()) {
-			bookCashContent = new HashMap<String, BigDecimal>(currencies.size());
+			bookCashContent = HashMap.newHashMap(currencies.size());
 			for (Currency curr : currencies) {
 				BigDecimal amount = CashInventorySQL.getAmountByDateCurrencyAndBookIds(curr.getId(), bookId, date);
 				if (amount.signum() != 0) {

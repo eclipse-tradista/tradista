@@ -8,6 +8,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.error.util.ErrorUtil;
 import org.eclipse.tradista.core.transfer.model.FixingError;
 
 /********************************************************************************
@@ -64,20 +65,7 @@ public class FixingErrorBusinessDelegate {
 	public List<FixingError> getFixingErrors(long transferId, Status status, LocalDate errorDateFrom,
 			LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo)
 			throws TradistaBusinessException {
-		StringBuilder errorMsg = new StringBuilder();
-		if (errorDateFrom != null && errorDateTo != null) {
-			if (errorDateTo.isBefore(errorDateFrom)) {
-				errorMsg.append(String.format("'To' error date cannot be before 'From' error date.%n"));
-			}
-		}
-		if (solvingDateFrom != null && solvingDateTo != null) {
-			if (solvingDateTo.isBefore(solvingDateFrom)) {
-				errorMsg.append(String.format("'To' solving date cannot be before 'From' solving date.%n"));
-			}
-		}
-		if (errorMsg.length() > 0) {
-			throw new TradistaBusinessException(errorMsg.toString());
-		}
+		ErrorUtil.checkErrorDates(errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 		return SecurityUtil.runEx(() -> fixingErrorService.getFixingErrors(transferId, status, errorDateFrom,
 				errorDateTo, solvingDateFrom, solvingDateTo));
 	}

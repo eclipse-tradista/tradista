@@ -2,12 +2,14 @@ package org.eclipse.tradista.core.legalentity.ui.converter;
 
 import java.io.Serializable;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
+import jakarta.faces.convert.ConverterException;
 import jakarta.faces.convert.FacesConverter;
 
 /********************************************************************************
@@ -44,7 +46,13 @@ public class LegalEntityConverter implements Serializable, Converter<LegalEntity
 
 	@Override
 	public LegalEntity getAsObject(FacesContext context, UIComponent component, String value) {
-		return legalEntityBusinessDelegate.getLegalEntityByShortName(value);
+		LegalEntity legalEntity = null;
+		try {
+			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(value);
+		} catch (TradistaBusinessException tbe) {
+			throw new ConverterException(String.format("Could not convert legal entity %s", value), tbe);
+		}
+		return legalEntity;
 	}
 
 }

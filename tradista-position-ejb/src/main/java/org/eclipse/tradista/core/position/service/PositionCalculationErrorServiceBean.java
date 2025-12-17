@@ -7,7 +7,6 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
-import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.position.persistence.PositionCalculationErrorSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
@@ -62,15 +61,10 @@ public class PositionCalculationErrorServiceBean
 				productId, valueDateFrom, valueDateTo, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 	}
 
+	@Interceptors(PositionCalculationErrorFilteringInterceptor.class)
 	@Override
 	public void solvePositionCalculationError(long positionDefinitionId, LocalDate date)
 			throws TradistaBusinessException {
-		PositionDefinition posDef = new PositionDefinitionBusinessDelegate()
-				.getPositionDefinitionById(positionDefinitionId);
-		if (posDef == null) {
-			throw new TradistaBusinessException(String
-					.format("The position definition with id %s does not exist in the system.", positionDefinitionId));
-		}
 		PositionCalculationErrorSQL.solvePositionCalculationError(positionDefinitionId, date);
 	}
 

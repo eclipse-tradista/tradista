@@ -43,16 +43,17 @@ public class MandateExecutionServiceBean {
 	public void init() {
 		Set<AssetManagerAgent> agents = agentService.getAllStartedAssetManagerAgents();
 		if (agents != null && !agents.isEmpty()) {
-			ExecutorService executor = Executors.newScheduledThreadPool(agents.size());
-			for (AssetManagerAgent a : agents) {
-				executor.submit(() -> {
-					try {
-						agentService.executeMandate(a);
-					} catch (TradistaBusinessException tbe) {
-						// TODO Check what to do when an agent encounters an error
-						tbe.printStackTrace();
-					}
-				});
+			try (ExecutorService executor = Executors.newScheduledThreadPool(agents.size())) {
+				for (AssetManagerAgent a : agents) {
+					executor.submit(() -> {
+						try {
+							agentService.executeMandate(a);
+						} catch (TradistaBusinessException tbe) {
+							// TODO Check what to do when an agent encounters an error
+							tbe.printStackTrace();
+						}
+					});
+				}
 			}
 		}
 	}

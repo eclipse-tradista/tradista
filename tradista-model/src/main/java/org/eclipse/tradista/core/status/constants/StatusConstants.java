@@ -25,4 +25,6 @@ public final class StatusConstants {
 
 	public static final String ALLOCATED = "ALLOCATED";
 
+	public static final String STRUCTURE_KO = "STRUCTURE_KO";
+
 }

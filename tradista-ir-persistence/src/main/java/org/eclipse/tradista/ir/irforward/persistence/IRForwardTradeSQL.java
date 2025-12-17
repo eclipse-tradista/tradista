@@ -43,7 +43,7 @@ public class IRForwardTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irforwardTrade == null) {
-						irforwardTrade = new IRForwardTrade<Product>();
+						irforwardTrade = new IRForwardTrade<>();
 					}
 
 					irforwardTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
@@ -73,8 +73,6 @@ public class IRForwardTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return irforwardTrade;
@@ -94,7 +92,7 @@ public class IRForwardTradeSQL {
 								"UPDATE IRFORWARD_TRADE SET MATURITY_DATE=?, FREQUENCY=?, REFERENCE_RATE_INDEX_ID=?, REFERENCE_RATE_INDEX_TENOR=?, DAY_COUNT_CONVENTION_ID=?, INTEREST_PAYMENT=?, INTEREST_FIXING=? WHERE IRFORWARD_TRADE_ID = ?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}

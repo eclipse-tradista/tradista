@@ -106,7 +106,7 @@ public class GCRepoTradeSQL {
 						"INSERT INTO PARTIAL_TERMINATION(TRADE_ID, DATE, REDUCTION) VALUES(?, ?, ?)")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(10, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(10, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(10, trade.getId());
 				stmtDeletePartialTerminations.setLong(1, trade.getId());

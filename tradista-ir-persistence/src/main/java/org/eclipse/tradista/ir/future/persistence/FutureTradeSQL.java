@@ -75,8 +75,6 @@ public class FutureTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return futureTrade;
@@ -131,7 +129,7 @@ public class FutureTradeSQL {
 						: con.prepareStatement("UPDATE FUTURE_TRADE SET QUANTITY=? WHERE FUTURE_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(8, trade.getId());
 			}
@@ -170,8 +168,6 @@ public class FutureTradeSQL {
 			stmtSaveFutureTrade.executeUpdate();
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -198,7 +194,7 @@ public class FutureTradeSQL {
 			try (ResultSet results = stmtGetTradesBeforeTradeDate.executeQuery(query)) {
 				while (results.next()) {
 					if (futureTrades == null) {
-						futureTrades = new ArrayList<FutureTrade>();
+						futureTrades = new ArrayList<>();
 					}
 					FutureTrade futureTrade = new FutureTrade();
 
@@ -228,8 +224,6 @@ public class FutureTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return futureTrades;

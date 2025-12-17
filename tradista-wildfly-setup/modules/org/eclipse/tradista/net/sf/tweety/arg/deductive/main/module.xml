@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.net.sf.tweety.arg.deductive"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="deductive-1.12.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.net.sf.tweety.logics.pl"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.graphs"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.arg.dung"
+			export="true" />
+	</dependencies>
+
+</module>

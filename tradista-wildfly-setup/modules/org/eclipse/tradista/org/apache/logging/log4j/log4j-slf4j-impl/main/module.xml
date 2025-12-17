@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module
+	name="org.eclipse.tradista.org.apache.logging.log4j.log4j-slf4j-impl"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="log4j-slf4j-impl-2.25.2.jar" />
+	</resources>
+
+</module>

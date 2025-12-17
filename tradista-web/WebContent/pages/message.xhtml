@@ -1,0 +1,173 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Message</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Message</ui:define>
+	<ui:define name="content">
+		<h:form id="messageForm">
+			<p:panel header="Message Report">
+				<p:panelGrid id="message" header="Message"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-4 ui-md-4 ui-lg-4, ui-g-8 ui-md-8 ui-lg-8">
+					<p:messages showDetail="true" closable="true" id="msg" />
+					<p:row>
+						<p:column>
+							<p:panelGrid columns="2" columnClasses="medium-column,,">
+								<p:row>
+									<p:outputLabel value="Type" for="typeAutoComplete" />
+									<p:autoComplete id="typeAutoComplete" multiple="true"
+										value="#{messageReportController.selectedTypes}"
+										completeMethod="#{messageReportController.completeType}"
+										showEmptyMessage="false" unique="true" forceSelection="true"
+										scrollHeight="250" dropdown="true"
+										disabled="#{not empty messageReportController.selectedInterfaceNames or not empty messageReportController.selectedObjectTypes}">
+										<p:ajax event="itemSelect"
+											listener="#{messageReportController.onTypeChange}"
+											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
+										<p:ajax event="itemUnselect"
+											listener="#{messageReportController.onTypeChange}"
+											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
+									</p:autoComplete>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Interface Name"
+										for="interfaceNameAutoComplete" />
+									<p:autoComplete id="interfaceNameAutoComplete" multiple="true"
+										value="#{messageReportController.selectedInterfaceNames}"
+										completeMethod="#{messageReportController.completeInterfaceName}"
+										showEmptyMessage="false" unique="true" forceSelection="true"
+										scrollHeight="250" dropdown="true"
+										disabled="#{not empty messageReportController.selectedTypes or not empty messageReportController.selectedObjectTypes}">
+										<p:ajax event="itemSelect"
+											listener="#{messageReportController.onInterfaceNameChange}"
+											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
+										<p:ajax event="itemUnselect"
+											listener="#{messageReportController.onInterfaceNameChange}"
+											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
+									</p:autoComplete>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Object Type" for="objectTypeAutoComplete" />
+									<p:autoComplete id="objectTypeAutoComplete" multiple="true"
+										value="#{messageReportController.selectedObjectTypes}"
+										completeMethod="#{messageReportController.completeObjectType}"
+										showEmptyMessage="false" unique="true" forceSelection="true"
+										scrollHeight="250" dropdown="true"
+										disabled="#{not empty messageReportController.selectedTypes or not empty messageReportController.selectedInterfaceNames}">
+										<p:ajax event="itemSelect"
+											listener="#{messageReportController.onObjectTypeChange}"
+											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
+										<p:ajax event="itemUnselect"
+											listener="#{messageReportController.onObjectTypeChange}"
+											update="typeAutoComplete interfaceNameAutoComplete objectTypeAutoComplete" />
+									</p:autoComplete>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Message Id" for="messageIdTextField" />
+									<p:inputNumber id="messageIdTextField"
+										value="#{messageReportController.messageId}" />
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Direction" for="directionButton" />
+									<p:selectManyButton
+										value="#{messageReportController.selectedDirections}"
+										id="directionButton">
+										<f:selectItems
+											value="#{messageReportController.allDirections}" />
+									</p:selectManyButton>
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Object Id" for="objectIdTextField" />
+									<p:inputNumber id="objectIdTextField"
+										value="#{messageReportController.objectId}" />
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Creation Date Range"
+										for="creationDatesDatePicker" />
+									<p:datePicker id="creationDatesDatePicker"
+										value="#{messageReportController.creationDateTimes}"
+										pattern="dd/MM/yyyy" selectionMode="range"
+										styleClass="tradista-large-datepicker" showTime="true"
+										timeInput="true" />
+								</p:row>
+								<p:row>
+									<p:outputLabel value="Last Update Date Range"
+										for="lastUpdateDatesDatePicker" />
+									<p:datePicker id="lastUpdateDatesDatePicker"
+										value="#{messageReportController.lastUpdateDateTimes}"
+										pattern="dd/MM/yyyy" selectionMode="range"
+										styleClass="tradista-large-datepicker" showTime="true"
+										timeInput="true" />
+								</p:row>
+								<p:row>
+									<p:column>
+										<p:commandButton value="Load" styleClass="rounded-button"
+											update="messageTable"
+											action="#{messageReportController.load}" />
+									</p:column>
+								</p:row>
+							</p:panelGrid>
+						</p:column>
+						<p:column>
+							<p:dataTable id="messageTable" var="msg"
+								value="#{messageReportController.messages}"
+								allowUnsorting="true" sortMode="single"
+								tableStyleClass="tradista-datatable" size="small"
+								selection="#{messageReportController.selectedMsg}"
+								selectionMode="single" rowKey="#{msg.id}">
+								<p:ajax event="contextMenu"
+									listener="#{messageReportController.onContextMenuLoad()}"
+									update="messageForm:contextMenu" />
+								<p:column headerText="Message Id" sortBy="#{msg.id}">
+									<p:outputLabel value="#{msg.id}" />
+								</p:column>
+								<p:column headerText="Direction"
+									sortBy="#{msg.isIncoming() ? 'Incoming' : 'Outgoing'}">
+									<p:outputLabel
+										value="#{msg.isIncoming() ? 'Incoming' : 'Outgoing'}" />
+								</p:column>
+								<p:column headerText="Creation Date"
+									sortBy="#{msg.creationDateTime}">
+									<p:outputLabel value="#{msg.creationDateTime}">
+										<f:convertDateTime type="localDateTime"
+											pattern="dd/MM/yyyy hh:mm:ss" />
+									</p:outputLabel>
+								</p:column>
+								<p:column headerText="Last Update Date"
+									sortBy="#{msg.lastUpdateDateTime}">
+									<p:outputLabel value="#{msg.lastUpdateDateTime}">
+										<f:convertDateTime type="localDateTime"
+											pattern="dd/MM/yyyy hh:mm:ss" />
+									</p:outputLabel>
+								</p:column>
+								<p:column headerText="Type" sortBy="#{msg.type}">
+									<p:outputLabel value="#{msg.type}" />
+								</p:column>
+								<p:column headerText="Interface Name"
+									sortBy="#{msg.interfaceName}">
+									<p:outputLabel value="#{msg.interfaceName}" />
+								</p:column>
+								<p:column headerText="Object Id" sortBy="#{msg.objectId}">
+									<p:outputLabel value="#{msg.objectId}" />
+								</p:column>
+								<p:column headerText="Object Type" sortBy="#{msg.objectType}">
+									<p:outputLabel value="#{msg.objectType}" />
+								</p:column>
+								<p:column headerText="Status" sortBy="#{msg.status}">
+									<p:outputLabel value="#{msg.status}" />
+								</p:column>
+								<p:column headerText="Content" sortBy="#{msg.content}">
+									<p:outputLabel value="#{msg.content}" />
+								</p:column>
+							</p:dataTable>
+							<p:contextMenu id="contextMenu" for="messageTable"
+								model="#{messageReportController.contextMenuModel}" />
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

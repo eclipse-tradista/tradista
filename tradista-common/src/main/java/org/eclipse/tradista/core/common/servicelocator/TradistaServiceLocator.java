@@ -26,8 +26,13 @@ import org.eclipse.tradista.core.daterule.service.DateRuleService;
 import org.eclipse.tradista.core.daycountconvention.service.DayCountConventionService;
 import org.eclipse.tradista.core.error.service.ErrorService;
 import org.eclipse.tradista.core.exchange.service.ExchangeService;
+import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
+import org.eclipse.tradista.core.importer.service.ImporterInformationService;
+import org.eclipse.tradista.core.importer.service.ImporterService;
+import org.eclipse.tradista.core.importer.service.LocalImporterConfigurationService;
 import org.eclipse.tradista.core.index.service.IndexService;
 import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
+import org.eclipse.tradista.core.mapping.service.MappingService;
 import org.eclipse.tradista.core.marketdata.service.CurveService;
 import org.eclipse.tradista.core.marketdata.service.FXCurveService;
 import org.eclipse.tradista.core.marketdata.service.FeedService;
@@ -37,6 +42,8 @@ import org.eclipse.tradista.core.marketdata.service.MarketDataInformationService
 import org.eclipse.tradista.core.marketdata.service.MarketDataService;
 import org.eclipse.tradista.core.marketdata.service.QuoteService;
 import org.eclipse.tradista.core.marketdata.service.SurfaceService;
+import org.eclipse.tradista.core.message.service.ImportErrorService;
+import org.eclipse.tradista.core.message.service.MessageService;
 import org.eclipse.tradista.core.position.service.PositionCalculationErrorService;
 import org.eclipse.tradista.core.position.service.PositionDefinitionService;
 import org.eclipse.tradista.core.position.service.PositionService;
@@ -176,6 +183,20 @@ public class TradistaServiceLocator {
 	private static final String MARKET_DATA_EJB = "marketdata-ejb";
 
 	private static final String MARKET_DATA_SERVICE_PACKAGE = "org.eclipse.tradista.core.marketdata.service";
+
+	private static final String IMPORTER_APP = "importer-app";
+
+	private static final String IMPORTER_EJB = "importer-ejb";
+
+	private static final String IMPORTER_SERVICE_PACKAGE = "org.eclipse.tradista.core.importer.service";
+
+	private static final String MESSAGE_APP = "message-app";
+
+	private static final String MESSAGE_EJB = "message-ejb";
+
+	private static final String MESSAGE_SERVICE_PACKAGE = "org.eclipse.tradista.core.message.service";
+
+	private static final String MAPPING_SERVICE_PACKAGE = "org.eclipse.tradista.core.mapping.service";
 
 	private static final String POSITION_APP = "position-app";
 
@@ -598,7 +619,7 @@ public class TradistaServiceLocator {
 	}
 
 	public MarketDataInformationService getMarketDataInformationService() {
-		return (MarketDataInformationService) getService(APP, MARKET_DATA_EJB, MARKET_DATA_SERVICE_PACKAGE,
+		return (MarketDataInformationService) getService(MARKET_DATA_APP, MARKET_DATA_EJB, MARKET_DATA_SERVICE_PACKAGE,
 				"MarketDataInformationService");
 	}
 
@@ -670,6 +691,42 @@ public class TradistaServiceLocator {
 	public ProcessingOrgDefaultsService getProcessingOrgDefaultsService() {
 		return (ProcessingOrgDefaultsService) getService(APP, CORE_EJB, PROCESSING_ORG_DEFAULTS_SERVICE_PACKAGE,
 				"ProcessingOrgDefaultsService");
+	}
+
+	public ImporterInformationService getImporterInformationService() {
+		return (ImporterInformationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+				"ImporterInformationService");
+	}
+
+	public ImporterConfigurationService getImporterConfigurationService() {
+		return (ImporterConfigurationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+				"ImporterConfigurationService");
+	}
+
+	public MessageService getMessageService() {
+		return (MessageService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "MessageService");
+	}
+
+	public ImportErrorService getImportErrorService() {
+		return (ImportErrorService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "ImportErrorService");
+	}
+
+	public MappingService getMappingService() {
+		return (MappingService) getService(APP, CORE_EJB, MAPPING_SERVICE_PACKAGE, "MappingService");
+	}
+
+	/**
+	 * Local use only (remote access won't work)
+	 * 
+	 * @return a LocalImporterConfigurationService instance
+	 */
+	public LocalImporterConfigurationService getLocalImporterConfigurationService() {
+		return (LocalImporterConfigurationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+				"LocalImporterConfigurationService");
+	}
+
+	public ImporterService getImporterService() {
+		return (ImporterService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE, "ImporterService");
 	}
 
 }

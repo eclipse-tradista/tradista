@@ -65,8 +65,6 @@ public class FXSwapTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxswapTrade;
@@ -100,8 +98,6 @@ public class FXSwapTradeSQL {
 			fxswapTrade.setSettlementDate(rs.getDate("settlement_date").toLocalDate());
 			fxswapTrade.setTradeDate(rs.getDate("trade_date").toLocalDate());
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -122,7 +118,7 @@ public class FXSwapTradeSQL {
 								"UPDATE FXSWAP_TRADE SET CURRENCY_ONE_ID=?, SETTLEMENT_DATE_FORWARD=?, AMOUNT_ONE_FORWARD=?, AMOUNT_ONE_SPOT=?, AMOUNT_TWO_FORWARD=? WHERE FXSWAP_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}

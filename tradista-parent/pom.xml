@@ -139,6 +139,9 @@
 		<core-model.version>
 			3.0.0
 		</core-model.version>
+		<core-model-mapping.version>
+			3.0.0
+		</core-model-mapping.version>
 		<core-persistence.version>
 			3.0.0
 		</core-persistence.version>
@@ -172,6 +175,9 @@
 		<security-model.version>
 			3.0.0
 		</security-model.version>
+		<security-model-mapping.version>
+			3.0.0
+		</security-model-mapping.version>
 		<security-persistence.version>
 			3.0.0
 		</security-persistence.version>
@@ -187,15 +193,44 @@
 		<web.version>
 			3.0.0
 		</web.version>
+		<importer-app.version>
+			3.0.0
+		</importer-app.version>
+		<importer-ejb.version>
+			3.0.0
+		</importer-ejb.version>
+		<importer-ejb-interface.version>
+			3.0.0
+		</importer-ejb-interface.version>
+		<fix-common.version>
+			3.0.0
+		</fix-common.version>
+		<fix-importer.version>
+			3.0.0
+		</fix-importer.version>
+		<security-fix-importer.version>
+			3.0.0
+		</security-fix-importer.version>
+		<message-app.version>
+			3.0.0
+		</message-app.version>
+		<message-ejb.version>
+			3.0.0
+		</message-ejb.version>
+		<message-ejb-interface.version>
+			3.0.0
+		</message-ejb-interface.version>
 	</properties>
 	<modules>
 		<module>../tradista-model</module>
+		<module>../tradista-model-mapping</module>
 		<module>../tradista-ejb-interface</module>
 		<module>../tradista-ir-model</module>
 		<module>../tradista-ir-ejb-interface</module>
 		<module>../tradista-mm-model</module>
 		<module>../tradista-mm-ejb-interface</module>
 		<module>../tradista-security-model</module>
+		<module>../tradista-security-model-mapping</module>
 		<module>../tradista-security-ejb-interface</module>
 		<module>../tradista-fx-model</module>
 		<module>../tradista-fx-ejb-interface</module>
@@ -247,6 +282,15 @@
 		<module>../tradista-ir-gui</module>
 		<module>../tradista-client</module>
 		<module>../tradista-web</module>
+		<module>../tradista-importer-app</module>
+		<module>../tradista-importer-ejb</module>
+		<module>../tradista-importer-ejb-interface</module>
+		<module>../tradista-fix-common</module>
+		<module>../tradista-fix-importer</module>
+		<module>../tradista-security-fix-importer</module>
+		<module>../tradista-message-app</module>
+		<module>../tradista-message-ejb</module>
+		<module>../tradista-message-ejb-interface</module>
 	</modules>
 	<build>
 		<plugins>
@@ -261,6 +305,38 @@
 					If the java version used to build Eclipse Tradista is being upgraded, set the
 					new java version here.-->
 					<release>24</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-ear-plugin</artifactId>
+				<version>3.4.0</version>
+				<configuration>
+					<earSourceDirectory>EarContent</earSourceDirectory>
+					<generateApplicationXml>true</generateApplicationXml>
+					<version>10</version>
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+					<applicationName>${project.artifactId}</applicationName>
+					<outputFileNameMapping>
+						@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-ejb-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<ejbVersion>4.0</ejbVersion>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<warSourceDirectory>WebContent</warSourceDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

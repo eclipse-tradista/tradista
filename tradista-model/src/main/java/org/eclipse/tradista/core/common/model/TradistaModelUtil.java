@@ -49,6 +49,8 @@ public final class TradistaModelUtil {
 			? ((TradistaObject) x.getValue()).clone()
 			: x.getValue();
 
+	private static final String COULD_NOT_CREATE_INSTANCE_OF = "Could not create instance of %s : %s";
+
 	private TradistaModelUtil() {
 	}
 
@@ -56,25 +58,21 @@ public final class TradistaModelUtil {
 		if (originalMap == null) {
 			return null;
 		}
-		Map<?, ?> copy = originalMap.entrySet().stream()
-				.collect(Collectors.toMap(cloneMapEntryKey, cloneMapEntryValue));
-		return copy;
+		return originalMap.entrySet().stream().collect(Collectors.toMap(cloneMapEntryKey, cloneMapEntryValue));
 	}
 
 	public static List<?> deepCopy(List<? extends TradistaObject> originalList) {
 		if (originalList == null) {
 			return null;
 		}
-		List<?> copy = originalList.stream().map(clone).collect(Collectors.toList());
-		return copy;
+		return originalList.stream().map(clone).collect(Collectors.toList());
 	}
 
 	public static Set<?> deepCopy(Set<? extends TradistaObject> originalSet) {
 		if (originalSet == null) {
 			return null;
 		}
-		Set<?> copy = originalSet.stream().map(clone).collect(Collectors.toSet());
-		return copy;
+		return originalSet.stream().map(clone).collect(Collectors.toSet());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -104,8 +102,7 @@ public final class TradistaModelUtil {
 		try {
 			return (T) getInstance(Class.forName(className));
 		} catch (ClassNotFoundException cnfe) {
-			throw new TradistaTechnicalException(
-					String.format("Could not create instance of %s : %s", className, cnfe));
+			throw new TradistaTechnicalException(String.format(COULD_NOT_CREATE_INSTANCE_OF, className, cnfe));
 		}
 	}
 
@@ -114,10 +111,10 @@ public final class TradistaModelUtil {
 			return type.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException
 				| SecurityException e) {
-			throw new TradistaTechnicalException(String.format("Could not create instance of %s : %s", type, e));
+			throw new TradistaTechnicalException(String.format(COULD_NOT_CREATE_INSTANCE_OF, type, e));
 		} catch (InvocationTargetException ite) {
 			throw new TradistaTechnicalException(
-					String.format("Could not create instance of %s : %s", type, ite.getCause().getMessage()));
+					String.format(COULD_NOT_CREATE_INSTANCE_OF, type, ite.getCause().getMessage()));
 		}
 	}
 

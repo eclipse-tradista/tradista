@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module
+	name="org.eclipse.tradista.ch.qos.logback.logback-classic"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="logback-classic-0.9.30.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.ch.qos.logback.logback-core" />
+		<module name="org.eclipse.tradista.org.slf4j.slf4j-api"
+			export="true" />
+	</dependencies>
+
+</module>

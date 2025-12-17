@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.transfer.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
@@ -47,8 +46,8 @@ public class FixingErrorFilteringInterceptor extends TradistaAuthorizationFilter
 		long transferId = (long) parameters[0];
 		if (transferId != 0) {
 			Transfer transfer = transferBusinessDelegate.getTransferById(transferId);
-			if (transfer == null) {
-				throw new TradistaBusinessException(String.format("The Transfer %s was not found.", transferId));
+			if (transfer == null || !transfer.isCash()) {
+				throw new TradistaBusinessException(String.format("The Cash Transfer %s was not found.", transferId));
 			}
 		}
 	}
@@ -61,7 +60,7 @@ public class FixingErrorFilteringInterceptor extends TradistaAuthorizationFilter
 				User user = getCurrentUser();
 				value = fixingErrors.stream()
 						.filter(fe -> fe.getCashTransfer().getBook().getProcessingOrg().equals(user.getProcessingOrg()))
-						.collect(Collectors.toList());
+						.toList();
 			}
 		}
 		return value;

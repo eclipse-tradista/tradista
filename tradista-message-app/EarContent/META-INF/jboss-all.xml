@@ -1,0 +1,8 @@
+<!-- To be used only if message-app and app are deployed into the same WildFly 
+	instance -->
+<jboss umlns="urn:jboss:1.0">
+	<jboss-deployment-dependencies
+		xmlns="urn:jboss:deployment-dependencies:1.0">
+		<dependency name="app-3.0.0.ear" />
+	</jboss-deployment-dependencies>
+</jboss>

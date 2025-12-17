@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.gov.nist.math.jama"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="jama-1.0.3.jar" />
+	</resources>
+
+</module>

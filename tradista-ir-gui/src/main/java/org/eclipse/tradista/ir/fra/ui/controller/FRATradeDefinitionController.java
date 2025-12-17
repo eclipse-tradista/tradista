@@ -575,6 +575,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -582,11 +583,14 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 
 				buildTrade();
 				oldTradeId = trade.getId();
+				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(fraTradeBusinessDelegate.saveFRATrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
+				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -672,7 +676,6 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new FRATrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -692,7 +695,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 			trade.setCounterparty(counterparty.getValue());
 			trade.setBook(book.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen at this stage.
 		}
 	}

@@ -22,15 +22,12 @@ import org.eclipse.tradista.core.trade.model.Trade;
 
 public class DefaultTradeValidator implements TradeValidator {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5806272321571799302L;
 
 	@Override
 	public void validateTrade(Trade<? extends Product> trade) throws TradistaBusinessException {
 		StringBuilder errMsg = validateTradeBasics(trade);
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

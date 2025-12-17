@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.tradista.app</groupId>
+		<artifactId>parent</artifactId>
+		<version>${parent.version}</version>
+		<relativePath>../tradista-parent</relativePath>
+	</parent>
+	<groupId>org.eclipse.tradista.security</groupId>
+	<artifactId>security-fix-importer</artifactId>
+	<version>${security-fix-importer.version}</version>
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.tradista.fix</groupId>
+			<artifactId>fix-importer</artifactId>
+			<version>${fix-importer.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.security</groupId>
+			<artifactId>security-ejb-client</artifactId>
+			<version>${security-ejb-client.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.security</groupId>
+			<artifactId>security-business</artifactId>
+			<version>${security-business.version}</version>
+		</dependency>
+	</dependencies>
+</project>

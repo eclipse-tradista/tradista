@@ -68,7 +68,7 @@ public class BondTradeValidator extends DefaultTradeValidator {
 			errMsg.append(String.format("The settlement date is mandatory.%n"));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

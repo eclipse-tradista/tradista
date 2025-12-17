@@ -1,5 +1,6 @@
 package org.eclipse.tradista.ir.common.service;
 
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
@@ -28,6 +29,6 @@ public class IRInformationServiceBean implements IRInformationService {
 
 	@Override
 	public String getIRModuleVersion() {
-		return getClass().getPackage().getImplementationVersion();
+		return TradistaUtil.getModuleVersion("ir.common.service", this.getClass().getClassLoader());
 	}
 }

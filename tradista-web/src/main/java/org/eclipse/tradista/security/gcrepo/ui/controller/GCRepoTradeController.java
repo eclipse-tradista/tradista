@@ -20,7 +20,6 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.model.Trade.Direction;
-import org.eclipse.tradista.core.workflow.model.Action;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
@@ -397,10 +396,8 @@ public class GCRepoTradeController implements Serializable {
 
 	public void save() {
 		try {
-			final String actionToApply = (action != null) ? action : Action.NEW;
-			if (trade.getId() == 0) {
-				trade.setCreationDate(LocalDate.now());
-			}
+			final String actionToApply = (action != null) ? action : ActionConstants.NEW;
+
 			if (interestType == null || interestType.equals("Fixed")) {
 				trade.setIndex(null);
 				trade.setIndexTenor(null);
@@ -444,7 +441,7 @@ public class GCRepoTradeController implements Serializable {
 			trade.setCollateralToAdd(null);
 			trade.setCollateralToRemove(null);
 			trade.setPartialTerminations(null);
-			long tradeId = gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, Action.NEW);
+			long tradeId = gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, ActionConstants.NEW);
 			trade = gcRepoTradeBusinessDelegate.getGCRepoTradeById(tradeId);
 			Set<String> availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(workflow.getName(),
 					trade.getStatus());
@@ -470,6 +467,7 @@ public class GCRepoTradeController implements Serializable {
 			tradeId = Long.parseLong(idToBeLoaded);
 			GCRepoTrade gcTrade = gcRepoTradeBusinessDelegate.getGCRepoTradeById(tradeId);
 			if (gcTrade != null) {
+				trade.setCreationDate(gcTrade.getCreationDate());
 				trade.setId(gcTrade.getId());
 				trade.setBuySell(gcTrade.isBuy());
 				trade.setCounterparty(gcTrade.getCounterparty());

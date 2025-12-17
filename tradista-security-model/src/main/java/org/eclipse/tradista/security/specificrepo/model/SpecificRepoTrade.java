@@ -29,8 +29,6 @@ public class SpecificRepoTrade extends RepoTrade {
 
 	public static final String SPECIFIC_REPO = "SpecificRepo";
 
-	private Security security;
-
 	@Override
 	public String getWorkflow() {
 		return SPECIFIC_REPO;
@@ -42,11 +40,11 @@ public class SpecificRepoTrade extends RepoTrade {
 	}
 
 	public Security getSecurity() {
-		return security;
+		return getProduct();
 	}
 
 	public void setSecurity(Security security) {
-		this.security = security;
+		setProduct(security);
 	}
 
 }

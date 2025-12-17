@@ -43,17 +43,23 @@ public class MenuController implements Serializable {
 
 		Submenu tradeMenu = DefaultSubMenu.builder().label("Trades").build();
 		Submenu productMenu = DefaultSubMenu.builder().label("Products").build();
+		Submenu reportMenu = DefaultSubMenu.builder().label("Reports").build();
 		Submenu configurationMenu = DefaultSubMenu.builder().label("Configuration").build();
 		tradeMenu.getElements().add(DefaultMenuItem.builder().value("GC Repo").url("gcrepotrade.xhtml").build());
 		tradeMenu.getElements()
 				.add(DefaultMenuItem.builder().value("Specific Repo").url("specificrepotrade.xhtml").build());
 		productMenu.getElements().add(DefaultMenuItem.builder().value("GC Basket").url("gcbasket.xhtml").build());
+		reportMenu.getElements().add(DefaultMenuItem.builder().value("Import Errors").url("importerror.xhtml").build());
+		reportMenu.getElements().add(DefaultMenuItem.builder().value("Messages").url("message.xhtml").build());
 		configurationMenu.getElements().add(
 				DefaultMenuItem.builder().value("Processing Org Defaults").url("processingorgdefaults.xhtml").build());
 		configurationMenu.getElements().add(DefaultMenuItem.builder().value("Allocation Configuration")
 				.url("allocationconfiguration.xhtml").build());
+		configurationMenu.getElements()
+				.add(DefaultMenuItem.builder().value("Importer Mapping").url("importermapping.xhtml").build());
 		model.getElements().add(tradeMenu);
 		model.getElements().add(productMenu);
+		model.getElements().add(reportMenu);
 		model.getElements().add(configurationMenu);
 	}
 

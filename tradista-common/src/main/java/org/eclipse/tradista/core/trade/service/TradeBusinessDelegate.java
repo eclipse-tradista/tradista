@@ -52,7 +52,7 @@ public class TradeBusinessDelegate {
 				errorMsg.append("'To' trade date cannot be before 'From' trade date.");
 			}
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		return SecurityUtil.run(

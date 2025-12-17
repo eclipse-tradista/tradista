@@ -12,22 +12,6 @@
 	<artifactId>security-ejb</artifactId>
 	<version>${security-ejb.version}</version>
 	<packaging>ejb</packaging>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-ejb-plugin</artifactId>
-				<version>3.2.1</version>
-				<configuration>
-					<ejbVersion>4.0</ejbVersion>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.tradista.security</groupId>

@@ -227,7 +227,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 	public void initialize() {
 
 		super.initialize();
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(1));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(1));
 		tradeType.setText("IR Cap / Floor / Collar Trade");
 
 		pricerBusinessDelegate = new PricerBusinessDelegate();
@@ -258,7 +258,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 		quoteEnteredDate.setCellValueFactory(cellData -> cellData.getValue().getEnteredDate());
 		quoteSourceName.setCellValueFactory(cellData -> cellData.getValue().getSourceName());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
 					QuoteSet newValue) {
@@ -276,7 +276,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -295,7 +295,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 		});
 
-		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
+		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
 				if (selectedQuoteDate.getValue() != null) {
@@ -317,7 +317,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 		});
 
-		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tenor>() {
+		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Tenor> observableValue, Tenor oldTenor, Tenor newTenor) {
 				if (selectedQuoteDate.getValue() != null) {
@@ -338,7 +338,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 		pricingDate.setValue(LocalDate.now());
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> observableValue,
 					PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
@@ -351,7 +351,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 		});
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> observableValue,
 					PricingParameter oldPricingParam, PricingParameter newPricingParam) {
@@ -372,7 +372,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 		});
 
-		capFloorCollar.valueProperty().addListener(new ChangeListener<IRCapFloorCollarTrade.Type>() {
+		capFloorCollar.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends IRCapFloorCollarTrade.Type> observableValue,
 					IRCapFloorCollarTrade.Type oldValue, IRCapFloorCollarTrade.Type newValue) {
@@ -402,7 +402,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -411,7 +411,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 					private boolean isAvailable(LocalDate date) {
 						if (irCapFloorCollarTrade == null) {
 							irCapFloorCollarTrade = new IRCapFloorCollarTrade();
-							IRForwardTrade<Product> irForwardTrade = new IRForwardTrade<Product>();
+							IRForwardTrade<Product> irForwardTrade = new IRForwardTrade<>();
 							irForwardTrade.setCurrency(currency.getValue());
 							irCapFloorCollarTrade.setIrForwardTrade(irForwardTrade);
 						}
@@ -441,7 +441,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 		maturityDate.setDayCellFactory(businessDayCellFactory);
 		selectedQuoteDate.setDayCellFactory(businessDayCellFactory);
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
+		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
 				if (newValue != null) {
@@ -500,6 +500,8 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
 		long oldIrForwardTradeId = 0;
+		LocalDate oldCreationDate = null;
+		LocalDate oldIrForwardCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 
@@ -509,7 +511,11 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldIrForwardTradeId = trade.getIrForwardTrade().getId();
+				oldCreationDate = trade.getCreationDate();
+				oldIrForwardCreationDate = trade.getIrForwardTrade().getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
+				trade.getIrForwardTrade().setCreationDate(LocalDate.now());
 				trade.setId(irCapFloorCollarTradeBusinessDelegate.saveIRCapFloorCollarTrade(trade));
 				IRCapFloorCollarTrade existingTrade = irCapFloorCollarTradeBusinessDelegate
 						.getIRCapFloorCollarTradeById(trade.getId());
@@ -520,6 +526,8 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
 				trade.getIrForwardTrade().setId(oldIrForwardTradeId);
+				trade.setCreationDate(oldCreationDate);
+				trade.getIrForwardTrade().setCreationDate(oldIrForwardCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -537,7 +545,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -609,7 +617,6 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 	private IRCapFloorCollarTrade buildTrade() {
 		if (this.trade == null) {
 			trade = new IRCapFloorCollarTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -630,8 +637,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 			// Building the ir forward trade
 			if (trade.getIrForwardTrade() == null) {
-				trade.setIrForwardTrade(new IRForwardTrade<Product>());
-				trade.getIrForwardTrade().setCreationDate(LocalDate.now());
+				trade.setIrForwardTrade(new IRForwardTrade<>());
 			}
 
 			if (!notionalAmount.getText().isEmpty()) {
@@ -652,7 +658,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			trade.getIrForwardTrade().setCounterparty(counterparty.getValue());
 			trade.getIrForwardTrade().setInterestPayment(interestPayment.getValue());
 			trade.getIrForwardTrade().setInterestFixing(interestFixing.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen here.
 		}
 
@@ -748,7 +754,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

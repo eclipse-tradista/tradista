@@ -109,8 +109,6 @@ public class CcySwapTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ccyswapTrade;
@@ -194,7 +192,7 @@ public class CcySwapTradeSQL {
 						: con.prepareStatement(
 								"UPDATE CCYSWAP_TRADE SET CURRENCY_TWO_ID=?, NOTIONAL_AMOUNT_TWO=? WHERE CCYSWAP_TRADE_ID = ?")) {
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}

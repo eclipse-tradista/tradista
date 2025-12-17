@@ -38,12 +38,12 @@ public class PricingParameter extends TradistaObject {
 
 	public PricingParameter(String name, LegalEntity po) {
 		super();
-		params = new HashMap<String, String>();
-		indexCurves = new HashMap<Index, InterestRateCurve>();
-		discountCurves = new HashMap<Currency, InterestRateCurve>();
-		fxCurves = new HashMap<CurrencyPair, FXCurve>();
-		customPricers = new HashMap<String, String>();
-		modules = new ArrayList<PricingParameterModule>();
+		params = new HashMap<>();
+		indexCurves = new HashMap<>();
+		discountCurves = new HashMap<>();
+		fxCurves = new HashMap<>();
+		customPricers = new HashMap<>();
+		modules = new ArrayList<>();
 		this.name = name;
 		this.processingOrg = po;
 	}
@@ -89,7 +89,7 @@ public class PricingParameter extends TradistaObject {
 		if (params == null) {
 			return null;
 		}
-		return new HashMap<String, String>(params);
+		return new HashMap<>(params);
 	}
 
 	public void setParams(Map<String, String> params) {
@@ -131,7 +131,7 @@ public class PricingParameter extends TradistaObject {
 		if (customPricers == null) {
 			return null;
 		}
-		return new HashMap<String, String>(customPricers);
+		return new HashMap<>(customPricers);
 	}
 
 	public void setCustomPricers(Map<String, String> customPricers) {
@@ -169,10 +169,10 @@ public class PricingParameter extends TradistaObject {
 		pricingParameter.indexCurves = (Map<Index, InterestRateCurve>) TradistaModelUtil.deepCopy(indexCurves);
 		pricingParameter.fxCurves = (Map<CurrencyPair, FXCurve>) TradistaModelUtil.deepCopy(fxCurves);
 		if (params != null) {
-			pricingParameter.params = new HashMap<String, String>(params);
+			pricingParameter.params = new HashMap<>(params);
 		}
 		if (customPricers != null) {
-			pricingParameter.customPricers = new HashMap<String, String>(customPricers);
+			pricingParameter.customPricers = new HashMap<>(customPricers);
 		}
 		return pricingParameter;
 	}

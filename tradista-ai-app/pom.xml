@@ -18,6 +18,72 @@
 			<artifactId>ai-ejb</artifactId>
 			<version>${ai-ejb.version}</version>
 			<type>ejb</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.eclipse.tradista.core</groupId>
+					<artifactId>core-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.ai</groupId>
+					<artifactId>ai-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.fx</groupId>
+					<artifactId>fx-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.ir</groupId>
+					<artifactId>ir-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.mm</groupId>
+					<artifactId>mm-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.security</groupId>
+					<artifactId>security-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.core</groupId>
+			<artifactId>core-model</artifactId>
+			<version>${core-model.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.ai</groupId>
+			<artifactId>ai-model</artifactId>
+			<version>${ai-model.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.fx</groupId>
+			<artifactId>fx-model</artifactId>
+			<version>${fx-model.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.ir</groupId>
+			<artifactId>ir-model</artifactId>
+			<version>${ir-model.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.mm</groupId>
+			<artifactId>mm-model</artifactId>
+			<version>${mm-model.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.security</groupId>
+			<artifactId>security-model</artifactId>
+			<version>${security-model.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -25,15 +91,17 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-ear-plugin</artifactId>
-					<version>3.3.0</version>
+					<version>3.4.0</version>
 					<configuration>
-						<!-- I need to add this fileNameMapping tag because net.sf.tweety and 
+						<!-- I need to add this fileNameMapping tag because
+						net.sf.tweety and 
 							net.sf.tweety.logics have artifacts with the same jar name: commons. This 
 							leads to classpath problems. -->
-						<outputFileNameMapping>@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+						<outputFileNameMapping>
+							@{groupId}@-@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
 						<earSourceDirectory>EarContent</earSourceDirectory>
 						<generateApplicationXml>true</generateApplicationXml>
-						<version>8</version>
+						<version>10</version>
 						<defaultLibBundleDir>lib</defaultLibBundleDir>
 						<applicationName>ai-app</applicationName>
 					</configuration>

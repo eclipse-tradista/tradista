@@ -228,7 +228,7 @@ public class PricerBusinessDelegate {
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> pricerService.savePricingParameter(param));
@@ -277,7 +277,7 @@ public class PricerBusinessDelegate {
 			sBuilder.append("The measure name is mandatory.\n");
 		}
 
-		if (sBuilder.length() > 0) {
+		if (!sBuilder.isEmpty()) {
 			throw new TradistaBusinessException(sBuilder.toString());
 		}
 
@@ -330,7 +330,7 @@ public class PricerBusinessDelegate {
 			sBuilder.append("The method name is mandatory.\n");
 		}
 
-		if (sBuilder.length() > 0) {
+		if (!sBuilder.isEmpty()) {
 			throw new TradistaBusinessException(sBuilder.toString());
 		}
 
@@ -371,7 +371,7 @@ public class PricerBusinessDelegate {
 			sBuilder.append("The measure name is mandatory.\n");
 		}
 
-		if (sBuilder.length() > 0) {
+		if (!sBuilder.isEmpty()) {
 			throw new TradistaBusinessException(sBuilder.toString());
 		}
 

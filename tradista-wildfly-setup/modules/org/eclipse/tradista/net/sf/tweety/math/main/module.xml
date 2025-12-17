@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.net.sf.tweety.math"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="math-1.12.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.net.sf.tweety.commons"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.org.apache.commons.commons-math"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.org.apache.commons.commons-math3"
+			export="true" />
+		<module name="org.eclipse.tradista.gov.nist.math.jama"
+			export="true" />
+		<module name="org.eclipse.tradista.org.slf4j.log4j-over-slf4j"
+			export="true" />
+		<module name="org.eclipse.tradista.org.ojalgo.ojalgo"
+			export="true" />
+		<module name="org.eclipse.tradista.com.dbtsai.lbfgs.lbfgs"
+			export="true" />
+	</dependencies>
+
+</module>

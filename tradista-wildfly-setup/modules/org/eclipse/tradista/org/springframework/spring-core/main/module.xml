@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module
+	name="org.eclipse.tradista.org.springframework.spring-core"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="spring-core-6.2.15.jar" />
+	</resources>
+
+	<dependencies>
+		<module
+			name="org.eclipse.tradista.org.springframework.spring-jcl"
+			export="true" />
+		<module name="java.xml" />
+		<module name="java.desktop" />
+		<module name="org.jboss.vfs" />
+	</dependencies>
+
+</module>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0">
+	<persistence-unit
+		name="tradista-flow-persistence-unit" transaction-type="JTA">
+		<description>This is the unique persistence unit of the tradista
+			flow
+			project.
+		</description>
+		<jta-data-source>java:/TradistaDataSource</jta-data-source>
+		<class>finance.tradista.flow.model.Workflow</class>
+		<class>finance.tradista.flow.model.Action</class>
+		<class>finance.tradista.flow.model.SimpleAction</class>
+		<class>finance.tradista.flow.model.ConditionalAction</class>
+		<class>finance.tradista.flow.model.Condition</class>
+		<class>finance.tradista.flow.model.Guard</class>
+		<class>finance.tradista.flow.model.Process</class>
+		<class>finance.tradista.flow.model.Status</class>
+		<class>finance.tradista.flow.model.PseudoStatus</class>
+		<class>finance.tradista.flow.model.TradistaFlowObject</class>
+		<class>org.eclipse.tradista.core.importer.workflow.process.MapIncomingMessage
+		</class>
+		<properties>
+			<property name="hibernate.show_sql" value="false" />
+		</properties>
+	</persistence-unit>
+</persistence>

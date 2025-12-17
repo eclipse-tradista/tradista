@@ -21,6 +21,8 @@ public final class TradistaConstants {
 	public static final String TRADISTA_PACKAGE = "org.eclipse.tradista";
 
 	public static final String CORE_PACKAGE = TRADISTA_PACKAGE + ".core";
+	
+	public static final String META_INF = "META-INF";
 
 	private TradistaConstants() {
 	}

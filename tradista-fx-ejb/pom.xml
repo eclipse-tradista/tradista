@@ -35,20 +35,4 @@
 			<version>2.4.0.Final</version>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-ejb-plugin</artifactId>
-				<version>3.2.1</version>
-				<configuration>
-					<ejbVersion>4.0</ejbVersion>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

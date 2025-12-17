@@ -17,6 +17,11 @@
 			<artifactId>core-business</artifactId>
 			<version>${core-business.version}</version>
 		</dependency>
+			<dependency>
+			<groupId>org.eclipse.tradista.security</groupId>
+			<artifactId>security-model-mapping</artifactId>
+			<version>${security-model-mapping.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.security</groupId>
 			<artifactId>security-ejb-client</artifactId>

@@ -33,4 +33,6 @@ public interface WorkflowService {
 
 	Set<String> getAvailableActionsFromStatus(String workflowName, Status status) throws TradistaBusinessException;
 
+	Set<String> getAllMessageStatusNames();
+
 }

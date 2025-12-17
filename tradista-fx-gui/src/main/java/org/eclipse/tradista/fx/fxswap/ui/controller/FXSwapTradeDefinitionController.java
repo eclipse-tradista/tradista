@@ -589,14 +589,16 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 				buildTrade();
 				oldTradeId = trade.getId();
+				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(fxSwapTradeBusinessDelegate.saveFXSwapTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
@@ -688,7 +690,6 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new FXSwapTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -713,7 +714,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 			}
 			trade.setSettlementDate(settlementDateSpot.getValue());
 			trade.setSettlementDateForward(settlementDateForward.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen here.
 		}
 	}

@@ -64,8 +64,6 @@ public class FXNDFTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxndfTrade;
@@ -113,7 +111,7 @@ public class FXNDFTradeSQL {
 								"UPDATE FXNDF_TRADE SET NON_DELIVERABLE_CURRENCY_ID=?, NDF_RATE=? WHERE FXNDF_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}

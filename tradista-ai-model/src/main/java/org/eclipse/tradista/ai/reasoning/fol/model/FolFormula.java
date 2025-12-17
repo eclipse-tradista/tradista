@@ -28,9 +28,6 @@ import net.sf.tweety.logics.commons.syntax.Functor;
 
 public class FolFormula extends TradistaObject {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5763667264058331995L;
 
 	private String formula;
@@ -77,12 +74,12 @@ public class FolFormula extends TradistaObject {
 		if (functors != null && !functors.isEmpty()) {
 			for (Functor functor : functors) {
 				if (functions == null) {
-					functions = new HashSet<Function<?>>(functors.size());
+					functions = HashSet.newHashSet(functors.size());
 				}
 				Function<?> function = null;
 				try {
 					function = FunctionFactory.createFunction(functor.getName());
-				} catch (TradistaBusinessException abe) {
+				} catch (TradistaBusinessException _) {
 					// It should not appear at this stage
 				}
 				functions.add(function);

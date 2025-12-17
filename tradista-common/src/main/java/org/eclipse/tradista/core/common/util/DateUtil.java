@@ -1,10 +1,12 @@
 package org.eclipse.tradista.core.common.util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.daterollconvention.model.DateRollingConvention;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 
@@ -302,6 +304,52 @@ public final class DateUtil {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Checks that startDate is not after endDate. If either date is null, the check
+	 * is skipped. In case of an error, the message is appended to errMsg.
+	 *
+	 * @param startDate  the start of the period
+	 * @param endDate    the end of the period
+	 * @param labelStart label for the start date (e.g., "Error From")
+	 * @param labelEnd   label for the end date (e.g., "Error To")
+	 * @param errMsg     StringBuilder to accumulate the error message
+	 */
+	public static void checkNotAfter(LocalDate startDate, LocalDate endDate, String labelStart, String labelEnd,
+			StringBuilder errMsg) {
+		if (errMsg == null) {
+			throw new TradistaTechnicalException("StringBuilder for error messages cannot be null");
+		}
+		if (startDate != null && endDate != null) {
+			if (startDate.isAfter(endDate)) {
+				errMsg.append(labelStart).append(" cannot be after ").append(labelEnd).append(".")
+						.append(System.lineSeparator());
+			}
+		}
+	}
+
+	/**
+	 * Checks that startDate is not after endDate. If either date is null, the check
+	 * is skipped. In case of an error, the message is appended to errMsg.
+	 *
+	 * @param startDate  the start of the period
+	 * @param endDate    the end of the period
+	 * @param labelStart label for the start date (e.g., "Error From")
+	 * @param labelEnd   label for the end date (e.g., "Error To")
+	 * @param errMsg     StringBuilder to accumulate the error message
+	 */
+	public static void checkNotAfter(LocalDateTime startDate, LocalDateTime endDate, String labelStart, String labelEnd,
+			StringBuilder errMsg) {
+		if (errMsg == null) {
+			throw new TradistaTechnicalException("StringBuilder for error messages cannot be null");
+		}
+		if (startDate != null && endDate != null) {
+			if (startDate.isAfter(endDate)) {
+				errMsg.append(labelStart).append(" cannot be after ").append(labelEnd).append(".")
+						.append(System.lineSeparator());
+			}
+		}
 	}
 
 }

@@ -231,7 +231,7 @@ public class FXOptionTradeValidator extends DefaultTradeValidator {
 			errMsg.append(String.format("The premium (%s) must be positive.%n", trade.getAmount().doubleValue()));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

@@ -51,6 +51,18 @@ body .ui-inputfield {
 	max-width: 80%;
 }
 
+.ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-token.ui-state-active
+	{
+	background-color: #197B84;
+	color: white;
+}
+
+.ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-token.ui-state-active:hover
+	{
+	background-color: white;
+	color: #197B84;
+}
+
 /* Specific customizations */
 .tradista-header {
 	float: left;
@@ -163,4 +175,14 @@ body  .login-button:hover {
 	color: white;
 	font-weight: bold;
 	font-family: Garamond;
+}
+
+.medium-column {
+	width: 150px;
+	max-width: 150px;
+	text-align: left;
+}
+
+.tradista-large-datepicker .ui-inputfield  {
+	width: 400px;
 }

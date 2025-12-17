@@ -76,15 +76,16 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 
 		if (!StringUtils.isEmpty(action)) {
 			try {
-				Workflow workflow = WorkflowManager.getWorkflowByName(trade.getWorkflow());
+				Workflow<org.eclipse.tradista.security.gcrepo.workflow.mapping.GCRepoTrade> workflow = WorkflowManager
+						.getWorkflowByName(trade.getWorkflow());
 				org.eclipse.tradista.security.gcrepo.workflow.mapping.GCRepoTrade mappedTrade = GCRepoTradeMapper
 						.map(trade, workflow);
 				mappedTrade = WorkflowManager.applyAction(mappedTrade, action);
 				trade.setStatus(StatusMapper.map(mappedTrade.getStatus()));
 			} catch (TradistaFlowBusinessException tfbe) {
-				throw new TradistaBusinessException(tfbe.getMessage());
+				throw new TradistaBusinessException(tfbe);
 			} catch (TradistaFlowTechnicalException tfte) {
-				throw new TradistaTechnicalException(tfte.getMessage());
+				throw new TradistaTechnicalException(tfte);
 			}
 		}
 

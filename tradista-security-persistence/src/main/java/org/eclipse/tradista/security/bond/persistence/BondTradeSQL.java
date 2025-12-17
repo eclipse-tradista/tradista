@@ -63,7 +63,6 @@ public class BondTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bondTrade;
@@ -83,7 +82,7 @@ public class BondTradeSQL {
 						: con.prepareStatement("UPDATE BOND_TRADE SET QUANTITY = ? WHERE BOND_TRADE_ID = ?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(8, trade.getId());
 			}
@@ -179,7 +178,6 @@ public class BondTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bondTrades;

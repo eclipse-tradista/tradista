@@ -68,7 +68,10 @@ public class LegalEntityBusinessDelegate {
 		return SecurityUtil.run(() -> legalEntityService.getLegalEntitiesByShortNameAndRole(shortName, role));
 	}
 
-	public LegalEntity getLegalEntityByShortName(String shortName) {
+	public LegalEntity getLegalEntityByShortName(String shortName) throws TradistaBusinessException {
+		if (StringUtils.isEmpty(shortName)) {
+			throw new TradistaBusinessException("The short name is mandatory");
+		}
 		return SecurityUtil.run(() -> legalEntityService.getLegalEntityByShortName(shortName));
 	}
 

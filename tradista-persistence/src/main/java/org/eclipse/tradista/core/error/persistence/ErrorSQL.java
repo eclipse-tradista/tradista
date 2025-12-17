@@ -1,5 +1,12 @@
 package org.eclipse.tradista.core.error.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD_HH_MM_SS;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,9 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.*;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -36,6 +44,15 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
  ********************************************************************************/
 
 public class ErrorSQL {
+
+	public static final Table ERROR_TABLE = new Table("ERROR", ID);
+
+	public static final Field ID_FIELD = new Field(ID, ERROR_TABLE);
+	public static final Field TYPE_FIELD = new Field(TYPE, ERROR_TABLE);
+	public static final Field STATUS_FIELD = new Field(STATUS, ERROR_TABLE);
+	public static final Field MESSAGE_FIELD = new Field("MESSAGE", ERROR_TABLE);
+	public static final Field ERROR_DATE_FIELD = new Field("ERROR_DATE", ERROR_TABLE);
+	public static final Field SOLVING_DATE_FIELD = new Field("SOLVING_DATE", ERROR_TABLE);
 
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
 		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();

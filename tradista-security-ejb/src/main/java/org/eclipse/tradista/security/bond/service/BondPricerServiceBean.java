@@ -297,7 +297,7 @@ public class BondPricerServiceBean implements BondPricerService {
 
 	private BigDecimal derivatedDiscountCoupons(BigDecimal rate, Bond bond, LocalDate pricingDate, long indexCurveId)
 			throws PricerException, TradistaBusinessException {
-		BigDecimal price = BigDecimal.ZERO;
+		BigDecimal price;
 		// 1. Generate the pending coupons
 		List<Coupon> pendingCoupons = PricerBondUtil.getPendingCoupons(bond, pricingDate, indexCurveId, true);
 		// 2. loop in the coupons and increment the price with the actualized

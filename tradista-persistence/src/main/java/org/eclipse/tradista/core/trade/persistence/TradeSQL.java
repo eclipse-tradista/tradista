@@ -1,5 +1,10 @@
 package org.eclipse.tradista.core.trade.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,9 +48,6 @@ import org.eclipse.tradista.core.workflow.persistence.StatusSQL;
 
 public class TradeSQL {
 
-	private static final String AND = " AND ";
-	private static final String WHERE = "WHERE";
-	private static final String DATE_FORMAT = "MM/dd/yyyy";
 	private static final String BOND = "Bond";
 	private static final String FRA = "FRA";
 	private static final String FX = "FX";
@@ -62,7 +64,6 @@ public class TradeSQL {
 	private static final String FX_OPTION = "FXOption";
 	private static final String GC_REPO = "GCRepo";
 	private static final String SPECIFIC_REPO = "SpecificRepo";
-	private static final String ID = "ID";
 	private static final String BUY_SELL = "BUY_SELL";
 	private static final String COUNTERPARTY_ID = "COUNTERPARTY_ID";
 	private static final String BOOK_ID = "BOOK_ID";
@@ -110,7 +111,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trades;
@@ -154,7 +154,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trade;
@@ -194,7 +193,6 @@ public class TradeSQL {
 			}
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -247,7 +245,7 @@ public class TradeSQL {
 			if (minCreationDate != null || maxCreationDate != null || minTradeDate != null || maxTradeDate != null) {
 				if (minCreationDate != null) {
 					query += " WHERE CREATION_DATE >= '"
-							+ DateTimeFormatter.ofPattern(DATE_FORMAT).format(minCreationDate) + "'";
+							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(minCreationDate) + "'";
 				}
 				if (maxCreationDate != null) {
 					if (query.contains(WHERE)) {
@@ -255,7 +253,7 @@ public class TradeSQL {
 					} else {
 						query += WHERE;
 					}
-					query += " CREATION_DATE <= '" + DateTimeFormatter.ofPattern(DATE_FORMAT).format(maxCreationDate)
+					query += " CREATION_DATE <= '" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(maxCreationDate)
 							+ "'";
 				}
 				if (minTradeDate != null) {
@@ -264,7 +262,7 @@ public class TradeSQL {
 					} else {
 						query += WHERE;
 					}
-					query += " TRADE_DATE >= '" + DateTimeFormatter.ofPattern(DATE_FORMAT).format(minTradeDate) + "'";
+					query += " TRADE_DATE >= '" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(minTradeDate) + "'";
 				}
 				if (maxTradeDate != null) {
 					if (query.contains(WHERE)) {
@@ -272,7 +270,7 @@ public class TradeSQL {
 					} else {
 						query += WHERE;
 					}
-					query += " TRADE_DATE <= '" + DateTimeFormatter.ofPattern(DATE_FORMAT).format(maxTradeDate) + "'";
+					query += " TRADE_DATE <= '" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(maxTradeDate) + "'";
 				}
 			}
 			try (ResultSet results = stmt.executeQuery(query)) {
@@ -303,7 +301,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trades;
@@ -378,7 +375,6 @@ public class TradeSQL {
 			// think so.
 			join += " LEFT OUTER JOIN REPO_TRADE ON REPO_TRADE.REPO_TRADE_ID=TRADE.ID";
 			join += " LEFT OUTER JOIN GCREPO_TRADE ON GCREPO_TRADE.GCREPO_TRADE_ID=REPO_TRADE.REPO_TRADE_ID";
-			join += " LEFT OUTER JOIN SPECIFICREPO_TRADE ON SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID=REPO_TRADE.REPO_TRADE_ID";
 			join += " LEFT OUTER JOIN TRADE UND_EQUITY_TRADE ON UNDERLYING_EQUITY.EQUITY_TRADE_ID=UND_EQUITY_TRADE.ID";
 			join += " LEFT OUTER JOIN TRADE UND_FXSPOT_TRADE ON UNDERLYING_FXSPOT.FXSPOT_TRADE_ID=UND_FXSPOT_TRADE.ID";
 			join += " LEFT OUTER JOIN TRADE UND_IRSWAP_TRADE ON UNDERLYING_IRSWAP.IRSWAP_TRADE_ID=UND_IRSWAP_TRADE.ID";
@@ -635,9 +631,6 @@ public class TradeSQL {
 			aliases.append("GCREPO_TRADE.GCREPO_TRADE_ID GCREPO_TRADE_ID,");
 			aliases.append("GCREPO_TRADE.GCBASKET_ID GCBASKET_ID,");
 
-			aliases.append("SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID SPECIFICREPO_TRADE_ID,");
-			aliases.append("SPECIFICREPO_TRADE.SECURITY_ID SECURITY_ID");
-
 			return aliases.toString();
 		}
 
@@ -806,10 +799,7 @@ public class TradeSQL {
 			aliases.append("REPO_TRADE.CROSS_CURRENCY_COLLATERAL CROSS_CURRENCY_COLLATERAL,");
 			aliases.append("REPO_TRADE.TERMINABLE_ON_DEMAND TERMINABLE_ON_DEMAND,");
 			aliases.append("REPO_TRADE.NOTICE_PERIOD NOTICE_PERIOD,");
-			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE,");
-
-			aliases.append("SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID SPECIFICREPO_TRADE_ID,");
-			aliases.append("SPECIFICREPO_TRADE.SECURITY_ID SECURITY_ID");
+			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE");
 			break;
 		}
 		case FX_OPTION: {
@@ -949,7 +939,7 @@ public class TradeSQL {
 			break;
 		}
 		case SPECIFIC_REPO: {
-			where += "TRADE.ID = REPO_TRADE.REPO_TRADE_ID AND REPO_TRADE.REPO_TRADE_ID = SPECIFICREPO_TRADE.SPECIFICREPO_TRADE_ID";
+			where += "TRADE.ID = REPO_TRADE.REPO_TRADE_ID";
 			break;
 		}
 		case CCY_SWAP: {
@@ -1024,7 +1014,7 @@ public class TradeSQL {
 		case GC_REPO:
 			return "REPO_TRADE, GCREPO_TRADE";
 		case SPECIFIC_REPO:
-			return "REPO_TRADE, SPECIFICREPO_TRADE";
+			return "REPO_TRADE";
 		case FXNDF:
 			return "FXNDF_TRADE";
 		case IR_SWAP:

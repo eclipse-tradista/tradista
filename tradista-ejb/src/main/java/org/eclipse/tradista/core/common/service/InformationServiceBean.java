@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.service.MarketDataInformationBusinessDelegate;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.fx.common.service.FXInformationService;
@@ -64,13 +64,10 @@ public class InformationServiceBean implements InformationService {
 		Map<String, String> modules = new LinkedHashMap<>();
 
 		// Get the core version
-		modules.put("Core", getClass().getPackage().getImplementationVersion());
+		modules.put("Core", TradistaUtil.getModuleVersion("core.common.service", this.getClass().getClassLoader()));
 
 		// Get the Market Data version
-		try {
-			modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
-		} catch (TradistaTechnicalException _) {
-		}
+		modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
 
 		Set<String> prods = productBusinessDelegate.getAvailableProductTypes();
 

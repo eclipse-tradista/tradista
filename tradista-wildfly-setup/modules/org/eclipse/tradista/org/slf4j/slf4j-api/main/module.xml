@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.slf4j.slf4j-api"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="slf4j-api-2.0.16.jar" />
+	</resources>
+
+</module>

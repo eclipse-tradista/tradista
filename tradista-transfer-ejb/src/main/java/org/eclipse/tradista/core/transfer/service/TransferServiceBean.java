@@ -259,15 +259,9 @@ public class TransferServiceBean implements TransferService {
 				} else {
 					productType = transfer.getProduct().getProductType();
 				}
-				TransferManager<TradeEvent<?>> transferManager = null;
 				try {
-					transferManager = TradistaUtil.getTransferManager(productType);
-				} catch (TradistaBusinessException tbe) {
-					// Should not happen here.
-				}
-				try {
-					transferManager.fixCashTransfer((CashTransfer) transfer, quoteSetId);
-				} catch (TradistaBusinessException tbe) {
+					TradistaUtil.getTransferManager(productType).fixCashTransfer((CashTransfer) transfer, quoteSetId);
+				} catch (TradistaBusinessException _) {
 					// TODO add log
 				}
 			}

@@ -1,5 +1,6 @@
 package org.eclipse.tradista.mm.common.service;
 
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
@@ -28,6 +29,6 @@ public class MMInformationServiceBean implements MMInformationService {
 
 	@Override
 	public String getMMModuleVersion() {
-		return getClass().getPackage().getImplementationVersion();
+		return TradistaUtil.getModuleVersion("mm.common.service", this.getClass().getClassLoader());
 	}
 }

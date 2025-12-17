@@ -3,14 +3,17 @@ package org.eclipse.tradista.core.workflow.service;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.core.workflow.model.mapping.WorkflowMapper;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.util.CollectionUtils;
 
 import finance.tradista.flow.exception.TradistaFlowBusinessException;
 import finance.tradista.flow.service.WorkflowManager;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 
@@ -34,6 +37,13 @@ import jakarta.ejb.Stateless;
 @PermitAll
 @Stateless
 public class WorkflowServiceBean implements WorkflowService {
+
+	private MessageBusinessDelegate messageBusinessDelegate;
+
+	@PostConstruct
+	private void initialize() {
+		messageBusinessDelegate = new MessageBusinessDelegate();
+	}
 
 	@Override
 	public Workflow getWorkflowByName(String name) throws TradistaBusinessException {
@@ -81,6 +91,18 @@ public class WorkflowServiceBean implements WorkflowService {
 		} else {
 			throw new TradistaBusinessException(String.format("The workflow %s cannot be found", workflowName));
 		}
+	}
+
+	@Override
+	public Set<String> getAllMessageStatusNames() {
+		Set<String> messageTypes = messageBusinessDelegate.getAllMessageTypes();
+		if (!CollectionUtils.isEmpty(messageTypes)) {
+			try {
+				return WorkflowManager.getStatusesByWorkflowNames(messageTypes.toArray(new String[0]));
+			} catch (TradistaFlowBusinessException _) {
+			}
+		}
+		return null;
 	}
 
 }

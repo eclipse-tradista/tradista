@@ -241,7 +241,6 @@ public class AllocationConfigurationController implements Serializable {
 	}
 
 	public void load() {
-		AllocationConfiguration allocationConfiguration;
 		try {
 			if (loadingCriterion.equals("Id")) {
 				allocationConfiguration = allocationConfigurationBusinessDelegate
@@ -251,7 +250,6 @@ public class AllocationConfigurationController implements Serializable {
 						.getAllocationConfigurationByName(idOrName);
 			}
 			if (allocationConfiguration != null) {
-				this.allocationConfiguration = allocationConfiguration;
 				allocationConfigurationName = allocationConfiguration.getName();
 				List<Book> allocConfigBooks = new ArrayList<>();
 				if (allocationConfiguration.getBooks() != null) {

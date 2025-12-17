@@ -56,11 +56,13 @@ public class PositionCalculationErrorFilteringInterceptor extends TradistaAuthor
 						String.format("The Position Definition %s was not found.", posDefId));
 			}
 		}
-		long tradeId = (long) parameters[2];
-		if (tradeId != 0) {
-			Trade<?> trade = tradeBusinessDelegate.getTradeById(tradeId, false);
-			if (trade == null) {
-				throw new TradistaBusinessException(String.format("The trade %d was not found.", tradeId));
+		if (parameters.length > 2) {
+			long tradeId = (long) parameters[2];
+			if (tradeId != 0) {
+				Trade<?> trade = tradeBusinessDelegate.getTradeById(tradeId, false);
+				if (trade == null) {
+					throw new TradistaBusinessException(String.format("The trade %d was not found.", tradeId));
+				}
 			}
 		}
 	}

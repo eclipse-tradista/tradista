@@ -485,7 +485,7 @@ public final class RepoTransferUtil {
 		FixingError fixingError = new FixingError();
 		fixingError.setCashTransfer(transfer);
 		fixingError.setErrorDate(LocalDateTime.now());
-		fixingError.setMessage(errorMsg);
+		fixingError.setErrorMessage(errorMsg);
 		fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 		List<FixingError> errors = new ArrayList<>(1);
 		errors.add(fixingError);

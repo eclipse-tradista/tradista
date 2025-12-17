@@ -52,7 +52,7 @@ public class BookBusinessDelegate {
 		if (book.getProcessingOrg() == null) {
 			errMsg.append("The processing org cannot be null.");
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> bookService.saveBook(book));
@@ -76,16 +76,16 @@ public class BookBusinessDelegate {
 		return SecurityUtil.run(() -> bookService.getBookById(id));
 	}
 
-	public Map<String, Map<String, BigDecimal>> getBookContent(long bookId) throws TradistaBusinessException {
-		if (bookId <= 0) {
-			throw new TradistaBusinessException(String.format("The book id (%s) must be positive.", bookId));
+	public Map<String, Map<String, BigDecimal>> getBookContent(long id) throws TradistaBusinessException {
+		if (id <= 0) {
+			throw new TradistaBusinessException(String.format("The id (%s) must be positive.", id));
 		}
-		Map<String, Map<String, BigDecimal>> bookContent = new HashMap<String, Map<String, BigDecimal>>();
+		Map<String, Map<String, BigDecimal>> bookContent = new HashMap<>();
 		Map<String, BigDecimal> bookCashContent = SecurityUtil
-				.runEx(() -> cashInventoryService.getBookCashContent(LocalDate.now(), bookId));
+				.runEx(() -> cashInventoryService.getBookCashContent(LocalDate.now(), id));
 		bookContent.put("Currency", bookCashContent);
 		Map<String, BigDecimal> bookProductContent = SecurityUtil
-				.runEx(() -> productInventoryService.getBookProductContent(LocalDate.now(), bookId));
+				.runEx(() -> productInventoryService.getBookProductContent(LocalDate.now(), id));
 		bookContent.put("Product", bookProductContent);
 		return bookContent;
 	}

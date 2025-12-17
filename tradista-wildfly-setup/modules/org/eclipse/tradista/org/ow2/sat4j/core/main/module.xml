@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.org.ow2.sat4j.core"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="org.ow2.sat4j.core-2.3.4.jar" />
+	</resources>
+
+</module>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module name="org.eclipse.tradista.ai.model"
+	xmlns="urn:jboss:module:1.9">
+
+	<resources>
+		<resource-root path="ai-model-3.0.0.jar" />
+	</resources>
+
+	<dependencies>
+		<module name="org.eclipse.tradista.core.model" export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.logics.fol"
+			export="true" />
+		<module
+			name="org.eclipse.tradista.net.sf.tweety.logics.commons"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.commons"
+			export="true" />
+		<module name="org.eclipse.tradista.net.sf.tweety.lp.asp"
+			export="true" />
+	</dependencies>
+
+</module>

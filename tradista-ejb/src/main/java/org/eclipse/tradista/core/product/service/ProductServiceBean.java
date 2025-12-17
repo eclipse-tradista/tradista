@@ -1,15 +1,15 @@
 package org.eclipse.tradista.core.product.service;
 
-import java.io.InputStream;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaConstants;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
-import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
@@ -37,21 +37,7 @@ public class ProductServiceBean implements ProductService {
 
 	@Override
 	public Set<String> getAvailableProductTypes() {
-		Set<String> products = null;
-		Properties prop = new Properties();
-		InputStream in = TradeSQL.class.getResourceAsStream("/META-INF/products.properties");
-		try {
-			prop.load(in);
-			in.close();
-			for (Object product : prop.keySet()) {
-				if (products == null) {
-					products = new HashSet<String>();
-				}
-				products.add((String) product);
-			}
-		} catch (Exception e) {
-		}
-		return products;
+		return TradistaUtil.getDistinctValuesFromProperties(TradistaConstants.META_INF, "products");
 	}
 
 	@Override
@@ -71,15 +57,15 @@ public class ProductServiceBean implements ProductService {
 	public Set<Product> getAllProducts() {
 		Set<Product> allProducts = null;
 		Set<String> listableProductTypes = new ProductBusinessDelegate().getAvailableListableProductTypes();
-		if (listableProductTypes != null & !listableProductTypes.isEmpty()) {
-			allProducts = new HashSet<Product>();
+		if (!CollectionUtils.isEmpty(listableProductTypes)) {
+			allProducts = new HashSet<>();
 			for (String productType : listableProductTypes) {
 				try {
 					Set<? extends Product> products = getAllProductsByType(productType);
 					if (products != null && !products.isEmpty()) {
 						allProducts.addAll(products);
 					}
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Should not happen here.
 				}
 			}

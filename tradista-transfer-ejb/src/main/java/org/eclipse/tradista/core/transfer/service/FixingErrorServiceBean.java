@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.error.model.Error.Status;
-import org.eclipse.tradista.core.transfer.model.CashTransfer;
 import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.persistence.FixingErrorSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -64,16 +63,9 @@ public class FixingErrorServiceBean implements FixingErrorService {
 				solvingDateTo);
 	}
 
+	@Interceptors(FixingErrorFilteringInterceptor.class)
 	@Override
 	public void solveFixingError(long transferId, LocalDate date) throws TradistaBusinessException {
-
-		CashTransfer transfer = (CashTransfer) transferService.getTransferById(transferId);
-
-		if (transfer == null) {
-			throw new TradistaBusinessException(
-					String.format("The CashTransfer with id %s does not exist in the system.", transferId));
-		}
-
 		FixingErrorSQL.solveFixingError(transferId, date);
 	}
 

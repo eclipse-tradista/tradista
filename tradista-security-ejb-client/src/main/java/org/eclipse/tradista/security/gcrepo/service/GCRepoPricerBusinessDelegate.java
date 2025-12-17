@@ -1,6 +1,5 @@
 package org.eclipse.tradista.security.gcrepo.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,9 +34,7 @@ import org.eclipse.tradista.security.gcrepo.validator.GCRepoTradeValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class GCRepoPricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = 6702432232737370768L;
+public class GCRepoPricerBusinessDelegate {
 
 	private GCRepoPricerService gcRepoPricerService;
 

@@ -23,4 +23,12 @@ public final class ActionConstants {
 
 	public static final String PARTIALLY_TERMINATE = "PARTIALLY_TERMINATE";
 
+	public static final String NEW = "NEW";
+
+	public static final String VALIDATE = "VALIDATE";
+
+	public static final String INVALIDATE = "INVALIDATE";
+
+	public static final String RETRY = "RETRY";
+
 }

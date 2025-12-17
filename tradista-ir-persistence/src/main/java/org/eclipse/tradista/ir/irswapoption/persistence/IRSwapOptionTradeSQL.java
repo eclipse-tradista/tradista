@@ -153,8 +153,6 @@ public class IRSwapOptionTradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return irSwapOptionTrade;
@@ -185,7 +183,7 @@ public class IRSwapOptionTradeSQL {
 								"UPDATE IRSWAP_OPTION_TRADE SET CASH_SETTLEMENT_AMOUNT=?, ALTERNATIVE_CASH_SETTLEMENT_REFERENCE_RATE_INDEX_ID=?, ALTERNATIVE_CASH_SETTLEMENT_REFERENCE_RATE_INDEX_TENOR=?  WHERE IRSWAP_OPTION_TRADE_ID=?")) {
 			boolean isBuy = trade.isBuy();
 			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(LocalDate.now()));
+				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
 			} else {
 				stmtSaveTrade.setLong(9, trade.getId());
 			}
@@ -249,8 +247,6 @@ public class IRSwapOptionTradeSQL {
 			stmtSaveIRSwapOptionTrade.setLong(4, tradeId);
 			stmtSaveIRSwapOptionTrade.executeUpdate();
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);
@@ -349,8 +345,6 @@ public class IRSwapOptionTradeSQL {
 
 			irSwapOptionTrade.setUnderlying(underlying);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 

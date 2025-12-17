@@ -62,7 +62,7 @@ public class TradeAuthorizationFilteringInterceptor extends TradistaAuthorizatio
 				if (book == null) {
 					errMsg.append(String.format("The book %s was not found.", trade.getBook().getName()));
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}

@@ -667,18 +667,22 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
+		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
 				buildTrade();
+				oldCreationDate = trade.getCreationDate();
 				oldTradeId = trade.getId();
 				trade.setId(0);
+				trade.setCreationDate(LocalDate.now());
 				trade.setId(irSwapTradeBusinessDelegate.saveIRSwapTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				trade.setId(oldTradeId);
+				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
@@ -696,7 +700,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -786,7 +790,6 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 	private void buildTrade() {
 		if (this.trade == null) {
 			trade = new SingleCurrencyIRSwapTrade();
-			trade.setCreationDate(LocalDate.now());
 		}
 		try {
 			if (!notionalAmount.getText().isEmpty()) {
@@ -822,12 +825,11 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 			trade.setBook(book.getValue());
 			trade.setBuySell(buySell.getValue().equals(Trade.Direction.BUY));
 			trade.setCounterparty(counterparty.getValue());
-			trade.setCreationDate(LocalDate.now());
 			trade.setTradeDate(tradeDate.getValue());
 			trade.setPaymentInterestPayment(paymentInterestPayment.getValue());
 			trade.setReceptionInterestPayment(receptionInterestPayment.getValue());
 			trade.setReceptionInterestFixing(receptionInterestFixing.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen at this stage
 		}
 	}
@@ -924,7 +926,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/ejb-jar_4_0.xsd"
+	version="4.0">
+	<module-name>message-ejb</module-name>
+	<display-name>message-ejb</display-name>
+	<interceptors>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor>
+	</interceptors>
+	<assembly-descriptor>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+	</assembly-descriptor>
+</ejb-jar>
