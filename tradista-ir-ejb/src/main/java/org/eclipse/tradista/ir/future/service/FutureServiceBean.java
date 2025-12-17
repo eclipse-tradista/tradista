@@ -63,8 +63,8 @@ public class FutureServiceBean implements FutureService {
 	}
 
 	private void checkSymbolExistence(Future future) throws TradistaBusinessException {
-		if (new FutureServiceBean().getFutureByContractSpecificationAndSymbol(
-				future.getContractSpecification().getName(), future.getSymbol()) != null) {
+		if (getFutureByContractSpecificationAndSymbol(future.getContractSpecification().getName(),
+				future.getSymbol()) != null) {
 			throw new TradistaBusinessException(String.format("This future '%s' already exists for the contract %s.",
 					future.getSymbol(), future.getContractSpecification().getName()));
 		}

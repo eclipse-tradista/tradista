@@ -217,7 +217,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		fxOptionTradeBusinessDelegate = new FXOptionTradeBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
 
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(2));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(2));
 		tradeType.setText("FX Option Trade");
 
 		final Calendar calendar = fxOptionTradeBusinessDelegate.getFXExchange().getCalendar();
@@ -259,7 +259,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			// Won't happen because 'now' cannot be null
 		}
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> arg0, QuoteSet oldValue, QuoteSet newValue) {
 				if (newValue != null && currencyOne.getValue() != null && currencyTwo.getValue() != null
@@ -274,7 +274,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -289,7 +289,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 		});
 
-		currencyOne.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		currencyOne.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
 					Currency newValue) {
@@ -304,7 +304,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 		});
 
-		currencyTwo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		currencyTwo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
 					Currency newValue) {
@@ -321,7 +321,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 
 		pricingDate.setValue(LocalDate.now());
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> arg0, PricerMeasure arg1,
 					PricerMeasure newPricerMeasure) {
@@ -334,7 +334,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 		});
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> arg0, PricingParameter arg1,
 					PricingParameter newPricingParam) {
@@ -354,7 +354,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 		});
 
-		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -392,7 +392,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 		};
 
-		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -432,7 +432,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		settlementDate.setDayCellFactory(tradingDayCellFactory);
 		selectedQuoteDate.setDayCellFactory(settlementDayCellFactory);
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
+		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
 				if (newValue != null) {
@@ -486,6 +486,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		long oldUnderlyingTradeId = 0;
 		LocalDate oldCreationDate = null;
 		LocalDate oldUnderlyingCreationDate = null;
+		FXTrade underlying = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -498,8 +499,10 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				oldUnderlyingCreationDate = trade.getUnderlying().getCreationDate();
 				trade.setId(0);
 				trade.setCreationDate(LocalDate.now());
-				trade.getUnderlying().setId(0);
-				trade.getUnderlying().setCreationDate(oldUnderlyingCreationDate);
+				underlying = trade.getUnderlying();
+				underlying.setId(0);
+				underlying.setCreationDate(LocalDate.now());
+				trade.setUnderlying(underlying);
 				trade.setId(fxOptionTradeBusinessDelegate.saveFXOptionTrade(trade));
 				FXOptionTrade existingTrade = fxOptionTradeBusinessDelegate.getFXOptionTradeById(trade.getId());
 				if (existingTrade.getUnderlying() != null) {
@@ -508,9 +511,10 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.getUnderlying().setId(oldUnderlyingTradeId);
 				trade.setCreationDate(oldCreationDate);
-				trade.getUnderlying().setCreationDate(oldUnderlyingCreationDate);
+				underlying.setId(oldUnderlyingTradeId);
+				underlying.setCreationDate(oldUnderlyingCreationDate);
+				trade.setUnderlying(underlying);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -645,7 +649,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 							fxOptionTradeBusinessDelegate.getFXExchange().getCalendar(), offSet));
 				}
 			}
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}
@@ -718,24 +722,24 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		StringBuilder errMsg = new StringBuilder();
 		try {
 			TradistaGUIUtil.checkAmount(premium.getText(), "Premium");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
 		try {
 			TradistaGUIUtil.checkAmount(amountOne.getText(), "Underlying's Amount One");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
 		try {
 			TradistaGUIUtil.checkAmount(amountTwo.getText(), "Underlying's Amount Two");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
 		try {
 			if (!settlementDateOffset.getText().isEmpty()) {
 				Integer.parseInt(settlementDateOffset.getText());
 			}
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			errMsg.append(
 					String.format("The settlement date offset is incorrect: %s.%n", settlementDateOffset.getText()));
 		}
@@ -744,7 +748,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

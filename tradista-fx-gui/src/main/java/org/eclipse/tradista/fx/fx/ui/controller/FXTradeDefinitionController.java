@@ -268,13 +268,13 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		fxPricerBusinessDelegate = new FXPricerBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
 		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(2));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(2));
 		tradeType.setText("FX Trade");
 		final Calendar calendar = fxTradeBusinessDelegate.getFXExchange().getCalendar();
 		LocalDate now = LocalDate.now();
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
 					QuoteSet newValue) {
@@ -686,7 +686,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 					Pricer pricer = null;
 					try {
 						pricer = pricerBusinessDelegate.getPricer(FXTrade.FX, newPricingParam);
-					} catch (TradistaBusinessException abe) {
+					} catch (TradistaBusinessException _) {
 						// Will never happen in this case.
 					}
 					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
@@ -1093,12 +1093,12 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
@@ -1131,13 +1131,13 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		StringBuilder errMsg = new StringBuilder();
 		try {
 			TradistaGUIUtil.checkAmount(amountOne.getText(), "Amount One");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
 		try {
 			TradistaGUIUtil.checkAmount(amountTwo.getText(), "Amount Two");
-		} catch (TradistaBusinessException abe) {
-			errMsg.append(abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(tbe.getMessage());
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());

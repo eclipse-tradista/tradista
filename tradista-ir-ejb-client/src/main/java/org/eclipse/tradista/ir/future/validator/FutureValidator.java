@@ -43,10 +43,10 @@ public class FutureValidator extends DefaultProductValidator {
 		}
 
 		if (future.getMaturityDate() == null) {
-			errMsg.append(String.format("The maturity date is mandatory.%n"));
+			errMsg.append("The maturity date is mandatory.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -65,9 +65,9 @@ public class FutureValidator extends DefaultProductValidator {
 		// Checking the year.
 		try {
 			Integer.parseInt(symbol.substring(3));
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			throw new TradistaBusinessException(
-					String.format("The symbol's year ('%s') is not correct", symbol.substring(3)));
+					String.format("The symbol's year ('%s') is not correct.", symbol.substring(3)));
 		}
 		// checking the month.
 		new FutureBusinessDelegate().getMonth(symbol.substring(0, 3));

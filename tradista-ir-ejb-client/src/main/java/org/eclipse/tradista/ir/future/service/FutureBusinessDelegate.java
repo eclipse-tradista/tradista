@@ -128,11 +128,11 @@ public class FutureBusinessDelegate {
 			return false;
 		}
 
-		String month = symbol.substring(0, 3).toString();
+		String month = symbol.substring(0, 3);
 		Month m;
 		try {
 			m = getMonth(month);
-		} catch (TradistaBusinessException abe) {
+		} catch (TradistaBusinessException _) {
 			return false;
 		}
 		if (m == null) {
@@ -140,7 +140,7 @@ public class FutureBusinessDelegate {
 		}
 		try {
 			Integer.parseInt(symbol.substring(3));
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			return false;
 		}
 		return true;

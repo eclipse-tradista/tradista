@@ -246,7 +246,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 	public void initialize() {
 
 		super.initialize();
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(1));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(1));
 		tradeType.setText("Forward Rate Agreement");
 
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
@@ -282,7 +282,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
 					QuoteSet newValue) {
@@ -297,7 +297,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -313,7 +313,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
+		referenceRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
 				if (newIndex != null) {
@@ -329,7 +329,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tenor>() {
+		referenceRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Tenor> observableValue, Tenor oldValue, Tenor newTenor) {
 				if (newTenor != null) {
@@ -345,7 +345,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> arg0, PricerMeasure arg1,
 					PricerMeasure newPricerMeasure) {
@@ -360,7 +360,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 
 		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> arg0, PricingParameter arg1,
 					PricingParameter newPricingParam) {
@@ -393,7 +393,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		pricingDate.setOnAction(new EventHandler<ActionEvent>() {
+		pricingDate.setOnAction(new EventHandler<>() {
 			@Override
 			public void handle(ActionEvent event) {
 				cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
@@ -403,7 +403,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 		pricingDate.setValue(LocalDate.now());
 		cfPricingDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
+		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
 				if (newValue != null) {
@@ -412,7 +412,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		currency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		currency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
 					Currency newValue) {
@@ -434,7 +434,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		referenceRateIndexTenor.valueProperty().addListener(new ChangeListener<Tenor>() {
+		referenceRateIndexTenor.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends Tenor> ov, Tenor oldValue, Tenor newValue) {
 				if (newValue != null) {
 					if (startDate.getValue() != null) {
@@ -450,7 +450,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		currency.valueProperty().addListener(new ChangeListener<Currency>() {
+		currency.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends Currency> ov, Currency oldValue, Currency newValue) {
 				if (newValue != null) {
 					if (paymentDate.getValue() != null) {
@@ -465,7 +465,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		paymentDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		paymentDate.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends LocalDate> ov, LocalDate oldValue, LocalDate newValue) {
 				if (newValue != null) {
 					paymentDateIsChanging = true;
@@ -482,7 +482,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		startDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		startDate.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends LocalDate> ov, LocalDate oldValue, LocalDate newValue) {
 				if (newValue != null) {
 					startDateIsChanging = true;
@@ -500,7 +500,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -608,7 +608,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 				} else {
 					throw new TradistaBusinessException("Please specify a trade id.");
 				}
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String.format("The trade id is incorrect: %s", load.getText()));
 			}
 
@@ -731,12 +731,12 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
@@ -776,7 +776,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

@@ -292,7 +292,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 	public void initialize() {
 		super.initialize();
 
-		quoteValues = Collections.synchronizedSet(new HashSet<QuoteValue>(2));
+		quoteValues = Collections.synchronizedSet(HashSet.newHashSet(2));
 		tradeType.setText("Loan/Deposit Trade");
 
 		pricerBusinessDelegate = new PricerBusinessDelegate();
@@ -303,7 +303,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 
 		tradeDate.setValue(LocalDate.now());
 
-		interestRateIsFixed.selectedProperty().addListener(new ChangeListener<Boolean>() {
+		interestRateIsFixed.selectedProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue) {
 				fixedRateLabel.setVisible(newValue);
 				fixedRate.setVisible(newValue);
@@ -320,7 +320,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		maturity.valueProperty().addListener(new ChangeListener<Tenor>() {
+		maturity.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends Tenor> ov, Tenor oldValue, Tenor newValue) {
 				if (newValue != null) {
 					boolean tenorIsSpecified = (!newValue.equals(Tenor.NO_TENOR));
@@ -329,7 +329,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 						if (startDate.getValue() != null) {
 							try {
 								endDate.setValue(DateUtil.addTenor(startDate.getValue().minusDays(1), newValue));
-							} catch (TradistaBusinessException tbe) {
+							} catch (TradistaBusinessException _) {
 								// Should not appear here.
 							}
 						} else {
@@ -340,14 +340,14 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		startDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		startDate.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends LocalDate> ov, LocalDate oldValue, LocalDate newValue) {
 				if (newValue != null) {
 					boolean tenorIsSpecified = (!maturity.getValue().equals(Tenor.NO_TENOR));
 					if (tenorIsSpecified) {
 						try {
 							endDate.setValue(DateUtil.addTenor(newValue.minusDays(1), maturity.getValue()));
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Should not appear here.
 						}
 					}
@@ -355,7 +355,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		interestType.valueProperty().addListener(new ChangeListener<InterestType>() {
+		interestType.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends InterestType> ov, InterestType oldValue,
 					InterestType newValue) {
 				if (newValue != null) {
@@ -389,7 +389,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<QuoteSet>() {
+		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
 					QuoteSet newValue) {
@@ -402,7 +402,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<LocalDate>() {
+		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
 					LocalDate newValue) {
@@ -411,7 +411,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		floatingRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
+		floatingRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
 				if (newIndex != null) {
@@ -421,7 +421,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		floatingRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tenor>() {
+		floatingRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Tenor> observableValue, Tenor oldTenor, Tenor newTenor) {
 				if (floatingRateIndex.getValue() != null) {
@@ -431,7 +431,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricerMeasure>() {
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricerMeasure> observableValue,
 					PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
@@ -446,7 +446,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 
 		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<PricingParameter>() {
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends PricingParameter> observableValue,
 					PricingParameter oldPricingParam, PricingParameter newPricingParam) {
@@ -456,7 +456,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 					Pricer pricer = null;
 					try {
 						pricer = pricerBusinessDelegate.getPricer(LoanDepositTrade.LOAN_DEPOSIT, newPricingParam);
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// Will never happen in this case.
 					}
 					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
@@ -479,7 +479,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		currency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
+		currency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
 					Currency newValue) {
@@ -503,7 +503,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 
 		pricingDate.setValue(LocalDate.now());
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
+		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 			@Override
 			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
 				if (newValue != null) {
@@ -512,7 +512,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<DatePicker, DateCell>() {
+		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<>() {
 			public DateCell call(final DatePicker datePicker) {
 				return new DateCell() {
 
@@ -549,7 +549,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		};
 
-		floatingRateIndex.valueProperty().addListener(new ChangeListener<Index>() {
+		floatingRateIndex.valueProperty().addListener(new ChangeListener<>() {
 			public void changed(ObservableValue<? extends Index> ov, Index oldValue, Index newValue) {
 				if (newValue != null) {
 					interestFixing.setValue(newValue.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD
@@ -806,12 +806,12 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher marketDataPublisher) {
 			if (!publisher.isError()) {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
+						Set<QuoteValue> quoteValues = marketDataPublisher.getQuoteValues();
 						if (quoteValues != null && !quoteValues.isEmpty()) {
 							for (QuoteValue qv : quoteValues) {
 								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
@@ -862,7 +862,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

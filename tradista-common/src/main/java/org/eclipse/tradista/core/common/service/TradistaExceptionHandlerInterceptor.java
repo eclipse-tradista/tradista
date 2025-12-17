@@ -47,9 +47,9 @@ public class TradistaExceptionHandlerInterceptor {
 				logger.error(String.format("%s thrown by service %s.%s", te.getClass().getSimpleName(),
 						ic.getTarget().getClass().getSimpleName(), ic.getMethod().getName()), te);
 				switch (te) {
-				case TradistaBusinessException _ -> new TradistaBusinessException(te.getMessage());
-				case TradistaTechnicalException _ -> new TradistaTechnicalException(te.getMessage());
-				default -> new TradistaTechnicalException(te.getMessage());
+				case TradistaBusinessException _ -> throw new TradistaBusinessException(te.getMessage());
+				case TradistaTechnicalException _ -> throw new TradistaTechnicalException(te.getMessage());
+				default -> throw new TradistaTechnicalException(te.getMessage());
 				}
 			}
 			// Already logged

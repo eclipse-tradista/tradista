@@ -6,14 +6,15 @@ import java.util.List;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.ir.future.messaging.FutureTradeEvent;
+import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
-import org.eclipse.tradista.ir.future.persistence.FutureSQL;
 import org.eclipse.tradista.ir.future.persistence.FutureTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
@@ -47,6 +48,9 @@ public class FutureTradeServiceBean implements FutureTradeService {
 
 	private Destination destination;
 
+	@EJB
+	private FutureService futureService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
@@ -59,7 +63,9 @@ public class FutureTradeServiceBean implements FutureTradeService {
 		FutureTradeEvent event = new FutureTradeEvent();
 
 		if (trade.getProduct().getId() == 0) {
-			FutureSQL.saveFuture(trade.getProduct());
+			Future future = trade.getProduct();
+			future.setId(futureService.saveFuture(trade.getProduct()));
+			trade.setProduct(future);
 		}
 
 		if (trade.getId() != 0) {

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.future.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,12 +12,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
-import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
 
@@ -51,31 +50,17 @@ public class FutureTradeSQL {
 						futureTrade = new FutureTrade();
 					}
 
-					futureTrade.setId(results.getLong("id"));
-					futureTrade.setBuySell(results.getBoolean("buy_sell"));
-					futureTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					java.sql.Date tradeDate = results.getDate("trade_date");
-					if (tradeDate != null) {
-						futureTrade.setTradeDate(tradeDate.toLocalDate());
-					}
-					java.sql.Date settlementDate = results.getDate("settlement_date");
-					if (settlementDate != null) {
-						futureTrade.setSettlementDate(settlementDate.toLocalDate());
-					}
+					TradeSQL.setTradeCommonFields(futureTrade, results);
 					java.sql.Date maturityDate = results.getDate("maturity_date");
 					if (maturityDate != null) {
 						futureTrade.setMaturityDate(maturityDate.toLocalDate());
 					}
 					futureTrade.setProduct(FutureSQL.getFutureById(results.getLong("product_id")));
-					futureTrade.setAmount(results.getBigDecimal("amount"));
 					futureTrade.setQuantity(results.getBigDecimal("quantity"));
-					futureTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					futureTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					futureTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return futureTrade;
 	}
@@ -103,8 +88,6 @@ public class FutureTradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(futureTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -183,7 +166,7 @@ public class FutureTradeSQL {
 				Statement stmtGetTradesBeforeTradeDate = con.createStatement()) {
 			String query = "SELECT * FROM IRFORWARD_TRADE, TRADE, FUTURE_TRADE WHERE "
 					+ "IRFORWARD_TRADE_ID = FUTURE_TRADE_ID AND TRADE.ID = IRFORWARD_TRADE_ID AND TRADE.TRADE_DATE <= '"
-					+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date) + "'";
+					+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(date) + "'";
 
 			if (futureId > 0) {
 				query += " AND TRADE.PRODUCT_ID = " + futureId;
@@ -198,33 +181,19 @@ public class FutureTradeSQL {
 					}
 					FutureTrade futureTrade = new FutureTrade();
 
-					futureTrade.setId(results.getLong("id"));
-					futureTrade.setBuySell(results.getBoolean("buy_sell"));
-					futureTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					java.sql.Date tradeDate = results.getDate("trade_date");
-					if (tradeDate != null) {
-						futureTrade.setTradeDate(tradeDate.toLocalDate());
-					}
-					java.sql.Date settlementDate = results.getDate("settlement_date");
-					if (settlementDate != null) {
-						futureTrade.setSettlementDate(settlementDate.toLocalDate());
-					}
+					TradeSQL.setTradeCommonFields(futureTrade, results);
 					java.sql.Date maturityDate = results.getDate("maturity_date");
 					if (maturityDate != null) {
 						futureTrade.setMaturityDate(maturityDate.toLocalDate());
 					}
 					futureTrade.setProduct(FutureSQL.getFutureById(results.getLong("product_id")));
-					futureTrade.setAmount(results.getBigDecimal("amount"));
 					futureTrade.setQuantity(results.getBigDecimal("quantity"));
-					futureTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					futureTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					futureTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
 
 					futureTrades.add(futureTrade);
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return futureTrades;
 

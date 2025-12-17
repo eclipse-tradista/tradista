@@ -123,7 +123,6 @@ public class MessageSQL {
 				messageId = message.getId();
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle.getMessage());
 		}
 
@@ -156,7 +155,6 @@ public class MessageSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return message;
@@ -218,7 +216,6 @@ public class MessageSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return messages;

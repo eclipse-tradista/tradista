@@ -51,8 +51,6 @@ public class FutureSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return future;
@@ -79,8 +77,6 @@ public class FutureSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return future;
@@ -95,7 +91,7 @@ public class FutureSQL {
 				ResultSet results = stmtGetAllFutures.executeQuery()) {
 			while (results.next()) {
 				if (futures == null) {
-					futures = new HashSet<Future>();
+					futures = new HashSet<>();
 				}
 				Future future = new Future(results.getString("symbol"), FutureContractSpecificationSQL
 						.getFutureContractSpecificationById(results.getLong("future_contract_specification_id")));
@@ -105,8 +101,6 @@ public class FutureSQL {
 				futures.add(future);
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return futures;
@@ -149,8 +143,6 @@ public class FutureSQL {
 			stmtSaveFuture.executeUpdate();
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
