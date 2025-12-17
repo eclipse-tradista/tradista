@@ -3,7 +3,7 @@ package org.eclipse.tradista.security.specificrepo.validator;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
-import org.eclipse.tradista.security.repo.service.RepoTradeValidator;
+import org.eclipse.tradista.security.repo.validator.RepoTradeValidator;
 import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 
 /********************************************************************************

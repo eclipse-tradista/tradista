@@ -1,4 +1,4 @@
-package org.eclipse.tradista.security.repo.service;
+package org.eclipse.tradista.security.repo.validator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

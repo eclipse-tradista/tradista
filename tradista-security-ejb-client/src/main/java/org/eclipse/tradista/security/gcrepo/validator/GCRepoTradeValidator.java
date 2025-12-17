@@ -4,7 +4,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
-import org.eclipse.tradista.security.repo.service.RepoTradeValidator;
+import org.eclipse.tradista.security.repo.validator.RepoTradeValidator;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
