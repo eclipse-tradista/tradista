@@ -41,13 +41,18 @@ import org.eclipse.tradista.ir.irswap.model.IRSwapTrade;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class PricerIRSwapUtil {
+public final class PricerIRSwapUtil {
 
 	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 
+	private static final String IMPOSSIBLE_TO_CALCULATE_THE_FLOWS = "Impossible to calculate the flows, there is no %s %s quote as of %tD in this quote set %s and no value for this date in the curve %s.";
+
+	private PricerIRSwapUtil() {
+	}
+
 	public static BigDecimal discountFixedLegCashFlows(IRSwapTrade irswapTrade, long irSwapCurrIRCurveId,
 			LocalDate date, QuoteSet quoteSet, long indexCurveId) throws PricerException, TradistaBusinessException {
-		BigDecimal price = BigDecimal.ZERO;
+		BigDecimal price;
 		// 1. Generate the pending cashflows
 		List<CashFlow> pendingCashFlows = PricerIRSwapUtil.getPaymentLegFlows(irswapTrade, quoteSet.getId(),
 				indexCurveId, date);
@@ -60,7 +65,7 @@ public class PricerIRSwapUtil {
 
 	public static BigDecimal discountFloatingLegCashFlows(IRSwapTrade irswapTrade, long irSwapCurrIRCurveId,
 			LocalDate date, QuoteSet quoteSet, long indexCurveId) throws PricerException, TradistaBusinessException {
-		BigDecimal price = BigDecimal.ZERO;
+		BigDecimal price;
 		// 1. Generate the pending cashflows
 		List<CashFlow> pendingCashFlows = PricerIRSwapUtil.getReceptionLegFlows(irswapTrade, quoteSet.getId(),
 				indexCurveId, date);
@@ -93,7 +98,7 @@ public class PricerIRSwapUtil {
 		if (!frequency.equals(Tenor.NO_TENOR)) {
 			while (!cashFlowDate.isAfter(trade.getMaturityDate())) {
 				LocalDate beginningOfPeriod = cashFlowDate;
-				LocalDate endOfPeriod = cashFlowDate;
+				LocalDate endOfPeriod;
 				LocalDate fixingDate = cashFlowDate;
 				CashFlow cashFlow = new CashFlow();
 				cashFlow.setDate(cashFlowDate);
@@ -119,11 +124,10 @@ public class PricerIRSwapUtil {
 						trade.getReceptionReferenceRateIndexTenor(), trade.getReceptionDayCountConvention(),
 						fixingDate);
 				if (ir == null) {
-					throw new TradistaBusinessException(String.format(
-							"Impossible to calculate the flows, there is no %s %s quote as of %tD in this quote set %s and no value for this date in the curve %s.",
-							QuoteValue.LAST, quoteName, fixingDate,
-							new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
-							new CurveBusinessDelegate().getCurveById(indexCurveId)));
+					throw new TradistaBusinessException(
+							String.format(IMPOSSIBLE_TO_CALCULATE_THE_FLOWS, QuoteValue.LAST, quoteName, fixingDate,
+									new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
+									new CurveBusinessDelegate().getCurveById(indexCurveId)));
 				}
 				if (trade.getReceptionSpread() != null) {
 					ir.add(trade.getReceptionSpread());
@@ -142,7 +146,7 @@ public class PricerIRSwapUtil {
 							ir.divide(BigDecimal.valueOf(100), configurationBusinessDelegate.getRoundingMode()));
 					cashFlow.setAmount(payment);
 					if (cashFlows == null) {
-						cashFlows = new ArrayList<CashFlow>();
+						cashFlows = new ArrayList<>();
 					}
 					cashFlows.add(cashFlow);
 				}
@@ -158,7 +162,7 @@ public class PricerIRSwapUtil {
 			if (trade.getReceptionInterestFixing().equals(InterestPayment.END_OF_PERIOD)) {
 				fixingDate = trade.getMaturityDate();
 			}
-			cashFlows = new ArrayList<CashFlow>();
+			cashFlows = new ArrayList<>();
 			CashFlow cashFlow = new CashFlow();
 			cashFlow.setDate(settlementDate);
 			cashFlow.setCurrency(trade.getCurrency());
@@ -171,9 +175,8 @@ public class PricerIRSwapUtil {
 			ir = PricerUtil.getInterestRateAsOfDate(quoteName, quoteSetId, indexCurveId,
 					trade.getReceptionReferenceRateIndexTenor(), trade.getReceptionDayCountConvention(), fixingDate);
 			if (ir == null) {
-				throw new TradistaBusinessException(String.format(
-						"Impossible to calculate the flows, there is no %s %s quote as of %tD in this quoteSet: %s and no value for this date in the curve %s.",
-						QuoteValue.LAST, quoteName, fixingDate, new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
+				throw new TradistaBusinessException(String.format(IMPOSSIBLE_TO_CALCULATE_THE_FLOWS, QuoteValue.LAST,
+						quoteName, fixingDate, new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
 						new CurveBusinessDelegate().getCurveById(indexCurveId)));
 			}
 			if (trade.getReceptionSpread() != null) {
@@ -248,9 +251,9 @@ public class PricerIRSwapUtil {
 		BigDecimal ir;
 		String quoteName = Index.INDEX + "." + trade.getPaymentReferenceRateIndex() + "."
 				+ trade.getPaymentReferenceRateIndexTenor();
-		if (trade instanceof CcySwapTrade) {
-			notional = ((CcySwapTrade) trade).getNotionalAmountTwo();
-			currency = ((CcySwapTrade) trade).getCurrencyTwo();
+		if (trade instanceof CcySwapTrade ccySwapTrade) {
+			notional = ccySwapTrade.getNotionalAmountTwo();
+			currency = ccySwapTrade.getCurrencyTwo();
 		} else {
 			notional = trade.getAmount();
 			currency = trade.getCurrency();
@@ -279,21 +282,20 @@ public class PricerIRSwapUtil {
 				if (trade.getPaymentInterestPayment().equals(InterestPayment.END_OF_PERIOD)) {
 					cashFlow.setDate(endOfPeriod);
 				}
-				if (trade.getPaymentInterestFixing().equals(InterestPayment.END_OF_PERIOD)) {
-					fixingDate = endOfPeriod;
-				}
 				if (trade.isInterestsToPayFixed()) {
 					ir = trade.getPaymentFixedInterestRate();
 				} else {
+					if (trade.getPaymentInterestFixing().equals(InterestPayment.END_OF_PERIOD)) {
+						fixingDate = endOfPeriod;
+					}
 					ir = PricerUtil.getInterestRateAsOfDate(quoteName, quoteSetId, indexCurveId,
 							trade.getPaymentReferenceRateIndexTenor(), trade.getPaymentDayCountConvention(),
 							fixingDate);
 					if (ir == null) {
-						throw new TradistaBusinessException(String.format(
-								"Impossible to calculate the flows, there is no %s %s quote as of %tD in this quote set %s and no value for this date in the curve %s.",
-								QuoteValue.LAST, quoteName, fixingDate,
-								new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
-								new CurveBusinessDelegate().getCurveById(indexCurveId)));
+						throw new TradistaBusinessException(
+								String.format(IMPOSSIBLE_TO_CALCULATE_THE_FLOWS, QuoteValue.LAST, quoteName, fixingDate,
+										new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
+										new CurveBusinessDelegate().getCurveById(indexCurveId)));
 					}
 					if (trade.getPaymentSpread() != null) {
 						ir = ir.add(trade.getPaymentSpread());
@@ -314,7 +316,7 @@ public class PricerIRSwapUtil {
 							configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode()));
 					cashFlow.setAmount(payment);
 					if (cashFlows == null) {
-						cashFlows = new ArrayList<CashFlow>();
+						cashFlows = new ArrayList<>();
 					}
 					cashFlows.add(cashFlow);
 				}
@@ -330,7 +332,7 @@ public class PricerIRSwapUtil {
 			if (trade.getPaymentInterestPayment().equals(InterestPayment.END_OF_PERIOD)) {
 				fixingDate = trade.getMaturityDate();
 			}
-			cashFlows = new ArrayList<CashFlow>();
+			cashFlows = new ArrayList<>();
 			CashFlow cashFlow = new CashFlow();
 			cashFlow.setDate(settlementDate);
 			cashFlow.setCurrency(currency);
@@ -346,11 +348,10 @@ public class PricerIRSwapUtil {
 				ir = PricerUtil.getInterestRateAsOfDate(quoteName, quoteSetId, indexCurveId,
 						trade.getPaymentReferenceRateIndexTenor(), trade.getPaymentDayCountConvention(), fixingDate);
 				if (ir == null) {
-					throw new TradistaBusinessException(String.format(
-							"Impossible to calculate the flows, there is no %s %s quote as of %tD in this quote set %s and no value for this date in the curve %s.",
-							QuoteValue.LAST, quoteName, fixingDate,
-							new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
-							new CurveBusinessDelegate().getCurveById(indexCurveId)));
+					throw new TradistaBusinessException(
+							String.format(IMPOSSIBLE_TO_CALCULATE_THE_FLOWS, QuoteValue.LAST, quoteName, fixingDate,
+									new QuoteBusinessDelegate().getQuoteSetById(quoteSetId),
+									new CurveBusinessDelegate().getCurveById(indexCurveId)));
 				}
 				if (trade.getPaymentSpread() != null) {
 					ir = ir.add(trade.getPaymentSpread());
