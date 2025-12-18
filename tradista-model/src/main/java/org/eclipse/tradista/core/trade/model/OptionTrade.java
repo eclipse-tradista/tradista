@@ -31,51 +31,45 @@ import org.eclipse.tradista.core.product.model.Product;
  */
 public abstract class OptionTrade<T extends Trade<? extends Product>> extends Trade<Product> {
 
-	public static enum Type {
+	public enum Type {
 		CALL, PUT;
 
+		@Override
 		public String toString() {
-			switch (this) {
-			case CALL:
-				return "Call";
-			case PUT:
-				return "Put";
-			}
-			return super.toString();
+			return switch (this) {
+			case CALL -> "Call";
+			case PUT -> "Put";
+			default -> super.toString();
+			};
 		}
 
 		public static Type getType(String displayValue) {
-			switch (displayValue) {
-			case "Call":
-				return CALL;
-			case "Put":
-				return PUT;
-			}
-			return null;
+			return switch (displayValue) {
+			case "Call" -> CALL;
+			case "Put" -> PUT;
+			default -> null;
+			};
 		}
-	};
+	}
 
-	public static enum SettlementType {
+	public enum SettlementType {
 		CASH, PHYSICAL;
 
+		@Override
 		public String toString() {
-			switch (this) {
-			case CASH:
-				return "Cash";
-			case PHYSICAL:
-				return "Physical";
-			}
-			return super.toString();
+			return switch (this) {
+			case CASH -> "Cash";
+			case PHYSICAL -> "Physical";
+			default -> super.toString();
+			};
 		}
 
 		public static SettlementType getType(String displayValue) {
-			switch (displayValue) {
-			case "Cash":
-				return CASH;
-			case "Physical":
-				return PHYSICAL;
-			}
-			return null;
+			return switch (displayValue) {
+			case "Cash" -> CASH;
+			case "Physical" -> PHYSICAL;
+			default -> null;
+			};
 		}
 	};
 
@@ -85,9 +79,6 @@ public abstract class OptionTrade<T extends Trade<? extends Product>> extends Tr
 		this.type = type;
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6498388754667143318L;
 
 	private T underlying;

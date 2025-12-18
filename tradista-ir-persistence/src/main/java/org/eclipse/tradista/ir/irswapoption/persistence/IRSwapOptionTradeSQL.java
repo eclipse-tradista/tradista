@@ -64,22 +64,14 @@ public class IRSwapOptionTradeSQL {
 						irSwapOptionTrade = new IRSwapOptionTrade();
 					}
 
-					irSwapOptionTrade.setId(id);
+					TradeSQL.setTradeCommonFields(irSwapOptionTrade, results);
 					irSwapOptionTrade.setStyle(getStyle(results.getString("style")));
 					irSwapOptionTrade.setType(OptionTrade.Type.valueOf(results.getString("type")));
-					irSwapOptionTrade.setAmount(results.getBigDecimal("amount"));
-					irSwapOptionTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
 					irSwapOptionTrade.setSettlementType(
 							OptionTrade.SettlementType.valueOf(results.getString("settlement_type")));
 					irSwapOptionTrade.setSettlementDateOffset(results.getInt("settlement_date_offset"));
 					irSwapOptionTrade.setStrike(results.getBigDecimal("strike"));
-					irSwapOptionTrade.setBuySell(results.getBoolean("BUY_SELL"));
-					irSwapOptionTrade
-							.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					irSwapOptionTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					irSwapOptionTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
 					irSwapOptionTrade.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					irSwapOptionTrade.setSettlementDate(results.getDate("settlement_date").toLocalDate());
 					Date exerciseDate = results.getDate("exercise_date");
 					if (exerciseDate != null) {
 						irSwapOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
@@ -152,8 +144,8 @@ public class IRSwapOptionTradeSQL {
 
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return irSwapOptionTrade;
 	}

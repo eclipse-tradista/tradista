@@ -255,7 +255,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				tradeDate.setValue(nextBusinessDay);
 				selectedQuoteDate.setValue(nextBusinessDay);
 			}
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Won't happen because 'now' cannot be null
 		}
 
@@ -612,27 +612,25 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			}
 
 			// Building the underlying
-
+			FXTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				trade.setUnderlying(new FXTrade());
+				underlying = new FXTrade();
 			}
 			if (!amountOne.getText().isEmpty()) {
-				trade.getUnderlying()
-						.setAmountOne(TradistaGUIUtil.parseAmount(amountOne.getText(), "Underlying's Amount One"));
+				underlying.setAmountOne(TradistaGUIUtil.parseAmount(amountOne.getText(), "Underlying's Amount One"));
 			}
 			if (!amountTwo.getText().isEmpty()) {
-				trade.getUnderlying()
-						.setAmount(TradistaGUIUtil.parseAmount(amountTwo.getText(), "Underlying's Amount Two"));
+				underlying.setAmount(TradistaGUIUtil.parseAmount(amountTwo.getText(), "Underlying's Amount Two"));
 			}
 
-			trade.getUnderlying().setCurrency(currencyTwo.getValue());
-			trade.getUnderlying().setCurrencyOne(currencyOne.getValue());
-			trade.getUnderlying().setBuySell((trade.isCall() && trade.isBuy()) || (trade.isPut() && trade.isSell()));
-			trade.getUnderlying().setCounterparty(counterparty.getValue());
-			trade.getUnderlying().setBook(book.getValue());
+			underlying.setCurrency(currencyTwo.getValue());
+			underlying.setCurrencyOne(currencyOne.getValue());
+			underlying.setBuySell((trade.isCall() && trade.isBuy()) || (trade.isPut() && trade.isSell()));
+			underlying.setCounterparty(counterparty.getValue());
+			underlying.setBook(book.getValue());
 
 			if (trade.getExerciseDate() != null) {
-				trade.getUnderlying().setTradeDate(trade.getExerciseDate());
+				underlying.setTradeDate(trade.getExerciseDate());
 				short offSet = 0;
 				if (!settlementDateOffset.getText().isEmpty()) {
 					offSet = Short.parseShort(settlementDateOffset.getText());
@@ -640,15 +638,16 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 
 				if (trade.getSettlementType().equals(OptionTrade.SettlementType.PHYSICAL)) {
 					LocalDate settlementDate = trade.getExerciseDate().plusDays(offSet);
-					while (!new FXTradeBusinessDelegate().isBusinessDay(trade.getUnderlying(), settlementDate)) {
+					while (!new FXTradeBusinessDelegate().isBusinessDay(underlying, settlementDate)) {
 						settlementDate = settlementDate.plusDays(1);
 					}
-					trade.getUnderlying().setSettlementDate(settlementDate);
+					underlying.setSettlementDate(settlementDate);
 				} else {
-					trade.getUnderlying().setSettlementDate(DateUtil.addBusinessDay(trade.getExerciseDate(),
+					underlying.setSettlementDate(DateUtil.addBusinessDay(trade.getExerciseDate(),
 							fxOptionTradeBusinessDelegate.getFXExchange().getCalendar(), offSet));
 				}
 			}
+			trade.setUnderlying(underlying);
 		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}

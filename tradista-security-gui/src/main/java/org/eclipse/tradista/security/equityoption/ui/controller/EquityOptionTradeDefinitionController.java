@@ -834,18 +834,18 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 			}
 
 			// Building the underlying
+			EquityTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				trade.setUnderlying(new EquityTrade());
+				underlying = new EquityTrade();
 			}
 
-			trade.getUnderlying().setProduct(equity.getValue());
+			underlying.setProduct(equity.getValue());
 			if (!underlyingQuantity.getText().isEmpty()) {
-				trade.getUnderlying()
+				underlying
 						.setQuantity(TradistaGUIUtil.parseAmount(underlyingQuantity.getText(), "Underlying Quantity"));
 			}
 			if (!underlyingPrice.getText().isEmpty()) {
-				trade.getUnderlying()
-						.setAmount(TradistaGUIUtil.parseAmount(underlyingPrice.getText(), "Underlying Price"));
+				underlying.setAmount(TradistaGUIUtil.parseAmount(underlyingPrice.getText(), "Underlying Price"));
 			}
 			if (trade.getExerciseDate() != null) {
 				if (trade.getSettlementType().equals(OptionTrade.SettlementType.PHYSICAL)) {
@@ -853,20 +853,21 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 					if (!settlementDateOffset.getText().isEmpty()) {
 						offSet = Short.parseShort(settlementDateOffset.getText());
 					}
-					trade.getUnderlying().setTradeDate(trade.getExerciseDate());
-					trade.getUnderlying().setSettlementDate(DateUtil.addBusinessDay(trade.getExerciseDate(),
+					underlying.setTradeDate(trade.getExerciseDate());
+					underlying.setSettlementDate(DateUtil.addBusinessDay(trade.getExerciseDate(),
 							equity.getValue().getExchange().getCalendar(), offSet));
 				} else {
-					trade.getUnderlying().setSettlementDate(null);
-					trade.getUnderlying().setTradeDate(null);
+					underlying.setSettlementDate(null);
+					underlying.setTradeDate(null);
 				}
 			} else {
-				trade.getUnderlying().setSettlementDate(null);
-				trade.getUnderlying().setTradeDate(null);
+				underlying.setSettlementDate(null);
+				underlying.setTradeDate(null);
 			}
-			trade.getUnderlying().setBuySell((trade.isCall() && trade.isBuy()) || (trade.isPut() && trade.isSell()));
-			trade.getUnderlying().setCounterparty(counterparty.getValue());
-			trade.getUnderlying().setBook(book.getValue());
+			underlying.setBuySell((trade.isCall() && trade.isBuy()) || (trade.isPut() && trade.isSell()));
+			underlying.setCounterparty(counterparty.getValue());
+			underlying.setBook(book.getValue());
+			trade.setUnderlying(underlying);
 
 		} catch (TradistaBusinessException _) {
 			// Should not appear here.

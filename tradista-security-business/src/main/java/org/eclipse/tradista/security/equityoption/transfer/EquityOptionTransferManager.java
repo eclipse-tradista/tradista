@@ -168,7 +168,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 		}
 	}
 
-	private CashTransfer createNewCashSettlementTransfer(EquityOptionTrade trade) throws TradistaBusinessException {
+	private CashTransfer createNewCashSettlementTransfer(EquityOptionTrade trade) {
 		CashTransfer cashSettlementTransfer = new CashTransfer(trade.getBook(), TransferPurpose.CASH_SETTLEMENT,
 				trade.getExerciseDate(), trade, trade.getUnderlying().getCurrency());
 		cashSettlementTransfer.setCreationDateTime(LocalDateTime.now());
@@ -178,7 +178,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 		return cashSettlementTransfer;
 	}
 
-	private CashTransfer createNewPremiumTransfer(EquityOptionTrade trade) throws TradistaBusinessException {
+	private CashTransfer createNewPremiumTransfer(EquityOptionTrade trade) {
 		CashTransfer premiumTransfer = new CashTransfer(trade.getBook(), TransferPurpose.PREMIUM,
 				trade.getSettlementDate(), trade, trade.getCurrency());
 		premiumTransfer.setCreationDateTime(LocalDateTime.now());
@@ -194,8 +194,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 		return premiumTransfer;
 	}
 
-	private ProductTransfer createNewEquityOptionSettlementTransfer(EquityOptionTrade trade)
-			throws TradistaBusinessException {
+	private ProductTransfer createNewEquityOptionSettlementTransfer(EquityOptionTrade trade) {
 		ProductTransfer eqOptionSettlementTransfer = new ProductTransfer(trade.getBook(),
 				TransferPurpose.EQUITY_OPTION_SETTLEMENT, trade.getSettlementDate(), trade);
 		eqOptionSettlementTransfer.setCreationDateTime(LocalDateTime.now());

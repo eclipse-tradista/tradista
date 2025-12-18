@@ -917,72 +917,72 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 			}
 
 			// Building the underlying
+			SingleCurrencyIRSwapTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				trade.setUnderlying(new SingleCurrencyIRSwapTrade());
+				underlying = new SingleCurrencyIRSwapTrade();
 			}
 
 			if (!notionalAmount.getText().isEmpty()) {
-				trade.getUnderlying()
-						.setAmount(TradistaGUIUtil.parseAmount(notionalAmount.getText(), "Notional Amount"));
+				underlying.setAmount(TradistaGUIUtil.parseAmount(notionalAmount.getText(), "Notional Amount"));
 			}
-			trade.getUnderlying().setCurrency(currency.getValue());
-			trade.getUnderlying().setPaymentFrequency(paymentFrequency.getValue());
-			trade.getUnderlying().setReceptionFrequency(receptionFrequency.getValue());
-			trade.getUnderlying().setInterestsToPayFixed(interestsToPayFixed.isSelected());
-			trade.getUnderlying().setMaturityDate(underlyingMaturityDate.getValue());
-			trade.getUnderlying().setMaturityTenor(underlyingMaturityTenor.getValue());
-			trade.getUnderlying().setPaymentDayCountConvention(paymentDayCountConvention.getValue());
-			if (trade.getUnderlying().isInterestsToPayFixed()) {
+			underlying.setCurrency(currency.getValue());
+			underlying.setPaymentFrequency(paymentFrequency.getValue());
+			underlying.setReceptionFrequency(receptionFrequency.getValue());
+			underlying.setInterestsToPayFixed(interestsToPayFixed.isSelected());
+			underlying.setMaturityDate(underlyingMaturityDate.getValue());
+			underlying.setMaturityTenor(underlyingMaturityTenor.getValue());
+			underlying.setPaymentDayCountConvention(paymentDayCountConvention.getValue());
+			if (underlying.isInterestsToPayFixed()) {
 				if (!fixedInterestRate.getText().isEmpty()) {
-					trade.getUnderlying().setPaymentFixedInterestRate(
+					underlying.setPaymentFixedInterestRate(
 							TradistaGUIUtil.parseAmount(fixedInterestRate.getText(), "Payment Fixed Interest Rate"));
 				}
 			} else {
-				trade.getUnderlying().setPaymentReferenceRateIndex(paymentReferenceRateIndex.getValue());
-				trade.getUnderlying().setPaymentReferenceRateIndexTenor(paymentReferenceRateIndexTenor.getValue());
+				underlying.setPaymentReferenceRateIndex(paymentReferenceRateIndex.getValue());
+				underlying.setPaymentReferenceRateIndexTenor(paymentReferenceRateIndexTenor.getValue());
 				if (!paymentSpread.getText().isEmpty()) {
-					trade.getUnderlying()
-							.setPaymentSpread(TradistaGUIUtil.parseAmount(paymentSpread.getText(), "Payment Spread"));
+					underlying.setPaymentSpread(TradistaGUIUtil.parseAmount(paymentSpread.getText(), "Payment Spread"));
 				}
 			}
-			trade.getUnderlying().setReceptionDayCountConvention(receptionDayCountConvention.getValue());
-			trade.getUnderlying().setReceptionReferenceRateIndex(referenceRateIndex.getValue());
-			trade.getUnderlying().setReceptionReferenceRateIndexTenor(referenceRateIndexTenor.getValue());
+			underlying.setReceptionDayCountConvention(receptionDayCountConvention.getValue());
+			underlying.setReceptionReferenceRateIndex(referenceRateIndex.getValue());
+			underlying.setReceptionReferenceRateIndexTenor(referenceRateIndexTenor.getValue());
 			if (!receptionSpread.getText().isEmpty()) {
-				trade.getUnderlying()
+				underlying
 						.setReceptionSpread(TradistaGUIUtil.parseAmount(receptionSpread.getText(), "Reception Spread"));
 			}
-			trade.getUnderlying().setBook(book.getValue());
-			trade.getUnderlying().setBuySell((trade.isCall() && trade.isBuy()) || (trade.isPut() && trade.isSell()));
-			trade.getUnderlying().setCounterparty(trade.getCounterparty());
+			underlying.setBook(book.getValue());
+			underlying.setBuySell((trade.isCall() && trade.isBuy()) || (trade.isPut() && trade.isSell()));
+			underlying.setCounterparty(trade.getCounterparty());
 
 			if (trade.getExerciseDate() != null) {
 				if (trade.getSettlementType().equals(OptionTrade.SettlementType.PHYSICAL)) {
-					trade.getUnderlying().setTradeDate(trade.getExerciseDate());
+					underlying.setTradeDate(trade.getExerciseDate());
 					short offSet = 0;
 					if (!settlementDateOffset.getText().isEmpty()) {
 						offSet = Short.parseShort(settlementDateOffset.getText());
 					}
 					LocalDate settlementDate = trade.getExerciseDate().plusDays(offSet);
-					while (!new IRSwapTradeBusinessDelegate().isBusinessDay(trade.getUnderlying(), settlementDate)) {
+					while (!new IRSwapTradeBusinessDelegate().isBusinessDay(underlying, settlementDate)) {
 						settlementDate = settlementDate.plusDays(1);
 					}
-					trade.getUnderlying().setSettlementDate(settlementDate);
+					underlying.setSettlementDate(settlementDate);
 				} else {
-					trade.getUnderlying().setTradeDate(null);
-					trade.getUnderlying().setSettlementDate(null);
+					underlying.setTradeDate(null);
+					underlying.setSettlementDate(null);
 				}
 			} else {
-				trade.getUnderlying().setTradeDate(null);
-				trade.getUnderlying().setSettlementDate(null);
+				underlying.setTradeDate(null);
+				underlying.setSettlementDate(null);
 			}
 
-			trade.getUnderlying().setPaymentInterestPayment(paymentInterestPayment.getValue());
-			trade.getUnderlying().setReceptionInterestPayment(receptionInterestPayment.getValue());
+			underlying.setPaymentInterestPayment(paymentInterestPayment.getValue());
+			underlying.setReceptionInterestPayment(receptionInterestPayment.getValue());
 
-			trade.getUnderlying().setPaymentInterestFixing(paymentInterestFixing.getValue());
-			trade.getUnderlying().setReceptionInterestFixing(receptionInterestFixing.getValue());
+			underlying.setPaymentInterestFixing(paymentInterestFixing.getValue());
+			underlying.setReceptionInterestFixing(receptionInterestFixing.getValue());
 
+			trade.setUnderlying(underlying);
 		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}

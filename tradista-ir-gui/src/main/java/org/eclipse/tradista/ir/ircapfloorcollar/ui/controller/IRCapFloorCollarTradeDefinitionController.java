@@ -641,28 +641,28 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			}
 
 			// Building the ir forward trade
+			IRForwardTrade<Product> irForwardTrade = trade.getIrForwardTrade();
 			if (trade.getIrForwardTrade() == null) {
-				trade.setIrForwardTrade(new IRForwardTrade<>());
+				irForwardTrade = new IRForwardTrade<>();
 			}
 
 			if (!notionalAmount.getText().isEmpty()) {
-				trade.getIrForwardTrade()
-						.setAmount(TradistaGUIUtil.parseAmount(notionalAmount.getText(), "Notional Amount"));
+				irForwardTrade.setAmount(TradistaGUIUtil.parseAmount(notionalAmount.getText(), "Notional Amount"));
 			}
 
-			trade.getIrForwardTrade()
-					.setBuySell(buySell.getSelectionModel().getSelectedItem().equals(Trade.Direction.BUY));
-			trade.getIrForwardTrade().setCurrency(currency.getValue());
-			trade.getIrForwardTrade().setFrequency(frequency.getValue());
-			trade.getIrForwardTrade().setMaturityDate(maturityDate.getValue());
-			trade.getIrForwardTrade().setSettlementDate(settlementDate.getValue());
-			trade.getIrForwardTrade().setDayCountConvention(dayCountConvention.getValue());
-			trade.getIrForwardTrade().setReferenceRateIndex(referenceRateIndex.getValue());
-			trade.getIrForwardTrade().setReferenceRateIndexTenor(referenceRateIndexTenor.getValue());
-			trade.getIrForwardTrade().setBook(book.getValue());
-			trade.getIrForwardTrade().setCounterparty(counterparty.getValue());
-			trade.getIrForwardTrade().setInterestPayment(interestPayment.getValue());
-			trade.getIrForwardTrade().setInterestFixing(interestFixing.getValue());
+			irForwardTrade.setBuySell(buySell.getSelectionModel().getSelectedItem().equals(Trade.Direction.BUY));
+			irForwardTrade.setCurrency(currency.getValue());
+			irForwardTrade.setFrequency(frequency.getValue());
+			irForwardTrade.setMaturityDate(maturityDate.getValue());
+			irForwardTrade.setSettlementDate(settlementDate.getValue());
+			irForwardTrade.setDayCountConvention(dayCountConvention.getValue());
+			irForwardTrade.setReferenceRateIndex(referenceRateIndex.getValue());
+			irForwardTrade.setReferenceRateIndexTenor(referenceRateIndexTenor.getValue());
+			irForwardTrade.setBook(book.getValue());
+			irForwardTrade.setCounterparty(counterparty.getValue());
+			irForwardTrade.setInterestPayment(interestPayment.getValue());
+			irForwardTrade.setInterestFixing(interestFixing.getValue());
+			trade.setIrForwardTrade(irForwardTrade);
 		} catch (TradistaBusinessException _) {
 			// Should not happen here.
 		}
