@@ -42,21 +42,19 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 
 	private IRForwardTrade<Product> irForwardTrade;
 
-	public static String IR_CAP_FLOOR_COLLAR = "IRCapFloorCollar";
+	public static final String IR_CAP_FLOOR_COLLAR = "IRCapFloorCollar";
 
-	public static enum Type {
+	public enum Type {
 		CAP, FLOOR, COLLAR;
 
+		@Override
 		public String toString() {
-			switch (this) {
-			case CAP:
-				return "Cap";
-			case FLOOR:
-				return "Floor";
-			case COLLAR:
-				return "Collar";
-			}
-			return super.toString();
+			return switch (this) {
+			case CAP -> "Cap";
+			case FLOOR -> "Floor";
+			case COLLAR -> "Collar";
+			default -> super.toString();
+			};
 		}
 	}
 
@@ -72,6 +70,7 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 		return (capStrike != null && floorStrike != null);
 	}
 
+	@Override
 	public String getProductType() {
 		if (isCap()) {
 			return "IRCap";

@@ -147,8 +147,9 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 		}
 
 		if (irSwapOptionTrade.getUnderlying() != null) {
-			if (irSwapOptionTrade.getUnderlying().getAmount() != null
-					&& irSwapOptionTrade.getUnderlying().getAmount().doubleValue() <= 0) {
+			if (irSwapOptionTrade.getUnderlying().getAmount() == null) {
+				errMsg.append(String.format("The underlying notional amount is mandatory.%n"));
+			} else if (irSwapOptionTrade.getUnderlying().getAmount().doubleValue() <= 0) {
 				errMsg.append(String.format("The underlying notional amount (%s) must be positive.%n",
 						trade.getAmount().doubleValue()));
 			}
@@ -158,7 +159,7 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 		// day for the currency of the underlying.
 		if (irSwapOptionTrade.getUnderlyingSettlementDate() != null
 				&& irSwapOptionTrade.getSettlementType().equals(OptionTrade.SettlementType.PHYSICAL)) {
-			if (!new IRSwapOptionTradeBusinessDelegate().isBusinessDay(irSwapOptionTrade,
+			if (!irSwapOptionTradeBusinessDelegate.isBusinessDay(irSwapOptionTrade,
 					irSwapOptionTrade.getUnderlyingSettlementDate())) {
 				errMsg.append(String.format(
 						"In case of Physical settlement, the settlement date must be an open day for the currency (%s) of the underlying.%n",
@@ -197,8 +198,29 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 
 		if (irSwapOptionTrade.getUnderlying() != null) {
 			if (irSwapOptionTrade.getUnderlying().isInterestsToPayFixed()) {
+				if (irSwapOptionTrade.getUnderlying().getPaymentFixedInterestRate() == null) {
+					errMsg.append(String.format(
+							"when the interest payment is fixed, the underlying payment interest rate is mandatory.%n"));
+				}
+			} else {
+				if (irSwapOptionTrade.getUnderlying().getPaymentReferenceRateIndex() == null) {
+					errMsg.append(String.format(
+							"when the interest payment is not fixed, the underlying payment reference rate index is mandatory.%n"));
+				}
+				if (irSwapOptionTrade.getUnderlying().getPaymentReferenceRateIndexTenor() == null) {
+					errMsg.append(String.format(
+							"when the interest payment is not fixed, the underlying payment reference rate index tenor is mandatory.%n"));
+				} else {
+					if (irSwapOptionTrade.getUnderlying().getPaymentReferenceRateIndexTenor().equals(Tenor.NO_TENOR)) {
+						errMsg.append(String.format(
+								"when the interest payment is not fixed, the underlying payment reference rate index tenor must be different from %s.%n",
+								Tenor.NO_TENOR));
+					}
+				}
+
 				if (irSwapOptionTrade.getUnderlying().getPaymentInterestFixing() == null) {
-					errMsg.append(String.format("The underlying payment interest fixing is mandatory.%n"));
+					errMsg.append(String.format(
+							"when the interest payment is not fixed, The underlying payment interest fixing is mandatory.%n"));
 				}
 			}
 		}

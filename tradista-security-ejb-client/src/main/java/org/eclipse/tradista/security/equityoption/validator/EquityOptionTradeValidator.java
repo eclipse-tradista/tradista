@@ -211,7 +211,7 @@ public class EquityOptionTradeValidator extends DefaultTradeValidator {
 
 		if (equityOptionTrade.getEquityOption() != null) {
 			if (equityOptionTrade.getQuantity() == null) {
-				errMsg.append(String.format("The quantity is mandatory when a listed quity option is traded.%n"));
+				errMsg.append(String.format("The quantity is mandatory when a listed equity option is traded.%n"));
 			} else {
 				if (equityOptionTrade.getQuantity().doubleValue() <= 0) {
 					errMsg.append(String.format("The quantity must be positive.%n"));
@@ -224,7 +224,7 @@ public class EquityOptionTradeValidator extends DefaultTradeValidator {
 			errMsg.append(String.format("The premium (%s) must be positive.%n", trade.getAmount().doubleValue()));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
