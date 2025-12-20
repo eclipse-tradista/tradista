@@ -1,11 +1,11 @@
 connect 'jdbc:derby://localhost:1527/Tradista;create=true';
-run '../sql/MESSAGE.sql';
 run '../sql/GCBASKET.sql';
 run '../sql/PROCESS.sql';
 run '../sql/GUARD.sql';
 run '../sql/CONDITION.sql';
 run '../sql/WORKFLOW.sql';
 run '../sql/STATUS.sql';
+run '../sql/MESSAGE.sql';
 run '../sql/ACTION.sql';
 run '../sql/ACTION_GUARD.sql';
 run '../sql/SIMPLEACTION.sql';
