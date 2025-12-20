@@ -7,5 +7,5 @@ if "%DERBY_HOME%"=="" (
   exit /b 1
 )
 
-echo Executing drop commands...
-%DERBY_HOME%/bin/ij %~dp0/dropCommands.txt
+echo Starting the database...
+%DERBY_HOME%/bin/startNetworkServer.bat

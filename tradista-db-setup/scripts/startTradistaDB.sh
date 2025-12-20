@@ -6,4 +6,4 @@ if [ -z "$DERBY_HOME" ]; then
   exit 1
 fi
 
-sh "$DERBY_HOME/bin/ij" "$SCRIPT_HOME/insertData.txt"
+sh "$DERBY_HOME/bin/startNetworkServer"
