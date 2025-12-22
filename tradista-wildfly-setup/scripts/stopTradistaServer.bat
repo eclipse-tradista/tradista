@@ -7,4 +7,4 @@ if "%WILDFLY_HOME%"=="" (
   exit /b 1
 )
 
-%WILDFLY_HOME%/bin/standalone.bat -b localhost --server-config=standalone-full.xml
+%WILDFLY_HOME%\bin\jboss-cli.bat --connect --command=:shutdown

@@ -6,5 +6,5 @@ if [ -z "$DERBY_HOME" ]; then
   exit 1
 fi
 
-cd "$DERBY_HOME/bin"
-sh startNetworkServer
+echo Stopping the database...
+sh "$DERBY_HOME/bin/stopNetworkServer"

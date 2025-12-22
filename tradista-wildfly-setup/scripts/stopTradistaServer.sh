@@ -6,4 +6,4 @@ if [ -z "$WILDFLY_HOME" ]; then
   exit 1
 fi
 
-sh "$WILDFLY_HOME/bin/standalone.sh" -b localhost --server-config=standalone-full.xml
+sh "$WILDFLY_HOME\bin\jboss-cli.sh" --connect --command=:shutdown

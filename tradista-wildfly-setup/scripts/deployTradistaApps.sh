@@ -6,11 +6,8 @@ if [ -z "$WILDFLY_HOME" ]; then
   exit 1
 fi
 
-set "MAVEN_OPTS=--enable-native-access=ALL-UNNAMED"
-for /f %%V in ('mvn help:evaluate -Dexpression=project.version -q -DforceStdout 2^>nul') do (
-  set TRADISTA_VERSION=%%V
-)
-
+TRADISTA_VERSION=3.0.0
+echo "Tradista version: $TRADISTA_VERSION"
 
 # Resolve script directory
 SCRIPT_HOME=$(dirname "$(readlink -f $0)")
@@ -33,7 +30,7 @@ APPS=(
 for APP in "${APPS[@]}"; do
   IFS="|" read -r FOLDER ARTIFACT <<< "$APP"
 
-  EAR_PATH="$SCRIPT_HOME/../../../$FOLDER/target/$ARTIFACT-$TRADISTA_VERSION.ear"
+  EAR_PATH="$SCRIPT_HOME/../../$FOLDER/target/$ARTIFACT-$TRADISTA_VERSION.ear"
 
   if [ ! -f "$EAR_PATH" ]; then
     echo "ERROR: Missing EAR: $EAR_PATH"
@@ -57,7 +54,7 @@ echo "Cleanup completed. Deploying..."
 for APP in "${APPS[@]}"; do
   IFS="|" read -r FOLDER ARTIFACT <<< "$APP"
 
-  EAR_PATH="$SCRIPT_HOME/../../../$FOLDER/target/$ARTIFACT-$TRADISTA_VERSION.ear"
+  EAR_PATH="$SCRIPT_HOME/../../$FOLDER/target/$ARTIFACT-$TRADISTA_VERSION.ear"
 
   cp "$EAR_PATH" "$DEPLOYMENTS_DIR/"
 done

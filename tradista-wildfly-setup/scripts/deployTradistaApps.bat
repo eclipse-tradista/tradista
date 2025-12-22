@@ -7,7 +7,9 @@ if "%WILDFLY_HOME%"=="" (
   exit /b 1
 )
 
-TRADISTA_VERSION=3.0.0
+set TRADISTA_VERSION=3.0.0
+
+echo Tradista version: %TRADISTA_VERSION%
 
 REM Target deployment directory
 set DEPLOYMENTS_DIR=%WILDFLY_HOME%\standalone\deployments
@@ -24,7 +26,7 @@ for %%A in (
   "tradista-importer-app|importer-app"
 ) do (
   for /f "tokens=1,2 delims=|" %%B in (%%A) do (
-    set EAR_PATH=!SCRIPT_HOME!\..\..\..\%%B\target\%%C-!TRADISTA_VERSION!.ear
+    set EAR_PATH=%~dp0\..\..\%%B\target\%%C-%TRADISTA_VERSION%.ear
 
     if not exist "!EAR_PATH!" (
       echo ERROR: Missing EAR: !EAR_PATH!
@@ -56,7 +58,7 @@ for %%A in (
   "tradista-importer-app|importer-app"
 ) do (
   for /f "tokens=1,2 delims=|" %%B in (%%A) do (
-    set EAR_PATH=!SCRIPT_HOME!\..\..\..\%%B\target\%%C-!TRADISTA_VERSION!.ear
+    set EAR_PATH=%~dp0\..\..\%%B\target\%%C-!TRADISTA_VERSION!.ear
 
     xcopy "!EAR_PATH!" %WILDFLY_HOME%\standalone\deployments /Y >nul
   )

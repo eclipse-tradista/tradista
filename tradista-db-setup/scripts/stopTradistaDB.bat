@@ -7,6 +7,5 @@ if "%DERBY_HOME%"=="" (
   exit /b 1
 )
 
-echo Starting the database...
-cd %DERBY_HOME%/bin
-startNetworkServer.bat
+echo Stopping the database...
+%DERBY_HOME%/bin/stopNetworkServer.bat

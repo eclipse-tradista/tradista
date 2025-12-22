@@ -1,5 +1,12 @@
 #!/bin/bash
 
-# be sure to have set DERBY_HOME and updated PATH with DERBY_HOME/bin
+# Check DERBY_HOME
+if [ -z "$DERBY_HOME" ]; then
+  echo "ERROR: DERBY_HOME is not set."
+  exit 1
+fi
 
-ij createCommands.txt
+SCRIPT_HOME=$(dirname "$(readlink -f $0)")
+
+echo "Executing create commands..."
+sh "$DERBY_HOME/bin/ij" "$SCRIPT_HOME/createCommands.txt"

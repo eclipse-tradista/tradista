@@ -6,4 +6,6 @@ if [ -z "$DERBY_HOME" ]; then
   exit 1
 fi
 
+SCRIPT_HOME=$(dirname "$(readlink -f $0)")
+
 sh "$DERBY_HOME/bin/ij" "$SCRIPT_HOME/insertData.txt"

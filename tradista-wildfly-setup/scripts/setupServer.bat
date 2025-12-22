@@ -7,5 +7,8 @@ if "%WILDFLY_HOME%"=="" (
   exit /b 1
 )
 
-xcopy %~dp0\..\modules\org %WILDFLY_HOME%\modules\org /E /I /Y
+REM NOPAUSE variable is used in jboss-cli.bat, if it is set the script won't pause after commands execution
+set "NOPAUSE=true"
+
+xcopy %~dp0\..\modules %WILDFLY_HOME%\modules /E /I /Y
 %WILDFLY_HOME%\bin\jboss-cli.bat --connect --file=%~dp0/commands.cli
