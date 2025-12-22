@@ -92,6 +92,7 @@ drop table exchange;
 drop table currency;
 drop table ui_configuration;
 drop table tradista_user;
+drop table conditionalaction_process;
 drop table conditionalaction_simpleaction;
 drop table conditionalaction_status;
 drop table conditionalaction;

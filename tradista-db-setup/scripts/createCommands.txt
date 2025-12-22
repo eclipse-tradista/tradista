@@ -13,6 +13,7 @@ run '../sql/SIMPLEACTION_PROCESS.sql';
 run '../sql/CONDITIONALACTION.sql';
 run '../sql/CONDITIONALACTION_STATUS.sql';
 run '../sql/CONDITIONALACTION_SIMPLEACTION.sql';
+run '../sql/CONDITIONALACTION_PROCESS.sql';
 run '../sql/LEGAL_ENTITY.sql';
 run '../sql/INTERFACE_MAPPING_SET.sql';
 run '../sql/MAPPING.sql';
