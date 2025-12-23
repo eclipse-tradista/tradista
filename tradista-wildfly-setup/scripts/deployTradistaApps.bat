@@ -7,7 +7,7 @@ if "%WILDFLY_HOME%"=="" (
   exit /b 1
 )
 
-set TRADISTA_VERSION=3.0.0
+set TRADISTA_VERSION=3.1.0-RC1
 
 echo Tradista version: %TRADISTA_VERSION%
 

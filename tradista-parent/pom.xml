@@ -8,217 +8,217 @@
 	<packaging>pom</packaging>
 	<properties>
 		<parent.version>
-			3.0.0
+			3.1.0-RC1
 		</parent.version>
 		<ai-app.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-app.version>
 		<ai-business.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-business.version>
 		<ai-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-ejb.version>
 		<ai-ejb-client.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-ejb-client.version>
 		<ai-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-ejb-interface.version>
 		<ai-model.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-model.version>
 		<ai-persistence.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-persistence.version>
 		<ai-gui.version>
-			3.0.0
+			3.1.0-RC1
 		</ai-gui.version>
 		<app.version>
-			3.0.0
+			3.1.0-RC1
 		</app.version>
 		<app-client.version>
-			3.0.0
+			3.1.0-RC1
 		</app-client.version>
 		<bloomberg-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</bloomberg-interface.version>
 		<bloomberg-mock-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</bloomberg-mock-interface.version>
 		<core-business.version>
-			3.0.0
+			3.1.0-RC1
 		</core-business.version>
 		<core-common.version>
-			3.0.0
+			3.1.0-RC1
 		</core-common.version>
 		<core-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</core-ejb.version>
 		<core-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</core-ejb-interface.version>
 		<fx-business.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-business.version>
 		<fx-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-ejb.version>
 		<fx-ejb-client.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-ejb-client.version>
 		<fx-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-ejb-interface.version>
 		<fx-gui.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-gui.version>
 		<fx-model.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-model.version>
 		<fx-persistence.version>
-			3.0.0
+			3.1.0-RC1
 		</fx-persistence.version>
 		<core-gui.version>
-			3.0.0
+			3.1.0-RC1
 		</core-gui.version>
 		<core-gui-common.version>
-			3.0.0
+			3.1.0-RC1
 		</core-gui-common.version>
 		<ir-business.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-business.version>
 		<ir-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-ejb.version>
 		<ir-ejb-client.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-ejb-client.version>
 		<ir-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-ejb-interface.version>
 		<ir-gui.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-gui.version>
 		<ir-model.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-model.version>
 		<ir-persistence.version>
-			3.0.0
+			3.1.0-RC1
 		</ir-persistence.version>
 		<marketdata-app.version>
-			3.0.0
+			3.1.0-RC1
 		</marketdata-app.version>
 		<marketdata-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</marketdata-ejb.version>
 		<marketdata-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</marketdata-ejb-interface.version>
 		<mm-business.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-business.version>
 		<mm-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-ejb.version>
 		<mm-ejb-client.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-ejb-client.version>
 		<mm-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-ejb-interface.version>
 		<mm-gui.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-gui.version>
 		<mm-model.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-model.version>
 		<mm-persistence.version>
-			3.0.0
+			3.1.0-RC1
 		</mm-persistence.version>
 		<core-model.version>
-			3.0.0
+			3.1.0-RC1
 		</core-model.version>
 		<core-model-mapping.version>
-			3.0.0
+			3.1.0-RC1
 		</core-model-mapping.version>
 		<core-persistence.version>
-			3.0.0
+			3.1.0-RC1
 		</core-persistence.version>
 		<position-app.version>
-			3.0.0
+			3.1.0-RC1
 		</position-app.version>
 		<position-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</position-ejb.version>
 		<position-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</position-ejb-interface.version>
 		<quandl-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</quandl-interface.version>
 		<security-business.version>
-			3.0.0
+			3.1.0-RC1
 		</security-business.version>
 		<security-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</security-ejb.version>
 		<security-ejb-client.version>
-			3.0.0
+			3.1.0-RC1
 		</security-ejb-client.version>
 		<security-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</security-ejb-interface.version>
 		<security-gui.version>
-			3.0.0
+			3.1.0-RC1
 		</security-gui.version>
 		<security-model.version>
-			3.0.0
+			3.1.0-RC1
 		</security-model.version>
 		<security-model-mapping.version>
-			3.0.0
+			3.1.0-RC1
 		</security-model-mapping.version>
 		<security-persistence.version>
-			3.0.0
+			3.1.0-RC1
 		</security-persistence.version>
 		<transfer-app.version>
-			3.0.0
+			3.1.0-RC1
 		</transfer-app.version>
 		<transfer-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</transfer-ejb.version>
 		<transfer-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</transfer-ejb-interface.version>
 		<web.version>
-			3.0.0
+			3.1.0-RC1
 		</web.version>
 		<importer-app.version>
-			3.0.0
+			3.1.0-RC1
 		</importer-app.version>
 		<importer-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</importer-ejb.version>
 		<importer-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</importer-ejb-interface.version>
 		<fix-common.version>
-			3.0.0
+			3.1.0-RC1
 		</fix-common.version>
 		<fix-importer.version>
-			3.0.0
+			3.1.0-RC1
 		</fix-importer.version>
 		<security-fix-importer.version>
-			3.0.0
+			3.1.0-RC1
 		</security-fix-importer.version>
 		<message-app.version>
-			3.0.0
+			3.1.0-RC1
 		</message-app.version>
 		<message-ejb.version>
-			3.0.0
+			3.1.0-RC1
 		</message-ejb.version>
 		<message-ejb-interface.version>
-			3.0.0
+			3.1.0-RC1
 		</message-ejb-interface.version>
 	</properties>
 	<modules>

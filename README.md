@@ -1,7 +1,7 @@
 # Eclipse Tradista: the first open source Financial Risk Management Solution
 
 ![License](https://img.shields.io/badge/License-Apache_2.0-33ff99.svg?link=https://www.apache.org/licenses/LICENSE-2.0)&emsp;
-![Version](https://img.shields.io/badge/Version%20-%203.0.0%20-%2033ff99?color=33ff99)&emsp;
+![Version](https://img.shields.io/badge/Version%20-%203.1.0-RC1%20-%2033ff99?color=33ff99)&emsp;
 
 
 Eclipse Tradista is a lightweight Financial Risk Management Solution enabling you to manage in a single tool your daily treasury & risk management tasks. Eclipse Tradista, among other possibilities, can be used for market data analyses, pre-deal checks and trades booking, P&L management, financial inventory management and reporting.
@@ -18,9 +18,9 @@ Eclipse Tradista is a Java based application. The server is based on WildFly and
 
 Tested configuration:
 - Server: WildFly 36.0.1.Final
-- JRE: Oracle JRE v24.0.1+9-30 and OpenJDK JRE Eclipse Temurin implementation v24.0.1+9
+- JRE: Oracle JRE v24.0.2+12-54 and OpenJDK JRE Eclipse Temurin implementation v24.0.2+12
 - Database: Derby 10.17.1.0
-- Build automation tool: Maven 3.9.6
+- Build automation tool: Maven 3.9.12
 
 Tradista can be built using Maven, build the whole application using the tradista-parent project.
 
@@ -45,6 +45,7 @@ Tradista is made possible using powerful third party tools:
 - [PrimeFlex](https://www.primeflex.org/) for the WEB UI (a CSS library)
 - [Quandl4J](https://github.com/jimmoores/quandl4j) to connect to Quandl REST API
 - [Quartz](http://www.quartz-scheduler.org/) for job scheduling
+- [QuickFIX/J](https://www.quickfixj.org/) for FIX messages import
 - [Spring](https://spring.io/) for dependency injection, introspection and many more
 - [Tradista Flow](https://github.com/oasuncion/tradista-flow) for Workflow management
 - [Tweety](https://tweetyproject.org/) for first order logic processing

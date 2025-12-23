@@ -6,7 +6,7 @@ if [ -z "$WILDFLY_HOME" ]; then
   exit 1
 fi
 
-TRADISTA_VERSION=3.0.0
+TRADISTA_VERSION=3.1.0-RC1
 echo "Tradista version: $TRADISTA_VERSION"
 
 # Resolve script directory

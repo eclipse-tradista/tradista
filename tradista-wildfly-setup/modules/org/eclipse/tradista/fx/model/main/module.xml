@@ -3,7 +3,7 @@
 	xmlns="urn:jboss:module:1.9">
 
 	<resources>
-		<resource-root path="fx-model-3.0.0.jar" />
+		<resource-root path="fx-model-3.1.0-RC1.jar" />
 	</resources>
 
 	<dependencies>
