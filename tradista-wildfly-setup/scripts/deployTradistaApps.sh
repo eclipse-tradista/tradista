@@ -6,8 +6,8 @@ if [ -z "$WILDFLY_HOME" ]; then
   exit 1
 fi
 
-TRADISTA_VERSION=3.0.0
-echo "Tradista version: $TRADISTA_VERSION"
+# Get the Tradista version
+source "$SCRIPT_HOME/../../tradista-scripts-common/env/tradista-env.sh"
 
 # Resolve script directory
 SCRIPT_HOME=$(dirname "$(readlink -f $0)")
