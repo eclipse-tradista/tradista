@@ -7,9 +7,8 @@ if "%WILDFLY_HOME%"=="" (
   exit /b 1
 )
 
-set TRADISTA_VERSION=3.1.0-RC1
-
-echo Tradista version: %TRADISTA_VERSION%
+REM get the Tradista version
+call "%~dp0\..\..\tradista-scripts-common\env\tradista-env.bat"
 
 REM Target deployment directory
 set DEPLOYMENTS_DIR=%WILDFLY_HOME%\standalone\deployments

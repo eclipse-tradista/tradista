@@ -6,5 +6,6 @@ if [ -z "$DERBY_HOME" ]; then
   exit 1
 fi
 
+echo "Starting the database..."
 cd "$DERBY_HOME/bin"
 sh startNetworkServer
