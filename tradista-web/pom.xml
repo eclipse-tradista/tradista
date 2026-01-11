@@ -16,13 +16,18 @@
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
-			<version>15.0.10</version>
+			<version>15.0.11</version>
 			<classifier>jakarta</classifier>
 		</dependency>
 		<dependency>
 			<groupId>software.xdev</groupId>
 			<artifactId>chartjs-java-model</artifactId>
 			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>primeflex</artifactId>
+			<version>4.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.security</groupId>

@@ -3,14 +3,14 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
-	<p:panel id="book" header="Book" styleClass="tradista">
+	 <p:panel id="book" header="Book" styleClass="flex flex-column flex-1 tradista">
 		<p:tabView>
 			<p:tab title="Product">
-				<p:chart value="#{bookController.productDonutModel}" type="donut" />
+				<p:chart value="#{bookController.productDonutModel}" styleClass="h-full flex flex-column" type="donut" />
 			</p:tab>
 			<p:tab title="Cash">
-				<p:chart value="#{bookController.cashDonutModel}" type="donut" />
+				<p:chart value="#{bookController.cashDonutModel}" styleClass="h-full flex flex-column" type="donut" />
 			</p:tab>
 		</p:tabView>
-	</p:panel>
+	</p:panel> 
 </ui:composition>

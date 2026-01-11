@@ -7,7 +7,7 @@
 		<f:event type="preRenderView"
 			listener="#{pricingController.initPricer(tradeController.trade.productType)}" />
 	</f:metadata>
-	<p:panel id="pricing" header="Pricing">
+	<p:panel id="pricing" header="Pricing" styleClass="flex flex-column flex-1 tradista">
 		<p:panelGrid id="pricingGrid" styleClass="tradista-nested" columns="2"
 			columnClasses="ui-g-3 ui-md-3 ui-lg-3, ui-g-9 ui-md-9 ui-lg-9">
 			<p:row>
