@@ -4,94 +4,96 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 	<p:tab title="Quotes">
-		<p:dataTable id="quotesListDataTable" var="quote"
-			value="#{quotesController.quoteValues}" allowUnsorting="true"
-			sortMode="single" tableStyleClass="tradista-datatable" size="small">
-			<f:facet name="header">
-				<p:row>
-					<p:column colspan="6">
-						<p:outputLabel value="Quote Date : " />
-						<p:calendar value="#{quotesController.quoteDate}"
-							pattern="dd/MM/yyyy">
-							<p:ajax event="dateSelect"
-								listener="#{quotesController.refresh()}"
-								update=":dashboardForm:quotesCashflowsTabs:quotesListDataTable" />
-						</p:calendar>
-						<p:spacer width="20" />
-						<p:outputLabel value="Quote Set : "
-							styleClass="tradista-menu-item" />
-						<p:selectOneMenu value="#{quotesController.quoteSet}"
-							converter="quoteSetConverter" styleClass="tradista-menu-item"
-							autoWidth="false">
-							<f:selectItems value="#{quotesController.allQuoteSets}" />
-							<p:ajax event="change" listener="#{quotesController.refresh()}"
-								update=":dashboardForm:quotesCashflowsTabs:quotesListDataTable" />
-						</p:selectOneMenu>
-						<p:spacer width="20" />
-						<p:toggleSwitch value="#{quotesController.realTime}"
-							styleClass="tradista-menu-item">
-							<p:outputLabel styleClass="tradista-menu-item">Real Time</p:outputLabel>
-							<p:ajax event="change"
-								update=":dashboardForm:quotesCashflowsTabs:poll" />
-						</p:toggleSwitch>
-					</p:column>
-				</p:row>
-			</f:facet>
-			<p:column headerText="Name" sortBy="#{quote.quote.name}">
-				<p:outputLabel value="#{quote.quote.name}" />
-			</p:column>
-			<p:column headerText="Date" sortBy="#{quote.date}">
-				<p:outputLabel value="#{quote.date}">
-					<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Type" sortBy="#{quote.quote.type.toString()}">
-				<p:outputLabel value="#{quote.quote.type.toString()}" />
-			</p:column>
-			<p:column headerText="Bid" sortBy="#{quote.bid}">
-				<p:outputLabel value="#{quote.bid}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Ask" sortBy="#{quote.ask}">
-				<p:outputLabel value="#{quote.ask}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Open" sortBy="#{quote.open}">
-				<p:outputLabel value="#{quote.open}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Close" sortBy="#{quote.close}">
-				<p:outputLabel value="#{quote.close}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="High" sortBy="#{quote.high}">
-				<p:outputLabel value="#{quote.high}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Low" sortBy="#{quote.low}">
-				<p:outputLabel value="#{quote.low}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Last" sortBy="#{quote.last}">
-				<p:outputLabel value="#{quote.last}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Entered Date" sortBy="#{quote.enteredDate}">
-				<p:outputLabel value="#{quote.enteredDate}">
-					<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Source Name" sortBy="#{quote.sourceName}">
-				<p:outputLabel value="#{quote.sourceName}" />
-			</p:column>
-		</p:dataTable>
+		<p:card>
+			<p:dataTable id="quotesListDataTable" var="quote"
+				value="#{quotesController.quoteValues}" allowUnsorting="true"
+				sortMode="single" tableStyleClass="tradista-datatable" size="small">
+				<f:facet name="header">
+					<p:row>
+						<p:column colspan="6">
+							<p:outputLabel value="Quote Date : " />
+							<p:calendar value="#{quotesController.quoteDate}"
+								pattern="dd/MM/yyyy">
+								<p:ajax event="dateSelect"
+									listener="#{quotesController.refresh()}"
+									update=":dashboardForm:quotesCashflowsTabs:quotesListDataTable" />
+							</p:calendar>
+							<p:spacer width="20" />
+							<p:outputLabel value="Quote Set : "
+								styleClass="tradista-menu-item" />
+							<p:selectOneMenu value="#{quotesController.quoteSet}"
+								converter="quoteSetConverter" styleClass="tradista-menu-item"
+								autoWidth="false">
+								<f:selectItems value="#{quotesController.allQuoteSets}" />
+								<p:ajax event="change" listener="#{quotesController.refresh()}"
+									update=":dashboardForm:quotesCashflowsTabs:quotesListDataTable" />
+							</p:selectOneMenu>
+							<p:spacer width="20" />
+							<p:toggleSwitch value="#{quotesController.realTime}"
+								styleClass="tradista-menu-item">
+								<p:outputLabel styleClass="tradista-menu-item">Real Time</p:outputLabel>
+								<p:ajax event="change"
+									update=":dashboardForm:quotesCashflowsTabs:poll" />
+							</p:toggleSwitch>
+						</p:column>
+					</p:row>
+				</f:facet>
+				<p:column headerText="Name" sortBy="#{quote.quote.name}">
+					<p:outputLabel value="#{quote.quote.name}" />
+				</p:column>
+				<p:column headerText="Date" sortBy="#{quote.date}">
+					<p:outputLabel value="#{quote.date}">
+						<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Type" sortBy="#{quote.quote.type.toString()}">
+					<p:outputLabel value="#{quote.quote.type.toString()}" />
+				</p:column>
+				<p:column headerText="Bid" sortBy="#{quote.bid}">
+					<p:outputLabel value="#{quote.bid}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Ask" sortBy="#{quote.ask}">
+					<p:outputLabel value="#{quote.ask}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Open" sortBy="#{quote.open}">
+					<p:outputLabel value="#{quote.open}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Close" sortBy="#{quote.close}">
+					<p:outputLabel value="#{quote.close}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="High" sortBy="#{quote.high}">
+					<p:outputLabel value="#{quote.high}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Low" sortBy="#{quote.low}">
+					<p:outputLabel value="#{quote.low}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Last" sortBy="#{quote.last}">
+					<p:outputLabel value="#{quote.last}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Entered Date" sortBy="#{quote.enteredDate}">
+					<p:outputLabel value="#{quote.enteredDate}">
+						<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Source Name" sortBy="#{quote.sourceName}">
+					<p:outputLabel value="#{quote.sourceName}" />
+				</p:column>
+			</p:dataTable>
+		</p:card>
 	</p:tab>
 	<p:poll interval="#{quotesController.frequency}" id="poll"
 		widgetVar="poll" autoStart="false"

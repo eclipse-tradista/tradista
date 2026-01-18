@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.TradistaGUIUtil;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;

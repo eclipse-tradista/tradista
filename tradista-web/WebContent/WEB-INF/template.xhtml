@@ -21,16 +21,11 @@
 </h:head>
 
 <h:body>
-	<div
-		class="layout-wrapper layout-horizontal layout-topbar-#{guestPreferences.topbarTheme}  layout-menu-horizontal  #{guestPreferences.menuMode} #{guestPreferences.orientationRTL ? 'layout-rtl' : null}">
 		<ui:include src="./menu.xhtml" />
-		<div class="layout-main">
 			<div class="layout-content">
 				<ui:insert name="content" />
 			</div>
-		</div>
 		<div class="layout-mask modal-in"></div>
-	</div>
 	<p:ajaxStatus styleClass="layout-ajax-loader">
 		<f:facet name="start">
 			<i class="pi pi-spin pi-spinner layout-ajax-loader-icon"

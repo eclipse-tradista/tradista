@@ -36,6 +36,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FIXED;
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FLOATING;
+
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
  * 
@@ -119,13 +122,15 @@ public class GCRepoTradeController implements Serializable {
 		allIndexes = indexBusinessDelegate.getAllIndexes();
 		allBooks = bookBusinessDelegate.getAllBooks();
 		allDirections = Trade.Direction.values();
-		allInterestTypes = new String[] { "Fixed", "Floating" };
+		allInterestTypes = new String[] { FIXED, FLOATING };
 		allIndexTenors = Arrays.asList(Tenor.values()).stream().filter(t -> !t.equals(Tenor.NO_TENOR))
 				.toArray(Tenor[]::new);
 		allBaskets = gcBasketBusinessDelegate.getAllGCBaskets();
 		workflow = workflowBusinessDelegate.getWorkflowByName(GCRepoTrade.GC_REPO);
 		trade = new GCRepoTrade();
 		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
+		setDirection(Direction.BUY);
+		setInterestType(FIXED);
 		setTradeDate(LocalDate.now());
 		setStartDate(LocalDate.now());
 	}

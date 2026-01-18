@@ -58,7 +58,7 @@ public class ProcessingOrgDefaultsFilteringInterceptor extends TradistaAuthoriza
 					}
 				}
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 		}

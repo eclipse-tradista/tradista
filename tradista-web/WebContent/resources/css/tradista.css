@@ -1,95 +1,99 @@
 @charset "UTF-8";
 
 /* Global customizations */
-html {
+html, body {
 	height: 100%;
 }
 
 :root {
-    --component-background-color: white;
-    --component-header-background-color: #F5F5F5;
+	--component-background-color: white;
+	--component-header-background-color: #F5F5F5;
 }
 
 .ui-panel {
 	margin: 20px;
 	background-color: var(--component-background-color);
 	display: flex;
-    flex-direction: column;
-    height: 95%;
-    border-radius: 16px;
-    overflow: hidden;
+	flex-direction: column;
+	height: 95%;
+	border-radius: 16px;
+	overflow: hidden;
 }
 
 /* Force content to take remaining height */
 .ui-panel-content {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background-color: var(--component-background-color) !important;
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background-color: var(--component-background-color) !important;
 }
 
 .ui-tabview {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--component-background-color);
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--component-background-color);
 }
 
 .ui-tabs-nav {
-    background-color: var(--component-background-color) !important;
+	background-color: var(--component-background-color) !important;
 }
 
 .ui-tabs-header {
-    background-color: var(--component-background-color) !important;
-    border: none;
+	background-color: var(--component-background-color) !important;
+	border: none;
 }
 
 .ui-tabview-panels {
-    flex: 1 1 auto;
-    display: flex;
-    background-color: var(--component-background-color);
+	flex: 1 1 auto;
+	display: flex;
+	background-color: var(--component-background-color);
 }
 
 .ui-tabview-panel {
-    flex: 1 1 auto;
-    display: flex !important; 
-    flex-direction: column;
-    background-color: var(--component-background-color);
+	flex: 1 1 auto;
+	display: flex !important;
+	flex-direction: column;
+	background-color: var(--component-background-color);
 }
 
 .ui-chart {
-    flex: 1;
-    width: 100%;
-    height: 100% !important; 
-    min-height: 0;
-    background-color: var(--component-background-color);
+	flex: 1;
+	width: 100%;
+	height: 100% !important;
+	min-height: 0;
+	background-color: var(--component-background-color);
 }
 
-.ui-tabs-panels,
-.ui-tabs-panel {
-    background-color: var(--component-background-color) !important;
+.ui-tabs-panels, .ui-tabs-panel {
+	background-color: var(--component-background-color) !important;
 }
 
 .ui-panel-titlebar {
-    background-color: var(--component-header-background-color) !important;
+	background-color: var(--component-header-background-color) !important;
 }
 
-.ui-outputlabel {
-    background-color: var(--component-background-color);
+.ui-panel .ui-outputlabel {
+	background-color: var(--component-background-color);
+}
+
+.ui-datatable-header .ui-outputlabel, .ui-datatable-tablewrapper .ui-outputlabel
+	{
+	/* background color should not be applied in datatable header */
+	background-color: transparent !important;
 }
 
 .ui-selectonemenu {
 	max-width: 100%;
 }
 
-.ui-selectonebutton {
-	min-width: 300px;
-}
-
-.ui-selectonemenu-items-wrapper {
-	overflow-x: hidden !important;
-	overflow-y: scroll !important;
+.ui-selectonemenu-label {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: block;
+	width: 100%;
 }
 
 .separator {
@@ -97,13 +101,19 @@ html {
 }
 
 body {
-	min-height: 100%;
 	background: linear-gradient(to top right, #00455E, #197B84);
+	background-attachment: fixed;
 }
 
-body .ui-button {
-	background-color: #197B84;
-	border: 0px solid #197B84;
+body, .ui-widget {
+	font-family: Roboto, sans-serif !important;
+}
+
+.ui-panel-footer .ui-button {
+	margin-left: 10px;
+}
+
+.ui-panelgrid-footer .ui-button {
 	margin-left: 10px;
 }
 
@@ -111,10 +121,6 @@ body .ui-button:hover {
 	background-color: white;
 	border: 0px solid white;
 	color: #197B84;
-}
-
-body .ui-inputfield {
-	max-width: 80%;
 }
 
 .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-token.ui-state-active
@@ -129,20 +135,22 @@ body .ui-inputfield {
 	color: #197B84;
 }
 
+.ui-menubar {
+	border-radius: 4px !important;
+}
+
 /* Specific customizations */
 .tradista-header {
 	float: left;
 }
 
-.tradista.ui-panelgrid>*>tr, .tradista.ui-panelgrid .ui-panelgrid-cell {
-	border: none;
-	background-color: transparent;
-}
-
 .tradista-nested.ui-panelgrid>*>tr, .tradista-nested.ui-panelgrid .ui-panelgrid-cell
 	{
-	border: none;
 	background-color: white;
+}
+
+.tradista-nested.ui-panelgrid .ui-inputnumber input {
+	width: 120px !important;
 }
 
 .tradista-menu-item {
@@ -158,6 +166,10 @@ body .ui-inputfield {
 	margin-left: 10px;
 }
 
+.ui-menuitem .ui-button {
+	margin-left: 10px;
+}
+
 .tradista-small-title {
 	font-weight: bold;
 }
@@ -167,9 +179,40 @@ body .ui-inputfield {
 }
 
 .tradista-central-component {
-	max-width: 1000px;
 	margin-left: auto;
 	margin-right: auto;
+	height: 100%;
+	width: 100%;
+}
+
+.layout-content {
+	height: calc(100vh - 4rem);
+	display: flex;
+	flex-direction: column; /* vertical stacking */
+	align-items: stretch; /* full width */
+	justify-content: flex-start;
+}
+
+.layout-content>form {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: flex-start;
+}
+
+.tradista-central-component.ui-panel {
+	width: 100%;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.tradista-central-component .ui-panel-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
 }
 
 .tradista-highlighted-value {
@@ -178,6 +221,16 @@ body .ui-inputfield {
 
 .tradista-picklist-item {
 	width: 94%;
+}
+
+.medium-column {
+	width: 150px;
+	max-width: 150px;
+	text-align: left;
+}
+
+.tradista-large-datepicker .ui-inputfield {
+	width: 400px;
 }
 
 /* Login page customizations */
@@ -222,33 +275,13 @@ body .login-button {
 	background-color: #197B84;
 	border: 0px solid #197B84;
 	margin-left: 0px;
-	font-family: Garamond;
-}
-
-body  .login-button:hover {
-	color: #197B84;
 }
 
 .login-body .login-wrapper .login-panel .login-form>button {
 	width: 20%;
 }
 
-/* .login-body .login-wrapper .login-panel { */
-/* 	height: 70%; */
-/* } */
-
 .login-label {
 	color: white;
-	font-weight: bold;
-	font-family: Garamond;
-}
-
-.medium-column {
-	width: 150px;
-	max-width: 150px;
-	text-align: left;
-}
-
-.tradista-large-datepicker .ui-inputfield  {
-	width: 400px;
+	font-weight: normal;
 }

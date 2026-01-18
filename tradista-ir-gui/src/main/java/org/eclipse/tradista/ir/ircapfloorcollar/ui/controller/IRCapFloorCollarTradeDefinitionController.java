@@ -32,7 +32,7 @@ import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.Trade;
-import org.eclipse.tradista.ir.common.util.TradistaIRGUIUtil;
+import org.eclipse.tradista.ir.common.ui.util.TradistaIRGUIUtil;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
 import org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeBusinessDelegate;
 import org.eclipse.tradista.ir.irforward.model.IRForwardTrade;

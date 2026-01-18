@@ -7,30 +7,45 @@
 	<ui:define name="viewname">Eclipse Tradista GC Basket</ui:define>
 	<ui:define name="content">
 		<h:form id="gcBasketForm">
-			<p:panel id="gcBasket" header="GC Basket"
-				styleClass="tradista-central-component">
-				<p:messages showDetail="true" closable="true" id="msg">
-					<p:autoUpdate />
-				</p:messages>
-				<p:outputLabel styleClass="tradista-menu-item"
-					value="GC Basket name :" />
-				<p:inputText value="#{gCBasketController.gcBasket.name}"
-					styleClass="tradista-menu-item" />
-				<p:pickList id="gcBasketPickList"
-					value="#{gCBasketController.securities}" var="security"
-					itemValue="#{security}" itemLabel="#{security.isin}"
-					showSourceControls="true" showTargetControls="true"
-					showCheckbox="true" showSourceFilter="true" showTargetFilter="true"
-					filterMatchMode="contains" responsive="true"
-					converter="securityConverter">
-					<f:facet name="sourceCaption">Available securities</f:facet>
-					<f:facet name="targetCaption">Constituents of GC Basket</f:facet>
-					<p:column styleClass="tradista-picklist-item">
-						<div class="flex align-items-center">
-							<h:outputText value="#{security.isin} - #{security.exchange}" />
-						</div>
-					</p:column>
-				</p:pickList>
+			<p:panel header="GC Basket" styleClass="tradista-central-component">
+				<p:panelGrid id="gcBasket" header="GC Basket"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
+					<p:messages showDetail="true" closable="true" id="msg">
+						<p:autoUpdate />
+					</p:messages>
+					<p:row>
+						<p:column>
+							<p:outputLabel styleClass="tradista-menu-item"
+								value="GC Basket name :" />
+						</p:column>
+						<p:column>
+							<p:inputText value="#{gCBasketController.gcBasket.name}"
+								styleClass="tradista-menu-item" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:card>
+								<p:pickList id="gcBasketPickList" colspan="2"
+									value="#{gCBasketController.securities}" var="security"
+									itemValue="#{security}" itemLabel="#{security.isin}"
+									showSourceControls="true" showTargetControls="true"
+									showCheckbox="true" showSourceFilter="true"
+									showTargetFilter="true" filterMatchMode="contains"
+									responsive="true" converter="securityConverter">
+									<f:facet name="sourceCaption">Available securities</f:facet>
+									<f:facet name="targetCaption">Constituents of GC Basket</f:facet>
+									<p:column styleClass="tradista-picklist-item">
+										<div class="flex align-items-center">
+											<h:outputText value="#{security.isin} - #{security.exchange}" />
+										</div>
+									</p:column>
+								</p:pickList>
+							</p:card>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
 				<f:facet name="footer">
 					<p:row>
 						<p:column>
@@ -58,7 +73,7 @@
 				</f:facet>
 			</p:panel>
 		</h:form>
-		<h:form>
+		<h:form style="position: absolute;visibility: hidden;">
 			<p:dialog header="Copy a GC Basket" widgetVar="copy"
 				showEffect="fade" modal="true">
 				<p:outputLabel value="Please choose a GC Basket name :" />

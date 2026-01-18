@@ -42,7 +42,7 @@ public class ProcessingOrgDefaultsBusinessDelegate {
 					"org.eclipse.tradista.security.repo.validator.ProcessingOrgDefaultsCollateralManagementModuleValidator");
 			validators.put("org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule",
 					validator);
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			// TODO Add log info
 		}
 	}

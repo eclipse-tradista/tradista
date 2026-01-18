@@ -4,71 +4,73 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 	<p:tab title="Cashflows forecast">
-		<p:dataTable id="cashflowsListDataTable" var="cf"
-			value="#{cashflowsController.cashflows}" allowUnsorting="true"
-			sortMode="single" tableStyleClass="tradista-datatable" size="small">
-			<f:facet name="header">
-				<p:row>
-					<p:column>
-						<p:commandButton value="Generate" styleClass="rounded-button"
-							update=":dashboardForm:quotesCashflowsTabs:cashflowsListDataTable">
-							<f:actionListener
-								binding="#{cashflowsController.generate(tradeController.trade, pricingController.pricingParameter, pricingController.pricingDate)}" />
-						</p:commandButton>
-					</p:column>
-					<p:column>
-						<p:outputLabel value="Pricing Date"
-							styleClass="tradista-menu-item" />
-					</p:column>
-					<p:column>
-						<p:outputLabel value="#{pricingController.pricingDate}"
-							styleClass="tradista-menu-item">
-							<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
-						</p:outputLabel>
-					</p:column>
-					<p:column>
-						<p:outputLabel value="Discount curve"
-							styleClass="tradista-menu-item" />
-					</p:column>
-					<p:column>
-						<p:outputLabel value="#{cashflowsController.discountCurve}"
-							styleClass="tradista-menu-item"
-							rendered="#{not (cashflowsController.discountCurve eq null)}" />
-						<p:messages showDetail="true" closable="true" id="cfMsg"
-							for="cfMsg" />
-					</p:column>
-				</p:row>
-			</f:facet>
-			<p:column headerText="Date" sortBy="#{cf.date}">
-				<p:outputLabel value="#{cf.date}">
-					<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Direction" sortBy="#{cf.direction.toString()}">
-				<p:outputLabel value="#{cf.direction.toString()}" />
-			</p:column>
-			<p:column headerText="Purpose" sortBy="#{cf.purpose.toString()}">
-				<p:outputLabel value="#{cf.purpose.toString()}" />
-			</p:column>
-			<p:column headerText="Amount" sortBy="#{cf.amount}">
-				<p:outputLabel value="#{cf.amount}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Discounted Amount"
-				sortBy="#{cf.discountedAmount}">
-				<p:outputLabel value="#{cf.discountedAmount}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Discount Factor" sortBy="#{cf.discountFactor}">
-				<p:outputLabel value="#{cf.discountFactor}">
-					<f:convertNumber maxFractionDigits="5" />
-				</p:outputLabel>
-			</p:column>
-			<p:column headerText="Currency" sortBy="#{cf.currency}">
-				<p:outputLabel value="#{cf.currency}" />
-			</p:column>
-		</p:dataTable>
+		<p:card>
+			<p:dataTable id="cashflowsListDataTable" var="cf"
+				value="#{cashflowsController.cashflows}" allowUnsorting="true"
+				sortMode="single" tableStyleClass="tradista-datatable" size="small">
+				<f:facet name="header">
+					<p:row>
+						<p:column>
+							<p:commandButton value="Generate" styleClass="rounded-button"
+								update=":dashboardForm:quotesCashflowsTabs:cashflowsListDataTable">
+								<f:actionListener
+									binding="#{cashflowsController.generate(tradeController.trade, pricingController.pricingParameter, pricingController.pricingDate)}" />
+							</p:commandButton>
+						</p:column>
+						<p:column>
+							<p:outputLabel value="Pricing Date"
+								styleClass="tradista-menu-item" />
+						</p:column>
+						<p:column>
+							<p:outputLabel value="#{pricingController.pricingDate}"
+								styleClass="tradista-menu-item">
+								<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+							</p:outputLabel>
+						</p:column>
+						<p:column>
+							<p:outputLabel value="Discount curve"
+								styleClass="tradista-menu-item" />
+						</p:column>
+						<p:column>
+							<p:outputLabel value="#{cashflowsController.discountCurve}"
+								styleClass="tradista-menu-item"
+								rendered="#{not (cashflowsController.discountCurve eq null)}" />
+							<p:messages showDetail="true" closable="true" id="cfMsg"
+								for="cfMsg" />
+						</p:column>
+					</p:row>
+				</f:facet>
+				<p:column headerText="Date" sortBy="#{cf.date}">
+					<p:outputLabel value="#{cf.date}">
+						<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Direction" sortBy="#{cf.direction.toString()}">
+					<p:outputLabel value="#{cf.direction.toString()}" />
+				</p:column>
+				<p:column headerText="Purpose" sortBy="#{cf.purpose.toString()}">
+					<p:outputLabel value="#{cf.purpose.toString()}" />
+				</p:column>
+				<p:column headerText="Amount" sortBy="#{cf.amount}">
+					<p:outputLabel value="#{cf.amount}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Discounted Amount"
+					sortBy="#{cf.discountedAmount}">
+					<p:outputLabel value="#{cf.discountedAmount}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Discount Factor" sortBy="#{cf.discountFactor}">
+					<p:outputLabel value="#{cf.discountFactor}">
+						<f:convertNumber maxFractionDigits="5" />
+					</p:outputLabel>
+				</p:column>
+				<p:column headerText="Currency" sortBy="#{cf.currency}">
+					<p:outputLabel value="#{cf.currency}" />
+				</p:column>
+			</p:dataTable>
+		</p:card>
 	</p:tab>
 </ui:composition>

@@ -9,12 +9,16 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
+import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
@@ -50,21 +54,27 @@ public class ProcessingOrgDefaultsController implements Serializable {
 
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	private InformationBusinessDelegate informationBusinessDelegate;
+
 	private SortedSet<LegalEntity> allPos;
 
 	private LegalEntity selectedPo;
 
 	private Map<String, String> moduleControllers;
 
+	private static final Logger logger = LoggerFactory.getLogger(ProcessingOrgDefaultsController.class);
+
 	@PostConstruct
 	public void init() {
 		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
+		informationBusinessDelegate = new InformationBusinessDelegate();
 		LegalEntity currentPo = ClientUtil.getCurrentUser().getProcessingOrg();
 		long poId = currentPo != null ? currentPo.getId() : 0;
 		if (poId > 0) {
 			try {
 				poDefaults = poDefaultsBusinessDelegate.getProcessingOrgDefaultsByPoId(poId);
 			} catch (TradistaBusinessException tbe) {
+				logger.error(tbe.getMessage());
 				FacesContext.getCurrentInstance().addMessage(null,
 						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 			}
@@ -74,11 +84,16 @@ public class ProcessingOrgDefaultsController implements Serializable {
 		}
 		moduleControllers = new HashMap<>();
 		Class<?> controllerClass = null;
-		try {
-			controllerClass = TradistaUtil.getClass(
-					"org.eclipse.tradista.security.repo.ui.controller.ProcessingOrgDefaultsCollateralManagementController");
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		if (informationBusinessDelegate.hasSecurityModule()) {
+			try {
+				controllerClass = TradistaUtil.getClass(
+						"org.eclipse.tradista.security.repo.ui.controller.ProcessingOrgDefaultsCollateralManagementController",
+						this.getClass().getClassLoader());
+			} catch (TradistaTechnicalException tte) {
+				logger.error(tte.getMessage());
+				FacesContext.getCurrentInstance().addMessage(null,
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tte.getMessage()));
+			}
 		}
 		if (controllerClass != null) {
 			moduleControllers.put("Collateral Management", "processingorgdefaultscollateralmanagement");
