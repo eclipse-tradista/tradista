@@ -139,6 +139,22 @@ body .ui-button:hover {
 	border-radius: 4px !important;
 }
 
+.ui-menuitem .ui-button {
+	margin-left: 10px;
+}
+
+.ui-dashboard {
+	display: flex;
+	height: 95%;
+}
+
+.ui-dashboard .p-panel {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	height: auto;
+}
+
 /* Specific customizations */
 .tradista-header {
 	float: left;
@@ -163,10 +179,6 @@ body .ui-button:hover {
 }
 
 .tradista-menu-item.ui-inputtext {
-	margin-left: 10px;
-}
-
-.ui-menuitem .ui-button {
 	margin-left: 10px;
 }
 

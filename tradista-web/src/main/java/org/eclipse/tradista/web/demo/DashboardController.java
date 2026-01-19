@@ -38,26 +38,37 @@ public class DashboardController implements Serializable {
 
 	private static final long serialVersionUID = 2526660705463413881L;
 	private DashboardModel model;
-	private static final String LARGE_COLUMN_RESPONSIVE_CLASS = "col-12 lg:col-6 xl:col-8";
+	private static final String LARGE_COLUMN_RESPONSIVE_CLASS = "col-12 md:col-12 lg:col-9";
 
-	private static final String SMALL_COLUMN_RESPONSIVE_CLASS = "col-12 lg:col-6 xl:col-4";
+	private static final String SMALL_COLUMN_RESPONSIVE_CLASS = "col-12 md:col-12 lg:col-3";
 
 	@PostConstruct
 	public void init() {
 		model = new DefaultDashboardModel();
-		DashboardWidget column1 = new DefaultDashboardWidget();
-		DashboardWidget column2 = new DefaultDashboardWidget();
+		DashboardWidget cell1 = new DefaultDashboardWidget();
+		DashboardWidget cell2 = new DefaultDashboardWidget();
+		DashboardWidget cell3 = new DefaultDashboardWidget();
+		DashboardWidget cell4 = new DefaultDashboardWidget();
 
-		column1.setStyleClass(SMALL_COLUMN_RESPONSIVE_CLASS);
-		column1.addWidget("book");
-		column1.addWidget("inventory");
-
-		column2.setStyleClass(LARGE_COLUMN_RESPONSIVE_CLASS);
-		column2.addWidget("tradeBooking");
-		column2.addWidget("tradesList");
-
-		model.addWidget(column1);
-		model.addWidget(column2);
+		cell1.setStyleClass(SMALL_COLUMN_RESPONSIVE_CLASS);
+		cell1.addWidget("book");
+		
+		model.addWidget(cell1);
+		
+		cell2.setStyleClass(LARGE_COLUMN_RESPONSIVE_CLASS);
+		cell2.addWidget("tradeBooking");
+		
+		model.addWidget(cell2);
+		
+		cell3.setStyleClass(SMALL_COLUMN_RESPONSIVE_CLASS);
+		cell3.addWidget("inventory");
+		
+		model.addWidget(cell3);
+		
+		cell4.setStyleClass(LARGE_COLUMN_RESPONSIVE_CLASS);
+		cell4.addWidget("tradesList");
+		
+		model.addWidget(cell4);
 	}
 
 	public void handleReorder(DashboardReorderEvent event) {
