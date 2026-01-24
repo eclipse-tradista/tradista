@@ -245,17 +245,22 @@ public class EquityTradeController implements Serializable {
 		try {
 			tradeId = Long.parseLong(idToBeLoaded);
 			EquityTrade eqTrade = equityTradeBusinessDelegate.getEquityTradeById(tradeId);
-			equityTrade.setId(eqTrade.getId());
-			equityTrade.setBuySell(eqTrade.isBuy());
-			equityTrade.setCounterparty(eqTrade.getCounterparty());
-			equityTrade.setCurrency(eqTrade.getCurrency());
-			equityTrade.setProduct(eqTrade.getProduct());
-			equityTrade.setAmount(eqTrade.getAmount());
-			equityTrade.setQuantity(eqTrade.getQuantity());
-			equityTrade.setSettlementDate(eqTrade.getSettlementDate());
-			equityTrade.setTradeDate(eqTrade.getTradeDate());
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-					"Trade " + equityTrade.getId() + " successfully loaded"));
+			if (eqTrade != null) {
+				equityTrade.setId(eqTrade.getId());
+				equityTrade.setBuySell(eqTrade.isBuy());
+				equityTrade.setCounterparty(eqTrade.getCounterparty());
+				equityTrade.setCurrency(eqTrade.getCurrency());
+				equityTrade.setProduct(eqTrade.getProduct());
+				equityTrade.setAmount(eqTrade.getAmount());
+				equityTrade.setQuantity(eqTrade.getQuantity());
+				equityTrade.setSettlementDate(eqTrade.getSettlementDate());
+				equityTrade.setTradeDate(eqTrade.getTradeDate());
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+						"Trade " + equityTrade.getId() + " successfully loaded"));
+			} else {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+						"Error", "Trade " + idToBeLoaded + " was not found."));
+			}
 		} catch (NumberFormatException _) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));

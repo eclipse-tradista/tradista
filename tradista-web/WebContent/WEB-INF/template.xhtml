@@ -21,16 +21,11 @@
 </h:head>
 
 <h:body>
-	<div
-		class="layout-wrapper layout-horizontal layout-topbar-#{guestPreferences.topbarTheme}  layout-menu-horizontal  #{guestPreferences.menuMode} #{guestPreferences.orientationRTL ? 'layout-rtl' : null}">
 		<ui:include src="./menu.xhtml" />
-		<div class="layout-main">
 			<div class="layout-content">
 				<ui:insert name="content" />
 			</div>
-		</div>
 		<div class="layout-mask modal-in"></div>
-	</div>
 	<p:ajaxStatus styleClass="layout-ajax-loader">
 		<f:facet name="start">
 			<i class="pi pi-spin pi-spinner layout-ajax-loader-icon"
@@ -40,6 +35,6 @@
 			<h:outputText value="" />
 		</f:facet>
 	</p:ajaxStatus>
-	<h:outputStylesheet name="primeflex.min.css" library="css" />
+	<h:outputStylesheet library="webjars" name="primeflex/4.0.0/primeflex.min.css" />
 </h:body>
 </html>

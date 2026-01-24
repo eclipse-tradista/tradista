@@ -1,7 +1,7 @@
-package org.eclipse.tradista.core.common.util;
+package org.eclipse.tradista.core.common.ui.util;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -16,13 +16,13 @@ package org.eclipse.tradista.core.common.util;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaGUIUtil {
+public final class TradistaGUIConstants {
 
-	private TradistaGUIUtil() {
-	}
+	public static final String FIXED = "Fixed";
 
-	public static String formatAmount(Object amount) {
-		return MathProperties.getUIDecimalFormat().format(amount);
+	public static final String FLOATING = "Floating";
+
+	private TradistaGUIConstants() {
 	}
 
 }

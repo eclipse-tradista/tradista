@@ -1,4 +1,4 @@
-package org.eclipse.tradista.ir.common.util;
+package org.eclipse.tradista.ir.common.ui.util;
 
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
 

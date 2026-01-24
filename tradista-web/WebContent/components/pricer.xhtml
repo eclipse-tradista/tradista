@@ -7,111 +7,115 @@
 		<f:event type="preRenderView"
 			listener="#{pricingController.initPricer(tradeController.trade.productType)}" />
 	</f:metadata>
-	<p:panel id="pricing" header="Pricing">
-		<p:panelGrid id="pricingGrid" styleClass="tradista-nested" columns="2"
-			columnClasses="ui-g-3 ui-md-3 ui-lg-3, ui-g-9 ui-md-9 ui-lg-9">
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricer" />
-				</p:column>
-				<p:column>
-					<p:outputLabel id="pricer" value="#{pricingController.pricer}"
-						converter="pricerConverter" />
-				</p:column>
-			</p:row>
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricer QuoteSet" />
-				</p:column>
-				<p:column>
-					<p:selectOneMenu value="#{pricingController.quoteSet}"
-						converter="quoteSetConverter" autoWidth="false">
-						<f:selectItems value="#{pricingController.allQuoteSets}" />
-					</p:selectOneMenu>
-				</p:column>
-			</p:row>
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricing Parameter" />
-				</p:column>
-				<p:column>
-					<p:selectOneMenu value="#{pricingController.pricingParameter}"
-						converter="pricingParameterConverter" autoWidth="false">
-						<f:selectItems value="#{pricingController.allPricingParameters}" />
-						<p:ajax update="pricer"
-							listener="#{pricingController.updatePricer(tradeController.trade.productType)}" />
-						<p:ajax update="pricingMeasure"
-							listener="#{pricingController.updatePricingMeasures}" />
-						<p:ajax
-							update=":dashboardForm:quotesCashflowsTabs:cashflowsListDataTable"
-							listener="#{cashflowsController.updateDiscountCurve(pricingController.pricingParameter, tradeController.currency)}" />
-					</p:selectOneMenu>
-				</p:column>
-			</p:row>
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricing Measure" />
-				</p:column>
-				<p:column>
-					<p:selectOneMenu id="pricingMeasure"
-						value="#{pricingController.pricerMeasure}"
-						converter="pricerMeasureConverter" autoWidth="false">
-						<f:selectItems value="#{pricingController.allPricerMeasures}" />
-						<f:attribute name="pricer" value="#{pricingController.pricer}" />
-						<p:ajax update="pricingMethod"
-							listener="#{pricingController.updatePricingMethods}" />
-					</p:selectOneMenu>
-				</p:column>
-			</p:row>
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricing Method" />
-				</p:column>
-				<p:column>
-					<p:selectOneMenu id="pricingMethod"
-						value="#{pricingController.pricingMethod}" autoWidth="false">>
-						<f:selectItems value="#{pricingController.allPricingMethods}" />
-					</p:selectOneMenu>
-				</p:column>
-			</p:row>
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricing Currency" />
-				</p:column>
-				<p:column>
-					<p:selectOneMenu value="#{pricingController.pricingCurrency}"
-						converter="currencyConverter" autoWidth="false">>
-						<f:selectItems value="#{pricingController.allCurrencies}" />
-					</p:selectOneMenu>
-				</p:column>
-			</p:row>
-			<p:row>
-				<p:column>
-					<p:outputLabel value="Pricing Date" />
-				</p:column>
-				<p:column>
-					<p:calendar value="#{pricingController.pricingDate}"
-						pattern="dd/MM/yyyy">
-						<p:ajax
-							update=":dashboardForm:quotesCashflowsTabs:cashflowsListDataTable" />
-					</p:calendar>
-				</p:column>
-			</p:row>
-			<f:facet name="footer">
+	<p:panel id="pricing" header="Pricing"
+		styleClass="flex flex-column flex-1 tradista">
+		<p:card>
+			<p:panelGrid id="pricingGrid" styleClass="tradista-nested"
+				columns="2"
+				columnClasses="ui-g-3 ui-md-3 ui-lg-3, ui-g-9 ui-md-9 ui-lg-9">
 				<p:row>
 					<p:column>
-						<p:commandButton value="Price" styleClass="rounded-button"
-							action="#{pricingController.price(tradeController.trade)}"
-							update="@form">
-						</p:commandButton>
+						<p:outputLabel value="Pricer" />
 					</p:column>
 					<p:column>
-						<p:outputLabel rendered="true" id="priceResult"
-							styleClass="tradista-menu-item tradista-highlighted-value"
-							value="#{pricingController.pricerResult}" />
+						<p:outputLabel id="pricer" value="#{pricingController.pricer}"
+							converter="pricerConverter" />
 					</p:column>
 				</p:row>
-			</f:facet>
-		</p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Pricer QuoteSet" />
+					</p:column>
+					<p:column>
+						<p:selectOneMenu value="#{pricingController.quoteSet}"
+							converter="quoteSetConverter" autoWidth="false">
+							<f:selectItems value="#{pricingController.allQuoteSets}" />
+						</p:selectOneMenu>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Pricing Parameter" />
+					</p:column>
+					<p:column>
+						<p:selectOneMenu value="#{pricingController.pricingParameter}"
+							converter="pricingParameterConverter" autoWidth="false">
+							<f:selectItems value="#{pricingController.allPricingParameters}" />
+							<p:ajax update="pricer"
+								listener="#{pricingController.updatePricer(tradeController.trade.productType)}" />
+							<p:ajax update="pricingMeasure"
+								listener="#{pricingController.updatePricingMeasures}" />
+							<p:ajax
+								update=":dashboardForm:quotesCashflowsTabs:cashflowsListDataTable"
+								listener="#{cashflowsController.updateDiscountCurve(pricingController.pricingParameter, tradeController.currency)}" />
+						</p:selectOneMenu>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Pricing Measure" />
+					</p:column>
+					<p:column>
+						<p:selectOneMenu id="pricingMeasure"
+							value="#{pricingController.pricerMeasure}"
+							converter="pricerMeasureConverter" autoWidth="false">
+							<f:selectItems value="#{pricingController.allPricerMeasures}" />
+							<f:attribute name="pricer" value="#{pricingController.pricer}" />
+							<p:ajax update="pricingMethod"
+								listener="#{pricingController.updatePricingMethods}" />
+						</p:selectOneMenu>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Pricing Method" />
+					</p:column>
+					<p:column>
+						<p:selectOneMenu id="pricingMethod"
+							value="#{pricingController.pricingMethod}" autoWidth="false">>
+						<f:selectItems value="#{pricingController.allPricingMethods}" />
+						</p:selectOneMenu>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Pricing Currency" />
+					</p:column>
+					<p:column>
+						<p:selectOneMenu value="#{pricingController.pricingCurrency}"
+							converter="currencyConverter" autoWidth="false">>
+						<f:selectItems value="#{pricingController.allCurrencies}" />
+						</p:selectOneMenu>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Pricing Date" />
+					</p:column>
+					<p:column>
+						<p:calendar value="#{pricingController.pricingDate}"
+							pattern="dd/MM/yyyy">
+							<p:ajax
+								update=":dashboardForm:quotesCashflowsTabs:cashflowsListDataTable" />
+						</p:calendar>
+					</p:column>
+				</p:row>
+				<f:facet name="footer">
+					<p:row>
+						<p:column>
+							<p:commandButton value="Price" styleClass="rounded-button"
+								action="#{pricingController.price(tradeController.trade)}"
+								update="@form">
+							</p:commandButton>
+						</p:column>
+						<p:column>
+							<p:outputLabel rendered="true" id="priceResult"
+								styleClass="tradista-menu-item tradista-highlighted-value"
+								value="#{pricingController.pricerResult}" />
+						</p:column>
+					</p:row>
+				</f:facet>
+			</p:panelGrid>
+		</p:card>
 	</p:panel>
 </ui:composition>

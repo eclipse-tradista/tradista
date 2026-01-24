@@ -35,6 +35,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FIXED;
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FLOATING;
+
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
  * 
@@ -56,10 +59,6 @@ import jakarta.inject.Named;
 public class SpecificRepoTradeController implements Serializable {
 
 	private static final long serialVersionUID = -2030826935731150653L;
-
-	private static final String FIXED = "Fixed";
-
-	private static final String FLOATING = "Floating";
 
 	private SpecificRepoTrade trade;
 

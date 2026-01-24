@@ -9,7 +9,7 @@ import java.util.Map;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.ColorUtil;
+import org.eclipse.tradista.core.common.ui.util.ColorUtil;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;

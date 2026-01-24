@@ -277,8 +277,47 @@ public final class TradistaUtil {
 		}
 	}
 
+	/**
+	 * Get a class for a given name. Note: the class should be available in
+	 * TradistaUtil's class loader.
+	 * 
+	 * @param className a class full name.
+	 * @return A class
+	 */
 	public static Class<?> getClass(String className) {
 		try {
+			return Class.forName(className);
+		} catch (ClassNotFoundException cnfe) {
+			throw new TradistaTechnicalException(
+					String.format("Could not create class from this name '%s' : %s", className, cnfe));
+		}
+	}
+
+	/**
+	 * Get a class for a given name. The class will be looked from the given class
+	 * loader. If not found, the loading will be recursively tried from the class
+	 * loader's parents. Ultimately, the loading is tried with TradistaUtil's class
+	 * loader. TradistaUtil's class loader is also the class loader tried by default
+	 * when there is no class loader set.
+	 * 
+	 * @param className   a class full name
+	 * @param classLoader a class loader from which the class is looked. By default,
+	 *                    TradistaUtil's class loader is used.
+	 * @return
+	 */
+	public static Class<?> getClass(String className, ClassLoader classLoader) {
+		try {
+			if (classLoader == null) {
+				return Class.forName(className);
+			}
+			while (classLoader != null) {
+				Class<?> klass = classLoader.loadClass(className);
+				if (klass != null) {
+					return klass;
+				}
+				classLoader = classLoader.getParent();
+			}
+			// class not found. We try with TradistaUtil's class loader.
 			return Class.forName(className);
 		} catch (ClassNotFoundException cnfe) {
 			throw new TradistaTechnicalException(
