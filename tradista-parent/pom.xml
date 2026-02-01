@@ -220,6 +220,9 @@
 		<message-ejb-interface.version>
 			3.1.0
 		</message-ejb-interface.version>
+		<exporter-app.version>
+			3.1.0
+		</exporter-app.version>
 	</properties>
 	<modules>
 		<module>../tradista-model</module>
@@ -291,6 +294,7 @@
 		<module>../tradista-message-app</module>
 		<module>../tradista-message-ejb</module>
 		<module>../tradista-message-ejb-interface</module>
+		<module>../tradista-exporter-app</module>
 	</modules>
 	<build>
 		<plugins>
