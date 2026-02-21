@@ -1,18 +1,32 @@
-# Eclipse Tradista: the first open source Financial Risk Management Solution
+# Eclipse Tradista
+
+### *Liberate your capital market operations. Own your technology.*
+**The modular, enterprise-grade Open Source platform for Cross-Asset Trading and Risk Management, powered by Jakarta EE.**
 
 ![License](https://img.shields.io/badge/License-Apache_2.0-33ff99.svg?link=https://www.apache.org/licenses/LICENSE-2.0)&emsp;
 ![Version](https://img.shields.io/badge/Version%20-%203.1.0%20-%2033ff99?color=33ff99)&emsp;
 
+<br>
 
-Eclipse Tradista is a lightweight Financial Risk Management Solution enabling you to manage in a single tool your daily treasury & risk management tasks. Eclipse Tradista, among other possibilities, can be used for market data analyses, pre-deal checks and trades booking, P&L management, financial inventory management and reporting.
-See more on [tradista.finance](https://www.tradista.finance)
+**Eclipse Tradista** is a modular, high-performance financial framework designed to unify and secure your capital market operations. From real-time market data analysis to post-trade lifecycle management, it provides a transparent and extensible alternative to proprietary systems. 
 
-Eclipse Tradista is released under the Apache License, Version 2.0.
+Built on a robust **Jakarta EE** architecture, Eclipse Tradista enables you to orchestrate complex workflows in a single, auditable environment:
 
-|![Login](./login.PNG)|![Dashboard](./dashboard.PNG)|
-|:-:|:-:|
-| Login Page | Trading Dashboard |
+* **Market Data & Analysis:** Seamlessly collect, store, and redistribute market data.
+* **Front-to-Ops Lifecycle:** Handle pre-deal checks, trade booking, and automated cash/securities transfers.
+* **Position & Risk:** Manage real-time P&L, multi-product positions, and cross-asset risk reporting.
+* **Inventory Management:** Track cash and securities movements with precision.
 
+Learn more at [**tradista.finance**](https://tradista.finance).
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c904ba36-8378-448f-97fb-ae215171abaf"  alt="Tradista Dashboard" width="900">
+</p>
+<p align="center">
+  <em>Full Lifecycle Management: Seamlessly monitor trades, risk, and inventory.</em>
+</p>
+
+---
 
 Eclipse Tradista is a Java based application. The server is based on WildFly and the clients are based on JavaFX and PrimeFaces.
 
@@ -30,7 +44,7 @@ Tradista can be built using Maven, build the whole application using the tradist
 
 Thanks for you interest. 
 Feel free to download the Tradista Demo Package [here](https://github.com/oasuncion/tradista-demo) to test the solution.
-Ping me anytime for any question.
+Ping us anytime for any question.
 
 # Dependencies
 Tradista is made possible using powerful third party tools:
