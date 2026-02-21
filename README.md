@@ -20,7 +20,7 @@ Built on a robust **Jakarta EE** architecture, Eclipse Tradista enables you to o
 Learn more at [**tradista.finance**](https://tradista.finance).
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c904ba36-8378-448f-97fb-ae215171abaf"  alt="Tradista Dashboard" width="900">
+  <img src="dashboard.png"  alt="Tradista Dashboard" width="900">
 </p>
 <p align="center">
   <em>Full Lifecycle Management: Seamlessly monitor trades, risk, and inventory.</em>
