@@ -8,7 +8,7 @@
 
 <br>
 
-**Eclipse Tradista** is a modular, high-performance financial framework designed to unify and secure your capital market operations. From real-time market data analysis to post-trade lifecycle management, it provides a transparent and extensible alternative to proprietary systems. 
+**Eclipse Tradista** is a modular, high-performance **capital markets platform** designed to unify and secure your financial operations. From real-time market data analysis to post-trade lifecycle management, it provides a transparent and extensible alternative to proprietary systems.
 
 Built on a robust **Jakarta EE** architecture, Eclipse Tradista enables you to orchestrate complex workflows in a single, auditable environment:
 
