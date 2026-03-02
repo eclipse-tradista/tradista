@@ -31,4 +31,10 @@ public final class ActionConstants {
 
 	public static final String RETRY = "RETRY";
 
+	public static final String SEND = "SEND";
+
+	public static final String GENERATION_FAILED = "GENERATION_FAILED";
+
+	public static final String SENDING_FAILED = "SENDING_FAILED";
+
 }

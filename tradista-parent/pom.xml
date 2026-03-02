@@ -223,6 +223,18 @@
 		<exporter-app.version>
 			3.1.0
 		</exporter-app.version>
+		<exporter-ejb.version>
+			3.1.0
+		</exporter-ejb.version>
+		<exporter-ejb-interface.version>
+			3.1.0
+		</exporter-ejb-interface.version>
+		<fix-exporter.version>
+			3.1.0
+		</fix-exporter.version>
+		<security-fix-exporter.version>
+			3.1.0
+		</security-fix-exporter.version>
 	</properties>
 	<modules>
 		<module>../tradista-model</module>
@@ -295,6 +307,10 @@
 		<module>../tradista-message-ejb</module>
 		<module>../tradista-message-ejb-interface</module>
 		<module>../tradista-exporter-app</module>
+		<module>../tradista-exporter-ejb</module>
+		<module>../tradista-exporter-ejb-interface</module>
+		<module>../tradista-fix-exporter</module>
+		<module>../tradista-security-fix-exporter</module>
 	</modules>
 	<build>
 		<plugins>

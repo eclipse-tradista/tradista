@@ -26,5 +26,9 @@ public final class StatusConstants {
 	public static final String ALLOCATED = "ALLOCATED";
 
 	public static final String STRUCTURE_KO = "STRUCTURE_KO";
+	
+	public static final String TO_BE_GENERATED = "TO_BE_GENERATED";
+	
+	public static final String TO_BE_SENT = "TO_BE_SENT";
 
 }

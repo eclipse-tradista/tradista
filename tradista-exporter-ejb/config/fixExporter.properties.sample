@@ -1,0 +1,11 @@
+[SESSION]
+ConnectionType=acceptor
+BeginString=FIX.4.4
+SenderCompID=TESTSEND
+TargetCompID=TESTTARGET
+SocketAcceptPort=10000
+StartTime=00:00:00
+EndTime=00:00:00
+ResetOnLogon=Y
+FileStorePath=target/fixStore
+DataDictionary=FIX44-TRADISTA.xml
