@@ -26,6 +26,9 @@ import org.eclipse.tradista.core.daterule.service.DateRuleService;
 import org.eclipse.tradista.core.daycountconvention.service.DayCountConventionService;
 import org.eclipse.tradista.core.error.service.ErrorService;
 import org.eclipse.tradista.core.exchange.service.ExchangeService;
+import org.eclipse.tradista.core.exporter.service.ExporterConfigurationService;
+import org.eclipse.tradista.core.exporter.service.ExporterInformationService;
+import org.eclipse.tradista.core.exporter.service.LocalExporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterInformationService;
 import org.eclipse.tradista.core.importer.service.ImporterService;
@@ -42,6 +45,7 @@ import org.eclipse.tradista.core.marketdata.service.MarketDataInformationService
 import org.eclipse.tradista.core.marketdata.service.MarketDataService;
 import org.eclipse.tradista.core.marketdata.service.QuoteService;
 import org.eclipse.tradista.core.marketdata.service.SurfaceService;
+import org.eclipse.tradista.core.message.service.ExportErrorService;
 import org.eclipse.tradista.core.message.service.ImportErrorService;
 import org.eclipse.tradista.core.message.service.MessageService;
 import org.eclipse.tradista.core.position.service.PositionCalculationErrorService;
@@ -189,6 +193,12 @@ public class TradistaServiceLocator {
 	private static final String IMPORTER_EJB = "importer-ejb";
 
 	private static final String IMPORTER_SERVICE_PACKAGE = "org.eclipse.tradista.core.importer.service";
+
+	private static final String EXPORTER_APP = "exporter-app";
+
+	private static final String EXPORTER_EJB = "exporter-ejb";
+
+	private static final String EXPORTER_SERVICE_PACKAGE = "org.eclipse.tradista.core.exporter.service";
 
 	private static final String MESSAGE_APP = "message-app";
 
@@ -711,6 +721,10 @@ public class TradistaServiceLocator {
 		return (ImportErrorService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "ImportErrorService");
 	}
 
+	public ExportErrorService getExportErrorService() {
+		return (ExportErrorService) getService(MESSAGE_APP, MESSAGE_EJB, MESSAGE_SERVICE_PACKAGE, "ExportErrorService");
+	}
+
 	public MappingService getMappingService() {
 		return (MappingService) getService(APP, CORE_EJB, MAPPING_SERVICE_PACKAGE, "MappingService");
 	}
@@ -727,6 +741,26 @@ public class TradistaServiceLocator {
 
 	public ImporterService getImporterService() {
 		return (ImporterService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE, "ImporterService");
+	}
+
+	public ExporterInformationService getExporterInformationService() {
+		return (ExporterInformationService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE,
+				"ExporterInformationService");
+	}
+
+	public ExporterConfigurationService getExporterConfigurationService() {
+		return (ExporterConfigurationService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE,
+				"ExporterConfigurationService");
+	}
+
+	/**
+	 * Local use only (remote access won't work)
+	 * 
+	 * @return a LocalExporterConfigurationService instance
+	 */
+	public LocalExporterConfigurationService getLocalExporterConfigurationService() {
+		return (LocalExporterConfigurationService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE,
+				"LocalExporterConfigurationService");
 	}
 
 }

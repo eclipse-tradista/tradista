@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fix.importer.model;
 
-import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

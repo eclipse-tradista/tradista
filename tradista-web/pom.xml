@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
-			<version>15.0.12</version>
+			<version>15.0.13</version>
 			<classifier>jakarta</classifier>
 		</dependency>
 		<dependency>
@@ -60,12 +60,4 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>prime-repo</id>
-			<name>PrimeFaces Maven Repository</name>
-			<url>http://repository.primefaces.org</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
 </project>
