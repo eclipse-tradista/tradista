@@ -52,7 +52,7 @@ public class ImportErrorAuthorizationFilteringInterceptor extends TradistaAuthor
 			if (importError.getMessage().getId() != 0) {
 				List<Message> msgs = messageBusinessDelegate.getMessages(importError.getMessage().getId(), null, null,
 						null, 0, null, null, null, null, null, null);
-				if (!CollectionUtils.isEmpty(msgs)) {
+				if (CollectionUtils.isEmpty(msgs)) {
 					errMsg.append(String.format("The message %d was not found.%n", importError.getMessage().getId()));
 				}
 			}

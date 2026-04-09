@@ -33,4 +33,6 @@ public interface Exporter<X, Y> extends Runnable {
 
 	void sendMessage(Y content) throws TradistaBusinessException;
 
+	Y buildMessage(String externalMessage);
+
 }

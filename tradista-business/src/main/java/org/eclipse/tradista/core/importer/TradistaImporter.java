@@ -65,22 +65,25 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 		IncomingMessage msg = null;
 		try {
 			msg = createMessage(externalMessage);
-			validateMessage(externalMessage);
-			// Surface checks are OK, we validate the message.
+			msg.setId(messageBusinessDelegate.saveMessage(msg));
 			msg = (IncomingMessage) messageBusinessDelegate.applyAction(msg, ActionConstants.VALIDATE);
-			processMessage(externalMessage, msg);
-			// Mappings are OK, we validate the message.
-			messageBusinessDelegate.saveMessage(msg, ActionConstants.VALIDATE);
+			if (msg.getStatus().toString().equals(StatusConstants.VALIDATED)) {
+				// At this stage, the message is considered to have been validated
+				msg = (IncomingMessage) messageBusinessDelegate.applyAction(msg, ActionConstants.PROCESS);
+				if (msg.getStatus().toString().equals(StatusConstants.PROCESSED)) {
+					messageBusinessDelegate.saveMessage(msg);
+				} else {
+					handleError(msg, name);
+				}
+			}
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
-			// There was an issue whether in surface checks or mappings, we invalidate the
-			// message and create an error.
 			handleError(msg, te.getMessage());
 		}
 	}
 
 	/**
-	 * Generates an import error for the given incoming message. Save the message if
-	 * it was not previously saved.
+	 * Creates or updates an import error for the given incoming message and save
+	 * it.
 	 * 
 	 * @param msg    the incoming message for which there is an error
 	 * @param errMsg the error message
@@ -88,52 +91,58 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	 *                                   error saving
 	 */
 	public void handleError(IncomingMessage msg, String errMsg) throws TradistaBusinessException {
-		msg = (IncomingMessage) messageBusinessDelegate.applyAction(msg, ActionConstants.INVALIDATE);
-		ImportError importError = new ImportError();
+		final String actionToApply = msg.getStatus().getName().equals(StatusConstants.TO_BE_VALIDATED)
+				? ActionConstants.VALIDATION_FAILED
+				: ActionConstants.PROCESS_FAILED;
+		msg = (IncomingMessage) messageBusinessDelegate.applyAction(msg, actionToApply);
 		ImportErrorType errorType = ImportErrorType.STRUCTURE;
-		if (!msg.getStatus().toString().equals(StatusConstants.STRUCTURE_KO)) {
+		if (!msg.getStatus().toString().equals(StatusConstants.VALIDATION_KO)) {
 			errorType = ImportErrorType.MAPPING;
 		}
-		importError.setErrorDate(LocalDateTime.now());
-		importError.setErrorMessage(errMsg);
-		importError.setStatus(Status.UNSOLVED);
-		// We save the message, if it has not been previously saved
-		if (msg.getId() == 0) {
-			msg.setId(messageBusinessDelegate.saveMessage(msg));
+		ImportError importError = importErrorBusinessDelegate.getImportError(msg.getId(), errorType);
+		if (importError == null) {
+			importError = new ImportError();
+			importError.setErrorDate(LocalDateTime.now());
+			importError.setErrorMessage(errMsg);
+			importError.setStatus(Status.UNSOLVED);
+			importError.setMessage(msg);
+			importError.setImportErrorType(errorType);
 		}
+		// We save the message
+		msg.setId(messageBusinessDelegate.saveMessage(msg));
 		importError.setMessage(msg);
-		importError.setImportErrorType(errorType);
 		importErrorBusinessDelegate.saveImportError(importError);
 	}
 
-	public void persistObject(X externalMessage, IncomingMessage msg, Optional<? extends TradistaObject> object)
-			throws TradistaBusinessException {
-		if (object.isPresent()) {
-			IncomingMessageManager<X, TradistaObject> incomingMessageManager = getIncomingMessageManager(
-					externalMessage);
-			object.get().setId(incomingMessageManager.saveObject(object.get()));
-			msg.setObjectId(object.get().getId());
-			msg.setObjectType(MessageUtil.getObjectType(object.get()));
+	@Override
+	public IncomingMessage persistObject(X externalMessage, IncomingMessage msg,
+			Optional<? extends TradistaObject> object) throws TradistaBusinessException {
+		if (object.isEmpty()) {
+			return msg;
 		}
+		IncomingMessageManager<X, TradistaObject> incomingMessageManager = getIncomingMessageManager(externalMessage);
+		object.get().setId(incomingMessageManager.saveObject(object.get()));
+
+		return msg.toBuilder().objectId(object.get().getId()).objectType(MessageUtil.getObjectType(object.get()))
+				.build();
 	}
 
 	public IncomingMessage createMessage(X externalMessage) throws TradistaBusinessException {
-		IncomingMessage message = new IncomingMessage();
-		message.setContent(externalMessage.toString());
-		LocalDateTime now = LocalDateTime.now();
-		message.setCreationDateTime(now);
-		message.setLastUpdateDateTime(now);
-		message.setType(getType());
-		message.setStatus(workflowBusinessDelegate.getInitialStatus(message.getWorkflow()));
-		message.setInterfaceName(getName());
-		message = (IncomingMessage) messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
-		return message;
+		IncomingMessage message = new IncomingMessage.Builder().content(externalMessage.toString()).type(getType())
+				.interfaceName(getName()).build();
+
+		String workflowName = workflowBusinessDelegate.resolveWorkflow(message);
+		org.eclipse.tradista.core.workflow.model.Status initialStatus = workflowBusinessDelegate
+				.getInitialStatus(workflowName);
+
+		message = message.toBuilder().status(initialStatus).build();
+		return (IncomingMessage) messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
 	}
 
 	@SuppressWarnings("unchecked")
 	public IncomingMessageManager<X, TradistaObject> getIncomingMessageManager(X externalMessage,
 			StringBuilder errMsg) {
-		// 1. Get product type from message
+		// 1. Get product type from the message
 		String productType = getProductType(externalMessage);
 		// 2. Get the incoming message manager for this product type
 		if (productType != null) {
@@ -152,15 +161,6 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	public IncomingMessageManager<X, TradistaObject> getIncomingMessageManager(X externalMessage) {
 		return getIncomingMessageManager(externalMessage, new StringBuilder());
 	}
-
-	/**
-	 * Checks the external message, ensuring it has a valid structure.
-	 * 
-	 * @param externalMessage the message to be imported in Eclipse Tradista
-	 * @throws TradistaBusinessException if there was an error during the message
-	 *                                   validation
-	 */
-	protected abstract void validateMessage(X externalMessage) throws TradistaBusinessException;
 
 	@Override
 	public String getName() {

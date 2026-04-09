@@ -183,6 +183,9 @@ public class ExportErrorReportController implements Serializable {
 		try {
 			errors = exportErrorBusinessDelegate.getExportErrors(expTypes, expNames, msgId, status, exportErrorType,
 					errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
+			if (errors != null) {
+				errors = new ArrayList<>(errors);
+			}
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage("msg",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));

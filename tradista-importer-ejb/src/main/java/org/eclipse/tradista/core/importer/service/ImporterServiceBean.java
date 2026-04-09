@@ -1,9 +1,13 @@
 package org.eclipse.tradista.core.importer.service;
 
+import java.time.LocalDateTime;
+
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.model.Importer;
 import org.eclipse.tradista.core.message.model.ImportError;
+import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
 import org.eclipse.tradista.core.message.service.MessageAuthorizationFilteringInterceptor;
@@ -65,13 +69,48 @@ public class ImporterServiceBean implements ImporterService {
 				existingMappingError.solve();
 			}
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
-			// Update the existing mapping error if any, otherwise create a new one.
+			// Update the existing mapping error if any
 			if (existingMappingError != null) {
 				existingMappingError.update(te.getMessage());
+			} else {
+				ImportError importError = new ImportError();
+				ImportErrorType errorType = ImportErrorType.MAPPING;
+				importError.setErrorDate(LocalDateTime.now());
+				importError.setErrorMessage(te.getMessage());
+				importError.setStatus(Status.UNSOLVED);
+				importError.setMessage(msg);
+				importError.setImportErrorType(errorType);
+				importErrorBusinessDelegate.saveImportError(importError);
 			}
+			throw te;
 		}
 		if (existingMappingError != null) {
 			importErrorBusinessDelegate.saveImportError(existingMappingError);
+		}
+	}
+
+	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
+	@SuppressWarnings("unchecked")
+	@Override
+	public void validateMessage(IncomingMessage msg) throws TradistaBusinessException {
+		// Load the importer
+		Importer<Object> importer = (Importer<Object>) localImporterConfigurationService
+				.getImporterByName(msg.getInterfaceName());
+		try {
+			// Build the message object from a string
+			Object msgObject = importer.buildMessage(msg.getContent());
+			// Try to validate the message
+			importer.validateMessage(msgObject);
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			ImportError importError = new ImportError();
+			ImportErrorType errorType = ImportErrorType.STRUCTURE;
+			importError.setErrorDate(LocalDateTime.now());
+			importError.setErrorMessage(te.getMessage());
+			importError.setStatus(Status.UNSOLVED);
+			importError.setImportErrorType(errorType);
+			importError.setMessage(msg);
+			importErrorBusinessDelegate.saveImportError(importError);
+			throw te;
 		}
 	}
 

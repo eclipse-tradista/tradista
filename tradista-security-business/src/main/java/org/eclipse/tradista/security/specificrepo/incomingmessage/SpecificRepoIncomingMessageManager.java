@@ -1,5 +1,6 @@
 package org.eclipse.tradista.security.specificrepo.incomingmessage;
 
+import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.security.common.model.Security;
@@ -47,7 +48,7 @@ public interface SpecificRepoIncomingMessageManager<X> extends RepoIncomingMessa
 
 	@Override
 	public default long saveObject(SpecificRepoTrade trade) throws TradistaBusinessException {
-		return specificRepoTradeBusinessDelegate.saveSpecificRepoTrade(trade, null);
+		return specificRepoTradeBusinessDelegate.saveSpecificRepoTrade(trade, ActionConstants.NEW);
 	}
 
 	public default Security getSecurity(X externalMessage) {

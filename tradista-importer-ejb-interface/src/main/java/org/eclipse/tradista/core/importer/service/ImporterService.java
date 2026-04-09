@@ -26,4 +26,6 @@ public interface ImporterService {
 
 	void mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException;
 
+	void validateMessage(IncomingMessage msg) throws TradistaBusinessException;
+
 }

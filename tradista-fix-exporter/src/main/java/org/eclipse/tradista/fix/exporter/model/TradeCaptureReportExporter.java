@@ -3,12 +3,16 @@ package org.eclipse.tradista.fix.exporter.model;
 import java.time.format.DateTimeFormatter;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.EventListener;
 import org.eclipse.tradista.core.exporter.model.OutgoingMessageManager;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.trade.incomingmessage.TradeExporter;
+import org.eclipse.tradista.core.trade.messaging.TradeEvent;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.fix.common.TradistaFixConstants;
 import org.eclipse.tradista.fix.exporter.util.TradistaFixExporterUtil;
+import org.springframework.integration.annotation.Poller;
+import org.springframework.integration.annotation.ServiceActivator;
 
 import quickfix.FieldNotFound;
 import quickfix.Group;
@@ -41,13 +45,19 @@ import quickfix.fix44.TradeCaptureReport.NoSides.NoPartyIDs;
  ********************************************************************************/
 
 public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptureReport>
-		implements TradeExporter<TradeCaptureReport> {
+		implements TradeExporter<TradeCaptureReport>, EventListener<TradeEvent<?>> {
 
 	protected static final String NO_PARTY_IDS_FIELD_IS_MANDATORY = "NoPartyIDs field is mandatory.%n";
 
 	public TradeCaptureReportExporter(String name, String configFileName, LegalEntity po)
 			throws TradistaBusinessException {
 		super(name, configFileName, po);
+	}
+
+	@ServiceActivator(inputChannel = "tradeCaptureReportExporterQueue", poller = @Poller(fixedDelay = "${tradeCaptureReport.poller.delay:5000}", maxMessagesPerPoll = "${tradeCaptureReport.poller.max:20}"), adviceChain = {
+			"dlqAdvice", "txAdvice" })
+	public void processEvent(TradeEvent<?> event) throws TradistaBusinessException {
+		this.exportObject(event.getTrade());
 	}
 
 	public TradeCaptureReport createContent(Trade<?> trade) throws TradistaBusinessException {
@@ -122,8 +132,9 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 	@Override
 	public TradeCaptureReport exportCounterparty(Trade<?> trade, TradeCaptureReport tcReport)
 			throws TradistaBusinessException {
-		PartyID counterpartyId = new PartyID(TradistaFixExporterUtil.getFixLegalEntity(getName(),
-				trade.getCounterparty().getShortName(), getProcessingOrg().getId()));
+		String mappedCpty = TradistaFixExporterUtil.getFixLegalEntity(getName(), trade.getCounterparty().getShortName(),
+				getProcessingOrg().getId());
+		PartyID counterpartyId = new PartyID(mappedCpty);
 		for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
 			for (Group partyGroup : sideGroup.getGroups(quickfix.field.NoPartyIDs.FIELD)) {
 				try {
@@ -150,8 +161,9 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 
 	@Override
 	public TradeCaptureReport exportBook(Trade<?> trade, TradeCaptureReport tcReport) throws TradistaBusinessException {
-		Account accountId = new Account(
-				TradistaFixExporterUtil.getFixBook(getName(), trade.getBook().getName(), getProcessingOrg().getId()));
+		String mappedBook = TradistaFixExporterUtil.getFixBook(getName(), trade.getBook().getName(),
+				getProcessingOrg().getId());
+		Account accountId = new Account(mappedBook);
 		for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
 			for (Group partyGroup : sideGroup.getGroups(quickfix.field.NoPartyIDs.FIELD)) {
 				try {

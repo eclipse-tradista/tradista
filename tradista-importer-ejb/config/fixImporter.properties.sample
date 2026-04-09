@@ -7,5 +7,5 @@ SocketAcceptPort=10000
 StartTime=00:00:00
 EndTime=00:00:00
 ResetOnLogon=Y
-FileStorePath=target/fixStore
+FileStorePath=C:/Softwares/wildfly-36.0.1.Final/standalone/data/fixstore
 DataDictionary=FIX44-TRADISTA.xml

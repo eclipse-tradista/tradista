@@ -62,7 +62,7 @@ import quickfix.fix44.TradeCaptureReportRequest.NoPartyIDs;
  ********************************************************************************/
 
 public class TestTradeCaptureReportImporter {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TestTradeCaptureReportImporter.class);
 
 	public static void main(String[] args) throws Exception {
@@ -122,13 +122,13 @@ public class TestTradeCaptureReportImporter {
 		tcr.setField(new SettlDate("20251211"));
 		tcr.setField(new MaturityDate("20261211"));
 		tcr.setField(new PreviouslyReported(false));
-		tcr.setField(new SecurityID("XAAA"));
+		tcr.setField(new SecurityID("Demo"));
 		tcr.setField(new SecurityIDSource(SecurityIDSource.ISIN_NUMBER));
 
 		// GC repo fields
 		tcr.setField(new Product(Product.OTHER));
 		tcr.setField(new RepoCollateralSecurityType("GC"));
-		tcr.setField(new SecurityExchange("DEMO"));
+		tcr.setField(new SecurityExchange("CME"));
 		tcr.setField(new MarginRatio(5.5));
 		// Repo Rate
 		tcr.setField(new DecimalField(227, 5));
@@ -168,7 +168,7 @@ public class TestTradeCaptureReportImporter {
 		NoPartyIDs po = new NoPartyIDs();
 		po.set(new PartyID("52"));
 		po.set(new PartyRole(1));
-		po.setField(new Account("444"));
+		po.setField(new Account("BOOK123"));
 		sell.addGroup(po);
 		tcr.addGroup(sell);
 
@@ -176,7 +176,6 @@ public class TestTradeCaptureReportImporter {
 		logger.info("Test FIX TradeCaptureReport message sent.");
 
 		// Stop initiator
-		//Thread.sleep(1000);
 		initiator.stop();
 		logger.info("Test terminated");
 	}

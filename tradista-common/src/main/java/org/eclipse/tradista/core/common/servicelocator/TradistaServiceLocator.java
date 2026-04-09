@@ -28,6 +28,7 @@ import org.eclipse.tradista.core.error.service.ErrorService;
 import org.eclipse.tradista.core.exchange.service.ExchangeService;
 import org.eclipse.tradista.core.exporter.service.ExporterConfigurationService;
 import org.eclipse.tradista.core.exporter.service.ExporterInformationService;
+import org.eclipse.tradista.core.exporter.service.ExporterService;
 import org.eclipse.tradista.core.exporter.service.LocalExporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterInformationService;
@@ -741,6 +742,10 @@ public class TradistaServiceLocator {
 
 	public ImporterService getImporterService() {
 		return (ImporterService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE, "ImporterService");
+	}
+
+	public ExporterService getExporterService() {
+		return (ExporterService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE, "ExporterService");
 	}
 
 	public ExporterInformationService getExporterInformationService() {

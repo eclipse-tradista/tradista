@@ -9,6 +9,7 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.exporter.TradistaExporter;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.fix.common.TradistaFixUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,22 @@ import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
 import quickfix.fix44.Message;
 
+/********************************************************************************
+ * Copyright (c) 2026 Olivier Asuncion
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+
 public abstract class FixExporter<X extends TradistaObject, Y extends Message> extends TradistaExporter<X, Y> {
 
 	public static final String FIX = "Fix";
@@ -34,7 +51,7 @@ public abstract class FixExporter<X extends TradistaObject, Y extends Message> e
 	private static SessionSettings settings;
 
 	private static Session session;
-	
+
 	private static Application app = new ApplicationAdapter();
 
 	private static final Logger logger = LoggerFactory.getLogger(FixExporter.class);
@@ -89,6 +106,12 @@ public abstract class FixExporter<X extends TradistaObject, Y extends Message> e
 			session = Session.lookupSession(settings.sectionIterator().next());
 		}
 		return session;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Y buildMessage(String externalMessage) {
+		return (Y) TradistaFixUtil.buildMessage(getSession(), externalMessage);
 	}
 
 }

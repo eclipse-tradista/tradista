@@ -10,20 +10,6 @@
 			</module>
 			<module name="org.eclipse.tradista.ir.model" export="true">
 			</module>
-			<module
-				name="org.eclipse.tradista.org.springframework.spring-beans"
-				export="true">
-				<imports>
-					<include path="META-INF/" />
-				</imports>
-			</module>
-			<module
-				name="org.eclipse.tradista.org.springframework.spring-context"
-				export="true">
-				<imports>
-					<include path="META-INF/" />
-				</imports>
-			</module>
 		</dependencies>
 	</deployment>
 </jboss-deployment-structure>

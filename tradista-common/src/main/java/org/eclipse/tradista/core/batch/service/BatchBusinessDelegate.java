@@ -11,12 +11,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.batch.jobproperty.JobProperty;
-import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -45,10 +45,10 @@ public class BatchBusinessDelegate {
 	public void saveJobInstance(TradistaJobInstance jobInstance) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(jobInstance.getName())) {
-			errMsg.append(String.format("The job instance name cannot be empty.%n"));
+			errMsg.append(String.format("The job instance name is mandatory.%n"));
 		}
 		if (StringUtils.isBlank(jobInstance.getJobType())) {
-			errMsg.append(String.format("The job type cannot be empty.%n"));
+			errMsg.append("The job type is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -59,7 +59,7 @@ public class BatchBusinessDelegate {
 	public void deleteJobInstance(String jobInstanceName, String po) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(jobInstanceName)) {
-			errMsg.append(String.format("The job instance cannot be null.%n"));
+			errMsg.append("The job instance is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -71,8 +71,15 @@ public class BatchBusinessDelegate {
 		return SecurityUtil.run(() -> batchService.getAllJobTypes());
 	}
 
-	public String getJobTypeByClass(Class<? extends TradistaJob> klass) throws TradistaBusinessException {
-		return SecurityUtil.runEx(() -> batchService.getJobTypeByClass(klass));
+	public String getJobTypeByClass(String className) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(className)) {
+			errMsg.append("The class name is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return SecurityUtil.runEx(() -> batchService.getJobTypeByClass(className));
 	}
 
 	public Set<TradistaJobInstance> getAllJobInstances(String po) throws TradistaBusinessException {
@@ -88,7 +95,7 @@ public class BatchBusinessDelegate {
 			throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (executionDate == null) {
-			errMsg.append(String.format("The execution date cannot be null.%n"));
+			errMsg.append("The execution date cannot be null.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -99,7 +106,7 @@ public class BatchBusinessDelegate {
 	public void runJobInstance(String jobInstanceName, String po) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(jobInstanceName)) {
-			errMsg.append(String.format("The job instance name cannot be empty.%n"));
+			errMsg.append("The job instance name cannot be empty.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -116,7 +123,7 @@ public class BatchBusinessDelegate {
 	public void stopJobExecution(String jobExecutionId) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(jobExecutionId)) {
-			errMsg.append(String.format("The job execution id cannot be empty.%n"));
+			errMsg.append("The job execution id cannot be empty.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -124,7 +131,7 @@ public class BatchBusinessDelegate {
 		SecurityUtil.run(() -> batchService.stopJobExecution(jobExecutionId));
 	}
 
-	public Class<? extends TradistaJob> getJobClassByType(String jobType) throws TradistaBusinessException {
+	public String getJobClassByType(String jobType) throws TradistaBusinessException {
 
 		if (StringUtils.isEmpty(jobType)) {
 			throw new TradistaBusinessException("The job type is mandatory.");
@@ -138,15 +145,15 @@ public class BatchBusinessDelegate {
 			throw new TradistaBusinessException("The job instance is mandatory.");
 		}
 
-		final Set<String> jobPropertyNames = new HashSet<String>();
+		final Set<String> jobPropertyNames = new HashSet<>();
 
 		Class<?> klass;
 		if (jobInstance.getJobDetail() != null) {
 			klass = jobInstance.getJobDetail().getJobClass();
 		} else {
-			klass = getJobClassByType(jobInstance.getJobType());
+			klass = TradistaUtil.getClass(getJobClassByType(jobInstance.getJobType()));
 		}
-		// iterate though the list of fields declared in the class and
+		// iterate through the list of fields declared in the class and
 		// retrieve the name specified in the @JobProperty annotation
 		final List<Field> allFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
 		for (final Field field : allFields) {
@@ -177,7 +184,7 @@ public class BatchBusinessDelegate {
 		if (jobInstance.getJobDetail() != null) {
 			klass = jobInstance.getJobDetail().getJobClass();
 		} else {
-			klass = getJobClassByType(jobInstance.getJobType());
+			klass = TradistaUtil.getClass(getJobClassByType(jobInstance.getJobType()));
 		}
 
 		// iterate though the list of fields declared in the class and

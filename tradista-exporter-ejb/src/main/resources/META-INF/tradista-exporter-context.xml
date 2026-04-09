@@ -6,6 +6,15 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	<bean id="fixExporterConfig"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="tradeCaptureReportExporter.poller.delay">5000</prop>
+				<prop key="tradeCaptureReportExporter.poller.max">10</prop>
+			</props>
+		</property>
+	</bean>
 	<context:property-placeholder
 		system-properties-mode="OVERRIDE" />
 	<bean id="exporterConfiguration"
@@ -33,7 +42,7 @@
 			<value>MyFixTest</value>
 		</constructor-arg>
 		<constructor-arg type="String">
-			<value>${jboss.server.config.dir}/fixImporter.properties</value>
+			<value>${jboss.server.config.dir}/fixExporter.properties</value>
 		</constructor-arg>
 		<constructor-arg>
 			<ref bean="po" />

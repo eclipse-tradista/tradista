@@ -40,34 +40,38 @@ public class UserBusinessDelegate {
 			errMsg.append(String.format("The first name cannot be empty.%n"));
 		} else {
 			if (user.getFirstName().length() > 20) {
-				errMsg.append("The first name cannot exceed 20 characters.");
+				errMsg.append(String.format("The first name cannot exceed 20 characters.%n"));
 			}
 		}
 		if (StringUtils.isBlank(user.getSurname())) {
 			errMsg.append(String.format("The first name cannot be empty.%n"));
 		} else {
 			if (user.getSurname().length() > 20) {
-				errMsg.append("The surname cannot exceed 20 characters.");
+				errMsg.append(String.format("The surname cannot exceed 20 characters.%n"));
 			}
 		}
 		if (StringUtils.isBlank(user.getLogin())) {
 			errMsg.append(String.format("The login cannot be empty.%n"));
 		} else {
 			if (user.getLogin().length() > 20) {
-				errMsg.append("The login cannot exceed 20 characters.");
+				errMsg.append(String.format("The login cannot exceed 20 characters.%n"));
 			}
 		}
 		if (StringUtils.isBlank(user.getPassword())) {
 			errMsg.append(String.format("The password cannot be empty.%n"));
 		} else {
 			if (user.getPassword().length() > 20) {
-				errMsg.append("The password cannot exceed 20 characters.");
+				errMsg.append(String.format("The password cannot exceed 20 characters.%n"));
 			}
 		}
 		if (user.getProcessingOrg() == null) {
-			errMsg.append(String.format("The processing org cannot be null.%n"));
+			errMsg.append("The processing org cannot be null.");
 		} else if (!user.getProcessingOrg().getRole().equals(LegalEntity.Role.PROCESSING_ORG)) {
-			errMsg.append(String.format("The user legal entity must be a %s.%n", LegalEntity.Role.PROCESSING_ORG));
+			errMsg.append(String.format("The user legal entity must be a %s.", LegalEntity.Role.PROCESSING_ORG));
+		}
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 
 		return SecurityUtil.runEx(() -> userService.saveUser(user));
@@ -79,7 +83,7 @@ public class UserBusinessDelegate {
 
 	public Set<User> getUsersBySurname(String surname) throws TradistaBusinessException {
 		if (StringUtils.isBlank(surname)) {
-			throw new TradistaBusinessException("The surname cannot be empty.");
+			throw new TradistaBusinessException("The surname is mandatory.");
 		}
 		return SecurityUtil.run(() -> userService.getUsersBySurname(surname));
 	}
@@ -95,12 +99,12 @@ public class UserBusinessDelegate {
 		User user;
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(login)) {
-			errMsg.append(String.format("The login cannot be empty.%n"));
+			errMsg.append(String.format("The login is mandatory.%n"));
 		}
 		if (StringUtils.isBlank(password)) {
-			errMsg.append("The password cannot be empty.");
+			errMsg.append("The password is mandatory.");
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		SecurityUtil.setCredential(login, password);

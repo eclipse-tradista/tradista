@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.tradista.core.batch.model.TradistaJob;
+import org.eclipse.tradista.core.batch.job.TradistaJob;
 import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.batch.persistence.BatchSQL;
@@ -115,6 +115,16 @@ public class BatchServiceBean implements BatchService {
 		}
 	}
 
+	@Override
+	public String getJobTypeByClass(String className) throws TradistaBusinessException {
+		for (Map.Entry<String, Class<? extends TradistaJob>> entry : jobTypes.entrySet()) {
+			if (entry.getValue().getName().equals(className)) {
+				return entry.getKey();
+			}
+		}
+		throw new TradistaBusinessException(String.format("Job type was not found for '%s' class.", className));
+	}
+
 	@Interceptors(JobFilteringInterceptor.class)
 	@Override
 	public void saveJobInstance(TradistaJobInstance jobInstance) throws TradistaBusinessException {
@@ -170,8 +180,7 @@ public class BatchServiceBean implements BatchService {
 		return new HashSet<>(jobTypes.keySet());
 	}
 
-	@Override
-	public String getJobTypeByClass(Class<? extends TradistaJob> klass) throws TradistaBusinessException {
+	private String getJobTypeByClass(Class<? extends TradistaJob> klass) throws TradistaBusinessException {
 		for (Map.Entry<String, Class<? extends TradistaJob>> entry : jobTypes.entrySet()) {
 			if (entry.getValue().equals(klass)) {
 				return entry.getKey();
@@ -181,10 +190,10 @@ public class BatchServiceBean implements BatchService {
 	}
 
 	@Override
-	public Class<? extends TradistaJob> getJobClassByType(String jobType) throws TradistaBusinessException {
+	public String getJobClassByType(String jobType) throws TradistaBusinessException {
 		Class<? extends TradistaJob> jobClass = jobTypes.get(jobType);
 		if (jobClass != null) {
-			return jobClass;
+			return jobClass.getName();
 		}
 		throw new TradistaBusinessException(String.format("Job class was not found for '%s' type.", jobType));
 	}

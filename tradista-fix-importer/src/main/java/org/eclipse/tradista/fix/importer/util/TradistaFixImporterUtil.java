@@ -17,6 +17,8 @@ import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import quickfix.FieldMap;
 import quickfix.FieldNotFound;
@@ -38,6 +40,8 @@ import quickfix.FieldNotFound;
  ********************************************************************************/
 
 public final class TradistaFixImporterUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(TradistaFixImporterUtil.class);
 
 	public static final Pattern DATE_REGEX = Pattern.compile("^(\\d{4})(0[1-9]|1[0-2])(0[1-9]|1\\d|2\\d|3[01])$");
 	public static final Pattern YES_NO_REGEX = Pattern.compile("^[YN]$");
@@ -145,8 +149,8 @@ public final class TradistaFixImporterUtil {
 
 	public static LegalEntity parseFixLegalEntity(String importerName, FieldMap fieldMap, int tag, long poId)
 			throws TradistaBusinessException {
-		String counterpartyId = null;
-		String mapppedCounterpartyId;
+		String partyId = null;
+		String mapppedLeShortName;
 		LegalEntity legalEntity;
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(importerName)) {
@@ -165,15 +169,21 @@ public final class TradistaFixImporterUtil {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		try {
-			counterpartyId = fieldMap.getString(tag);
-			mapppedCounterpartyId = mappingBusinessDelegate.getMappingValue(importerName, MappingType.LegalEntity,
-					InterfaceMappingSet.Direction.INCOMING, counterpartyId, poId);
-			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(mapppedCounterpartyId);
+			partyId = fieldMap.getString(tag);
+			mapppedLeShortName = mappingBusinessDelegate.getMappingValue(importerName, MappingType.LegalEntity,
+					InterfaceMappingSet.Direction.INCOMING, partyId, poId);
+			if (mapppedLeShortName == null) {
+				logger.info(
+						"No mapping found for party id: {}, using directly this value for searching the legal entity.",
+						partyId);
+				mapppedLeShortName = partyId;
+			}
+			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(mapppedLeShortName);
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		} catch (TradistaBusinessException tbe) {
 			throw new TradistaTechnicalException(String.format(
-					"There was an issue retrieving the mapped counterparty from tag %d: %s", tag, tbe.getMessage()));
+					"There was an issue retrieving the mapped legal entity from tag %d: %s", tag, tbe.getMessage()));
 		}
 		return legalEntity;
 	}
@@ -203,6 +213,11 @@ public final class TradistaFixImporterUtil {
 			account = fieldMap.getString(tag);
 			mapppedBookName = mappingBusinessDelegate.getMappingValue(importerName, MappingType.Book,
 					InterfaceMappingSet.Direction.INCOMING, account, poId);
+			if (mapppedBookName == null) {
+				logger.info("No mapping found for account id: {}, using directly this value for searching the book.",
+						account);
+				mapppedBookName = account;
+			}
 			book = bookBusinessDelegate.getBookByName(mapppedBookName);
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));

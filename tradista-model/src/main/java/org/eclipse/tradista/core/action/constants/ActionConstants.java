@@ -27,14 +27,22 @@ public final class ActionConstants {
 
 	public static final String VALIDATE = "VALIDATE";
 
+	public static final String VALIDATION_FAILED = "VALIDATION_FAILED";
+
 	public static final String INVALIDATE = "INVALIDATE";
 
 	public static final String RETRY = "RETRY";
 
 	public static final String SEND = "SEND";
 
+	public static final String GENERATE = "GENERATE";
+
 	public static final String GENERATION_FAILED = "GENERATION_FAILED";
 
 	public static final String SENDING_FAILED = "SENDING_FAILED";
+
+	public static final String PROCESS = "PROCESS";
+
+	public static final String PROCESS_FAILED = "PROCESS_FAILED";
 
 }

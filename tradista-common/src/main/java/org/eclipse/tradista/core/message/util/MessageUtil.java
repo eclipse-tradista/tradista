@@ -1,8 +1,11 @@
 package org.eclipse.tradista.core.message.util;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -22,29 +25,37 @@ import org.eclipse.tradista.core.trade.model.Trade;
 
 public final class MessageUtil {
 
-	public enum ObjectTypes {
-		TRADE;
-
-		@Override
-		public String toString() {
-			return switch (this) {
-			case TRADE -> "Trade";
-			default -> super.toString();
-			};
-		}
-	}
+	private static TradeBusinessDelegate tradeBusinessDelegate = new TradeBusinessDelegate();
 
 	private MessageUtil() {
 	}
 
-	public static String getObjectType(TradistaObject object) {
+	public static Message.ObjectType getObjectType(TradistaObject object) {
 		if (object == null) {
 			throw new TradistaTechnicalException("The object is mandatory to determine the message object type");
 		}
 		return switch (object) {
-		case Trade<?> _ -> MessageUtil.ObjectTypes.TRADE.toString();
+		case Trade<?> _ -> Message.ObjectType.TRADE;
 		default -> null;
 		};
+	}
+
+	public static TradistaObject loadObject(long objectId, Message.ObjectType objectType)
+			throws TradistaBusinessException {
+		StringBuilder errorMessage = new StringBuilder();
+		if (objectId <= 0) {
+			errorMessage.append(String.format("The object id (%d) must be positive.%n", objectId));
+		}
+		if (objectType == null) {
+			errorMessage.append("The object type is mandatory.");
+		}
+		if (!errorMessage.isEmpty()) {
+			throw new TradistaBusinessException(errorMessage.toString());
+		}
+		if (objectType.equals(Message.ObjectType.TRADE)) {
+			return tradeBusinessDelegate.getTradeById(objectId);
+		}
+		return null;
 	}
 
 }

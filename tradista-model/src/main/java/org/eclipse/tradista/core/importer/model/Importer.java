@@ -49,16 +49,26 @@ public interface Importer<X> extends Runnable {
 	 * @param externalMessage the message to be imported in Eclipse Tradista
 	 * @param msg             the message object created in Eclipse Tradista to
 	 *                        represent the imported message
+	 * @return the message representing the importing message
 	 * @throws TradistaBusinessException if there was an error during the message
 	 *                                   processing
 	 */
-	default void processMessage(X externalMessage, IncomingMessage msg) throws TradistaBusinessException {
-		persistObject(externalMessage, msg, parseMessage(externalMessage));
+	default IncomingMessage processMessage(X externalMessage, IncomingMessage msg) throws TradistaBusinessException {
+		return persistObject(externalMessage, msg, parseMessage(externalMessage));
 	}
 
-	void persistObject(X externalMessage, IncomingMessage msg, Optional<? extends TradistaObject> object)
+	IncomingMessage persistObject(X externalMessage, IncomingMessage msg, Optional<? extends TradistaObject> object)
 			throws TradistaBusinessException;
 
 	X buildMessage(String externalMessage);
+
+	/**
+	 * Checks the external message, ensuring it has a valid structure.
+	 * 
+	 * @param externalMessage the message to be imported in Eclipse Tradista
+	 * @throws TradistaBusinessException if there was an error during the message
+	 *                                   validation
+	 */
+	void validateMessage(X externalMessage) throws TradistaBusinessException;
 
 }

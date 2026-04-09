@@ -1,5 +1,16 @@
 package org.eclipse.tradista.core.position.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ERROR_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ERROR_DATE_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ERROR_TABLE;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ID_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.MESSAGE_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.SOLVING_DATE_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.STATUS_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.TYPE_FIELD;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -7,20 +18,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
+import org.eclipse.tradista.core.error.persistence.ErrorSQL;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.*;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -40,26 +55,50 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 
 public class PositionCalculationErrorSQL {
 
+	private static final Field ERROR_ID_FIELD = new Field(ERROR_ID);
+
+	private static final Field VALUE_DATE_FIELD = new Field("VALUE_DATE");
+
+	private static final Field POSITION_DEFINITION_ID_FIELD = new Field("POSITION_DEFINITION_ID");
+
+	private static final Field TRADE_ID_FIELD = new Field("TRADE_ID");
+
+	private static final Field PRODUCT_ID_FIELD = new Field("PRODUCT_ID");
+
+	private static final Field[] POSITION_CALCULATION_ERROR_FIELDS = new Field[] { ERROR_ID_FIELD, VALUE_DATE_FIELD,
+			POSITION_DEFINITION_ID_FIELD, TRADE_ID_FIELD, PRODUCT_ID_FIELD };
+
+	private static final Table POSITION_CALCULATION_ERROR_TABLE = new Table("POSITION_CALCULATION_ERROR", ERROR_ID,
+			POSITION_CALCULATION_ERROR_FIELDS);
+
+	private static final Join ERROR_AND_POSITION_CALCULATION_ERROR_INNER_JOIN = Join.inner(ErrorSQL.ID_FIELD,
+			ERROR_ID_FIELD);
+
 	public static boolean savePositionCalculationErrors(List<PositionCalculationError> errors) {
 		boolean bSaved = true;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveErrors = con.prepareStatement(
-						"INSERT INTO ERROR(TYPE, MESSAGE, STATUS, ERROR_DATE) VALUES(?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement stmtSavePositionCalculationErrors = con
-						.prepareStatement("INSERT INTO POSITION_CALCULATION_ERROR VALUES(?, ?, ?, ?, ?)");
-				PreparedStatement stmtUpdateErrors = con.prepareStatement(
-						"UPDATE ERROR SET TYPE=?, MESSAGE=?, STATUS=?, ERROR_DATE=? WHERE ID=?",
-						Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement stmtUpdatePositionCalculationErrors = con.prepareStatement(
-						"UPDATE POSITION_CALCULATION_ERROR SET VALUE_DATE=?, POSITION_DEFINITION_ID=?, TRADE_ID=?, PRODUCT_ID=? WHERE ERROR_ID=?")) {
+				PreparedStatement stmtSaveErrors = TradistaDBUtil.buildInsertPreparedStatement(con, ERROR_TABLE,
+						TYPE_FIELD, MESSAGE_FIELD, STATUS_FIELD, ERROR_DATE_FIELD, SOLVING_DATE_FIELD);
+				PreparedStatement stmtSavePositionCalculationErrors = TradistaDBUtil.buildInsertPreparedStatement(con,
+						POSITION_CALCULATION_ERROR_TABLE, ERROR_ID_FIELD, VALUE_DATE_FIELD,
+						POSITION_DEFINITION_ID_FIELD, TRADE_ID_FIELD, PRODUCT_ID_FIELD);
+				PreparedStatement stmtUpdateErrors = TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD,
+						ERROR_TABLE, TYPE_FIELD, MESSAGE_FIELD, STATUS_FIELD, ERROR_DATE_FIELD, SOLVING_DATE_FIELD);
+				PreparedStatement stmtUpdatePositionCalculationErrors = TradistaDBUtil.buildUpdatePreparedStatement(con,
+						ERROR_ID_FIELD, POSITION_CALCULATION_ERROR_TABLE, VALUE_DATE_FIELD,
+						POSITION_DEFINITION_ID_FIELD, TRADE_ID_FIELD, PRODUCT_ID_FIELD)) {
 			for (PositionCalculationError error : errors) {
 				if (error.getId() == 0) {
 					stmtSaveErrors.setString(1, error.getType());
 					stmtSaveErrors.setString(2, error.getErrorMessage());
 					stmtSaveErrors.setString(3, error.getStatus().name());
 					stmtSaveErrors.setTimestamp(4, java.sql.Timestamp.valueOf(error.getErrorDate()));
+					if (error.getSolvingDate() != null) {
+						stmtSaveErrors.setTimestamp(5, java.sql.Timestamp.valueOf(error.getSolvingDate()));
+					} else {
+						stmtSaveErrors.setNull(5, Types.TIMESTAMP);
+					}
 					stmtSaveErrors.executeUpdate();
 					try (ResultSet generatedKeys = stmtSaveErrors.getGeneratedKeys()) {
 						if (generatedKeys.next()) {
@@ -102,7 +141,12 @@ public class PositionCalculationErrorSQL {
 					stmtUpdateErrors.setString(2, error.getErrorMessage());
 					stmtUpdateErrors.setString(3, error.getStatus().name());
 					stmtUpdateErrors.setTimestamp(4, java.sql.Timestamp.valueOf(error.getErrorDate()));
-					stmtUpdateErrors.setLong(5, error.getId());
+					if (error.getSolvingDate() != null) {
+						stmtUpdateErrors.setTimestamp(5, java.sql.Timestamp.valueOf(error.getSolvingDate()));
+					} else {
+						stmtUpdateErrors.setNull(5, Types.TIMESTAMP);
+					}
+					stmtUpdateErrors.setLong(6, error.getId());
 					stmtUpdateErrors.addBatch();
 				}
 			}
@@ -111,7 +155,6 @@ public class PositionCalculationErrorSQL {
 			stmtUpdatePositionCalculationErrors.executeBatch();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
@@ -119,8 +162,9 @@ public class PositionCalculationErrorSQL {
 
 	public static void solvePositionCalculationError(Set<Long> solved, LocalDate date) {
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSolvePositionCalculationErrors = con.prepareStatement(
-						"UPDATE ERROR SET STATUS = ?, SOLVING_DATE = ? WHERE ID IN (SELECT ERROR_ID FROM POSITION_CALCULATION_ERROR WHERE POSITION_DEFINITION_ID = ?)")) {
+				PreparedStatement stmtSolvePositionCalculationErrors = con.prepareStatement("UPDATE " + ERROR_TABLE
+						+ " SET " + STATUS_FIELD + " = ?, " + SOLVING_DATE_FIELD + " = ? " + WHERE + ID_FIELD + IN
+						+ "(SELECT ERROR_ID FROM POSITION_CALCULATION_ERROR WHERE POSITION_DEFINITION_ID = ?)")) {
 			for (long id : solved) {
 				stmtSolvePositionCalculationErrors.setString(1,
 						org.eclipse.tradista.core.error.model.Error.Status.SOLVED.name());
@@ -131,15 +175,15 @@ public class PositionCalculationErrorSQL {
 			stmtSolvePositionCalculationErrors.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
 
 	public static void solvePositionCalculationError(long positionDefinitionId, LocalDate date) {
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSolvePositionCalculationError = con.prepareStatement(
-						"UPDATE ERROR SET STATUS = ?, SOLVING_DATE = ? WHERE ID IN (SELECT ERROR_ID FROM POSITION_CALCULATION_ERROR WHERE POSITION_DEFINITION_ID = ?)")) {
+				PreparedStatement stmtSolvePositionCalculationError = con.prepareStatement("UPDATE " + ERROR_TABLE
+						+ " SET " + STATUS_FIELD + " = ?, " + SOLVING_DATE_FIELD + " = ? " + WHERE + ID_FIELD + IN
+						+ "(SELECT ERROR_ID FROM POSITION_CALCULATION_ERROR WHERE POSITION_DEFINITION_ID = ?)")) {
 			stmtSolvePositionCalculationError.setString(1,
 					org.eclipse.tradista.core.error.model.Error.Status.SOLVED.name());
 			stmtSolvePositionCalculationError.setDate(2, java.sql.Date.valueOf(date));
@@ -147,7 +191,6 @@ public class PositionCalculationErrorSQL {
 			stmtSolvePositionCalculationError.executeUpdate();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -159,182 +202,76 @@ public class PositionCalculationErrorSQL {
 
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmtGetPositionCalculationErrors = con.createStatement()) {
-			String sqlQuery = "SELECT * FROM POSITION_CALCULATION_ERROR, ERROR ";
-			String dateSqlQuery = StringUtils.EMPTY;
-			if (valueDateFrom != null && valueDateTo != null) {
-				dateSqlQuery = " WHERE VALUE_DATE >=" + "'"
-						+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(valueDateFrom) + "'" + " AND VALUE_DATE <= "
-						+ "'" + DateTimeFormatter.ofPattern(MM_DD_YYYY).format(valueDateTo) + "'";
-			} else {
-				if (valueDateFrom == null && valueDateTo != null) {
-					dateSqlQuery = " WHERE VALUE_DATE <= " + "'"
-							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(valueDateTo) + "'";
-				}
-				if (valueDateFrom != null && valueDateTo == null) {
-					dateSqlQuery = " WHERE VALUE_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(valueDateFrom) + "'";
-				}
+			StringBuilder sqlQuery = new StringBuilder(TradistaDBUtil.buildSelectQuery(POSITION_CALCULATION_ERROR_TABLE,
+					ERROR_AND_POSITION_CALCULATION_ERROR_INNER_JOIN));
+
+			if (valueDateFrom != null) {
+				TradistaDBUtil.addFilter(sqlQuery, VALUE_DATE_FIELD, valueDateFrom, true);
+			}
+			if (valueDateTo != null) {
+				TradistaDBUtil.addFilter(sqlQuery, VALUE_DATE_FIELD, valueDateTo, false);
 			}
 
-			if (errorDateFrom != null && errorDateTo != null) {
-				if (dateSqlQuery.contains(WHERE)) {
-					dateSqlQuery += AND;
-				} else {
-					dateSqlQuery += WHERE;
-				}
-				dateSqlQuery += " ERROR_DATE >=" + "'"
-						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay()) + "'"
-						+ " AND ERROR_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
-								.format(errorDateTo.plusDays(1).atStartOfDay())
-						+ "'";
-			} else {
-				if (errorDateFrom == null && errorDateTo != null) {
-					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += AND;
-					} else {
-						dateSqlQuery += WHERE;
-					}
-					dateSqlQuery += " ERROR_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
-							.format(errorDateTo.plusDays(1).atStartOfDay()) + "'";
-				}
-				if (errorDateFrom != null && errorDateTo == null) {
-					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += AND;
-					} else {
-						dateSqlQuery += WHERE;
-					}
-					dateSqlQuery += " ERROR_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay())
-							+ "'";
-				}
+			if (errorDateFrom != null) {
+				TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateFrom.atStartOfDay(), true);
+			}
+			if (errorDateTo != null) {
+				TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateTo.atTime(LocalTime.MAX), false);
 			}
 
-			if (solvingDateFrom != null && solvingDateTo != null) {
-				if (dateSqlQuery.contains(WHERE)) {
-					dateSqlQuery += AND;
-				} else {
-					dateSqlQuery += WHERE;
-				}
-				dateSqlQuery += " SOLVING_DATE >=" + "'"
-						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(solvingDateFrom.atStartOfDay()) + "'"
-						+ " AND SOLVING_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
-								.format(solvingDateTo.plusDays(1).atStartOfDay())
-						+ "'";
-			} else {
-				if (solvingDateFrom == null && solvingDateTo != null) {
-					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += AND;
-					} else {
-						dateSqlQuery += WHERE;
-					}
-					dateSqlQuery += " SOLVING_DATE < " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
-							.format(solvingDateTo.plusDays(1).atStartOfDay()) + "'";
-				}
-				if (solvingDateFrom != null && solvingDateTo == null) {
-					if (dateSqlQuery.contains(WHERE)) {
-						dateSqlQuery += AND;
-					} else {
-						dateSqlQuery += WHERE;
-					}
-					dateSqlQuery += " SOLVING_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(solvingDateFrom.atStartOfDay())
-							+ "'";
-				}
+			if (solvingDateFrom != null) {
+				TradistaDBUtil.addFilter(sqlQuery, SOLVING_DATE_FIELD, solvingDateFrom.atStartOfDay(), true);
 			}
-
-			sqlQuery += dateSqlQuery;
-
-			String posDefSqlQuery = StringUtils.EMPTY;
+			if (solvingDateTo != null) {
+				TradistaDBUtil.addFilter(sqlQuery, SOLVING_DATE_FIELD, solvingDateTo.atTime(LocalTime.MAX), false);
+			}
 
 			if (positionDefinitionId != 0) {
-				if (sqlQuery.contains(WHERE)) {
-					posDefSqlQuery = AND;
-				} else {
-					posDefSqlQuery = WHERE;
-				}
-				posDefSqlQuery += " POSITION_DEFINITION_ID = " + positionDefinitionId;
+				TradistaDBUtil.addFilter(sqlQuery, POSITION_DEFINITION_ID_FIELD, positionDefinitionId);
 			}
-
-			sqlQuery += posDefSqlQuery;
-
-			String statusSqlQuery = StringUtils.EMPTY;
 
 			if (status != null) {
-				if (sqlQuery.contains(WHERE)) {
-					statusSqlQuery = AND;
-				} else {
-					statusSqlQuery = WHERE;
-				}
-				statusSqlQuery += " STATUS = '" + status.name() + "'";
+				TradistaDBUtil.addFilter(sqlQuery, STATUS_FIELD, status.name());
 			}
-
-			sqlQuery += statusSqlQuery;
-
-			String tradeIdSqlQuery = StringUtils.EMPTY;
 
 			if (tradeId > 0) {
-				if (sqlQuery.contains(WHERE)) {
-					tradeIdSqlQuery = AND;
-				} else {
-					tradeIdSqlQuery = WHERE;
-				}
-				tradeIdSqlQuery += " TRADE_ID = " + tradeId;
+				TradistaDBUtil.addFilter(sqlQuery, TRADE_ID_FIELD, tradeId);
 			}
-
-			sqlQuery += tradeIdSqlQuery;
-
-			String productIdSqlQuery = StringUtils.EMPTY;
 
 			if (productId > 0) {
-				if (sqlQuery.contains(WHERE)) {
-					productIdSqlQuery = AND;
-				} else {
-					productIdSqlQuery = WHERE;
-				}
-				productIdSqlQuery += " TRADE_ID = " + tradeId;
+				TradistaDBUtil.addFilter(sqlQuery, PRODUCT_ID_FIELD, productId);
 			}
 
-			sqlQuery += productIdSqlQuery;
-
-			String joinSqlQuery = StringUtils.EMPTY;
-
-			if (sqlQuery.contains(WHERE)) {
-				joinSqlQuery = AND;
-			} else {
-				joinSqlQuery = WHERE;
-			}
-			joinSqlQuery += " ID = ERROR_ID";
-
-			sqlQuery += joinSqlQuery;
-
-			try (ResultSet results = stmtGetPositionCalculationErrors.executeQuery(sqlQuery)) {
+			try (ResultSet results = stmtGetPositionCalculationErrors.executeQuery(sqlQuery.toString())) {
 				while (results.next()) {
 					if (positionCalculationErrors == null) {
 						positionCalculationErrors = new ArrayList<>();
 					}
 					PositionCalculationError positionCalculationError = new PositionCalculationError();
-					positionCalculationError.setId(results.getLong("id"));
-					positionCalculationError.setErrorMessage(results.getString("message"));
-					Timestamp solvingDate = results.getTimestamp("solving_date");
+					positionCalculationError.setId(results.getLong(ID_FIELD.getName()));
+					positionCalculationError.setErrorMessage(results.getString(MESSAGE_FIELD.getName()));
+					Timestamp solvingDate = results.getTimestamp(SOLVING_DATE_FIELD.getName());
 					if (solvingDate != null) {
 						positionCalculationError.setSolvingDate(solvingDate.toLocalDateTime());
 					}
-					positionCalculationError.setErrorDate(results.getTimestamp("error_date").toLocalDateTime());
-					positionCalculationError.setValueDate(results.getDate("value_date").toLocalDate());
-					positionCalculationError.setStatus(Status.valueOf(results.getString("status")));
-					if (results.getLong("trade_id") > 0) {
-						positionCalculationError.setTrade(TradeSQL.getTradeById(results.getLong("trade_id"), false));
+					positionCalculationError
+							.setErrorDate(results.getTimestamp(ERROR_DATE_FIELD.getName()).toLocalDateTime());
+					positionCalculationError.setValueDate(results.getDate(VALUE_DATE_FIELD.getName()).toLocalDate());
+					positionCalculationError.setStatus(Status.valueOf(results.getString(STATUS_FIELD.getName())));
+					if (results.getLong(TRADE_ID_FIELD.getName()) > 0) {
+						positionCalculationError
+								.setTrade(TradeSQL.getTradeById(results.getLong(TRADE_ID_FIELD.getName()), false));
 					}
-					if (results.getLong("product_id") > 0) {
-						positionCalculationError.setProduct(ProductSQL.getProductById(results.getLong("product_id")));
+					if (results.getLong(PRODUCT_ID_FIELD.getName()) > 0) {
+						positionCalculationError
+								.setProduct(ProductSQL.getProductById(results.getLong(PRODUCT_ID_FIELD.getName())));
 					}
-					positionCalculationError.setPositionDefinition(
-							PositionDefinitionSQL.getPositionDefinitionById(results.getLong("position_definition_id")));
+					positionCalculationError.setPositionDefinition(PositionDefinitionSQL
+							.getPositionDefinitionById(results.getLong(POSITION_DEFINITION_ID_FIELD.getName())));
 					positionCalculationErrors.add(positionCalculationError);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle.getMessage());
 		}
 
@@ -344,16 +281,14 @@ public class PositionCalculationErrorSQL {
 	public static void deleteErrors(Set<Long> ids) {
 		if (ids != null && !ids.isEmpty()) {
 			try (Connection con = TradistaDB.getConnection();
-					PreparedStatement stmtDeleteErrors = con
-							.prepareStatement("DELETE FROM POSITION_CALCULATION_ERROR WHERE ERROR_ID = ?")) {
+					PreparedStatement stmtDeleteErrors = TradistaDBUtil.buildDeletePreparedStatement(con,
+							POSITION_CALCULATION_ERROR_TABLE, ERROR_ID_FIELD);) {
 				for (long id : ids) {
 					stmtDeleteErrors.setLong(1, id);
 					stmtDeleteErrors.addBatch();
 				}
 				stmtDeleteErrors.executeBatch();
 			} catch (SQLException sqle) {
-				// TODO Manage logs
-				sqle.printStackTrace();
 				throw new TradistaTechnicalException(sqle);
 			}
 		}

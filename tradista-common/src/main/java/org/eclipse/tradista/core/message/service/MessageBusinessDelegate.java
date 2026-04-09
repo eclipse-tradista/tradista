@@ -58,15 +58,9 @@ public class MessageBusinessDelegate {
 	}
 
 	public Message applyAction(Message message, String action) throws TradistaBusinessException {
-		StringBuilder errMsg = new StringBuilder();
+		messageValidator.validateMessage(message);
 		if (StringUtils.isBlank(action)) {
-			errMsg.append(String.format("The action is mandatory.%n"));
-		}
-		if (message == null) {
-			errMsg.append("The message is mandatory.");
-		}
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
+			throw new TradistaBusinessException("The action is mandatory.");
 		}
 		return SecurityUtil.runEx(() -> messageService.applyAction(message, action));
 	}

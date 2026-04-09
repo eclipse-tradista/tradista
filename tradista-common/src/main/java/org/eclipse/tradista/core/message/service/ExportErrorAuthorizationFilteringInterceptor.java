@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.model.ExportError;
-import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.Message;
 import org.springframework.util.CollectionUtils;
 
@@ -47,14 +46,14 @@ public class ExportErrorAuthorizationFilteringInterceptor extends TradistaAuthor
 		Object[] parameters = ic.getParameters();
 		Method method = ic.getMethod();
 		Class<?>[] parameterTypes = method.getParameterTypes();
-		if (parameterTypes[0].equals(ImportError.class)) {
+		if (parameterTypes[0].equals(ExportError.class)) {
 			ExportError exportError = (ExportError) parameters[0];
 			StringBuilder errMsg = new StringBuilder();
 			if (exportError.getMessage().getId() != 0) {
-				List<Message> msgs = messageBusinessDelegate.getMessages(exportError.getMessage().getId(), null, null,
-						null, 0, null, null, null, null, null, null);
-				if (!CollectionUtils.isEmpty(msgs)) {
-					errMsg.append(String.format("The message %d was not found.%n", exportError.getMessage().getId()));
+				List<Message> msgs = messageBusinessDelegate.getMessages(exportError.getMessage().getId(),
+						Boolean.FALSE, null, null, 0, null, null, null, null, null, null);
+				if (CollectionUtils.isEmpty(msgs)) {
+					errMsg.append(String.format("The message %d was not found.", exportError.getMessage().getId()));
 				}
 			}
 			if (!errMsg.isEmpty()) {
@@ -71,16 +70,16 @@ public class ExportErrorAuthorizationFilteringInterceptor extends TradistaAuthor
 				List<ExportError> errors = (List<ExportError>) value;
 				value = errors.stream().filter(e -> {
 					try {
-						return (messageBusinessDelegate.getMessages(e.getMessage().getId(), null, null, null, 0, null,
-								null, null, null, null, null) != null);
+						return (messageBusinessDelegate.getMessages(e.getMessage().getId(), Boolean.FALSE, null, null,
+								0, null, null, null, null, null, null) != null);
 					} catch (TradistaBusinessException _) {
 						return false;
 					}
 				}).toList();
 			}
 			if (value instanceof ExportError error) {
-				value = messageBusinessDelegate.getMessages(error.getMessage().getId(), null, null, null, 0, null, null,
-						null, null, null, null) == null ? null : value;
+				value = messageBusinessDelegate.getMessages(error.getMessage().getId(), Boolean.FALSE, null, null, 0,
+						null, null, null, null, null, null) == null ? null : value;
 
 			}
 		}

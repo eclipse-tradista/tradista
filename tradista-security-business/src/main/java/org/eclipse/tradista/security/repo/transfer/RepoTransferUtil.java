@@ -231,10 +231,13 @@ public final class RepoTransferUtil {
 			}
 
 			// 2.2 Create allocation transfers
-			existingCollateralTransfers = existingCollateralTransfers.stream()
-					.filter(t -> !t.getStatus().equals(Status.POTENTIAL)).toList();
-			Map<Transfer, Transfer> existingCollateralTransfersMap = existingCollateralTransfers.stream()
-					.collect(Collectors.toMap(Function.identity(), Function.identity()));
+			Map<Transfer, Transfer> existingCollateralTransfersMap = null;
+			if (existingCollateralTransfers != null) {
+				existingCollateralTransfers = existingCollateralTransfers.stream()
+						.filter(t -> !t.getStatus().equals(Status.POTENTIAL)).toList();
+				existingCollateralTransfersMap = existingCollateralTransfers.stream()
+						.collect(Collectors.toMap(Function.identity(), Function.identity()));
+			}
 			if (trade.getCollateralToAdd() != null) {
 				for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToAdd().entrySet()) {
 					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
@@ -246,7 +249,8 @@ public final class RepoTransferUtil {
 						newCollateralPayment.setQuantity(bookEntry.getValue());
 						newCollateralPayment.setFixingDateTime(LocalDateTime.now());
 						newCollateralPayment.setStatus(Transfer.Status.KNOWN);
-						if (existingCollateralTransfers.contains(newCollateralPayment)) {
+						if (existingCollateralTransfers != null
+								&& existingCollateralTransfers.contains(newCollateralPayment)) {
 							ProductTransfer existingTransfer = (ProductTransfer) existingCollateralTransfersMap
 									.get(newCollateralPayment);
 							existingTransfer.setQuantity(
@@ -354,10 +358,13 @@ public final class RepoTransferUtil {
 			}
 
 			// 2.2 Create or update allocation transfers
-			existingCollateralTransfers = existingCollateralTransfers.stream()
-					.filter(t -> !t.getStatus().equals(Status.POTENTIAL)).toList();
-			Map<Transfer, Transfer> existingCollateralTransfersMap = existingCollateralTransfers.stream()
-					.collect(Collectors.toMap(Function.identity(), Function.identity()));
+			Map<Transfer, Transfer> existingCollateralTransfersMap = null;
+			if (existingCollateralTransfers != null) {
+				existingCollateralTransfers = existingCollateralTransfers.stream()
+						.filter(t -> !t.getStatus().equals(Status.POTENTIAL)).toList();
+				existingCollateralTransfersMap = existingCollateralTransfers.stream()
+						.collect(Collectors.toMap(Function.identity(), Function.identity()));
+			}
 			if (trade.getEndDate() != null) {
 				if (trade.getCollateralToAdd() != null) {
 					for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToAdd().entrySet()) {
@@ -370,7 +377,8 @@ public final class RepoTransferUtil {
 							newCollateralPayment.setQuantity(bookEntry.getValue());
 							newCollateralPayment.setFixingDateTime(LocalDateTime.now());
 							newCollateralPayment.setStatus(Transfer.Status.KNOWN);
-							if (existingCollateralTransfers.contains(newCollateralPayment)) {
+							if (existingCollateralTransfers != null
+									&& existingCollateralTransfers.contains(newCollateralPayment)) {
 								ProductTransfer existingTransfer = (ProductTransfer) existingCollateralTransfersMap
 										.get(newCollateralPayment);
 								existingTransfer.setQuantity(

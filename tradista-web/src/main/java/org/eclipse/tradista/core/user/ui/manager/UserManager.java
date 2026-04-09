@@ -1,6 +1,9 @@
 package org.eclipse.tradista.core.user.ui.manager;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.util.ClientUtil;
@@ -45,6 +48,12 @@ public class UserManager implements Serializable {
 
 	public String getCurrentUserSurname() {
 		return ClientUtil.getCurrentUser().getSurname();
+	}
+
+	public ZonedDateTime getUserTime(Instant instant) {
+		// Defaulted to the system zone for the moment. But the target is to define the
+		// time zone at the user's PO level
+		return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 	}
 
 }

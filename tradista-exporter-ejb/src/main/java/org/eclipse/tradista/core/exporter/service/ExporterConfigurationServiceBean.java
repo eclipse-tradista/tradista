@@ -5,11 +5,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.eclipse.tradista.core.common.messaging.TradistaMessagingConfiguration;
 import org.eclipse.tradista.core.common.util.TradistaConstants;
 import org.eclipse.tradista.core.exporter.model.Exporter;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
@@ -43,7 +46,7 @@ public class ExporterConfigurationServiceBean implements ExporterConfigurationSe
 	@EJB
 	private LocalExporterConfigurationService localExporterConfigurationService;
 
-	private static ApplicationContext applicationContext;
+	private static GenericApplicationContext applicationContext;
 
 	private static final String CONFIG_FILE_NAME = "tradista-exporter-context.xml";
 
@@ -51,8 +54,14 @@ public class ExporterConfigurationServiceBean implements ExporterConfigurationSe
 
 	@PostConstruct
 	public void init() {
-		applicationContext = new ClassPathXmlApplicationContext(
-				"/" + TradistaConstants.META_INF + "/" + CONFIG_FILE_NAME);
+		applicationContext = new AnnotationConfigApplicationContext();
+		applicationContext.registerBean(TradistaMessagingConfiguration.class);
+
+		// We add here the exporter beans in the same context
+		XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
+		xmlReader.loadBeanDefinitions(new ClassPathResource("/" + TradistaConstants.META_INF + "/" + CONFIG_FILE_NAME));
+
+		applicationContext.refresh();
 	}
 
 	@Override

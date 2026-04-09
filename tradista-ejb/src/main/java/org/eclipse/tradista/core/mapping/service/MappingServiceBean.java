@@ -37,7 +37,7 @@ public class MappingServiceBean implements MappingService {
 			InterfaceMappingSet.Direction direction, String value, long poId) {
 		String mappedValue = MappingSQL.getMappingValue(interfaceName, mappingType, direction, value, poId);
 		if (StringUtils.isEmpty(mappedValue) && !StringUtils.isEmpty(interfaceName)) {
-			// if mapping is not found, we try to search for a global mapping, ie applying
+			// if mapping is not found, we try to search for a global mapping, ie applied
 			// to all interfaces
 			mappedValue = MappingSQL.getMappingValue(null, mappingType, direction, value, poId);
 		}
@@ -50,7 +50,7 @@ public class MappingServiceBean implements MappingService {
 			InterfaceMappingSet.Direction direction, String mappedValue, long poId) {
 		String value = MappingSQL.getOriginalValue(interfaceName, mappingType, direction, mappedValue, poId);
 		if (StringUtils.isEmpty(value) && !StringUtils.isEmpty(interfaceName)) {
-			// if mapping is not found, we try to search for a global mapping, ie applying
+			// if mapping is not found, we try to search for a global mapping, ie applied
 			// to all interfaces
 			value = MappingSQL.getOriginalValue(null, mappingType, direction, mappedValue, poId);
 		}

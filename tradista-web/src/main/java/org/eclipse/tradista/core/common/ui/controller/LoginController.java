@@ -85,7 +85,7 @@ public class LoginController implements Serializable {
 		} catch (ServletException se) {
 			context.addMessage("errMsg", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Login failed.", null));
 			return null;
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Cannot appear here.
 		}
 		if (originalUrl != null) {

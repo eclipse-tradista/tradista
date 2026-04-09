@@ -1,8 +1,12 @@
 package org.eclipse.tradista.core.workflow.service;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.message.model.IncomingMessage;
+import org.eclipse.tradista.core.message.model.OutgoingMessage;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
@@ -47,7 +51,7 @@ public class WorkflowServiceBean implements WorkflowService {
 
 	@Override
 	public Workflow getWorkflowByName(String name) throws TradistaBusinessException {
-		finance.tradista.flow.model.Workflow workflow;
+		finance.tradista.flow.model.Workflow<?> workflow;
 		Workflow workflowResult = null;
 		try {
 			workflow = WorkflowManager.getWorkflowByName(name);
@@ -60,6 +64,7 @@ public class WorkflowServiceBean implements WorkflowService {
 		return workflowResult;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Set<String> getAvailableActionsFromStatus(String workflowName, Status status)
 			throws TradistaBusinessException {
@@ -80,7 +85,7 @@ public class WorkflowServiceBean implements WorkflowService {
 
 	@Override
 	public Status getInitialStatus(String workflowName) throws TradistaBusinessException {
-		finance.tradista.flow.model.Workflow workflow;
+		finance.tradista.flow.model.Workflow<?> workflow;
 		try {
 			workflow = WorkflowManager.getWorkflowByName(workflowName);
 		} catch (TradistaFlowBusinessException tfbe) {
@@ -95,14 +100,25 @@ public class WorkflowServiceBean implements WorkflowService {
 
 	@Override
 	public Set<String> getAllMessageStatusNames() {
+		final String MESSAGE = "Message";
 		Set<String> messageTypes = messageBusinessDelegate.getAllMessageTypes();
+		Set<String> workflowNames = new HashSet<>();
+		Set<String> result = null;
+		workflowNames.add(IncomingMessage.INCOMING + MESSAGE);
+		workflowNames.add(OutgoingMessage.OUTGOING + MESSAGE);
+		for (String mt : messageTypes) {
+			workflowNames.add(mt + "." + IncomingMessage.INCOMING + MESSAGE);
+			workflowNames.add(mt + "." + OutgoingMessage.OUTGOING + MESSAGE);
+		}
 		if (!CollectionUtils.isEmpty(messageTypes)) {
 			try {
-				return WorkflowManager.getStatusesByWorkflowNames(messageTypes.toArray(new String[0]));
+				Set<String> statuses = WorkflowManager
+						.getStatusesByWorkflowNames(workflowNames.toArray(new String[workflowNames.size()]));
+				result = statuses != null ? new TreeSet<>(statuses) : null;
 			} catch (TradistaFlowBusinessException _) {
 			}
 		}
-		return null;
+		return result;
 	}
 
 }

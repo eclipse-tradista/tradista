@@ -3,13 +3,13 @@ package org.eclipse.tradista.core.batch.triggerlistener;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import org.eclipse.tradista.core.batch.model.TradistaJob;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.batch.job.TradistaJob;
 import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.listeners.TriggerListenerSupport;
-import org.springframework.util.StringUtils;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -43,8 +43,7 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 	public void triggerFired(Trigger trigger, JobExecutionContext context) {
 		String jobType = null;
 		try {
-			jobType = batchBusinessDelegate
-					.getJobTypeByClass((Class<? extends TradistaJob>) context.getJobDetail().getJobClass());
+			jobType = batchBusinessDelegate.getJobTypeByClass(context.getJobDetail().getJobClass().getName());
 		} catch (TradistaBusinessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,13 +62,12 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 		} else {
 			status = "FAILED";
 		}
-		if (!StringUtils.isEmpty(context.get(TradistaJob.STOPPED))) {
+		if (!StringUtils.isEmpty((String) context.get(TradistaJob.STOPPED))) {
 			status = "STOPPED";
 		}
 		String jobType = null;
 		try {
-			jobType = batchBusinessDelegate
-					.getJobTypeByClass((Class<? extends TradistaJob>) context.getJobDetail().getJobClass());
+			jobType = batchBusinessDelegate.getJobTypeByClass(context.getJobDetail().getJobClass().getName());
 		} catch (TradistaBusinessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

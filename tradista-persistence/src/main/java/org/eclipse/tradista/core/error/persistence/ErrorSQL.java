@@ -1,11 +1,8 @@
 package org.eclipse.tradista.core.error.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD_HH_MM_SS;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,17 +10,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
 
@@ -45,14 +42,19 @@ import org.eclipse.tradista.core.error.model.Error.Status;
 
 public class ErrorSQL {
 
-	public static final Table ERROR_TABLE = new Table("ERROR", ID);
+	public static final Field ID_FIELD = new Field(ID);
+	public static final Field TYPE_FIELD = new Field(TYPE);
+	public static final Field STATUS_FIELD = new Field(STATUS);
+	public static final Field MESSAGE_FIELD = new Field("MESSAGE");
+	public static final Field ERROR_DATE_FIELD = new Field("ERROR_DATE");
+	public static final Field SOLVING_DATE_FIELD = new Field("SOLVING_DATE");
 
-	public static final Field ID_FIELD = new Field(ID, ERROR_TABLE);
-	public static final Field TYPE_FIELD = new Field(TYPE, ERROR_TABLE);
-	public static final Field STATUS_FIELD = new Field(STATUS, ERROR_TABLE);
-	public static final Field MESSAGE_FIELD = new Field("MESSAGE", ERROR_TABLE);
-	public static final Field ERROR_DATE_FIELD = new Field("ERROR_DATE", ERROR_TABLE);
-	public static final Field SOLVING_DATE_FIELD = new Field("SOLVING_DATE", ERROR_TABLE);
+	private static final Field[] ERROR_FIELDS = new Field[] { ID_FIELD, TYPE_FIELD, STATUS_FIELD, MESSAGE_FIELD,
+			ERROR_DATE_FIELD, SOLVING_DATE_FIELD };
+
+	public static final Table ERROR_TABLE = new Table("ERROR", ID, ERROR_FIELDS);
+
+	private static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(new Field[] { ID_FIELD }, ERROR_TABLE);
 
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
 		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();
@@ -81,15 +83,14 @@ public class ErrorSQL {
 	public static void deleteErrors(Set<Long> ids) {
 		if (ids != null && !ids.isEmpty()) {
 			try (Connection con = TradistaDB.getConnection();
-					PreparedStatement stmtDeleteErrors = con.prepareStatement("DELETE FROM ERROR WHERE ID = ?")) {
+					PreparedStatement stmtDeleteErrors = TradistaDBUtil.buildDeletePreparedStatement(con, ERROR_TABLE,
+							ID_FIELD)) {
 				for (long id : ids) {
 					stmtDeleteErrors.setLong(1, id);
 					stmtDeleteErrors.addBatch();
 				}
 				stmtDeleteErrors.executeBatch();
 			} catch (SQLException sqle) {
-				// TODO Manage logs
-				sqle.printStackTrace();
 				throw new TradistaTechnicalException(sqle);
 			}
 		}
@@ -98,36 +99,16 @@ public class ErrorSQL {
 	public static Set<Long> getErrorIds(String errorType, Status status, LocalDate errorDateFrom,
 			LocalDate errorDateTo) {
 		Set<Long> ids = null;
-		StringBuilder sqlQuery = new StringBuilder("SELECT ID FROM ERROR");
-		if (!StringUtils.isEmpty(errorType)) {
-			sqlQuery.append(" WHERE TYPE = '" + errorType + "'");
-		}
+		StringBuilder sqlQuery = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addFilter(sqlQuery, TYPE_FIELD, errorType);
 		if (status != null) {
-			if (sqlQuery.toString().contains(WHERE)) {
-				sqlQuery.append(AND);
-			} else {
-				sqlQuery.append(WHERE);
-			}
-			sqlQuery.append(" STATUS = '" + status.name() + "'");
+			TradistaDBUtil.addFilter(sqlQuery, STATUS_FIELD, status.name());
 		}
 		if (errorDateFrom != null) {
-			if (sqlQuery.toString().contains(WHERE)) {
-				sqlQuery.append(AND);
-			} else {
-				sqlQuery.append(WHERE);
-			}
-			sqlQuery.append(" ERROR_DATE >= '"
-					+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateFrom.atStartOfDay()) + "'");
+			TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateFrom.atStartOfDay(), true);
 		}
 		if (errorDateTo != null) {
-			if (sqlQuery.toString().contains(WHERE)) {
-				sqlQuery.append(AND);
-			} else {
-				sqlQuery.append(WHERE);
-			}
-			sqlQuery.append(" ERROR_DATE < '"
-					+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(errorDateTo.plusDays(1).atStartOfDay())
-					+ "'");
+			TradistaDBUtil.addFilter(sqlQuery, ERROR_DATE_FIELD, errorDateTo.atTime(LocalTime.MAX), false);
 		}
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmtGetErrorIds = con.createStatement();
@@ -136,11 +117,9 @@ public class ErrorSQL {
 				if (ids == null) {
 					ids = new HashSet<>();
 				}
-				ids.add(results.getLong("id"));
+				ids.add(results.getLong(ID_FIELD.getName()));
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ids;

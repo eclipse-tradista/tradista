@@ -33,16 +33,13 @@ import net.sf.tweety.lp.asp.syntax.Program;
 
 public class Formula extends TradistaObject {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -758453850630370850L;
 
 	private String formula;
 
 	private Program program;
 
-	public Formula(String formula) throws TradistaBusinessException {
+	public Formula(String formula) {
 		this.formula = formula;
 	}
 
@@ -102,7 +99,7 @@ public class Formula extends TradistaObject {
 					Function<?> function = null;
 					try {
 						function = FunctionFactory.createFunction(fct);
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// It should not appear at this stage
 					}
 					if (function != null) {

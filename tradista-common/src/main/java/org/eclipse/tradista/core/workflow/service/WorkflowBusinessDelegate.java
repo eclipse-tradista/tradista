@@ -7,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.message.model.IncomingMessage;
+import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.model.OutgoingMessage;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.Workflow;
 
@@ -71,6 +74,22 @@ public class WorkflowBusinessDelegate implements Serializable {
 
 	public Set<String> getAllMessageStatusNames() {
 		return SecurityUtil.run(() -> workflowService.getAllMessageStatusNames());
+	}
+
+	public String resolveWorkflow(Message msg) throws TradistaBusinessException {
+		// Note : this is a workaround. The target solution should be to enhance
+		// Tradista Flow, so it can manage workflow hierarchies.
+		String direction = msg.isIncoming() ? IncomingMessage.INCOMING : OutgoingMessage.OUTGOING;
+		Workflow wkf;
+		try {
+			wkf = workflowService.getWorkflowByName(msg.getType() + "." + direction + "Message");
+		} catch (TradistaBusinessException _) {
+			wkf = workflowService.getWorkflowByName(direction + "Message");
+		}
+		if (wkf != null) {
+			return wkf.getName();
+		}
+		return null;
 	}
 
 }

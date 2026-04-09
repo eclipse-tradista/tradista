@@ -37,4 +37,9 @@ public class ImporterBusinessDelegate {
 		messageValidator.validateMessage(msg);
 		SecurityUtil.runEx(() -> importerService.mapIncomingMessage(msg));
 	}
+
+	public void validateMessage(IncomingMessage msg) throws TradistaBusinessException {
+		messageValidator.validateMessage(msg);
+		SecurityUtil.runEx(() -> importerService.validateMessage(msg));
+	}
 }

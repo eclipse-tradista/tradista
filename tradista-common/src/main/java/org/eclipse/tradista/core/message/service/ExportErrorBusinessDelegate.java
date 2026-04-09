@@ -70,7 +70,7 @@ public class ExportErrorBusinessDelegate {
 
 	public void tryToSolve(ExportError error) throws TradistaBusinessException {
 		if (error == null) {
-			throw new TradistaBusinessException("The import error cannot be null.");
+			throw new TradistaBusinessException("The export error cannot be null.");
 		}
 		Message message = error.getMessage();
 		if (message != null) {

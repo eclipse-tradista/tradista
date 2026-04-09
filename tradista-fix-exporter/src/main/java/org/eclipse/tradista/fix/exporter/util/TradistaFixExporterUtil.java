@@ -6,6 +6,8 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
@@ -24,6 +26,8 @@ import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
  ********************************************************************************/
 
 public final class TradistaFixExporterUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(TradistaFixExporterUtil.class);
 
 	private static MappingBusinessDelegate mappingBusinessDelegate = new MappingBusinessDelegate();
 
@@ -49,6 +53,12 @@ public final class TradistaFixExporterUtil {
 		try {
 			mappedLeName = mappingBusinessDelegate.getMappingValue(exporterName, MappingType.LegalEntity,
 					InterfaceMappingSet.Direction.OUTGOING, leShortName, poId);
+			if (mappedLeName == null) {
+				logger.info(
+						"No mapping found for Legal Entity short name: {}, using directly this value in the fix message.",
+						leShortName);
+				mappedLeName = leShortName;
+			}
 		} catch (TradistaBusinessException tbe) {
 			throw new TradistaTechnicalException(
 					String.format("There was an issue retrieving the legal entity name mapped to %s: %s", leShortName,
@@ -75,9 +85,14 @@ public final class TradistaFixExporterUtil {
 		try {
 			mapppedBookName = mappingBusinessDelegate.getMappingValue(importerName, MappingType.Book,
 					InterfaceMappingSet.Direction.OUTGOING, bookName, poId);
+			if (mapppedBookName == null) {
+				logger.info("No mapping found for book name: {}, using directly this value in the fix message.",
+						bookName);
+				mapppedBookName = bookName;
+			}
 		} catch (TradistaBusinessException tbe) {
 			throw new TradistaTechnicalException(String
-					.format("There was an issue retrieving the book id mapped to %s: %s", bookName, tbe.getMessage()));
+					.format("There was an issue retrieving the book mapped to %s: %s", bookName, tbe.getMessage()));
 		}
 		return mapppedBookName;
 	}

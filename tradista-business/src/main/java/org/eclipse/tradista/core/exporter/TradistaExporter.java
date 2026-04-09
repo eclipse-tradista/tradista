@@ -17,6 +17,7 @@ import org.eclipse.tradista.core.message.model.ExportError.ExportErrorType;
 import org.eclipse.tradista.core.message.model.OutgoingMessage;
 import org.eclipse.tradista.core.message.service.ExportErrorBusinessDelegate;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
+import org.eclipse.tradista.core.message.util.MessageUtil;
 import org.eclipse.tradista.core.status.constants.StatusConstants;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 
@@ -62,11 +63,20 @@ public abstract class TradistaExporter<X extends TradistaObject, Y> implements E
 	public void exportObject(X object) throws TradistaBusinessException {
 		OutgoingMessage msg = null;
 		try {
-			Y content = createContent(object);
-			msg = createMessage(object, content);
-			sendMessage(content);
-			// At this stage, the message is considered to have been properly sent
-			messageBusinessDelegate.saveMessage(msg, ActionConstants.SEND);
+			msg = createMessage(object);
+			msg.setId(messageBusinessDelegate.saveMessage(msg));
+			msg = (OutgoingMessage) messageBusinessDelegate.applyAction(msg, ActionConstants.GENERATE);
+			if (msg.getStatus().toString().equals(StatusConstants.GENERATED)) {
+				// At this stage, the message is considered to have been properly generated
+				msg = (OutgoingMessage) messageBusinessDelegate.applyAction(msg, ActionConstants.SEND);
+				if (msg.getStatus().toString().equals(StatusConstants.SENT)) {
+					messageBusinessDelegate.saveMessage(msg);
+				} else {
+					handleError(msg, name);
+				}
+			} else {
+				handleError(msg, name);
+			}
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			handleError(msg, te.getMessage());
 		}
@@ -86,34 +96,36 @@ public abstract class TradistaExporter<X extends TradistaObject, Y> implements E
 				? ActionConstants.GENERATION_FAILED
 				: ActionConstants.SENDING_FAILED;
 		msg = (OutgoingMessage) messageBusinessDelegate.applyAction(msg, actionToApply);
-		ExportError exportError = new ExportError();
 		ExportErrorType errorType = ExportErrorType.SENDING;
 		if (actionToApply.equals(ActionConstants.GENERATION_FAILED)) {
 			errorType = ExportErrorType.GENERATION;
 		}
-		exportError.setErrorDate(LocalDateTime.now());
-		exportError.setErrorMessage(errMsg);
-		exportError.setStatus(Status.UNSOLVED);
-		// We save the message, if it has not been previously saved
-		if (msg.getId() == 0) {
-			msg.setId(messageBusinessDelegate.saveMessage(msg));
+		ExportError exportError = exportErrorBusinessDelegate.getExportError(msg.getId(), errorType);
+		if (exportError == null) {
+			exportError = new ExportError();
+			exportError.setErrorDate(LocalDateTime.now());
+			exportError.setErrorMessage(errMsg);
+			exportError.setStatus(Status.UNSOLVED);
+			exportError.setExportErrorType(errorType);
 		}
+		// We save the message
+		msg.setId(messageBusinessDelegate.saveMessage(msg));
 		exportError.setMessage(msg);
-		exportError.setExportErrorType(errorType);
 		exportErrorBusinessDelegate.saveExportError(exportError);
 	}
 
-	public OutgoingMessage createMessage(X object, Y content) throws TradistaBusinessException {
-		OutgoingMessage message = new OutgoingMessage();
-		LocalDateTime now = LocalDateTime.now();
-		message.setContent(content.toString());
-		message.setCreationDateTime(now);
-		message.setLastUpdateDateTime(now);
-		message.setType(getType());
-		message.setStatus(workflowBusinessDelegate.getInitialStatus(message.getWorkflow()));
-		message.setInterfaceName(getName());
-		message = (OutgoingMessage) messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
-		return message;
+	public OutgoingMessage createMessage(X object) throws TradistaBusinessException {
+
+		OutgoingMessage message = new OutgoingMessage.Builder().type(getType()).objectId(object.getId())
+				.objectType(MessageUtil.getObjectType(object)).interfaceName(getName()).build();
+
+		String workflowName = workflowBusinessDelegate.resolveWorkflow(message);
+		org.eclipse.tradista.core.workflow.model.Status initialStatus = workflowBusinessDelegate
+				.getInitialStatus(workflowName);
+
+		message = message.toBuilder().status(initialStatus).build();
+
+		return (OutgoingMessage) messageBusinessDelegate.applyAction(message, ActionConstants.NEW);
 	}
 
 	@SuppressWarnings("unchecked")

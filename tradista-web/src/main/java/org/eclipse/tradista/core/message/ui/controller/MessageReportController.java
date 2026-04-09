@@ -12,8 +12,11 @@ import java.util.Set;
 import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.exporter.service.ExporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.model.OutgoingMessage;
 import org.eclipse.tradista.core.message.service.MessageBusinessDelegate;
 import org.eclipse.tradista.core.workflow.service.WorkflowBusinessDelegate;
 import org.primefaces.model.menu.DefaultMenuItem;
@@ -86,6 +89,8 @@ public class MessageReportController implements Serializable {
 
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
+	private ExporterConfigurationBusinessDelegate exporterConfigurationBusinessDelegate;
+
 	private Message selectedMsg;
 
 	private MenuModel contextMenuModel;
@@ -95,12 +100,19 @@ public class MessageReportController implements Serializable {
 		messageBusinessDelegate = new MessageBusinessDelegate();
 		workflowBusinessDelegate = new WorkflowBusinessDelegate();
 		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
+		exporterConfigurationBusinessDelegate = new ExporterConfigurationBusinessDelegate();
 		allStatuses = workflowBusinessDelegate.getAllMessageStatusNames();
 		allTypes = messageBusinessDelegate.getAllMessageTypes();
-		allDirections = Set.of("Incoming", "Outgoing");
+		allDirections = Set.of(IncomingMessage.INCOMING, OutgoingMessage.OUTGOING);
 		allObjectTypes = messageBusinessDelegate.getAllObjectTypes();
-		// For now, interfaces are only importers
 		allInterfaceNames = importerConfigurationBusinessDelegate.getAllImporterNames();
+		Set<String> exporterNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
+		if (allInterfaceNames != null) {
+			allInterfaceNames.addAll(exporterNames);
+		} else {
+			allInterfaceNames = exporterNames;
+		}
+
 	}
 
 	public List<String> completeType(String query) {
@@ -116,6 +128,11 @@ public class MessageReportController implements Serializable {
 	public List<String> completeObjectType(String query) {
 		String queryLowerCase = query.toLowerCase();
 		return allObjectTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
+	}
+
+	public List<String> completeStatus(String query) {
+		String queryLowerCase = query.toLowerCase();
+		return allStatuses.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();
 	}
 
 	public List<Message> getMessages() {
@@ -183,12 +200,14 @@ public class MessageReportController implements Serializable {
 			statuses = new HashSet<>(selectedStatuses);
 		}
 		if (!CollectionUtils.isEmpty(selectedDirections) && selectedDirections.size() == 1) {
-			direction = Boolean.valueOf(selectedDirections.getFirst().equals("Incoming"));
+			direction = Boolean.valueOf(selectedDirections.getFirst().equals(IncomingMessage.INCOMING));
 		}
 		try {
-			messages = new ArrayList<>(
-					messageBusinessDelegate.getMessages(msgId, direction, types, interfaceNames, objId, objectTypes,
-							statuses, lastUpdateDateFrom, lastUpdateDateTo, creationDateFrom, creationDateTo));
+			messages = messageBusinessDelegate.getMessages(msgId, direction, types, interfaceNames, objId, objectTypes,
+					statuses, lastUpdateDateFrom, lastUpdateDateTo, creationDateFrom, creationDateTo);
+			if (messages != null) {
+				messages = new ArrayList<>(messages);
+			}
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage("msg",
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -230,6 +249,18 @@ public class MessageReportController implements Serializable {
 		}
 	}
 
+	public void onStatusChange() {
+		if (!CollectionUtils.isEmpty(selectedStatuses) && !CollectionUtils.isEmpty(selectedDirections)) {
+			selectedDirections.clear();
+		}
+	}
+
+	public void onDirectionChange() {
+		if (!CollectionUtils.isEmpty(selectedDirections) && !CollectionUtils.isEmpty(selectedStatuses)) {
+			selectedStatuses.clear();
+		}
+	}
+
 	public void onContextMenuLoad() {
 		contextMenuModel = new DefaultMenuModel();
 		DefaultSubMenu subMenu = DefaultSubMenu.builder().label("Apply Action").build();
@@ -243,15 +274,17 @@ public class MessageReportController implements Serializable {
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 		}
 
-		// For now, we hard code the authorized action to "RETRY" but the long term
+		// For now, we hard code the authorized action to "RETRY" and "SEND" but the
+		// long term
 		// solution is to have an authorization mechanism for workflow actions.
 		if (!CollectionUtils.isEmpty(availableActions)) {
-			subMenu.getElements().addAll(availableActions.stream().filter(ActionConstants.RETRY::equals).map(a -> {
-				Map<String, List<String>> params = new HashMap<>();
-				params.put("action", List.of(a));
-				return DefaultMenuItem.builder().value(a).command("#{messageReportController.applyMsgAction()}")
-						.params(params).build();
-			}).toList());
+			subMenu.getElements().addAll(availableActions.stream()
+					.filter(a -> ActionConstants.RETRY.equals(a) || ActionConstants.SEND.equals(a)).map(a -> {
+						Map<String, List<String>> params = new HashMap<>();
+						params.put("action", List.of(a));
+						return DefaultMenuItem.builder().value(a).command("#{messageReportController.applyMsgAction()}")
+								.params(params).update("@form").build();
+					}).toList());
 		}
 		contextMenuModel.getElements().add(subMenu);
 	}
