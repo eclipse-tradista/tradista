@@ -99,8 +99,8 @@ public final class TradistaDBUtil {
 					String joinOne;
 					String joinTwo;
 					if (join.length == 0) {
-						joinOne = previousTable.getId();
-						joinTwo = t.getId();
+						joinOne = previousTable.id();
+						joinTwo = t.id();
 					} else {
 						joinOne = join[0].getJoinField(previousTable);
 						joinTwo = join[0].getJoinField(t);
@@ -246,29 +246,11 @@ public final class TradistaDBUtil {
 	 * @param isExclusion true if the value should be excluded, false otherwise
 	 */
 	public static void addQueryFilter(StringBuilder sqlQuery, Field field, String queryFilter, boolean isExclusion) {
-		StringBuilder errMsg = new StringBuilder();
-		String filterSqlQuery;
-		if (StringUtils.isBlank(sqlQuery)) {
-			errMsg.append(String.format(THE_SQL_QUERY_IS_MANDATORY));
-		}
-		if (field == null) {
-			errMsg.append(THE_FIELD_IS_MANDATORY);
-		}
 		if (StringUtils.isBlank(queryFilter)) {
-			errMsg.append(String.format("The query filter is mandatory.%n"));
+			throw new TradistaTechnicalException("The query filter is mandatory.");
 		}
-		if (!errMsg.isEmpty()) {
-			throw new TradistaTechnicalException(errMsg.toString());
-		}
-		if (sqlQuery.indexOf(WHERE) != -1) {
-			filterSqlQuery = AND;
-		} else {
-			filterSqlQuery = WHERE;
-		}
-		filterSqlQuery += field.getFullName() + (isExclusion ? " NOT " : StringUtils.EMPTY) + IN + "(" + queryFilter
-				+ ")";
-
-		sqlQuery.append(filterSqlQuery);
+		String filter = (isExclusion ? " NOT " : StringUtils.EMPTY) + IN + "(" + queryFilter + ")";
+		addFreeTextFilter(sqlQuery, field, filter);
 	}
 
 	/**
@@ -342,22 +324,35 @@ public final class TradistaDBUtil {
 	}
 
 	/**
-	 * Add a filter to a SQL query
+	 * Add a "IS NULL" filter to a SQL query
 	 * 
-	 * @param sqlQuery     the sql query to enrich
-	 * @param field        the field concerned by the filter
-	 * @param value        the filter value
-	 * @param isLowerBound optional parameter, used to express ">=" (true) or "<="
-	 *                     (false) (used for LocalDate and LocalDateTime values)
+	 * @param sqlQuery the sql query to enrich
+	 * @param field    the field concerned by the filter
 	 */
-	public static void addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
-		// By Default, we do not exclude
-		addFilter(false, sqlQuery, field, value, isLowerBound);
+	public static void addIsNullFilter(StringBuilder sqlQuery, Field field) {
+		addFreeTextFilter(sqlQuery, field, "IS NULL");
 	}
 
-	public static void addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
+	/**
+	 * Add a "IS NOT NULL" filter to a SQL query
+	 * 
+	 * @param sqlQuery the sql query to enrich
+	 * @param field    the field concerned by the filter
+	 */
+	public static void addIsNotNullFilter(StringBuilder sqlQuery, Field field) {
+		addFreeTextFilter(sqlQuery, field, "IS NOT NULL");
+	}
+
+	/**
+	 * Internal utility method to add a filter on a field with a free text
+	 * 
+	 * @param sqlQuery the sql query to enrich
+	 * @param field    the field concerned by the filter
+	 * @param freeText the SQL fragment to add
+	 */
+	private static void addFreeTextFilter(StringBuilder sqlQuery, Field field, String freeText) {
 		StringBuilder errMsg = new StringBuilder();
-		String filterSqlQuery = null;
+		String filterSqlQuery;
 		if (StringUtils.isBlank(sqlQuery)) {
 			errMsg.append(String.format(THE_SQL_QUERY_IS_MANDATORY));
 		}
@@ -372,6 +367,26 @@ public final class TradistaDBUtil {
 		} else {
 			filterSqlQuery = WHERE;
 		}
+		filterSqlQuery += field.getFullName() + StringUtils.SPACE + freeText;
+
+		sqlQuery.append(filterSqlQuery);
+	}
+
+	/**
+	 * Add a filter to a SQL query
+	 * 
+	 * @param sqlQuery     the sql query to enrich
+	 * @param field        the field concerned by the filter
+	 * @param value        the filter value
+	 * @param isLowerBound optional parameter, used to express ">=" (true) or "<="
+	 *                     (false) (used for LocalDate and LocalDateTime values)
+	 */
+	public static void addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
+		// By Default, we do not exclude
+		addFilter(false, sqlQuery, field, value, isLowerBound);
+	}
+
+	public static void addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
 		String operator;
 		if (isLowerBound.length > 0) {
 			if (isLowerBound[0]) {
@@ -382,8 +397,7 @@ public final class TradistaDBUtil {
 		} else {
 			operator = " = ";
 		}
-		filterSqlQuery += field.getFullName() + operator + "?";
-		sqlQuery.append(filterSqlQuery);
+		addFreeTextFilter(sqlQuery, field, operator + "?");
 	}
 
 	public static String wrapWithQuotes(String value) {

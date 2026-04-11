@@ -49,8 +49,8 @@ public class StatusSQL {
 	private static final Field[] WORKFLOW_FIELDS = new Field[] { ID_FIELD_WORKFLOW, WORKFLOW_NAME_FIELD,
 			DESCRIPTION_FIELD };
 
-	public static final Table STATUS_TABLE = new Table("STATUS", ID, STATUS_FIELDS);
-	private static final Table WORKFLOW_TABLE = new Table("WORKFLOW", ID, WORKFLOW_FIELDS);
+	public static final Table STATUS_TABLE = new Table("STATUS", STATUS_FIELDS);
+	private static final Table WORKFLOW_TABLE = new Table("WORKFLOW", WORKFLOW_FIELDS);
 
 	private static final Field[] FIELDS = { ID_FIELD, WORKFLOW_ID_FIELD, NAME_FIELD, WORKFLOW_NAME_FIELD,
 			ID_FIELD_WORKFLOW };

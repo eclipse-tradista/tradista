@@ -28,6 +28,33 @@ public final class Table {
 
 	private final Field[] fields;
 
+	public Table(String name, Field[] fields) {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(name)) {
+			errMsg.append(String.format("the table name is mandatory.%n"));
+		}
+		// When #Table(String, String) will be removed, a check on fields should be
+		// added here.
+		if (!errMsg.isEmpty()) {
+			throw new IllegalArgumentException(errMsg.toString());
+		}
+		if (fields != null) {
+			for (Field f : fields) {
+				f.setTable(this);
+			}
+		}
+		this.name = name;
+		this.fields = fields;
+		this.id = null;
+	}
+
+	/**
+	 * @deprecated Use {@link #Table(String, Field[])} instead
+	 * @param name   the table name
+	 * @param id     the table id
+	 * @param fields the table fields
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
 	public Table(String name, String id, Field[] fields) {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(name)) {
@@ -52,9 +79,9 @@ public final class Table {
 	}
 
 	/**
-	 * @deprecated Use {@link #Table(String, String, Field[])} instead
-	 * @param name  the table name
-	 * @param table the table id
+	 * @deprecated Use {@link #Table(String, Field[])} instead
+	 * @param name the table name
+	 * @param id   the table id
 	 */
 	@Deprecated(forRemoval = true, since = "3.2.0")
 	public Table(String name, String id) {
@@ -65,12 +92,8 @@ public final class Table {
 		return fields.clone();
 	}
 
-	public String getId() {
-		return id;
-	}
-
 	/**
-	 * @deprecated use {@link #getId()} instead
+	 * @deprecated table ids won't be used anymore
 	 * @return the table id field
 	 */
 	@Deprecated(forRemoval = true, since = "3.2.0")

@@ -52,7 +52,7 @@ public class ErrorSQL {
 	private static final Field[] ERROR_FIELDS = new Field[] { ID_FIELD, TYPE_FIELD, STATUS_FIELD, MESSAGE_FIELD,
 			ERROR_DATE_FIELD, SOLVING_DATE_FIELD };
 
-	public static final Table ERROR_TABLE = new Table("ERROR", ID, ERROR_FIELDS);
+	public static final Table ERROR_TABLE = new Table("ERROR", ERROR_FIELDS);
 
 	private static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(new Field[] { ID_FIELD }, ERROR_TABLE);
 

@@ -59,7 +59,7 @@ public class ImportErrorSQL {
 
 	private static final Field[] IMPORT_ERROR_FIELDS = { ERROR_ID_FIELD, MESSAGE_ID_FIELD, IMPORT_ERROR_TYPE_FIELD };
 
-	private static final Table IMPORT_ERROR_TABLE = new Table("IMPORT_ERROR", ERROR_ID, IMPORT_ERROR_FIELDS);
+	private static final Table IMPORT_ERROR_TABLE = new Table("IMPORT_ERROR", IMPORT_ERROR_FIELDS);
 
 	private static final Join ERROR_AND_IMPORT_ERROR_INNER_JOIN = Join.inner(ID_FIELD, ERROR_ID_FIELD);
 

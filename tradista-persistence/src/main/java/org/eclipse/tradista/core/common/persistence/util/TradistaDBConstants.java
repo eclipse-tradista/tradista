@@ -29,6 +29,7 @@ public final class TradistaDBConstants {
 	// Common field names.
 	public static final String ID = "ID";
 	public static final String TYPE = "TYPE";
+	public static final String VALUE = "VALUE";
 	public static final String STATUS = "STATUS";
 	public static final String NAME = "NAME";
 	public static final String STATUS_ID = "STATUS_ID";

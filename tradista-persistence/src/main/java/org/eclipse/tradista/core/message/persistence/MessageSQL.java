@@ -62,7 +62,7 @@ public class MessageSQL {
 			CONTENT_FIELD, TYPE_FIELD, INTERFACE_NAME_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
 			STATUS_ID_FIELD };
 
-	public static final Table MESSAGE_TABLE = new Table("MESSAGE", ID, MESSAGE_FIELDS);
+	public static final Table MESSAGE_TABLE = new Table("MESSAGE", MESSAGE_FIELDS);
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(MESSAGE_TABLE);
 

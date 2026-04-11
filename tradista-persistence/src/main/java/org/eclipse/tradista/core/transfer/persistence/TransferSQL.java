@@ -105,7 +105,7 @@ public class TransferSQL {
 			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, CREATION_DATETIME_FIELD,
 			FIXING_DATETIME_FIELD, SETTLEMENT_DATE_FIELD, CURRENCY_ID_FIELD, PRODUCT_ID_FIELD };
 
-	public static final Table TRANSFER_TABLE = new Table("TRANSFER", ID, TRANSFER_FIELDS);
+	public static final Table TRANSFER_TABLE = new Table("TRANSFER", TRANSFER_FIELDS);
 
 	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 

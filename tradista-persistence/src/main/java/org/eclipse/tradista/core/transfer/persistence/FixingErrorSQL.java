@@ -56,7 +56,7 @@ public class FixingErrorSQL {
 
 	private static final Field[] FIXING_ERROR_FIELDS = new Field[] { ERROR_ID_FIELD, TRANSFER_ID_FIELD };
 
-	private static final Table FIXING_ERROR_TABLE = new Table("FIXING_ERROR", ERROR_ID, FIXING_ERROR_FIELDS);
+	private static final Table FIXING_ERROR_TABLE = new Table("FIXING_ERROR", FIXING_ERROR_FIELDS);
 
 	private static final Join ERROR_AND_FIXING_ERROR_INNER_JOIN = Join.inner(ErrorSQL.ID_FIELD, ERROR_ID_FIELD);
 

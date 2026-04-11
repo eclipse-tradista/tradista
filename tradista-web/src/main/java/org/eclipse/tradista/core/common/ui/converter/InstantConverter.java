@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.tradista.core.common.messaging.TradistaMessagingConfiguration;
 import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

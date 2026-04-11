@@ -1,0 +1,127 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Importer Mapping</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Importer Mapping</ui:define>
+	<ui:define name="content">
+		<h:form id="exporterMappingForm">
+			<p:panel styleClass="tradista-central-component"
+				header="Exporter Mapping">
+				<p:messages showDetail="true" closable="true" id="msg" />
+				<p:panelGrid id="exporterMapping" header="Exporter Mapping"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
+					<p:row>
+						<p:toolbar
+							rendered="#{exporterMappingController.interfaceMappingSet ne null}">
+							<p:toolbarGroup>
+								<p:commandButton value="New Mapping" icon="pi pi-plus"
+									actionListener="#{exporterMappingController.addMapping}"
+									update=":exporterMappingForm:exporterMappingTable"
+									styleClass="rounded-button">
+								</p:commandButton>
+							</p:toolbarGroup>
+						</p:toolbar>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:card>
+								<p:dataTable id="exporterMappingTable" var="mapping"
+									value="#{exporterMappingController.displayedMappings}"
+									editable="true" editMode="cell" widgetVar=""
+									allowUnsorting="true" sortMode="single"
+									tableStyleClass="tradista-datatable" size="small">
+									<f:facet name="header">
+										<p:outputLabel
+											value="#{exporterMappingController.interfaceMappingSet ne null ? (exporterMappingController.interfaceMappingSet.interfaceName ne null ? exporterMappingController.interfaceMappingSet.interfaceName : 'Global Mapping') : ''}"
+											styleClass="tradista-menu-item" />
+										<p:outputLabel
+											value="#{exporterMappingController.interfaceMappingSet ne null ? exporterMappingController.interfaceMappingSet.mappingType : ''}"
+											styleClass="tradista-menu-item" />
+									</f:facet>
+									<p:ajax event="cellEdit"
+										listener="#{exporterMappingController.onMappingAdded}" />
+									<p:column headerText="Original Value" sortBy="#{mapping.value}">
+										<f:attribute name="colKey" value="originalValue" />
+										<p:cellEditor>
+											<f:facet name="output">
+												<h:outputText value="#{mapping.value}" />
+											</f:facet>
+											<f:facet name="input">
+												<p:selectOneMenu value="#{mapping.value}">
+													<f:selectItems
+														value="#{exporterMappingController.mappableObjects}"
+														var="oValue" itemLabel="#{oValue}" itemValue="#{oValue}" />
+												</p:selectOneMenu>
+											</f:facet>
+										</p:cellEditor>
+									</p:column>
+									<p:column headerText="Mapped Value"
+										sortBy="#{mapping.mappedValue}">
+										<p:cellEditor>
+											<f:facet name="output">
+												<h:outputText value="#{mapping.mappedValue}" />
+											</f:facet>
+											<f:facet name="input">
+												<p:inputText id="mappedValueInput"
+													value="#{mapping.mappedValue}" />
+											</f:facet>
+										</p:cellEditor>
+									</p:column>
+									<p:column exportable="false" headerText="Actions">
+										<p:commandButton class="rounded-button" icon="pi pi-trash"
+											actionListener="#{exporterMappingController.removeMapping(mapping)}"
+											update=":exporterMappingForm:exporterMappingTable">
+										</p:commandButton>
+									</p:column>
+								</p:dataTable>
+							</p:card>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+				<f:facet name="footer">
+					<p:row>
+						<p:column>
+							<p:outputLabel value="Load Exporter Mapping :"
+								styleClass="tradista-menu-item" />
+							<p:spacer width="5" height="1" />
+							<p:outputLabel value="Exporter Name :"
+								styleClass="tradista-menu-item" />
+							<p:selectOneMenu
+								value="#{exporterMappingController.exporterNameLoadingCriterion}"
+								styleClass="tradista-menu-item" label="Exporter">
+								<f:selectItems
+									value="#{exporterMappingController.allExporterNames}" />
+							</p:selectOneMenu>
+							<p:outputLabel value="Mapping Type :"
+								styleClass="tradista-menu-item" />
+							<p:selectOneMenu
+								value="#{exporterMappingController.mappingTypeLoadingCriterion}"
+								styleClass="tradista-menu-item" label="Mapping Type">
+								<f:selectItems
+									value="#{exporterMappingController.allMappingTypes}" />
+							</p:selectOneMenu>
+							<p:selectOneMenu
+								value="#{exporterMappingController.processingOrg}"
+								styleClass="tradista-menu-item"
+								rendered="#{empty userManager.currentUserProcessingOrg}"
+								converter="legalEntityConverter">
+								<f:selectItems
+									value="#{exporterMappingController.allProcessingOrgs}" />
+							</p:selectOneMenu>
+							<p:commandButton value="Load" styleClass="rounded-button"
+								action="#{exporterMappingController.load()}" update="@form" />
+							<p:commandButton value="Save" styleClass="rounded-button"
+								rendered="#{exporterMappingController.interfaceMappingSet ne null}"
+								update="@form">
+								<f:actionListener binding="#{exporterMappingController.save()}" />
+							</p:commandButton>
+						</p:column>
+					</p:row>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

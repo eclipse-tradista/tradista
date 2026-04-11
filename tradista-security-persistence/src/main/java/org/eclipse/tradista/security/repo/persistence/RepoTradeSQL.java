@@ -2,7 +2,6 @@ package org.eclipse.tradista.security.repo.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.DATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.END_DATE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INDEX_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INDEX_OFFSET;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INDEX_TENOR;
@@ -78,12 +77,11 @@ public final class RepoTradeSQL {
 			INDEX_TENOR_FIELD, INDEX_OFFSET_FIELD, END_DATE_FIELD, RIGHT_OF_SUBSTITUTION_FIELD, RIGHT_OF_REUSE_FIELD,
 			CROSS_CURRENCY_COLLATERAL_FIELD, TERMINABLE_ON_DEMAND_FIELD, NOTICE_PERIOD_FIELD };
 
-	public static final Table REPO_TRADE_TABLE = new Table("REPO_TRADE", ID, REPO_TRADE_FIELDS);
+	public static final Table REPO_TRADE_TABLE = new Table("REPO_TRADE", REPO_TRADE_FIELDS);
 
 	private static final Field[] PARTIAL_TERMINATION_FIELDS = { TRADE_ID_FIELD, DATE_FIELD, REDUCTION_FIELD };
 
-	private static final Table PARTIAL_TERMINATION_TABLE = new Table("PARTIAL_TERMINATION", "TRADE_ID",
-			PARTIAL_TERMINATION_FIELDS);
+	private static final Table PARTIAL_TERMINATION_TABLE = new Table("PARTIAL_TERMINATION", PARTIAL_TERMINATION_FIELDS);
 
 	public static final Join TRADE_AND_REPO_TRADE_INNER_JOIN = Join.inner(ID_FIELD, REPO_TRADE_ID_FIELD);
 

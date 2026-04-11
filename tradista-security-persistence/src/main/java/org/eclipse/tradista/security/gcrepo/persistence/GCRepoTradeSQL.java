@@ -45,7 +45,7 @@ public class GCRepoTradeSQL {
 
 	private static final Field[] GCREPO_TRADE_FIELDS = { GCREPO_TRADE_ID_FIELD, GCBASKET_ID_FIELD };
 
-	public static final Table GCREPO_TRADE_TABLE = new Table("GCREPO_TRADE", GCREPO_TRADE_ID, GCREPO_TRADE_FIELDS);
+	public static final Table GCREPO_TRADE_TABLE = new Table("GCREPO_TRADE", GCREPO_TRADE_FIELDS);
 
 	private static final Join TRADE_AND_GCREPO_TRADE_INNER_JOIN = Join.inner(ID_FIELD, GCREPO_TRADE_ID_FIELD);
 
