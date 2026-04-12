@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.ImportError;
@@ -80,8 +81,30 @@ public class ImportErrorReportController implements Serializable {
 		allImportErrorTypes = ImportErrorType.values();
 		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
 		importErrorBusinessDelegate = new ImportErrorBusinessDelegate();
-		allImporterNames = importerConfigurationBusinessDelegate.getAllImporterNames();
-		allImporterTypes = importerConfigurationBusinessDelegate.getModules();
+		try {
+			allImporterNames = importerConfigurationBusinessDelegate.getAllImporterNames();
+		} catch (TradistaTechnicalException _) {
+		}
+		try {
+			allImporterTypes = importerConfigurationBusinessDelegate.getModules();
+		} catch (TradistaTechnicalException _) {
+		}
+	}
+
+	/**
+	 * Checks if the importer app is available, if not, display a warning message.
+	 * This check is a workaround, the target solution is to have
+	 * #getAllImporterNames and #getModules services in the core app, so they are
+	 * not dependent on the availability of the importer app
+	 */
+	public void onload() {
+		try {
+			importerConfigurationBusinessDelegate.getAllImporterNames();
+			importerConfigurationBusinessDelegate.getModules();
+		} catch (TradistaTechnicalException tte) {
+			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
+					"Issue with the Importer App: " + tte.getMessage()));
+		}
 	}
 
 	public List<String> completeImporterType(String query) {

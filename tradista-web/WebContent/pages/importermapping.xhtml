@@ -6,6 +6,9 @@
 	<ui:define name="title">Eclipse Tradista Importer Mapping</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Importer Mapping</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{importerMappingController.onload}" />
+		</f:metadata>
 		<h:form id="importerMappingForm">
 			<p:panel styleClass="tradista-central-component"
 				header="Importer Mapping">

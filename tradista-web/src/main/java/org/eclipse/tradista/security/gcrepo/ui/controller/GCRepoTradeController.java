@@ -409,9 +409,6 @@ public class GCRepoTradeController implements Serializable {
 				trade.setIndexOffset(null);
 			}
 			long tradeId = gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, actionToApply);
-			if (trade.getId() == 0) {
-				trade.setId(tradeId);
-			}
 			trade = gcRepoTradeBusinessDelegate.getGCRepoTradeById(tradeId);
 			Set<String> availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(workflow.getName(),
 					trade.getStatus());

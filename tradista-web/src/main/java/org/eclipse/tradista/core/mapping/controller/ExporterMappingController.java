@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.exporter.service.ExporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -90,7 +91,7 @@ public class ExporterMappingController implements Serializable {
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		mappingBusinessDelegate = new MappingBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
-		Set<String> allExpNames;
+		Set<String> allExpNames = null;
 		if (ClientUtil.currentUserIsAdmin()) {
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
 			allProcessingOrgs = new TreeSet<>();
@@ -101,7 +102,10 @@ public class ExporterMappingController implements Serializable {
 		allExporterNames = new HashSet<>();
 		allExporterNames.add(StringUtils.EMPTY);
 
-		allExpNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
+		try {
+			allExpNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
+		} catch (TradistaTechnicalException _) {
+		}
 
 		if (allExpNames != null) {
 			allExporterNames.addAll(allExpNames);
@@ -109,6 +113,21 @@ public class ExporterMappingController implements Serializable {
 
 		allMappingTypes = MappingType.values();
 		Arrays.sort(allMappingTypes);
+	}
+
+	/**
+	 * Checks if the exporter app is available, if not, display a warning message.
+	 * This check is a workaround, the target solution is to have the
+	 * #getAllExporterNames services in the core app, so it is not dependent on the
+	 * availability of the exporter app
+	 */
+	public void onload() {
+		try {
+			exporterConfigurationBusinessDelegate.getAllExporterNames();
+		} catch (TradistaTechnicalException tte) {
+			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
+					"Issue with the Exporter App: " + tte.getMessage()));
+		}
 	}
 
 	public LegalEntity getProcessingOrg() {

@@ -6,6 +6,9 @@
 	<ui:define name="title">Eclipse Tradista Export Error</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Export Error</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{exportErrorReportController.onload}" />
+		</f:metadata>
 		<h:form id="exportErrorForm">
 			<p:panel header="Exporter Error Report">
 				<p:messages showDetail="true" closable="true" id="msg" />

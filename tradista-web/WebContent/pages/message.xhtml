@@ -6,6 +6,9 @@
 	<ui:define name="title">Eclipse Tradista Message</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Message</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{messageReportController.onload}" />
+		</f:metadata>
 		<h:form id="messageForm">
 			<p:panel header="Message Report">
 				<p:messages showDetail="true" closable="true" id="msg" />

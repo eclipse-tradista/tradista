@@ -33,7 +33,7 @@ public class SpecificRepoFixOutgoingMessageManager extends RepoFixOutgoingMessag
 	@Override
 	public TradeCaptureReport createSecurity(TradeCaptureReport tcReport, SpecificRepoTrade trade) {
 		tcReport.setField(new SecurityID(trade.getSecurity().getIsin()));
-		tcReport.setField(new SecurityIDSource(SecurityIDSource.ISIN_NUMBER));
+		tcReport.setField(new SecurityIDSource(SecurityIDSource.ISINNUMBER));
 		return tcReport;
 	}
 

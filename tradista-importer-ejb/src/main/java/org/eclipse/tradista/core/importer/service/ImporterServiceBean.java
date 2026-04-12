@@ -53,7 +53,7 @@ public class ImporterServiceBean implements ImporterService {
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
-	public void mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException {
+	public IncomingMessage mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException {
 		// Load the importer
 		Importer<Object> importer = (Importer<Object>) localImporterConfigurationService
 				.getImporterByName(msg.getInterfaceName());
@@ -63,11 +63,12 @@ public class ImporterServiceBean implements ImporterService {
 			// Build the message object from a string
 			Object msgObject = importer.buildMessage(msg.getContent());
 			// Apply the mapping
-			importer.processMessage(msgObject, msg);
+			msg = importer.processMessage(msgObject, msg);
 			// If ok, solve the existing mapping error if any
 			if (existingMappingError != null) {
 				existingMappingError.solve();
 			}
+			return msg.toBuilder().build();
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			// Update the existing mapping error if any
 			if (existingMappingError != null) {
@@ -83,9 +84,6 @@ public class ImporterServiceBean implements ImporterService {
 				importErrorBusinessDelegate.saveImportError(importError);
 			}
 			throw te;
-		}
-		if (existingMappingError != null) {
-			importErrorBusinessDelegate.saveImportError(existingMappingError);
 		}
 	}
 

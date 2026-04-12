@@ -1,5 +1,6 @@
 package org.eclipse.tradista.fix.common;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 import quickfix.InvalidMessage;
@@ -29,8 +30,19 @@ public final class TradistaFixUtil {
 	}
 
 	public static Object buildMessage(Session session, String externalMessage) {
+		StringBuilder errMsg = new StringBuilder();
+		if (session == null) {
+			errMsg.append(String.format("The FIX session is mandatory.%n"));
+		}
+		if (StringUtils.isBlank(externalMessage)) {
+			errMsg.append("The message is mandatory");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
 		try {
-			return MessageUtils.parse(session, externalMessage);
+			return MessageUtils.parse(session.getMessageFactory(), session.getDataDictionary(),
+					session.getValidationSettings(), externalMessage, session.isValidateChecksum());
 		} catch (InvalidMessage im) {
 			throw new TradistaTechnicalException(im.getMessage());
 		}

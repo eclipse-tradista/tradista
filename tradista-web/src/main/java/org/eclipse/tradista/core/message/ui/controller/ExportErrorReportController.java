@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.exporter.service.ExporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.message.model.ExportError;
@@ -80,8 +81,30 @@ public class ExportErrorReportController implements Serializable {
 		allExportErrorTypes = ExportErrorType.values();
 		exporterConfigurationBusinessDelegate = new ExporterConfigurationBusinessDelegate();
 		exportErrorBusinessDelegate = new ExportErrorBusinessDelegate();
-		allExporterNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
-		allExporterTypes = exporterConfigurationBusinessDelegate.getModules();
+		try {
+			allExporterNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
+		} catch (TradistaTechnicalException _) {
+		}
+		try {
+			allExporterTypes = exporterConfigurationBusinessDelegate.getModules();
+		} catch (TradistaTechnicalException _) {
+		}
+	}
+
+	/**
+	 * Checks if the exporter app is available, if not, display a warning message.
+	 * This check is a workaround, the target solution is to have the
+	 * #getAllExporterNames and #getModules services in the core app, so they are
+	 * not dependent on the availability of the exporter app
+	 */
+	public void onload() {
+		try {
+			exporterConfigurationBusinessDelegate.getAllExporterNames();
+			exporterConfigurationBusinessDelegate.getModules();
+		} catch (TradistaTechnicalException tte) {
+			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
+					"Issue with the Exporter App: " + tte.getMessage()));
+		}
 	}
 
 	public List<String> completeExporterType(String query) {

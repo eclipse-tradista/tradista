@@ -17,7 +17,7 @@ public class MapIncomingMessage extends Process<IncomingMessage> {
 
 	public MapIncomingMessage() {
 		importerBusinessDelegate = new ImporterBusinessDelegate();
-		setTask(msg -> importerBusinessDelegate.mapIncomingMessage(msg.getOriginalMessage()));
+		setTask(msg -> msg.setIncomingMessage(importerBusinessDelegate.mapIncomingMessage(msg.getOriginalMessage())));
 	}
 
 }

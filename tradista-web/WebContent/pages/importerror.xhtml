@@ -6,6 +6,9 @@
 	<ui:define name="title">Eclipse Tradista Import Error</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Import Error</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{importErrorReportController.onload}" />
+		</f:metadata>
 		<h:form id="importErrorForm">
 			<p:panel header="Importer Error Report">
 				<p:messages showDetail="true" closable="true" id="msg" />

@@ -24,7 +24,7 @@ import jakarta.ejb.Remote;
 @Remote
 public interface ImporterService {
 
-	void mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException;
+	IncomingMessage mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException;
 
 	void validateMessage(IncomingMessage msg) throws TradistaBusinessException;
 

@@ -105,14 +105,43 @@ public class MessageReportController implements Serializable {
 		allTypes = messageBusinessDelegate.getAllMessageTypes();
 		allDirections = Set.of(IncomingMessage.INCOMING, OutgoingMessage.OUTGOING);
 		allObjectTypes = messageBusinessDelegate.getAllObjectTypes();
-		allInterfaceNames = importerConfigurationBusinessDelegate.getAllImporterNames();
-		Set<String> exporterNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
+		try {
+			allInterfaceNames = importerConfigurationBusinessDelegate.getAllImporterNames();
+		} catch (TradistaTechnicalException _) {
+		}
+		Set<String> exporterNames = null;
+		try {
+			exporterNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
+		} catch (TradistaTechnicalException _) {
+		}
 		if (allInterfaceNames != null) {
-			allInterfaceNames.addAll(exporterNames);
+			if (exporterNames != null) {
+				allInterfaceNames.addAll(exporterNames);
+			}
 		} else {
 			allInterfaceNames = exporterNames;
 		}
+	}
 
+	/**
+	 * Checks if the importer and exporter apps are available, if not, display a
+	 * warning message. This check is a workaround, the target solution is to have
+	 * #getAllImporterNames and #getAllExporterNames services in the core app, so
+	 * they are not dependent on the availability of the importer/exporter apps
+	 */
+	public void onload() {
+		try {
+			importerConfigurationBusinessDelegate.getAllImporterNames();
+		} catch (TradistaTechnicalException tte) {
+			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
+					"Issue with the Importer App: " + tte.getMessage()));
+		}
+		try {
+			exporterConfigurationBusinessDelegate.getAllExporterNames();
+		} catch (TradistaTechnicalException tte) {
+			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
+					"Issue with the Exporter App: " + tte.getMessage()));
+		}
 	}
 
 	public List<String> completeType(String query) {

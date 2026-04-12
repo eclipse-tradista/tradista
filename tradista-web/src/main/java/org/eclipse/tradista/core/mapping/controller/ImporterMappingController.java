@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -90,7 +91,7 @@ public class ImporterMappingController implements Serializable {
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		mappingBusinessDelegate = new MappingBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
-		Set<String> allImpNames;
+		Set<String> allImpNames = null;
 		if (ClientUtil.currentUserIsAdmin()) {
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
 			allProcessingOrgs = new TreeSet<>();
@@ -100,15 +101,31 @@ public class ImporterMappingController implements Serializable {
 		}
 		allImporterNames = new HashSet<>();
 		allImporterNames.add(StringUtils.EMPTY);
-
-		allImpNames = importerConfigurationBusinessDelegate.getAllImporterNames();
-
+		try {
+			allImpNames = importerConfigurationBusinessDelegate.getAllImporterNames();
+		} catch (TradistaTechnicalException _) {
+		}
 		if (allImpNames != null) {
 			allImporterNames.addAll(allImpNames);
 		}
 
 		allMappingTypes = MappingType.values();
 		Arrays.sort(allMappingTypes);
+	}
+
+	/**
+	 * Checks if the importer app is available, if not, display a warning message.
+	 * This check is a workaround, the target solution is to have the
+	 * #getAllImporterNames service in the core app, so it is not dependent on the
+	 * availability of the importer app
+	 */
+	public void onload() {
+		try {
+			importerConfigurationBusinessDelegate.getAllImporterNames();
+		} catch (TradistaTechnicalException tte) {
+			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
+					"Issue with the Importer App: " + tte.getMessage()));
+		}
 	}
 
 	public LegalEntity getProcessingOrg() {

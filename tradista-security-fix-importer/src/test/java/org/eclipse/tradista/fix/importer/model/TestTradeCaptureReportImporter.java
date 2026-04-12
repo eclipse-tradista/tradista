@@ -123,7 +123,7 @@ public class TestTradeCaptureReportImporter {
 		tcr.setField(new MaturityDate("20261211"));
 		tcr.setField(new PreviouslyReported(false));
 		tcr.setField(new SecurityID("Demo"));
-		tcr.setField(new SecurityIDSource(SecurityIDSource.ISIN_NUMBER));
+		tcr.setField(new SecurityIDSource(SecurityIDSource.ISINNUMBER));
 
 		// GC repo fields
 		tcr.setField(new Product(Product.OTHER));
