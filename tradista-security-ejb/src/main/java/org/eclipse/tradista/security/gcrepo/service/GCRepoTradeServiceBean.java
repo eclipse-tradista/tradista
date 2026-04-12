@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.messaging.MessagingConfigurationService;
+import org.eclipse.tradista.core.common.messaging.TradistaEventGateway;
 import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.security.common.model.Security;
@@ -24,6 +26,7 @@ import finance.tradista.flow.service.WorkflowManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
@@ -57,9 +60,15 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 
 	private Destination destination;
 
+	private TradistaEventGateway eventGateway;
+
+	@EJB
+	private MessagingConfigurationService messagingConfigurationService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
+		eventGateway = messagingConfigurationService.getTradistaEventGateway();
 	}
 
 	@Interceptors({ GCRepoProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
@@ -93,6 +102,7 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 		event.setAppliedAction(action);
 		result = GCRepoTradeSQL.saveGCRepoTrade(trade);
 		context.createProducer().send(destination, event);
+		eventGateway.publish(event);
 
 		return result;
 	}

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.common.persistence.util;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 
 /********************************************************************************
@@ -18,22 +20,115 @@ import org.apache.commons.lang3.StringUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public record Table(String name, String id) {
-	public Table {
+public final class Table {
+
+	private final String name;
+
+	private final String id;
+
+	private final Field[] fields;
+
+	public Table(String name, Field[] fields) {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(name)) {
-			errMsg.append(String.format("name cannot be blank.%n"));
+			errMsg.append(String.format("the table name is mandatory.%n"));
 		}
-		if (StringUtils.isBlank(id)) {
-			errMsg.append(String.format("id cannot be blank.%n"));
-		}
+		// When #Table(String, String) will be removed, a check on fields should be
+		// added here.
 		if (!errMsg.isEmpty()) {
 			throw new IllegalArgumentException(errMsg.toString());
 		}
+		if (fields != null) {
+			for (Field f : fields) {
+				f.setTable(this);
+			}
+		}
+		this.name = name;
+		this.fields = fields;
+		this.id = null;
+	}
+
+	/**
+	 * @deprecated Use {@link #Table(String, Field[])} instead
+	 * @param name   the table name
+	 * @param id     the table id
+	 * @param fields the table fields
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Table(String name, String id, Field[] fields) {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(name)) {
+			errMsg.append(String.format("the table name is mandatory.%n"));
+		}
+		if (StringUtils.isBlank(id)) {
+			errMsg.append("the table id is mandatory.");
+		}
+		// When #Table(String, String) will be removed, a check on fields should be
+		// added here.
+		if (!errMsg.isEmpty()) {
+			throw new IllegalArgumentException(errMsg.toString());
+		}
+		if (fields != null) {
+			for (Field f : fields) {
+				f.setTable(this);
+			}
+		}
+		this.name = name;
+		this.id = id;
+		this.fields = fields;
+	}
+
+	/**
+	 * @deprecated Use {@link #Table(String, Field[])} instead
+	 * @param name the table name
+	 * @param id   the table id
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Table(String name, String id) {
+		this(name, id, null);
+	}
+
+	public Field[] getFields() {
+		return fields.clone();
+	}
+
+	/**
+	 * @deprecated table ids won't be used anymore
+	 * @return the table id field
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public String id() {
+		return id;
+	}
+
+	/**
+	 * @deprecated use {@link #getName()} instead
+	 * @return the table name
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public String name() {
+		return name;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Table other = (Table) obj;
+		return Objects.equals(name, other.name);
 	}
 
 	@Override
 	public String toString() {
-		return name();
+		return name;
 	}
 }

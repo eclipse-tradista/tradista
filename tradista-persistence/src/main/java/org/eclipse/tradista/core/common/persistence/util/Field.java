@@ -20,22 +20,116 @@ import org.apache.commons.lang3.StringUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public record Field(String name, Table table, String... alias) {
-	public Field {
+public final class Field {
+
+	private final String name;
+
+	private Table table;
+
+	private String alias;
+
+	/**
+	 * @param name  the field name
+	 * @param alias optional, the field alias
+	 */
+	public Field(String name, String... alias) {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(name)) {
 			errMsg.append(String.format("name cannot be blank.%n"));
 		}
-		if (table == null) {
-			errMsg.append("table is mandatory.");
+		if (!errMsg.isEmpty()) {
+			throw new IllegalArgumentException(errMsg.toString());
+		}
+		this.name = name;
+		if (alias.length > 0) {
+			this.alias = alias[0];
+		}
+	}
+
+	/**
+	 * @deprecated use {@link Field(String, String...)} and {@link #setTable(Table)}
+	 *             instead
+	 * @param name  the field name
+	 * @param table the field table
+	 * @param alias optional, the field alias
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Field(String name, Table table, String... alias) {
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(name)) {
+			errMsg.append(String.format("name cannot be blank.%n"));
 		}
 		if (!errMsg.isEmpty()) {
 			throw new IllegalArgumentException(errMsg.toString());
 		}
+		this.name = name;
+		if (alias.length > 0) {
+			this.alias = alias[0];
+		}
 	}
 
+	/**
+	 * Gets the alias if set, otherwise returns the name
+	 * 
+	 * @return the alias if set, otherwise returns the name
+	 */
 	public String getNameOrAlias() {
-		return alias.length > 0 ? alias[0] : name();
+		return alias != null ? alias : name;
+	}
+
+	/**
+	 * Gets the full name, ie table name.field name
+	 * 
+	 * @return the full name, ie table name.field name
+	 */
+	public String getFullName() {
+		return table + "." + name;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Table getTable() {
+		return table;
+	}
+
+	/**
+	 * @deprecated use {@link #getAlias()} instead
+	 * @return the field alias (may not exist)
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public String[] alias() {
+		return new String[] { alias };
+	}
+
+	/**
+	 * @deprecated use {@link #getName()} instead
+	 * @return the field name
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public String name() {
+		return name;
+	}
+
+	/**
+	 * @deprecated use {@link #getTable()} instead
+	 * @return the field table
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Table table() {
+		return table;
+	}
+
+	public void setTable(Table table) {
+		if (this.table != null) {
+			throw new IllegalStateException(String.format("The %s field has already a table (%s).", name, table));
+		}
+		this.table = table;
 	}
 
 	@Override
@@ -57,7 +151,6 @@ public record Field(String name, Table table, String... alias) {
 
 	@Override
 	public String toString() {
-		return table().name() + "." + name() + StringUtils.SPACE
-				+ ((alias().length > 0) ? alias()[0] : StringUtils.EMPTY);
+		return table + "." + name + StringUtils.SPACE + ((alias != null) ? alias : StringUtils.EMPTY);
 	}
 }

@@ -25,6 +25,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.importer.TradistaImporter;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.fix.common.TradistaFixUtil;
 import org.eclipse.tradista.fix.importer.processing.ImportApplication;
 
 import quickfix.ConfigError;
@@ -32,10 +33,8 @@ import quickfix.DefaultMessageFactory;
 import quickfix.FieldNotFound;
 import quickfix.FileStoreFactory;
 import quickfix.IncorrectTagValue;
-import quickfix.InvalidMessage;
 import quickfix.LogFactory;
 import quickfix.MessageCracker;
-import quickfix.MessageUtils;
 import quickfix.ScreenLogFactory;
 import quickfix.Session;
 import quickfix.SessionSettings;
@@ -88,7 +87,7 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 	}
 
 	@Override
-	protected void validateMessage(X fixMessage) throws TradistaBusinessException {
+	public void validateMessage(X fixMessage) throws TradistaBusinessException {
 		try {
 			messageCracker.crack(fixMessage, null);
 		} catch (UnsupportedMessageType | FieldNotFound | IncorrectTagValue e) {
@@ -111,11 +110,7 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 	@SuppressWarnings("unchecked")
 	@Override
 	public X buildMessage(String externalMessage) {
-		try {
-			return (X) MessageUtils.parse(getSession(), externalMessage);
-		} catch (InvalidMessage im) {
-			throw new TradistaTechnicalException(im.getMessage());
-		}
+		return (X) TradistaFixUtil.buildMessage(getSession(), externalMessage);
 	}
 
 }

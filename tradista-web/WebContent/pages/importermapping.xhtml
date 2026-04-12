@@ -6,14 +6,16 @@
 	<ui:define name="title">Eclipse Tradista Importer Mapping</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Importer Mapping</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{importerMappingController.onload}" />
+		</f:metadata>
 		<h:form id="importerMappingForm">
 			<p:panel styleClass="tradista-central-component"
 				header="Importer Mapping">
+				<p:messages showDetail="true" closable="true" id="msg" />
 				<p:panelGrid id="importerMapping" header="Importer Mapping"
 					styleClass="tradista-nested"
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
-					<p:messages showDetail="true" closable="true" id="msg">
-					</p:messages>
 					<p:row>
 						<p:toolbar
 							rendered="#{importerMappingController.interfaceMappingSet ne null}">

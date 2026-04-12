@@ -18,7 +18,13 @@
 		<class>finance.tradista.flow.model.Status</class>
 		<class>finance.tradista.flow.model.PseudoStatus</class>
 		<class>finance.tradista.flow.model.TradistaFlowObject</class>
+		<class>org.eclipse.tradista.core.importer.workflow.process.ValidateMessage
+		</class>
 		<class>org.eclipse.tradista.core.importer.workflow.process.MapIncomingMessage
+		</class>
+		<class>org.eclipse.tradista.core.exporter.workflow.process.GenerateOutgoingMessage
+		</class>
+		<class>org.eclipse.tradista.core.exporter.workflow.process.SendOutgoingMessage
 		</class>
 		<properties>
 			<property name="hibernate.show_sql" value="false" />

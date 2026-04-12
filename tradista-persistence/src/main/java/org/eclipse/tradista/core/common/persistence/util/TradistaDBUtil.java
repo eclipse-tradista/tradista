@@ -2,20 +2,30 @@ package org.eclipse.tradista.core.common.persistence.util;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD_HH_MM_SS;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
@@ -36,11 +46,23 @@ import org.springframework.util.CollectionUtils;
 
 public final class TradistaDBUtil {
 
+	private static final String THE_SQL_QUERY_IS_MANDATORY = "The SQL query is mandatory.%n";
+	private static final String THE_FIELD_IS_MANDATORY = "The field is mandatory.";
+	private static final String THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE = "The field %s doesn't have the expected table (%s instead of %s).%n";
+	private static final Logger logger = LoggerFactory.getLogger(TradistaDBUtil.class);
+
 	private TradistaDBUtil() {
 	}
 
 	/**
 	 * Build a select SQL query, given fields, tables and optional join conditions.
+	 * 
+	 * @deprecated This method is replaced by a method using the Ansi SQL-92 join
+	 *             logic. So, only one base table (used in the 'From' clause) is
+	 *             needed. Use {@link #buildSelectQuery(Field[], Table, Join...)}
+	 *             for queries with joins, or
+	 *             {@link #buildSelectQuery(Field[], Table)} for simple single-table
+	 *             queries instead.
 	 * 
 	 * @param fields The fields to be retrieved
 	 * @param tables The tables to be queried
@@ -49,11 +71,12 @@ public final class TradistaDBUtil {
 	 * @throws TradistaTechnicalException if no field or no table is specified.
 	 * @return A SQL query.
 	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
 	public static String buildSelectQuery(Field[] fields, Table[] tables, Join... join) {
 		StringBuilder errMsg = new StringBuilder();
 		StringBuilder select = new StringBuilder(SELECT);
 		if (ArrayUtils.isEmpty(fields)) {
-			errMsg.append(String.format("The fields cannot be null or empty.%n"));
+			errMsg.append(String.format("The fields are mandatory.%n"));
 		}
 		if (tables == null) {
 			errMsg.append("The tables cannot be null.");
@@ -61,8 +84,8 @@ public final class TradistaDBUtil {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
-		select.append(StringUtils.join(Arrays.stream(fields).map(Object::toString).toList(), ","));
-		select.append(FROM + StringUtils.join(Arrays.stream(tables).map(Table::name).toList(), ","));
+		select.append(String.join(",", Arrays.stream(fields).map(Object::toString).toList()));
+		select.append(FROM + String.join(",", Arrays.stream(tables).map(Object::toString).toList()));
 		if (tables.length > 1) {
 			Table previousTable = null;
 			String sqlKeyword = null;
@@ -82,8 +105,7 @@ public final class TradistaDBUtil {
 						joinOne = join[0].getJoinField(previousTable);
 						joinTwo = join[0].getJoinField(t);
 					}
-					select.append(new StringBuilder(sqlKeyword).append(previousTable.name()).append(".").append(joinOne)
-							.append(" = ").append(t.name()).append(".").append(joinTwo));
+					select.append(new StringBuilder(sqlKeyword).append(joinOne).append(" = ").append(joinTwo));
 				}
 				previousTable = t;
 			}
@@ -91,14 +113,166 @@ public final class TradistaDBUtil {
 		return select.toString();
 	}
 
-	public static void addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
+	/**
+	 * Builds a select SQL query, given fields, a table and join conditions with
+	 * other tables. If no fields are specified, all fields from the joins's table
+	 * are queried. If neither field or joins are specified, all fields from the
+	 * table are queried.
+	 * 
+	 * @param fields optional, the fields to be retrieved.
+	 * @param table  The table to be queried
+	 * @param join   optional, in case joins are needed
+	 * @throws TradistaTechnicalException if no table is specified.
+	 * @return A SQL query.
+	 */
+	public static String buildSelectQuery(Field[] fields, Table table, Join... joins) {
+		StringBuilder errMsg = new StringBuilder();
+		StringBuilder select = new StringBuilder(SELECT);
+		if (table == null) {
+			errMsg.append("The table cannot be null.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
+		Field[] queriedFields = null;
+		if (!ArrayUtils.isEmpty(fields)) {
+			queriedFields = fields;
+		}
+		if (ArrayUtils.isEmpty(queriedFields)) {
+			if (!ArrayUtils.isEmpty(joins)) {
+				Set<Field> uniqueFields = new LinkedHashSet<>();
+				for (Join j : joins) {
+					uniqueFields.addAll(new HashSet<>(Arrays.asList(j.getAllFields())));
+				}
+				queriedFields = uniqueFields.toArray(new Field[uniqueFields.size()]);
+			}
+			if (ArrayUtils.isEmpty(queriedFields)) {
+				queriedFields = table.getFields();
+			}
+		}
+		select.append(String.join(",", Arrays.stream(queriedFields).map(Object::toString).toList()));
+		select.append(FROM).append(table).append(StringUtils.SPACE);
+		if (joins != null) {
+			for (Join j : joins) {
+				select.append(j);
+			}
+		}
+		return select.toString();
+	}
+
+	/**
+	 * Build a select SQL query, given a table and join conditions with other
+	 * tables.
+	 * 
+	 * @param table The table to be queried
+	 * @param join  optional in case inner join are needed
+	 * @throws TradistaTechnicalException if no field or no table is specified.
+	 * @return A SQL query.
+	 */
+	public static String buildSelectQuery(Table table, Join... joins) {
+		return TradistaDBUtil.buildSelectQuery(null, table, joins);
+	}
+
+	/**
+	 * Build a select SQL query, given fields and a table.
+	 * 
+	 * @param fields optional, the fields to be retrieved. If not set, all fields
+	 *               from the table are retrieved
+	 * @param table  The table to be queried
+	 * @throws TradistaTechnicalException if no table is specified.
+	 * @return A SQL query.
+	 */
+	public static String buildSelectQuery(Field[] fields, Table table) {
+		return TradistaDBUtil.buildSelectQuery(fields, table, (Join[]) null);
+	}
+
+	/**
+	 * Build a select SQL query, given a table. All fields will be queried
+	 * 
+	 * @param table The table to be queried
+	 * @throws TradistaTechnicalException if no table is specified.
+	 * @return A SQL query.
+	 */
+	public static String buildSelectQuery(Table table) {
+		return TradistaDBUtil.buildSelectQuery(null, table, (Join[]) null);
+	}
+
+	/**
+	 * Build a delete prepared statement, given a table and an optional filter.
+	 * 
+	 * @param table The table concerned by the deletions
+	 * @param join  an optional filter
+	 * @throws TradistaTechnicalException if no table or an incorrect filter is
+	 *                                    specified.
+	 * @return A delete prepared statement
+	 */
+	public static PreparedStatement buildDeletePreparedStatement(Connection con, Table table, Field filter) {
+		StringBuilder errMsg = new StringBuilder();
+		StringBuilder delete = new StringBuilder("DELETE " + FROM);
+		if (table == null) {
+			errMsg.append("The table cannot be null.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
+		if (filter != null) {
+			if (!filter.getTable().equals(table)) {
+				errMsg.append(
+						String.format(THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE, filter, filter.getTable(), table));
+			}
+		}
+		delete.append(table);
+		if (filter != null) {
+			delete.append(WHERE);
+			delete.append(filter.getFullName());
+			delete.append("=?");
+		}
+
+		logger.debug("Generated delete statement: {}", delete);
+
+		try {
+			return con.prepareStatement(delete.toString(), Statement.RETURN_GENERATED_KEYS);
+		} catch (SQLException sqle) {
+			throw new TradistaTechnicalException(sqle.getMessage());
+		}
+	}
+
+	/**
+	 * Add a query filter to a SQL query (...IN (SELECT xxx FROM yyy))
+	 * 
+	 * @param sqlQuery    the sql query to enrich
+	 * @param queryFilter the field concerned by the filter
+	 * @param queryFilter the query filter
+	 * @param isExclusion true if the value should be excluded, false otherwise
+	 */
+	public static void addQueryFilter(StringBuilder sqlQuery, Field field, String queryFilter, boolean isExclusion) {
+		if (StringUtils.isBlank(queryFilter)) {
+			throw new TradistaTechnicalException("The query filter is mandatory.");
+		}
+		String filter = (isExclusion ? " NOT " : StringUtils.EMPTY) + IN + "(" + queryFilter + ")";
+		addFreeTextFilter(sqlQuery, field, filter);
+	}
+
+	/**
+	 * Add a filter to a SQL query
+	 * 
+	 * @param isExclusion  true if the value should be excluded, false otherwise
+	 * @param sqlQuery     the sql query to enrich
+	 * @param field        the field concerned by the filter
+	 * @param value        the filter value
+	 * @param isLowerBound optional parameter, used to express ">=" (true) or "<="
+	 *                     (false) (used for LocalDate and LocalDateTime values)
+	 */
+	public static void addFilter(boolean isExclusion, StringBuilder sqlQuery, Field field, Object value,
+			boolean... isLowerBound) {
 		StringBuilder errMsg = new StringBuilder();
 		String filterSqlQuery = StringUtils.EMPTY;
+		String eqOperator = isExclusion ? " <> " : " =";
 		if (StringUtils.isBlank(sqlQuery)) {
-			errMsg.append(String.format("The SQL query cannot be null or empty.%n"));
+			errMsg.append(String.format(THE_SQL_QUERY_IS_MANDATORY));
 		}
 		if (field == null) {
-			errMsg.append("The field is mandatory.");
+			errMsg.append(THE_FIELD_IS_MANDATORY);
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
@@ -128,35 +302,62 @@ public final class TradistaDBUtil {
 					operator = " <= ";
 				}
 			} else {
-				operator = " = ";
+				operator = eqOperator;
 			}
 			switch (value) {
-			case Collection<?> c ->
-				filterSqlQuery += field + " IN (" + wrapWithQuotes(StringUtils.join(c, "','")) + ")";
+			case Collection<?> c -> filterSqlQuery += field.getFullName() + (isExclusion ? " NOT " : StringUtils.EMPTY)
+					+ IN + "(" + wrapWithQuotes(String.join("','", c.toArray(String[]::new))) + ")";
 			case LocalDate ld -> {
 				String formattedValue = DateTimeFormatter.ofPattern(MM_DD_YYYY).format(ld);
-				filterSqlQuery += field + operator + wrapWithQuotes(formattedValue);
+				filterSqlQuery += field.getFullName() + operator + wrapWithQuotes(formattedValue);
 			}
 			case LocalDateTime ldt -> {
 				String formattedValue = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS).format(ldt);
-				filterSqlQuery += field + operator + wrapWithQuotes(formattedValue);
+				filterSqlQuery += field.getFullName() + operator + wrapWithQuotes(formattedValue);
 			}
-			case Enum<?> e -> filterSqlQuery += field + "=" + wrapWithQuotes(e.name());
-			case Number n -> filterSqlQuery += field + operator + n;
-			default -> filterSqlQuery += field + "=" + wrapWithQuotes(value.toString());
+			case Enum<?> e -> filterSqlQuery += field.getFullName() + eqOperator + wrapWithQuotes(e.name());
+			case Number n -> filterSqlQuery += field.getFullName() + operator + n;
+			default -> filterSqlQuery += field.getFullName() + eqOperator + wrapWithQuotes(value.toString());
 			}
 		}
 		sqlQuery.append(filterSqlQuery);
 	}
 
-	public static void addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
+	/**
+	 * Add a "IS NULL" filter to a SQL query
+	 * 
+	 * @param sqlQuery the sql query to enrich
+	 * @param field    the field concerned by the filter
+	 */
+	public static void addIsNullFilter(StringBuilder sqlQuery, Field field) {
+		addFreeTextFilter(sqlQuery, field, "IS NULL");
+	}
+
+	/**
+	 * Add a "IS NOT NULL" filter to a SQL query
+	 * 
+	 * @param sqlQuery the sql query to enrich
+	 * @param field    the field concerned by the filter
+	 */
+	public static void addIsNotNullFilter(StringBuilder sqlQuery, Field field) {
+		addFreeTextFilter(sqlQuery, field, "IS NOT NULL");
+	}
+
+	/**
+	 * Internal utility method to add a filter on a field with a free text
+	 * 
+	 * @param sqlQuery the sql query to enrich
+	 * @param field    the field concerned by the filter
+	 * @param freeText the SQL fragment to add
+	 */
+	private static void addFreeTextFilter(StringBuilder sqlQuery, Field field, String freeText) {
 		StringBuilder errMsg = new StringBuilder();
-		String filterSqlQuery = null;
+		String filterSqlQuery;
 		if (StringUtils.isBlank(sqlQuery)) {
-			errMsg.append(String.format("The SQL query cannot be null or empty.%n"));
+			errMsg.append(String.format(THE_SQL_QUERY_IS_MANDATORY));
 		}
 		if (field == null) {
-			errMsg.append("The field is mandatory.");
+			errMsg.append(THE_FIELD_IS_MANDATORY);
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
@@ -166,6 +367,26 @@ public final class TradistaDBUtil {
 		} else {
 			filterSqlQuery = WHERE;
 		}
+		filterSqlQuery += field.getFullName() + StringUtils.SPACE + freeText;
+
+		sqlQuery.append(filterSqlQuery);
+	}
+
+	/**
+	 * Add a filter to a SQL query
+	 * 
+	 * @param sqlQuery     the sql query to enrich
+	 * @param field        the field concerned by the filter
+	 * @param value        the filter value
+	 * @param isLowerBound optional parameter, used to express ">=" (true) or "<="
+	 *                     (false) (used for LocalDate and LocalDateTime values)
+	 */
+	public static void addFilter(StringBuilder sqlQuery, Field field, Object value, boolean... isLowerBound) {
+		// By Default, we do not exclude
+		addFilter(false, sqlQuery, field, value, isLowerBound);
+	}
+
+	public static void addParameterizedFilter(StringBuilder sqlQuery, Field field, boolean... isLowerBound) {
 		String operator;
 		if (isLowerBound.length > 0) {
 			if (isLowerBound[0]) {
@@ -176,8 +397,7 @@ public final class TradistaDBUtil {
 		} else {
 			operator = " = ";
 		}
-		filterSqlQuery += field + operator + "?";
-		sqlQuery.append(filterSqlQuery);
+		addFreeTextFilter(sqlQuery, field, operator + "?");
 	}
 
 	public static String wrapWithQuotes(String value) {
@@ -185,6 +405,104 @@ public final class TradistaDBUtil {
 			throw new TradistaTechnicalException("Cannot wrap with quotes a null value.");
 		}
 		return StringUtils.wrap(value, '\'');
+	}
+
+	public static PreparedStatement buildInsertPreparedStatement(Connection con, Table table, Field... fields) {
+		StringBuilder errorMessage = new StringBuilder();
+		if (con == null) {
+			errorMessage.append(String.format("The connection is mandatory.%n"));
+		}
+
+		if (table == null) {
+			errorMessage.append(String.format("The table is mandatory.%n"));
+		}
+
+		if (ArrayUtils.isEmpty(fields)) {
+			errorMessage.append("The fields are mandatory.");
+		} else {
+			if (table != null) {
+				for (Field field : fields) {
+					if (!field.getTable().equals(table)) {
+						errorMessage.append(String.format(THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE, field,
+								field.getTable(), table));
+					}
+				}
+			}
+		}
+		if (!errorMessage.isEmpty()) {
+			throw new TradistaTechnicalException(errorMessage.toString());
+		}
+		StringBuilder insertSQL = new StringBuilder();
+		insertSQL.append("INSERT INTO ");
+		insertSQL.append(table);
+		insertSQL.append(" (");
+		insertSQL.append(String.join(",", Arrays.stream(fields).map(Field::getName).toArray(String[]::new)));
+		insertSQL.append(") VALUES (");
+		String[] questionmarksArray = new String[fields.length];
+		Arrays.fill(questionmarksArray, "?");
+		insertSQL.append(String.join(",", questionmarksArray));
+		insertSQL.append(")");
+
+		logger.debug("Generated insert statement: {}", insertSQL);
+
+		try {
+			return con.prepareStatement(insertSQL.toString(), Statement.RETURN_GENERATED_KEYS);
+		} catch (SQLException sqle) {
+			throw new TradistaTechnicalException(sqle.getMessage());
+		}
+	}
+
+	public static PreparedStatement buildUpdatePreparedStatement(Connection con, Field filter, Table table,
+			Field... fields) {
+		StringBuilder errorMessage = new StringBuilder();
+		if (con == null) {
+			errorMessage.append(String.format("The connection is mandatory.%n"));
+		}
+
+		if (table == null) {
+			errorMessage.append(String.format("The table is mandatory.%n"));
+		}
+
+		if (ArrayUtils.isEmpty(fields)) {
+			errorMessage.append("The fields are mandatory.");
+		} else {
+			if (table != null) {
+				for (Field field : fields) {
+					if (!field.getTable().equals(table)) {
+						errorMessage.append(String.format(THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE, field,
+								field.getTable(), table));
+					}
+				}
+			}
+		}
+		if (filter != null) {
+			if (!filter.getTable().equals(table)) {
+				errorMessage.append(
+						String.format(THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE, filter, filter.getTable(), table));
+			}
+		}
+		if (!errorMessage.isEmpty()) {
+			throw new TradistaTechnicalException(errorMessage.toString());
+		}
+		StringBuilder updateSQL = new StringBuilder();
+		updateSQL.append("UPDATE ");
+		updateSQL.append(table);
+		updateSQL.append(" SET ");
+		updateSQL.append(String.join(",", Arrays.stream(fields).map(f -> f.getName() + "=?").toArray(String[]::new)));
+
+		if (filter != null) {
+			updateSQL.append(WHERE);
+			updateSQL.append(filter.getFullName());
+			updateSQL.append("=?");
+		}
+
+		logger.debug("Generated update statement: {}", updateSQL);
+
+		try {
+			return con.prepareStatement(updateSQL.toString(), Statement.RETURN_GENERATED_KEYS);
+		} catch (SQLException sqle) {
+			throw new TradistaTechnicalException(sqle.getMessage());
+		}
 	}
 
 }

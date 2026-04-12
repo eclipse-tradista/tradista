@@ -29,6 +29,12 @@ public abstract class TradeEvent<X extends Trade<?>> implements Event {
 
 	private X oldTrade;
 
+	public static final String TRADE = "Trade";
+
+	public String getType() {
+		return TRADE;
+	}
+
 	public X getTrade() {
 		return trade;
 	}

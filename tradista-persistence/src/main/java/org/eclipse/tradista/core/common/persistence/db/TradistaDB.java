@@ -8,6 +8,10 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.eclipse.tradista.core.common.util.TradistaConstants.DATASOURCE_JNDI_URL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -27,6 +31,8 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 public final class TradistaDB {
 
+	private static final Logger logger = LoggerFactory.getLogger(TradistaDB.class);
+
 	private static DataSource ds;
 
 	private TradistaDB() {
@@ -35,10 +41,9 @@ public final class TradistaDB {
 	static {
 		try {
 			InitialContext context = new InitialContext();
-			ds = (DataSource) context.lookup("java:/TradistaDataSource");
-		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ds = (DataSource) context.lookup(DATASOURCE_JNDI_URL);
+		} catch (NamingException ne) {
+			logger.error("Could not load the datasource:", ne);
 		}
 	}
 
@@ -49,12 +54,14 @@ public final class TradistaDB {
 			// org.apache.derby.jdbc.ClientConnectionPoolDataSource
 			con = ds.getConnection();
 		} catch (SQLException sqle) {
-			// TODO put error log
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
 		return con;
+	}
+
+	public static DataSource getDataSource() {
+		return ds;
 	}
 
 }

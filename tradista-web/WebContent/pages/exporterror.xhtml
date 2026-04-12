@@ -1,0 +1,162 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Export Error</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Export Error</ui:define>
+	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{exportErrorReportController.onload}" />
+		</f:metadata>
+		<h:form id="exportErrorForm">
+			<p:panel header="Exporter Error Report">
+				<p:messages showDetail="true" closable="true" id="msg" />
+				<p:panelGrid id="exportError" header="Exporter Error"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-4 ui-md-4 ui-lg-4, ui-g-8 ui-md-8 ui-lg-8">
+					<p:row>
+						<p:column>
+							<p:card>
+								<p:panelGrid columns="2" columnClasses="medium-column,,">
+									<p:row>
+										<p:outputLabel value="Exporter Type"
+											for="exporterTypeAutoComplete" />
+										<p:autoComplete id="exporterTypeAutoComplete" multiple="true"
+											value="#{exportErrorReportController.selectedExporterTypes}"
+											completeMethod="#{exportErrorReportController.completeExporterType}"
+											showEmptyMessage="false" unique="true" forceSelection="true"
+											scrollHeight="250" dropdown="true"
+											disabled="#{not empty exportErrorReportController.selectedExporterNames}">
+											<p:ajax event="itemSelect"
+												listener="#{exportErrorReportController.onTypeChange}"
+												update="exporterTypeAutoComplete exporterNameAutoComplete" />
+											<p:ajax event="itemUnselect"
+												listener="#{exportErrorReportController.onTypeChange}"
+												update="exporterTypeAutoComplete exporterNameAutoComplete" />
+										</p:autoComplete>
+									</p:row>
+									<p:row>
+										<p:outputLabel value="Exporter Name"
+											for="exporterNameAutoComplete" />
+										<p:autoComplete id="exporterNameAutoComplete" multiple="true"
+											value="#{exportErrorReportController.selectedExporterNames}"
+											completeMethod="#{exportErrorReportController.completeExporterName}"
+											showEmptyMessage="false" unique="true" forceSelection="true"
+											scrollHeight="250" dropdown="true"
+											disabled="#{not empty exportErrorReportController.selectedExporterTypes}">
+											<p:ajax event="itemSelect"
+												listener="#{exportErrorReportController.onNameChange}"
+												update="exporterTypeAutoComplete exporterNameAutoComplete" />
+											<p:ajax event="itemUnselect"
+												listener="#{exportErrorReportController.onNameChange}"
+												update="exporterTypeAutoComplete exporterNameAutoComplete" />
+										</p:autoComplete>
+									</p:row>
+									<p:row>
+										<p:outputLabel value="Message Id" for="messageIdTextField" />
+										<p:inputNumber id="messageIdTextField"
+											value="#{exportErrorReportController.messageId}" />
+									</p:row>
+									<p:row>
+										<p:outputLabel value="Error Status" for="statusButton" />
+										<p:selectManyButton
+											value="#{exportErrorReportController.statuses}"
+											id="statusButton" converter="statusConverter">
+											<f:selectItems
+												value="#{exportErrorReportController.allStatuses}" />
+										</p:selectManyButton>
+									</p:row>
+									<p:row>
+										<p:outputLabel value="Export Error Type"
+											for="exportErrorTypeButton" />
+										<p:selectManyButton
+											value="#{exportErrorReportController.exportErrorTypes}"
+											id="exportErrorTypeButton"
+											converter="exportErrorTypeConverter">
+											<f:selectItems
+												value="#{exportErrorReportController.allExportErrorTypes}" />
+										</p:selectManyButton>
+									</p:row>
+									<p:row>
+										<p:outputLabel value="Error Date Range"
+											for="errorDatesDatePicker" />
+										<p:datePicker id="errorDatesDatePicker"
+											value="#{exportErrorReportController.errorDates}"
+											pattern="dd/MM/yyyy" selectionMode="range"
+											styleClass="tradista-large-datepicker" />
+									</p:row>
+									<p:row>
+										<p:outputLabel value="Solving Date Range"
+											for="solvingDatesDatePicker" />
+										<p:datePicker id="solvingDatesDatePicker"
+											value="#{exportErrorReportController.solvingDates}"
+											pattern="dd/MM/yyyy" selectionMode="range"
+											styleClass="tradista-large-datepicker" />
+									</p:row>
+									<f:facet name="footer">
+										<p:row>
+											<p:column>
+												<p:commandButton value="Load" styleClass="rounded-button"
+													update="exportErrorTable"
+													action="#{exportErrorReportController.load}" />
+											</p:column>
+										</p:row>
+									</f:facet>
+								</p:panelGrid>
+							</p:card>
+						</p:column>
+						<p:column>
+							<p:card>
+								<p:dataTable id="exportErrorTable" var="error"
+									value="#{exportErrorReportController.errors}"
+									allowUnsorting="true" sortMode="single"
+									tableStyleClass="tradista-datatable" size="small"
+									selection="#{exportErrorReportController.selectedError}"
+									selectionMode="single" rowKey="#{error.id}">
+									<p:column headerText="Error Date" sortBy="#{error.errorDate}">
+										<p:outputLabel value="#{error.errorDate}">
+											<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+										</p:outputLabel>
+									</p:column>
+									<p:column headerText="Solving Date"
+										sortBy="#{error.solvingDate}">
+										<p:outputLabel value="#{error.solvingDate}">
+											<f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
+										</p:outputLabel>
+									</p:column>
+									<p:column headerText="Message Id" sortBy="#{error.message.id}">
+										<p:outputLabel value="#{error.message.id}" />
+									</p:column>
+									<p:column headerText="Object Id"
+										sortBy="#{error.message.objectId}">
+										<p:outputLabel value="#{error.message.objectId}" />
+									</p:column>
+									<p:column headerText="Object Type"
+										sortBy="#{error.message.objectType}">
+										<p:outputLabel
+											value="#{error.message.objectType eq null ? '' : error.message.objectType.toString()}" />
+									</p:column>
+									<p:column headerText="Status" sortBy="#{error.status}">
+										<p:outputLabel value="#{error.status.toString()}" />
+									</p:column>
+									<p:column headerText="Type" sortBy="#{error.exportErrorType}">
+										<p:outputLabel value="#{error.exportErrorType.toString()}" />
+									</p:column>
+									<p:column headerText="Error Message"
+										sortBy="#{error.errorMessage}">
+										<p:outputLabel value="#{error.errorMessage}" />
+									</p:column>
+								</p:dataTable>
+							</p:card>
+							<p:contextMenu id="contextMenu" for="exportErrorTable">
+								<p:menuitem value="Try to solve" update="@form"
+									action="#{exportErrorReportController.tryToSolve}" />
+							</p:contextMenu>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

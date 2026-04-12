@@ -29,13 +29,27 @@ public final class TradistaDBConstants {
 	// Common field names.
 	public static final String ID = "ID";
 	public static final String TYPE = "TYPE";
+	public static final String VALUE = "VALUE";
 	public static final String STATUS = "STATUS";
 	public static final String NAME = "NAME";
 	public static final String STATUS_ID = "STATUS_ID";
 	public static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
 	public static final String BOOK_ID = "BOOK_ID";
 	public static final String CREATION_DATE = "CREATION_DATE";
-	public static final String LAST_UPDATE_DATE = "LAST_UPDATE_DATE";
+	public static final String LAST_UPDATE_TIME = "LAST_UPDATE_TIME";
+	public static final String ERROR_ID = "ERROR_ID";
+	public static final String DATE = "DATE";
+	public static final String END_DATE = "END_DATE";
+	public static final String INDEX_ID = "INDEX_ID";
+	public static final String INDEX_TENOR = "INDEX_TENOR";
+	public static final String INDEX_OFFSET = "INDEX_OFFSET";
+	public static final String NOTICE_PERIOD = "NOTICE_PERIOD";
+	public static final String AMOUNT = "AMOUNT";
+	public static final String QUANTITY = "QUANTITY";
+	public static final String CURRENCY_ID = "CURRENCY_ID";
+	public static final String TRADE_ID = "TRADE_ID";
+	public static final String PRODUCT_ID = "PRODUCT_ID";
+	public static final String CREATION_DATETIME = "CREATION_DATETIME";
 
 	private TradistaDBConstants() {
 	}

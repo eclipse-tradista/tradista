@@ -1,9 +1,14 @@
 package org.eclipse.tradista.core.common.persistence.util;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -21,29 +26,86 @@ import org.apache.commons.lang3.ArrayUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public record Join(Field[] fields) {
+public final class Join {
 
-	public Join {
+	private final Field[] fields;
+
+	private final JoinType type;
+
+	public enum JoinType {
+		INNER_JOIN, LEFT_OUTER_JOIN;
+
+		@Override
+		public String toString() {
+			return switch (this) {
+			case INNER_JOIN -> "INNER JOIN";
+			case LEFT_OUTER_JOIN -> "LEFT OUTER JOIN";
+			default -> super.toString();
+			};
+		}
+	}
+
+	public Join(JoinType type, Field... fields) {
 		StringBuilder errMsg = new StringBuilder();
 		if (ArrayUtils.isEmpty(fields)) {
 			errMsg.append("fields are mandatory.");
 		}
+		if (type == null) {
+			type = JoinType.INNER_JOIN;
+		}
 		if (!errMsg.isEmpty()) {
 			throw new IllegalArgumentException(errMsg.toString());
 		}
+		this.type = type;
+		this.fields = fields;
+	}
+
+	/**
+	 * @deprecated Use {@link #Join(JoinType, Field...)},
+	 *             {@link #leftOuter(Field...)} or {@link #inner(Field...)} instead
+	 * @param fields the joined fields
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Join(Field[] fields) {
+		this(null, fields);
 	}
 
 	public String getJoinField(Table table) {
-		Optional<Field> field = Arrays.stream(fields).filter(f -> f.table().equals(table)).findFirst();
+		Optional<Field> field = Arrays.stream(fields).filter(f -> f.getTable().equals(table)).findFirst();
 		String fieldName = null;
 		if (field.isPresent()) {
-			if (field.get().alias().length > 1) {
-				fieldName = field.get().alias()[0];
-			} else {
-				fieldName = field.get().name();
-			}
+			fieldName = field.get().getFullName();
 		}
 		return fieldName;
+	}
+
+	public static Join inner(Field... fields) {
+		return new Join(JoinType.INNER_JOIN, fields);
+	}
+
+	public static Join leftOuter(Field... fields) {
+		return new Join(JoinType.LEFT_OUTER_JOIN, fields);
+	}
+
+	public Field[] getFields() {
+		return fields.clone();
+	}
+
+	/**
+	 * @deprecated use {@link #getFields()} instead
+	 * @return fields the joined fields
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Field[] fields() {
+		return fields.clone();
+	}
+
+	public Field[] getAllFields() {
+		Set<Field> uniqueFields = new LinkedHashSet<>();
+		for (Field f : fields) {
+			uniqueFields.addAll(new HashSet<>(Arrays.asList(f.getTable().getFields())));
+		}
+		return uniqueFields.toArray(new Field[uniqueFields.size()]);
 	}
 
 	@Override
@@ -51,6 +113,7 @@ public record Join(Field[] fields) {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(fields);
+		result = prime * result + Objects.hash(type);
 		return result;
 	}
 
@@ -63,11 +126,19 @@ public record Join(Field[] fields) {
 		if (getClass() != obj.getClass())
 			return false;
 		Join other = (Join) obj;
-		return Arrays.equals(fields, other.fields);
+		return Arrays.equals(fields, other.fields) && type == other.type;
 	}
 
 	@Override
 	public String toString() {
-		return Arrays.toString(fields);
+		StringBuilder joinClause = new StringBuilder();
+		for (int i = 1; i < fields.length; i++) {
+			Field currentField = fields[i];
+			Field previousField = fields[i - 1];
+			joinClause.append(StringUtils.SPACE).append(type).append(StringUtils.SPACE).append(previousField.getTable())
+					.append(" ON ").append(previousField.getFullName()).append(" = ")
+					.append(currentField.getFullName());
+		}
+		return joinClause.toString();
 	}
 }

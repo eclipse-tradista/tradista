@@ -20,6 +20,32 @@ public class OutgoingMessage extends Message {
 
 	private static final long serialVersionUID = -5209881033542006944L;
 
+	public static final String OUTGOING = "Outgoing";
+
+	protected OutgoingMessage(Builder builder) {
+		super(builder);
+	}
+
+	public static class Builder extends Message.Builder<OutgoingMessage, Builder> {
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public OutgoingMessage build() {
+			return new OutgoingMessage(this);
+		}
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().id(this.getId()).objectId(this.getObjectId()).objectType(this.getObjectType())
+				.type(this.getType()).content(this.getContent()).interfaceName(this.getInterfaceName())
+				.status(this.getStatus()).creationTime(this.getCreationTime());
+	}
+
 	@Override
 	public boolean isIncoming() {
 		return false;

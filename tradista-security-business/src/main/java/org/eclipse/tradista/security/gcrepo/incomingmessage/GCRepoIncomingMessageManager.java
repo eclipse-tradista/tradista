@@ -1,5 +1,6 @@
 package org.eclipse.tradista.security.gcrepo.incomingmessage;
 
+import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
@@ -42,7 +43,7 @@ public interface GCRepoIncomingMessageManager<X> extends RepoIncomingMessageMana
 
 	@Override
 	public default long saveObject(GCRepoTrade trade) throws TradistaBusinessException {
-		return gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, null);
+		return gcRepoTradeBusinessDelegate.saveGCRepoTrade(trade, ActionConstants.NEW);
 	}
 
 	void checkBasket(X externalMessage, StringBuilder errMsg);

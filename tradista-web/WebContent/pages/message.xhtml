@@ -6,12 +6,15 @@
 	<ui:define name="title">Eclipse Tradista Message</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Message</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{messageReportController.onload}" />
+		</f:metadata>
 		<h:form id="messageForm">
 			<p:panel header="Message Report">
+				<p:messages showDetail="true" closable="true" id="msg" />
 				<p:panelGrid id="message" header="Message"
 					styleClass="tradista-nested"
 					columnClasses="ui-g-4 ui-md-4 ui-lg-4, ui-g-8 ui-md-8 ui-lg-8">
-					<p:messages showDetail="true" closable="true" id="msg" />
 					<p:row>
 						<p:column>
 							<p:card>
@@ -67,6 +70,22 @@
 										</p:autoComplete>
 									</p:row>
 									<p:row>
+										<p:outputLabel value="Status" for="statusAutoComplete" />
+										<p:autoComplete id="statusAutoComplete" multiple="true"
+											value="#{messageReportController.selectedStatuses}"
+											completeMethod="#{messageReportController.completeStatus}"
+											showEmptyMessage="false" unique="true" forceSelection="true"
+											scrollHeight="250" dropdown="true"
+											disabled="#{not empty messageReportController.selectedDirections}">
+											<p:ajax event="itemSelect"
+												listener="#{messageReportController.onStatusChange}"
+												update="statusAutoComplete directionButton" />
+											<p:ajax event="itemUnselect"
+												listener="#{messageReportController.onStatusChange}"
+												update="statusAutoComplete directionButton" />
+										</p:autoComplete>
+									</p:row>
+									<p:row>
 										<p:outputLabel value="Message Id" for="messageIdTextField" />
 										<p:inputNumber id="messageIdTextField"
 											value="#{messageReportController.messageId}" />
@@ -75,9 +94,13 @@
 										<p:outputLabel value="Direction" for="directionButton" />
 										<p:selectManyButton
 											value="#{messageReportController.selectedDirections}"
-											id="directionButton">
+											id="directionButton"
+											disabled="#{not empty messageReportController.selectedStatuses}">
 											<f:selectItems
 												value="#{messageReportController.allDirections}" />
+											<p:ajax event="change"
+												listener="#{messageReportController.onDirectionChange}"
+												update="statusAutoComplete directionButton" />
 										</p:selectManyButton>
 									</p:row>
 									<p:row>
@@ -132,19 +155,15 @@
 										<p:outputLabel
 											value="#{msg.isIncoming() ? 'Incoming' : 'Outgoing'}" />
 									</p:column>
-									<p:column headerText="Creation Date"
-										sortBy="#{msg.creationDateTime}">
-										<p:outputLabel value="#{msg.creationDateTime}">
-											<f:convertDateTime type="localDateTime"
-												pattern="dd/MM/yyyy hh:mm:ss" />
-										</p:outputLabel>
+									<p:column headerText="Creation Time"
+										sortBy="#{msg.creationTime}">
+										<p:outputLabel value="#{msg.creationTime}"
+											converter="instantConverter" />
 									</p:column>
-									<p:column headerText="Last Update Date"
-										sortBy="#{msg.lastUpdateDateTime}">
-										<p:outputLabel value="#{msg.lastUpdateDateTime}">
-											<f:convertDateTime type="localDateTime"
-												pattern="dd/MM/yyyy hh:mm:ss" />
-										</p:outputLabel>
+									<p:column headerText="Last Update Time"
+										sortBy="#{msg.lastUpdateTime}">
+										<p:outputLabel value="#{msg.lastUpdateTime}"
+											converter="instantConverter" />
 									</p:column>
 									<p:column headerText="Type" sortBy="#{msg.type}">
 										<p:outputLabel value="#{msg.type}" />
@@ -157,7 +176,8 @@
 										<p:outputLabel value="#{msg.objectId}" />
 									</p:column>
 									<p:column headerText="Object Type" sortBy="#{msg.objectType}">
-										<p:outputLabel value="#{msg.objectType}" />
+										<p:outputLabel
+											value="#{msg.objectType eq null ? '' : msg.objectType.toString()}" />
 									</p:column>
 									<p:column headerText="Status" sortBy="#{msg.status}">
 										<p:outputLabel value="#{msg.status}" />

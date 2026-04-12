@@ -58,8 +58,8 @@ public class MessageServiceBean implements MessageService {
 			org.eclipse.tradista.core.message.workflow.mapping.Message mappedMessage = MessageMapper.map(message,
 					workflow);
 			mappedMessage = WorkflowManager.applyAction(mappedMessage, action);
-			message.setStatus(StatusMapper.map(mappedMessage.getStatus()));
-			return message;
+			return mappedMessage.getOriginalMessage().toBuilder().status(StatusMapper.map(mappedMessage.getStatus()))
+					.build();
 		} catch (TradistaFlowBusinessException tfbe) {
 			throw new TradistaBusinessException(tfbe);
 		} catch (TradistaFlowTechnicalException tfte) {

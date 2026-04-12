@@ -6,12 +6,15 @@
 	<ui:define name="title">Eclipse Tradista Import Error</ui:define>
 	<ui:define name="viewname">Eclipse Tradista Import Error</ui:define>
 	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{importErrorReportController.onload}" />
+		</f:metadata>
 		<h:form id="importErrorForm">
 			<p:panel header="Importer Error Report">
+				<p:messages showDetail="true" closable="true" id="msg" />
 				<p:panelGrid id="importError" header="Importer Error"
 					styleClass="tradista-nested"
 					columnClasses="ui-g-4 ui-md-4 ui-lg-4, ui-g-8 ui-md-8 ui-lg-8">
-					<p:messages showDetail="true" closable="true" id="msg" />
 					<p:row>
 						<p:column>
 							<p:card>
@@ -131,13 +134,14 @@
 									</p:column>
 									<p:column headerText="Object Type"
 										sortBy="#{error.message.objectType}">
-										<p:outputLabel value="#{error.message.objectType}" />
+										<p:outputLabel
+											value="#{error.message.objectType eq null ? '' : error.message.objectType.toString()}" />
 									</p:column>
 									<p:column headerText="Status" sortBy="#{error.status}">
-										<p:outputLabel value="#{error.status}" />
+										<p:outputLabel value="#{error.status.toString()}" />
 									</p:column>
 									<p:column headerText="Type" sortBy="#{error.importErrorType}">
-										<p:outputLabel value="#{error.importErrorType}" />
+										<p:outputLabel value="#{error.importErrorType.toString()}" />
 									</p:column>
 									<p:column headerText="Error Message"
 										sortBy="#{error.errorMessage}">
@@ -146,7 +150,7 @@
 								</p:dataTable>
 							</p:card>
 							<p:contextMenu id="contextMenu" for="importErrorTable">
-								<p:menuitem value="Try to solve"
+								<p:menuitem value="Try to solve" update="@form"
 									action="#{importErrorReportController.tryToSolve}" />
 							</p:contextMenu>
 						</p:column>

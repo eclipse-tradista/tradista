@@ -408,9 +408,6 @@ public class SpecificRepoTradeController implements Serializable {
 				trade.setIndexOffset(null);
 			}
 			long tradeId = specificRepoTradeBusinessDelegate.saveSpecificRepoTrade(trade, actionToApply);
-			if (trade.getId() == 0) {
-				trade.setId(tradeId);
-			}
 			trade = specificRepoTradeBusinessDelegate.getSpecificRepoTradeById(tradeId);
 			Set<String> availableActions = workflowBusinessDelegate.getAvailableActionsFromStatus(workflow.getName(),
 					trade.getStatus());

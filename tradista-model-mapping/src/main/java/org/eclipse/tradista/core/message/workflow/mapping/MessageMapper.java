@@ -30,6 +30,9 @@ public final class MessageMapper {
 		if (message instanceof org.eclipse.tradista.core.message.model.IncomingMessage incomingMessage) {
 			messageResult = new IncomingMessage((Workflow<? extends IncomingMessage>) wkf);
 			((IncomingMessage) messageResult).setIncomingMessage(incomingMessage);
+		} else if (message instanceof org.eclipse.tradista.core.message.model.OutgoingMessage outgoingMessage) {
+			messageResult = new OutgoingMessage((Workflow<? extends OutgoingMessage>) wkf);
+			((OutgoingMessage) messageResult).setOutgoingMessage(outgoingMessage);
 		}
 		return messageResult;
 	}

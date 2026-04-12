@@ -27,6 +27,12 @@ public abstract class TransferEvent<X extends Transfer> implements Event {
 
 	private X oldTransfer;
 
+	public static final String TRANSFER = "Transfer";
+
+	public String getType() {
+		return TRANSFER;
+	}
+
 	public X getTransfer() {
 		return transfer;
 	}

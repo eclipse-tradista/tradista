@@ -1,6 +1,6 @@
 package org.eclipse.tradista.core.message.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.workflow.model.Status;
@@ -28,13 +28,13 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private long objectId;
 
-	private String objectType;
+	private ObjectType objectType;
 
 	private String type;
 
-	private LocalDateTime creationDateTime;
+	private Instant creationTime;
 
-	private LocalDateTime lastUpdateDateTime;
+	private Instant lastUpdateTime;
 
 	private String content;
 
@@ -42,60 +42,58 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private String interfaceName;
 
+	protected Message(Builder<?, ?> builder) {
+		setId(builder.id);
+		this.objectId = builder.objectId;
+		this.objectType = builder.objectType;
+		this.type = builder.type;
+		this.content = builder.content;
+		this.status = builder.status;
+		this.interfaceName = builder.interfaceName;
+		this.creationTime = (builder.creationTime != null) ? builder.creationTime : Instant.now();
+		this.lastUpdateTime = (builder.lastUpdateTime != null) ? builder.lastUpdateTime : Instant.now();
+	}
+
+	public abstract Builder<?, ?> toBuilder();
+
+	public enum ObjectType {
+		TRADE;
+
+		@Override
+		public String toString() {
+			return switch (this) {
+			case TRADE -> "Trade";
+			default -> super.toString();
+			};
+		}
+	}
+
 	public long getObjectId() {
 		return objectId;
 	}
 
-	public void setObjectId(long objectId) {
-		this.objectId = objectId;
-	}
-
-	public String getObjectType() {
+	public ObjectType getObjectType() {
 		return objectType;
-	}
-
-	public void setObjectType(String objectType) {
-		this.objectType = objectType;
 	}
 
 	public String getType() {
 		return type;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public Instant getCreationTime() {
+		return creationTime;
 	}
 
-	public LocalDateTime getCreationDateTime() {
-		return creationDateTime;
-	}
-
-	public void setCreationDateTime(LocalDateTime creationDateTime) {
-		this.creationDateTime = creationDateTime;
-	}
-
-	public LocalDateTime getLastUpdateDateTime() {
-		return lastUpdateDateTime;
-	}
-
-	public void setLastUpdateDateTime(LocalDateTime lastUpdateDateTime) {
-		this.lastUpdateDateTime = lastUpdateDateTime;
+	public Instant getLastUpdateTime() {
+		return lastUpdateTime;
 	}
 
 	public String getContent() {
 		return content;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
-	}
-
 	public String getInterfaceName() {
 		return interfaceName;
-	}
-
-	public void setInterfaceName(String interfaceName) {
-		this.interfaceName = interfaceName;
 	}
 
 	public abstract boolean isIncoming();
@@ -107,12 +105,76 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	@Override
 	public String getWorkflow() {
-		return type;
+		if (status != null) {
+			return status.getWorkflowName();
+		}
+		return null;
 	}
 
 	@Override
 	public Status getStatus() {
 		return status;
+	}
+
+	public abstract static class Builder<T extends Message, B extends Builder<T, B>> {
+		protected long id;
+		protected long objectId;
+		protected ObjectType objectType;
+		protected String type;
+		protected String content;
+		protected Status status;
+		protected Instant creationTime;
+		protected Instant lastUpdateTime;
+		protected String interfaceName;
+
+		protected abstract B self();
+
+		public abstract T build();
+
+		public B id(long id) {
+			this.id = id;
+			return self();
+		}
+
+		public B objectId(long objectId) {
+			this.objectId = objectId;
+			return self();
+		}
+
+		public B objectType(ObjectType type) {
+			this.objectType = type;
+			return self();
+		}
+
+		public B type(String type) {
+			this.type = type;
+			return self();
+		}
+
+		public B content(String content) {
+			this.content = content;
+			return self();
+		}
+
+		public B status(Status status) {
+			this.status = status;
+			return self();
+		}
+
+		public B interfaceName(String name) {
+			this.interfaceName = name;
+			return self();
+		}
+
+		public B creationTime(Instant ct) {
+			this.creationTime = ct;
+			return self();
+		}
+
+		public B lastUpdateTime(Instant lut) {
+			this.lastUpdateTime = lut;
+			return self();
+		}
 	}
 
 	@Override

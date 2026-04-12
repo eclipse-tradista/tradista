@@ -19,6 +19,32 @@ package org.eclipse.tradista.core.message.model;
 public class IncomingMessage extends Message {
 
 	private static final long serialVersionUID = 1983583031474077668L;
+	
+	public static final String INCOMING = "Incoming";
+
+	protected IncomingMessage(Builder builder) {
+		super(builder);
+	}
+
+	public static class Builder extends Message.Builder<IncomingMessage, Builder> {
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public IncomingMessage build() {
+			return new IncomingMessage(this);
+		}
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().id(this.getId()).objectId(this.getObjectId()).objectType(this.getObjectType())
+				.type(this.getType()).content(this.getContent()).interfaceName(this.getInterfaceName())
+				.status(this.getStatus()).creationTime(this.getCreationTime());
+	}
 
 	@Override
 	public boolean isIncoming() {

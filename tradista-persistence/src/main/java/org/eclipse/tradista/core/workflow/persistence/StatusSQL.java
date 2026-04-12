@@ -34,23 +34,30 @@ import org.eclipse.tradista.core.workflow.model.Status;
 
 public class StatusSQL {
 
-	public static final Table STATUS_TABLE = new Table("STATUS", ID);
-	private static final Table WORKFLOW_TABLE = new Table("WORKFLOW", ID);
+	public static final Field ID_FIELD = new Field(ID);
+	private static final Field WORKFLOW_ID_FIELD = new Field("WORKFLOW_ID");
+	private static final Field DTYPE_ID_FIELD = new Field("DTYPE");
+	public static final Field NAME_FIELD = new Field(NAME);
 
-	private static final Field ID_FIELD = new Field(ID, STATUS_TABLE);
-	private static final Field WORKFLOW_ID_FIELD = new Field("WORKFLOW_ID", STATUS_TABLE);
-	private static final Field NAME_FIELD = new Field(NAME, STATUS_TABLE);
-	private static final Field WORKFLOW_NAME_FIELD = new Field(NAME, WORKFLOW_TABLE, "WORKFLOW_NAME");
-	private static final Field ID_FIELD_WORKFLOW = new Field(ID, WORKFLOW_TABLE);
+	private static final Field[] STATUS_FIELDS = new Field[] { ID_FIELD, WORKFLOW_ID_FIELD, DTYPE_ID_FIELD,
+			NAME_FIELD };
+
+	private static final Field ID_FIELD_WORKFLOW = new Field(ID);
+	private static final Field WORKFLOW_NAME_FIELD = new Field(NAME, "WORKFLOW_NAME");
+	private static final Field DESCRIPTION_FIELD = new Field("DESCRIPTION", "WORKFLOW_NAME");
+
+	private static final Field[] WORKFLOW_FIELDS = new Field[] { ID_FIELD_WORKFLOW, WORKFLOW_NAME_FIELD,
+			DESCRIPTION_FIELD };
+
+	public static final Table STATUS_TABLE = new Table("STATUS", STATUS_FIELDS);
+	private static final Table WORKFLOW_TABLE = new Table("WORKFLOW", WORKFLOW_FIELDS);
 
 	private static final Field[] FIELDS = { ID_FIELD, WORKFLOW_ID_FIELD, NAME_FIELD, WORKFLOW_NAME_FIELD,
 			ID_FIELD_WORKFLOW };
 
-	private static final Table[] TABLES = { STATUS_TABLE, WORKFLOW_TABLE };
+	private static final Join JOIN = Join.inner(ID_FIELD_WORKFLOW, WORKFLOW_ID_FIELD);
 
-	private static final Join JOIN = new Join(new Field[] { WORKFLOW_ID_FIELD, ID_FIELD_WORKFLOW });
-
-	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, TABLES, JOIN);
+	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, STATUS_TABLE, JOIN);
 
 	public static Status getStatusById(long id) {
 		Status status = null;
@@ -68,8 +75,6 @@ public class StatusSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return status;

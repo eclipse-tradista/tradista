@@ -28,7 +28,7 @@ import quickfix.fix44.TradeCaptureReport;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class RepoFixIncomingMessageManager {
+public abstract class RepoFixIncomingMessageManager {
 
 	protected static final String RIGHT_OF_SUBSTITUTION = "RightOfSubstitution";
 

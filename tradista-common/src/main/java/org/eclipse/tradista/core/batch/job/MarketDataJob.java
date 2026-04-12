@@ -3,7 +3,6 @@ package org.eclipse.tradista.core.batch.job;
 import java.util.Set;
 
 import org.eclipse.tradista.core.batch.jobproperty.JobProperty;
-import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;

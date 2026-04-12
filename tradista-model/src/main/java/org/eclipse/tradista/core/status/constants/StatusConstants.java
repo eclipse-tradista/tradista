@@ -22,9 +22,25 @@ public final class StatusConstants {
 	}
 
 	public static final String CREATED = "CREATED";
+	
+	public static final String CANCELED = "CANCELED";
 
 	public static final String ALLOCATED = "ALLOCATED";
 
-	public static final String STRUCTURE_KO = "STRUCTURE_KO";
+	public static final String TO_BE_VALIDATED = "TO_BE_VALIDATED";
+
+	public static final String VALIDATED = "VALIDATED";
+
+	public static final String VALIDATION_KO = "VALIDATION_KO";
+
+	public static final String GENERATED = "GENERATED";
+
+	public static final String TO_BE_GENERATED = "TO_BE_GENERATED";
+
+	public static final String TO_BE_SENT = "TO_BE_SENT";
+
+	public static final String SENT = "SENT";
+
+	public static final String PROCESSED = "PROCESSED";
 
 }

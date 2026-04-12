@@ -3,7 +3,6 @@ package org.eclipse.tradista.core.batch.job;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.batch.jobproperty.JobProperty;
-import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.dailypnl.model.DailyPnl;

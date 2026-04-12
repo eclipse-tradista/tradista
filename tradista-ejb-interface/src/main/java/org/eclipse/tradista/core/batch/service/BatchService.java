@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import org.eclipse.tradista.core.batch.model.TradistaJob;
 import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -34,9 +33,9 @@ public interface BatchService {
 
 	Set<String> getAllJobTypes();
 
-	String getJobTypeByClass(Class<? extends TradistaJob> klass) throws TradistaBusinessException;
+	String getJobTypeByClass(String className) throws TradistaBusinessException;
 
-	Class<? extends TradistaJob> getJobClassByType(String jobType) throws TradistaBusinessException;
+	String getJobClassByType(String jobType) throws TradistaBusinessException;
 
 	void deleteJobInstance(String jobInstanceName, String po);
 

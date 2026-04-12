@@ -50,6 +50,7 @@ public class MenuController implements Serializable {
 				.add(DefaultMenuItem.builder().value("Specific Repo").url("specificrepotrade.xhtml").build());
 		productMenu.getElements().add(DefaultMenuItem.builder().value("GC Basket").url("gcbasket.xhtml").build());
 		reportMenu.getElements().add(DefaultMenuItem.builder().value("Import Errors").url("importerror.xhtml").build());
+		reportMenu.getElements().add(DefaultMenuItem.builder().value("Export Errors").url("exporterror.xhtml").build());
 		reportMenu.getElements().add(DefaultMenuItem.builder().value("Messages").url("message.xhtml").build());
 		configurationMenu.getElements().add(
 				DefaultMenuItem.builder().value("Processing Org Defaults").url("processingorgdefaults.xhtml").build());
@@ -57,6 +58,8 @@ public class MenuController implements Serializable {
 				.url("allocationconfiguration.xhtml").build());
 		configurationMenu.getElements()
 				.add(DefaultMenuItem.builder().value("Importer Mapping").url("importermapping.xhtml").build());
+		configurationMenu.getElements()
+				.add(DefaultMenuItem.builder().value("Exporter Mapping").url("exportermapping.xhtml").build());
 		model.getElements().add(tradeMenu);
 		model.getElements().add(productMenu);
 		model.getElements().add(reportMenu);

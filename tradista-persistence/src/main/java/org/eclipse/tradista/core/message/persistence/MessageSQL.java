@@ -1,18 +1,10 @@
 package org.eclipse.tradista.core.message.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_DATE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
-
-import static org.eclipse.tradista.core.workflow.persistence.StatusSQL.STATUS_TABLE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
@@ -33,6 +24,8 @@ import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.model.Message.ObjectType;
+import org.eclipse.tradista.core.message.model.OutgoingMessage;
 import org.eclipse.tradista.core.workflow.persistence.StatusSQL;
 import org.springframework.util.CollectionUtils;
 
@@ -54,46 +47,40 @@ import org.springframework.util.CollectionUtils;
 
 public class MessageSQL {
 
-	public static final Table MESSAGE_TABLE = new Table("MESSAGE", ID);
+	public static final Field ID_FIELD = new Field(ID);
+	private static final Field INCOMING_FIELD = new Field("INCOMING");
+	private static final Field OBJECT_ID_FIELD = new Field("OBJECT_ID");
+	private static final Field OBJECT_TYPE_FIELD = new Field("OBJECT_TYPE");
+	private static final Field CONTENT_FIELD = new Field("CONTENT");
+	public static final Field TYPE_FIELD = new Field(TYPE);
+	public static final Field INTERFACE_NAME_FIELD = new Field("INTERFACE_NAME");
+	private static final Field CREATION_TIME_FIELD = new Field("CREATION_TIME");
+	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME);
+	private static final Field STATUS_ID_FIELD = new Field(STATUS_ID);
 
-	private static final Field ID_FIELD = new Field(ID, MESSAGE_TABLE);
-	private static final Field INCOMING_FIELD = new Field("INCOMING", MESSAGE_TABLE);
-	private static final Field OBJECT_ID_FIELD = new Field("OBJECT_ID", MESSAGE_TABLE);
-	private static final Field OBJECT_TYPE_FIELD = new Field("OBJECT_TYPE", MESSAGE_TABLE);
-	private static final Field CONTENT_FIELD = new Field("CONTENT", MESSAGE_TABLE);
-	private static final Field TYPE_FIELD = new Field(TYPE, MESSAGE_TABLE);
-	public static final Field INTERFACE_NAME_FIELD = new Field("INTERFACE_NAME", MESSAGE_TABLE);
-	private static final Field CREATION_DATE_FIELD = new Field(CREATION_DATE, MESSAGE_TABLE);
-	private static final Field LAST_UPDATE_DATE_FIELD = new Field(LAST_UPDATE_DATE, MESSAGE_TABLE);
-	private static final Field STATUS_ID_FIELD = new Field(STATUS_ID, MESSAGE_TABLE);
+	private static final Field[] MESSAGE_FIELDS = { ID_FIELD, INCOMING_FIELD, OBJECT_ID_FIELD, OBJECT_TYPE_FIELD,
+			CONTENT_FIELD, TYPE_FIELD, INTERFACE_NAME_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
+			STATUS_ID_FIELD };
 
-	private static final Field[] FIELDS = { ID_FIELD, INCOMING_FIELD, OBJECT_ID_FIELD, OBJECT_TYPE_FIELD, CONTENT_FIELD,
-			TYPE_FIELD, INTERFACE_NAME_FIELD, CREATION_DATE_FIELD, LAST_UPDATE_DATE_FIELD, STATUS_ID_FIELD };
+	public static final Table MESSAGE_TABLE = new Table("MESSAGE", MESSAGE_FIELDS);
 
-	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, new Table[] { MESSAGE_TABLE });
+	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(MESSAGE_TABLE);
 
 	public static long saveMessage(Message message) {
-
-		long messageId = 0;
-
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveMessage = (message.getId() != 0)
-						? con.prepareStatement("UPDATE " + MESSAGE_TABLE + " SET " + INCOMING_FIELD + "=?,"
-								+ CREATION_DATE + "=?," + LAST_UPDATE_DATE + "=?," + TYPE + "=?," + INTERFACE_NAME_FIELD
-								+ "=?," + OBJECT_ID_FIELD + "=?," + OBJECT_TYPE_FIELD + "=?," + CONTENT_FIELD + "=?,"
-								+ STATUS_ID + "=?" + WHERE + ID + "= ?")
-						: con.prepareStatement(
-								"INSERT INTO " + MESSAGE_TABLE + "(" + INCOMING_FIELD + "," + CREATION_DATE + ","
-										+ LAST_UPDATE_DATE + "," + TYPE + "," + INTERFACE_NAME_FIELD + ","
-										+ OBJECT_ID_FIELD + "," + OBJECT_TYPE_FIELD + "," + CONTENT_FIELD + ","
-										+ STATUS_ID + ") VALUES (?,?,?,?,?,?,?,?,?)",
-								Statement.RETURN_GENERATED_KEYS)) {
+						? TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, MESSAGE_TABLE, INCOMING_FIELD,
+								CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD, TYPE_FIELD, INTERFACE_NAME_FIELD,
+								OBJECT_ID_FIELD, OBJECT_TYPE_FIELD, CONTENT_FIELD, STATUS_ID_FIELD)
+						: TradistaDBUtil.buildInsertPreparedStatement(con, MESSAGE_TABLE, INCOMING_FIELD,
+								CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD, TYPE_FIELD, INTERFACE_NAME_FIELD,
+								OBJECT_ID_FIELD, OBJECT_TYPE_FIELD, CONTENT_FIELD, STATUS_ID_FIELD)) {
 			if (message.getId() != 0) {
 				stmtSaveMessage.setLong(10, message.getId());
 			}
 			stmtSaveMessage.setBoolean(1, message instanceof IncomingMessage);
-			stmtSaveMessage.setTimestamp(2, Timestamp.valueOf(message.getCreationDateTime()));
-			stmtSaveMessage.setTimestamp(3, Timestamp.valueOf(message.getLastUpdateDateTime()));
+			stmtSaveMessage.setTimestamp(2, Timestamp.from(message.getCreationTime()));
+			stmtSaveMessage.setTimestamp(3, Timestamp.from(message.getLastUpdateTime()));
 			stmtSaveMessage.setString(4, message.getType());
 			stmtSaveMessage.setString(5, message.getInterfaceName());
 			if (message.getObjectId() == 0) {
@@ -101,10 +88,10 @@ public class MessageSQL {
 			} else {
 				stmtSaveMessage.setLong(6, message.getObjectId());
 			}
-			if (StringUtils.isBlank(message.getObjectType())) {
+			if (message.getObjectType() == null) {
 				stmtSaveMessage.setNull(7, java.sql.Types.VARCHAR);
 			} else {
-				stmtSaveMessage.setString(7, message.getObjectType());
+				stmtSaveMessage.setString(7, message.getObjectType().name());
 			}
 			stmtSaveMessage.setString(8, message.getContent());
 			stmtSaveMessage.setLong(9, message.getStatus().getId());
@@ -113,20 +100,17 @@ public class MessageSQL {
 			if (message.getId() == 0) {
 				try (ResultSet generatedKeys = stmtSaveMessage.getGeneratedKeys()) {
 					if (generatedKeys.next()) {
-						messageId = generatedKeys.getLong(1);
-						message.setId(messageId);
+						message.setId(generatedKeys.getLong(1));
 					} else {
 						throw new SQLException("Creating message failed, no generated key obtained.");
 					}
 				}
-			} else {
-				messageId = message.getId();
 			}
 		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle.getMessage());
 		}
 
-		return messageId;
+		return message.getId();
 	}
 
 	public static Message getMessageById(long id) {
@@ -139,19 +123,25 @@ public class MessageSQL {
 			stmtGetMessageById.setLong(1, id);
 			try (ResultSet results = stmtGetMessageById.executeQuery()) {
 				while (results.next()) {
-					String type = results.getString(TYPE);
-					if (type.equals("Fix")) {
-						message = new IncomingMessage();
+					Message.Builder<? extends Message, ?> builder;
+					boolean incoming = results.getBoolean(INCOMING_FIELD.getName());
+					if (incoming) {
+						builder = new IncomingMessage.Builder();
+					} else {
+						builder = new OutgoingMessage.Builder();
 					}
-					message.setId(results.getLong(ID));
-					message.setCreationDateTime(results.getTimestamp(CREATION_DATE).toLocalDateTime());
-					message.setLastUpdateDateTime(results.getTimestamp(LAST_UPDATE_DATE).toLocalDateTime());
-					message.setObjectId(results.getLong(OBJECT_ID_FIELD.name()));
-					message.setObjectType(results.getString(OBJECT_TYPE_FIELD.name()));
-					message.setInterfaceName(results.getString(INTERFACE_NAME_FIELD.name()));
-					message.setContent(results.getString(CONTENT_FIELD.name()));
-					message.setStatus(StatusSQL.getStatusById(results.getLong(STATUS_ID)));
-					message.setType(results.getString(TYPE_FIELD.name()));
+					String objectTypeStr = results.getString(OBJECT_TYPE_FIELD.getName());
+					ObjectType objectType = (objectTypeStr != null) ? ObjectType.valueOf(objectTypeStr) : null;
+					builder.id(results.getLong(ID)).objectId(results.getLong(OBJECT_ID_FIELD.getName()))
+							.objectType(objectType).type(results.getString(TYPE_FIELD.getName()))
+							.content(results.getString(CONTENT_FIELD.getName()))
+							.interfaceName(results.getString(INTERFACE_NAME_FIELD.getName()))
+							.status(StatusSQL.getStatusById(results.getLong(STATUS_ID)))
+							// Crucial : We reinject dates from DB in order to not regenerate "NOW"
+							.creationTime(results.getTimestamp(CREATION_DATE).toInstant())
+							.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME).toInstant());
+
+					message = builder.build();
 				}
 			}
 		} catch (SQLException sqle) {
@@ -174,45 +164,42 @@ public class MessageSQL {
 			TradistaDBUtil.addFilter(sqlQuery, INTERFACE_NAME_FIELD, interfaceNames);
 			TradistaDBUtil.addFilter(sqlQuery, OBJECT_ID_FIELD, objectId);
 			TradistaDBUtil.addFilter(sqlQuery, OBJECT_TYPE_FIELD, objectTypes);
-			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeFrom, true);
-			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATE_FIELD, creationDateTimeTo, false);
-			TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeFrom, true);
-			TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_DATE_FIELD, lastUpdateDateTimeTo, false);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_TIME_FIELD, creationDateTimeFrom, true);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_TIME_FIELD, creationDateTimeTo, false);
+			TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_TIME_FIELD, lastUpdateDateTimeFrom, true);
+			TradistaDBUtil.addFilter(sqlQuery, LAST_UPDATE_TIME_FIELD, lastUpdateDateTimeTo, false);
 
-			String statusesSqlQuery = StringUtils.EMPTY;
 			if (!CollectionUtils.isEmpty(statuses)) {
-				String statusNamesSql = StringUtils.join(statuses, "','");
-				if (sqlQuery.indexOf(WHERE) != -1) {
-					statusesSqlQuery = AND;
-				} else {
-					statusesSqlQuery = WHERE;
-				}
-				statusesSqlQuery += STATUS_ID + IN + " (" + SELECT + ID + FROM + STATUS_TABLE + WHERE + ID + " = "
-						+ STATUS_ID + AND + NAME + IN + " ('" + statusNamesSql + "'))";
+				StringBuilder queryFilter = new StringBuilder(
+						TradistaDBUtil.buildSelectQuery(new Field[] { StatusSQL.ID_FIELD }, StatusSQL.STATUS_TABLE));
+				TradistaDBUtil.addFilter(queryFilter, StatusSQL.NAME_FIELD, statuses);
+				TradistaDBUtil.addQueryFilter(sqlQuery, STATUS_ID_FIELD, queryFilter.toString(), false);
 			}
-
-			sqlQuery.append(statusesSqlQuery);
 
 			try (ResultSet results = stmtGetMessages.executeQuery(sqlQuery.toString())) {
 				while (results.next()) {
 					if (messages == null) {
 						messages = new ArrayList<>();
 					}
-					Message message = null;
-					String dbType = results.getString(TYPE);
-					if (dbType.equals("Fix")) {
-						message = new IncomingMessage();
+					Message.Builder<? extends Message, ?> builder;
+					boolean incoming = results.getBoolean(INCOMING_FIELD.getName());
+					if (incoming) {
+						builder = new IncomingMessage.Builder();
+					} else {
+						builder = new OutgoingMessage.Builder();
 					}
-					message.setId(results.getLong(ID));
-					message.setCreationDateTime(results.getTimestamp(CREATION_DATE).toLocalDateTime());
-					message.setLastUpdateDateTime(results.getTimestamp(LAST_UPDATE_DATE).toLocalDateTime());
-					message.setObjectId(results.getLong(OBJECT_ID_FIELD.name()));
-					message.setObjectType(results.getString(OBJECT_TYPE_FIELD.name()));
-					message.setInterfaceName(results.getString(INTERFACE_NAME_FIELD.name()));
-					message.setContent(results.getString(CONTENT_FIELD.name()));
-					message.setStatus(StatusSQL.getStatusById(results.getLong(STATUS_ID)));
-					message.setType(results.getString(TYPE_FIELD.name()));
-					messages.add(message);
+					String objectTypeStr = results.getString(OBJECT_TYPE_FIELD.getName());
+					ObjectType objectType = (objectTypeStr != null) ? ObjectType.valueOf(objectTypeStr) : null;
+					builder.id(results.getLong(ID_FIELD.getName())).objectId(results.getLong(OBJECT_ID_FIELD.getName()))
+							.objectType(objectType).type(results.getString(TYPE_FIELD.getName()))
+							.content(results.getString(CONTENT_FIELD.getName()))
+							.interfaceName(results.getString(INTERFACE_NAME_FIELD.getName()))
+							.status(StatusSQL.getStatusById(results.getLong(STATUS_ID_FIELD.getName())))
+							// Crucial : We reinject dates from DB in order to not regenerate "NOW"
+							.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant())
+							.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
+
+					messages.add(builder.build());
 				}
 			}
 		} catch (SQLException sqle) {

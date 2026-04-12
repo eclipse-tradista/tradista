@@ -38,7 +38,7 @@ public abstract class RepoTradeValidator extends DefaultTradeValidator {
 
 		// Other business controls
 		if (trade.getAmount() != null && trade.getAmount().doubleValue() <= 0) {
-			errMsg.append(String.format("The amount (%s) must be positive.%n", trade.getAmount().doubleValue()));
+			errMsg.append(String.format("The amount (%f) must be positive.%n", trade.getAmount()));
 		}
 
 		if (trade.getSettlementDate() == null) {
@@ -55,8 +55,7 @@ public abstract class RepoTradeValidator extends DefaultTradeValidator {
 		if (repoTrade.getMarginRate() == null) {
 			errMsg.append(String.format("The margin rate is mandatory.%n"));
 		} else if (repoTrade.getMarginRate().doubleValue() <= 0) {
-			errMsg.append(
-					String.format("The margin rate (%s) must be positive.%n", repoTrade.getMarginRate().doubleValue()));
+			errMsg.append(String.format("The margin rate (%f) must be positive.%n", repoTrade.getMarginRate()));
 		}
 
 		if (repoTrade.isFixedRepoRate()) {
@@ -153,7 +152,7 @@ public abstract class RepoTradeValidator extends DefaultTradeValidator {
 					continue;
 				} else {
 					if (entry.getKey().isBefore(repoTrade.getSettlementDate())
-							|| entry.getKey().isAfter(repoTrade.getEndDate())) {
+							|| (repoTrade.getEndDate() != null && entry.getKey().isAfter(repoTrade.getEndDate()))) {
 						errMsg.append(String.format(
 								"One of the partial termination date (%tD) is not between trade settlement and end dates, please check.%n",
 								entry.getKey()));
@@ -166,7 +165,7 @@ public abstract class RepoTradeValidator extends DefaultTradeValidator {
 				} else {
 					if (entry.getValue().signum() <= 0) {
 						errMsg.append(String.format(
-								"Partial termination amount (%s) for date %tD must be positive, please check.%n",
+								"Partial termination amount (%f) for date %tD must be positive, please check.%n",
 								entry.getValue(), entry.getKey()));
 					}
 				}
