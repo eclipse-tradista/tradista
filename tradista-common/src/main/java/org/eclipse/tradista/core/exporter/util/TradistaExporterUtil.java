@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.exporter.model.OutgoingMessageManager;
-import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.message.util.MessageUtil;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
@@ -34,9 +34,7 @@ public final class TradistaExporterUtil {
 	public static OutgoingMessageManager<?, ?> getOutgoingMessageManager(String productType, String messageType)
 			throws TradistaBusinessException {
 		if (!outgoingMessageManagerCache.containsKey(productType)) {
-			String className = "org.eclipse.tradista." + new ProductBusinessDelegate().getProductFamily(productType)
-					+ "." + productType.toLowerCase() + "." + messageType.toLowerCase() + "." + productType
-					+ messageType + "OutgoingMessageManager";
+			String className = MessageUtil.getMessageManagerClassName(productType, messageType, false);
 			outgoingMessageManagerCache.put(productType,
 					TradistaUtil.getInstance(OutgoingMessageManager.class, className));
 		}

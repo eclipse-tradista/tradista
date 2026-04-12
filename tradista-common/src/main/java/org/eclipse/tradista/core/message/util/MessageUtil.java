@@ -3,7 +3,11 @@ package org.eclipse.tradista.core.message.util;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.util.TradistaConstants;
+import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.model.Message;
+import org.eclipse.tradista.core.message.model.OutgoingMessage;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 
@@ -56,6 +60,14 @@ public final class MessageUtil {
 			return tradeBusinessDelegate.getTradeById(objectId);
 		}
 		return null;
+	}
+
+	public static String getMessageManagerClassName(String productType, String messageType, boolean isIncoming)
+			throws TradistaBusinessException {
+		String direction = isIncoming ? IncomingMessage.INCOMING : OutgoingMessage.OUTGOING;
+		return TradistaConstants.TRADISTA_PACKAGE + "." + new ProductBusinessDelegate().getProductFamily(productType)
+				+ "." + productType.toLowerCase() + "." + messageType.toLowerCase() + "." + productType + messageType
+				+ direction + "MessageManager";
 	}
 
 }
