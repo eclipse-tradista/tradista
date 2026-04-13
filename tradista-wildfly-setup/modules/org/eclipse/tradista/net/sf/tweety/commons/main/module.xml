@@ -12,8 +12,7 @@
 		<module
 			name="org.eclipse.tradista.ch.qos.logback.logback-classic"
 			export="true" />
-		<module name="org.eclipse.tradista.org.slf4j.log4j-over-slf4j"
-			export="true" />
+		<module name="org.slf4j" />
 	</dependencies>
 
 </module>
