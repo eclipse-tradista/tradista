@@ -17,8 +17,7 @@
 			export="true" />
 		<module name="org.eclipse.tradista.gov.nist.math.jama"
 			export="true" />
-		<module name="org.eclipse.tradista.org.slf4j.log4j-over-slf4j"
-			export="true" />
+		<module name="org.slf4j" />
 		<module name="org.eclipse.tradista.org.ojalgo.ojalgo"
 			export="true" />
 		<module name="org.eclipse.tradista.com.dbtsai.lbfgs.lbfgs"
