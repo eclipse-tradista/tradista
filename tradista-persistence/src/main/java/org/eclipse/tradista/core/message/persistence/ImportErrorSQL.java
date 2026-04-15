@@ -61,7 +61,7 @@ public class ImportErrorSQL {
 
 	private static final Table IMPORT_ERROR_TABLE = new Table("IMPORT_ERROR", IMPORT_ERROR_FIELDS);
 
-	private static final Join ERROR_AND_IMPORT_ERROR_INNER_JOIN = Join.inner(ID_FIELD, ERROR_ID_FIELD);
+	private static final Join ERROR_AND_IMPORT_ERROR_INNER_JOIN = Join.innerEq(ERROR_TABLE, ID_FIELD, ERROR_ID_FIELD);
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(IMPORT_ERROR_TABLE,
 			ERROR_AND_IMPORT_ERROR_INNER_JOIN);
@@ -136,7 +136,7 @@ public class ImportErrorSQL {
 
 			if (!CollectionUtils.isEmpty(importerTypes)) {
 				StringBuilder queryFilter = new StringBuilder(
-						TradistaDBUtil.buildSelectQuery(new Field[] { MessageSQL.ID_FIELD }, MessageSQL.MESSAGE_TABLE));
+						TradistaDBUtil.buildSelectQuery(MessageSQL.ID_FIELD, MessageSQL.MESSAGE_TABLE));
 				TradistaDBUtil.addFilter(queryFilter, MessageSQL.TYPE_FIELD, importerTypes);
 				TradistaDBUtil.addQueryFilter(sqlQuery, MESSAGE_ID_FIELD, queryFilter.toString(), false);
 			}

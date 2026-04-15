@@ -978,9 +978,16 @@ public final class PricerUtil {
 			equityPrice = getEquityClosingPrice(equityIsin, equityExchangeCode, date, quoteSetId);
 			if (equityPrice != null) {
 				return equityPrice;
+			} else {
+				throw new TradistaBusinessException(
+						String.format("It was not possible to get the Equity price as of %tD for %s (Equity.%s.%s)",
+								date, equityIsin, equityIsin, equityExchangeCode));
 			}
 		}
-		if (date.equals(now)) {
+		if (date.equals(now) || date.isAfter(now)) {
+			if (date.isAfter(now)) {
+				date = now;
+			}
 			if (quoteSetId <= 0) {
 				throw new TradistaBusinessException(
 						"The quote set id is mandatory when the conversion date is the current date.");
@@ -1001,12 +1008,13 @@ public final class PricerUtil {
 					return equityPriceMap.get(equityPriceQuote);
 				}
 			}
+
+			throw new TradistaBusinessException(
+					String.format("It was not possible to get the Equity price as of %tD for %s (Equity.%s.%s)", date,
+							equityIsin, equityIsin, equityExchangeCode));
 		}
 
-		throw new TradistaBusinessException(
-				String.format("It was not possible to get the Equity price as of %tD for %s (Equity.%s.%s)", date,
-						equityIsin, equityIsin, equityExchangeCode));
-
+		return null;
 	}
 
 	public static BigDecimal getTotalFlowsAmount(List<CashFlow> cfs, Currency valueCurrency, LocalDate valueDate,

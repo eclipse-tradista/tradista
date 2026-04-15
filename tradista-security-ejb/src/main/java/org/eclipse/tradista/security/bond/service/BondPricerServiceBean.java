@@ -10,6 +10,7 @@ import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.DateUtil;
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.inventory.model.ProductInventory;
@@ -25,6 +26,8 @@ import org.eclipse.tradista.security.bond.model.BondTrade;
 import org.eclipse.tradista.security.bond.model.Coupon;
 import org.eclipse.tradista.security.bond.pricer.PricerBondUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
@@ -53,6 +56,14 @@ import jakarta.interceptor.Interceptors;
 @Interceptors(BondProductScopeFilteringInterceptor.class)
 public class BondPricerServiceBean implements BondPricerService {
 
+	private static final String BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The bond (%s) maturity date must be after the current and pricing dates";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX = "%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
+
+	private static final Logger logger = LoggerFactory.getLogger(BondPricerServiceBean.class);
+
 	@EJB
 	private BondTradeService bondTradeService;
 
@@ -67,18 +78,18 @@ public class BondPricerServiceBean implements BondPricerService {
 
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getProduct().getCurrency());
 		if (discountCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.",
-					params.getName(), trade.getProduct().getCurrency()));
+			throw new TradistaBusinessException(
+					String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+							trade.getProduct().getCurrency()));
 		}
 
 		InterestRateCurve indexCurve = null;
 		if (!trade.getProduct().getCouponType().equals("Fixed")) {
 			indexCurve = params.getIndexCurves().get(trade.getProduct().getReferenceRateIndex());
 			if (indexCurve == null) {
-				throw new TradistaBusinessException(String.format(
-						"%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.",
-						params.getName(), trade.getProduct().getReferenceRateIndex()));
+				throw new TradistaBusinessException(
+						String.format(PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX, params.getName(),
+								trade.getProduct().getReferenceRateIndex()));
 			}
 		}
 
@@ -116,9 +127,9 @@ public class BondPricerServiceBean implements BondPricerService {
 		Bond bond = trade.getProduct();
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(bond.getCurrency());
 		if (discountCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.",
-					params.getName(), bond.getCurrency()));
+			throw new TradistaBusinessException(
+					String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+							bond.getCurrency()));
 		}
 
 		try {
@@ -140,7 +151,7 @@ public class BondPricerServiceBean implements BondPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
@@ -154,7 +165,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// First, get the pv
@@ -182,7 +193,7 @@ public class BondPricerServiceBean implements BondPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
@@ -196,7 +207,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// Get the sum of all the discounted cashflows (clean price)
@@ -238,15 +249,16 @@ public class BondPricerServiceBean implements BondPricerService {
 		if (!trade.getProduct().getCouponType().equals("Fixed")) {
 			indexCurve = params.getIndexCurves().get(trade.getProduct().getReferenceRateIndex());
 			if (indexCurve == null) {
-				throw new TradistaBusinessException(String.format(
-						"%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.",
-						params.getName(), trade.getProduct().getReferenceRateIndex()));
+				throw new TradistaBusinessException(
+						String.format(PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX, params.getName(),
+								trade.getProduct().getReferenceRateIndex()));
 			}
 		}
 
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getProduct().getCurrency());
 		if (discountCurve == null) {
-			// TODO Add log warn
+			logger.warn("The discount curve could not be found in params {} for currency {}", params,
+					trade.getProduct().getCurrency());
 		}
 
 		List<CashFlow> cashFlows = PricerBondUtil.generateCashFlows(trade, pricingDate, params.getQuoteSet(),
@@ -360,25 +372,25 @@ public class BondPricerServiceBean implements BondPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// First, sum all the discounted coupons
 		Bond bond = trade.getProduct();
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(bond.getCurrency());
 		if (discountCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.",
-					params.getName(), bond.getCurrency()));
+			throw new TradistaBusinessException(
+					String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+							bond.getCurrency()));
 		}
 
 		InterestRateCurve indexCurve = null;
 		if (!trade.getProduct().getCouponType().equals("Fixed")) {
 			indexCurve = params.getIndexCurves().get(bond.getReferenceRateIndex());
 			if (indexCurve == null) {
-				throw new TradistaBusinessException(String.format(
-						"%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.",
-						params.getName(), bond.getReferenceRateIndex()));
+				throw new TradistaBusinessException(
+						String.format(PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX, params.getName(),
+								bond.getReferenceRateIndex()));
 			}
 		}
 
@@ -397,7 +409,6 @@ public class BondPricerServiceBean implements BondPricerService {
 
 			return discountedCoupons.multiply(trade.getQuantity());
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
@@ -408,7 +419,7 @@ public class BondPricerServiceBean implements BondPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
@@ -422,7 +433,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// First, get the clean price (sum of all the pending cashflows)
@@ -490,9 +501,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		List<BondTrade> trades = bondTradeService.getBondTradesBeforeTradeDateByBondAndBookIds(pricingDate,
 				bond.getId(), bookId);
 
-		if (trades != null && !trades.isEmpty())
-
-		{
+		if (trades != null && !trades.isEmpty()) {
 			for (BondTrade trade : trades) {
 				if (trade.isBuy()) {
 					realizedPnl.subtract(trade.getAmount().multiply(trade.getQuantity()));

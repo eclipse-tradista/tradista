@@ -41,7 +41,7 @@ public class PositionBusinessDelegate {
 
 	private void checkPosition(Position position) throws TradistaBusinessException {
 		if (position == null) {
-			throw new TradistaBusinessException("The position cannot be null.");
+			throw new TradistaBusinessException("The position is mandatory.");
 		}
 		StringBuilder errMsg = new StringBuilder();
 		if (position.getPnl() == null) {
@@ -57,7 +57,7 @@ public class PositionBusinessDelegate {
 			errMsg.append(String.format("The position definition is mandatory.%n"));
 		}
 		if (position.getValueDateTime() == null) {
-			errMsg.append(String.format("The value date time is mandatory.%n"));
+			errMsg.append("The value date time is mandatory.");
 		}
 
 		if (!errMsg.isEmpty()) {
@@ -90,7 +90,7 @@ public class PositionBusinessDelegate {
 			errMsg.append(String.format("The position definition name is mandatory.%n"));
 		}
 		if (valueDateTime == null) {
-			errMsg.append(String.format("The value date time cannot be null.%n"));
+			errMsg.append("The value date time is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());

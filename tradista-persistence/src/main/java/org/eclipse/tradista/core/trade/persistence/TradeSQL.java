@@ -301,7 +301,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -370,7 +369,6 @@ public class TradeSQL {
 
 	public static Set<Trade<? extends Product>> getTrades(PositionDefinition posDef) {
 		Set<Trade<? extends Product>> trades = null;
-
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetTradesByPosition = con.prepareStatement(buildSQLTradeQuery(posDef))) {
 			try (ResultSet results = stmtGetTradesByPosition.executeQuery()) {
@@ -390,7 +388,6 @@ public class TradeSQL {
 						} catch (TradistaBusinessException | SecurityException | IllegalArgumentException _) {
 							// Not expected here.
 						} catch (Exception e) {
-							e.printStackTrace();
 							throw new TradistaTechnicalException(e);
 						}
 					} else {
@@ -406,7 +403,6 @@ public class TradeSQL {
 								}
 							}
 						} catch (Exception e) {
-							e.printStackTrace();
 							throw new TradistaTechnicalException(e);
 						}
 					}
@@ -417,7 +413,6 @@ public class TradeSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trades;
@@ -437,6 +432,7 @@ public class TradeSQL {
 			// think so.
 			join += " LEFT OUTER JOIN REPO_TRADE ON REPO_TRADE.REPO_TRADE_ID=TRADE.ID";
 			join += " LEFT OUTER JOIN GCREPO_TRADE ON GCREPO_TRADE.GCREPO_TRADE_ID=REPO_TRADE.REPO_TRADE_ID";
+			join += " LEFT OUTER JOIN PARTIAL_TERMINATION ON PARTIAL_TERMINATION.TRADE_ID=REPO_TRADE.REPO_TRADE_ID";
 			join += " LEFT OUTER JOIN TRADE UND_EQUITY_TRADE ON UNDERLYING_EQUITY.EQUITY_TRADE_ID=UND_EQUITY_TRADE.ID";
 			join += " LEFT OUTER JOIN TRADE UND_FXSPOT_TRADE ON UNDERLYING_FXSPOT.FXSPOT_TRADE_ID=UND_FXSPOT_TRADE.ID";
 			join += " LEFT OUTER JOIN TRADE UND_IRSWAP_TRADE ON UNDERLYING_IRSWAP.IRSWAP_TRADE_ID=UND_IRSWAP_TRADE.ID";
@@ -463,16 +459,16 @@ public class TradeSQL {
 		if (!join.endsWith(WHERE)) {
 			filters = AND;
 		}
-		filters += " " + BOOK_ID_FIELD.getAlias() + " = " + posDef.getBook().getId();
+		filters += " " + BOOK_ID_FIELD.getFullName() + " = " + posDef.getBook().getId();
 		if (posDef.getCounterparty() != null) {
-			filters += AND + COUNTERPARTY_ID_FIELD.getAlias() + " = " + posDef.getCounterparty().getId();
+			filters += AND + COUNTERPARTY_ID_FIELD.getFullName() + " = " + posDef.getCounterparty().getId();
 		}
 		if (posDef.getProduct() != null) {
-			filters += AND + PRODUCT_ID_FIELD.getAlias() + " = " + posDef.getProduct().getId();
+			filters += AND + PRODUCT_ID_FIELD.getFullName() + " = " + posDef.getProduct().getId();
 		}
 
 		// Control added to be sure to not retrieve options underlying
-		filters += AND + TRADE_DATE_FIELD.getAlias() + " IS NOT NULL";
+		filters += AND + TRADE_DATE_FIELD.getFullName() + " IS NOT NULL";
 
 		return SELECT + buildAliases(posDef.getProductType()) + FROM + table + join + filters;
 	}
@@ -685,6 +681,10 @@ public class TradeSQL {
 			aliases.append("GCREPO_TRADE.GCREPO_TRADE_ID GCREPO_TRADE_ID,");
 			aliases.append("GCREPO_TRADE.GCBASKET_ID GCBASKET_ID,");
 
+			aliases.append("PARTIAL_TERMINATION.TRADE_ID TRADE_ID,");
+			aliases.append("PARTIAL_TERMINATION.DATE DATE,");
+			aliases.append("PARTIAL_TERMINATION.REDUCTION REDUCTION");
+
 			return aliases.toString();
 		}
 
@@ -838,7 +838,11 @@ public class TradeSQL {
 			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE,");
 
 			aliases.append("GCREPO_TRADE.GCREPO_TRADE_ID GCREPO_TRADE_ID,");
-			aliases.append("GCREPO_TRADE.GCBASKET_ID GCBASKET_ID");
+			aliases.append("GCREPO_TRADE.GCBASKET_ID GCBASKET_ID,");
+
+			aliases.append("PARTIAL_TERMINATION.TRADE_ID TRADE_ID,");
+			aliases.append("PARTIAL_TERMINATION.DATE DATE,");
+			aliases.append("PARTIAL_TERMINATION.REDUCTION REDUCTION");
 			break;
 		}
 		case SPECIFIC_REPO: {
@@ -853,7 +857,11 @@ public class TradeSQL {
 			aliases.append("REPO_TRADE.CROSS_CURRENCY_COLLATERAL CROSS_CURRENCY_COLLATERAL,");
 			aliases.append("REPO_TRADE.TERMINABLE_ON_DEMAND TERMINABLE_ON_DEMAND,");
 			aliases.append("REPO_TRADE.NOTICE_PERIOD NOTICE_PERIOD,");
-			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE");
+			aliases.append("REPO_TRADE.END_DATE REPO_END_DATE,");
+
+			aliases.append("PARTIAL_TERMINATION.TRADE_ID TRADE_ID,");
+			aliases.append("PARTIAL_TERMINATION.DATE DATE,");
+			aliases.append("PARTIAL_TERMINATION.REDUCTION REDUCTION");
 			break;
 		}
 		case FX_OPTION: {
@@ -989,74 +997,78 @@ public class TradeSQL {
 		String where = WHERE;
 		switch (productType) {
 		case GC_REPO: {
-			where += ID_FIELD.getAlias()
+			where = " LEFT OUTER JOIN PARTIAL_TERMINATION ON REPO_TRADE.REPO_TRADE_ID = PARTIAL_TERMINATION.TRADE_ID"
+					+ where;
+			where += ID_FIELD.getFullName()
 					+ " = REPO_TRADE.REPO_TRADE_ID AND REPO_TRADE.REPO_TRADE_ID = GCREPO_TRADE.GCREPO_TRADE_ID";
 			break;
 		}
 		case SPECIFIC_REPO: {
-			where += ID_FIELD.getAlias() + " = REPO_TRADE.REPO_TRADE_ID";
+			where = " LEFT OUTER JOIN PARTIAL_TERMINATION ON REPO_TRADE.REPO_TRADE_ID = PARTIAL_TERMINATION.TRADE_ID"
+					+ where;
+			where += ID_FIELD.getFullName() + " = REPO_TRADE.REPO_TRADE_ID";
 			break;
 		}
 		case CCY_SWAP: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = IRSWAP_TRADE.IRSWAP_TRADE_ID AND IRSWAP_TRADE.IRSWAP_TRADE_ID=CCYSWAP_TRADE.CCYSWAP_TRADE_ID";
 			break;
 		}
 		case EQUITY_OPTION: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = VANILLA_OPTION_TRADE.VANILLA_OPTION_TRADE_ID AND VANILLA_OPTION_TRADE.UNDERLYING_TRADE_ID = UNDERLYING_EQUITY.EQUITY_TRADE_ID AND UNDERLYING_EQUITY.EQUITY_TRADE_ID=UND_EQUITY_TRADE.ID";
 			break;
 		}
 		case FXNDF: {
-			where += ID_FIELD.getAlias() + " = FXNDF_TRADE.FXNDF_TRADE_ID";
+			where += ID_FIELD.getFullName() + " = FXNDF_TRADE.FXNDF_TRADE_ID";
 			break;
 		}
 		case IR_SWAP: {
-			where += ID_FIELD.getAlias() + " = IRSWAP_TRADE.IRSWAP_TRADE_ID";
+			where += ID_FIELD.getFullName() + " = IRSWAP_TRADE.IRSWAP_TRADE_ID";
 			break;
 		}
 		case LOAN_DEPOSIT: {
-			where += ID_FIELD.getAlias() + " = LOAN_DEPOSIT_TRADE.LOAN_DEPOSIT_TRADE_ID";
+			where += ID_FIELD.getFullName() + " = LOAN_DEPOSIT_TRADE.LOAN_DEPOSIT_TRADE_ID";
 			break;
 		}
 		case FRA: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = IRFORWARD_TRADE.IRFORWARD_TRADE_ID AND IRFORWARD_TRADE.IRFORWARD_TRADE_ID = FRA_TRADE.FRA_TRADE_ID";
 			break;
 		}
 		case FUTURE: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = IRFORWARD_TRADE.IRFORWARD_TRADE_ID AND IRFORWARD_TRADE.IRFORWARD_TRADE_ID = FUTURE_TRADE.FUTURE_TRADE_ID";
 			break;
 		}
 		case FX_OPTION: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = VANILLA_OPTION_TRADE.VANILLA_OPTION_TRADE_ID AND VANILLA_OPTION_TRADE.UNDERLYING_TRADE_ID = UNDERLYING_FXSPOT.FXSPOT_TRADE_ID AND UNDERLYING_FXSPOT.FXSPOT_TRADE_ID=UND_FXSPOT_TRADE.ID";
 			break;
 		}
 		case FX_SWAP: {
-			where += ID_FIELD.getAlias() + " = FXSWAP_TRADE.FXSWAP_TRADE_ID";
+			where += ID_FIELD.getFullName() + " = FXSWAP_TRADE.FXSWAP_TRADE_ID";
 			break;
 		}
 		case BOND: {
-			where += ID_FIELD.getAlias() + "= BOND_TRADE.BOND_TRADE_ID";
+			where += ID_FIELD.getFullName() + "= BOND_TRADE.BOND_TRADE_ID";
 			break;
 		}
 		case EQUITY: {
-			where += ID_FIELD.getAlias() + " = EQUITY_TRADE.EQUITY_TRADE_ID";
+			where += ID_FIELD.getFullName() + " = EQUITY_TRADE.EQUITY_TRADE_ID";
 			break;
 		}
 		case FX: {
-			where += ID_FIELD.getAlias() + " = FXSPOT_TRADE.FXSPOT_TRADE_ID";
+			where += ID_FIELD.getFullName() + " = FXSPOT_TRADE.FXSPOT_TRADE_ID";
 			break;
 		}
 		case IR_CAP_FLOOR_COLLAR: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = IRCAP_FLOOR_COLLAR_TRADE.IRCAP_FLOOR_COLLAR_TRADE_ID AND IRCAP_FLOOR_COLLAR_TRADE.IRFORWARD_TRADE_ID = FWD_TRADE.IRFORWARD_TRADE_ID AND FWD_TRADE.IRFORWARD_TRADE_ID = UND_IRFORWARD_TRADE.ID ";
 			break;
 		}
 		case IR_SWAP_OPTION: {
-			where += ID_FIELD.getAlias()
+			where += ID_FIELD.getFullName()
 					+ " = VANILLA_OPTION_TRADE.VANILLA_OPTION_TRADE_ID AND VANILLA_OPTION_TRADE.UNDERLYING_TRADE_ID = UNDERLYING_IRSWAP.IRSWAP_TRADE_ID AND UNDERLYING_IRSWAP.IRSWAP_TRADE_ID = UND_IRSWAP_TRADE.ID AND VANILLA_OPTION_TRADE.VANILLA_OPTION_TRADE_ID = IRSWAP_OPTION_TRADE.IRSWAP_OPTION_TRADE_ID";
 			break;
 		}
@@ -1074,7 +1086,7 @@ public class TradeSQL {
 		case EQUITY_OPTION:
 			return "VANILLA_OPTION_TRADE, EQUITY_TRADE UNDERLYING_EQUITY, TRADE UND_EQUITY_TRADE";
 		case GC_REPO:
-			return "REPO_TRADE, GCREPO_TRADE";
+			return "GCREPO_TRADE, REPO_TRADE";
 		case SPECIFIC_REPO:
 			return "REPO_TRADE";
 		case FXNDF:

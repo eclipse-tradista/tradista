@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class Field {
+public final class Field implements Expression {
 
 	private final String name;
 
@@ -94,6 +94,7 @@ public final class Field {
 		return name;
 	}
 
+	@Override
 	public Table getTable() {
 		return table;
 	}
@@ -150,7 +151,13 @@ public final class Field {
 	}
 
 	@Override
+	public String getRepresentation() {
+		return getFullName();
+	}
+
+	@Override
 	public String toString() {
 		return table + "." + name + StringUtils.SPACE + ((alias != null) ? alias : StringUtils.EMPTY);
 	}
+
 }

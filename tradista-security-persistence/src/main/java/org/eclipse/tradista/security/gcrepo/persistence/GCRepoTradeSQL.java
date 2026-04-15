@@ -1,8 +1,10 @@
 package org.eclipse.tradista.security.gcrepo.persistence;
 
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.PARTIAL_TERMINATION_AND_REPO_TRADE_LEFT_OUTER_JOIN;
 import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.REPO_TRADE_ID_FIELD;
+import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.REPO_TRADE_TABLE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,10 +49,11 @@ public class GCRepoTradeSQL {
 
 	public static final Table GCREPO_TRADE_TABLE = new Table("GCREPO_TRADE", GCREPO_TRADE_FIELDS);
 
-	private static final Join TRADE_AND_GCREPO_TRADE_INNER_JOIN = Join.inner(ID_FIELD, GCREPO_TRADE_ID_FIELD);
-
-	private static final Join REPO_TRADE_AND_GCREPO_TRADE_INNER_JOIN = Join.inner(REPO_TRADE_ID_FIELD,
+	private static final Join TRADE_AND_GCREPO_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
 			GCREPO_TRADE_ID_FIELD);
+
+	private static final Join REPO_TRADE_AND_GCREPO_TRADE_INNER_JOIN = Join.innerEq(REPO_TRADE_TABLE,
+			REPO_TRADE_ID_FIELD, GCREPO_TRADE_ID_FIELD);
 
 	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(GCREPO_TRADE_TABLE,
 			TRADE_AND_GCREPO_TRADE_INNER_JOIN, REPO_TRADE_AND_GCREPO_TRADE_INNER_JOIN,

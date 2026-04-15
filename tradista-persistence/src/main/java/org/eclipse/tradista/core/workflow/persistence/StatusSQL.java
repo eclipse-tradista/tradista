@@ -55,7 +55,7 @@ public class StatusSQL {
 	private static final Field[] FIELDS = { ID_FIELD, WORKFLOW_ID_FIELD, NAME_FIELD, WORKFLOW_NAME_FIELD,
 			ID_FIELD_WORKFLOW };
 
-	private static final Join JOIN = Join.inner(ID_FIELD_WORKFLOW, WORKFLOW_ID_FIELD);
+	private static final Join JOIN = Join.innerEq(WORKFLOW_TABLE, ID_FIELD_WORKFLOW, WORKFLOW_ID_FIELD);
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(FIELDS, STATUS_TABLE, JOIN);
 

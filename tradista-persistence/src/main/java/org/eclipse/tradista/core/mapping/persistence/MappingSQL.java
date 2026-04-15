@@ -63,8 +63,8 @@ public class MappingSQL {
 	public static final Table INTERFACE_MAPPING_SET_TABLE = new Table("INTERFACE_MAPPING_SET",
 			INTERFACE_MAPPING_SET_FIELDS);
 
-	public static final Join INTERFACE_MAPPING_SET_AND_MAPPING_INNER_JOIN = Join.inner(ID_FIELD,
-			INTERFACE_MAPPING_SET_ID_FIELD);
+	public static final Join INTERFACE_MAPPING_SET_AND_MAPPING_INNER_JOIN = Join.innerEq(INTERFACE_MAPPING_SET_TABLE,
+			ID_FIELD, INTERFACE_MAPPING_SET_ID_FIELD);
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(MAPPING_TABLE,
 			INTERFACE_MAPPING_SET_AND_MAPPING_INNER_JOIN);
@@ -201,7 +201,8 @@ public class MappingSQL {
 	public static InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
 			InterfaceMappingSet.Direction direction) {
 		InterfaceMappingSet ims = null;
-		final Join mappingSetJoin = Join.leftOuter(INTERFACE_MAPPING_SET_ID_FIELD, ID_FIELD);
+		final Join mappingSetJoin = Join.leftOuterEq(MAPPING_TABLE, INTERFACE_MAPPING_SET_ID_FIELD,
+				ID_FIELD);
 		StringBuilder sqlQuery = new StringBuilder(TradistaDBUtil.buildSelectQuery(
 				new Field[] { ID_FIELD, INTERFACE_NAME_FIELD, MAPPING_TYPE_FIELD, IS_INCOMING_FIELD,
 						PROCESSING_ORG_ID_FIELD, VALUE_FIELD, MAPPED_VALUE_FIELD },

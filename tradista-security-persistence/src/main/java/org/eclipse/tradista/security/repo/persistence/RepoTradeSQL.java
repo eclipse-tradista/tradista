@@ -7,6 +7,7 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INDEX_TENOR;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NOTICE_PERIOD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -83,10 +84,10 @@ public final class RepoTradeSQL {
 
 	private static final Table PARTIAL_TERMINATION_TABLE = new Table("PARTIAL_TERMINATION", PARTIAL_TERMINATION_FIELDS);
 
-	public static final Join TRADE_AND_REPO_TRADE_INNER_JOIN = Join.inner(ID_FIELD, REPO_TRADE_ID_FIELD);
+	public static final Join TRADE_AND_REPO_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD, REPO_TRADE_ID_FIELD);
 
-	public static final Join PARTIAL_TERMINATION_AND_REPO_TRADE_LEFT_OUTER_JOIN = Join.leftOuter(TRADE_ID_FIELD,
-			REPO_TRADE_ID_FIELD);
+	public static final Join PARTIAL_TERMINATION_AND_REPO_TRADE_LEFT_OUTER_JOIN = Join
+			.leftOuterEq(PARTIAL_TERMINATION_TABLE, TRADE_ID_FIELD, REPO_TRADE_ID_FIELD);
 
 	private static final String PARTIAL_TERMINATION_SQL_QUERY = TradistaDBUtil
 			.buildSelectQuery(PARTIAL_TERMINATION_TABLE);

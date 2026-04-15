@@ -1,10 +1,12 @@
 package org.eclipse.tradista.security.equity.service;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.validator.EquityValidator;
@@ -69,11 +71,28 @@ public class EquityBusinessDelegate {
 				errorMsg.append("'To' active date cannot be before 'From' active date.");
 			}
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		return SecurityUtil.run(
 				() -> equityService.getEquitiesByDates(minCreationDate, maxCreationDate, minActiveDate, maxActiveDate));
+	}
+
+	public Set<LocalDate> getDividendDates(Equity equity) throws TradistaBusinessException {
+		validator.validateProduct(equity);
+		if (!equity.isPayDividend()) {
+			return null;
+		}
+		Set<LocalDate> dates = null;
+		LocalDate divDate = DateUtil.addTenor(equity.getActiveFrom(), equity.getDividendFrequency());
+		while (!divDate.isAfter(equity.getActiveTo())) {
+			if (dates == null) {
+				dates = new HashSet<>();
+			}
+			dates.add(divDate);
+			divDate = DateUtil.addTenor(divDate, equity.getDividendFrequency());
+		}
+		return dates;
 	}
 
 	public Set<Equity> getEquitiesByIsin(String isin) {

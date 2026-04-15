@@ -43,6 +43,10 @@ public class CurrencyPair extends TradistaObject {
 		return TradistaModelUtil.clone(quoteCurrency);
 	}
 
+	public String toString() {
+		return primaryCurrency + "/" + quoteCurrency;
+	}
+
 	@Override
 	public CurrencyPair clone() {
 		CurrencyPair currencyPair = (CurrencyPair) super.clone();

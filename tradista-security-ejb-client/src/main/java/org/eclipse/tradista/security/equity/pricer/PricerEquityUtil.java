@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
@@ -22,6 +24,8 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
+import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
+import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -43,6 +47,11 @@ public final class PricerEquityUtil {
 
 	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 
+	private static EquityBusinessDelegate equityBusinessDelegate = new EquityBusinessDelegate();
+
+	private PricerEquityUtil() {
+	}
+
 	public static BigDecimal discountDividends(PricingParameter params, EquityTrade trade, long curveId,
 			LocalDate startDate, LocalDate endDate) throws PricerException, TradistaBusinessException {
 
@@ -60,11 +69,11 @@ public final class PricerEquityUtil {
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
-		BigDecimal price = BigDecimal.ZERO;
+		BigDecimal price;
 		// 1. Generate the pending coupons
 		List<CashFlow> pendingDividends = getPendingDividends(trade, startDate, endDate, params);
 		// 2. discount them as of pricing date using the given curve
@@ -80,13 +89,13 @@ public final class PricerEquityUtil {
 			throws PricerException, TradistaBusinessException {
 		EquityTrade trade = new EquityTrade();
 
-		trade.setQuantity(BigDecimal.valueOf(1));
+		trade.setQuantity(BigDecimal.ONE);
 		trade.setProduct(equity);
 
 		// Filling the trade with (dummy) values needed by the trade validator.
 		trade.setBook(new Book(StringUtils.EMPTY, null));
 		trade.setCounterparty(new LegalEntity(StringUtils.EMPTY));
-		trade.setAmount(BigDecimal.valueOf(1));
+		trade.setAmount(BigDecimal.ONE);
 		trade.setTradeDate(LocalDate.now());
 		trade.setSettlementDate(LocalDate.now());
 
@@ -105,14 +114,10 @@ public final class PricerEquityUtil {
 			if (trade.getProduct() == null) {
 				errMsg.append(String.format("Trade %d has no equity. Equity is mandatory.%n", trade.getId()));
 			} else {
-				if (!trade.getProduct().isPayDividend()) {
+				if (!trade.getProduct().isPayDividend() || trade.isSell()) {
 					return null;
 				}
 			}
-		}
-
-		if (trade.isSell()) {
-			return null;
 		}
 
 		if (params == null) {
@@ -124,14 +129,14 @@ public final class PricerEquityUtil {
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
 		Equity equity = trade.getProduct();
 
 		Tenor frequency = equity.getDividendFrequency();
-		List<CashFlow> dividends = new ArrayList<CashFlow>();
+		List<CashFlow> dividends = new ArrayList<>();
 
 		LocalDate activeFrom = equity.getActiveFrom();
 
@@ -199,84 +204,180 @@ public final class PricerEquityUtil {
 	 * this method when all the dividends you want to get are already known. There
 	 * is no forecasting in this method.
 	 * 
-	 * @param equity       the concerned equity
-	 * @param startDate    the start date
-	 * @param endDate      the end date
-	 * @param quoteSetName the quote set name
+	 * @param equity     the concerned equity
+	 * @param startDate  the start date
+	 * @param endDate    the end date
+	 * @param quoteSetId the quote set id
+	 * @param qty        the quantity of this equity
 	 * @return the list of received dividends for a given equity
-	 * @throws TradistaBusinessException
+	 * @throws TradistaBusinessException if some arguments are missing or incorrect
+	 *                                   or if some quotes are not found
 	 */
-	public static List<CashFlow> getDividends(Equity equity, LocalDate startDate, LocalDate endDate, long quoteSetId)
-			throws TradistaBusinessException {
+	public static List<CashFlow> getDividends(Equity equity, LocalDate startDate, LocalDate endDate, long quoteSetId,
+			BigDecimal qty) throws TradistaBusinessException {
+
+		StringBuilder errMsg = new StringBuilder();
+
 		if (equity == null) {
-			throw new TradistaBusinessException("The equity is mandatory.");
+			errMsg.append(String.format("The equity is mandatory.%n"));
+		}
+
+		if (startDate == null) {
+			errMsg.append(String.format("The start date is mandatory.%n"));
+		}
+
+		if (endDate == null) {
+			errMsg.append(String.format("The end date is mandatory.%n"));
+		}
+
+		if (qty == null) {
+			errMsg.append(String.format("The quantity is mandatory.%n"));
+		}
+
+		if (startDate != null && endDate != null) {
+			if (endDate.isBefore(startDate)) {
+				errMsg.append(
+						String.format("The end date (%tD) cannot be before the start date (%tD).", endDate, startDate));
+			}
+		}
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 
 		if (!equity.isPayDividend()) {
 			return null;
 		}
 
-		if (startDate == null) {
-			startDate = LocalDate.MIN;
+		if (endDate.isAfter(LocalDate.now())) {
+			endDate = LocalDate.now();
 		}
 
-		if (endDate == null) {
-			endDate = LocalDate.MAX;
-		}
-
-		Tenor frequency = equity.getDividendFrequency();
-		List<CashFlow> dividends = new ArrayList<CashFlow>();
+		// Tenor frequency = equity.getDividendFrequency();
+		List<CashFlow> dividends = new ArrayList<>();
 
 		if (equity.getActiveFrom().isAfter(startDate)) {
 			startDate = equity.getActiveFrom();
 		}
-
-		LocalDate cashFlowDate = startDate;
 
 		LocalDate activeTo = equity.getActiveTo();
 		if (activeTo.isBefore(endDate)) {
 			endDate = activeTo;
 		}
 
+		Set<LocalDate> divDates = equityBusinessDelegate.getDividendDates(equity);
+		if (CollectionUtils.isEmpty(divDates)) {
+			return null;
+		} else {
+			final LocalDate stDate = startDate;
+			final LocalDate eDate = endDate;
+			divDates = divDates.stream().filter(d -> !d.isBefore(stDate) && !d.isAfter(eDate))
+					.collect(Collectors.toSet());
+		}
+
+		// LocalDate cashFlowDate = divDates.;
+
 		String quoteName = Equity.EQUITY + "." + equity.getIsin() + equity.getExchange();
-		while (!cashFlowDate.isAfter(endDate)) {
-			if (cashFlowDate.isAfter(startDate)) {
-				CashFlow cashFlow = new CashFlow();
-				cashFlow.setDate(cashFlowDate);
-				cashFlow.setCurrency(equity.getDividendCurrency());
 
-				BigDecimal equityPrice = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId,
-						QuoteType.EQUITY_PRICE, QuoteValue.CLOSE, cashFlowDate);
+		// while (!cashFlowDate.isAfter(endDate)) {
+		for (LocalDate divDate : divDates) {
 
-				BigDecimal dividendYield = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId,
-						QuoteType.DIVIDEND_YIELD, QuoteValue.CLOSE, cashFlowDate);
+			CashFlow cashFlow = new CashFlow();
+			cashFlow.setDate(divDate);
+			cashFlow.setCurrency(equity.getDividendCurrency());
 
-				BigDecimal dividend = equityPrice
-						.divide(BigDecimal.valueOf(100), configurationBusinessDelegate.getRoundingMode())
-						.multiply(dividendYield);
+			BigDecimal equityPrice = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId, QuoteType.EQUITY_PRICE,
+					QuoteValue.CLOSE, divDate);
 
-				cashFlow.setAmount(dividend);
-
-				dividends.add(cashFlow);
+			if (equityPrice == null) {
+				errMsg.append(String.format("The '%s' (%s) quote value of %s cannot be found as of date %tD.%n",
+						QuoteType.EQUITY_PRICE, QuoteValue.CLOSE, equity, divDate));
 			}
 
-			cashFlowDate = DateUtil.addTenor(cashFlowDate, frequency);
+			BigDecimal dividendYield = PricerUtil.getValueAsOfDateFromQuote(quoteName, quoteSetId,
+					QuoteType.DIVIDEND_YIELD, QuoteValue.CLOSE, divDate);
+
+			if (dividendYield == null) {
+				errMsg.append(String.format("The '%s' (%s) quote value of %s cannot be found as of date %tD.%n",
+						QuoteType.DIVIDEND_YIELD, QuoteValue.CLOSE, equity, divDate));
+			}
+
+			if (equityPrice == null || dividendYield == null) {
+				continue;
+			}
+
+			BigDecimal dividend = equityPrice
+					.divide(BigDecimal.valueOf(100), configurationBusinessDelegate.getRoundingMode())
+					.multiply(dividendYield).multiply(qty);
+
+			cashFlow.setAmount(dividend);
+
+			dividends.add(cashFlow);
+		}
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return dividends;
 	}
 
+	/**
+	 * Returns the total dividends amount received for a given equity. Be sure to
+	 * call this method when all the dividends you want to get are already known.
+	 * There is no forecasting in this method.
+	 * 
+	 * @param equity     the concerned equity
+	 * @param startDate  the start date
+	 * @param endDate    the end date
+	 * @param quoteSetId the quote set id
+	 * @param qty        the quantity of this equity
+	 * @return the list of received dividends for a given equity
+	 * @throws TradistaBusinessException if some arguments are missing or incorrect
+	 *                                   or if some quotes are not found
+	 */
 	public static BigDecimal getTotalDividendsAmount(Equity equity, LocalDate startDate, LocalDate endDate,
-			long quoteSetId) throws TradistaBusinessException {
-		if (!equity.isPayDividend()) {
+			long quoteSetId, BigDecimal qty) throws TradistaBusinessException {
+
+		if (equity != null && !equity.isPayDividend()) {
 			return BigDecimal.ZERO;
 		}
-		List<CashFlow> cfs = getDividends(equity, startDate, endDate, quoteSetId);
+
+		StringBuilder errMsg = new StringBuilder();
+
+		if (equity == null) {
+			errMsg.append(String.format("The equity is mandatory.%n"));
+		}
+
+		if (startDate == null) {
+			errMsg.append(String.format("The start date is mandatory.%n"));
+		}
+
+		if (endDate == null) {
+			errMsg.append(String.format("The end date is mandatory.%n"));
+		}
+
+		if (qty == null) {
+			errMsg.append(String.format("The quantity is mandatory.%n"));
+		}
+
+		if (startDate != null && endDate != null) {
+			if (endDate.isBefore(startDate)) {
+				errMsg.append(
+						String.format("The end date (%tD) cannot be before the start date (%tD).", endDate, startDate));
+			}
+		}
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+
+		List<CashFlow> cfs = getDividends(equity, startDate, endDate, quoteSetId, qty);
 		return PricerUtil.getTotalFlowsAmount(cfs, null, null, 0, null);
 	}
 
 	public static List<CashFlow> generateCashFlows(EquityTrade trade, LocalDate pricingDate, PricingParameter params)
 			throws TradistaBusinessException {
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
 
 		if (trade == null) {
 			errMsg.append(String.format("Trade is mandatory.%n"));
@@ -290,7 +391,7 @@ public final class PricerEquityUtil {
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

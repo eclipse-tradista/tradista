@@ -54,7 +54,7 @@ public class ErrorSQL {
 
 	public static final Table ERROR_TABLE = new Table("ERROR", ERROR_FIELDS);
 
-	private static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(new Field[] { ID_FIELD }, ERROR_TABLE);
+	private static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(ID_FIELD, ERROR_TABLE);
 
 	public static void deleteErrors(String errorType, Status status, LocalDate errorDateFrom, LocalDate errorDateTo) {
 		Set<String> errorClassNames = TradistaUtil.getAllErrorClassNames();

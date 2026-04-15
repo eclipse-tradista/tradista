@@ -1,5 +1,16 @@
 package org.eclipse.tradista.core.transfer.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ERROR_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ERROR_DATE_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ERROR_TABLE;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ID_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.MESSAGE_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.SOLVING_DATE_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.STATUS_FIELD;
+import static org.eclipse.tradista.core.error.persistence.ErrorSQL.TYPE_FIELD;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,17 +31,8 @@ import org.eclipse.tradista.core.common.persistence.util.Join;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
-import org.eclipse.tradista.core.error.persistence.ErrorSQL;
 import org.eclipse.tradista.core.transfer.model.CashTransfer;
 import org.eclipse.tradista.core.transfer.model.FixingError;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.*;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ERROR_DATE_FIELD;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ERROR_TABLE;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.ID_FIELD;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.MESSAGE_FIELD;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.SOLVING_DATE_FIELD;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.STATUS_FIELD;
-import static org.eclipse.tradista.core.error.persistence.ErrorSQL.TYPE_FIELD;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -58,7 +60,7 @@ public class FixingErrorSQL {
 
 	private static final Table FIXING_ERROR_TABLE = new Table("FIXING_ERROR", FIXING_ERROR_FIELDS);
 
-	private static final Join ERROR_AND_FIXING_ERROR_INNER_JOIN = Join.inner(ErrorSQL.ID_FIELD, ERROR_ID_FIELD);
+	private static final Join ERROR_AND_FIXING_ERROR_INNER_JOIN = Join.innerEq(ERROR_TABLE, ID_FIELD, ERROR_ID_FIELD);
 
 	public static boolean saveFixingErrors(List<FixingError> errors) {
 		boolean bSaved = false;
@@ -179,8 +181,8 @@ public class FixingErrorSQL {
 			}
 
 			if (transferId > 0) {
-				StringBuilder queryFilter = new StringBuilder(TradistaDBUtil
-						.buildSelectQuery(new Field[] { TransferSQL.ID_FIELD }, TransferSQL.TRANSFER_TABLE));
+				StringBuilder queryFilter = new StringBuilder(
+						TradistaDBUtil.buildSelectQuery(TransferSQL.ID_FIELD, TransferSQL.TRANSFER_TABLE));
 				TradistaDBUtil.addFilter(queryFilter, TransferSQL.ID_FIELD, transferId);
 				TradistaDBUtil.addQueryFilter(sqlQuery, TRANSFER_ID_FIELD, queryFilter.toString(), false);
 			}
