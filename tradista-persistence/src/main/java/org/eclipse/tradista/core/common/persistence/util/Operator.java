@@ -1,10 +1,7 @@
-package org.eclipse.tradista.fx.fx.pricer;
-
-import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
-import org.eclipse.tradista.core.pricing.pricer.Pricer;
+package org.eclipse.tradista.core.common.persistence.util;
 
 /********************************************************************************
- * Copyright (c) 2018 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -19,19 +16,16 @@ import org.eclipse.tradista.core.pricing.pricer.Pricer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Parameterizable(name = "Default FX Pricer")
-public class PricerFX extends Pricer {
+public enum Operator {
+	EQUALS("="), NOT_EQUALS("<>"), GREATER_THAN(">"), GREATER_OR_EQUALS(">="), LESS_THAN("<"), LESS_OR_EQUALS("<=");
 
-	private static final long serialVersionUID = 1363008508990837823L;
+	private final String sql;
 
-	public PricerFX() {
-		super();
-		getPricerMeasures().add(new PricerMeasureNPV());
-		getPricerMeasures().add(new PricerMeasurePRIMARY_PV());
-		getPricerMeasures().add(new PricerMeasureQUOTE_PV());
-		getPricerMeasures().add(new PricerMeasurePNL());
-		getPricerMeasures().add(new PricerMeasureREALIZED_PNL());
-		getPricerMeasures().add(new PricerMeasureUNREALIZED_PNL());
+	Operator(String sql) {
+		this.sql = sql;
 	}
 
+	public String getSql() {
+		return sql;
+	}
 }

@@ -171,7 +171,7 @@ public class MessageSQL {
 
 			if (!CollectionUtils.isEmpty(statuses)) {
 				StringBuilder queryFilter = new StringBuilder(
-						TradistaDBUtil.buildSelectQuery(new Field[] { StatusSQL.ID_FIELD }, StatusSQL.STATUS_TABLE));
+						TradistaDBUtil.buildSelectQuery(StatusSQL.ID_FIELD, StatusSQL.STATUS_TABLE));
 				TradistaDBUtil.addFilter(queryFilter, StatusSQL.NAME_FIELD, statuses);
 				TradistaDBUtil.addQueryFilter(sqlQuery, STATUS_ID_FIELD, queryFilter.toString(), false);
 			}

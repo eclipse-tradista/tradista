@@ -22,6 +22,7 @@ import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -50,6 +51,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 
 	private ConfigurationBusinessDelegate configurationBusinessDelegate;
 
+	@PostConstruct
 	public void init() {
 		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 	}
@@ -213,7 +215,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 									.getQuantityByDateProductAndBookIds(product.getId(), bookId,
 											valueDateTime.toLocalDate());
 							if (currentProductQuantity != null
-									&& currentProductQuantity.add(quantity).compareTo(BigDecimal.valueOf(0)) != 0) {
+									&& currentProductQuantity.add(quantity).compareTo(BigDecimal.ZERO) != 0) {
 								BigDecimal currentProductAveragePrice = inventoryBusinessDelegate
 										.getAveragePriceByDateProductAndBookIds(product.getId(), bookId,
 												valueDateTime.toLocalDate());

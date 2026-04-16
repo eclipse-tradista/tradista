@@ -1,10 +1,7 @@
-package org.eclipse.tradista.fx.fx.pricer;
-
-import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
-import org.eclipse.tradista.core.pricing.pricer.Pricer;
+package org.eclipse.tradista.core.pricing.util;
 
 /********************************************************************************
- * Copyright (c) 2018 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -19,19 +16,11 @@ import org.eclipse.tradista.core.pricing.pricer.Pricer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Parameterizable(name = "Default FX Pricer")
-public class PricerFX extends Pricer {
+public final class PricerConstants {
 
-	private static final long serialVersionUID = 1363008508990837823L;
+	public static final String FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR = "The FX curve could not be found in params {} for currency pair {}.";
 
-	public PricerFX() {
-		super();
-		getPricerMeasures().add(new PricerMeasureNPV());
-		getPricerMeasures().add(new PricerMeasurePRIMARY_PV());
-		getPricerMeasures().add(new PricerMeasureQUOTE_PV());
-		getPricerMeasures().add(new PricerMeasurePNL());
-		getPricerMeasures().add(new PricerMeasureREALIZED_PNL());
-		getPricerMeasures().add(new PricerMeasureUNREALIZED_PNL());
+	private PricerConstants() {
 	}
 
 }

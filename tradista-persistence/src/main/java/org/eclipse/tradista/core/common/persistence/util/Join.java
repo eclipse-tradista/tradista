@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -28,9 +29,13 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class Join {
 
-	private final Field[] fields;
+	private final Expression[] expressions;
 
 	private final JoinType type;
+
+	private Table targetTable;
+
+	private BinaryCondition condition;
 
 	public enum JoinType {
 		INNER_JOIN, LEFT_OUTER_JOIN;
@@ -45,10 +50,37 @@ public final class Join {
 		}
 	}
 
-	public Join(JoinType type, Field... fields) {
+	public Join(JoinType type, Table targetTable, BinaryCondition condition) {
 		StringBuilder errMsg = new StringBuilder();
-		if (ArrayUtils.isEmpty(fields)) {
-			errMsg.append("fields are mandatory.");
+		if (targetTable == null) {
+			errMsg.append(String.format("The target table is mandatory.%n"));
+		}
+		if (condition == null) {
+			errMsg.append("The join condition is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
+
+		this.type = (type == null) ? JoinType.INNER_JOIN : type;
+		this.targetTable = targetTable;
+		this.condition = condition;
+
+		// We maintain the compatibility with the old API
+		this.expressions = new Expression[] { condition.getLeft(), condition.getRight() };
+	}
+
+	/**
+	 * @deprecated Use {@link #Join(JoinType,Table,BinaryCondition},
+	 *             {@link #leftOuter(Expression...)} or
+	 *             {@link #inner(Expression...)} instead
+	 * @param fields the joined fields
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Join(JoinType type, Expression... expressions) {
+		StringBuilder errMsg = new StringBuilder();
+		if (ArrayUtils.isEmpty(expressions)) {
+			errMsg.append("expressions are mandatory.");
 		}
 		if (type == null) {
 			type = JoinType.INNER_JOIN;
@@ -57,12 +89,32 @@ public final class Join {
 			throw new IllegalArgumentException(errMsg.toString());
 		}
 		this.type = type;
-		this.fields = fields;
+		this.expressions = expressions;
 	}
 
 	/**
-	 * @deprecated Use {@link #Join(JoinType, Field...)},
-	 *             {@link #leftOuter(Field...)} or {@link #inner(Field...)} instead
+	 * @deprecated Use {@link #Join(JoinType,Table,BinaryCondition},
+	 *             {@link #leftOuter(Expression...)} or
+	 *             {@link #inner(Expression...)} instead
+	 * @param fields the joined fields
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public Join(Expression... expressions) {
+		StringBuilder errMsg = new StringBuilder();
+		if (ArrayUtils.isEmpty(expressions)) {
+			errMsg.append("expressions are mandatory.");
+		}
+		type = JoinType.INNER_JOIN;
+		if (!errMsg.isEmpty()) {
+			throw new IllegalArgumentException(errMsg.toString());
+		}
+		this.expressions = expressions;
+	}
+
+	/**
+	 * @deprecated Use {@link #Join(JoinType, Expression...)},
+	 *             {@link #leftOuter(Expression...)} or
+	 *             {@link #inner(Expression...)} instead
 	 * @param fields the joined fields
 	 */
 	@Deprecated(forRemoval = true, since = "3.2.0")
@@ -71,24 +123,33 @@ public final class Join {
 	}
 
 	public String getJoinField(Table table) {
-		Optional<Field> field = Arrays.stream(fields).filter(f -> f.getTable().equals(table)).findFirst();
+		Optional<Expression> expression = Arrays.stream(expressions)
+				.filter(e -> e instanceof Field f && f.getTable().equals(table)).findFirst();
 		String fieldName = null;
-		if (field.isPresent()) {
-			fieldName = field.get().getFullName();
+		if (expression.isPresent()) {
+			fieldName = ((Field) expression.get()).getFullName();
 		}
 		return fieldName;
 	}
 
-	public static Join inner(Field... fields) {
-		return new Join(JoinType.INNER_JOIN, fields);
+	public static Join inner(Table table, BinaryCondition condition) {
+		return new Join(JoinType.INNER_JOIN, table, condition);
 	}
 
-	public static Join leftOuter(Field... fields) {
-		return new Join(JoinType.LEFT_OUTER_JOIN, fields);
+	public static Join innerEq(Table table, Expression left, Expression right) {
+		return new Join(JoinType.INNER_JOIN, table, left.eq(right));
 	}
 
-	public Field[] getFields() {
-		return fields.clone();
+	public static Join leftOuter(Table table, BinaryCondition condition) {
+		return new Join(JoinType.LEFT_OUTER_JOIN, table, condition);
+	}
+
+	public static Join leftOuterEq(Table table, Expression left, Expression right) {
+		return new Join(JoinType.LEFT_OUTER_JOIN, table, left.eq(right));
+	}
+
+	public Expression[] getExpressions() {
+		return (expressions != null) ? expressions.clone() : null;
 	}
 
 	/**
@@ -97,12 +158,19 @@ public final class Join {
 	 */
 	@Deprecated(forRemoval = true, since = "3.2.0")
 	public Field[] fields() {
-		return fields.clone();
+		return getFields();
+	}
+
+	public Field[] getFields() {
+		if (expressions == null) {
+			return null;
+		}
+		return Arrays.stream(expressions).filter(Field.class::isInstance).map(Field.class::cast).toArray(Field[]::new);
 	}
 
 	public Field[] getAllFields() {
 		Set<Field> uniqueFields = new LinkedHashSet<>();
-		for (Field f : fields) {
+		for (Field f : getFields()) {
 			uniqueFields.addAll(new HashSet<>(Arrays.asList(f.getTable().getFields())));
 		}
 		return uniqueFields.toArray(new Field[uniqueFields.size()]);
@@ -112,7 +180,7 @@ public final class Join {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(fields);
+		result = prime * result + Arrays.hashCode(expressions);
 		result = prime * result + Objects.hash(type);
 		return result;
 	}
@@ -126,19 +194,29 @@ public final class Join {
 		if (getClass() != obj.getClass())
 			return false;
 		Join other = (Join) obj;
-		return Arrays.equals(fields, other.fields) && type == other.type;
+		return Arrays.equals(expressions, other.expressions) && type == other.type;
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder joinClause = new StringBuilder();
-		for (int i = 1; i < fields.length; i++) {
-			Field currentField = fields[i];
-			Field previousField = fields[i - 1];
-			joinClause.append(StringUtils.SPACE).append(type).append(StringUtils.SPACE).append(previousField.getTable())
-					.append(" ON ").append(previousField.getFullName()).append(" = ")
-					.append(currentField.getFullName());
+
+		if (targetTable != null && condition != null) {
+			return String.format(" %s %s ON %s", type, targetTable, condition.getRepresentation());
 		}
-		return joinClause.toString();
+		if (expressions != null && expressions.length > 1) {
+			StringBuilder joinClause = new StringBuilder();
+			for (int i = 1; i < expressions.length; i++) {
+				Expression currentExpression = expressions[i];
+				Expression previousExpression = expressions[i - 1];
+				// We assume the table can be determined from the previous expression, using
+				// #getTable()
+				joinClause.append(StringUtils.SPACE).append(type).append(StringUtils.SPACE)
+						.append(previousExpression.getTable()).append(" ON ")
+						.append(previousExpression.getRepresentation()).append(" = ")
+						.append(currentExpression.getRepresentation());
+			}
+			return joinClause.toString();
+		}
+		return StringUtils.EMPTY;
 	}
 }

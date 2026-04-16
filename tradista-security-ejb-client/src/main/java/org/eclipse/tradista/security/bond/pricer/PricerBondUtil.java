@@ -128,7 +128,7 @@ public final class PricerBondUtil {
 		}
 
 		Tenor frequency = bond.getCouponFrequency();
-		List<CashFlow> cfs = new ArrayList<CashFlow>();
+		List<CashFlow> cfs = new ArrayList<>();
 		LocalDate datedDate = bond.getDatedDate();
 		LocalDate couponDate = bond.getDatedDate();
 		// We try to calculate the coupons only if the bond is not a ZC and only

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
@@ -27,6 +28,8 @@ import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 import org.eclipse.tradista.security.equity.pricer.PricerEquityUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
@@ -55,6 +58,10 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 public class EquityPricerServiceBean implements EquityPricerService {
 
+	private static final String PRICING_DATE_IS_BEFORE_CURRENT_DATE = "The pricing date is before the current date";
+
+	private static final Logger logger = LoggerFactory.getLogger(EquityPricerServiceBean.class);
+
 	@EJB
 	private ConfigurationService configurationService;
 
@@ -64,19 +71,20 @@ public class EquityPricerServiceBean implements EquityPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getActiveTo())
 				|| !pricingDate.isBefore(trade.getProduct().getActiveTo())) {
-			// TODO Log warn
+			logger.warn("'Active To' field of equity for trade {} should be after the current and pricing dates",
+					trade.getId());
 			return BigDecimal.ZERO;
 		}
 
 		if (pricingDate.isBefore(LocalDate.now())) {
-			// TODO Log warn
+			logger.warn(PRICING_DATE_IS_BEFORE_CURRENT_DATE);
 			return BigDecimal.ZERO;
 		}
 
 		CurrencyPair pair = new CurrencyPair(trade.getProduct().getCurrency(), currency);
 		FXCurve paramEquityCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramEquityCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		BigDecimal expectReturn = expectedReturnCapm(params, trade, currency, pricingDate);
@@ -120,7 +128,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 
 		}
 
-		LocalDate startDate = LocalDate.now();
+		LocalDate startDate;
 		LocalDate endDate = pricingDate;
 
 		BigDecimal deltaT;
@@ -132,7 +140,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 		if (!StringUtils.isEmpty(simulationsCountString)) {
 			try {
 				simulationsCount = Integer.parseInt(simulationsCountString);
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(String
 						.format("The MonteCarloSimulationsCount value is not correct: %s", simulationsCountString));
 			}
@@ -174,19 +182,20 @@ public class EquityPricerServiceBean implements EquityPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getActiveTo())
 				|| !pricingDate.isBefore(trade.getProduct().getActiveTo())) {
-			// TODO Log warn
+			logger.warn("'Active To' field of equity for trade {} should be after the current and pricing dates",
+					trade.getId());
 			return BigDecimal.ZERO;
 		}
 
 		if (pricingDate.isBefore(LocalDate.now())) {
-			// TODO Log warn
+			logger.warn(PRICING_DATE_IS_BEFORE_CURRENT_DATE);
 			return BigDecimal.ZERO;
 		}
 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		BigDecimal convertedPrice = PricerUtil.convertAmount(trade.getAmount().multiply(trade.getQuantity()),
@@ -216,7 +225,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 
 		try {
 			rm = new BigDecimal(expectedMarketReturn);
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			throw new TradistaBusinessException(
 					String.format("The ExpectedMarketReturn value is not correct: %s", expectedMarketReturn));
 		}
@@ -266,12 +275,14 @@ public class EquityPricerServiceBean implements EquityPricerService {
 		Set<ProductInventory> inventories = new ProductInventoryBusinessDelegate()
 				.getInventoriesBeforeDateByProductAndBookIds(equity.getId(), bookId, pricingDate);
 		BigDecimal realizedPnl = BigDecimal.ZERO;
-		// First, we add the payments of the bond we owned before the pricing
+		// First, we add the payments of the equity we owned before the pricing
 		// date
 		if (inventories != null && !inventories.isEmpty()) {
 			for (ProductInventory inv : inventories) {
-				BigDecimal equityPayments = PricerEquityUtil.getTotalDividendsAmount(equity, inv.getFrom(), pricingDate,
-						params.getQuoteSet().getId());
+				LocalDate toDate = (inv.getTo() != null && inv.getTo().isBefore(pricingDate)) ? inv.getTo()
+						: pricingDate;
+				BigDecimal equityPayments = PricerEquityUtil.getTotalDividendsAmount(equity, inv.getFrom(), toDate,
+						params.getQuoteSet().getId(), inv.getQuantity());
 				realizedPnl = realizedPnl.add(equityPayments);
 			}
 		}
@@ -281,9 +292,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 		List<EquityTrade> trades = new EquityTradeBusinessDelegate()
 				.getEquityTradesBeforeTradeDateByEquityAndBookIds(pricingDate, equity.getId(), bookId);
 
-		if (trades != null && !trades.isEmpty())
-
-		{
+		if (trades != null && !trades.isEmpty()) {
 			for (EquityTrade trade : trades) {
 				if (trade.isBuy()) {
 					realizedPnl = realizedPnl.subtract(trade.getAmount().multiply(trade.getQuantity()));
@@ -292,6 +301,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 				}
 			}
 		}
+
 		return realizedPnl;
 
 	}
@@ -302,7 +312,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 		long bookId = book != null ? book.getId() : 0;
 
 		if (pricingDate.isBefore(LocalDate.now())) {
-			// TODO Log warn
+			logger.warn(PRICING_DATE_IS_BEFORE_CURRENT_DATE);
 			return BigDecimal.ZERO;
 		}
 
@@ -330,10 +340,10 @@ public class EquityPricerServiceBean implements EquityPricerService {
 		CurrencyPair pair = new CurrencyPair(equity.getCurrency(), currency);
 		FXCurve paramEquityCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramEquityCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
-		if (inventories != null && inventories.size() > 0) {
+		if (inventories != null && !inventories.isEmpty()) {
 
 			// 1. Get the current Equity price:
 			BigDecimal currentEquityPrice = PricerUtil.getEquityPrice(equity.getIsin(), equity.getExchange().getCode(),
@@ -348,6 +358,22 @@ public class EquityPricerServiceBean implements EquityPricerService {
 
 			// 3. Multiply the price by the quantity
 			unrealizedPnl = currentEquityPrice.multiply(equitiesQty);
+
+			// 4. If the pricing date is in the future, we discount the pnl
+			if (pricingDate.isAfter(LocalDate.now())) {
+				InterestRateCurve curve = params.getDiscountCurve(equity.getCurrency());
+				if (curve == null) {
+					throw new TradistaBusinessException(String.format(
+							"%s Pricing Parameters Set doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameters Set.",
+							params, equity.getCurrency()));
+				}
+				try {
+					unrealizedPnl = PricerUtil.discountAmount(unrealizedPnl, curve.getId(), pricingDate,
+							LocalDate.now(), null);
+				} catch (PricerException pe) {
+					throw new TradistaBusinessException(pe.getMessage());
+				}
+			}
 
 			// Finally apply the conversion to the pricing currency
 			unrealizedPnl = PricerUtil.convertAmount(unrealizedPnl, equity.getCurrency(), currency, pricingDate,
@@ -382,18 +408,16 @@ public class EquityPricerServiceBean implements EquityPricerService {
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (discountCurve == null) {
 			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.",
-					params.getName(), trade.getCurrency()));
+					"%s Pricing Parameters Set doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameters Set.",
+					params, trade.getCurrency()));
 		}
 
 		List<CashFlow> cashFlows = PricerEquityUtil.generateCashFlows(trade, pricingDate, params);
 
-		if (discountCurve != null) {
-			try {
-				PricerUtil.discountCashFlows(cashFlows, pricingDate, discountCurve.getId(), null);
-			} catch (PricerException pe) {
-				throw new TradistaBusinessException(pe.getMessage());
-			}
+		try {
+			PricerUtil.discountCashFlows(cashFlows, pricingDate, discountCurve.getId(), null);
+		} catch (PricerException pe) {
+			throw new TradistaBusinessException(pe.getMessage());
 		}
 
 		return cashFlows;

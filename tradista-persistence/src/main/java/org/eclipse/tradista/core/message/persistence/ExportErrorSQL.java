@@ -62,7 +62,7 @@ public class ExportErrorSQL {
 
 	private static final Table EXPORT_ERROR_TABLE = new Table("EXPORT_ERROR", EXPORT_ERROR_FIELDS);
 
-	private static final Join ERROR_AND_EXPORT_ERROR_INNER_JOIN = Join.inner(ID_FIELD, ERROR_ID_FIELD);
+	private static final Join ERROR_AND_EXPORT_ERROR_INNER_JOIN = Join.innerEq(ERROR_TABLE, ID_FIELD, ERROR_ID_FIELD);
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(EXPORT_ERROR_TABLE,
 			ERROR_AND_EXPORT_ERROR_INNER_JOIN);
@@ -136,7 +136,7 @@ public class ExportErrorSQL {
 
 			if (!CollectionUtils.isEmpty(exporterTypes)) {
 				StringBuilder queryFilter = new StringBuilder(
-						TradistaDBUtil.buildSelectQuery(new Field[] { MessageSQL.ID_FIELD }, MessageSQL.MESSAGE_TABLE));
+						TradistaDBUtil.buildSelectQuery(MessageSQL.ID_FIELD, MessageSQL.MESSAGE_TABLE));
 				TradistaDBUtil.addFilter(queryFilter, MessageSQL.TYPE_FIELD, exporterTypes);
 				TradistaDBUtil.addQueryFilter(sqlQuery, MESSAGE_ID_FIELD, queryFilter.toString(), false);
 			}

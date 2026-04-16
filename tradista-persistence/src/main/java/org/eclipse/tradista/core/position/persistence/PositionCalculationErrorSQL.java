@@ -71,7 +71,7 @@ public class PositionCalculationErrorSQL {
 	private static final Table POSITION_CALCULATION_ERROR_TABLE = new Table("POSITION_CALCULATION_ERROR",
 			POSITION_CALCULATION_ERROR_FIELDS);
 
-	private static final Join ERROR_AND_POSITION_CALCULATION_ERROR_INNER_JOIN = Join.inner(ErrorSQL.ID_FIELD,
+	private static final Join ERROR_AND_POSITION_CALCULATION_ERROR_INNER_JOIN = Join.innerEq(ERROR_TABLE, ID_FIELD,
 			ERROR_ID_FIELD);
 
 	public static boolean savePositionCalculationErrors(List<PositionCalculationError> errors) {
