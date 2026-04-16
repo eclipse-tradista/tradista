@@ -45,6 +45,8 @@ import org.springframework.util.CollectionUtils;
 
 public final class PricerEquityUtil {
 
+	private static final String TRADE_IS_MANDATORY = "Trade is mandatory.%n";
+
 	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 
 	private static EquityBusinessDelegate equityBusinessDelegate = new EquityBusinessDelegate();
@@ -58,7 +60,7 @@ public final class PricerEquityUtil {
 		StringBuffer errMsg = new StringBuffer();
 
 		if (trade == null) {
-			errMsg.append(String.format("Trade is mandatory.%n"));
+			errMsg.append(String.format(TRADE_IS_MANDATORY));
 		}
 
 		if (params == null) {
@@ -109,7 +111,7 @@ public final class PricerEquityUtil {
 		StringBuffer errMsg = new StringBuffer();
 
 		if (trade == null) {
-			errMsg.append(String.format("Trade is mandatory.%n"));
+			errMsg.append(String.format(TRADE_IS_MANDATORY));
 		} else {
 			if (trade.getProduct() == null) {
 				errMsg.append(String.format("Trade %d has no equity. Equity is mandatory.%n", trade.getId()));
@@ -253,7 +255,6 @@ public final class PricerEquityUtil {
 			endDate = LocalDate.now();
 		}
 
-		// Tenor frequency = equity.getDividendFrequency();
 		List<CashFlow> dividends = new ArrayList<>();
 
 		if (equity.getActiveFrom().isAfter(startDate)) {
@@ -275,11 +276,8 @@ public final class PricerEquityUtil {
 					.collect(Collectors.toSet());
 		}
 
-		// LocalDate cashFlowDate = divDates.;
-
 		String quoteName = Equity.EQUITY + "." + equity.getIsin() + equity.getExchange();
 
-		// while (!cashFlowDate.isAfter(endDate)) {
 		for (LocalDate divDate : divDates) {
 
 			CashFlow cashFlow = new CashFlow();
@@ -380,7 +378,7 @@ public final class PricerEquityUtil {
 		StringBuilder errMsg = new StringBuilder();
 
 		if (trade == null) {
-			errMsg.append(String.format("Trade is mandatory.%n"));
+			errMsg.append(String.format(TRADE_IS_MANDATORY));
 		}
 
 		if (params == null) {
