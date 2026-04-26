@@ -54,8 +54,16 @@ public class InterestRateCurveBusinessDelegate {
 		return SecurityUtil.run(() -> interestRateCurveService.getAllInterestRateCurves());
 	}
 
+	public Set<InterestRateCurve> getInterestRateCurvesByPoId(long poId) {
+		return SecurityUtil.run(() -> interestRateCurveService.getInterestRateCurvesByPoId(poId));
+	}
+
 	public Set<ZeroCouponCurve> getAllZeroCouponCurves() {
 		return SecurityUtil.run(() -> interestRateCurveService.getAllZeroCouponCurves());
+	}
+
+	public Set<ZeroCouponCurve> getZeroCouponCurvesByPoId(long poId) {
+		return SecurityUtil.run(() -> interestRateCurveService.getZeroCouponCurvesByPoId(poId));
 	}
 
 	public List<RatePoint> getInterestRateCurvePointsByCurveIdAndDate(long curveId, Year year, Month month)

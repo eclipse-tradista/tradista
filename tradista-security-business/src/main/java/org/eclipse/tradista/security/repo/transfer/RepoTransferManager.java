@@ -66,7 +66,10 @@ public abstract class RepoTransferManager {
 					&& !isPartiallyTerminated) {
 				List<Transfer> existingCashTransfers = transferBusinessDelegate
 						.getTransfersByTradeIdAndPurpose(oldTrade.getId(), TransferPurpose.CASH_SETTLEMENT, false);
-				CashTransfer existingCashTransfer = (CashTransfer) existingCashTransfers.stream().findFirst().get();
+				CashTransfer existingCashTransfer = null;
+				if (existingCashTransfers != null) {
+					existingCashTransfer = (CashTransfer) existingCashTransfers.stream().findFirst().get();
+				}
 				transfersToBeSaved.addAll(RepoTransferUtil.createOrUpdateCashPaymentOpeningLeg(existingCashTransfer,
 						trade, isPartiallyTerminated));
 			}

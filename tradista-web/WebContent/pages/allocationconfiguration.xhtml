@@ -82,14 +82,11 @@
 							<p:outputLabel value="Load by Allocation Configuration"
 								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
-								value="#{allocationConfigurationController.loadingCriterion}"
-								styleClass="tradista-menu-item">
-								<f:selectItems
-									value="#{allocationConfigurationController.allLoadingCriteria}" />
+								value="#{allocationConfigurationController.loadAllocationConfiguration}"
+								styleClass="tradista-menu-item" converter="allocationConfigurationConverter">
+								<f:selectItem itemLabel="" itemValue="" />
+								<f:selectItems value="#{allocationConfigurationController.allAllocationConfigurations}" var="ac" itemLabel="#{allocationConfigurationController.getDisambiguatedName(ac)}" itemValue="#{ac}" />
 							</p:selectOneMenu>
-							<p:inputText
-								value="#{allocationConfigurationController.idOrName}"
-								styleClass="tradista-menu-item" />
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{allocationConfigurationController.load()}"
 								update="@form" />

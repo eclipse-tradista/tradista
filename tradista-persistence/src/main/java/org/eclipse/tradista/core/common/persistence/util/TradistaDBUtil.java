@@ -228,34 +228,47 @@ public final class TradistaDBUtil {
 	}
 
 	/**
-	 * Build a delete prepared statement, given a table and an optional filter.
+	 * Build a delete prepared statement, given a table and optional filters.
 	 * 
-	 * @param table The table concerned by the deletions
-	 * @param join  an optional filter
+	 * @param table   The table concerned by the deletions
+	 * @param filters optional filters
 	 * @throws TradistaTechnicalException if no table or an incorrect filter is
 	 *                                    specified.
 	 * @return A delete prepared statement
 	 */
-	public static PreparedStatement buildDeletePreparedStatement(Connection con, Table table, Expression filter) {
+	public static PreparedStatement buildDeletePreparedStatement(Connection con, Table table, Expression... filters) {
 		StringBuilder errMsg = new StringBuilder();
-		StringBuilder delete = new StringBuilder("DELETE " + FROM);
 		if (table == null) {
 			errMsg.append("The table cannot be null.");
 		}
+		if (!ArrayUtils.isEmpty(filters)) {
+			for (Expression filter : filters) {
+				if (filter != null && (filter instanceof Field || filter instanceof UnaryFunctionExpression)) {
+					if (!filter.getTable().equals(table)) {
+						errMsg.append(String.format(
+								"The expression %s doesn't have the expected table (%s instead of %s).%n", filter,
+								filter.getTable(), table));
+					}
+				}
+			}
+		}
+
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
 		}
-		if (filter != null && (filter instanceof Field || filter instanceof UnaryFunctionExpression)) {
-			if (!filter.getTable().equals(table)) {
-				errMsg.append(String.format("The expression %s doesn't have the expected table (%s instead of %s).%n",
-						filter, filter.getTable(), table));
-			}
-		}
+
+		StringBuilder delete = new StringBuilder("DELETE " + FROM);
 		delete.append(table);
-		if (filter != null) {
+		if (!ArrayUtils.isEmpty(filters)) {
 			delete.append(WHERE);
-			delete.append(filter.getRepresentation());
-			delete.append("=?");
+			for (int i = 0; i < filters.length; i++) {
+				Expression filter = filters[i];
+				delete.append(filter.getRepresentation());
+				delete.append("=?");
+				if (i < filters.length - 1) {
+					delete.append(AND);
+				}
+			}
 		}
 
 		logger.debug("Generated delete statement: {}", delete);
@@ -327,10 +340,11 @@ public final class TradistaDBUtil {
 			}
 			String operator;
 			if (isLowerBound.length > 0) {
+				boolean inclusive = isLowerBound.length > 1 ? isLowerBound[1] : true;
 				if (isLowerBound[0]) {
-					operator = " >= ";
+					operator = inclusive ? " >= " : " > ";
 				} else {
-					operator = " <= ";
+					operator = inclusive ? " <= " : " < ";
 				}
 			} else {
 				operator = eqOperator;
@@ -421,10 +435,11 @@ public final class TradistaDBUtil {
 	public static void addParameterizedFilter(StringBuilder sqlQuery, Expression expression, boolean... isLowerBound) {
 		String operator;
 		if (isLowerBound.length > 0) {
+			boolean inclusive = isLowerBound.length > 1 ? isLowerBound[1] : true;
 			if (isLowerBound[0]) {
-				operator = " >= ";
+				operator = inclusive ? " >= " : " > ";
 			} else {
-				operator = " <= ";
+				operator = inclusive ? " <= " : " < ";
 			}
 		} else {
 			operator = " = ";

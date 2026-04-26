@@ -1,14 +1,12 @@
-package org.eclipse.tradista.security.repo.service;
+package org.eclipse.tradista.core.exporter.service;
 
-import java.util.Set;
+import java.util.Map;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
-
-import jakarta.ejb.Remote;
+import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
 
 /********************************************************************************
- * Copyright (c) 2024 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -23,15 +21,16 @@ import jakarta.ejb.Remote;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@Remote
-public interface AllocationConfigurationService {
+public class ExporterInformationBusinessDelegate {
 
-	long saveAllocationConfiguration(AllocationConfiguration allocationConfiguration) throws TradistaBusinessException;
+	private ExporterInformationService exporterInformationService;
 
-	AllocationConfiguration getAllocationConfigurationById(long id);
+	public ExporterInformationBusinessDelegate() {
+		exporterInformationService = TradistaServiceLocator.getInstance().getExporterInformationService();
+	}
 
-	Set<AllocationConfiguration> getAllAllocationConfigurations();
-
-	Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId);
+	public Map<String, String> getExporterModuleVersions() {
+		return SecurityUtil.run(() -> exporterInformationService.getExporterModuleVersions());
+	}
 
 }

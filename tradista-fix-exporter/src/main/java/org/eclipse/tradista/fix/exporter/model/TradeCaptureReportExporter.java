@@ -95,6 +95,17 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 	}
 
 	@Override
+	public LegalEntity getObjectProcessingOrg(Trade<?> trade) throws TradistaBusinessException {
+		if (getProcessingOrg() != null) {
+			return getProcessingOrg();
+		}
+		if (trade != null && trade.getBook() != null) {
+			return trade.getBook().getProcessingOrg();
+		}
+		return super.getObjectProcessingOrg(trade);
+	}
+
+	@Override
 	protected String getProductType(Trade<?> trade) {
 		if (trade != null) {
 			return trade.getProductType();
@@ -132,8 +143,9 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 	@Override
 	public TradeCaptureReport exportCounterparty(Trade<?> trade, TradeCaptureReport tcReport)
 			throws TradistaBusinessException {
+		LegalEntity po = getObjectProcessingOrg(trade);
 		String mappedCpty = TradistaFixExporterUtil.getFixLegalEntity(getName(), trade.getCounterparty().getShortName(),
-				getProcessingOrg().getId());
+				po.getId());
 		PartyID counterpartyId = new PartyID(mappedCpty);
 		for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
 			for (Group partyGroup : sideGroup.getGroups(quickfix.field.NoPartyIDs.FIELD)) {
@@ -161,8 +173,8 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 
 	@Override
 	public TradeCaptureReport exportBook(Trade<?> trade, TradeCaptureReport tcReport) throws TradistaBusinessException {
-		String mappedBook = TradistaFixExporterUtil.getFixBook(getName(), trade.getBook().getName(),
-				getProcessingOrg().getId());
+		LegalEntity po = getObjectProcessingOrg(trade);
+		String mappedBook = TradistaFixExporterUtil.getFixBook(getName(), trade.getBook().getName(), po.getId());
 		Account accountId = new Account(mappedBook);
 		for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
 			for (Group partyGroup : sideGroup.getGroups(quickfix.field.NoPartyIDs.FIELD)) {
@@ -189,8 +201,9 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 	@Override
 	public TradeCaptureReport exportBuySell(Trade<?> trade, TradeCaptureReport tcReport)
 			throws TradistaBusinessException {
+		LegalEntity po = getObjectProcessingOrg(trade);
 		PartyID poId = new PartyID(TradistaFixExporterUtil.getFixLegalEntity(getName(),
-				trade.getBook().getProcessingOrg().getShortName(), getProcessingOrg().getId()));
+				trade.getBook().getProcessingOrg().getShortName(), po.getId()));
 		for (Group sideGroup : tcReport.getGroups(NoSides.FIELD)) {
 			for (Group partyGroup : sideGroup.getGroups(quickfix.field.NoPartyIDs.FIELD)) {
 				try {

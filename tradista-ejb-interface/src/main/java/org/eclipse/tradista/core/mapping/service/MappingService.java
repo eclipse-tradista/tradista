@@ -33,6 +33,6 @@ public interface MappingService {
 	long saveInterfaceMappingSet(InterfaceMappingSet ims);
 
 	InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction);
+			InterfaceMappingSet.Direction direction, long poId);
 
 }

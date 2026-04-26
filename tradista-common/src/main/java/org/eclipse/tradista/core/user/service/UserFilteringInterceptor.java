@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.user.service;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,9 @@ public class UserFilteringInterceptor extends TradistaAuthorizationFilteringInte
 
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
-		if (parameters.length > 0 && parameters[0] instanceof User) {
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		if (parameters.length > 0 && parameterTypes[0].equals(User.class)) {
 			User user = (User) parameters[0];
 			StringBuilder errMsg = new StringBuilder();
 			User currentUser = getCurrentUser();
@@ -51,7 +54,7 @@ public class UserFilteringInterceptor extends TradistaAuthorizationFilteringInte
 			if (user.getProcessingOrg() != null && !user.getProcessingOrg().equals(currentUser.getProcessingOrg())) {
 				errMsg.append(String.format("The processing org %s was not found.", user.getProcessingOrg()));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 		}

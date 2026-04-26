@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.marketdata.model;
 
+import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -24,6 +25,7 @@ public class FXCurve extends GenerableCurve {
 
 	private static final long serialVersionUID = -6365357379109869222L;
 
+	@Id
 	public static final String FX_CURVE = "FXCurve";
 
 	private Currency primaryCurrency;
@@ -78,6 +80,11 @@ public class FXCurve extends GenerableCurve {
 		curve.primaryCurrencyIRCurve = TradistaModelUtil.clone(primaryCurrencyIRCurve);
 		curve.quoteCurrencyIRCurve = TradistaModelUtil.clone(quoteCurrencyIRCurve);
 		return curve;
+	}
+
+	@Override
+	String getType() {
+		return FX_CURVE;
 	}
 
 }

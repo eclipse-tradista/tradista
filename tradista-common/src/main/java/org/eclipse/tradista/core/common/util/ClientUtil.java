@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.common.util;
 
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.user.model.User;
 
 /********************************************************************************
@@ -25,6 +26,12 @@ public final class ClientUtil {
 
 	private static User currentUser;
 
+	/**
+	 * The Processing Org currently selected by the admin user. When set, all
+	 * relevant UI components filter their data accordingly.
+	 */
+	private static LegalEntity currentProcessingOrg;
+
 	private ClientUtil() {
 	}
 
@@ -38,5 +45,13 @@ public final class ClientUtil {
 
 	public static boolean currentUserIsAdmin() {
 		return currentUser.isAdmin();
+	}
+
+	public static LegalEntity getCurrentProcessingOrg() {
+		return currentProcessingOrg;
+	}
+
+	public static void setCurrentProcessingOrg(LegalEntity processingOrg) {
+		currentProcessingOrg = processingOrg;
 	}
 }

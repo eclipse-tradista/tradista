@@ -13,6 +13,14 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion
  * 
@@ -37,8 +45,21 @@ public class MenuController implements Serializable {
 
 	private MenuModel model;
 
+	private LegalEntity currentProcessingOrg;
+
+	private SortedSet<LegalEntity> allProcessingOrgs;
+
 	@PostConstruct
 	public void init() {
+		if (ClientUtil.currentUserIsAdmin()) {
+			allProcessingOrgs = new TreeSet<>();
+			Set<LegalEntity> processingOrgs = new LegalEntityBusinessDelegate().getAllProcessingOrgs();
+			if (processingOrgs != null) {
+				allProcessingOrgs.addAll(processingOrgs);
+			}
+			currentProcessingOrg = ClientUtil.getCurrentProcessingOrg();
+		}
+
 		model = new DefaultMenuModel();
 
 		Submenu tradeMenu = DefaultSubMenu.builder().label("Trades").build();
@@ -78,5 +99,32 @@ public class MenuController implements Serializable {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.getExternalContext().invalidateSession();
 		return "/login.xhtml?faces-redirect=true";
+	}
+
+	public LegalEntity getCurrentProcessingOrg() {
+		return currentProcessingOrg;
+	}
+
+	public void setCurrentProcessingOrg(LegalEntity currentProcessingOrg) {
+		this.currentProcessingOrg = currentProcessingOrg;
+	}
+
+	public SortedSet<LegalEntity> getAllProcessingOrgs() {
+		return allProcessingOrgs;
+	}
+
+	public void setAllProcessingOrgs(SortedSet<LegalEntity> allProcessingOrgs) {
+		this.allProcessingOrgs = allProcessingOrgs;
+	}
+
+	public void updateProcessingOrg() {
+		ClientUtil.setCurrentProcessingOrg(currentProcessingOrg);
+		try {
+			FacesContext.getCurrentInstance().getExternalContext()
+					.redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath()
+							+ FacesContext.getCurrentInstance().getViewRoot().getViewId());
+		} catch (Exception _) {
+			// ignore
+		}
 	}
 }

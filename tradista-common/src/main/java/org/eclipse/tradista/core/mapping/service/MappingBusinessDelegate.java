@@ -45,9 +45,6 @@ public class MappingBusinessDelegate {
 		if (direction == null) {
 			errMsg.append(String.format(DIRECTION_IS_MANDATORY));
 		}
-		if (poId <= 0) {
-			errMsg.append(String.format("The processing org id (%d) must be positive.%n", poId));
-		}
 		if (StringUtils.isEmpty(value)) {
 			errMsg.append("the value is mandatory.");
 		}
@@ -66,9 +63,6 @@ public class MappingBusinessDelegate {
 		if (direction == null) {
 			errMsg.append(String.format(DIRECTION_IS_MANDATORY));
 		}
-		if (poId < 0) {
-			errMsg.append(String.format("The processing org id (%d) must be positive.%n", poId));
-		}
 		if (StringUtils.isEmpty(value)) {
 			errMsg.append("the value is mandatory.");
 		}
@@ -84,7 +78,7 @@ public class MappingBusinessDelegate {
 	}
 
 	public InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction) throws TradistaBusinessException {
+			InterfaceMappingSet.Direction direction, long poId) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (mappingType == null) {
 			errMsg.append(String.format("The mapping type is mandatory.%n"));
@@ -95,7 +89,7 @@ public class MappingBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return mappingService.getInterfaceMappingSet(interfaceName, mappingType, direction);
+		return mappingService.getInterfaceMappingSet(interfaceName, mappingType, direction, poId);
 	}
 
 }

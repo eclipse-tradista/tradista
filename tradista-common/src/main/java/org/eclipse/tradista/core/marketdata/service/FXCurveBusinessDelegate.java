@@ -50,6 +50,10 @@ public class FXCurveBusinessDelegate {
 		return SecurityUtil.run(() -> fxCurveService.getAllFXCurves());
 	}
 
+	public Set<FXCurve> getFXCurvesByPoId(long poId) {
+		return SecurityUtil.run(() -> fxCurveService.getFXCurvesByPoId(poId));
+	}
+
 	public List<RatePoint> getFXCurvePointsByCurveIdAndDate(long curveId, Year year, Month month)
 			throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
@@ -60,7 +64,10 @@ public class FXCurveBusinessDelegate {
 			errMsg.append(String.format("The year cannot be null.%n"));
 		}
 		if (month == null) {
-			errMsg.append(String.format("The month cannot be null.%n"));
+			errMsg.append("The month cannot be null.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> fxCurveService.getFXCurvePointsByCurveIdAndDate(curveId, year, month));
 	}
@@ -93,9 +100,9 @@ public class FXCurveBusinessDelegate {
 			errMsg.append(String.format("The year cannot be null.%n"));
 		}
 		if (month == null) {
-			errMsg.append(String.format("The month cannot be null.%n"));
+			errMsg.append("The month cannot be null.");
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> fxCurveService.saveFXCurvePoints(curveId, ratePoints, year, month));
@@ -148,10 +155,10 @@ public class FXCurveBusinessDelegate {
 			errMsg.append(String.format("The primary currency IR curve is mandatory.%n"));
 		}
 		if (quoteCurrencyIRCurve == null) {
-			errMsg.append(String.format("The quote currency IR curve is mandatory.%n"));
+			errMsg.append("The quote currency IR curve is mandatory.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> fxCurveService.generate(algorithm, interpolator, instance, quoteDate, quoteSet,

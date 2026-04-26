@@ -1,5 +1,24 @@
 package org.eclipse.tradista.security.equityoption.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.OR;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SURFACE_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VOLATILITY;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VOLATILITY_SURFACE_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.ALGORITHM_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.ID_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.INSTANCE_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.INTERPOLATOR_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.NAME_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.PROCESSING_ORG_ID_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.QUOTE_DATE_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.QUOTE_SET_ID_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_QUOTE_TABLE;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.SURFACE_ID_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_TABLE;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.TYPE_FIELD;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,11 +33,18 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.eclipse.tradista.core.common.persistence.util.UnaryFunctionExpression;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.core.marketdata.persistence.QuoteSQL;
+import org.eclipse.tradista.core.marketdata.persistence.QuoteSetSQL;
+import org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 
@@ -40,59 +66,136 @@ import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySu
 
 public class EquityOptionVolatilitySurfaceSQL {
 
+	private static final String OPTION_EXPIRY = "OPTION_EXPIRY";
+	private static final String STRIKE = "STRIKE";
+
+	private static final Field OPTION_EXPIRY_FIELD = new Field(OPTION_EXPIRY);
+	private static final Field STRIKE_FIELD = new Field(STRIKE);
+	private static final Field VOLATILITY_FIELD = new Field(VOLATILITY);
+	private static final Field VOLATILITY_SURFACE_ID_FIELD = new Field(VOLATILITY_SURFACE_ID);
+
+	private static final Field[] POINT_FIELDS = { VOLATILITY_SURFACE_ID_FIELD, OPTION_EXPIRY_FIELD, STRIKE_FIELD,
+			VOLATILITY_FIELD };
+
+	private static final Table POINT_TABLE = new Table("EQUITY_OPTION_VOLATILITY_SURFACE_POINT", POINT_FIELDS);
+
+	private static final Field STRIKE_SURFACE_ID_FIELD = new Field(SURFACE_ID);
+
+	private static final Field STRIKE_VALUE_FIELD = new Field(VALUE);
+
+	private static final Field[] STRIKE_FIELDS = { STRIKE_SURFACE_ID_FIELD, STRIKE_VALUE_FIELD };
+
+	private static final Table STRIKE_TABLE = new Table("EQUITY_OPTION_VOLATILITY_SURFACE_STRIKE", STRIKE_FIELDS);
+
 	public static boolean saveEquityOptionVolatilitySurface(String surfaceName) {
 		boolean bSaved = false;
-
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveEquityVolatilitySurface = con
-						.prepareStatement("INSERT INTO VOLATILITY_SURFACE(NAME, TYPE) VALUES(?, 'EquityOption') ")) {
+				PreparedStatement stmtSaveEquityVolatilitySurface = TradistaDBUtil.buildInsertPreparedStatement(con,
+						VOLATILITY_SURFACE_TABLE, NAME_FIELD, TYPE_FIELD)) {
 			stmtSaveEquityVolatilitySurface.setString(1, surfaceName);
+			stmtSaveEquityVolatilitySurface.setString(2, EquityOption.EQUITY_OPTION);
 			stmtSaveEquityVolatilitySurface.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
 	}
 
-	public static EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceByName(String surfaceName) {
-		EquityOptionVolatilitySurface equityOptionVolatilitySurface = null;
+	public static Set<EquityOptionVolatilitySurface> getAllEquityOptionVolatilitySurfaces() {
+		return getEquityOptionVolatilitySurfacesByPoId(0);
+	}
 
+	public static Set<EquityOptionVolatilitySurface> getEquityOptionVolatilitySurfacesByPoId(long poId) {
+		Set<EquityOptionVolatilitySurface> equityOptionVolatilitySurfaces = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(VOLATILITY_SURFACE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, TYPE_FIELD);
+		if (poId > 0) {
+			sql.append(AND + " (").append(PROCESSING_ORG_ID_FIELD.getName()).append(" = ").append(poId).append(OR)
+					.append(PROCESSING_ORG_ID_FIELD.getName()).append(" IS NULL)");
+		}
+		StringBuilder strikesSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(STRIKE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(strikesSql, STRIKE_SURFACE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityVolatilitySurfaceByName = con
-						.prepareStatement("SELECT * FROM VOLATILITY_SURFACE WHERE NAME = ?")) {
-			stmtGetEquityVolatilitySurfaceByName.setString(1, surfaceName);
-			try (ResultSet results = stmtGetEquityVolatilitySurfaceByName.executeQuery()) {
+				PreparedStatement stmtGetSurfaces = con.prepareStatement(sql.toString());
+				PreparedStatement stmtGetStrikesBySurfaceId = con.prepareStatement(strikesSql.toString())) {
+			stmtGetSurfaces.setString(1, EquityOption.EQUITY_OPTION);
+			try (ResultSet results = stmtGetSurfaces.executeQuery()) {
 				while (results.next()) {
-					long poId = results.getLong("processing_org_id");
-					LegalEntity po = null;
-					if (poId > 0) {
-						po = LegalEntitySQL.getLegalEntityById(poId);
+					if (equityOptionVolatilitySurfaces == null) {
+						equityOptionVolatilitySurfaces = new HashSet<>();
 					}
-					equityOptionVolatilitySurface = new EquityOptionVolatilitySurface(results.getString("name"), po);
-					long id = results.getLong("id");
-					equityOptionVolatilitySurface.setId(id);
-					equityOptionVolatilitySurface.setAlgorithm(results.getString("algorithm"));
-					equityOptionVolatilitySurface.setInterpolator(results.getString("interpolator"));
-					equityOptionVolatilitySurface.setInstance(results.getString("instance"));
-					java.sql.Date quoteDate = results.getDate("quote_date");
-					if (quoteDate != null) {
-						equityOptionVolatilitySurface.setQuoteDate(quoteDate.toLocalDate());
-					}
-					// Get the points linked to this surface
-					List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = getEquityOptionVolatilitySurfacePointsBySurfaceId(
-							id);
-					equityOptionVolatilitySurface.setPoints(surfacePoints);
-
-					// Get the quotes linked to this surface
-					List<Quote> quotes = QuoteSQL.getQuotesBySurfaceId(id);
-
-					equityOptionVolatilitySurface.setQuotes(quotes);
+					equityOptionVolatilitySurfaces
+							.add(buildEquityOptionVolatilitySurface(results, stmtGetStrikesBySurfaceId));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		return equityOptionVolatilitySurfaces;
+	}
+
+	private static EquityOptionVolatilitySurface buildEquityOptionVolatilitySurface(ResultSet results,
+			PreparedStatement stmtGetStrikesBySurfaceId) throws SQLException {
+		long resPoId = results.getLong(PROCESSING_ORG_ID_FIELD.getName());
+		LegalEntity po = null;
+		if (resPoId > 0) {
+			po = LegalEntitySQL.getLegalEntityById(resPoId);
+		}
+		EquityOptionVolatilitySurface equityOptionVolatilitySurface = new EquityOptionVolatilitySurface(
+				results.getString(NAME_FIELD.getName()), po);
+		long id = results.getLong(ID_FIELD.getName());
+		equityOptionVolatilitySurface.setId(id);
+		equityOptionVolatilitySurface.setAlgorithm(results.getString(ALGORITHM_FIELD.getName()));
+		equityOptionVolatilitySurface.setInterpolator(results.getString(INTERPOLATOR_FIELD.getName()));
+		equityOptionVolatilitySurface.setInstance(results.getString(INSTANCE_FIELD.getName()));
+		java.sql.Date quoteDate = results.getDate(QUOTE_DATE_FIELD.getName());
+		if (quoteDate != null) {
+			equityOptionVolatilitySurface.setQuoteDate(quoteDate.toLocalDate());
+		}
+		// Get the points linked to this surface
+		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = getEquityOptionVolatilitySurfacePointsBySurfaceId(
+				id);
+		equityOptionVolatilitySurface.setPoints(surfacePoints);
+
+		// Get the quotes linked to this surface
+		List<Quote> quotes = QuoteSQL.getQuotesBySurfaceId(id);
+
+		equityOptionVolatilitySurface.setQuotes(quotes);
+
+		// Get the strikes linked to this surface
+		List<BigDecimal> strikes = new ArrayList<>();
+
+		stmtGetStrikesBySurfaceId.setLong(1, id);
+		try (ResultSet strikesResults = stmtGetStrikesBySurfaceId.executeQuery()) {
+			while (strikesResults.next()) {
+				strikes.add(strikesResults.getBigDecimal(STRIKE_VALUE_FIELD.getName()));
+			}
+		}
+
+		equityOptionVolatilitySurface.setStrikes(strikes);
+		equityOptionVolatilitySurface
+				.setQuoteSet(QuoteSetSQL.getQuoteSetById(results.getLong(QUOTE_SET_ID_FIELD.getName())));
+		return equityOptionVolatilitySurface;
+	}
+
+	public static EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceByName(String surfaceName) {
+		EquityOptionVolatilitySurface equityOptionVolatilitySurface = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(VOLATILITY_SURFACE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, NAME_FIELD);
+		StringBuilder strikesSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(STRIKE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(strikesSql, STRIKE_SURFACE_ID_FIELD);
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetEquityVolatilitySurfaceByName = con.prepareStatement(sql.toString());
+				PreparedStatement stmtGetStrikesBySurfaceId = con.prepareStatement(strikesSql.toString())) {
+			stmtGetEquityVolatilitySurfaceByName.setString(1, surfaceName);
+			try (ResultSet results = stmtGetEquityVolatilitySurfaceByName.executeQuery()) {
+				while (results.next()) {
+					equityOptionVolatilitySurface = buildEquityOptionVolatilitySurface(results,
+							stmtGetStrikesBySurfaceId);
+				}
+			}
+		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptionVolatilitySurface;
@@ -100,41 +203,21 @@ public class EquityOptionVolatilitySurfaceSQL {
 
 	public static EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(long surfaceId) {
 		EquityOptionVolatilitySurface equityOptionVolatilitySurface = null;
-
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(VOLATILITY_SURFACE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, ID_FIELD);
+		StringBuilder strikesSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(STRIKE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(strikesSql, STRIKE_SURFACE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityVolatilitySurfaceById = con
-						.prepareStatement("SELECT * FROM VOLATILITY_SURFACE WHERE ID = ?")) {
+				PreparedStatement stmtGetEquityVolatilitySurfaceById = con.prepareStatement(sql.toString());
+				PreparedStatement stmtGetStrikesBySurfaceId = con.prepareStatement(strikesSql.toString())) {
 			stmtGetEquityVolatilitySurfaceById.setLong(1, surfaceId);
 			try (ResultSet results = stmtGetEquityVolatilitySurfaceById.executeQuery()) {
 				while (results.next()) {
-					long poId = results.getLong("processing_org_id");
-					LegalEntity po = null;
-					if (poId > 0) {
-						po = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					equityOptionVolatilitySurface = new EquityOptionVolatilitySurface(results.getString("name"), po);
-					long id = results.getLong("id");
-					equityOptionVolatilitySurface.setId(id);
-					equityOptionVolatilitySurface.setAlgorithm(results.getString("algorithm"));
-					equityOptionVolatilitySurface.setInterpolator(results.getString("interpolator"));
-					equityOptionVolatilitySurface.setInstance(results.getString("instance"));
-					java.sql.Date quoteDate = results.getDate("quote_date");
-					if (quoteDate != null) {
-						equityOptionVolatilitySurface.setQuoteDate(quoteDate.toLocalDate());
-					}
-					// Get the points linked to this surface
-					List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = getEquityOptionVolatilitySurfacePointsBySurfaceId(
-							id);
-					equityOptionVolatilitySurface.setPoints(surfacePoints);
-
-					// Get the quotes linked to this surface
-					List<Quote> quotes = QuoteSQL.getQuotesBySurfaceId(id);
-
-					equityOptionVolatilitySurface.setQuotes(quotes);
+					equityOptionVolatilitySurface = buildEquityOptionVolatilitySurface(results,
+							stmtGetStrikesBySurfaceId);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptionVolatilitySurface;
@@ -142,124 +225,45 @@ public class EquityOptionVolatilitySurfaceSQL {
 
 	public static boolean deleteEquityOptionVolatilitySurface(long surfaceId) {
 		boolean bSaved = false;
-
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtDeleteSurfacePoints = con.prepareStatement(
-						"DELETE FROM EQUITY_OPTION_VOLATILITY_SURFACE_POINT WHERE VOLATILITY_SURFACE_ID = ?");
-				PreparedStatement stmtDeleteStrikesBySurfaceName = con
-						.prepareStatement("DELETE FROM EQUITY_OPTION_VOLATILITY_SURFACE_STRIKE WHERE SURFACE_ID = ?");
-				PreparedStatement stmtDeleteQuotesBySurfaceName = con
-						.prepareStatement("DELETE FROM VOLATILITY_SURFACE_QUOTE WHERE SURFACE_ID = ?");
-				PreparedStatement stmtDeleteEquityVolatilitySurface = con
-						.prepareStatement("DELETE FROM VOLATILITY_SURFACE WHERE ID = ?")) {
-
+				PreparedStatement stmtDeleteSurfacePoints = TradistaDBUtil.buildDeletePreparedStatement(con,
+						POINT_TABLE, VOLATILITY_SURFACE_ID_FIELD);
+				PreparedStatement stmtDeleteStrikes = TradistaDBUtil.buildDeletePreparedStatement(con, STRIKE_TABLE,
+						STRIKE_SURFACE_ID_FIELD);
+				PreparedStatement stmtDeleteQuotes = TradistaDBUtil.buildDeletePreparedStatement(con,
+						VOLATILITY_SURFACE_QUOTE_TABLE, SURFACE_ID_FIELD);
+				PreparedStatement stmtDeleteEquityVolatilitySurface = TradistaDBUtil.buildDeletePreparedStatement(con,
+						VOLATILITY_SURFACE_TABLE, ID_FIELD)) {
 			stmtDeleteSurfacePoints.setLong(1, surfaceId);
 			stmtDeleteSurfacePoints.executeUpdate();
-
-			stmtDeleteStrikesBySurfaceName.setLong(1, surfaceId);
-			stmtDeleteStrikesBySurfaceName.executeUpdate();
-
-			stmtDeleteQuotesBySurfaceName.setLong(1, surfaceId);
-			stmtDeleteQuotesBySurfaceName.executeUpdate();
-
+			stmtDeleteStrikes.setLong(1, surfaceId);
+			stmtDeleteStrikes.executeUpdate();
+			stmtDeleteQuotes.setLong(1, surfaceId);
+			stmtDeleteQuotes.executeUpdate();
 			stmtDeleteEquityVolatilitySurface.setLong(1, surfaceId);
 			stmtDeleteEquityVolatilitySurface.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
 	}
 
-	public static Set<EquityOptionVolatilitySurface> getAllEquityOptionVolatilitySurfaces() {
-		Set<EquityOptionVolatilitySurface> equityOptionVolatilitySurfaces = null;
-
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllEquityVolatilitySurfaces = con
-						.prepareStatement("SELECT * FROM VOLATILITY_SURFACE WHERE TYPE = 'EquityOption'");
-				ResultSet results = stmtGetAllEquityVolatilitySurfaces.executeQuery();
-				PreparedStatement stmtGetStrikesBySurfaceId = con.prepareStatement(
-						"SELECT * FROM EQUITY_OPTION_VOLATILITY_SURFACE_STRIKE WHERE SURFACE_ID = ?")) {
-			while (results.next()) {
-				long poId = results.getLong("processing_org_id");
-				LegalEntity po = null;
-				if (poId > 0) {
-					po = LegalEntitySQL.getLegalEntityById(poId);
-				}
-				EquityOptionVolatilitySurface equityOptionVolatilitySurface = new EquityOptionVolatilitySurface(
-						results.getString("name"), po);
-				long id = results.getLong("id");
-				equityOptionVolatilitySurface.setId(id);
-				equityOptionVolatilitySurface.setAlgorithm(results.getString("algorithm"));
-				equityOptionVolatilitySurface.setInterpolator(results.getString("interpolator"));
-				equityOptionVolatilitySurface.setInstance(results.getString("instance"));
-				java.sql.Date quoteDate = results.getDate("quote_date");
-				if (quoteDate != null) {
-					equityOptionVolatilitySurface.setQuoteDate(quoteDate.toLocalDate());
-				}
-
-				// Get the points linked to this surface
-				List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = getEquityOptionVolatilitySurfacePointsBySurfaceId(
-						id);
-
-				equityOptionVolatilitySurface.setPoints(surfacePoints);
-
-				// Get the quotes linked to this surface
-				List<Quote> quotes = QuoteSQL.getQuotesBySurfaceId(id);
-
-				equityOptionVolatilitySurface.setQuotes(quotes);
-
-				// Get the deltas linked to this surface
-				List<BigDecimal> strikes = new ArrayList<BigDecimal>();
-				ResultSet strikesResults = null;
-
-				stmtGetStrikesBySurfaceId.setLong(1, id);
-				strikesResults = stmtGetStrikesBySurfaceId.executeQuery();
-
-				while (strikesResults.next()) {
-					strikes.add(strikesResults.getBigDecimal("value"));
-				}
-
-				equityOptionVolatilitySurface.setStrikes(strikes);
-				if (equityOptionVolatilitySurfaces == null) {
-					equityOptionVolatilitySurfaces = new HashSet<EquityOptionVolatilitySurface>();
-				}
-				equityOptionVolatilitySurfaces.add(equityOptionVolatilitySurface);
-			}
-
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-		return equityOptionVolatilitySurfaces;
-	}
-
 	public static boolean saveEquityOptionVolatilitySurfacePoints(long id,
 			List<SurfacePoint<Long, BigDecimal, BigDecimal>> surfacePoints, Long optionExpiry, BigDecimal strike) {
 		boolean bSaved = false;
-
+		StringBuilder deleteSql = new StringBuilder("DELETE FROM EQUITY_OPTION_VOLATILITY_SURFACE_POINT");
+		TradistaDBUtil.addFilter(deleteSql, VOLATILITY_SURFACE_ID_FIELD, id);
+		TradistaDBUtil.addFilter(deleteSql, OPTION_EXPIRY_FIELD, optionExpiry);
+		TradistaDBUtil.addFilter(deleteSql, STRIKE_FIELD, strike);
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmt = con.createStatement();
-				PreparedStatement stmtSaveSurfacePoints = con
-						.prepareStatement("INSERT INTO EQUITY_OPTION_VOLATILITY_SURFACE_POINT VALUES(?,?,?,?) ")) {
-
-			// First, we delete the data for this surface, option and swap
-			// lifetimes
-
-			String delete = "DELETE FROM EQUITY_OPTION_VOLATILITY_SURFACE_POINT" + " WHERE SURFACE_ID =  " + id;
-			if (optionExpiry != null) {
-				delete += " AND OPTION_EXPIRY = " + optionExpiry;
-			}
-			if (strike != null) {
-				delete += " AND STRIKE = " + strike;
-			}
-
-			stmt.executeUpdate(delete);
+				PreparedStatement stmtSaveSurfacePoints = TradistaDBUtil.buildInsertPreparedStatement(con, POINT_TABLE,
+						POINT_FIELDS)) {
+			stmt.executeUpdate(deleteSql.toString());
 
 			for (SurfacePoint<Long, BigDecimal, BigDecimal> point : surfacePoints) {
 				if (point != null && point.getzAxis() != null) {
-					stmtSaveSurfacePoints.clearParameters();
 					stmtSaveSurfacePoints.setLong(1, id);
 					stmtSaveSurfacePoints.setLong(2, point.getxAxis());
 					stmtSaveSurfacePoints.setBigDecimal(3, point.getyAxis());
@@ -267,40 +271,33 @@ public class EquityOptionVolatilitySurfaceSQL {
 					stmtSaveSurfacePoints.addBatch();
 				}
 				bSaved = true;
-
 			}
-
 			stmtSaveSurfacePoints.executeBatch();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-
 		return bSaved;
 	}
 
 	public static BigDecimal getVolatilityBySurfaceNameOptionExpiryAndStrike(String surfaceName, long optionExpiry,
 			double strike) {
 		BigDecimal volatility = null;
-
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(VOLATILITY_FIELD, POINT_TABLE,
+				Join.innerEq(VOLATILITY_SURFACE_TABLE, VOLATILITY_SURFACE_ID_FIELD, ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sql, NAME_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, OPTION_EXPIRY_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, STRIKE_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				Statement stmt = con.createStatement();
-				PreparedStatement stmtGetVolatilityBySurfaceNameOptionExpiryAndStrike = con.prepareStatement(
-						"SELECT VOLATILITY FROM VOLATILITY_SURFACE, EQUITY_OPTION_VOLATILITY_SURFACE_POINT"
-								+ " WHERE VOLATILITY_SURFACE.ID = EQUITY_OPTION_VOLATILITY_SURFACE_POINT.VOLATILITY_SURFACE_ID"
-								+ " AND NAME = ?" + " AND OPTION_EXPIRY = ?" + " AND STRIKE = ?")) {
-			stmtGetVolatilityBySurfaceNameOptionExpiryAndStrike.setString(1, surfaceName);
-			stmtGetVolatilityBySurfaceNameOptionExpiryAndStrike.setLong(2, optionExpiry);
-			stmtGetVolatilityBySurfaceNameOptionExpiryAndStrike.setDouble(3, strike);
-			try (ResultSet results = stmtGetVolatilityBySurfaceNameOptionExpiryAndStrike.executeQuery()) {
-
+				PreparedStatement stmtGetVolatility = con.prepareStatement(sql.toString())) {
+			stmtGetVolatility.setString(1, surfaceName);
+			stmtGetVolatility.setLong(2, optionExpiry);
+			stmtGetVolatility.setDouble(3, strike);
+			try (ResultSet results = stmtGetVolatility.executeQuery()) {
 				while (results.next()) {
-					volatility = results.getBigDecimal("volatility");
-
+					volatility = results.getBigDecimal(VOLATILITY);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return volatility;
@@ -309,32 +306,23 @@ public class EquityOptionVolatilitySurfaceSQL {
 	public static List<SurfacePoint<Number, Number, Number>> getEquityOptionVolatilitySurfacePointsBySurfaceIdOptionExpiryAndStrike(
 			long volatilitySurfaceId, long optionExpiry, BigDecimal strike) {
 		List<SurfacePoint<Number, Number, Number>> points = null;
-
-		try (Connection con = TradistaDB.getConnection(); Statement stmt = con.createStatement()) {
-
-			String query = "SELECT EQUITY_OPTION_VOLATILITY_SURFACE_POINT.OPTION_EXPIRY, EQUITY_OPTION_VOLATILITY_SURFACE_POINT.STRIKE, EQUITY_OPTION_VOLATILITY_SURFACE_POINT.VOLATILITY "
-					+ "FROM EQUITY_OPTION_VOLATILITY_SURFACE_POINT, SURFACE WHERE "
-					+ "EQUITY_OPTION_VOLATILITY_SURFACE_POINT.SURFACE_ID = SURFACE.ID";
-			if (optionExpiry != 0) {
-				query += " AND OPTION_EXPIRY = " + optionExpiry;
-			}
-
-			if (strike != null) {
-				query += " AND STRIKE = " + strike;
-			}
-			try (ResultSet results = stmt.executeQuery(query)) {
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(POINT_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, VOLATILITY_SURFACE_ID_FIELD);
+		TradistaDBUtil.addFilter(sql, OPTION_EXPIRY_FIELD, optionExpiry);
+		TradistaDBUtil.addFilter(sql, STRIKE_FIELD, strike);
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setLong(1, volatilitySurfaceId);
+			try (ResultSet results = stmt.executeQuery()) {
 				while (results.next()) {
-					Long optionLt = results.getLong("option_expiry");
-					BigDecimal strikeRes = results.getBigDecimal("strike");
-					BigDecimal volatility = results.getBigDecimal("volatility");
 					if (points == null) {
-						points = new ArrayList<SurfacePoint<Number, Number, Number>>();
+						points = new ArrayList<>();
 					}
-					points.add(new SurfacePoint<Number, Number, Number>(optionLt, strikeRes, volatility));
+					points.add(new SurfacePoint<>(results.getLong(OPTION_EXPIRY), results.getBigDecimal(STRIKE),
+							results.getBigDecimal(VOLATILITY)));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return points;
@@ -344,18 +332,19 @@ public class EquityOptionVolatilitySurfaceSQL {
 		long surfaceId = 0;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveEquityVolatilitySurface = (surface.getId() != 0) ? con.prepareStatement(
-						"UPDATE VOLATILITY_SURFACE SET NAME=?, ALGORITHM =?, INTERPOLATOR=?, INSTANCE=?, QUOTE_DATE=?, TYPE=?, QUOTE_SET_ID=?, PROCESSING_ORG_ID=? WHERE ID = ?")
-						: con.prepareStatement(
-								"INSERT INTO VOLATILITY_SURFACE(NAME, ALGORITHM, INTERPOLATOR, INSTANCE, QUOTE_DATE, TYPE, QUOTE_SET_ID, PROCESSING_ORG_ID) VALUES (?,?,?,?,?,?,?,?)",
-								Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement stmtSaveRateQuotes = con
-						.prepareStatement("INSERT INTO VOLATILITY_SURFACE_QUOTE VALUES(?,?) ");
-				PreparedStatement stmtSaveStrikes = con.prepareStatement(
-						"INSERT INTO EQUITY_OPTION_VOLATILITY_SURFACE_STRIKE(SURFACE_ID, VALUE) VALUES(?,?) ");
-				PreparedStatement stmtSaveSurfacePoints = con
-						.prepareStatement("INSERT INTO EQUITY_OPTION_VOLATILITY_SURFACE_POINT VALUES(?,?,?,?) ")) {
-			// First, we save the Swaption Volatility Surface definition
+				PreparedStatement stmtSaveEquityVolatilitySurface = (surface.getId() != 0)
+						? SurfaceSQL.getUpdatePreparedStatement(con)
+						: SurfaceSQL.getInsertPreparedStatement(con);
+				PreparedStatement stmtDeleteQuotes = SurfaceSQL.getQuoteDeletePreparedStatement(con);
+				PreparedStatement stmtSaveQuotes = SurfaceSQL.getQuoteInsertPreparedStatement(con);
+				PreparedStatement stmtDeleteStrikes = TradistaDBUtil.buildDeletePreparedStatement(con, STRIKE_TABLE,
+						STRIKE_SURFACE_ID_FIELD);
+				PreparedStatement stmtSaveStrikes = TradistaDBUtil.buildInsertPreparedStatement(con, STRIKE_TABLE,
+						STRIKE_FIELDS);
+				PreparedStatement stmtDeletePoints = TradistaDBUtil.buildDeletePreparedStatement(con, POINT_TABLE,
+						VOLATILITY_SURFACE_ID_FIELD);
+				PreparedStatement stmtSavePoints = TradistaDBUtil.buildInsertPreparedStatement(con, POINT_TABLE,
+						POINT_FIELDS)) {
 
 			if (surface.getId() != 0) {
 				stmtSaveEquityVolatilitySurface.setLong(9, surface.getId());
@@ -397,67 +386,56 @@ public class EquityOptionVolatilitySurfaceSQL {
 				surfaceId = surface.getId();
 			}
 
+			// Quotes
 			if (surface.getId() != 0) {
-				// Then, we delete the current curve's quote ids list.
-				try (PreparedStatement stmtDeleteQuotesBySurfaceId = con
-						.prepareStatement("DELETE FROM VOLATILITY_SURFACE_QUOTE WHERE SURFACE_ID = ? ")) {
-					stmtDeleteQuotesBySurfaceId.setLong(1, surface.getId());
-					stmtDeleteQuotesBySurfaceId.executeUpdate();
-				}
+				stmtDeleteQuotes.setLong(1, surfaceId);
+				stmtDeleteQuotes.executeUpdate();
 			}
 
-			// We insert the new curve's quote ids list
 			if (surface.getQuotes() != null && !surface.getQuotes().isEmpty()) {
 				for (Quote quote : surface.getQuotes()) {
-					stmtSaveRateQuotes.clearParameters();
-					stmtSaveRateQuotes.setLong(1, surfaceId);
-					stmtSaveRateQuotes.setLong(2, quote.getId());
-					stmtSaveRateQuotes.addBatch();
+					stmtSaveQuotes.setLong(1, surfaceId);
+					stmtSaveQuotes.setLong(2, quote.getId());
+					stmtSaveQuotes.addBatch();
 				}
-				stmtSaveRateQuotes.executeBatch();
+				stmtSaveQuotes.executeBatch();
 			}
 
+			// Strikes
 			if (surface.getId() != 0) {
-				// Then, we delete the current surface's deltas list
-				try (PreparedStatement stmtDeleteStrikesBySurfaceId = con.prepareStatement(
-						"DELETE FROM EQUITY_OPTION_VOLATILITY_SURFACE_STRIKE WHERE SURFACE_ID = ? ")) {
-					stmtDeleteStrikesBySurfaceId.setLong(1, surface.getId());
-					stmtDeleteStrikesBySurfaceId.executeUpdate();
+				stmtDeleteStrikes.setLong(1, surfaceId);
+				stmtDeleteStrikes.executeUpdate();
+			}
+
+			if (surface.getStrikes() != null && !surface.getStrikes().isEmpty()) {
+				for (BigDecimal strike : surface.getStrikes()) {
+					stmtSaveStrikes.setLong(1, surfaceId);
+					stmtSaveStrikes.setBigDecimal(2, strike);
+					stmtSaveStrikes.addBatch();
 				}
+				stmtSaveStrikes.executeBatch();
 			}
 
-			// We insert the new surface's deltas list
-			for (BigDecimal strike : surface.getStrikes()) {
-				stmtSaveStrikes.clearParameters();
-				stmtSaveStrikes.setLong(1, surfaceId);
-				stmtSaveStrikes.setBigDecimal(2, strike);
-				stmtSaveStrikes.addBatch();
-			}
-			stmtSaveStrikes.executeBatch();
-
+			// Points
 			if (surface.getId() != 0) {
-				try (PreparedStatement stmtDeletePointsBySurfaceId = con.prepareStatement(
-						"DELETE FROM EQUITY_OPTION_VOLATILITY_SURFACE_POINT WHERE VOLATILITY_SURFACE_ID = ?")) {
-					// Then, we delete the data for this surface
-					stmtDeletePointsBySurfaceId.setLong(1, surface.getId());
-					stmtDeletePointsBySurfaceId.executeUpdate();
-				}
+				stmtDeletePoints.setLong(1, surfaceId);
+				stmtDeletePoints.executeUpdate();
 			}
 
-			for (SurfacePoint<Integer, BigDecimal, BigDecimal> point : surface.getPoints()) {
-				if (point != null && point.getzAxis() != null) {
-					stmtSaveSurfacePoints.clearParameters();
-					stmtSaveSurfacePoints.setLong(1, surfaceId);
-					stmtSaveSurfacePoints.setLong(2, point.getxAxis());
-					stmtSaveSurfacePoints.setBigDecimal(3, point.getyAxis());
-					stmtSaveSurfacePoints.setBigDecimal(4, point.getzAxis());
-					stmtSaveSurfacePoints.addBatch();
+			if (surface.getPoints() != null && !surface.getPoints().isEmpty()) {
+				for (SurfacePoint<Integer, BigDecimal, BigDecimal> point : surface.getPoints()) {
+					if (point != null && point.getzAxis() != null) {
+						stmtSavePoints.setLong(1, surfaceId);
+						stmtSavePoints.setLong(2, point.getxAxis());
+						stmtSavePoints.setBigDecimal(3, point.getyAxis());
+						stmtSavePoints.setBigDecimal(4, point.getzAxis());
+						stmtSavePoints.addBatch();
+					}
 				}
+				stmtSavePoints.executeBatch();
 			}
 
-			stmtSaveSurfacePoints.executeBatch();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		surface.setId(surfaceId);
@@ -467,27 +445,21 @@ public class EquityOptionVolatilitySurfaceSQL {
 	public static List<SurfacePoint<Integer, BigDecimal, BigDecimal>> getEquityOptionVolatilitySurfacePointsBySurfaceId(
 			long volatilitySurfaceId) {
 		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = null;
-
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(POINT_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, VOLATILITY_SURFACE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityOptionVolatilitySurfacePointsBySurfaceId = con.prepareStatement(
-						"SELECT EQUITY_OPTION_VOLATILITY_SURFACE_POINT.OPTION_EXPIRY, EQUITY_OPTION_VOLATILITY_SURFACE_POINT.STRIKE, EQUITY_OPTION_VOLATILITY_SURFACE_POINT.VOLATILITY "
-								+ "FROM EQUITY_OPTION_VOLATILITY_SURFACE_POINT, VOLATILITY_SURFACE WHERE "
-								+ "EQUITY_OPTION_VOLATILITY_SURFACE_POINT.VOLATILITY_SURFACE_ID = VOLATILITY_SURFACE.ID"
-								+ " AND VOLATILITY_SURFACE.ID = ?")) {
-			stmtGetEquityOptionVolatilitySurfacePointsBySurfaceId.setLong(1, volatilitySurfaceId);
-			try (ResultSet results = stmtGetEquityOptionVolatilitySurfacePointsBySurfaceId.executeQuery()) {
+				PreparedStatement stmtGetPoints = con.prepareStatement(sql.toString())) {
+			stmtGetPoints.setLong(1, volatilitySurfaceId);
+			try (ResultSet results = stmtGetPoints.executeQuery()) {
 				while (results.next()) {
-					Integer optionExpiry = results.getInt("option_expiry");
-					BigDecimal strikeRes = results.getBigDecimal("strike");
-					BigDecimal volatility = results.getBigDecimal("volatility");
 					if (points == null) {
-						points = new ArrayList<SurfacePoint<Integer, BigDecimal, BigDecimal>>();
+						points = new ArrayList<>();
 					}
-					points.add(new SurfacePoint<Integer, BigDecimal, BigDecimal>(optionExpiry, strikeRes, volatility));
+					points.add(new SurfacePoint<>(results.getInt(OPTION_EXPIRY), results.getBigDecimal(STRIKE),
+							results.getBigDecimal(VOLATILITY)));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return points;
@@ -495,21 +467,21 @@ public class EquityOptionVolatilitySurfaceSQL {
 
 	public static BigDecimal getVolatility(String volatilitySurfaceName, long optionExpiry) {
 		BigDecimal volatility = null;
-
+		StringBuilder sql = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(UnaryFunctionExpression.avg(VOLATILITY_FIELD), POINT_TABLE,
+						Join.innerEq(VOLATILITY_SURFACE_TABLE, VOLATILITY_SURFACE_ID_FIELD, ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sql, NAME_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, OPTION_EXPIRY_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetVolatilityBySurfaceNameAndOptionExpiry = con.prepareStatement(
-						"SELECT AVG(VOLATILITY) FROM VOLATILITY_SURFACE, EQUITY_OPTION_VOLATILITY_SURFACE_POINT"
-								+ " WHERE VOLATILITY_SURFACE.ID = EQUITY_OPTION_VOLATILITY_SURFACE_POINT.VOLATILITY_SURFACE_ID"
-								+ " AND NAME = ? AND OPTION_EXPIRY = ?")) {
-			stmtGetVolatilityBySurfaceNameAndOptionExpiry.setString(1, volatilitySurfaceName);
-			stmtGetVolatilityBySurfaceNameAndOptionExpiry.setLong(2, optionExpiry);
-			try (ResultSet results = stmtGetVolatilityBySurfaceNameAndOptionExpiry.executeQuery()) {
+				PreparedStatement stmtGetVolatility = con.prepareStatement(sql.toString())) {
+			stmtGetVolatility.setString(1, volatilitySurfaceName);
+			stmtGetVolatility.setLong(2, optionExpiry);
+			try (ResultSet results = stmtGetVolatility.executeQuery()) {
 				while (results.next()) {
-					volatility = results.getBigDecimal("volatility");
+					volatility = results.getBigDecimal(1);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return volatility;

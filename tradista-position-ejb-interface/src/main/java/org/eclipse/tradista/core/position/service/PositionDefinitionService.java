@@ -40,4 +40,6 @@ public interface PositionDefinitionService {
 
 	Set<String> getPositionDefinitionsByPricingParametersSetId(long id);
 
+	Set<PositionDefinition> getPositionDefinitionsByPoId(long poId);
+
 }

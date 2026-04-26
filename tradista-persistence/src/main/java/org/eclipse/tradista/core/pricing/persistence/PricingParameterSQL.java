@@ -1,12 +1,26 @@
 package org.eclipse.tradista.core.pricing.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FX_CURVE_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INDEX_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_RATE_CURVE_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRICER_NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRICING_PARAMETER_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRIMARY_CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_TYPE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUOTE_CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUOTE_SET_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +29,11 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
@@ -49,6 +68,72 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 
 public class PricingParameterSQL {
 
+	private static final Logger logger = LoggerFactory.getLogger(PricingParameterSQL.class);
+
+	// ---- PRICING_PARAMETER table ----
+	private static final Field PP_NAME_FIELD = new Field(NAME);
+	private static final Field PP_QUOTE_SET_ID_FIELD = new Field(QUOTE_SET_ID);
+	private static final Field PP_PROCESSING_ORG_ID_FIELD = new Field(PROCESSING_ORG_ID);
+	private static final Field PP_ID_FIELD = new Field(ID);
+
+	private static final Field[] PP_FIELDS = { PP_NAME_FIELD, PP_QUOTE_SET_ID_FIELD, PP_PROCESSING_ORG_ID_FIELD,
+			PP_ID_FIELD };
+	private static final Field[] PP_FIELDS_FOR_INSERT = { PP_NAME_FIELD, PP_QUOTE_SET_ID_FIELD,
+			PP_PROCESSING_ORG_ID_FIELD };
+
+	public static final Table TABLE = new Table("PRICING_PARAMETER", PP_FIELDS);
+
+	// ---- PRICING_PARAMETER_VALUE table ----
+	private static final Field PPV_PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field PPV_NAME_FIELD = new Field(NAME);
+	private static final Field PPV_VALUE_FIELD = new Field(VALUE);
+
+	private static final Field[] PPV_FIELDS = { PPV_PRICING_PARAMETER_ID_FIELD, PPV_NAME_FIELD, PPV_VALUE_FIELD };
+
+	private static final Table PPV_TABLE = new Table("PRICING_PARAMETER_VALUE", PPV_FIELDS);
+
+	// ---- PRICING_PARAMETER_INDEX_CURVE table ----
+	private static final Field PPIC_PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field PPIC_INDEX_ID_FIELD = new Field(INDEX_ID);
+	private static final Field PPIC_INTEREST_RATE_CURVE_ID_FIELD = new Field(INTEREST_RATE_CURVE_ID);
+
+	private static final Field[] PPIC_FIELDS = { PPIC_PRICING_PARAMETER_ID_FIELD, PPIC_INDEX_ID_FIELD,
+			PPIC_INTEREST_RATE_CURVE_ID_FIELD };
+
+	private static final Table PPIC_TABLE = new Table("PRICING_PARAMETER_INDEX_CURVE", PPIC_FIELDS);
+
+	// ---- PRICING_PARAMETER_DISCOUNT_CURVE table ----
+	private static final Field PPDC_PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field PPDC_CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
+	private static final Field PPDC_INTEREST_RATE_CURVE_ID_FIELD = new Field(INTEREST_RATE_CURVE_ID);
+
+	private static final Field[] PPDC_FIELDS = { PPDC_PRICING_PARAMETER_ID_FIELD, PPDC_CURRENCY_ID_FIELD,
+			PPDC_INTEREST_RATE_CURVE_ID_FIELD };
+
+	private static final Table PPDC_TABLE = new Table("PRICING_PARAMETER_DISCOUNT_CURVE", PPDC_FIELDS);
+
+	// ---- PRICING_PARAMETER_FX_CURVE table ----
+	private static final Field PPFXC_PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field PPFXC_PRIMARY_CURRENCY_ID_FIELD = new Field(PRIMARY_CURRENCY_ID);
+	private static final Field PPFXC_QUOTE_CURRENCY_ID_FIELD = new Field(QUOTE_CURRENCY_ID);
+	private static final Field PPFXC_FX_CURVE_ID_FIELD = new Field(FX_CURVE_ID);
+
+	private static final Field[] PPFXC_FIELDS = { PPFXC_PRICING_PARAMETER_ID_FIELD, PPFXC_PRIMARY_CURRENCY_ID_FIELD,
+			PPFXC_QUOTE_CURRENCY_ID_FIELD, PPFXC_FX_CURVE_ID_FIELD };
+
+	private static final Table PPFXC_TABLE = new Table("PRICING_PARAMETER_FX_CURVE", PPFXC_FIELDS);
+
+	// ---- PRICING_PARAMETER_CUSTOM_PRICER table ----
+	private static final Field PPCP_PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field PPCP_PRODUCT_TYPE_FIELD = new Field(PRODUCT_TYPE);
+	private static final Field PPCP_PRICER_NAME_FIELD = new Field(PRICER_NAME);
+
+	private static final Field[] PPCP_FIELDS = { PPCP_PRICING_PARAMETER_ID_FIELD, PPCP_PRODUCT_TYPE_FIELD,
+			PPCP_PRICER_NAME_FIELD };
+
+	private static final Table PPCP_TABLE = new Table("PRICING_PARAMETER_CUSTOM_PRICER", PPCP_FIELDS);
+
+	// ---- Module DAO classes ----
 	private static Map<String, Class<?>> daoClasses = new HashMap<>();
 
 	static {
@@ -59,37 +144,39 @@ public class PricingParameterSQL {
 					"org.eclipse.tradista.security.equityoption.persistence.PricingParameterDividendYieldCurveSQL");
 			daoClasses.put("org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule",
 					daoClass);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("PricingParameterDividendYieldCurveSQL module not found, skipping.");
 		}
 		try {
 			daoClass = TradistaUtil
 					.getClass("org.eclipse.tradista.fx.common.persistence.PricingParameterUnrealizedPnlCalculationSQL");
-			daoClasses.put("org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule", daoClass);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+			daoClasses.put("org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule",
+					daoClass);
+		} catch (TradistaTechnicalException _) {
+			logger.info("PricingParameterUnrealizedPnlCalculationSQL module not found, skipping.");
 		}
 		try {
 			daoClass = TradistaUtil
 					.getClass("org.eclipse.tradista.fx.fxoption.persistence.PricingParameterVolatilitySurfaceSQL");
 			daoClasses.put("org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule", daoClass);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("FX Option PricingParameterVolatilitySurfaceSQL module not found, skipping.");
 		}
 		try {
 			daoClass = TradistaUtil
 					.getClass("org.eclipse.tradista.ir.irswapoption.persistence.PricingParameterVolatilitySurfaceSQL");
-			daoClasses.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule", daoClass);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+			daoClasses.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule",
+					daoClass);
+		} catch (TradistaTechnicalException _) {
+			logger.info("IR Swap Option PricingParameterVolatilitySurfaceSQL module not found, skipping.");
 		}
 		try {
 			daoClass = TradistaUtil.getClass(
 					"org.eclipse.tradista.security.equityoption.persistence.PricingParameterVolatilitySurfaceSQL");
 			daoClasses.put("org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule",
 					daoClass);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("Equity Option PricingParameterVolatilitySurfaceSQL module not found, skipping.");
 		}
 	}
 
@@ -97,18 +184,18 @@ public class PricingParameterSQL {
 		boolean bSaved = false;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtDeletePricingParameterValuesById = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_VALUE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtDeletePricingParameterIndexCurvesById = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_INDEX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtDeletePricingParameterDiscountCurveById = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_DISCOUNT_CURVE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtDeletePricingParameterFXCurveById = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_FX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtDeletePricingParameterCustomPricerById = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_CUSTOM_PRICER WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtDeletePricingParameter = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER WHERE ID = ?")) {
+				PreparedStatement stmtDeletePricingParameterValuesById = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPV_TABLE, PPV_PRICING_PARAMETER_ID_FIELD);
+				PreparedStatement stmtDeletePricingParameterIndexCurvesById = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPIC_TABLE, PPIC_PRICING_PARAMETER_ID_FIELD);
+				PreparedStatement stmtDeletePricingParameterDiscountCurveById = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPDC_TABLE, PPDC_PRICING_PARAMETER_ID_FIELD);
+				PreparedStatement stmtDeletePricingParameterFXCurveById = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPFXC_TABLE, PPFXC_PRICING_PARAMETER_ID_FIELD);
+				PreparedStatement stmtDeletePricingParameterCustomPricerById = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPCP_TABLE, PPCP_PRICING_PARAMETER_ID_FIELD);
+				PreparedStatement stmtDeletePricingParameter = TradistaDBUtil.buildDeletePreparedStatement(con, TABLE,
+						PP_ID_FIELD)) {
 			stmtDeletePricingParameterValuesById.setLong(1, id);
 			stmtDeletePricingParameterValuesById.executeUpdate();
 
@@ -131,7 +218,6 @@ public class PricingParameterSQL {
 					method.invoke(daoClass, con, id);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 						| NoSuchMethodException | SecurityException e) {
-					e.printStackTrace();
 					throw new TradistaTechnicalException(e);
 				}
 			}
@@ -140,7 +226,6 @@ public class PricingParameterSQL {
 			stmtDeletePricingParameter.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
@@ -150,110 +235,38 @@ public class PricingParameterSQL {
 		Set<PricingParameter> pricingParameters = null;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllPricingParameters = con.prepareStatement("SELECT * FROM PRICING_PARAMETER");
-				PreparedStatement stmtGetPricingParameterValueByPricingParameterId = con.prepareStatement(
-						"SELECT PRICING_PARAMETER_VALUE.NAME NAME, PRICING_PARAMETER_VALUE.VALUE VALUE "
-								+ "FROM PRICING_PARAMETER_VALUE WHERE "
-								+ "PRICING_PARAMETER_VALUE.PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtGetPricingParameterIndexCurveById = con
-						.prepareStatement("SELECT * FROM PRICING_PARAMETER_INDEX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtGetPricingParameterDiscountCurveById = con.prepareStatement(
-						"SELECT * FROM PRICING_PARAMETER_DISCOUNT_CURVE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtGetPricingParameterFXCurveById = con
-						.prepareStatement("SELECT * FROM PRICING_PARAMETER_FX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtGetPricingParameterCustomPricerById = con.prepareStatement(
-						"SELECT * FROM PRICING_PARAMETER_CUSTOM_PRICER WHERE PRICING_PARAMETER_ID = ?");
+				PreparedStatement stmtGetAllPricingParameters = con
+						.prepareStatement(TradistaDBUtil.buildSelectQuery(TABLE));
 				ResultSet results = stmtGetAllPricingParameters.executeQuery()) {
 			while (results.next()) {
-				LegalEntity processingOrg = null;
-				long poId = results.getLong("processing_org_id");
-				if (poId > 0) {
-					processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-				}
-				PricingParameter pricingParameter = new PricingParameter(results.getString("name"), processingOrg);
-				Map<String, String> params = new HashMap<>();
-				Map<Index, InterestRateCurve> indexCurves = new HashMap<>();
-				Map<Currency, InterestRateCurve> discountCurves = new HashMap<>();
-				Map<CurrencyPair, FXCurve> fxCurves = new HashMap<>();
-				Map<String, String> customPricers = new HashMap<>();
-				pricingParameter.setId(results.getInt("id"));
-				pricingParameter.setQuoteSet(QuoteSetSQL.getQuoteSetById(results.getLong("quote_set_id")));
-				stmtGetPricingParameterValueByPricingParameterId.setLong(1, results.getLong("id"));
-				try (ResultSet paramsResults = stmtGetPricingParameterValueByPricingParameterId.executeQuery()) {
-					while (paramsResults.next()) {
-						String name = paramsResults.getString("name");
-						String value = paramsResults.getString("value");
-						params.put(name, value);
-					}
-				}
-				pricingParameter.setParams(params);
-
-				stmtGetPricingParameterIndexCurveById.setLong(1, results.getLong("id"));
-				try (ResultSet indexCurvesResults = stmtGetPricingParameterIndexCurveById.executeQuery()) {
-					while (indexCurvesResults.next()) {
-						Index index = IndexSQL.getIndexById(indexCurvesResults.getLong("index_id"));
-						InterestRateCurve curve = InterestRateCurveSQL
-								.getInterestRateCurveById(indexCurvesResults.getLong("interest_rate_curve_id"));
-						indexCurves.put(index, curve);
-					}
-				}
-				pricingParameter.setIndexCurves(indexCurves);
-
-				stmtGetPricingParameterDiscountCurveById.setLong(1, results.getLong("id"));
-				try (ResultSet discountCurvesResults = stmtGetPricingParameterDiscountCurveById.executeQuery()) {
-					while (discountCurvesResults.next()) {
-						Currency currency = CurrencySQL.getCurrencyById(discountCurvesResults.getLong("currency_id"));
-						InterestRateCurve curve = InterestRateCurveSQL
-								.getInterestRateCurveById(discountCurvesResults.getLong("interest_rate_curve_id"));
-						discountCurves.put(currency, curve);
-					}
-				}
-				pricingParameter.setDiscountCurves(discountCurves);
-
-				stmtGetPricingParameterFXCurveById.setLong(1, results.getLong("id"));
-				try (ResultSet fxCurvesResults = stmtGetPricingParameterFXCurveById.executeQuery()) {
-					while (fxCurvesResults.next()) {
-						Currency primaryCurrency = CurrencySQL
-								.getCurrencyById(fxCurvesResults.getLong("primary_currency_id"));
-						Currency quoteCurrency = CurrencySQL
-								.getCurrencyById(fxCurvesResults.getLong("quote_currency_id"));
-						FXCurve curve = FXCurveSQL.getFXCurveById(fxCurvesResults.getLong("fx_curve_id"));
-						fxCurves.put(new CurrencyPair(primaryCurrency, quoteCurrency), curve);
-					}
-				}
-				pricingParameter.setFxCurves(fxCurves);
-
-				stmtGetPricingParameterCustomPricerById.setLong(1, results.getLong("id"));
-				try (ResultSet customPricersResults = stmtGetPricingParameterCustomPricerById.executeQuery()) {
-					while (customPricersResults.next()) {
-						String productType = customPricersResults.getString("product_type");
-						String pricer = customPricersResults.getString("pricer_name");
-						customPricers.put(productType, pricer);
-					}
-				}
-				pricingParameter.setCustomPricers(customPricers);
-
-				for (Class<?> daoClass : daoClasses.values()) {
-					try {
-						Method method = daoClass.getMethod("getPricingParameterModuleByPricingParameterId",
-								Connection.class, long.class);
-						PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
-								pricingParameter.getId());
-						pricingParameter.getModules().add(module);
-					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-							| NoSuchMethodException | SecurityException e) {
-						e.printStackTrace();
-						throw new TradistaTechnicalException(e);
-					}
-				}
-
 				if (pricingParameters == null) {
-					pricingParameters = new HashSet<PricingParameter>();
+					pricingParameters = new HashSet<>();
 				}
-				pricingParameters.add(pricingParameter);
+				pricingParameters.add(buildPricingParameter(results, con));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		return pricingParameters;
+	}
+
+	public static Set<PricingParameter> getPricingParametersByPoId(long poId) {
+		Set<PricingParameter> pricingParameters = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PP_PROCESSING_ORG_ID_FIELD);
+
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetPricingParametersByPoId = con.prepareStatement(sql.toString())) {
+			stmtGetPricingParametersByPoId.setLong(1, poId);
+			try (ResultSet results = stmtGetPricingParametersByPoId.executeQuery()) {
+				while (results.next()) {
+					if (pricingParameters == null) {
+						pricingParameters = new HashSet<>();
+					}
+					pricingParameters.add(buildPricingParameter(results, con));
+				}
+			}
+		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return pricingParameters;
@@ -261,228 +274,39 @@ public class PricingParameterSQL {
 
 	public static PricingParameter getPricingParameterById(long id) {
 		PricingParameter pricingParameter = null;
-		Map<String, String> params = new HashMap<>();
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PP_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetPricingParameterValuesByPricingParameterId = con.prepareStatement(
-						"SELECT PRICING_PARAMETER_VALUE.NAME NAME, PRICING_PARAMETER_VALUE.VALUE VALUE "
-								+ "FROM PRICING_PARAMETER_VALUE WHERE "
-								+ "PRICING_PARAMETER_VALUE.PRICING_PARAMETER_ID = ?");
-				PreparedStatement stmtGetPricingParameterById = con
-						.prepareStatement("SELECT * FROM PRICING_PARAMETER WHERE ID = ?")) {
-			stmtGetPricingParameterValuesByPricingParameterId.setLong(1, id);
-			try (ResultSet results = stmtGetPricingParameterValuesByPricingParameterId.executeQuery()) {
-				while (results.next()) {
-					String name = results.getString("name");
-					String value = results.getString("value");
-					params.put(name, value);
-				}
-			}
+				PreparedStatement stmtGetPricingParameterById = con.prepareStatement(sql.toString())) {
 			stmtGetPricingParameterById.setLong(1, id);
-			try (PreparedStatement stmtGetPricingParameterIndexCurveById = con
-					.prepareStatement("SELECT * FROM PRICING_PARAMETER_INDEX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-					PreparedStatement stmtGetPricingParameterDiscountCurveById = con.prepareStatement(
-							"SELECT * FROM PRICING_PARAMETER_DISCOUNT_CURVE WHERE PRICING_PARAMETER_ID = ?");
-					PreparedStatement stmtGetPricingParameterFXCurveById = con.prepareStatement(
-							"SELECT * FROM PRICING_PARAMETER_FX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-					PreparedStatement stmtGetPricingParameterCustomPricerById = con.prepareStatement(
-							"SELECT * FROM PRICING_PARAMETER_CUSTOM_PRICER WHERE PRICING_PARAMETER_ID = ?");
-					ResultSet results = stmtGetPricingParameterById.executeQuery()) {
+			try (ResultSet results = stmtGetPricingParameterById.executeQuery()) {
 				while (results.next()) {
-					if (pricingParameter == null) {
-						LegalEntity processingOrg = null;
-						long poId = results.getLong("processing_org_id");
-						if (poId > 0) {
-							processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-						}
-						pricingParameter = new PricingParameter(results.getString("name"), processingOrg);
-					}
-					Map<Index, InterestRateCurve> indexCurves = new HashMap<>();
-					Map<Currency, InterestRateCurve> discountCurves = new HashMap<>();
-					Map<CurrencyPair, FXCurve> fxCurves = new HashMap<>();
-					Map<String, String> customPricers = new HashMap<>();
-					pricingParameter.setId(results.getInt("id"));
-					pricingParameter.setQuoteSet(QuoteSetSQL.getQuoteSetById(results.getLong("quote_set_id")));
-					stmtGetPricingParameterIndexCurveById.setLong(1, results.getLong("id"));
-					try (ResultSet indexCurvesResults = stmtGetPricingParameterIndexCurveById.executeQuery()) {
-						while (indexCurvesResults.next()) {
-							Index index = IndexSQL.getIndexById(indexCurvesResults.getLong("index_id"));
-							InterestRateCurve curve = InterestRateCurveSQL
-									.getInterestRateCurveById(indexCurvesResults.getLong("interest_rate_curve_id"));
-							indexCurves.put(index, curve);
-						}
-					}
-					pricingParameter.setIndexCurves(indexCurves);
-
-					stmtGetPricingParameterDiscountCurveById.setLong(1, results.getLong("id"));
-					try (ResultSet discountCurvesResults = stmtGetPricingParameterDiscountCurveById.executeQuery()) {
-						while (discountCurvesResults.next()) {
-							Currency currency = CurrencySQL
-									.getCurrencyById(discountCurvesResults.getLong("currency_id"));
-							InterestRateCurve curve = InterestRateCurveSQL
-									.getInterestRateCurveById(discountCurvesResults.getLong("interest_rate_curve_id"));
-							discountCurves.put(currency, curve);
-						}
-					}
-					pricingParameter.setDiscountCurves(discountCurves);
-
-					stmtGetPricingParameterFXCurveById.setLong(1, results.getLong("id"));
-					try (ResultSet fxCurvesResults = stmtGetPricingParameterFXCurveById.executeQuery()) {
-						while (fxCurvesResults.next()) {
-							Currency primaryCurrency = CurrencySQL
-									.getCurrencyById(fxCurvesResults.getLong("primary_currency_id"));
-							Currency quoteCurrency = CurrencySQL
-									.getCurrencyById(fxCurvesResults.getLong("quote_currency_id"));
-							FXCurve curve = FXCurveSQL.getFXCurveById(fxCurvesResults.getLong("fx_curve_id"));
-							fxCurves.put(new CurrencyPair(primaryCurrency, quoteCurrency), curve);
-						}
-					}
-					pricingParameter.setFxCurves(fxCurves);
-
-					stmtGetPricingParameterCustomPricerById.setLong(1, results.getLong("id"));
-					try (ResultSet customPricersResults = stmtGetPricingParameterCustomPricerById.executeQuery()) {
-						while (customPricersResults.next()) {
-							String productType = customPricersResults.getString("product_type");
-							String pricer = customPricersResults.getString("pricer_name");
-							customPricers.put(productType, pricer);
-						}
-					}
-					pricingParameter.setCustomPricers(customPricers);
-
-					for (Class<?> daoClass : daoClasses.values()) {
-						try {
-							Method method = daoClass.getMethod("getPricingParameterModuleByPricingParameterId",
-									Connection.class, long.class);
-							PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
-									pricingParameter.getId());
-							pricingParameter.getModules().add(module);
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-								| NoSuchMethodException | SecurityException e) {
-							e.printStackTrace();
-							throw new TradistaTechnicalException(e);
-						}
-					}
-
+					pricingParameter = buildPricingParameter(results, con);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-		pricingParameter.setParams(params);
 		return pricingParameter;
 	}
 
 	public static PricingParameter getPricingParameterByNameAndPoId(String name, long poId) {
 		PricingParameter pricingParameter = null;
-		Map<String, String> params = new HashMap<>();
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PP_NAME_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, PP_PROCESSING_ORG_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetPricingParameterByNameAndPoId = con
-						.prepareStatement("SELECT * FROM PRICING_PARAMETER WHERE NAME = ? AND PROCESSING_ORG_ID = ?")) {
+				PreparedStatement stmtGetPricingParameterByNameAndPoId = con.prepareStatement(sql.toString())) {
 			stmtGetPricingParameterByNameAndPoId.setString(1, name);
 			stmtGetPricingParameterByNameAndPoId.setLong(2, poId);
-			try (PreparedStatement stmtGetPricingParameterIndexCurveById = con
-					.prepareStatement("SELECT * FROM PRICING_PARAMETER_INDEX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-					PreparedStatement stmtGetPricingParameterDiscountCurveById = con.prepareStatement(
-							"SELECT * FROM PRICING_PARAMETER_DISCOUNT_CURVE WHERE PRICING_PARAMETER_ID = ?");
-					PreparedStatement stmtGetPricingParameterFXCurveById = con.prepareStatement(
-							"SELECT * FROM PRICING_PARAMETER_FX_CURVE WHERE PRICING_PARAMETER_ID = ?");
-					PreparedStatement stmtGetPricingParameterCustomPricerById = con.prepareStatement(
-							"SELECT * FROM PRICING_PARAMETER_CUSTOM_PRICER WHERE PRICING_PARAMETER_ID = ?");
-					ResultSet results = stmtGetPricingParameterByNameAndPoId.executeQuery()) {
+			try (ResultSet results = stmtGetPricingParameterByNameAndPoId.executeQuery()) {
 				while (results.next()) {
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					pricingParameter = new PricingParameter(results.getString("name"), processingOrg);
-					Map<Index, InterestRateCurve> indexCurves = new HashMap<>();
-					Map<Currency, InterestRateCurve> discountCurves = new HashMap<>();
-					Map<CurrencyPair, FXCurve> fxCurves = new HashMap<>();
-					Map<String, String> customPricers = new HashMap<>();
-					pricingParameter.setId(results.getInt("id"));
-					pricingParameter.setQuoteSet(QuoteSetSQL.getQuoteSetById(results.getLong("quote_set_id")));
-					stmtGetPricingParameterIndexCurveById.setLong(1, results.getLong("id"));
-					try (ResultSet indexCurvesResults = stmtGetPricingParameterIndexCurveById.executeQuery()) {
-						while (indexCurvesResults.next()) {
-							Index index = IndexSQL.getIndexById(indexCurvesResults.getLong("index_id"));
-							InterestRateCurve curve = InterestRateCurveSQL
-									.getInterestRateCurveById(indexCurvesResults.getLong("interest_rate_curve_id"));
-							indexCurves.put(index, curve);
-						}
-					}
-					pricingParameter.setIndexCurves(indexCurves);
-
-					stmtGetPricingParameterDiscountCurveById.setLong(1, results.getLong("id"));
-					try (ResultSet discountCurvesResults = stmtGetPricingParameterDiscountCurveById.executeQuery()) {
-						while (discountCurvesResults.next()) {
-							Currency currency = CurrencySQL
-									.getCurrencyById(discountCurvesResults.getLong("currency_id"));
-							InterestRateCurve curve = InterestRateCurveSQL
-									.getInterestRateCurveById(discountCurvesResults.getLong("interest_rate_curve_id"));
-							discountCurves.put(currency, curve);
-						}
-					}
-					pricingParameter.setDiscountCurves(discountCurves);
-
-					stmtGetPricingParameterFXCurveById.setLong(1, results.getLong("id"));
-					try (ResultSet fxCurvesResults = stmtGetPricingParameterFXCurveById.executeQuery()) {
-						while (fxCurvesResults.next()) {
-							Currency primaryCurrency = CurrencySQL
-									.getCurrencyById(fxCurvesResults.getLong("primary_currency_id"));
-							Currency quoteCurrency = CurrencySQL
-									.getCurrencyById(fxCurvesResults.getLong("quote_currency_id"));
-							FXCurve curve = FXCurveSQL.getFXCurveById(fxCurvesResults.getLong("fx_curve_id"));
-							fxCurves.put(new CurrencyPair(primaryCurrency, quoteCurrency), curve);
-						}
-					}
-					pricingParameter.setFxCurves(fxCurves);
-
-					stmtGetPricingParameterCustomPricerById.setLong(1, results.getLong("id"));
-					try (ResultSet customPricersResults = stmtGetPricingParameterCustomPricerById.executeQuery()) {
-						while (customPricersResults.next()) {
-							String productType = customPricersResults.getString("product_type");
-							String pricer = customPricersResults.getString("pricer_name");
-							customPricers.put(productType, pricer);
-						}
-					}
-					pricingParameter.setCustomPricers(customPricers);
-
-					for (Class<?> daoClass : daoClasses.values()) {
-						try {
-							Method method = daoClass.getMethod("getPricingParameterModuleByPricingParameterId",
-									Connection.class, long.class);
-							PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
-									pricingParameter.getId());
-							pricingParameter.getModules().add(module);
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-								| NoSuchMethodException | SecurityException e) {
-							e.printStackTrace();
-							throw new TradistaTechnicalException(e);
-						}
-					}
-
-				}
-			}
-			if (pricingParameter != null) {
-				try (PreparedStatement stmtGetPricingParameterValuesByPricingParameterId = con.prepareStatement(
-						"SELECT PRICING_PARAMETER_VALUE.NAME NAME, PRICING_PARAMETER_VALUE.VALUE VALUE "
-								+ "FROM PRICING_PARAMETER_VALUE WHERE "
-								+ "PRICING_PARAMETER_VALUE.PRICING_PARAMETER_ID = ?")) {
-					stmtGetPricingParameterValuesByPricingParameterId.setLong(1, pricingParameter.getId());
-					try (ResultSet results = stmtGetPricingParameterValuesByPricingParameterId.executeQuery()) {
-						while (results.next()) {
-							String paramName = results.getString("name");
-							String paramValue = results.getString("value");
-							params.put(paramName, paramValue);
-						}
-					}
-					pricingParameter.setParams(params);
+					pricingParameter = buildPricingParameter(results, con);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return pricingParameter;
@@ -491,22 +315,19 @@ public class PricingParameterSQL {
 	public static long savePricingParameter(PricingParameter pricingParam) {
 		long pricingParamId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSavePricingParameterValues = con.prepareStatement(
-						"INSERT INTO PRICING_PARAMETER_VALUE(PRICING_PARAMETER_ID, NAME, VALUE) VALUES(?, ?, ?)");
-				PreparedStatement stmtSavePricingParameterIndexCurves = con.prepareStatement(
-						"INSERT INTO PRICING_PARAMETER_INDEX_CURVE(PRICING_PARAMETER_ID, INDEX_ID, INTEREST_RATE_CURVE_ID) VALUES(?, ?, ?)");
-				PreparedStatement stmtSavePricingParameterDiscountCurves = con.prepareStatement(
-						"INSERT INTO PRICING_PARAMETER_DISCOUNT_CURVE(PRICING_PARAMETER_ID, CURRENCY_ID, INTEREST_RATE_CURVE_ID) VALUES(?, ?, ?)");
-				PreparedStatement stmtSavePricingParameterFXCurves = con.prepareStatement(
-						"INSERT INTO PRICING_PARAMETER_FX_CURVE(PRICING_PARAMETER_ID, PRIMARY_CURRENCY_ID, QUOTE_CURRENCY_ID, FX_CURVE_ID) VALUES(?, ?, ?, ?)");
-				PreparedStatement stmtSavePricingParameterCustomPricers = con.prepareStatement(
-						"INSERT INTO PRICING_PARAMETER_CUSTOM_PRICER(PRICING_PARAMETER_ID, PRODUCT_TYPE, PRICER_NAME) VALUES(?, ?, ?)");
+				PreparedStatement stmtSavePricingParameterValues = TradistaDBUtil.buildInsertPreparedStatement(con,
+						PPV_TABLE, PPV_FIELDS);
+				PreparedStatement stmtSavePricingParameterIndexCurves = TradistaDBUtil.buildInsertPreparedStatement(con,
+						PPIC_TABLE, PPIC_FIELDS);
+				PreparedStatement stmtSavePricingParameterDiscountCurves = TradistaDBUtil
+						.buildInsertPreparedStatement(con, PPDC_TABLE, PPDC_FIELDS);
+				PreparedStatement stmtSavePricingParameterFXCurves = TradistaDBUtil.buildInsertPreparedStatement(con,
+						PPFXC_TABLE, PPFXC_FIELDS);
+				PreparedStatement stmtSavePricingParameterCustomPricers = TradistaDBUtil
+						.buildInsertPreparedStatement(con, PPCP_TABLE, PPCP_FIELDS);
 				PreparedStatement stmtSavePricingParameter = (pricingParam.getId() == 0)
-						? con.prepareStatement(
-								"INSERT INTO PRICING_PARAMETER(NAME, QUOTE_SET_ID, PROCESSING_ORG_ID) VALUES(?, ?, ?)",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE PRICING_PARAMETER SET NAME=?, QUOTE_SET_ID = ?, PROCESSING_ORG_ID=? WHERE ID=?")) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, TABLE, PP_FIELDS_FOR_INSERT)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, PP_ID_FIELD, TABLE, PP_FIELDS_FOR_INSERT)) {
 
 			stmtSavePricingParameter.setString(1, pricingParam.getName());
 			stmtSavePricingParameter.setLong(2, pricingParam.getQuoteSet().getId());
@@ -534,28 +355,28 @@ public class PricingParameterSQL {
 
 			if (pricingParam.getId() != 0) {
 				// Then, we delete the data for this pricingParam
-				try (PreparedStatement stmtDeletePricingParameterValues = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_VALUE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterValues = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPV_TABLE, PPV_PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterValues.setLong(1, pricingParamId);
 					stmtDeletePricingParameterValues.executeUpdate();
 				}
-				try (PreparedStatement stmtDeletePricingParameterIndexCurves = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_INDEX_CURVE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterIndexCurves = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPIC_TABLE, PPIC_PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterIndexCurves.setLong(1, pricingParamId);
 					stmtDeletePricingParameterIndexCurves.executeUpdate();
 				}
-				try (PreparedStatement stmtDeletePricingParameterDiscountCurves = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_DISCOUNT_CURVE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterDiscountCurves = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPDC_TABLE, PPDC_PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterDiscountCurves.setLong(1, pricingParamId);
 					stmtDeletePricingParameterDiscountCurves.executeUpdate();
 				}
-				try (PreparedStatement stmtDeletePricingParameterFXCurves = con
-						.prepareStatement("DELETE FROM PRICING_PARAMETER_FX_CURVE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterFXCurves = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPFXC_TABLE, PPFXC_PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterFXCurves.setLong(1, pricingParamId);
 					stmtDeletePricingParameterFXCurves.executeUpdate();
 				}
-				try (PreparedStatement stmtDeletePricingParameterCustomPricers = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_CUSTOM_PRICER WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterCustomPricers = TradistaDBUtil
+						.buildDeletePreparedStatement(con, PPCP_TABLE, PPCP_PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterCustomPricers.setLong(1, pricingParamId);
 					stmtDeletePricingParameterCustomPricers.executeUpdate();
 				}
@@ -615,7 +436,6 @@ public class PricingParameterSQL {
 			}
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return pricingParamId;
@@ -630,31 +450,145 @@ public class PricingParameterSQL {
 			method.invoke(daoClass, con, module, pricingParamId);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 				| SecurityException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 	}
 
 	public static Set<String> getPricingParametersSetByQuoteSetId(long quoteSetId) {
 		Set<String> pricingParametersSetNames = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PP_NAME_FIELD, TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PP_QUOTE_SET_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetPricingParametersSetsByQuoteSetName = con
-						.prepareStatement("SELECT * FROM PRICING_PARAMETER WHERE QUOTE_SET_ID = ?")) {
-			stmtGetPricingParametersSetsByQuoteSetName.setLong(1, quoteSetId);
-			try (ResultSet results = stmtGetPricingParametersSetsByQuoteSetName.executeQuery()) {
+				PreparedStatement stmtGetPricingParametersSetsByQuoteSetId = con.prepareStatement(sql.toString())) {
+			stmtGetPricingParametersSetsByQuoteSetId.setLong(1, quoteSetId);
+			try (ResultSet results = stmtGetPricingParametersSetsByQuoteSetId.executeQuery()) {
 				while (results.next()) {
 					if (pricingParametersSetNames == null) {
 						pricingParametersSetNames = new HashSet<>();
 					}
-					pricingParametersSetNames.add(results.getString("name"));
+					pricingParametersSetNames.add(results.getString(PP_NAME_FIELD.getName()));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return pricingParametersSetNames;
+	}
+
+	private static PricingParameter buildPricingParameter(ResultSet results, Connection con) throws SQLException {
+		LegalEntity processingOrg = null;
+		long poId = results.getLong(PP_PROCESSING_ORG_ID_FIELD.getName());
+		if (poId > 0) {
+			processingOrg = LegalEntitySQL.getLegalEntityById(poId);
+		}
+		PricingParameter pricingParameter = new PricingParameter(results.getString(PP_NAME_FIELD.getName()),
+				processingOrg);
+		pricingParameter.setId(results.getInt(PP_ID_FIELD.getName()));
+		pricingParameter.setQuoteSet(QuoteSetSQL.getQuoteSetById(results.getLong(PP_QUOTE_SET_ID_FIELD.getName())));
+
+		long ppId = pricingParameter.getId();
+
+		// Load parameter values
+		Map<String, String> params = new HashMap<>();
+		StringBuilder ppvSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PPV_TABLE));
+		TradistaDBUtil.addParameterizedFilter(ppvSql, PPV_PRICING_PARAMETER_ID_FIELD);
+		try (PreparedStatement stmtGetValues = con.prepareStatement(ppvSql.toString())) {
+			stmtGetValues.setLong(1, ppId);
+			try (ResultSet valuesResults = stmtGetValues.executeQuery()) {
+				while (valuesResults.next()) {
+					params.put(valuesResults.getString(PPV_NAME_FIELD.getName()),
+							valuesResults.getString(PPV_VALUE_FIELD.getName()));
+				}
+			}
+		}
+		pricingParameter.setParams(params);
+
+		// Load index curves
+		Map<Index, InterestRateCurve> indexCurves = new HashMap<>();
+		StringBuilder ppicSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PPIC_TABLE));
+		TradistaDBUtil.addParameterizedFilter(ppicSql, PPIC_PRICING_PARAMETER_ID_FIELD);
+		try (PreparedStatement stmtGetIndexCurves = con.prepareStatement(ppicSql.toString())) {
+			stmtGetIndexCurves.setLong(1, ppId);
+			try (ResultSet indexCurvesResults = stmtGetIndexCurves.executeQuery()) {
+				while (indexCurvesResults.next()) {
+					Index index = IndexSQL.getIndexById(indexCurvesResults.getLong(PPIC_INDEX_ID_FIELD.getName()));
+					InterestRateCurve curve = InterestRateCurveSQL.getInterestRateCurveById(
+							indexCurvesResults.getLong(PPIC_INTEREST_RATE_CURVE_ID_FIELD.getName()));
+					indexCurves.put(index, curve);
+				}
+			}
+		}
+		pricingParameter.setIndexCurves(indexCurves);
+
+		// Load discount curves
+		Map<Currency, InterestRateCurve> discountCurves = new HashMap<>();
+		StringBuilder ppdcSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PPDC_TABLE));
+		TradistaDBUtil.addParameterizedFilter(ppdcSql, PPDC_PRICING_PARAMETER_ID_FIELD);
+		try (PreparedStatement stmtGetDiscountCurves = con.prepareStatement(ppdcSql.toString())) {
+			stmtGetDiscountCurves.setLong(1, ppId);
+			try (ResultSet discountCurvesResults = stmtGetDiscountCurves.executeQuery()) {
+				while (discountCurvesResults.next()) {
+					Currency currency = CurrencySQL
+							.getCurrencyById(discountCurvesResults.getLong(PPDC_CURRENCY_ID_FIELD.getName()));
+					InterestRateCurve curve = InterestRateCurveSQL.getInterestRateCurveById(
+							discountCurvesResults.getLong(PPDC_INTEREST_RATE_CURVE_ID_FIELD.getName()));
+					discountCurves.put(currency, curve);
+				}
+			}
+		}
+		pricingParameter.setDiscountCurves(discountCurves);
+
+		// Load FX curves
+		Map<CurrencyPair, FXCurve> fxCurves = new HashMap<>();
+		StringBuilder ppfxcSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PPFXC_TABLE));
+		TradistaDBUtil.addParameterizedFilter(ppfxcSql, PPFXC_PRICING_PARAMETER_ID_FIELD);
+		try (PreparedStatement stmtGetFXCurves = con.prepareStatement(ppfxcSql.toString())) {
+			stmtGetFXCurves.setLong(1, ppId);
+			try (ResultSet fxCurvesResults = stmtGetFXCurves.executeQuery()) {
+				while (fxCurvesResults.next()) {
+					Currency primaryCurrency = CurrencySQL
+							.getCurrencyById(fxCurvesResults.getLong(PPFXC_PRIMARY_CURRENCY_ID_FIELD.getName()));
+					Currency quoteCurrency = CurrencySQL
+							.getCurrencyById(fxCurvesResults.getLong(PPFXC_QUOTE_CURRENCY_ID_FIELD.getName()));
+					FXCurve curve = FXCurveSQL
+							.getFXCurveById(fxCurvesResults.getLong(PPFXC_FX_CURVE_ID_FIELD.getName()));
+					fxCurves.put(new CurrencyPair(primaryCurrency, quoteCurrency), curve);
+				}
+			}
+		}
+		pricingParameter.setFxCurves(fxCurves);
+
+		// Load custom pricers
+		Map<String, String> customPricers = new HashMap<>();
+		StringBuilder ppcpSql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PPCP_TABLE));
+		TradistaDBUtil.addParameterizedFilter(ppcpSql, PPCP_PRICING_PARAMETER_ID_FIELD);
+		try (PreparedStatement stmtGetCustomPricers = con.prepareStatement(ppcpSql.toString())) {
+			stmtGetCustomPricers.setLong(1, ppId);
+			try (ResultSet customPricersResults = stmtGetCustomPricers.executeQuery()) {
+				while (customPricersResults.next()) {
+					customPricers.put(customPricersResults.getString(PPCP_PRODUCT_TYPE_FIELD.getName()),
+							customPricersResults.getString(PPCP_PRICER_NAME_FIELD.getName()));
+				}
+			}
+		}
+		pricingParameter.setCustomPricers(customPricers);
+
+		// Load modules
+		for (Class<?> daoClass : daoClasses.values()) {
+			try {
+				Method method = daoClass.getMethod("getPricingParameterModuleByPricingParameterId", Connection.class,
+						long.class);
+				PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
+						pricingParameter.getId());
+				pricingParameter.getModules().add(module);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| NoSuchMethodException | SecurityException e) {
+				throw new TradistaTechnicalException(e);
+			}
+		}
+
+		return pricingParameter;
 	}
 
 }

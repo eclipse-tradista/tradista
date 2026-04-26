@@ -55,7 +55,7 @@
 						<Insets right="10.0" />
 					</HBox.margin>
 				</Button>
-				<Button mnemonicParsing="false" onAction="#copy" text="Copy">
+				<Button fx:id="copyButton" mnemonicParsing="false" onAction="#copy" text="Copy">
 					<HBox.margin>
 						<Insets right="10.0" />
 					</HBox.margin>

@@ -1,12 +1,8 @@
 package org.eclipse.tradista.core.marketdata.ui.view;
 
-import java.util.Set;
-
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
-import org.eclipse.tradista.core.marketdata.service.FeedBusinessDelegate;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 
 /********************************************************************************
@@ -28,15 +24,7 @@ import javafx.scene.control.ComboBox;
 public class TradistaFeedConfigComboBox extends ComboBox<FeedConfig> {
 
 	public TradistaFeedConfigComboBox() {
-		FeedBusinessDelegate feedBusinessDelegate = new FeedBusinessDelegate();
-		Set<FeedConfig> feedConfigs = feedBusinessDelegate.getAllFeedConfigs();
-		ObservableList<FeedConfig> feedConfigsObservableSet = null;
-		if (feedConfigs == null) {
-			feedConfigsObservableSet = FXCollections.emptyObservableList();
-		} else {
-			feedConfigsObservableSet = FXCollections.observableArrayList(feedConfigs);
-		}
-		setItems(feedConfigsObservableSet);
+		TradistaGUIUtil.fillFeedConfigComboBox(this);
 	}
 
 	private FeedConfig model;

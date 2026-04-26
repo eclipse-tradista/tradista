@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.Generable;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
@@ -30,6 +31,9 @@ import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 public class SwaptionVolatilitySurface extends VolatilitySurface<Integer, Integer, BigDecimal> implements Generable {
 
 	private static final long serialVersionUID = 2717361966579455059L;
+
+	@Id
+	private static final String TYPE = "FXVolatilitySurface";
 
 	public SwaptionVolatilitySurface(String name, LegalEntity processingOrg) {
 		super(name, processingOrg);
@@ -64,6 +68,11 @@ public class SwaptionVolatilitySurface extends VolatilitySurface<Integer, Intege
 
 		return avgVolat.divide(BigDecimal.valueOf(volats.size()), RoundingMode.HALF_EVEN);
 
+	}
+
+	@Override
+	public String getType() {
+		return TYPE;
 	}
 
 }

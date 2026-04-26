@@ -35,12 +35,25 @@ public class MappingServiceBean implements MappingService {
 	@Override
 	public String getMappingValue(String interfaceName, MappingType mappingType,
 			InterfaceMappingSet.Direction direction, String value, long poId) {
-		String mappedValue = MappingSQL.getMappingValue(interfaceName, mappingType, direction, value, poId);
-		if (StringUtils.isEmpty(mappedValue) && !StringUtils.isEmpty(interfaceName)) {
-			// if mapping is not found, we try to search for a global mapping, ie applied
-			// to all interfaces
-			mappedValue = MappingSQL.getMappingValue(null, mappingType, direction, value, poId);
+		String mappedValue = null;
+		if (poId > 0) {
+			// 1. Specific PO, Specific Interface
+			mappedValue = MappingSQL.getMappingValue(interfaceName, mappingType, direction, value, poId);
+			if (StringUtils.isEmpty(mappedValue) && !StringUtils.isEmpty(interfaceName)) {
+				// 2. Specific PO, Global Interface
+				mappedValue = MappingSQL.getMappingValue(null, mappingType, direction, value, poId);
+			}
 		}
+
+		if (StringUtils.isEmpty(mappedValue)) {
+			// 3. Global PO, Specific Interface
+			mappedValue = MappingSQL.getMappingValue(interfaceName, mappingType, direction, value, 0);
+			if (StringUtils.isEmpty(mappedValue) && !StringUtils.isEmpty(interfaceName)) {
+				// 4. Global PO, Global Interface
+				mappedValue = MappingSQL.getMappingValue(null, mappingType, direction, value, 0);
+			}
+		}
+
 		return mappedValue;
 	}
 
@@ -48,12 +61,25 @@ public class MappingServiceBean implements MappingService {
 	@Override
 	public String getOriginalValue(String interfaceName, MappingType mappingType,
 			InterfaceMappingSet.Direction direction, String mappedValue, long poId) {
-		String value = MappingSQL.getOriginalValue(interfaceName, mappingType, direction, mappedValue, poId);
-		if (StringUtils.isEmpty(value) && !StringUtils.isEmpty(interfaceName)) {
-			// if mapping is not found, we try to search for a global mapping, ie applied
-			// to all interfaces
-			value = MappingSQL.getOriginalValue(null, mappingType, direction, mappedValue, poId);
+		String value = null;
+		if (poId > 0) {
+			// 1. Specific PO, Specific Interface
+			value = MappingSQL.getOriginalValue(interfaceName, mappingType, direction, mappedValue, poId);
+			if (StringUtils.isEmpty(value) && !StringUtils.isEmpty(interfaceName)) {
+				// 2. Specific PO, Global Interface
+				value = MappingSQL.getOriginalValue(null, mappingType, direction, mappedValue, poId);
+			}
 		}
+
+		if (StringUtils.isEmpty(value)) {
+			// 3. Global PO, Specific Interface
+			value = MappingSQL.getOriginalValue(interfaceName, mappingType, direction, mappedValue, 0);
+			if (StringUtils.isEmpty(value) && !StringUtils.isEmpty(interfaceName)) {
+				// 4. Global PO, Global Interface
+				value = MappingSQL.getOriginalValue(null, mappingType, direction, mappedValue, 0);
+			}
+		}
+
 		return value;
 	}
 
@@ -66,8 +92,8 @@ public class MappingServiceBean implements MappingService {
 	@Interceptors(MappingAuthorizationFilteringInterceptor.class)
 	@Override
 	public InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction) {
-		return MappingSQL.getInterfaceMappingSet(interfaceName, mappingType, direction);
+			InterfaceMappingSet.Direction direction, long poId) {
+		return MappingSQL.getInterfaceMappingSet(interfaceName, mappingType, direction, poId);
 	}
 
 }

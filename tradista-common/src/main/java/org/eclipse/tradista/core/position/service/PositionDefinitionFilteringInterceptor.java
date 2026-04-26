@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.position.service;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,9 @@ public class PositionDefinitionFilteringInterceptor extends TradistaAuthorizatio
 
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
-		if (parameters.length > 0 && parameters[0] instanceof PositionDefinition) {
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		if (parameters.length > 0 && parameterTypes[0].equals(PositionDefinition.class)) {
 			PositionDefinition posDef = (PositionDefinition) parameters[0];
 			StringBuilder errMsg = new StringBuilder();
 			if (posDef.getId() != 0) {

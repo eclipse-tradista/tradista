@@ -3,8 +3,8 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
-	<ui:define name="title">Eclipse Tradista Importer Mapping</ui:define>
-	<ui:define name="viewname">Eclipse Tradista Importer Mapping</ui:define>
+	<ui:define name="title">Eclipse Tradista Exporter Mapping</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Exporter Mapping</ui:define>
 	<ui:define name="content">
 		<f:metadata>
 			<f:viewAction action="#{exporterMappingController.onload}" />
@@ -106,13 +106,15 @@
 								<f:selectItems
 									value="#{exporterMappingController.allMappingTypes}" />
 							</p:selectOneMenu>
+							<p:outputLabel value="Processing Org :"
+								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
 								value="#{exporterMappingController.processingOrg}"
 								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
 								converter="legalEntityConverter">
+								<f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
 								<f:selectItems
-									value="#{exporterMappingController.allProcessingOrgs}" />
+									value="#{exporterMappingController.processingOrgs}" />
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{exporterMappingController.load()}" update="@form" />

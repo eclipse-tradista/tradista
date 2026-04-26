@@ -1,10 +1,12 @@
 package org.eclipse.tradista.core.marketdata.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +15,10 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
@@ -38,70 +44,165 @@ import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 
 public class FeedConfigSQL {
 
+	public static final Field FEED_CONFIG_ID_FIELD = new Field("ID");
+
+	public static final Field FEED_CONFIG_NAME_FIELD = new Field("NAME");
+
+	public static final Field FEED_CONFIG_FEED_TYPE_FIELD = new Field("FEED_TYPE");
+
+	public static final Field FEED_CONFIG_PROCESSING_ORG_ID_FIELD = new Field("PROCESSING_ORG_ID");
+
+	private static final Field[] FEED_CONFIG_FIELDS = { FEED_CONFIG_ID_FIELD, FEED_CONFIG_NAME_FIELD,
+			FEED_CONFIG_FEED_TYPE_FIELD, FEED_CONFIG_PROCESSING_ORG_ID_FIELD };
+
+	public static final Table FEED_CONFIG_TABLE = new Table("FEED_CONFIG", FEED_CONFIG_FIELDS);
+
+	public static final Field FEED_MAPPING_VALUE_FEED_CONFIG_ID_FIELD = new Field("FEED_CONFIG_ID");
+
+	public static final Field FEED_MAPPING_VALUE_QUOTE_ID_FIELD = new Field("QUOTE_ID");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_QUOTE_NAME_FIELD = new Field("FEED_QUOTE_NAME");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_BID_FIELD = new Field("FEED_BID_FIELD");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_ASK_FIELD = new Field("FEED_ASK_FIELD");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_OPEN_FIELD = new Field("FEED_OPEN_FIELD");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_CLOSE_FIELD = new Field("FEED_CLOSE_FIELD");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_HIGH_FIELD = new Field("FEED_HIGH_FIELD");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_LOW_FIELD = new Field("FEED_LOW_FIELD");
+
+	public static final Field FEED_MAPPING_VALUE_FEED_LAST_FIELD = new Field("FEED_LAST_FIELD");
+
+	private static final Field[] FEED_MAPPING_VALUE_FIELDS = { FEED_MAPPING_VALUE_FEED_CONFIG_ID_FIELD,
+			FEED_MAPPING_VALUE_QUOTE_ID_FIELD, FEED_MAPPING_VALUE_FEED_QUOTE_NAME_FIELD,
+			FEED_MAPPING_VALUE_FEED_BID_FIELD, FEED_MAPPING_VALUE_FEED_ASK_FIELD, FEED_MAPPING_VALUE_FEED_OPEN_FIELD,
+			FEED_MAPPING_VALUE_FEED_CLOSE_FIELD, FEED_MAPPING_VALUE_FEED_HIGH_FIELD, FEED_MAPPING_VALUE_FEED_LOW_FIELD,
+			FEED_MAPPING_VALUE_FEED_LAST_FIELD };
+
+	public static final Table FEED_MAPPING_VALUE_TABLE = new Table("FEED_MAPPING_VALUE", FEED_MAPPING_VALUE_FIELDS);
+
 	public static boolean deleteFeedConfig(long id) {
 		boolean deleted = false;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtDeleteFeedMappingValues = con
-						.prepareStatement("DELETE FROM FEED_MAPPING_VALUE WHERE FEED_CONFIG_ID = ?");
-				PreparedStatement stmtDeleteFeedConfig = con.prepareStatement("DELETE FROM FEED_CONFIG WHERE ID = ?")) {
+				PreparedStatement stmtDeleteFeedMappingValues = TradistaDBUtil.buildDeletePreparedStatement(con,
+						FEED_MAPPING_VALUE_TABLE, FEED_MAPPING_VALUE_FEED_CONFIG_ID_FIELD);
+				PreparedStatement stmtDeleteFeedConfig = TradistaDBUtil.buildDeletePreparedStatement(con,
+						FEED_CONFIG_TABLE, FEED_CONFIG_ID_FIELD)) {
 			stmtDeleteFeedMappingValues.setLong(1, id);
 			stmtDeleteFeedMappingValues.executeUpdate();
 			stmtDeleteFeedConfig.setLong(1, id);
 			stmtDeleteFeedConfig.executeUpdate();
 			deleted = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return deleted;
 	}
 
 	public static Set<FeedConfig> getFeedConfigsByName(String feedConfigName) {
+		return getFeedConfigs(feedConfigName, null, null);
+	}
+
+	public static FeedConfig getFeedConfigByNameAndPo(String feedConfigName, long poId) {
+		Set<FeedConfig> feedConfigs = getFeedConfigs(feedConfigName, poId, null);
+		return (feedConfigs == null || feedConfigs.isEmpty()) ? null : feedConfigs.iterator().next();
+	}
+
+	public static FeedConfig getFeedConfigById(long feedConfigId) {
+		Set<FeedConfig> feedConfigs = getFeedConfigs(null, null, feedConfigId);
+		return (feedConfigs == null || feedConfigs.isEmpty()) ? null : feedConfigs.iterator().next();
+	}
+
+	public static Set<FeedConfig> getAllFeedConfigs() {
+		return getFeedConfigs(null, null, null);
+	}
+
+	public static Set<FeedConfig> getFeedConfigsByPoId(long poId) {
+		return getFeedConfigs(null, poId, null);
+	}
+
+	private static Set<FeedConfig> getFeedConfigs(String name, Long poId, Long id) {
 		Set<FeedConfig> feedConfigs = null;
-		Map<String, Quote> mapping = new HashMap<String, Quote>();
-		Map<String, Map<String, String>> fieldsMapping = new HashMap<String, Map<String, String>>();
+		StringBuilder query = new StringBuilder(TradistaDBUtil.buildSelectQuery(FEED_CONFIG_TABLE, Join
+				.leftOuterEq(FEED_MAPPING_VALUE_TABLE, FEED_CONFIG_ID_FIELD, FEED_MAPPING_VALUE_FEED_CONFIG_ID_FIELD)));
+		if (name != null) {
+			TradistaDBUtil.addParameterizedFilter(query, FEED_CONFIG_NAME_FIELD);
+		}
+		if (poId != null) {
+			TradistaDBUtil.addParameterizedFilter(query, FEED_CONFIG_PROCESSING_ORG_ID_FIELD);
+		}
+		if (id != null) {
+			TradistaDBUtil.addParameterizedFilter(query, FEED_CONFIG_ID_FIELD);
+		}
+
+		query.append(" ORDER BY " + FEED_CONFIG_ID_FIELD);
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFeedConfigByName = con.prepareStatement(
-						"SELECT * FROM FEED_CONFIG LEFT OUTER JOIN FEED_MAPPING_VALUE ON FEED_CONFIG.ID = FEED_MAPPING_VALUE.FEED_CONFIG_ID WHERE NAME = ? ORDER BY FEED_CONFIG.ID")) {
-			stmtGetFeedConfigByName.setString(1, feedConfigName);
-			try (ResultSet results = stmtGetFeedConfigByName.executeQuery()) {
-				long feedConfigId = 0;
+				PreparedStatement stmtGetFeedConfigs = con.prepareStatement(query.toString())) {
+			int i = 1;
+			if (name != null) {
+				stmtGetFeedConfigs.setString(i++, name);
+			}
+			if (poId != null) {
+				stmtGetFeedConfigs.setLong(i++, poId);
+			}
+			if (id != null) {
+				stmtGetFeedConfigs.setLong(i++, id);
+			}
+			try (ResultSet results = stmtGetFeedConfigs.executeQuery()) {
 				FeedConfig feedConfig = null;
+				long feedConfigId = 0;
+				Map<String, Quote> mapping = new HashMap<>();
+				Map<String, Map<String, String>> fieldsMapping = new HashMap<>();
+
 				while (results.next()) {
 					if (feedConfigs == null) {
-						feedConfigs = new HashSet<FeedConfig>();
+						feedConfigs = new HashSet<>();
 					}
-					if (results.getLong("id") != feedConfigId) {
-						long poId = results.getLong("processing_org_id");
-						LegalEntity processingOrg = null;
-						if (poId > 0) {
-							processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-						}
+					if (results.getLong(FEED_CONFIG_ID_FIELD.getName()) != feedConfigId) {
 						if (feedConfig != null) {
 							feedConfig.setMapping(mapping);
 							feedConfig.setFieldsMapping(fieldsMapping);
 							feedConfigs.add(feedConfig);
-							mapping = new HashMap<String, Quote>();
-							fieldsMapping = new HashMap<String, Map<String, String>>();
+							mapping = new HashMap<>();
+							fieldsMapping = new HashMap<>();
 						}
-						feedConfigId = results.getLong("id");
-						feedConfig = new FeedConfig(results.getString("name"), processingOrg);
+						long resPoId = results.getLong(FEED_CONFIG_PROCESSING_ORG_ID_FIELD.getName());
+						LegalEntity processingOrg = null;
+						if (resPoId > 0) {
+							processingOrg = LegalEntitySQL.getLegalEntityById(resPoId);
+						}
+						feedConfigId = results.getLong(FEED_CONFIG_ID_FIELD.getName());
+						feedConfig = new FeedConfig(results.getString(FEED_CONFIG_NAME_FIELD.getName()), processingOrg);
 						feedConfig.setId(feedConfigId);
-						feedConfig.setFeedType(FeedType.valueOf(results.getString("feed_type")));
+						feedConfig.setFeedType(
+								FeedType.valueOf(results.getString(FEED_CONFIG_FEED_TYPE_FIELD.getName())));
 					}
 
-					String fieldName = results.getString("feed_quote_name");
+					String fieldName = results.getString(FEED_MAPPING_VALUE_FEED_QUOTE_NAME_FIELD.getName());
 					if (fieldName != null) {
-						Map<String, String> fieldsValues = new HashMap<String, String>();
-						fieldsValues.put(QuoteValue.ASK, results.getString("feed_ask_field"));
-						fieldsValues.put(QuoteValue.BID, results.getString("feed_bid_field"));
-						fieldsValues.put(QuoteValue.CLOSE, results.getString("feed_close_field"));
-						fieldsValues.put(QuoteValue.HIGH, results.getString("feed_high_field"));
-						fieldsValues.put(QuoteValue.LAST, results.getString("feed_last_field"));
-						fieldsValues.put(QuoteValue.LOW, results.getString("feed_low_field"));
-						fieldsValues.put(QuoteValue.OPEN, results.getString("feed_open_field"));
+						Map<String, String> fieldsValues = new HashMap<>();
+						fieldsValues.put(QuoteValue.ASK,
+								results.getString(FEED_MAPPING_VALUE_FEED_ASK_FIELD.getName()));
+						fieldsValues.put(QuoteValue.BID,
+								results.getString(FEED_MAPPING_VALUE_FEED_BID_FIELD.getName()));
+						fieldsValues.put(QuoteValue.CLOSE,
+								results.getString(FEED_MAPPING_VALUE_FEED_CLOSE_FIELD.getName()));
+						fieldsValues.put(QuoteValue.HIGH,
+								results.getString(FEED_MAPPING_VALUE_FEED_HIGH_FIELD.getName()));
+						fieldsValues.put(QuoteValue.LAST,
+								results.getString(FEED_MAPPING_VALUE_FEED_LAST_FIELD.getName()));
+						fieldsValues.put(QuoteValue.LOW,
+								results.getString(FEED_MAPPING_VALUE_FEED_LOW_FIELD.getName()));
+						fieldsValues.put(QuoteValue.OPEN,
+								results.getString(FEED_MAPPING_VALUE_FEED_OPEN_FIELD.getName()));
 						fieldsMapping.put(fieldName, fieldsValues);
-						Quote quote = QuoteSQL.getQuoteById(results.getLong("quote_id"));
+						Quote quote = QuoteSQL
+								.getQuoteById(results.getLong(FEED_MAPPING_VALUE_QUOTE_ID_FIELD.getName()));
 						mapping.put(fieldName, quote);
 					}
 				}
@@ -119,173 +220,17 @@ public class FeedConfigSQL {
 		return feedConfigs;
 	}
 
-	public static FeedConfig getFeedConfigByNameAndPo(String feedConfigName, long poId) {
-		FeedConfig feedConfig = null;
-		Map<String, Quote> mapping = new HashMap<String, Quote>();
-		Map<String, Map<String, String>> fieldsMapping = new HashMap<String, Map<String, String>>();
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFeedConfigByName = con.prepareStatement(
-						"SELECT * FROM FEED_CONFIG LEFT OUTER JOIN FEED_MAPPING_VALUE ON FEED_CONFIG.ID = FEED_MAPPING_VALUE.FEED_CONFIG_ID WHERE NAME = ? AND PROCESSING_ORG_ID = ?")) {
-			stmtGetFeedConfigByName.setString(1, feedConfigName);
-			stmtGetFeedConfigByName.setLong(2, poId);
-			try (ResultSet results = stmtGetFeedConfigByName.executeQuery()) {
-				while (results.next()) {
-					if (feedConfig == null) {
-						LegalEntity processingOrg = null;
-						if (poId > 0) {
-							processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-						}
-						feedConfig = new FeedConfig(results.getString("name"), processingOrg);
-						feedConfig.setId(results.getLong("id"));
-						feedConfig.setFeedType(FeedType.valueOf(results.getString("feed_type")));
-					}
-					String fieldName = results.getString("feed_quote_name");
-					if (fieldName != null) {
-						Map<String, String> fieldsValues = new HashMap<String, String>();
-						fieldsValues.put(QuoteValue.ASK, results.getString("feed_ask_field"));
-						fieldsValues.put(QuoteValue.BID, results.getString("feed_bid_field"));
-						fieldsValues.put(QuoteValue.CLOSE, results.getString("feed_close_field"));
-						fieldsValues.put(QuoteValue.HIGH, results.getString("feed_high_field"));
-						fieldsValues.put(QuoteValue.LAST, results.getString("feed_last_field"));
-						fieldsValues.put(QuoteValue.LOW, results.getString("feed_low_field"));
-						fieldsValues.put(QuoteValue.OPEN, results.getString("feed_open_field"));
-						fieldsMapping.put(fieldName, fieldsValues);
-						Quote quote = QuoteSQL.getQuoteById(results.getLong("quote_id"));
-						mapping.put(fieldName, quote);
-					}
-				}
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-		if (feedConfig != null) {
-			feedConfig.setFieldsMapping(fieldsMapping);
-			feedConfig.setMapping(mapping);
-		}
-		return feedConfig;
-	}
-
-	public static FeedConfig getFeedConfigById(long feedConfigId) {
-		FeedConfig feedConfig = null;
-		Map<String, Quote> mapping = new HashMap<String, Quote>();
-		Map<String, Map<String, String>> fieldsMapping = new HashMap<String, Map<String, String>>();
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFeedConfigById = con.prepareStatement(
-						"SELECT * FROM FEED_CONFIG LEFT OUTER JOIN FEED_MAPPING_VALUE ON FEED_CONFIG.ID = FEED_MAPPING_VALUE.FEED_CONFIG_ID WHERE FEED_CONFIG.ID = ?")) {
-			stmtGetFeedConfigById.setLong(1, feedConfigId);
-			try (ResultSet results = stmtGetFeedConfigById.executeQuery()) {
-				while (results.next()) {
-					if (feedConfig == null) {
-						long poId = results.getLong("processing_org_id");
-						LegalEntity processingOrg = null;
-						if (poId > 0) {
-							processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-						}
-						feedConfig = new FeedConfig(results.getString("name"), processingOrg);
-						feedConfig.setId(results.getLong("id"));
-						feedConfig.setFeedType(FeedType.valueOf(results.getString("feed_type")));
-					}
-					String fieldName = results.getString("feed_quote_name");
-					if (fieldName != null) {
-						Map<String, String> fieldsValues = new HashMap<String, String>();
-						fieldsValues.put(QuoteValue.ASK, results.getString("feed_ask_field"));
-						fieldsValues.put(QuoteValue.BID, results.getString("feed_bid_field"));
-						fieldsValues.put(QuoteValue.CLOSE, results.getString("feed_close_field"));
-						fieldsValues.put(QuoteValue.HIGH, results.getString("feed_high_field"));
-						fieldsValues.put(QuoteValue.LAST, results.getString("feed_last_field"));
-						fieldsValues.put(QuoteValue.LOW, results.getString("feed_low_field"));
-						fieldsValues.put(QuoteValue.OPEN, results.getString("feed_open_field"));
-						fieldsMapping.put(fieldName, fieldsValues);
-						Quote quote = QuoteSQL.getQuoteById(results.getLong("quote_id"));
-						mapping.put(fieldName, quote);
-					}
-				}
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-		if (feedConfig != null) {
-			feedConfig.setFieldsMapping(fieldsMapping);
-			feedConfig.setMapping(mapping);
-		}
-		return feedConfig;
-	}
-
-	public static Set<FeedConfig> getAllFeedConfigs() {
-		Set<FeedConfig> feedConfigs = null;
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFeedConfigs = con.prepareStatement(
-						"SELECT * FROM FEED_CONFIG LEFT OUTER JOIN FEED_MAPPING_VALUE ON FEED_CONFIG.ID = FEED_MAPPING_VALUE.FEED_CONFIG_ID ORDER BY FEED_CONFIG.ID");
-				ResultSet results = stmtGetFeedConfigs.executeQuery()) {
-			FeedConfig feedConfig = null;
-			long feedConfigId = 0;
-			Map<String, Quote> mapping = new HashMap<String, Quote>();
-			Map<String, Map<String, String>> fieldsMapping = new HashMap<String, Map<String, String>>();
-
-			while (results.next()) {
-				if (feedConfigs == null) {
-					feedConfigs = new HashSet<FeedConfig>();
-				}
-				if (results.getLong("id") != feedConfigId) {
-					if (feedConfig != null) {
-						feedConfig.setMapping(mapping);
-						feedConfig.setFieldsMapping(fieldsMapping);
-						feedConfigs.add(feedConfig);
-						mapping = new HashMap<String, Quote>();
-						fieldsMapping = new HashMap<String, Map<String, String>>();
-					}
-					long poId = results.getLong("processing_org_id");
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					feedConfigId = results.getLong("id");
-					feedConfig = new FeedConfig(results.getString("name"), processingOrg);
-					feedConfig.setId(feedConfigId);
-					feedConfig.setFeedType(FeedType.valueOf(results.getString("feed_type")));
-				}
-
-				String fieldName = results.getString("feed_quote_name");
-				if (fieldName != null) {
-					Map<String, String> fieldsValues = new HashMap<String, String>();
-					fieldsValues.put(QuoteValue.ASK, results.getString("feed_ask_field"));
-					fieldsValues.put(QuoteValue.BID, results.getString("feed_bid_field"));
-					fieldsValues.put(QuoteValue.CLOSE, results.getString("feed_close_field"));
-					fieldsValues.put(QuoteValue.HIGH, results.getString("feed_high_field"));
-					fieldsValues.put(QuoteValue.LAST, results.getString("feed_last_field"));
-					fieldsValues.put(QuoteValue.LOW, results.getString("feed_low_field"));
-					fieldsValues.put(QuoteValue.OPEN, results.getString("feed_open_field"));
-					fieldsMapping.put(fieldName, fieldsValues);
-					Quote quote = QuoteSQL.getQuoteById(results.getLong("quote_id"));
-					mapping.put(fieldName, quote);
-				}
-			}
-			if (feedConfig != null) {
-				feedConfig.setMapping(mapping);
-				feedConfig.setFieldsMapping(fieldsMapping);
-				feedConfigs.add(feedConfig);
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-
-		return feedConfigs;
-	}
-
 	public static Set<String> getAllFeedConfigNames() {
 		Set<String> feedConfigNames = null;
+		String query = SELECT + " DISTINCT " + FEED_CONFIG_NAME_FIELD + FROM + FEED_CONFIG_TABLE;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllFeedConfigNames = con
-						.prepareStatement("SELECT DISTINCT NAME FROM FEED_CONFIG");
+				PreparedStatement stmtGetAllFeedConfigNames = con.prepareStatement(query);
 				ResultSet results = stmtGetAllFeedConfigNames.executeQuery()) {
 			while (results.next()) {
 				if (feedConfigNames == null) {
-					feedConfigNames = new HashSet<String>();
+					feedConfigNames = new HashSet<>();
 				}
-				feedConfigNames.add(results.getString("name"));
+				feedConfigNames.add(results.getString(FEED_CONFIG_NAME_FIELD.getName()));
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
@@ -301,15 +246,20 @@ public class FeedConfigSQL {
 		long feedConfigId = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveFeedConfig = (!exists)
-						? con.prepareStatement(
-								"INSERT INTO FEED_CONFIG(NAME, FEED_TYPE, PROCESSING_ORG_ID) VALUES(?, ?, ?)",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE FEED_CONFIG SET NAME = ?, FEED_TYPE = ?, PROCESSING_ORG_ID = ? WHERE ID = ?");
-				PreparedStatement stmtDeleteFeedMappingValues = con
-						.prepareStatement("DELETE FROM FEED_MAPPING_VALUE WHERE FEED_CONFIG_ID = ?");
-				PreparedStatement stmtSaveFeedMappingValue = con
-						.prepareStatement("INSERT INTO FEED_MAPPING_VALUE VALUES(?,?,?,?,?,?,?,?,?,?) ")) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, FEED_CONFIG_TABLE, FEED_CONFIG_NAME_FIELD,
+								FEED_CONFIG_FEED_TYPE_FIELD, FEED_CONFIG_PROCESSING_ORG_ID_FIELD)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, FEED_CONFIG_ID_FIELD, FEED_CONFIG_TABLE,
+								FEED_CONFIG_NAME_FIELD, FEED_CONFIG_FEED_TYPE_FIELD,
+								FEED_CONFIG_PROCESSING_ORG_ID_FIELD);
+				PreparedStatement stmtDeleteFeedMappingValues = TradistaDBUtil.buildDeletePreparedStatement(con,
+						FEED_MAPPING_VALUE_TABLE, FEED_MAPPING_VALUE_FEED_CONFIG_ID_FIELD);
+				PreparedStatement stmtSaveFeedMappingValue = TradistaDBUtil.buildInsertPreparedStatement(con,
+						FEED_MAPPING_VALUE_TABLE, FEED_MAPPING_VALUE_FEED_CONFIG_ID_FIELD,
+						FEED_MAPPING_VALUE_QUOTE_ID_FIELD, FEED_MAPPING_VALUE_FEED_QUOTE_NAME_FIELD,
+						FEED_MAPPING_VALUE_FEED_BID_FIELD, FEED_MAPPING_VALUE_FEED_ASK_FIELD,
+						FEED_MAPPING_VALUE_FEED_OPEN_FIELD, FEED_MAPPING_VALUE_FEED_CLOSE_FIELD,
+						FEED_MAPPING_VALUE_FEED_HIGH_FIELD, FEED_MAPPING_VALUE_FEED_LOW_FIELD,
+						FEED_MAPPING_VALUE_FEED_LAST_FIELD)) {
 
 			stmtSaveFeedConfig.setString(1, feedConfig.getName());
 			stmtSaveFeedConfig.setString(2, feedConfig.getFeedType().name());
@@ -338,7 +288,7 @@ public class FeedConfigSQL {
 
 			// 2. Drop all feed mapping values related to this feed config
 
-			stmtDeleteFeedMappingValues.setLong(1, feedConfig.getId());
+			stmtDeleteFeedMappingValues.setLong(1, feedConfigId);
 			stmtDeleteFeedMappingValues.executeUpdate();
 
 			// 3. Recreate the new ones
@@ -395,7 +345,6 @@ public class FeedConfigSQL {
 			stmtSaveFeedMappingValue.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		feedConfig.setId(feedConfigId);

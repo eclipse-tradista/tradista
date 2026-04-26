@@ -10,6 +10,8 @@ import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -29,6 +31,8 @@ import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaul
 
 public class ProcessingOrgDefaultsBusinessDelegate {
 
+	private static final Logger logger = LoggerFactory.getLogger(ProcessingOrgDefaultsBusinessDelegate.class);
+
 	private ProcessingOrgDefaultsService poDefaultsService;
 
 	private Map<String, ProcessingOrgDefaultsModuleValidator> validators;
@@ -43,7 +47,7 @@ public class ProcessingOrgDefaultsBusinessDelegate {
 			validators.put("org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule",
 					validator);
 		} catch (TradistaTechnicalException _) {
-			// TODO Add log info
+			logger.info("ProcessingOrgDefaultsCollateralManagementModuleValidator not found, skipping.");
 		}
 	}
 
@@ -67,13 +71,13 @@ public class ProcessingOrgDefaultsBusinessDelegate {
 				ProcessingOrgDefaultsModuleValidator validator = getValidator(module);
 				try {
 					validator.validateModule(module, poDefaults.getProcessingOrg());
-				} catch (TradistaBusinessException abe) {
-					errMsg.append(abe.getMessage());
+				} catch (TradistaBusinessException tbe) {
+					errMsg.append(tbe.getMessage());
 				}
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> poDefaultsService.saveProcessingOrgDefaults(poDefaults));

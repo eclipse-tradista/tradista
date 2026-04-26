@@ -56,6 +56,12 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 		return FXVolatilitySurfaceSQL.getAllFXVolatilitySurfaces();
 	}
 
+	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
+	@Override
+	public Set<FXVolatilitySurface> getFXVolatilitySurfacesByPoId(long poId) {
+		return FXVolatilitySurfaceSQL.getFXVolatilitySurfacesByPoId(poId);
+	}
+
 	@Override
 	public FXVolatilitySurface getFXVolatilitySurfaceByName(String name) {
 		return FXVolatilitySurfaceSQL.getFXVolatilitySurfaceByName(name);
@@ -101,7 +107,9 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 		} else {
 			FXVolatilitySurface oldSurface = FXVolatilitySurfaceSQL.getFXVolatilitySurfaceById(surface.getId());
 			if (!oldSurface.getName().equals(surface.getName())
-					|| !oldSurface.getProcessingOrg().equals(surface.getProcessingOrg())) {
+					|| (oldSurface.getProcessingOrg() == null && surface.getProcessingOrg() != null)
+					|| (oldSurface.getProcessingOrg() != null
+							&& !oldSurface.getProcessingOrg().equals(surface.getProcessingOrg()))) {
 				checkSurfaceExistence(surface);
 			}
 		}

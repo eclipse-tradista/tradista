@@ -20,8 +20,6 @@ import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -131,30 +129,26 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 		TradistaGUIUtil.fillPricingParameterComboBox(ppComboBox);
 		aggregationComboBox.setItems(FXCollections.observableArrayList(aggregationCriteria));
 		aggregationComboBox.setValue(aggregationCriteria[0]);
-		aggregationComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observableValue, String oldAggCrit,
-					String newAggCrit) {
-				if (newAggCrit != null) {
-					fillReport();
-				}
+		aggregationComboBox.getSelectionModel().selectedItemProperty().addListener((_, _, newAggCrit) -> {
+			if (newAggCrit != null) {
+				fillReport();
 			}
 		});
 	}
 
 	@FXML
 	protected void load() {
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
 
 		if (valueDateDatePicker.getValue() == null) {
 			errMsg.append(String.format("Value date is mandatory.%n"));
 		}
 
 		if (ppComboBox.getValue() == null) {
-			errMsg.append(String.format("Pricing Parameters Set is mandatory.%n"));
+			errMsg.append("Pricing Parameters Set is mandatory.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 			alert.showAndWait();
 		} else {
@@ -170,8 +164,8 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 					TradistaAlert alert = new TradistaAlert(AlertType.ERROR,
 							String.format("The trade id: %s is incorrect.", tradeIdTextField.getText()));
 					alert.showAndWait();
-				} catch (TradistaBusinessException | TradistaTechnicalException ae) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, ae.getMessage());
+				} catch (TradistaBusinessException | TradistaTechnicalException te) {
+					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 					alert.showAndWait();
 				}
 
@@ -220,12 +214,12 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 		if (cfsList != null) {
 			if (aggregationComboBox.getValue().equals(CURRENCY)) {
 				if (cfsByCurrency == null) {
-					List<CashFlow> cfsListCopy = new ArrayList<CashFlow>();
+					List<CashFlow> cfsListCopy = new ArrayList<>();
 					for (CashFlow cf : cfsList) {
-						cfsListCopy.add((CashFlow) cf.clone());
+						cfsListCopy.add(cf.clone());
 					}
 					Function<CashFlow, String> compositeKey = cf -> cf.getDate() + cf.getCurrency().toString();
-					List<CashFlow> cfsByCurrencyList = (List<CashFlow>) cfsListCopy.stream()
+					List<CashFlow> cfsByCurrencyList = cfsListCopy.stream()
 							.collect(Collectors.toMap(compositeKey, Function.identity(), (left, right) -> {
 								BigDecimal newAmount;
 								BigDecimal newDiscountedAmount;
@@ -276,13 +270,13 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 				data = cfs;
 			} else if (aggregationComboBox.getValue().equals(CURRENCY_PLUS_PURPOSE)) {
 				if (cfsByCurrencyAndPurpose == null) {
-					List<CashFlow> cfsListCopy = new ArrayList<CashFlow>();
+					List<CashFlow> cfsListCopy = new ArrayList<>();
 					for (CashFlow cf : cfsList) {
-						cfsListCopy.add((CashFlow) cf.clone());
+						cfsListCopy.add(cf.clone());
 					}
 					Function<CashFlow, String> compositeKey = cf -> cf.getDate() + cf.getCurrency().toString()
 							+ cf.getPurpose();
-					List<CashFlow> cfsByCurrencyAndPurposeList = (List<CashFlow>) cfsListCopy.stream()
+					List<CashFlow> cfsByCurrencyAndPurposeList = cfsListCopy.stream()
 							.collect(Collectors.toMap(compositeKey, Function.identity(), (left, right) -> {
 								BigDecimal newAmount;
 								BigDecimal newDiscountedAmount;
@@ -316,8 +310,7 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 									}
 								}
 								return left;
-							})).values().stream().filter(cf -> cf.getAmount().signum() > 0)
-							.collect(Collectors.toList());
+							})).values().stream().filter(cf -> cf.getAmount().signum() > 0).toList();
 					Collections.sort(cfsByCurrencyAndPurposeList);
 					cfsByCurrencyAndPurpose = FXCollections
 							.observableArrayList(CashFlowProperty.toCashFlowPropertyList(cfsByCurrencyAndPurposeList));

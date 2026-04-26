@@ -8,6 +8,10 @@ import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDel
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.util.Callback;
+import org.eclipse.tradista.core.common.util.ClientUtil;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -37,6 +41,24 @@ public class TradistaInterestRateCurveComboBox extends ComboBox<InterestRateCurv
 			interesteRateCurvesObservableList = FXCollections.observableArrayList(allInterestRateCurves);
 		}
 		setItems(interesteRateCurvesObservableList);
+
+		Callback<ListView<InterestRateCurve>, ListCell<InterestRateCurve>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(InterestRateCurve curve, boolean empty) {
+				super.updateItem(curve, empty);
+				if (empty || curve == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = curve.getProcessingOrg() == null ? "Global" : curve.getProcessingOrg().getShortName();
+					setText(curve.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(curve.getName());
+				}
+			}
+		};
+
+		setCellFactory(cellFactory);
+		setButtonCell(cellFactory.call(null));
 	}
 
 }

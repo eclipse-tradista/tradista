@@ -28,7 +28,6 @@ import software.xdev.chartjs.model.charts.LineChart;
 import software.xdev.chartjs.model.data.LineData;
 import software.xdev.chartjs.model.dataset.LineDataset;
 import software.xdev.chartjs.model.options.LineOptions;
-import software.xdev.chartjs.model.options.elements.Fill;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion
@@ -73,9 +72,6 @@ public class InventoryController implements Serializable {
 	public void loadInventory() {
 		Set<ProductInventory> inventory = null;
 
-		List<String> bgColors = new ArrayList<>();
-		bgColors.addAll(ColorUtil.getBlueColorsAsStringList());
-
 		List<String> labels = new ArrayList<>();
 		LineData data = new LineData();
 		LineChart lineChart = new LineChart();
@@ -90,7 +86,7 @@ public class InventoryController implements Serializable {
 		Book book = null;
 
 		try {
-			book = bookBusinessDelegate.getBookByName("Demo Book");
+			book = bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2);
 			inventory = new ProductInventoryBusinessDelegate().getProductInventories(LocalDate.now(),
 					LocalDate.now().plusDays(6), "Equity", 0, book.getId(), false);
 		} catch (TradistaBusinessException tbe) {
@@ -118,7 +114,7 @@ public class InventoryController implements Serializable {
 				for (Map.Entry<String, Set<ProductInventory>> entry : invMap.entrySet()) {
 					LineDataset dataSet = new LineDataset();
 					dataSet.setLabel(entry.getKey());
-					dataSet.setFill(new Fill<Boolean>(false));
+					dataSet.setFill(Boolean.FALSE);
 					dataSet.setLineTension(0.1f);
 					dataSet.setBorderColor(ColorUtil.getBlueColorsAsStringList().get(i));
 					List<Number> values = new ArrayList<>();

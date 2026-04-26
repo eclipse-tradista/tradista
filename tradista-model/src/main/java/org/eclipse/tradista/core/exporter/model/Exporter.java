@@ -27,6 +27,18 @@ public interface Exporter<X, Y> extends Runnable {
 
 	LegalEntity getProcessingOrg();
 
+	/**
+	 * Identifies the Processing Org involved in the export of the given object. By
+	 * default, returns the Exporter's configured Processing Org.
+	 * 
+	 * @param object the Tradista object being exported
+	 * @return the Processing Org associated with the object
+	 * @throws TradistaBusinessException if the Processing Org cannot be identified
+	 */
+	default LegalEntity getObjectProcessingOrg(X object) throws TradistaBusinessException {
+		return getProcessingOrg();
+	}
+
 	void exportObject(X object) throws TradistaBusinessException;
 
 	Y createContent(X object) throws TradistaBusinessException;

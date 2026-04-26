@@ -20,7 +20,6 @@ import org.eclipse.tradista.core.inventory.model.ProductInventory;
 import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsBusinessDelegate;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import org.eclipse.tradista.core.status.constants.StatusConstants;
-import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.common.service.SecurityBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
@@ -568,8 +567,8 @@ public class SpecificRepoCollateralController implements Serializable {
 							if (repoSecurity.equals(inv.getProduct())) {
 								Collateral col = new Collateral();
 								col.setQuantity(inv.getQuantity());
-								col.setSecurity(((Bond) inv.getProduct()).getIsin());
-								col.setExchange(((Bond) inv.getProduct()).getExchange().getCode());
+								col.setSecurity(((Security) inv.getProduct()).getIsin());
+								col.setExchange(inv.getProduct().getExchange().getCode());
 								col.setBook(inv.getBook().getName());
 								availableCollateralValues.add(col);
 							}
@@ -727,7 +726,8 @@ public class SpecificRepoCollateralController implements Serializable {
 			try {
 				security = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(col.getSecurity(),
 						col.getExchange());
-				book = bookBusinessDelegate.getBookByName(col.getBook());
+				book = bookBusinessDelegate.getBookByNameAndPoId(col.getBook(),
+						trade.getBook().getProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
 				// Not expected here
 			}

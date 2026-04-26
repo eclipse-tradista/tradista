@@ -45,9 +45,11 @@ public class CurveFilteringInterceptor extends TradistaAuthorizationFilteringInt
 	@Override
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
-		if (parameters.length > 0 && parameters[0] instanceof Curve<?, ?> curve) {
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		if (parameters.length > 0 && parameterTypes[0].equals(Curve.class)) {
 			StringBuilder errMsg = new StringBuilder();
-			Method method = ic.getMethod();
+			Curve<?, ?> curve = (Curve<?, ?>) parameters[0];
 			if (curve.getId() != 0) {
 				Curve<?, ?> c = curveBusinessDelegate.getCurveById(curve.getId());
 				if (c == null) {
@@ -71,12 +73,12 @@ public class CurveFilteringInterceptor extends TradistaAuthorizationFilteringInt
 					&& !curve.getProcessingOrg().equals(getCurrentUser().getProcessingOrg())) {
 				errMsg.append(String.format("The processing org %s was not found.", curve.getProcessingOrg()));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 		}
-		if (parameters.length > 0 && parameters[0] instanceof Long curveId) {
-			Method method = ic.getMethod();
+		if (parameters.length > 0 && parameterTypes[0].equals(Long.class)) {
+			long curveId = (long) parameters[0];
 			if (!method.getName().contains("CurveById")) {
 				StringBuilder errMsg = new StringBuilder();
 				if (curveId != 0) {
@@ -97,7 +99,7 @@ public class CurveFilteringInterceptor extends TradistaAuthorizationFilteringInt
 						}
 					}
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}

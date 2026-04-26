@@ -76,6 +76,23 @@ public class BookBusinessDelegate {
 		return SecurityUtil.run(() -> bookService.getBookById(id));
 	}
 
+	public Set<Book> getBooksByPoId(long poId) throws TradistaBusinessException {
+		if (poId <= 0) {
+			throw new TradistaBusinessException(String.format("The po id (%s) must be positive.", poId));
+		}
+		return SecurityUtil.run(() -> bookService.getBooksByPoId(poId));
+	}
+
+	public Book getBookByNameAndPoId(String name, long poId) throws TradistaBusinessException {
+		if (StringUtils.isBlank(name)) {
+			throw new TradistaBusinessException("The name cannot be empty.");
+		}
+		if (poId <= 0) {
+			throw new TradistaBusinessException(String.format("The po id (%s) must be positive.", poId));
+		}
+		return SecurityUtil.run(() -> bookService.getBookByNameAndPoId(name, poId));
+	}
+
 	public Map<String, Map<String, BigDecimal>> getBookContent(long id) throws TradistaBusinessException {
 		if (id <= 0) {
 			throw new TradistaBusinessException(String.format("The id (%s) must be positive.", id));

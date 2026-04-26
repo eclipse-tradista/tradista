@@ -1,13 +1,14 @@
 package org.eclipse.tradista.core.mapping.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
@@ -16,6 +17,7 @@ import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Join;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
@@ -55,8 +57,8 @@ public class MappingSQL {
 	private static final Field[] INTERFACE_MAPPING_SET_FIELDS = { ID_FIELD, INTERFACE_NAME_FIELD, MAPPING_TYPE_FIELD,
 			IS_INCOMING_FIELD, PROCESSING_ORG_ID_FIELD };
 
-	private static final Field[] INTERFACE_MAPPING_SET_FIELDS_FOR_INSERT = { INTERFACE_NAME_FIELD, MAPPING_TYPE_FIELD,
-			IS_INCOMING_FIELD, PROCESSING_ORG_ID_FIELD };
+	private static final Field[] INTERFACE_MAPPING_SET_FIELDS_FOR_INSERT_OR_UPDATE = { INTERFACE_NAME_FIELD,
+			MAPPING_TYPE_FIELD, IS_INCOMING_FIELD, PROCESSING_ORG_ID_FIELD };
 
 	public static final Table MAPPING_TABLE = new Table("MAPPING", MAPPING_FIELDS);
 
@@ -81,7 +83,11 @@ public class MappingSQL {
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, MAPPING_TYPE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, VALUE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, IS_INCOMING_FIELD);
-		TradistaDBUtil.addParameterizedFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		if (poId > 0) {
+			TradistaDBUtil.addParameterizedFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		} else {
+			TradistaDBUtil.addIsNullFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		}
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetMappedValueByInterfaceNameMappingTypeDirectionValueAndPoId = con
 						.prepareStatement(sqlQuery.toString())) {
@@ -94,7 +100,9 @@ public class MappingSQL {
 			stmtGetMappedValueByInterfaceNameMappingTypeDirectionValueAndPoId.setString(i++, value);
 			stmtGetMappedValueByInterfaceNameMappingTypeDirectionValueAndPoId.setBoolean(i++,
 					direction.equals(InterfaceMappingSet.Direction.INCOMING));
-			stmtGetMappedValueByInterfaceNameMappingTypeDirectionValueAndPoId.setLong(i, poId);
+			if (poId > 0) {
+				stmtGetMappedValueByInterfaceNameMappingTypeDirectionValueAndPoId.setLong(i, poId);
+			}
 			try (ResultSet results = stmtGetMappedValueByInterfaceNameMappingTypeDirectionValueAndPoId.executeQuery()) {
 				while (results.next()) {
 					mappedValue = results.getString(MAPPED_VALUE_FIELD.getName());
@@ -118,7 +126,11 @@ public class MappingSQL {
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, MAPPING_TYPE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, MAPPED_VALUE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, IS_INCOMING_FIELD);
-		TradistaDBUtil.addParameterizedFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		if (poId > 0) {
+			TradistaDBUtil.addParameterizedFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		} else {
+			TradistaDBUtil.addIsNullFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		}
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetMappedValueByInterfaceNameMappingTypeDirectionMappedValueAndPoId = con
 						.prepareStatement(sqlQuery.toString())) {
@@ -131,7 +143,9 @@ public class MappingSQL {
 			stmtGetMappedValueByInterfaceNameMappingTypeDirectionMappedValueAndPoId.setString(i++, mappedValue);
 			stmtGetMappedValueByInterfaceNameMappingTypeDirectionMappedValueAndPoId.setBoolean(i++,
 					direction.equals(InterfaceMappingSet.Direction.INCOMING));
-			stmtGetMappedValueByInterfaceNameMappingTypeDirectionMappedValueAndPoId.setLong(i, poId);
+			if (poId > 0) {
+				stmtGetMappedValueByInterfaceNameMappingTypeDirectionMappedValueAndPoId.setLong(i, poId);
+			}
 			try (ResultSet results = stmtGetMappedValueByInterfaceNameMappingTypeDirectionMappedValueAndPoId
 					.executeQuery()) {
 				while (results.next()) {
@@ -148,9 +162,9 @@ public class MappingSQL {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveInterfaceMappingSet = (ims.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, INTERFACE_MAPPING_SET_TABLE,
-								INTERFACE_MAPPING_SET_FIELDS_FOR_INSERT)
+								INTERFACE_MAPPING_SET_FIELDS_FOR_INSERT_OR_UPDATE)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, INTERFACE_MAPPING_SET_TABLE,
-								INTERFACE_MAPPING_SET_FIELDS_FOR_INSERT);
+								INTERFACE_MAPPING_SET_FIELDS_FOR_INSERT_OR_UPDATE);
 				PreparedStatement stmtDeleteMapping = TradistaDBUtil.buildDeletePreparedStatement(con, MAPPING_TABLE,
 						INTERFACE_MAPPING_SET_ID_FIELD);
 				PreparedStatement stmtSaveMapping = TradistaDBUtil.buildInsertPreparedStatement(con, MAPPING_TABLE,
@@ -161,7 +175,11 @@ public class MappingSQL {
 			stmtSaveInterfaceMappingSet.setString(1, ims.getInterfaceName());
 			stmtSaveInterfaceMappingSet.setString(2, ims.getMappingType().name());
 			stmtSaveInterfaceMappingSet.setBoolean(3, ims.isIncoming());
-			stmtSaveInterfaceMappingSet.setLong(4, ims.getProcessingOrg().getId());
+			if (ims.getProcessingOrg() != null) {
+				stmtSaveInterfaceMappingSet.setLong(4, ims.getProcessingOrg().getId());
+			} else {
+				stmtSaveInterfaceMappingSet.setNull(4, Types.BIGINT);
+			}
 
 			stmtSaveInterfaceMappingSet.executeUpdate();
 
@@ -199,10 +217,9 @@ public class MappingSQL {
 	}
 
 	public static InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction) {
+			InterfaceMappingSet.Direction direction, long poId) {
 		InterfaceMappingSet ims = null;
-		final Join mappingSetJoin = Join.leftOuterEq(MAPPING_TABLE, INTERFACE_MAPPING_SET_ID_FIELD,
-				ID_FIELD);
+		final Join mappingSetJoin = Join.leftOuterEq(MAPPING_TABLE, INTERFACE_MAPPING_SET_ID_FIELD, ID_FIELD);
 		StringBuilder sqlQuery = new StringBuilder(TradistaDBUtil.buildSelectQuery(
 				new Field[] { ID_FIELD, INTERFACE_NAME_FIELD, MAPPING_TYPE_FIELD, IS_INCOMING_FIELD,
 						PROCESSING_ORG_ID_FIELD, VALUE_FIELD, MAPPED_VALUE_FIELD },
@@ -214,6 +231,11 @@ public class MappingSQL {
 		}
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, MAPPING_TYPE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, IS_INCOMING_FIELD);
+		if (poId > 0) {
+			TradistaDBUtil.addParameterizedFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		} else {
+			TradistaDBUtil.addIsNullFilter(sqlQuery, PROCESSING_ORG_ID_FIELD);
+		}
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo = con
@@ -224,13 +246,19 @@ public class MappingSQL {
 				i++;
 			}
 			stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setString(i++, mappingType.name());
-			stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setBoolean(i,
+			stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setBoolean(i++,
 					direction.equals(InterfaceMappingSet.Direction.INCOMING));
+			if (poId > 0) {
+				stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.setLong(i, poId);
+			}
 			ResultSet results = stmtGetInterfaceMappingSetByInterfaceNameMappingTypeAndPo.executeQuery();
 			while (results.next()) {
 				if (ims == null) {
-					ims = new InterfaceMappingSet(interfaceName, mappingType, direction,
-							LegalEntitySQL.getLegalEntityById(results.getLong(PROCESSING_ORG_ID_FIELD.getName())));
+					LegalEntity po = null;
+					if (poId > 0) {
+						po = LegalEntitySQL.getLegalEntityById(results.getLong(PROCESSING_ORG_ID_FIELD.getName()));
+					}
+					ims = new InterfaceMappingSet(interfaceName, mappingType, direction, po);
 					ims.setId(results.getLong(ID_FIELD.getName()));
 				}
 				if (results.getString(VALUE) != null) {

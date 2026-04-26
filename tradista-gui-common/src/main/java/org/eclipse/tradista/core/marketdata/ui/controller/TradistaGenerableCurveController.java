@@ -13,8 +13,6 @@ import org.eclipse.tradista.core.marketdata.model.GenerableCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -39,6 +37,8 @@ import javafx.scene.control.Label;
  ********************************************************************************/
 
 public abstract class TradistaGenerableCurveController extends TradistaControllerAdapter {
+
+	private static final String CURVES = "curves";
 
 	@FXML
 	protected Label marketDataMessage;
@@ -93,7 +93,7 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 
 	protected void initialize() {
 
-		errors = new HashMap<String, List<String>>();
+		errors = new HashMap<>();
 
 		quoteBusinessDelegate = new QuoteBusinessDelegate();
 
@@ -101,30 +101,28 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 			Set<QuoteSet> qs = quoteBusinessDelegate.getAllQuoteSets();
 			TradistaGUIUtil.fillComboBox(qs, quoteSet);
 			quoteSetExists = (qs != null && !qs.isEmpty());
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetQuoteSet = false;
 		}
 
-		curveComboBox.valueProperty().addListener(new ChangeListener<GenerableCurve>() {
-			@Override
-			public void changed(ObservableValue<? extends GenerableCurve> ov, GenerableCurve oldC, GenerableCurve c) {
-				if (c != null) {
-					curve = c;
-					isGeneratedCheckBox.setSelected(c.isGenerated());
-					interpolatorComboBox.setValue(c.getInterpolator());
-					algorithmComboBox.setValue(c.getAlgorithm());
-					instanceComboBox.setValue(c.getInstance());
+		curveComboBox.valueProperty().addListener((_, _, c) -> {
+			if (c != null) {
+				curve = c;
+				isGeneratedCheckBox.setSelected(c.isGenerated());
+				interpolatorComboBox.setValue(c.getInterpolator());
+				algorithmComboBox.setValue(c.getAlgorithm());
+				instanceComboBox.setValue(c.getInstance());
 
-					quoteSet.setValue(c.getQuoteSet());
-					quoteDate.setValue(c.getQuoteDate());
-				} else {
-
-					algorithmComboBox.getSelectionModel().clearSelection();
-					interpolatorComboBox.getSelectionModel().clearSelection();
-					instanceComboBox.getSelectionModel().clearSelection();
-					quoteDate.setValue(null);
-				}
+				quoteSet.setValue(c.getQuoteSet());
+				quoteDate.setValue(c.getQuoteDate());
+			} else {
+				curve = null;
+				algorithmComboBox.getSelectionModel().clearSelection();
+				interpolatorComboBox.getSelectionModel().clearSelection();
+				instanceComboBox.getSelectionModel().clearSelection();
+				quoteDate.setValue(null);
 			}
+			updateComponents();
 		});
 
 	}
@@ -135,14 +133,14 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 			TradistaGUIUtil.fillComboBox(qs, quoteSet);
 			quoteSetExists = (qs != null && !qs.isEmpty());
 			canGetQuoteSet = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetQuoteSet = false;
 		}
 		if (!canGetQuote) {
 			try {
 				quoteBusinessDelegate.getQuotesByName("Ping");
 				canGetQuote = true;
-			} catch (TradistaTechnicalException tte) {
+			} catch (TradistaTechnicalException _) {
 			}
 		}
 	}
@@ -177,7 +175,7 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 		if (!canGetQuoteSet) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("quote sets");
 			errors.put("get", err);
@@ -185,7 +183,7 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 		if (!canGetQuote) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("quotes");
 			errors.put("get", err);
@@ -193,7 +191,7 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 		if (!canGetGenerationAlgorithms) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("generation algorithms");
 			errors.put("get", err);
@@ -201,7 +199,7 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 		if (!canGetInterpolators) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("interpolators");
 			errors.put("get", err);
@@ -209,49 +207,49 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 		if (!canGetCurve) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("curves");
+			err.add(CURVES);
 			errors.put("get", err);
 		}
 		if (!canSaveCurve) {
 			List<String> err = errors.get("save");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("curves");
+			err.add(CURVES);
 			errors.put("save", err);
 		}
 		if (!canCopyCurve) {
 			List<String> err = errors.get("copy");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("curves");
+			err.add(CURVES);
 			errors.put("copy", err);
 		}
 		if (!canGenerateCurve) {
 			List<String> err = errors.get("generate");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("curves");
+			err.add(CURVES);
 			errors.put("generate", err);
 		}
 		if (!canDeleteCurve) {
 			List<String> err = errors.get("delete");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("curves");
+			err.add(CURVES);
 			errors.put("delete", err);
 		}
 		if (!canCreateCurve) {
 			List<String> err = errors.get("create");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("curves");
+			err.add(CURVES);
 			errors.put("create", err);
 		}
 	}
@@ -265,7 +263,7 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 			}
 			errMsg.append(" ");
 			for (String err : errCat.getValue()) {
-				errMsg.append(err + ", ");
+				errMsg.append(err).append(", ");
 			}
 			errMsg.delete(errMsg.length() - 2, errMsg.length());
 			errMsg.append(".");
@@ -283,11 +281,11 @@ public abstract class TradistaGenerableCurveController extends TradistaControlle
 				|| !canGetInterpolators);
 		interpolatorComboBox.setDisable(!quoteSetExists || !canGetQuoteSet || !canGetCurve
 				|| !canGetGenerationAlgorithms || !canGetInterpolators);
-		saveButton.setDisable(!canGetCurve || !canSaveCurve || !quoteSetExists || !canGetQuoteSet
+		saveButton.setDisable(curve == null || !canGetCurve || !canSaveCurve || !quoteSetExists || !canGetQuoteSet
 				|| !canGetGenerationAlgorithms || !canGetInterpolators);
-		copyButton.setDisable(!canGetCurve || !canCopyCurve || !quoteSetExists || !canGetQuoteSet
+		copyButton.setDisable(curve == null || !canGetCurve || !canCopyCurve || !quoteSetExists || !canGetQuoteSet
 				|| !canGetGenerationAlgorithms || !canGetInterpolators);
-		deleteButton.setDisable(!canDeleteCurve || !canGetCurve);
+		deleteButton.setDisable(curve == null || !canDeleteCurve || !canGetCurve);
 		generateButton.setDisable(!canGetQuote || !canGenerateCurve || !quoteSetExists || !canGetQuoteSet
 				|| !canGetCurve || !canGetGenerationAlgorithms || !canGetInterpolators);
 		createButton.setDisable(!canCreateCurve || !canGetCurve);

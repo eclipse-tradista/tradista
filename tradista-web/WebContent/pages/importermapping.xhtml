@@ -106,13 +106,15 @@
 								<f:selectItems
 									value="#{importerMappingController.allMappingTypes}" />
 							</p:selectOneMenu>
+							<p:outputLabel value="Processing Org :"
+								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
 								value="#{importerMappingController.processingOrg}"
 								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
 								converter="legalEntityConverter">
+								<f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
 								<f:selectItems
-									value="#{importerMappingController.allProcessingOrgs}" />
+									value="#{importerMappingController.processingOrgs}" />
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{importerMappingController.load()}" update="@form" />

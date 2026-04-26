@@ -33,6 +33,8 @@ public interface EquityOptionVolatilitySurfaceService {
 
 	Set<EquityOptionVolatilitySurface> getAllEquityOptionVolatilitySurfaces();
 
+	Set<EquityOptionVolatilitySurface> getEquityOptionVolatilitySurfacesByPoId(long poId);
+
 	EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceByName(String name);
 
 	boolean saveEquityOptionVolatilitySurfacePoints(long id,

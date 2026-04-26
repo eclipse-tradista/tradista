@@ -1,25 +1,20 @@
-package org.eclipse.tradista.ir.irswapoption.view;
+package org.eclipse.tradista.core.common.ui.view;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
-import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.util.Callback;
 
 /********************************************************************************
- * Copyright (c) 2016 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -34,23 +29,24 @@ import javafx.util.Callback;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRSwapOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<SwaptionVolatilitySurface> {
+public class TradistaSaveConfirmationDialog extends TradistaDialog<LegalEntity> {
 
-	public IRSwapOptionVolatilitySurfaceCreatorDialog() {
+	public TradistaSaveConfirmationDialog(String entityName, LegalEntity initialPO, boolean allowGlobal) {
 		super();
-		String entityName = "Swaption Volatility Surface";
-		setTitle(String.format("%s Creation", entityName));
-		Label nameLabel = new Label("Name: ");
-		TextField nameTextField = new TextField();
+		setTitle(String.format("Save %s", entityName));
 
 		Label poLabel = new Label("Processing Org: ");
 		ComboBox<LegalEntity> poComboBox = new ComboBox<>();
 		TradistaGUIUtil.fillProcessingOrgComboBox(poComboBox);
-		boolean isAdmin = ClientUtil.currentUserIsAdmin();
-		if (!isAdmin) {
+		if (allowGlobal) {
 			poComboBox.getItems().add(0, BlankLegalEntity.getInstance());
 		}
-		poComboBox.getSelectionModel().selectFirst();
+
+		if (initialPO != null) {
+			poComboBox.setValue(initialPO);
+		} else {
+			poComboBox.getSelectionModel().selectFirst();
+		}
 
 		GridPane grid = new GridPane();
 		grid.setStyle("-fx-padding: 20; -fx-hgap: 20; -fx-vgap: 20;");
@@ -74,28 +70,24 @@ public class IRSwapOptionVolatilitySurfaceCreatorDialog extends TradistaDialog<S
 			}
 		});
 
-		grid.add(nameLabel, 1, 2);
-		grid.add(nameTextField, 2, 2);
-
-		if (isAdmin) {
-			grid.add(poLabel, 1, 3);
-			grid.add(poComboBox, 2, 3);
-		}
+		grid.add(poLabel, 1, 2);
+		grid.add(poComboBox, 2, 2);
 
 		getDialogPane().setContent(grid);
 		getDialogPane().setMinWidth(500);
 
-		ButtonType buttonTypeOk = new ButtonType("Create", ButtonData.OK_DONE);
+		ButtonType buttonTypeOk = new ButtonType("Save", ButtonData.OK_DONE);
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
+
 		setResultConverter(b -> {
 			if (b == buttonTypeOk) {
-				LegalEntity po = (poComboBox.getValue() instanceof BlankLegalEntity) ? null : poComboBox.getValue();
-				return new SwaptionVolatilitySurface(nameTextField.getText(), po);
+				return (poComboBox.getValue() instanceof BlankLegalEntity) ? null : poComboBox.getValue();
 			}
 			return null;
 		});
+
 		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
 	}
 

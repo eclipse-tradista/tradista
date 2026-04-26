@@ -34,7 +34,7 @@ public class TradistaDialog<X> extends Dialog<X> {
 			getDialogPane().getStylesheets().add(
 					"/" + new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
 							+ "Style.css");
-		} catch (TradistaBusinessException abe) {
+		} catch (TradistaBusinessException _) {
 		}
 		getDialogPane().getStyleClass().add("root");
 	}

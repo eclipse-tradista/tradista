@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +18,8 @@ import org.eclipse.tradista.core.common.ui.controller.TradistaController;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -26,12 +27,10 @@ import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.ui.view.TradistaIndexComboBox;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
-import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaFXCurveComboBox;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
@@ -81,11 +80,13 @@ import javafx.scene.layout.StackPane;
 
 public class PricingParameterController extends TradistaControllerAdapter {
 
+	private static final String CURVE = "curve";
+
 	private static final String THE_CURRENCY_PAIR_IS_ALREADY_IN_THE_LIST = "The Currency Pair %s.%s is already in the list.%n";
 
 	private static final String PRIMARY_AND_QUOTE_CURRENCIES_MUST_BE_DIFFERENT = "Primary and Quote Currencies must be different.%n";
 
-	private static final String PLEASE_LOAD_A_PRICING_PARAMETERS_SET = "Please load a Pricing Parameters Set";
+	private static final String GLOBAL = "Global";
 
 	@FXML
 	private TableView<PricingParamProperty> pricingParamTable;
@@ -182,12 +183,6 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private PricerBusinessDelegate pricerBusinessDelegate;
 
-	private QuoteBusinessDelegate quoteBusinessDelegate;
-
-	private InterestRateCurveBusinessDelegate interestRateCurveBusinessDelegate;
-
-	private FXCurveBusinessDelegate fxCurveBusinessDelegate;
-
 	private InformationBusinessDelegate informationBusinessDelegate;
 
 	@FXML
@@ -218,6 +213,15 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	private Button createButton;
 
 	@FXML
+	private Button copyButton;
+
+	@FXML
+	private Button deleteButton;
+
+	@FXML
+	private Button save;
+
+	@FXML
 	private Label marketDataMessage;
 
 	private List<PricingParameterModuleController> pricingParameterModuleControllersList;
@@ -242,10 +246,11 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 		pricerBusinessDelegate = new PricerBusinessDelegate();
-		quoteBusinessDelegate = new QuoteBusinessDelegate();
-		interestRateCurveBusinessDelegate = new InterestRateCurveBusinessDelegate();
-		fxCurveBusinessDelegate = new FXCurveBusinessDelegate();
 		informationBusinessDelegate = new InformationBusinessDelegate();
+
+		copyButton.setDisable(true);
+		deleteButton.setDisable(true);
+		save.setDisable(true);
 
 		if (!informationBusinessDelegate.hasFXModule()) {
 			pricingParamTabPane.getTabs().remove(unrealizedPnlCalculationTab);
@@ -342,54 +347,54 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		paramName.setCellValueFactory(cellData -> cellData.getValue().getName());
 
-		paramName.setCellFactory(tc -> new PricingParamNameEditingCell());
+		paramName.setCellFactory(_ -> new PricingParamNameEditingCell());
 
 		paramName.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setName(cee.getNewValue()));
 
-		paramValue.setCellFactory(tc -> new PricingParamValueEditingCell());
+		paramValue.setCellFactory(_ -> new PricingParamValueEditingCell());
 
 		paramValue.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setValue(cee.getNewValue()));
 
 		paramValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
 
-		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParam);
+		TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
 
 		nameTextField.setPromptText("Parameter name");
 		valueTextField.setPromptText("Parameter value");
 
 		currency.setCellValueFactory(new PropertyValueFactory<>("currency"));
 
-		currency.setCellFactory(tc -> new DiscountCurveCurrencyEditingCell());
+		currency.setCellFactory(_ -> new DiscountCurveCurrencyEditingCell());
 
 		currency.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
 				.setCurrency(cee.getNewValue()));
 
 		currencyComboBox.setPromptText("Currency");
 
-		discountCurve.setCellFactory(tc -> new DiscountCurveInterestRateCurveEditingCell());
+		discountCurve.setCellFactory(_ -> new DiscountCurveInterestRateCurveEditingCell());
 
 		discountCurve.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		discountCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
+		discountCurve.setCellValueFactory(new PropertyValueFactory<>(CURVE));
 
 		discountCurveComboBox.setPromptText("Discount Curve");
 
 		index.setCellValueFactory(new PropertyValueFactory<>("index"));
 
-		index.setCellFactory(tc -> new IndexCurveIndexEditingCell());
+		index.setCellFactory(_ -> new IndexCurveIndexEditingCell());
 
 		index.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setIndex(cee.getNewValue()));
 
-		indexCurve.setCellFactory(tc -> new IndexCurveInterestRateCurveEditingCell());
+		indexCurve.setCellFactory(_ -> new IndexCurveInterestRateCurveEditingCell());
 
 		indexCurve.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		indexCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
+		indexCurve.setCellValueFactory(new PropertyValueFactory<>(CURVE));
 
 		indexComboBox.setPromptText("Index");
 
@@ -397,7 +402,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		primaryCurrency.setCellValueFactory(new PropertyValueFactory<>("primaryCurrency"));
 
-		primaryCurrency.setCellFactory(tc -> new FXCurvePrimaryCurrencyEditingCell());
+		primaryCurrency.setCellFactory(_ -> new FXCurvePrimaryCurrencyEditingCell());
 
 		primaryCurrency.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
 				.setPrimaryCurrency(cee.getNewValue()));
@@ -408,23 +413,23 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		quoteCurrency.setCellValueFactory(new PropertyValueFactory<>("quoteCurrency"));
 
-		quoteCurrency.setCellFactory(tc -> new FXCurveQuoteCurrencyEditingCell());
+		quoteCurrency.setCellFactory(_ -> new FXCurveQuoteCurrencyEditingCell());
 
 		quoteCurrency.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
 				.setQuoteCurrency(cee.getNewValue()));
 
 		quoteCurrencyComboBox.setPromptText("Quote Currency");
 
-		fxCurve.setCellFactory(tc -> new FXCurveFXCurveEditingCell());
+		fxCurve.setCellFactory(_ -> new FXCurveFXCurveEditingCell());
 
 		fxCurve.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		fxCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
+		fxCurve.setCellValueFactory(new PropertyValueFactory<>(CURVE));
 
 		productType.setCellValueFactory(cellData -> cellData.getValue().getProductType());
 
-		customPricer.setCellFactory(tc -> new CustomPricerPricerEditingCell());
+		customPricer.setCellFactory(_ -> new CustomPricerPricerEditingCell());
 
 		customPricer.setOnEditCommit(cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow())
 				.setCustomPricer(cee.getNewValue()));
@@ -436,28 +441,26 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		customPricerTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		try {
-			Set<QuoteSet> quoteSets = quoteBusinessDelegate.getAllQuoteSets();
-			TradistaGUIUtil.fillComboBox(quoteSets, quoteSetComboBox);
-			quoteSetExists = (quoteSets != null && !quoteSets.isEmpty());
+			TradistaGUIUtil.fillQuoteSetComboBox(quoteSetComboBox);
+			quoteSetExists = (quoteSetComboBox.getItems() != null && !quoteSetComboBox.getItems().isEmpty());
 			canGetQuoteSet = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetQuoteSet = false;
 		}
 
 		try {
-			TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterestRateCurves(),
-					discountCurveComboBox, indexCurveComboBox);
+			TradistaGUIUtil.fillInterestRateCurveComboBox(discountCurveComboBox, indexCurveComboBox);
 			canGetDiscountCurve = true;
 			canGetIndexCurve = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetDiscountCurve = false;
 			canGetIndexCurve = false;
 		}
 
 		try {
-			TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllFXCurves(), fxCurveComboBox);
+			TradistaGUIUtil.fillFXCurveComboBox(fxCurveComboBox);
 			canGetFXCurve = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetFXCurve = false;
 		}
 
@@ -511,8 +514,13 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			customPricerTable.setItems(customPricerData);
 			customPricerTable.refresh();
 			name.setText(pricingParameter.getName());
-			TradistaGUIUtil.fillComboBox(quoteBusinessDelegate.getAllQuoteSets(), quoteSetComboBox);
+			TradistaGUIUtil.fillQuoteSetComboBox(quoteSetComboBox);
 			quoteSetComboBox.setValue(pricingParameter.getQuoteSet());
+
+			copyButton.setDisable(false);
+			deleteButton.setDisable(false);
+			save.setDisable(false);
+
 			if (pricingParameterModuleControllersList != null && !pricingParameterModuleControllersList.isEmpty()) {
 				for (PricingParameterModuleController controller : pricingParameterModuleControllersList) {
 					controller.load(pricingParameter);
@@ -526,53 +534,86 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void copy() {
-		boolean ppLoaded = (pricingParameter != null);
-		if (!ppLoaded) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, PLEASE_LOAD_A_PRICING_PARAMETERS_SET);
-			alert.showAndWait();
-		} else {
-			try {
-				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-				dialog.setTitle("pricing Parameter name");
-				dialog.setHeaderText("Pricing Parameter name selection");
-				dialog.setContentText("Please choose a Pricing Parameter name:");
+		try {
+			String copyName = null;
+			LegalEntity po = null;
+			boolean proceed = false;
 
-				// Traditional way to get the response value.
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("Pricing Parameters Set",
+						pricingParameter.getProcessingOrg(), pricingParameter.getName(), false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
+				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+				dialog.setTitle("Pricing Parameters Set name");
+				dialog.setHeaderText("Pricing Parameters Set name selection");
+				dialog.setContentText("Please choose a Pricing Parameters Set name:");
+
 				Optional<String> result = dialog.showAndWait();
 
 				if (result.isPresent()) {
-					PricingParameter copyPricingParameter = new PricingParameter(result.get(),
-							ClientUtil.getCurrentUser().getProcessingOrg());
-					buildPricingParameter(copyPricingParameter);
-					copyPricingParameter.setId(pricerBusinessDelegate.savePricingParameter(copyPricingParameter));
-					pricingParameter = copyPricingParameter;
-					name.setText(pricingParameter.getName());
-					pricingParameterName.setText(pricingParameter.getName());
-					quoteSetComboBox.setValue(pricingParameter.getQuoteSet());
-
-					// Refresh the pricing parameter combo box
-					TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
 				}
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
 			}
+
+			if (proceed) {
+				PricingParameter copyPricingParameter = new PricingParameter(copyName, po);
+				buildPricingParameter(copyPricingParameter);
+				copyPricingParameter.setId(pricerBusinessDelegate.savePricingParameter(copyPricingParameter));
+				pricingParameter = copyPricingParameter;
+				name.setText(pricingParameter.getName());
+				pricingParameterName.setText(pricingParameter.getName());
+				quoteSetComboBox.setValue(pricingParameter.getQuoteSet());
+
+				// Refresh the pricing parameter combo box
+				TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
+			}
+
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
 	@FXML
 	protected void save() {
 		try {
-			if (pricingParameter == null) {
-				throw new TradistaBusinessException(PLEASE_LOAD_A_PRICING_PARAMETERS_SET);
-			}
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Save Pricing Parameters Set");
-			confirmation.setHeaderText("Save Pricing Parameters Set");
-			confirmation.setContentText("Do you want to save this Pricing Parameters Set?");
+			boolean isNew = (pricingParameter.getId() == 0);
+			LegalEntity po = null;
+			boolean proceed = false;
 
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.isPresent() && result.get() == ButtonType.OK) {
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Pricing Parameters Set",
+						ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save Pricing Parameters Set");
+				confirmation.setHeaderText("Save Pricing Parameters Set");
+				confirmation.setContentText("Do you want to save this Pricing Parameters Set?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					po = pricingParameter.getProcessingOrg();
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					pricingParameter = new PricingParameter(pricingParameter.getName(), po);
+				}
 				buildPricingParameter(pricingParameter);
 				pricingParameter.setId(pricerBusinessDelegate.savePricingParameter(pricingParameter));
 			}
@@ -637,7 +678,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (result.isPresent()) {
 				PricingParameter pp = result.get();
 				pp.setId(pricerBusinessDelegate.savePricingParameter(pp));
-				TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParam);
+				TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
 				// Delete the Pricing Param table if the loaded PP doesn't
 				// exist anymore.
 				if (pricingParameter != null && !pricingParam.getItems().contains(pricingParameter)) {
@@ -656,6 +697,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					name.setText(null);
 					pricingParameterName.setText(null);
 					quoteSetComboBox.setItems(null);
+					copyButton.setDisable(true);
+					deleteButton.setDisable(true);
+					save.setDisable(true);
 				}
 			}
 		} catch (TradistaBusinessException tbe) {
@@ -822,10 +866,6 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	@FXML
 	protected void delete() {
 		try {
-			if (pricingParameter == null) {
-				throw new TradistaBusinessException(PLEASE_LOAD_A_PRICING_PARAMETERS_SET);
-			}
-
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 			confirmation.setTitle("Delete Pricing Parameters Set");
 			confirmation.setHeaderText("Delete Pricing Parameters Set");
@@ -855,6 +895,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					name.setText(null);
 					pricingParameterName.setText(null);
 					quoteSetComboBox.setItems(null);
+					copyButton.setDisable(true);
+					deleteButton.setDisable(true);
+					save.setDisable(true);
 				}
 			}
 
@@ -915,7 +958,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((b, ov, nv) -> {
+			textField.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					commitEdit(textField.getText());
 				}
@@ -1088,7 +1131,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				currencyComboBox.setValue(getItem());
 			}
 			currencyComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			currencyComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			currencyComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					if (!discountCurveTable.getItems()
 							.contains(new DiscountCurveProperty(currencyComboBox.getValue(), null))) {
@@ -1156,7 +1199,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				interestRateCurveComboBox.setValue(getItem());
 			}
 			interestRateCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			interestRateCurveComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			interestRateCurveComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					commitEdit(interestRateCurveComboBox.getValue());
 				}
@@ -1164,7 +1207,16 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
+			if (getItem() == null) {
+				return StringUtils.EMPTY;
+			}
+			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				String poSuffix = getItem().getProcessingOrg() == null ? GLOBAL
+						: getItem().getProcessingOrg().getShortName();
+				return getItem().getName() + " [" + poSuffix + "]";
+			} else {
+				return getItem().getName();
+			}
 		}
 	}
 
@@ -1238,7 +1290,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				indexComboBox.setValue(getItem());
 			}
 			indexComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			indexComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			indexComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					if (!indexCurveTable.getItems().contains(new IndexCurveProperty(indexComboBox.getValue(), null))) {
 						commitEdit(indexComboBox.getValue());
@@ -1304,7 +1356,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				interestRateCurveComboBox.setValue(getItem());
 			}
 			interestRateCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			interestRateCurveComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			interestRateCurveComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					commitEdit(interestRateCurveComboBox.getValue());
 				}
@@ -1312,7 +1364,16 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
+			if (getItem() == null) {
+				return StringUtils.EMPTY;
+			}
+			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				String poSuffix = getItem().getProcessingOrg() == null ? GLOBAL
+						: getItem().getProcessingOrg().getShortName();
+				return getItem().getName() + " [" + poSuffix + "]";
+			} else {
+				return getItem().getName();
+			}
 		}
 	}
 
@@ -1396,7 +1457,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				currencyComboBox.setValue(getItem());
 			}
 			currencyComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			currencyComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			currencyComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					if (!fxCurveTable.getItems().contains(new FXCurveProperty(currencyComboBox.getValue(),
 							getTableRow().getItem().getQuoteCurrency(), null))) {
@@ -1494,7 +1555,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				currencyComboBox.setValue(getItem());
 			}
 			currencyComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			currencyComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			currencyComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					if (!fxCurveTable.getItems().contains(new FXCurveProperty(
 							getTableRow().getItem().getPrimaryCurrency(), currencyComboBox.getValue(), null))) {
@@ -1565,7 +1626,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				fxCurveComboBox.setValue(getItem());
 			}
 			fxCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			fxCurveComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			fxCurveComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					commitEdit(fxCurveComboBox.getValue());
 				}
@@ -1573,7 +1634,16 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
+			if (getItem() == null) {
+				return StringUtils.EMPTY;
+			}
+			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				String poSuffix = getItem().getProcessingOrg() == null ? GLOBAL
+						: getItem().getProcessingOrg().getShortName();
+				return getItem().getName() + " [" + poSuffix + "]";
+			} else {
+				return getItem().getName();
+			}
 		}
 	}
 
@@ -1611,7 +1681,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((b, ov, nv) -> {
+			textField.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setCustomPricer(textField.getText());
 					commitEdit(textField.getText());
@@ -2039,28 +2109,26 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	@FXML
 	public void refresh() {
 		try {
-			Set<QuoteSet> quoteSets = quoteBusinessDelegate.getAllQuoteSets();
-			TradistaGUIUtil.fillComboBox(quoteSets, quoteSetComboBox);
-			quoteSetExists = (quoteSets != null && !quoteSets.isEmpty());
+			TradistaGUIUtil.fillQuoteSetComboBox(quoteSetComboBox);
+			quoteSetExists = (quoteSetComboBox.getItems() != null && !quoteSetComboBox.getItems().isEmpty());
 			canGetQuoteSet = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetQuoteSet = false;
 		}
 		TradistaGUIUtil.fillCurrencyComboBox(currencyComboBox, primaryCurrencyComboBox, quoteCurrencyComboBox);
 		try {
-			TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterestRateCurves(),
-					discountCurveComboBox, indexCurveComboBox);
+			TradistaGUIUtil.fillInterestRateCurveComboBox(discountCurveComboBox, indexCurveComboBox);
 			canGetDiscountCurve = true;
 			canGetIndexCurve = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetDiscountCurve = false;
 			canGetIndexCurve = false;
 		}
 
 		try {
-			TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllFXCurves(), fxCurveComboBox);
+			TradistaGUIUtil.fillFXCurveComboBox(fxCurveComboBox);
 			canGetFXCurve = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetFXCurve = false;
 		}
 		PricingParameter pp = pricingParam.getValue();
@@ -2168,9 +2236,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (errCat.getValue().size() > 1) {
 				errMsg.append(":");
 			}
-			errMsg.append(" ");
+			errMsg.append(StringUtils.SPACE);
 			for (String err : errCat.getValue()) {
-				errMsg.append(err + ", ");
+				errMsg.append(err).append(", ");
 			}
 			errMsg.delete(errMsg.length() - 2, errMsg.length());
 			errMsg.append(".");

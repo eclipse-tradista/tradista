@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
@@ -24,11 +24,8 @@ import org.eclipse.tradista.core.marketdata.ui.view.CurveCreatorDialog;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -41,7 +38,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.util.Callback;
@@ -119,44 +115,35 @@ public class CurvesController extends TradistaControllerAdapter {
 
 		curveBusinessDelegate = new CurveBusinessDelegate();
 
-		Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>> cellFactory = new Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>>() {
-			public TableCell<RatePointProperty, String> call(TableColumn<RatePointProperty, String> p) {
-				return new EditingCell();
-			}
-		};
+		Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>> cellFactory = _ -> new EditingCell();
 
 		pointDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
 
 		pointRate.setCellFactory(cellFactory);
 
-		pointRate.setOnEditCommit(new EventHandler<CellEditEvent<RatePointProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<RatePointProperty, String> t) {
-				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), "Rate");
-					((RatePointProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-							.setRate(t.getNewValue());
-				} catch (TradistaBusinessException abe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
-					alert.showAndWait();
-				}
-				pointsTable.refresh();
+		pointRate.setOnEditCommit(t -> {
+			try {
+				TradistaGUIUtil.parseAmount(t.getNewValue(), "Rate");
+				t.getTableView().getItems().get(t.getTablePosition().getRow()).setRate(t.getNewValue());
+			} catch (TradistaBusinessException abe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+				alert.showAndWait();
 			}
+			pointsTable.refresh();
 		});
 
 		pointRate.setCellValueFactory(cellData -> cellData.getValue().getRate());
 
-		List<Year> years = new ArrayList<Year>();
+		List<Year> years = new ArrayList<>();
 
 		for (int i = 1900; i < 2101; i++) {
 			years.add(Year.of(i));
 		}
 
 		try {
-			Set<Curve<? extends LocalDate, ? extends BigDecimal>> curves = curveBusinessDelegate.getAllCurves();
-			TradistaGUIUtil.fillComboBox(curves, curve);
-			curveExists = (curves != null && !curves.isEmpty());
-		} catch (TradistaTechnicalException tte) {
+			TradistaGUIUtil.fillCurveComboBox(curve);
+			curveExists = (curve.getItems() != null && !curve.getItems().isEmpty());
+		} catch (TradistaTechnicalException _) {
 			canGetCurve = false;
 		}
 
@@ -180,16 +167,16 @@ public class CurvesController extends TradistaControllerAdapter {
 			pointsTable.setItems(data);
 			pointsTable.refresh();
 
-			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
-			series.setName(curve.getSelectionModel().getSelectedItem().getName() + " "
-					+ month.getSelectionModel().getSelectedItem() + " " + year.getSelectionModel().getSelectedItem());
+			XYChart.Series<Number, Number> series = new XYChart.Series<>();
+			series.setName(curve.getSelectionModel().getSelectedItem().getName() + StringUtils.SPACE
+					+ month.getSelectionModel().getSelectedItem() + StringUtils.SPACE
+					+ year.getSelectionModel().getSelectedItem());
 
 			if (ratePoints != null) {
-				int monthLength = ratePoints.get(0).getDate().lengthOfMonth();
+				int monthLength = ratePoints.getFirst().getDate().lengthOfMonth();
 				for (RatePoint point : ratePoints) {
 					if (point.getRate() != null) {
-						series.getData().add(
-								new XYChart.Data<Number, Number>(point.getDate().getDayOfMonth(), point.getRate()));
+						series.getData().add(new XYChart.Data<>(point.getDate().getDayOfMonth(), point.getRate()));
 					}
 				}
 				pointsChart.getXAxis().setAutoRanging(false);
@@ -232,7 +219,7 @@ public class CurvesController extends TradistaControllerAdapter {
 				Curve<LocalDate, BigDecimal> curveToBeSaved = result.get();
 				curveBusinessDelegate.saveCurve(curveToBeSaved);
 				Curve<? extends LocalDate, ? extends BigDecimal> selectedCurve = curve.getValue();
-				TradistaGUIUtil.fillComboBox(curveBusinessDelegate.getAllCurves(), curve);
+				TradistaGUIUtil.fillCurveComboBox(curve);
 				if (selectedCurve == null || (selectedCurve.getId() != curve.getValue().getId())) {
 					pointsTable.setItems(null);
 				}
@@ -260,7 +247,7 @@ public class CurvesController extends TradistaControllerAdapter {
 			if (result.get() == ButtonType.OK) {
 				curveBusinessDelegate.deleteCurve(curve.getValue());
 				Curve<? extends LocalDate, ? extends BigDecimal> selectedCurve = curve.getValue();
-				TradistaGUIUtil.fillComboBox(curveBusinessDelegate.getAllCurves(), curve);
+				TradistaGUIUtil.fillCurveComboBox(curve);
 				if (selectedCurve == null || curve.getValue() == null
 						|| (selectedCurve.getId() != curve.getValue().getId())) {
 					pointsTable.setItems(null);
@@ -282,7 +269,7 @@ public class CurvesController extends TradistaControllerAdapter {
 
 		@Override
 		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
+			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
 				setItem(textField.getText());
 			}
 			super.startEdit();
@@ -324,26 +311,22 @@ public class CurvesController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit(textField.getText());
 				}
 			});
-
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 
 	private ObservableList<RatePointProperty> buildTableContent(List<RatePoint> data) {
 
 		if (data == null) {
-			data = new ArrayList<RatePoint>();
+			data = new ArrayList<>();
 		}
 		// Get the number of days in that month
 		int daysInMonth = month.getValue().length(year.getValue().isLeap());
@@ -364,18 +347,18 @@ public class CurvesController extends TradistaControllerAdapter {
 	}
 
 	private List<RatePointProperty> toRatePointPropertyList(List<RatePoint> data) {
-		List<RatePointProperty> ratePointPropertyList = new ArrayList<RatePointProperty>();
+		List<RatePointProperty> ratePointPropertyList = new ArrayList<>();
 		for (RatePoint point : data) {
-			ratePointPropertyList
-					.add(new RatePointProperty(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(point.getDate()),
-							point.getRate() == null ? "" : TradistaGUIUtil.formatAmount(point.getRate())));
+			ratePointPropertyList.add(new RatePointProperty(
+					DateTimeFormatter.ofPattern("yyyy-MM-dd").format(point.getDate()),
+					point.getRate() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(point.getRate())));
 		}
 
 		return ratePointPropertyList;
 	}
 
 	private List<RatePoint> toRatePointList(List<RatePointProperty> data) throws TradistaBusinessException {
-		List<RatePoint> ratePointList = new ArrayList<RatePoint>();
+		List<RatePoint> ratePointList = new ArrayList<>();
 		for (RatePointProperty point : data) {
 			try {
 				ratePointList.add(new RatePoint(
@@ -424,13 +407,12 @@ public class CurvesController extends TradistaControllerAdapter {
 	public void refresh() {
 		Curve<? extends LocalDate, ? extends BigDecimal> irCurve = curve.getValue();
 		try {
-			Set<Curve<? extends LocalDate, ? extends BigDecimal>> curves = curveBusinessDelegate.getAllCurves();
-			TradistaGUIUtil.fillComboBox(curves, curve);
-			curveExists = (curves != null && !curves.isEmpty());
+			TradistaGUIUtil.fillCurveComboBox(curve);
+			curveExists = (curve.getItems() != null && !curve.getItems().isEmpty());
 			canGetCurve = true;
 			canAddCurve = true;
 			canDeleteCurve = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetCurve = false;
 			canAddCurve = false;
 			canDeleteCurve = false;
@@ -445,8 +427,8 @@ public class CurvesController extends TradistaControllerAdapter {
 				curveBusinessDelegate.getCurveById(1);
 				canGetCurvePoint = true;
 				canSaveCurvePoint = true;
-			} catch (TradistaBusinessException tbe) {
-			} catch (TradistaTechnicalException tte) {
+			} catch (TradistaBusinessException _) {
+			} catch (TradistaTechnicalException _) {
 				canGetCurvePoint = false;
 				canSaveCurvePoint = false;
 			}
@@ -456,7 +438,7 @@ public class CurvesController extends TradistaControllerAdapter {
 	}
 
 	protected void updateWindow() {
-		List<String> errors = new ArrayList<String>();
+		List<String> errors = new ArrayList<>();
 		String errMsg = "Cannot ";
 		boolean isError = false;
 
@@ -504,7 +486,6 @@ public class CurvesController extends TradistaControllerAdapter {
 		}
 
 		marketDataMessage.setVisible(isError || !curveExists);
-
 	}
 
 }

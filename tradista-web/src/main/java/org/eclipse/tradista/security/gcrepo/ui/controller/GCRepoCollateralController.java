@@ -751,7 +751,8 @@ public class GCRepoCollateralController implements Serializable {
 			try {
 				security = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(col.getSecurity(),
 						col.getExchange());
-				book = bookBusinessDelegate.getBookByName(col.getBook());
+				book = bookBusinessDelegate.getBookByNameAndPoId(col.getBook(),
+						trade.getBook().getProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
 				// Not expected here
 			}

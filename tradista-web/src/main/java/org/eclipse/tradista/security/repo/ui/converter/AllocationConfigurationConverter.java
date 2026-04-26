@@ -2,6 +2,7 @@ package org.eclipse.tradista.security.repo.ui.converter;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
@@ -41,14 +42,17 @@ public class AllocationConfigurationConverter implements Serializable, Converter
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, AllocationConfiguration allocConfig) {
-		return allocConfig.getName();
+		return allocConfig.getId() == 0 ? StringUtils.EMPTY : Long.toString(allocConfig.getId());
 	}
 
 	@Override
 	public AllocationConfiguration getAsObject(FacesContext context, UIComponent component, String value) {
+		if (StringUtils.isBlank(value)) {
+			return null;
+		}
 		try {
-			return allocationConfigurationBusinessDelegate.getAllocationConfigurationByName(value);
-		} catch (TradistaBusinessException tbe) {
+			return allocationConfigurationBusinessDelegate.getAllocationConfigurationById(Long.parseLong(value));
+		} catch (TradistaBusinessException | NumberFormatException tbe) {
 			throw new ConverterException(String.format("Could not convert allocation configuration %s", value), tbe);
 		}
 	}

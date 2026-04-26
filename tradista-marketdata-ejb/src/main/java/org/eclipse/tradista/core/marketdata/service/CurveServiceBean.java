@@ -96,6 +96,25 @@ public class CurveServiceBean implements CurveService {
 
 	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
+	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getCurvesByPoId(long poId) {
+		Set<InterestRateCurve> irCurves = irCurveService.getInterestRateCurvesByPoId(poId);
+		Set<FXCurve> fxCurves = fxCurveService.getFXCurvesByPoId(poId);
+		Set<Curve<? extends LocalDate, ? extends BigDecimal>> result = null;
+		if (irCurves != null) {
+			result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+			result.addAll(irCurves);
+		}
+		if (fxCurves != null) {
+			if (result == null) {
+				result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+			}
+			result.addAll(fxCurves);
+		}
+		return result;
+	}
+
+	@Interceptors(CurveFilteringInterceptor.class)
+	@Override
 	public List<RatePoint> getCurvePointsByCurveAndDate(Curve<? extends LocalDate, ? extends BigDecimal> curve,
 			Year year, Month month) throws TradistaBusinessException {
 		// Method to be enriched when new curve types will exist.

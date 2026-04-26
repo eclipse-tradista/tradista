@@ -56,4 +56,8 @@ public class UserManager implements Serializable {
 		return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 	}
 
+	public boolean isCurrentUserAdmin() {
+		return ClientUtil.currentUserIsAdmin();
+	}
+
 }

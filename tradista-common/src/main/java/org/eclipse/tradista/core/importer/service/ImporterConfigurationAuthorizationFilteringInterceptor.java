@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.importer.service;
 
+import java.net.spi.InetAddressResolver;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,12 +40,14 @@ public class ImporterConfigurationAuthorizationFilteringInterceptor extends Trad
 		if (value != null) {
 			if (value instanceof Set) {
 				Set<Importer<?>> importers = (Set<Importer<?>>) value;
-				value = importers.stream().filter(i -> i.getProcessingOrg().equals(getCurrentUser().getProcessingOrg()))
+				value = importers.stream()
+						.filter(i -> i.getProcessingOrg() == null
+								|| i.getProcessingOrg().equals(getCurrentUser().getProcessingOrg()))
 						.collect(Collectors.toSet());
 			}
 			if (value instanceof Importer<?> importer) {
-				value = importer.getProcessingOrg().equals(getCurrentUser().getProcessingOrg()) ? value : null;
-
+				value = importer.getProcessingOrg() == null
+						|| importer.getProcessingOrg().equals(getCurrentUser().getProcessingOrg()) ? value : null;
 			}
 		}
 		return value;

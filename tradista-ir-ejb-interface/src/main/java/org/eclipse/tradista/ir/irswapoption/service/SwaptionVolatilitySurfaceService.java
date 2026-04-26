@@ -36,6 +36,8 @@ public interface SwaptionVolatilitySurfaceService {
 
 	Set<SwaptionVolatilitySurface> getAllSwaptionVolatilitySurfaces();
 
+	Set<SwaptionVolatilitySurface> getSwaptionVolatilitySurfacesByPoId(long poId);
+
 	SwaptionVolatilitySurface getSwaptionVolatilitySurfaceByName(String name);
 
 	List<RatePoint> getInterestRateCurvePointsByCurveIdAndDate(long id, Integer year, Integer month);

@@ -8,6 +8,10 @@ import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.util.Callback;
+import org.eclipse.tradista.core.common.util.ClientUtil;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -37,6 +41,24 @@ public class TradistaFXCurveComboBox extends ComboBox<FXCurve> {
 			fxCurvesObservableList = FXCollections.observableArrayList(allFxCurves);
 		}
 		setItems(fxCurvesObservableList);
+
+		Callback<ListView<FXCurve>, ListCell<FXCurve>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(FXCurve curve, boolean empty) {
+				super.updateItem(curve, empty);
+				if (empty || curve == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = curve.getProcessingOrg() == null ? "Global" : curve.getProcessingOrg().getShortName();
+					setText(curve.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(curve.getName());
+				}
+			}
+		};
+
+		setCellFactory(cellFactory);
+		setButtonCell(cellFactory.call(null));
 	}
 
 }

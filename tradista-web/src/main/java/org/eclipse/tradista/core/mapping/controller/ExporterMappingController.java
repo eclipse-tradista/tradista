@@ -73,7 +73,7 @@ public class ExporterMappingController implements Serializable {
 
 	private LegalEntity processingOrg;
 
-	private SortedSet<LegalEntity> allProcessingOrgs;
+	private SortedSet<LegalEntity> processingOrgs;
 
 	private MappingType[] allMappingTypes;
 
@@ -92,16 +92,22 @@ public class ExporterMappingController implements Serializable {
 		mappingBusinessDelegate = new MappingBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
 		Set<String> allExpNames = null;
-		if (ClientUtil.currentUserIsAdmin()) {
-			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
-			allProcessingOrgs = new TreeSet<>();
-			if (processingOrgs != null) {
-				allProcessingOrgs.addAll(processingOrgs);
-			}
-		}
 		allExporterNames = new HashSet<>();
 		allExporterNames.add(StringUtils.EMPTY);
-
+		processingOrgs = new TreeSet<>();
+		if (ClientUtil.currentUserIsAdmin()) {
+			Set<LegalEntity> pos = legalEntityBusinessDelegate.getAllProcessingOrgs();
+			if (pos != null) {
+				processingOrgs.addAll(pos);
+			}
+		} else {
+			try {
+				processingOrgs.add(legalEntityBusinessDelegate
+						.getLegalEntityById(ClientUtil.getCurrentUser().getProcessingOrg().getId()));
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		}
 		try {
 			allExpNames = exporterConfigurationBusinessDelegate.getAllExporterNames();
 		} catch (TradistaTechnicalException _) {
@@ -138,12 +144,12 @@ public class ExporterMappingController implements Serializable {
 		this.processingOrg = processingOrg;
 	}
 
-	public SortedSet<LegalEntity> getAllProcessingOrgs() {
-		return allProcessingOrgs;
+	public SortedSet<LegalEntity> getProcessingOrgs() {
+		return processingOrgs;
 	}
 
-	public void setAllProcessingOrgs(SortedSet<LegalEntity> allProcessingOrgs) {
-		this.allProcessingOrgs = allProcessingOrgs;
+	public void setAllProcessingOrgs(SortedSet<LegalEntity> processingOrgs) {
+		this.processingOrgs = processingOrgs;
 	}
 
 	public void save() {
@@ -161,16 +167,11 @@ public class ExporterMappingController implements Serializable {
 	public void load() {
 		try {
 			interfaceMappingSet = mappingBusinessDelegate.getInterfaceMappingSet(exporterNameLoadingCriterion,
-					mappingTypeLoadingCriterion, InterfaceMappingSet.Direction.OUTGOING);
+					mappingTypeLoadingCriterion, InterfaceMappingSet.Direction.OUTGOING,
+					processingOrg != null ? processingOrg.getId() : 0);
 			if (interfaceMappingSet == null) {
-				LegalEntity po;
-				if (ClientUtil.currentUserIsAdmin()) {
-					po = processingOrg;
-				} else {
-					po = ClientUtil.getCurrentUser().getProcessingOrg();
-				}
 				interfaceMappingSet = new InterfaceMappingSet(exporterNameLoadingCriterion, mappingTypeLoadingCriterion,
-						InterfaceMappingSet.Direction.OUTGOING, po);
+						InterfaceMappingSet.Direction.OUTGOING, processingOrg);
 			}
 			displayedMappings = new ArrayList<>(interfaceMappingSet.getMappings());
 			FacesContext.getCurrentInstance().addMessage(null,

@@ -1,11 +1,8 @@
 package org.eclipse.tradista.core.book.ui.view;
 
-import java.util.Set;
-
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 
-import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 
 /********************************************************************************
@@ -27,11 +24,7 @@ import javafx.scene.control.ComboBox;
 public class TradistaBookComboBox extends ComboBox<Book> {
 
 	public TradistaBookComboBox() {
-		BookBusinessDelegate bookBusinessDelegate = new BookBusinessDelegate();
-		Set<Book> allBooks = bookBusinessDelegate.getAllBooks();
-		if (allBooks != null && !allBooks.isEmpty()) {
-			setItems(FXCollections.observableArrayList(allBooks));
-		}
+		TradistaGUIUtil.fillBookComboBox(this);
 	}
 
 }

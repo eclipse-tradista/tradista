@@ -41,29 +41,37 @@ public class UserServiceBean implements UserService {
 	@Interceptors(UserFilteringInterceptor.class)
 	@Override
 	public long saveUser(User user) throws TradistaBusinessException {
+		checkLoginExistence(user);
 		if (user.getId() == 0) {
-			checkLoginExistence(user);
+			checkIdentityExistence(user);
 		} else {
 			User oldUser = UserSQL.getUserById(user.getId());
-			if (!oldUser.getLogin().equals(user.getLogin())) {
-				checkLoginExistence(user);
+			if (!oldUser.getFirstName().equals(user.getFirstName()) || !oldUser.getSurname().equals(user.getSurname())
+					|| !oldUser.getProcessingOrg().equals(user.getProcessingOrg())) {
+				checkIdentityExistence(user);
 			}
 		}
 		return UserSQL.saveUser(user);
 	}
 
 	private void checkLoginExistence(User user) throws TradistaBusinessException {
-		if (userLoginExists(user.getLogin())) {
+		User u = UserSQL.getUserByLogin(user.getLogin());
+		if (u != null && u.getId() != user.getId()) {
 			throw new TradistaBusinessException(
 					String.format("A user with the login '%s' already exists in the system.", user.getLogin()));
 		}
 	}
 
-	@Override
-	public boolean userLoginExists(String login) {
-		return UserSQL.userLoginExists(login);
+	private void checkIdentityExistence(User user) throws TradistaBusinessException {
+		User u = UserSQL.getUserByFirstNameSurnameAndPoId(user.getFirstName(), user.getSurname(),
+				user.getProcessingOrg().getId());
+		if (u != null && u.getId() != user.getId()) {
+			throw new TradistaBusinessException(
+					String.format("A user with this first name (%s), surname (%s) and processing org (%s) already exists.",
+							user.getFirstName(), user.getSurname(), user.getProcessingOrg()));
+		}
 	}
-
+	
 	@Interceptors(UserFilteringInterceptor.class)
 	@Override
 	public Set<User> getUsersBySurname(String surname) {
@@ -81,6 +89,18 @@ public class UserServiceBean implements UserService {
 	@Override
 	public User getUserByLogin(String login) {
 		return UserSQL.getUserByLogin(login);
+	}
+
+	@Interceptors(UserFilteringInterceptor.class)
+	@Override
+	public Set<User> getUsersByPoId(long poId) {
+		return UserSQL.getUsersByPoId(poId);
+	}
+
+	@Interceptors(UserFilteringInterceptor.class)
+	@Override
+	public User getUserByFirstNameSurnameAndPoId(String firstName, String surname, long poId) {
+		return UserSQL.getUserByFirstNameSurnameAndPoId(firstName, surname, poId);
 	}
 
 }

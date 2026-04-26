@@ -9,33 +9,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
-import org.eclipse.tradista.core.marketdata.model.GenerableCurve;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.FXCurveCreatorDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
@@ -48,7 +49,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -72,6 +72,10 @@ import javafx.util.StringConverter;
  ********************************************************************************/
 
 public class FXCurvesController extends TradistaGenerableCurveController {
+
+	private static final String YYYY_MM_DD = "yyyy-MM-dd";
+
+	private static final Logger logger = LoggerFactory.getLogger(FXCurvesController.class);
 
 	@FXML
 	private TableView<RatePointProperty> pointsTable;
@@ -108,6 +112,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 	protected boolean canGetInterestRateCurve = true;
 
 	// This method is called by the FXMLLoader when initialization is complete
+	@SuppressWarnings("unchecked")
 	public void initialize() {
 
 		super.initialize();
@@ -118,29 +123,21 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 
 		interestRateCurveBusinessDelegate = new InterestRateCurveBusinessDelegate();
 
-		Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>> cellFactory = new Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>>() {
-			public TableCell<RatePointProperty, String> call(TableColumn<RatePointProperty, String> p) {
-				return new EditingCell();
-			}
-		};
+		Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>> cellFactory = _ -> new EditingCell();
 
 		pointDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
 
 		pointRate.setCellFactory(cellFactory);
 
-		pointRate.setOnEditCommit(new EventHandler<CellEditEvent<RatePointProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<RatePointProperty, String> t) {
-				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), "Rate");
-					((RatePointProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-							.setRate(t.getNewValue());
-				} catch (TradistaBusinessException tbe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-					alert.showAndWait();
-				}
-				pointsTable.refresh();
+		pointRate.setOnEditCommit(t -> {
+			try {
+				TradistaGUIUtil.parseAmount(t.getNewValue(), "Rate");
+				t.getTableView().getItems().get(t.getTablePosition().getRow()).setRate(t.getNewValue());
+			} catch (TradistaBusinessException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+				alert.showAndWait();
 			}
+			pointsTable.refresh();
 		});
 
 		pointRate.setCellValueFactory(cellData -> cellData.getValue().getRate());
@@ -161,146 +158,133 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 		dateGraphic.getChildren().addAll(dateLabel, pointDatePicker);
 		pointDate.setGraphic(dateGraphic);
 
-		curveComboBox.valueProperty().addListener(new ChangeListener<GenerableCurve>() {
-			@Override
-			public void changed(ObservableValue<? extends GenerableCurve> ov, GenerableCurve oldC, GenerableCurve c) {
-				if (c != null) {
-					FXCurve fxc = (FXCurve) c;
-					primaryCurrency.setValue(fxc.getPrimaryCurrency());
-					quoteCurrency.setValue(fxc.getQuoteCurrency());
-					primaryCurrencyIRCurve.setValue(fxc.getPrimaryCurrencyIRCurve());
-					quoteCurrencyIRCurve.setValue(fxc.getQuoteCurrencyIRCurve());
+		curveComboBox.valueProperty().addListener((_, _, c) -> {
+			if (c != null) {
+				FXCurve fxc = (FXCurve) c;
+				primaryCurrency.setValue(fxc.getPrimaryCurrency());
+				quoteCurrency.setValue(fxc.getQuoteCurrency());
+				primaryCurrencyIRCurve.setValue(fxc.getPrimaryCurrencyIRCurve());
+				quoteCurrencyIRCurve.setValue(fxc.getQuoteCurrencyIRCurve());
 
-					List<RatePoint> ratePoints = fxCurveBusinessDelegate.getFXCurvePointsByCurveId(fxc.getId());
-					List<RatePointProperty> properties = FXCollections
-							.observableArrayList(toRatePointPropertyList(ratePoints));
+				List<RatePoint> ratePoints = fxCurveBusinessDelegate.getFXCurvePointsByCurveId(fxc.getId());
+				List<RatePointProperty> properties = FXCollections
+						.observableArrayList(toRatePointPropertyList(ratePoints));
 
-					// 1. Wrap the ObservableList in a FilteredList
-					// (initially display all
-					// data).
-					FilteredList<RatePointProperty> filteredData = new FilteredList<>(
-							FXCollections.observableArrayList(properties));
+				// 1. Wrap the ObservableList in a FilteredList
+				// (initially display all
+				// data).
+				FilteredList<RatePointProperty> filteredData = new FilteredList<>(
+						FXCollections.observableArrayList(properties));
 
-					// 3. Wrap the FilteredList in a SortedList.
-					SortedList<RatePointProperty> sortedData = new SortedList<>(filteredData);
+				// 3. Wrap the FilteredList in a SortedList.
+				SortedList<RatePointProperty> sortedData = new SortedList<>(filteredData);
 
-					// 4. Bind the SortedList comparator to the
-					// TableView
-					// comparator.
-					sortedData.comparatorProperty().bind(pointsTable.comparatorProperty());
+				// 4. Bind the SortedList comparator to the
+				// TableView
+				// comparator.
+				sortedData.comparatorProperty().bind(pointsTable.comparatorProperty());
 
-					// 2. Set the filter Predicate whenever the filter
-					// changes.
-					rateTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty,
-							// display all
-							// persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getRate().toString().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
-
-					pointDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty,
-							// display all
-							// persons.
-							if (newValue == null) {
-								return true;
-							}
-							return newValue.equals(LocalDate
-									.from(DateTimeFormatter.ofPattern("yyyy-MM-dd").parse(point.getDate().getValue())));
-						});
-					});
-
-					rateTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is empty, display
-							// all
-							// persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getRate().toString().contains(newValue.toString());
-						});
-					});
-
-					pointsTable.setItems(sortedData);
-					pointsTable.refresh();
-					XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
-					series.setName(fxc.getName());
-					pointsChart.getData().clear();
-					if (ratePoints != null && !ratePoints.isEmpty()) {
-						long lowerBound = ratePoints.get(0).getDate().toEpochDay();
-						for (RatePoint point : ratePoints) {
-							if (point.getRate() != null) {
-								series.getData().add(new XYChart.Data<Number, Number>(
-										point.getDate().toEpochDay() - lowerBound, point.getRate()));
-							}
-						}
-						pointsChart.getXAxis().setTickLabelRotation(90);
-						((ValueAxis<Number>) pointsChart.getXAxis()).setMinorTickVisible(false);
-						((ValueAxis<Number>) pointsChart.getXAxis())
-								.setTickLabelFormatter(new StringConverter<Number>() {
-
-									@Override
-									public String toString(Number number) {
-										return LocalDate.ofEpochDay(number.longValue() + lowerBound).toString();
-									}
-
-									@Override
-									public Number fromString(String string) {
-										return LocalDate.parse(string, DateTimeFormatter.ISO_DATE).toEpochDay()
-												+ lowerBound;
-									}
-
-								});
-						pointsChart.getXAxis().setLabel("Date");
-						pointsChart.getYAxis().setLabel("Rate");
-						pointsChart.setCreateSymbols(false);
-						pointsChart.getData().clear();
-						pointsChart.getData().add(series);
+				// 2. Set the filter Predicate whenever the filter
+				// changes.
+				rateTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+					// If filter text is
+					// empty,
+					// display all
+					// persons.
+					if (newValue == null || newValue.isEmpty()) {
+						return true;
 					}
-				} else {
+					return point.getRate().getValue().toUpperCase().contains(newValue.toUpperCase());
+				}));
 
-					pointsTable.setItems(null);
-					primaryCurrency.getSelectionModel().clearSelection();
-					quoteCurrency.getSelectionModel().clearSelection();
-					primaryCurrencyIRCurve.getSelectionModel().clearSelection();
-					quoteCurrencyIRCurve.getSelectionModel().clearSelection();
+				pointDatePicker.valueProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+					// If filter text is
+					// empty,
+					// display all
+					// persons.
+					if (newValue == null) {
+						return true;
+					}
+					return newValue.equals(
+							LocalDate.from(DateTimeFormatter.ofPattern(YYYY_MM_DD).parse(point.getDate().getValue())));
+				}));
 
+				rateTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+					// If filter text is empty, display
+					// all
+					// persons.
+					if (newValue == null || newValue.isEmpty()) {
+						return true;
+					}
+					return point.getRate().getValue().contains(newValue.toString());
+				}));
+
+				pointsTable.setItems(sortedData);
+				pointsTable.refresh();
+				XYChart.Series<Number, Number> series = new XYChart.Series<>();
+				series.setName(fxc.getName());
+				pointsChart.getData().clear();
+				if (ratePoints != null && !ratePoints.isEmpty()) {
+					long lowerBound = ratePoints.getFirst().getDate().toEpochDay();
+					for (RatePoint point : ratePoints) {
+						if (point.getRate() != null) {
+							series.getData().add(
+									new XYChart.Data<>(point.getDate().toEpochDay() - lowerBound, point.getRate()));
+						}
+					}
+					pointsChart.getXAxis().setTickLabelRotation(90);
+					((ValueAxis<Number>) pointsChart.getXAxis()).setMinorTickVisible(false);
+					((ValueAxis<Number>) pointsChart.getXAxis()).setTickLabelFormatter(new StringConverter<Number>() {
+
+						@Override
+						public String toString(Number number) {
+							return LocalDate.ofEpochDay(number.longValue() + lowerBound).toString();
+						}
+
+						@Override
+						public Number fromString(String string) {
+							return LocalDate.parse(string, DateTimeFormatter.ISO_DATE).toEpochDay() + lowerBound;
+						}
+
+					});
+					pointsChart.getXAxis().setLabel("Date");
+					pointsChart.getYAxis().setLabel("Rate");
+					pointsChart.setCreateSymbols(false);
+					pointsChart.getData().clear();
+					pointsChart.getData().add(series);
 				}
+			} else {
+
+				pointsTable.setItems(null);
+				primaryCurrency.getSelectionModel().clearSelection();
+				quoteCurrency.getSelectionModel().clearSelection();
+				primaryCurrencyIRCurve.getSelectionModel().clearSelection();
+				quoteCurrencyIRCurve.getSelectionModel().clearSelection();
+
 			}
 		});
 		try {
 			TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllGenerationAlgorithms(), algorithmComboBox);
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetGenerationAlgorithms = false;
 		}
 		try {
 			TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllInterpolators(), interpolatorComboBox);
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetInterpolators = false;
 		}
 		TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllInstances(), instanceComboBox);
 		TradistaGUIUtil.fillCurrencyComboBox(primaryCurrency, quoteCurrency);
 		try {
-			TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterestRateCurves(),
-					primaryCurrencyIRCurve, quoteCurrencyIRCurve);
-		} catch (TradistaTechnicalException tte) {
+			TradistaGUIUtil.fillInterestRateCurveComboBox(primaryCurrencyIRCurve, quoteCurrencyIRCurve);
+		} catch (TradistaTechnicalException _) {
 			canGetInterestRateCurve = false;
 		}
 		try {
-			Set<FXCurve> curves = fxCurveBusinessDelegate.getAllFXCurves();
-			TradistaGUIUtil.fillComboBox(curves, curveComboBox);
+			TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			canGetCurve = true;
-			curveExists = (curves != null && !curves.isEmpty());
-		} catch (TradistaTechnicalException tte) {
+			curveExists = (curveComboBox.getItems() != null && !curveComboBox.getItems().isEmpty());
+		} catch (TradistaTechnicalException _) {
 			canGetCurve = false;
 		}
 
@@ -322,47 +306,92 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 
 		curve.setQuoteDate(quoteDate.getValue());
 
-		((FXCurve) curve).setPrimaryCurrency(primaryCurrency.getValue());
-		((FXCurve) curve).setQuoteCurrency(quoteCurrency.getValue());
-		((FXCurve) curve).setPrimaryCurrencyIRCurve(primaryCurrencyIRCurve.getValue());
-		((FXCurve) curve).setQuoteCurrencyIRCurve(quoteCurrencyIRCurve.getValue());
+		curve.setPrimaryCurrency(primaryCurrency.getValue());
+		curve.setQuoteCurrency(quoteCurrency.getValue());
+		curve.setPrimaryCurrencyIRCurve(primaryCurrencyIRCurve.getValue());
+		curve.setQuoteCurrencyIRCurve(quoteCurrencyIRCurve.getValue());
 	}
 
+	@SuppressWarnings("unchecked")
 	@FXML
 	protected void save() {
 		try {
-			buildCurve((FXCurve) curve);
-			curve.setId(fxCurveBusinessDelegate.saveFXCurve(((FXCurve) curve)));
-			TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllFXCurves(), curveComboBox);
+			boolean isNew = (curve.getId() == 0);
+			LegalEntity po = null;
+			boolean proceed = false;
+
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("FX Curve",
+						ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save FX Curve");
+				confirmation.setHeaderText("Save FX Curve");
+				confirmation.setContentText("Do you want to save this FX Curve?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					po = curve.getProcessingOrg();
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					curve = new FXCurve(curve.getName(), po);
+				}
+				buildCurve((FXCurve) curve);
+				curve.setId(fxCurveBusinessDelegate.saveFXCurve(((FXCurve) curve)));
+				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
+			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@FXML
 	protected void copy() {
 		try {
-			if (curve == null) {
-				throw new TradistaBusinessException("Please load a FX curve.");
-			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-			alert.showAndWait();
-		}
-		try {
-			TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-			dialog.setTitle("Curve name");
-			dialog.setHeaderText("Curve name selection");
-			dialog.setContentText("Please choose a Curve name:");
+			String copyName = null;
+			LegalEntity po = null;
+			boolean proceed = false;
 
-			Optional<String> result = dialog.showAndWait();
-			if (result.isPresent()) {
-				FXCurve copyCurve = new FXCurve(result.get(), ClientUtil.getCurrentUser().getProcessingOrg());
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("FX Curve", curve.getProcessingOrg(), curve.getName(),
+						false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
+				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+				dialog.setTitle("Curve name");
+				dialog.setHeaderText("Curve name selection");
+				dialog.setContentText("Please choose a Curve name:");
+
+				Optional<String> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
+				}
+			}
+
+			if (proceed) {
+				FXCurve copyCurve = new FXCurve(copyName, po);
 				buildCurve(copyCurve);
 				copyCurve.setId(fxCurveBusinessDelegate.saveFXCurve(copyCurve));
 				curve = copyCurve;
-				TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllFXCurves(), curveComboBox);
+				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -370,13 +399,10 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@FXML
 	protected void delete() {
 		try {
-			if (curve == null) {
-				throw new TradistaBusinessException("No curve name has been selected.");
-			}
-
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 			confirmation.setTitle("Delete FX Curve");
 			confirmation.setHeaderText("Delete FX Curve");
@@ -386,7 +412,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			if (result.get() == ButtonType.OK) {
 				fxCurveBusinessDelegate.deleteFXCurve(curve.getId());
 				curve = null;
-				TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllFXCurves(), curveComboBox);
+				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -405,14 +431,14 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			pointsTable.setItems(FXCollections.observableArrayList(toRatePointPropertyList(ratePoints)));
 			pointsTable.refresh();
 			// Update the graph
-			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+			XYChart.Series<Number, Number> series = new XYChart.Series<>();
 			series.setName(curveComboBox.getSelectionModel().getSelectedItem().getName());
 
-			long lowerBound = ratePoints.get(0).getDate().toEpochDay();
+			long lowerBound = ratePoints.getFirst().getDate().toEpochDay();
 			for (RatePoint point : ratePoints) {
 				if (point.getRate() != null) {
-					series.getData().add(new XYChart.Data<Number, Number>(point.getDate().toEpochDay() - lowerBound,
-							point.getRate()));
+					series.getData()
+							.add(new XYChart.Data<>(point.getDate().toEpochDay() - lowerBound, point.getRate()));
 				}
 			}
 			pointsChart.getXAxis().setTickLabelRotation(90);
@@ -441,6 +467,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@FXML
 	protected void create() {
 		try {
@@ -450,7 +477,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			if (result.isPresent()) {
 				FXCurve fxCurve = result.get();
 				fxCurveBusinessDelegate.saveFXCurve(fxCurve);
-				TradistaGUIUtil.fillComboBox(fxCurveBusinessDelegate.getAllFXCurves(), curveComboBox);
+				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -467,7 +494,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 
 		@Override
 		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
+			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
 				setItem(textField.getText());
 			}
 			super.startEdit();
@@ -509,47 +536,41 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit(textField.getText());
 				}
 			});
 
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 
 	private List<RatePointProperty> toRatePointPropertyList(List<RatePoint> data) {
-		List<RatePointProperty> ratePointPropertyList = new ArrayList<RatePointProperty>();
+		List<RatePointProperty> ratePointPropertyList = new ArrayList<>();
 		if (data != null) {
 			for (RatePoint point : data) {
-				ratePointPropertyList
-						.add(new RatePointProperty(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(point.getDate()),
-								point.getRate() == null ? "" : TradistaGUIUtil.formatAmount(point.getRate())));
+				ratePointPropertyList.add(new RatePointProperty(
+						DateTimeFormatter.ofPattern(YYYY_MM_DD).format(point.getDate()),
+						point.getRate() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(point.getRate())));
 			}
 		}
 		return ratePointPropertyList;
 	}
 
 	private Map<LocalDate, BigDecimal> toRatePointsMap(List<RatePointProperty> data) throws TradistaBusinessException {
-		Map<LocalDate, BigDecimal> ratePointsMap = new HashMap<LocalDate, BigDecimal>();
+		Map<LocalDate, BigDecimal> ratePointsMap = new HashMap<>();
 		for (RatePointProperty point : data) {
 			try {
 				ratePointsMap.put(
-						LocalDate.from(DateTimeFormatter.ofPattern("yyyy-MM-dd").parse(point.getDate().getValue())),
+						LocalDate.from(DateTimeFormatter.ofPattern(YYYY_MM_DD).parse(point.getDate().getValue())),
 						point.getRate().getValue().isEmpty() ? null
 								: TradistaGUIUtil.parseAmount(point.getRate().getValue(), "Rate"));
-			} catch (DateTimeParseException e) {
-				// TODO Add a WARN log and continue
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (DateTimeParseException dtpe) {
+				logger.warn(dtpe.getMessage());
 			}
 		}
 
@@ -611,21 +632,21 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@FXML
 	public void refresh() {
 		super.refresh();
 		try {
-			Set<FXCurve> curves = fxCurveBusinessDelegate.getAllFXCurves();
-			TradistaGUIUtil.fillComboBox(curves, curveComboBox);
+			TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			canGetCurve = true;
 			canSaveCurve = true;
 			canCopyCurve = true;
 			canGenerateCurve = true;
 			canDeleteCurve = true;
 			canCreateCurve = true;
-			curveExists = (curves != null && !curves.isEmpty());
-		} catch (TradistaTechnicalException tte) {
+			curveExists = (curveComboBox.getItems() != null && !curveComboBox.getItems().isEmpty());
+		} catch (TradistaTechnicalException _) {
 			canGetCurve = false;
 			canSaveCurve = false;
 			canCopyCurve = false;
@@ -635,10 +656,9 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 		}
 		TradistaGUIUtil.fillCurrencyComboBox(primaryCurrency, quoteCurrency);
 		try {
-			TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterestRateCurves(),
-					primaryCurrencyIRCurve, quoteCurrencyIRCurve);
+			TradistaGUIUtil.fillInterestRateCurveComboBox(primaryCurrencyIRCurve, quoteCurrencyIRCurve);
 			canGetInterestRateCurve = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetInterestRateCurve = false;
 		}
 		if (!canGetGenerationAlgorithms) {
@@ -646,7 +666,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllGenerationAlgorithms(),
 						algorithmComboBox);
 				canGetGenerationAlgorithms = true;
-			} catch (TradistaTechnicalException tte) {
+			} catch (TradistaTechnicalException _) {
 				canGetGenerationAlgorithms = false;
 			}
 		}
@@ -655,25 +675,27 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterpolators(),
 						interpolatorComboBox);
 				canGetInterpolators = true;
-			} catch (TradistaTechnicalException tte) {
+			} catch (TradistaTechnicalException _) {
 				canGetInterpolators = false;
 			}
 		}
 		updateWindow();
 	}
 
+	@Override
 	public void buildErrorMap() {
 		super.buildErrorMap();
 		if (!canGetInterestRateCurve) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
 			err.add("ir curves");
 			errors.put("get", err);
 		}
 	}
 
+	@Override
 	public void updateComponents() {
 		super.updateComponents();
 		primaryCurrency.setDisable(!quoteSetExists || !canGetQuoteSet || !canGetQuote || !canGetCurve
@@ -690,9 +712,9 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				|| !canGetInterpolators || !canGetInterestRateCurve);
 		interpolatorComboBox.setDisable(!quoteSetExists || !canGetQuoteSet || !canGetCurve
 				|| !canGetGenerationAlgorithms || !canGetInterpolators || !canGetInterestRateCurve);
-		saveButton.setDisable(!canGetCurve || !canSaveCurve || !quoteSetExists || !canGetQuoteSet
+		saveButton.setDisable(curve == null || !canGetCurve || !canSaveCurve || !quoteSetExists || !canGetQuoteSet
 				|| !canGetGenerationAlgorithms || !canGetInterpolators || !canGetInterestRateCurve);
-		copyButton.setDisable(!canGetCurve || !canCopyCurve || !quoteSetExists || !canGetQuoteSet
+		copyButton.setDisable(curve == null || !canGetCurve || !canCopyCurve || !quoteSetExists || !canGetQuoteSet
 				|| !canGetGenerationAlgorithms || !canGetInterpolators || !canGetInterestRateCurve);
 		generateButton.setDisable(!canGetQuote || !canGenerateCurve || !quoteSetExists || !canGetQuoteSet
 				|| !canGetCurve || !canGetGenerationAlgorithms || !canGetInterpolators || !canGetInterestRateCurve);

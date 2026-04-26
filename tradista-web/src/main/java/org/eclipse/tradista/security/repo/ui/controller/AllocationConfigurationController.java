@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -48,13 +49,11 @@ public class AllocationConfigurationController implements Serializable {
 
 	private AllocationConfiguration allocationConfiguration;
 
-	private String loadingCriterion;
+	private AllocationConfiguration loadAllocationConfiguration;
 
-	private String idOrName;
+	private Set<AllocationConfiguration> allAllocationConfigurations;
 
 	private String copyAllocationConfigurationName;
-
-	private String[] allLoadingCriteria = { "Id", "Name" };
 
 	private DualListModel<Book> books;
 
@@ -92,18 +91,30 @@ public class AllocationConfigurationController implements Serializable {
 			}
 		}
 		initModel();
+		refresh();
+	}
+
+	private void refresh() {
+		Set<AllocationConfiguration> allocConfigs = null;
+		try {
+			if (ClientUtil.getCurrentProcessingOrg() != null) {
+				allocConfigs = allocationConfigurationBusinessDelegate
+						.getAllocationConfigurationsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} else {
+				allocConfigs = allocationConfigurationBusinessDelegate.getAllAllocationConfigurations();
+			}
+		} catch (TradistaBusinessException _) {
+			// ignore
+		}
+		if (allocConfigs != null) {
+			allAllocationConfigurations = new HashSet<>(allocConfigs);
+		} else {
+			allAllocationConfigurations = new HashSet<>();
+		}
 	}
 
 	private void initModel() {
 		books = new DualListModel<>(availableBooks, new ArrayList<>());
-	}
-
-	public String getLoadingCriterion() {
-		return loadingCriterion;
-	}
-
-	public void setLoadingCriterion(String loadingCriterion) {
-		this.loadingCriterion = loadingCriterion;
 	}
 
 	public AllocationConfiguration getAllocationConfiguration() {
@@ -114,14 +125,6 @@ public class AllocationConfigurationController implements Serializable {
 		this.allocationConfiguration = allocationConfiguration;
 	}
 
-	public String[] getAllLoadingCriteria() {
-		return allLoadingCriteria;
-	}
-
-	public void setAllLoadingCriteria(String[] allLoadingCriteria) {
-		this.allLoadingCriteria = allLoadingCriteria;
-	}
-
 	public DualListModel<Book> getBooks() {
 		return books;
 	}
@@ -130,12 +133,20 @@ public class AllocationConfigurationController implements Serializable {
 		this.books = books;
 	}
 
-	public String getIdOrName() {
-		return idOrName;
+	public AllocationConfiguration getLoadAllocationConfiguration() {
+		return loadAllocationConfiguration;
 	}
 
-	public void setIdOrName(String idOrName) {
-		this.idOrName = idOrName;
+	public void setLoadAllocationConfiguration(AllocationConfiguration loadAllocationConfiguration) {
+		this.loadAllocationConfiguration = loadAllocationConfiguration;
+	}
+
+	public Set<AllocationConfiguration> getAllAllocationConfigurations() {
+		return allAllocationConfigurations;
+	}
+
+	public void setAllAllocationConfigurations(Set<AllocationConfiguration> allAllocationConfigurations) {
+		this.allAllocationConfigurations = allAllocationConfigurations;
 	}
 
 	public String getCopyAllocationConfigurationName() {
@@ -198,6 +209,7 @@ public class AllocationConfigurationController implements Serializable {
 					allocationConfigurationBusinessDelegate.saveAllocationConfiguration(allocationConfiguration));
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Allocation Configuration " + allocationConfiguration.getId() + " successfully saved"));
+			refresh();
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -231,6 +243,7 @@ public class AllocationConfigurationController implements Serializable {
 			processingOrg = copyProcessingOrg;
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Allocation Configuration " + allocationConfiguration.getId() + " successfully created"));
+			refresh();
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -241,40 +254,25 @@ public class AllocationConfigurationController implements Serializable {
 	}
 
 	public void load() {
-		try {
-			if (loadingCriterion.equals("Id")) {
-				allocationConfiguration = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationById(Long.parseLong(idOrName));
+		if (loadAllocationConfiguration != null) {
+			allocationConfiguration = loadAllocationConfiguration;
+			allocationConfigurationName = allocationConfiguration.getName();
+			List<Book> allocConfigBooks = new ArrayList<>();
+			if (allocationConfiguration.getBooks() != null) {
+				allocConfigBooks = new ArrayList<>(allocationConfiguration.getBooks());
+				final List<Book> tmpAllocConfigBooks = allocConfigBooks;
+				books.setSource(books.getSource().stream().filter(s -> !tmpAllocConfigBooks.contains(s)).toList());
 			} else {
-				allocationConfiguration = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationByName(idOrName);
+				books.setSource(availableBooks);
 			}
-			if (allocationConfiguration != null) {
-				allocationConfigurationName = allocationConfiguration.getName();
-				List<Book> allocConfigBooks = new ArrayList<>();
-				if (allocationConfiguration.getBooks() != null) {
-					allocConfigBooks = new ArrayList<>(allocationConfiguration.getBooks());
-					final List<Book> tmpAllocConfigBooks = allocConfigBooks;
-					books.setSource(books.getSource().stream().filter(s -> !tmpAllocConfigBooks.contains(s)).toList());
-				} else {
-					books.setSource(availableBooks);
-				}
-				books.setTarget(allocConfigBooks);
-				processingOrg = allocationConfiguration.getProcessingOrg();
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-						"Allocation Configuration " + allocationConfiguration.getId() + " successfully loaded."));
-			} else {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Error", "Allocation Configuration " + idOrName + " was not found."));
-			}
-		} catch (NumberFormatException nfe) {
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
-		} catch (TradistaBusinessException tbe) {
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+			books.setTarget(allocConfigBooks);
+			processingOrg = allocationConfiguration.getProcessingOrg();
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+					"Allocation Configuration " + allocationConfiguration.getId() + " successfully loaded."));
+		} else {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+					"Please select an Allocation Configuration."));
 		}
-
 	}
 
 	public void clear() {
@@ -284,6 +282,19 @@ public class AllocationConfigurationController implements Serializable {
 		initModel();
 		FacesContext.getCurrentInstance().addMessage(null,
 				new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Form cleared"));
+	}
+
+	public String getDisambiguatedName(AllocationConfiguration ac) {
+		if (ac == null) {
+			return StringUtils.EMPTY;
+		}
+		if (!ClientUtil.currentUserIsAdmin()) {
+			return ac.getName();
+		}
+		if (ac.getProcessingOrg() == null) {
+			return ac.getName() + " [Global]";
+		}
+		return ac.getName() + " [" + ac.getProcessingOrg().getShortName() + "]";
 	}
 
 }

@@ -84,6 +84,12 @@ public class PricerServiceBean implements PricerService {
 	}
 
 	@Interceptors(PricingParameterFilteringInterceptor.class)
+	@Override
+	public Set<PricingParameter> getPricingParametersByPoId(long poId) {
+		return PricingParameterSQL.getPricingParametersByPoId(poId);
+	}
+
+	@Interceptors(PricingParameterFilteringInterceptor.class)
 	public long savePricingParameter(PricingParameter param) throws TradistaBusinessException {
 		if (param.getId() == 0) {
 			checkPricingParameterExistence(param);

@@ -50,16 +50,14 @@ public class AllocationConfigurationBusinessDelegate {
 		Set<Book> books = allocationConfiguration.getBooks();
 		if (po != null) {
 			if (books != null && !books.isEmpty()) {
-				List<Book> wrongBooks = books.stream()
-						.filter(b -> b.getProcessingOrg() != null && !b.getProcessingOrg().equals(po)).toList();
+				List<Book> wrongBooks = books.stream().filter(b -> !b.getProcessingOrg().equals(po)).toList();
 				if (!wrongBooks.isEmpty()) {
-					errMsg.append(String.format("the following books are not from the Processing Org '%s': %s.%n", po,
+					errMsg.append(String.format("the following books are not from the Processing Org '%s': %s.", po,
 							wrongBooks));
 				}
 			}
 		} else {
-			errMsg.append(String.format(
-					"the Allocation Configuration cannot be global, it should be linked to a Processing Org.%n"));
+			errMsg.append("the Allocation Configuration cannot be global, it should be linked to a Processing Org.");
 		}
 
 		if (!errMsg.isEmpty()) {
@@ -80,11 +78,11 @@ public class AllocationConfigurationBusinessDelegate {
 		return SecurityUtil.run(() -> allocationConfigurationService.getAllAllocationConfigurations());
 	}
 
-	public AllocationConfiguration getAllocationConfigurationByName(String name) throws TradistaBusinessException {
-		if (StringUtils.isEmpty(name)) {
-			throw new TradistaBusinessException("the Allocation Configuration name is mandatory.");
+	public Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId) throws TradistaBusinessException {
+		if (poId <= 0) {
+			throw new TradistaBusinessException("The processing org id must be positive.");
 		}
-		return SecurityUtil.run(() -> allocationConfigurationService.getAllocationConfigurationByName(name));
+		return SecurityUtil.run(() -> allocationConfigurationService.getAllocationConfigurationsByPoId(poId));
 	}
 
 }
