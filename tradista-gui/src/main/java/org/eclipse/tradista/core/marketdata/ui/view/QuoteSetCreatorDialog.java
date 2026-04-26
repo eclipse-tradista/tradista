@@ -1,16 +1,21 @@
 package org.eclipse.tradista.core.marketdata.ui.view;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
+import javafx.scene.layout.HBox;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -32,29 +37,76 @@ public class QuoteSetCreatorDialog extends TradistaDialog<QuoteSet> {
 
 	public QuoteSetCreatorDialog() {
 		super();
-		setTitle("Quote Set Creation");
-		setHeaderText("Please specify a name for the Quote Set to create.");
+		String entityName = "Quote Set";
+		setTitle(String.format("%s Creation", entityName));
 		Label nameLabel = new Label("Name: ");
 		TextField nameTextField = new TextField();
+
+		Label poLabel = new Label("Processing Org: ");
+		ComboBox<LegalEntity> poComboBox = new ComboBox<>();
+		TradistaGUIUtil.fillProcessingOrgComboBox(poComboBox);
+		boolean isAdmin = ClientUtil.currentUserIsAdmin();
+		if (!isAdmin) {
+			poComboBox.getItems().add(0, BlankLegalEntity.getInstance());
+		}
+		poComboBox.getSelectionModel().selectFirst();
+
 		GridPane grid = new GridPane();
 		grid.setStyle("-fx-padding: 20; -fx-hgap: 20; -fx-vgap: 20;");
-		grid.add(nameLabel, 1, 1);
-		grid.add(nameTextField, 2, 1);
+
+		HBox headerHBox = new HBox();
+		Label label1 = new Label();
+		Label label2 = new Label();
+		label2.getStyleClass().add("labelBold");
+		Label label3 = new Label();
+		headerHBox.getChildren().addAll(label1, label2, label3);
+
+		grid.add(headerHBox, 1, 1, 2, 1);
+		GridPane.setMargin(headerHBox, new Insets(0, 0, 20, 0));
+
+		updateHeader(entityName, poComboBox.getValue(), label1, label2, label3);
+
+		poComboBox.valueProperty().addListener((_, _, newValue) -> {
+			updateHeader(entityName, newValue, label1, label2, label3);
+			if (getDialogPane().getScene() != null && getDialogPane().getScene().getWindow() != null) {
+				getDialogPane().getScene().getWindow().sizeToScene();
+			}
+		});
+
+		grid.add(nameLabel, 1, 2);
+		grid.add(nameTextField, 2, 2);
+
+		if (isAdmin) {
+			grid.add(poLabel, 1, 3);
+			grid.add(poComboBox, 2, 3);
+		}
+
 		getDialogPane().setContent(grid);
+		getDialogPane().setMinWidth(500);
 		ButtonType buttonTypeOk = new ButtonType("Create", ButtonData.OK_DONE);
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<>() {
-			@Override
-			public QuoteSet call(ButtonType b) {
-				if (b == buttonTypeOk) {
-					return new QuoteSet(nameTextField.getText(), ClientUtil.getCurrentUser().getProcessingOrg());
-				}
-				return null;
+		setResultConverter(b -> {
+			if (b == buttonTypeOk) {
+				LegalEntity po = (poComboBox.getValue() instanceof BlankLegalEntity) ? null : poComboBox.getValue();
+				return new QuoteSet(nameTextField.getText(), po);
 			}
+			return null;
 		});
 		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
+	}
+
+	private void updateHeader(String entityName, LegalEntity po, Label label1, Label label2, Label label3) {
+		if (po == null || po instanceof BlankLegalEntity) {
+			label1.setText(String.format("The new %s will be global.", entityName));
+			label2.setText(StringUtils.EMPTY);
+			label3.setText(StringUtils.EMPTY);
+		} else {
+			label1.setText(String.format("The new %s will be linked to Processing Org ", entityName));
+			label2.setText(po.getShortName());
+			label3.setText(".");
+		}
 	}
 
 }

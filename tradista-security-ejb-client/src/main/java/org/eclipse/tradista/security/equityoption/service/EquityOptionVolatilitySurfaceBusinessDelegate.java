@@ -41,7 +41,7 @@ public class EquityOptionVolatilitySurfaceBusinessDelegate {
 	private static Map<String, Number> expiries;
 
 	{
-		expiries = new HashMap<String, Number>(10);
+		expiries = HashMap.newHashMap(10);
 		expiries.put("1M", 30);
 		expiries.put("3M", 91);
 		expiries.put("6M", 183);
@@ -62,6 +62,15 @@ public class EquityOptionVolatilitySurfaceBusinessDelegate {
 
 	public Set<EquityOptionVolatilitySurface> getAllEquityOptionVolatilitySurfaces() {
 		return SecurityUtil.run(() -> equityOptionVolatilitySurfaceService.getAllEquityOptionVolatilitySurfaces());
+	}
+
+	public Set<EquityOptionVolatilitySurface> getEquityOptionVolatilitySurfacesByPoId(long poId)
+			throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
+		return SecurityUtil
+				.run(() -> equityOptionVolatilitySurfaceService.getEquityOptionVolatilitySurfacesByPoId(poId));
 	}
 
 	public boolean deleteEquityOptionVolatilitySurface(long surfaceId) throws TradistaBusinessException {
@@ -141,10 +150,10 @@ public class EquityOptionVolatilitySurfaceBusinessDelegate {
 			errMsg.append(String.format("The quote date is mandatory.%n"));
 		}
 		if (quoteSet == null) {
-			errMsg.append(String.format("The quote set is mandatory.%n"));
+			errMsg.append("The quote set is mandatory.");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> equityOptionVolatilitySurfaceService.generate(algorithm, interpolator, instance,

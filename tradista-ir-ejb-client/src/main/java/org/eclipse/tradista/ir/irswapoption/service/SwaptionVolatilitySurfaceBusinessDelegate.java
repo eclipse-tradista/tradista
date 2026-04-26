@@ -40,7 +40,7 @@ public class SwaptionVolatilitySurfaceBusinessDelegate {
 	private static Map<String, Number> swapMaturities;
 
 	{
-		swapMaturities = new HashMap<String, Number>(10);
+		swapMaturities = HashMap.newHashMap(10);
 		swapMaturities.put("1Y", 365);
 		swapMaturities.put("2Y", 700);
 		swapMaturities.put("3Y", 1065);
@@ -53,7 +53,7 @@ public class SwaptionVolatilitySurfaceBusinessDelegate {
 	private static Map<String, Number> optionExpiries;
 
 	{
-		optionExpiries = new HashMap<String, Number>(10);
+		optionExpiries = HashMap.newHashMap(10);
 		optionExpiries.put("1M", 30);
 		optionExpiries.put("3M", 91);
 		optionExpiries.put("6M", 183);
@@ -75,6 +75,14 @@ public class SwaptionVolatilitySurfaceBusinessDelegate {
 
 	public Set<SwaptionVolatilitySurface> getAllSwaptionVolatilitySurfaces() {
 		return SecurityUtil.run(() -> swaptionVolatilitySurfaceService.getAllSwaptionVolatilitySurfaces());
+	}
+
+	public Set<SwaptionVolatilitySurface> getSwaptionVolatilitySurfacesByPoId(long poId)
+			throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
+		return SecurityUtil.run(() -> swaptionVolatilitySurfaceService.getSwaptionVolatilitySurfacesByPoId(poId));
 	}
 
 	public SwaptionVolatilitySurface getSwaptionVolatilitySurfaceByName(String name) {

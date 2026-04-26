@@ -48,6 +48,10 @@ public class CurveBusinessDelegate {
 		return SecurityUtil.run(() -> curveService.getAllCurves());
 	}
 
+	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getCurvesByPoId(long poId) {
+		return SecurityUtil.run(() -> curveService.getCurvesByPoId(poId));
+	}
+
 	public List<RatePoint> getCurvePointsByCurveAndDates(Curve<LocalDate, BigDecimal> curve, LocalDate min,
 			LocalDate max) throws TradistaBusinessException {
 		if (curve == null) {

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -47,6 +49,8 @@ import org.eclipse.tradista.core.trade.validator.TradeValidator;
 
 public class PricerBusinessDelegate {
 
+	private static final Logger logger = LoggerFactory.getLogger(PricerBusinessDelegate.class);
+
 	private PricerService pricerService;
 
 	private static final String TRADE_IS_MANDATORY = "The trade is mandatory.%n";
@@ -70,39 +74,39 @@ public class PricerBusinessDelegate {
 					"org.eclipse.tradista.security.equityoption.validator.PricingParameterDividendYieldCurveModuleValidator");
 			validators.put("org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule",
 					validator);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("PricingParameterDividendYieldCurveModuleValidator not found, skipping.");
 		}
 		try {
 			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
 					"org.eclipse.tradista.fx.common.validator.PricingParameterUnrealizedPnlCalculationModuleValidator");
 			validators.put("org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule",
 					validator);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("PricingParameterUnrealizedPnlCalculationModuleValidator not found, skipping.");
 		}
 		try {
 			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
 					"org.eclipse.tradista.fx.fxoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
 			validators.put("org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule", validator);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("FX Option PricingParameterVolatilitySurfaceModuleValidator not found, skipping.");
 		}
 		try {
 			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
 					"org.eclipse.tradista.ir.irswapoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
 			validators.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule",
 					validator);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("IR Swap Option PricingParameterVolatilitySurfaceModuleValidator not found, skipping.");
 		}
 		try {
 			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
 					"org.eclipse.tradista.security.equityoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
 			validators.put("org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule",
 					validator);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("Equity Option PricingParameterVolatilitySurfaceModuleValidator not found, skipping.");
 		}
 	}
 
@@ -119,13 +123,20 @@ public class PricerBusinessDelegate {
 			errMsg.append(String.format("The po id (%s) cannot be negative.", poId));
 		}
 		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException("The name is mandatory.");
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> pricerService.getPricingParameterByNameAndPoId(name, poId));
 	}
 
 	public Set<PricingParameter> getAllPricingParameters() {
 		return SecurityUtil.run(() -> pricerService.getAllPricingParameters());
+	}
+
+	public Set<PricingParameter> getPricingParametersByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException(String.format("The po id (%s) cannot be negative.", poId));
+		}
+		return SecurityUtil.run(() -> pricerService.getPricingParametersByPoId(poId));
 	}
 
 	public long savePricingParameter(PricingParameter param) throws TradistaBusinessException {
@@ -526,7 +537,7 @@ public class PricerBusinessDelegate {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> pricerService.generateCashFlows(tradeId, pp, valueDate));
@@ -557,7 +568,7 @@ public class PricerBusinessDelegate {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> pricerService.generateCashFlows(trade, pp, valueDate));
@@ -580,7 +591,7 @@ public class PricerBusinessDelegate {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -599,7 +610,7 @@ public class PricerBusinessDelegate {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

@@ -55,6 +55,12 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 		return SwaptionVolatilitySurfaceSQL.getAllSwaptionVolatilitySurfaces();
 	}
 
+	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
+	@Override
+	public Set<SwaptionVolatilitySurface> getSwaptionVolatilitySurfacesByPoId(long poId) {
+		return SwaptionVolatilitySurfaceSQL.getSwaptionVolatilitySurfacesByPoId(poId);
+	}
+
 	@Override
 	public SwaptionVolatilitySurface getSwaptionVolatilitySurfaceByName(String name) {
 		return SwaptionVolatilitySurfaceSQL.getSwaptionVolatilitySurfaceByName(name);
@@ -121,7 +127,9 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 			SwaptionVolatilitySurface oldSurface = SwaptionVolatilitySurfaceSQL
 					.getSwaptionVolatilitySurfaceById(surface.getId());
 			if (!oldSurface.getName().equals(surface.getName())
-					|| !oldSurface.getProcessingOrg().equals(surface.getProcessingOrg())) {
+					|| (oldSurface.getProcessingOrg() == null && surface.getProcessingOrg() != null)
+					|| (oldSurface.getProcessingOrg() != null
+							&& !oldSurface.getProcessingOrg().equals(surface.getProcessingOrg()))) {
 				checkSurfaceExistence(surface);
 			}
 		}

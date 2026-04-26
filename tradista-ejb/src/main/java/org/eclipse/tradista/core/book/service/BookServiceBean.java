@@ -72,4 +72,16 @@ public class BookServiceBean implements BookService {
 		return BookSQL.getBookById(id);
 	}
 
+	@Interceptors(BookFilteringInterceptor.class)
+	@Override
+	public Set<Book> getBooksByPoId(long poId) {
+		return BookSQL.getBooksByPoId(poId);
+	}
+
+	@Interceptors(BookFilteringInterceptor.class)
+	@Override
+	public Book getBookByNameAndPoId(String name, long poId) {
+		return BookSQL.getBookByNameAndPoId(name, poId);
+	}
+
 }

@@ -139,4 +139,11 @@ public class PositionDefinitionBusinessDelegate {
 		return SecurityUtil.run(() -> positionDefinitionService.getPositionDefinitionsByPricingParametersSetId(id));
 	}
 
+	public Set<PositionDefinition> getPositionDefinitionsByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
+		return SecurityUtil.run(() -> positionDefinitionService.getPositionDefinitionsByPoId(poId));
+	}
+
 }

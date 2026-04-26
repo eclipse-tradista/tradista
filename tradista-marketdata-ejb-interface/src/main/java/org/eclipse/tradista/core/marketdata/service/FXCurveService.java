@@ -36,6 +36,8 @@ public interface FXCurveService {
 
 	Set<FXCurve> getAllFXCurves();
 
+	Set<FXCurve> getFXCurvesByPoId(long poId);
+
 	Set<String> getAllGenerationAlgorithms();
 
 	Set<String> getAllInterpolators();

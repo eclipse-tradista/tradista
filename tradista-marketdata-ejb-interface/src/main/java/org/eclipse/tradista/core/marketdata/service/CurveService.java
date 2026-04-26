@@ -39,6 +39,8 @@ public interface CurveService {
 
 	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getAllCurves();
 
+	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getCurvesByPoId(long poId);
+
 	public List<RatePoint> getCurvePointsByCurveAndDate(Curve<? extends LocalDate, ? extends BigDecimal> curve,
 			Year year, Month month) throws TradistaBusinessException;
 

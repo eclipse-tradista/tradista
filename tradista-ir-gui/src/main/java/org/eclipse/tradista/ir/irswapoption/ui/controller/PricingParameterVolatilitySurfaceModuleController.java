@@ -19,23 +19,21 @@ import org.eclipse.tradista.core.marketdata.ui.view.TradistaVolatilitySurfaceCom
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
+import org.eclipse.tradista.ir.common.ui.util.TradistaIRGUIUtil;
 import org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
-import org.eclipse.tradista.ir.irswapoption.service.SwaptionVolatilitySurfaceBusinessDelegate;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
@@ -74,8 +72,6 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	@FXML
 	private ComboBox<SwaptionVolatilitySurface> irSwapOptionVolatilitySurfaceComboBox;
 
-	private SwaptionVolatilitySurfaceBusinessDelegate swaptionVolatilitySurfaceBusinessDelegate;
-
 	@FXML
 	private Button addIRSwapOptionVolatilitySurfaceButton;
 
@@ -84,62 +80,35 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		swaptionVolatilitySurfaceBusinessDelegate = new SwaptionVolatilitySurfaceBusinessDelegate();
+		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index>, TableCell<IRSwapOptionVolatilitySurfaceProperty, Index>> irSwapOptionVolatilitySurfaceIndexCellFactory = _ -> new SwaptionVolatilitySurfaceIndexEditingCell();
 
-		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index>, TableCell<IRSwapOptionVolatilitySurfaceProperty, Index>> irSwapOptionVolatilitySurfaceIndexCellFactory = new Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index>, TableCell<IRSwapOptionVolatilitySurfaceProperty, Index>>() {
-			public TableCell<IRSwapOptionVolatilitySurfaceProperty, Index> call(
-					TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index> p) {
-				return new SwaptionVolatilitySurfaceIndexEditingCell();
-			}
-		};
+		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>, TableCell<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>> irSwapOptionVolatilitySurfaceCellFactory = _ -> new SwaptionVolatilitySurfaceEditingCell();
 
-		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>, TableCell<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>> irSwapOptionVolatilitySurfaceCellFactory = new Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>, TableCell<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>>() {
-			public TableCell<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface> call(
-					TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface> p) {
-				return new SwaptionVolatilitySurfaceEditingCell();
-			}
-		};
-
-		irSwapOptionVolatilitySurfaceIndex
-				.setCellValueFactory(new PropertyValueFactory<IRSwapOptionVolatilitySurfaceProperty, Index>("index"));
+		irSwapOptionVolatilitySurfaceIndex.setCellValueFactory(new PropertyValueFactory<>("index"));
 
 		irSwapOptionVolatilitySurfaceIndex.setCellFactory(irSwapOptionVolatilitySurfaceIndexCellFactory);
 
-		irSwapOptionVolatilitySurfaceIndex
-				.setOnEditCommit(new EventHandler<CellEditEvent<IRSwapOptionVolatilitySurfaceProperty, Index>>() {
-					@Override
-					public void handle(CellEditEvent<IRSwapOptionVolatilitySurfaceProperty, Index> t) {
-						((IRSwapOptionVolatilitySurfaceProperty) t.getTableView().getItems()
-								.get(t.getTablePosition().getRow())).setIndex(t.getNewValue());
-					}
-				});
+		irSwapOptionVolatilitySurfaceIndex.setOnEditCommit(
+				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setIndex(t.getNewValue()));
 
-		irSwapOptionVolatilitySurface.setCellValueFactory(
-				new PropertyValueFactory<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>(
-						"volatilitySurface"));
+		irSwapOptionVolatilitySurface.setCellValueFactory(new PropertyValueFactory<>("volatilitySurface"));
 
 		irSwapOptionVolatilitySurface.setCellFactory(irSwapOptionVolatilitySurfaceCellFactory);
 
-		irSwapOptionVolatilitySurface.setOnEditCommit(
-				new EventHandler<CellEditEvent<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>>() {
-					@Override
-					public void handle(
-							CellEditEvent<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface> t) {
-						((IRSwapOptionVolatilitySurfaceProperty) t.getTableView().getItems()
-								.get(t.getTablePosition().getRow())).setVolatilitySurface(t.getNewValue());
-					}
-				});
+		irSwapOptionVolatilitySurface.setOnEditCommit(t -> t.getTableView().getItems()
+				.get(t.getTablePosition().getRow()).setVolatilitySurface(t.getNewValue()));
 
 		irSwapOptionVolatilitySurfaceIndexComboBox.setPromptText("Index");
 		irSwapOptionVolatilitySurfaceComboBox.setPromptText("IR Swap Option Volatility Surface");
 
 		try {
-			TradistaGUIUtil.fillComboBox(swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-					irSwapOptionVolatilitySurfaceComboBox);
-		} catch (TradistaTechnicalException tte) {
-			errors = new HashMap<String, List<String>>();
+			TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(irSwapOptionVolatilitySurfaceComboBox);
+			TradistaGUIUtil.fillIndexComboBox(irSwapOptionVolatilitySurfaceIndexComboBox);
+		} catch (TradistaTechnicalException _) {
+			errors = new HashMap<>();
 			List<String> err = new ArrayList<>(1);
 			err.add("swaption volatility surfaces");
+			err.add("indices");
 			errors.put("get", err);
 		}
 
@@ -175,7 +144,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				}
 			}
 
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -251,7 +220,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 								.contains(new IRSwapOptionVolatilitySurfaceProperty(newIndex, null))) {
 							errMsg.append(String.format("The Index %s is already in the list.%n", newIndex));
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -268,14 +237,13 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				indexComboBox.setValue(getItem());
 			}
 			indexComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			indexComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!irSwapOptionVolatilitySurfaceTable.getItems()
-								.contains(new IRSwapOptionVolatilitySurfaceProperty(indexComboBox.getValue(), null))) {
-							commitEdit(indexComboBox.getValue());
-						}
+			indexComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					boolean alreadyExists = irSwapOptionVolatilitySurfaceTable.getItems()
+							.contains(new IRSwapOptionVolatilitySurfaceProperty(indexComboBox.getValue(), null));
+
+					if (!alreadyExists) {
+						commitEdit(indexComboBox.getValue());
 					}
 				}
 			});
@@ -338,12 +306,9 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				volatilitySurfaceComboBox.setValue(getItem());
 			}
 			volatilitySurfaceComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			volatilitySurfaceComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit((SwaptionVolatilitySurface) volatilitySurfaceComboBox.getValue());
-					}
+			volatilitySurfaceComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit((SwaptionVolatilitySurface) volatilitySurfaceComboBox.getValue());
 				}
 			});
 		}
@@ -357,25 +322,25 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 
 		PricingParameterVolatilitySurfaceModule module = null;
 		for (PricingParameterModule mod : pricingParam.getModules()) {
-			if (mod instanceof PricingParameterVolatilitySurfaceModule) {
-				module = (PricingParameterVolatilitySurfaceModule) mod;
+			if (mod instanceof PricingParameterVolatilitySurfaceModule vsm) {
+				module = vsm;
 				break;
 			}
 		}
 
 		if (module != null) {
 
-			List<IRSwapOptionVolatilitySurfaceProperty> IRSwapOptionVolatilitySurfacePropertyList = new ArrayList<IRSwapOptionVolatilitySurfaceProperty>();
+			List<IRSwapOptionVolatilitySurfaceProperty> irSwapOptionVolatilitySurfacePropertyList = new ArrayList<>();
 
 			for (Map.Entry<Index, SwaptionVolatilitySurface> entry : module.getVolatilitySurfaces().entrySet()) {
-				IRSwapOptionVolatilitySurfacePropertyList
+				irSwapOptionVolatilitySurfacePropertyList
 						.add(new IRSwapOptionVolatilitySurfaceProperty(entry.getKey(), entry.getValue()));
 			}
 
-			Collections.sort(IRSwapOptionVolatilitySurfacePropertyList);
+			Collections.sort(irSwapOptionVolatilitySurfacePropertyList);
 
 			irSwapOptionVolatilitySurfaceTable
-					.setItems(FXCollections.observableArrayList(IRSwapOptionVolatilitySurfacePropertyList));
+					.setItems(FXCollections.observableArrayList(irSwapOptionVolatilitySurfacePropertyList));
 		} else {
 			irSwapOptionVolatilitySurfaceTable.getItems().clear();
 		}
@@ -392,12 +357,12 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 
 	protected class IRSwapOptionVolatilitySurfaceProperty implements Comparable<IRSwapOptionVolatilitySurfaceProperty> {
 
-		private final SimpleObjectProperty index;
-		private final SimpleObjectProperty volatilitySurface;
+		private final SimpleObjectProperty<Object> index;
+		private final SimpleObjectProperty<Object> volatilitySurface;
 
 		private IRSwapOptionVolatilitySurfaceProperty(Object index, Object volatilitySurface) {
-			this.index = new SimpleObjectProperty(index);
-			this.volatilitySurface = new SimpleObjectProperty(volatilitySurface);
+			this.index = new SimpleObjectProperty<>(index);
+			this.volatilitySurface = new SimpleObjectProperty<>(volatilitySurface);
 		}
 
 		public Object getIndex() {
@@ -457,22 +422,22 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	@FXML
 	public void refresh() {
 		try {
-			TradistaGUIUtil.fillComboBox(swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-					irSwapOptionVolatilitySurfaceComboBox);
+			TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(irSwapOptionVolatilitySurfaceComboBox);
+			TradistaGUIUtil.fillIndexComboBox(irSwapOptionVolatilitySurfaceIndexComboBox);
 			if (errors != null) {
 				errors.clear();
 			}
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			if (errors == null) {
-				errors = new HashMap<String, List<String>>();
+				errors = new HashMap<>();
 			} else {
 				errors.clear();
 			}
 			List<String> err = new ArrayList<>(1);
 			err.add("swaption volatility surfaces");
+			err.add("indices");
 			errors.put("get", err);
 		}
-		TradistaGUIUtil.fillIndexComboBox(irSwapOptionVolatilitySurfaceIndexComboBox);
 
 		updateWindow();
 	}

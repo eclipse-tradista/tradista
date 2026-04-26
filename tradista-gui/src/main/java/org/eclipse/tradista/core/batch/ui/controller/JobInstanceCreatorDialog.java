@@ -4,7 +4,7 @@ import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
-import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,7 +34,7 @@ import javafx.util.Callback;
 
 public class JobInstanceCreatorDialog extends TradistaDialog<TradistaJobInstance> {
 
-	public JobInstanceCreatorDialog() {
+	public JobInstanceCreatorDialog(LegalEntity po) {
 		super();
 
 		setTitle("Job Instance Creation");
@@ -64,8 +64,7 @@ public class JobInstanceCreatorDialog extends TradistaDialog<TradistaJobInstance
 			@Override
 			public TradistaJobInstance call(ButtonType b) {
 				if (b == buttonTypeOk) {
-					return new TradistaJobInstance(nameTextField.getText(), jobTypeComboBox.getValue(),
-							ClientUtil.getCurrentUser().getProcessingOrg());
+					return new TradistaJobInstance(nameTextField.getText(), jobTypeComboBox.getValue(), po);
 				}
 				return null;
 			}

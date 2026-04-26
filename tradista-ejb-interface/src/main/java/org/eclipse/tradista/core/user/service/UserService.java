@@ -30,12 +30,14 @@ public interface UserService {
 
 	long saveUser(User user) throws TradistaBusinessException;
 
-	boolean userLoginExists(String login);
-
 	Set<User> getUsersBySurname(String surname);
 
 	User getUserById(long id);
 
 	User getUserByLogin(String login);
+
+	Set<User> getUsersByPoId(long poId);
+
+	User getUserByFirstNameSurnameAndPoId(String firstName, String surname, long poId);
 
 }

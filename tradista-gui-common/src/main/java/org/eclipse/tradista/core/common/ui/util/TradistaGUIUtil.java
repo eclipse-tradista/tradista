@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
+import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -48,8 +51,19 @@ import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.service.IndexBusinessDelegate;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.marketdata.model.Curve;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.FeedConfig;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
+import org.eclipse.tradista.core.marketdata.model.ZeroCouponCurve;
+import org.eclipse.tradista.core.marketdata.service.CurveBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.service.FXCurveBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.service.FeedBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.SurfaceBusinessDelegate;
 import org.eclipse.tradista.core.position.model.BlankPositionDefinition;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
@@ -61,7 +75,9 @@ import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.core.user.model.User;
+import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.springframework.lang.NonNull;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -79,6 +95,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ProgressBar;
@@ -102,6 +119,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -168,6 +186,14 @@ public final class TradistaGUIUtil {
 	private static LegalEntityBusinessDelegate legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 
 	private static SurfaceBusinessDelegate surfaceBusinessDelegate = new SurfaceBusinessDelegate();
+
+	private static FeedBusinessDelegate feedBusinessDelegate = new FeedBusinessDelegate();
+
+	private static InterestRateCurveBusinessDelegate interestRateCurveBusinessDelegate = new InterestRateCurveBusinessDelegate();
+
+	private static FXCurveBusinessDelegate fxCurveBusinessDelegate = new FXCurveBusinessDelegate();
+
+	private static UserBusinessDelegate userBusinessDelegate = new UserBusinessDelegate();
 
 	private TradistaGUIUtil() {
 	}
@@ -276,7 +302,7 @@ public final class TradistaGUIUtil {
 			errMsg.append(String.format("Node is mandatory.%n"));
 		}
 		if (StringUtils.isEmpty(style)) {
-			errMsg.append(String.format("Style is mandatory.%n"));
+			errMsg.append("Style is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
@@ -292,7 +318,7 @@ public final class TradistaGUIUtil {
 			errMsg.append(String.format("Node is mandatory.%n"));
 		}
 		if (StringUtils.isEmpty(style)) {
-			errMsg.append(String.format("Style is mandatory.%n"));
+			errMsg.append("Style is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());
@@ -430,7 +456,7 @@ public final class TradistaGUIUtil {
 				T element = cb.getValue();
 				cb.setItems(data);
 				if (element != null && data.contains(element)) {
-					cb.getSelectionModel().select(element);
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
 				} else {
 					cb.getSelectionModel().selectFirst();
 				}
@@ -657,22 +683,115 @@ public final class TradistaGUIUtil {
 
 	@SafeVarargs
 	public static void fillPositionDefinitionComboBox(boolean addBlank, ComboBox<PositionDefinition>... comboBoxes) {
-		Set<PositionDefinition> posDefs = positionDefinitionBusinessDelegate.getAllPositionDefinitions();
+		Set<PositionDefinition> posDefs = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				posDefs = positionDefinitionBusinessDelegate
+						.getPositionDefinitionsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			posDefs = positionDefinitionBusinessDelegate.getAllPositionDefinitions();
+		}
+
 		ObservableList<PositionDefinition> data = null;
 		if (posDefs != null && !posDefs.isEmpty()) {
 			data = FXCollections.observableArrayList(posDefs);
 		} else {
 			data = FXCollections.observableArrayList();
 		}
+
 		if (addBlank) {
 			data.add(0, BlankPositionDefinition.getInstance());
 		}
+
+		Callback<ListView<PositionDefinition>, ListCell<PositionDefinition>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(PositionDefinition posDef, boolean empty) {
+				super.updateItem(posDef, empty);
+				if (empty || posDef == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					if (posDef instanceof BlankPositionDefinition) {
+						setText(posDef.toString());
+					} else {
+						setText(posDef.getName() + " [" + posDef.getProcessingOrg().getShortName() + "]");
+					}
+				} else {
+					setText(posDef.getName());
+				}
+			}
+		};
+
 		if (comboBoxes.length > 0) {
 			for (ComboBox<PositionDefinition> cb : comboBoxes) {
 				PositionDefinition element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
 				cb.setItems(data);
 				if (element != null && data.contains(element)) {
-					cb.getSelectionModel().select(element);
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
+	public static void fillFeedConfigComboBox(ComboBox<FeedConfig>... comboBoxes) {
+		fillFeedConfigComboBox(false, comboBoxes);
+	}
+
+	@SafeVarargs
+	public static void fillFeedConfigComboBox(boolean addBlank, ComboBox<FeedConfig>... comboBoxes) {
+		Set<FeedConfig> feedConfigs = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				feedConfigs = feedBusinessDelegate.getFeedConfigsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			feedConfigs = feedBusinessDelegate.getAllFeedConfigs();
+		}
+
+		ObservableList<FeedConfig> data = null;
+		if (feedConfigs != null && !feedConfigs.isEmpty()) {
+			data = FXCollections.observableArrayList(feedConfigs);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		if (addBlank) {
+			data.add(0, null);
+		}
+
+		// cellFactory: controls how items are rendered in the open dropdown list
+		Callback<ListView<FeedConfig>, ListCell<FeedConfig>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(FeedConfig fc, boolean empty) {
+				super.updateItem(fc, empty);
+				if (empty || fc == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = fc.getProcessingOrg() == null ? "Global" : fc.getProcessingOrg().getShortName();
+					setText(fc.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(fc.getName());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<FeedConfig> cb : comboBoxes) {
+				FeedConfig element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
 				} else {
 					cb.getSelectionModel().selectFirst();
 				}
@@ -682,19 +801,160 @@ public final class TradistaGUIUtil {
 
 	@SafeVarargs
 	public static void fillPricingParameterComboBox(ComboBox<PricingParameter>... comboBoxes) {
-		Set<PricingParameter> pp = pricerBusinessDelegate.getAllPricingParameters();
+		fillPricingParameterComboBox(false, comboBoxes);
+	}
+
+	/**
+	 * Fills a Quote Set ComboBox. Disambiguates names for global administrators.
+	 * 
+	 * @param comboBox the ComboBox to fill.
+	 */
+	public static void fillQuoteSetComboBox(ComboBox<QuoteSet> comboBox) {
+		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
+		Set<QuoteSet> quoteSets = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				quoteSets = quoteBusinessDelegate.getQuoteSetsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			quoteSets = quoteBusinessDelegate.getAllQuoteSets();
+		}
+		quoteSets = (quoteSets == null) ? Collections.emptySet() : quoteSets;
+
+		List<QuoteSet> quoteSetsList = new ArrayList<>(quoteSets);
+		Collections.sort(quoteSetsList);
+
+		// cellFactory: controls how items are rendered in the open dropdown list
+		Callback<ListView<QuoteSet>, ListCell<QuoteSet>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(QuoteSet qs, boolean empty) {
+				super.updateItem(qs, empty);
+				if (empty || qs == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = qs.getProcessingOrg() == null ? "Global" : qs.getProcessingOrg().getShortName();
+					setText(qs.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(qs.getName());
+				}
+			}
+		};
+
+		comboBox.setCellFactory(cellFactory);
+		comboBox.setButtonCell(cellFactory.call(null));
+
+		TradistaGUIUtil.fillComboBox(quoteSetsList, comboBox);
+	}
+
+	/**
+	 * Fills a Quote Set ComboBox where items are identified by their names.
+	 * Disambiguates names for global administrators.
+	 * 
+	 * @param comboBox the ComboBox to fill.
+	 */
+	public static void fillQuoteSetComboBox(QuoteSet currentQuoteSet, ComboBox<String> comboBox) {
+		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
+		Set<QuoteSet> quoteSets = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				quoteSets = quoteBusinessDelegate.getQuoteSetsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			quoteSets = quoteBusinessDelegate.getAllQuoteSets();
+		}
+		quoteSets = (quoteSets == null) ? Collections.emptySet() : quoteSets;
+
+		List<QuoteSet> quoteSetsList = new ArrayList<>(quoteSets);
+		Collections.sort(quoteSetsList);
+
+		List<String> names = quoteSetsList.stream().map(QuoteSet::getName).distinct().toList();
+
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+			comboBox.setCellFactory(_ -> new ListCell<String>() {
+				@Override
+				protected void updateItem(String item, boolean empty) {
+					super.updateItem(item, empty);
+					if (item != null && !empty) {
+						List<QuoteSet> matches = quoteSetsList.stream().filter(qs -> qs.getName().equals(item))
+								.toList();
+						if (matches.size() > 1) {
+							// If there are multiple quote sets with the same name, we can't easily
+							// disambiguate in a String-only combobox without changing the values.
+							// However, we can show the PO in the list cell.
+							// Note: selecting one will only set the String name as the value.
+							setText(item + " (Multiple POs)");
+						} else if (!matches.isEmpty()) {
+							QuoteSet qs = matches.get(0);
+							String poSuffix = qs.getProcessingOrg() == null ? "Global"
+									: qs.getProcessingOrg().getShortName();
+							setText(item + " [" + poSuffix + "]");
+						} else {
+							setText(item);
+						}
+					} else {
+						setText(null);
+					}
+				}
+			});
+			// Note: Button cell is not set here because it would be confusing if the value
+			// is just a String.
+		}
+
+		TradistaGUIUtil.fillComboBox(names, comboBox);
+
+		if (currentQuoteSet != null) {
+			comboBox.setValue(currentQuoteSet.getName());
+		}
+	}
+
+	@SafeVarargs
+	public static void fillPricingParameterComboBox(boolean addBlank, ComboBox<PricingParameter>... comboBoxes) {
+		Set<PricingParameter> pps = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				pps = pricerBusinessDelegate.getPricingParametersByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			pps = pricerBusinessDelegate.getAllPricingParameters();
+		}
+
 		ObservableList<PricingParameter> data = null;
-		if (pp != null && !pp.isEmpty()) {
-			data = FXCollections.observableArrayList(pp);
+		if (pps != null && !pps.isEmpty()) {
+			data = FXCollections.observableArrayList(pps);
 		} else {
 			data = FXCollections.observableArrayList();
 		}
+
+		// cellFactory: controls how items are rendered in the open dropdown list
+		Callback<ListView<PricingParameter>, ListCell<PricingParameter>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(PricingParameter pp, boolean empty) {
+				super.updateItem(pp, empty);
+				if (empty || pp == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = pp.getProcessingOrg() == null ? "Global" : pp.getProcessingOrg().getShortName();
+					setText(pp.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(pp.getName());
+				}
+			}
+		};
+
 		if (comboBoxes.length > 0) {
 			for (ComboBox<PricingParameter> cb : comboBoxes) {
 				PricingParameter element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
 				cb.setItems(data);
 				if (element != null && data.contains(element)) {
-					cb.getSelectionModel().select(element);
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
 				} else {
 					cb.getSelectionModel().selectFirst();
 				}
@@ -769,17 +1029,326 @@ public final class TradistaGUIUtil {
 	}
 
 	@SafeVarargs
+	public static void fillInterestRateCurveComboBox(ComboBox<InterestRateCurve>... comboBoxes) {
+		Set<InterestRateCurve> curves = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			curves = interestRateCurveBusinessDelegate
+					.getInterestRateCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+		} else {
+			curves = interestRateCurveBusinessDelegate.getAllInterestRateCurves();
+		}
+		ObservableList<InterestRateCurve> data = null;
+		if (curves != null && !curves.isEmpty()) {
+			data = FXCollections.observableArrayList(curves);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		Callback<ListView<InterestRateCurve>, ListCell<InterestRateCurve>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(InterestRateCurve curve, boolean empty) {
+				super.updateItem(curve, empty);
+				if (empty || curve == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+							: curve.getProcessingOrg().getShortName();
+					setText(curve.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(curve.getName());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<InterestRateCurve> cb : comboBoxes) {
+				InterestRateCurve element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
+	public static void fillZeroCouponCurveComboBox(ComboBox<ZeroCouponCurve>... comboBoxes) {
+		Set<ZeroCouponCurve> curves = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			curves = interestRateCurveBusinessDelegate
+					.getZeroCouponCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+		} else {
+			curves = interestRateCurveBusinessDelegate.getAllZeroCouponCurves();
+		}
+		ObservableList<ZeroCouponCurve> data = null;
+		if (curves != null && !curves.isEmpty()) {
+			data = FXCollections.observableArrayList(curves);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		Callback<ListView<ZeroCouponCurve>, ListCell<ZeroCouponCurve>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(ZeroCouponCurve curve, boolean empty) {
+				super.updateItem(curve, empty);
+				if (empty || curve == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+							: curve.getProcessingOrg().getShortName();
+					setText(curve.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(curve.getName());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<ZeroCouponCurve> cb : comboBoxes) {
+				ZeroCouponCurve element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
+	public static void fillFXCurveComboBox(ComboBox<FXCurve>... comboBoxes) {
+		Set<FXCurve> curves = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			curves = fxCurveBusinessDelegate.getFXCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+		} else {
+			curves = fxCurveBusinessDelegate.getAllFXCurves();
+		}
+		ObservableList<FXCurve> data = null;
+		if (curves != null && !curves.isEmpty()) {
+			data = FXCollections.observableArrayList(curves);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		Callback<ListView<FXCurve>, ListCell<FXCurve>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(FXCurve curve, boolean empty) {
+				super.updateItem(curve, empty);
+				if (empty || curve == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+							: curve.getProcessingOrg().getShortName();
+					setText(curve.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(curve.getName());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<FXCurve> cb : comboBoxes) {
+				FXCurve element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
+	public static void fillCurveComboBox(ComboBox<Curve<? extends LocalDate, ? extends BigDecimal>>... comboBoxes) {
+		Set<Curve<? extends LocalDate, ? extends BigDecimal>> curves = null;
+		CurveBusinessDelegate curveBusinessDelegate = new CurveBusinessDelegate();
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			curves = curveBusinessDelegate.getCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+		} else {
+			curves = curveBusinessDelegate.getAllCurves();
+		}
+		ObservableList<Curve<? extends LocalDate, ? extends BigDecimal>> data = null;
+		if (curves != null && !curves.isEmpty()) {
+			data = FXCollections.observableArrayList(curves);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		Callback<ListView<Curve<? extends LocalDate, ? extends BigDecimal>>, ListCell<Curve<? extends LocalDate, ? extends BigDecimal>>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(Curve<? extends LocalDate, ? extends BigDecimal> curve, boolean empty) {
+				super.updateItem(curve, empty);
+				if (empty || curve == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+							: curve.getProcessingOrg().getShortName();
+					setText(curve.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(curve.getName());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<Curve<? extends LocalDate, ? extends BigDecimal>> cb : comboBoxes) {
+				Curve<? extends LocalDate, ? extends BigDecimal> element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(data.get(data.indexOf(element)));
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
 	public static void fillBookComboBox(ComboBox<Book>... comboBoxes) {
-		Set<Book> books = bookBusinessDelegate.getAllBooks();
+		Set<Book> books = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				books = bookBusinessDelegate.getBooksByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			books = bookBusinessDelegate.getAllBooks();
+		}
+
 		ObservableList<Book> data = null;
 		if (books != null && !books.isEmpty()) {
 			data = FXCollections.observableArrayList(books);
 		} else {
 			data = FXCollections.observableArrayList();
 		}
+
+		Callback<ListView<Book>, ListCell<Book>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(Book book, boolean empty) {
+				super.updateItem(book, empty);
+				if (empty || book == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					setText(book.getName() + " [" + book.getProcessingOrg().getShortName() + "]");
+				} else {
+					setText(book.getName());
+				}
+			}
+		};
+
 		if (comboBoxes.length > 0) {
 			for (ComboBox<Book> cb : comboBoxes) {
 				Book element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(element);
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
+	public static void fillUserComboBox(ComboBox<User>... comboBoxes) {
+		Set<User> users = userBusinessDelegate.getAllUsers();
+		ObservableList<User> data = null;
+		if (users != null && !users.isEmpty()) {
+			data = FXCollections.observableArrayList(users);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		Callback<ListView<User>, ListCell<User>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(User user, boolean empty) {
+				super.updateItem(user, empty);
+				if (empty || user == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poName = user.getProcessingOrg() != null
+							? " [" + user.getProcessingOrg().getShortName() + "]"
+							: " [Admin]";
+					setText(user.getSurname() + poName);
+				} else {
+					setText(user.getSurname());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<User> cb : comboBoxes) {
+				User element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
+				cb.setItems(data);
+				if (element != null && data.contains(element)) {
+					cb.getSelectionModel().select(element);
+				} else {
+					cb.getSelectionModel().selectFirst();
+				}
+			}
+		}
+	}
+
+	@SafeVarargs
+	public static void fillJobInstanceComboBox(ComboBox<TradistaJobInstance>... comboBoxes) {
+		Set<TradistaJobInstance> jobInstances = null;
+		BatchBusinessDelegate batchBusinessDelegate = new BatchBusinessDelegate();
+		try {
+			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+				jobInstances = batchBusinessDelegate
+						.getAllJobInstances(ClientUtil.getCurrentProcessingOrg().getShortName());
+			} else {
+				jobInstances = batchBusinessDelegate.getAllJobInstances(null);
+			}
+		} catch (TradistaBusinessException _) {
+			// Not expected here
+		}
+
+		ObservableList<TradistaJobInstance> data = null;
+		if (jobInstances != null && !jobInstances.isEmpty()) {
+			data = FXCollections.observableArrayList(jobInstances);
+		} else {
+			data = FXCollections.observableArrayList();
+		}
+
+		Callback<ListView<TradistaJobInstance>, ListCell<TradistaJobInstance>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(TradistaJobInstance job, boolean empty) {
+				super.updateItem(job, empty);
+				if (empty || job == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poName = job.getProcessingOrg() != null ? " [" + job.getProcessingOrg().getShortName() + "]"
+							: " [Global]";
+					setText(job.getName() + poName);
+				} else {
+					setText(job.getName());
+				}
+			}
+		};
+
+		if (comboBoxes.length > 0) {
+			for (ComboBox<TradistaJobInstance> cb : comboBoxes) {
+				TradistaJobInstance element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
 				cb.setItems(data);
 				if (element != null && data.contains(element)) {
 					cb.getSelectionModel().select(element);
@@ -814,7 +1383,12 @@ public final class TradistaGUIUtil {
 
 	@SafeVarargs
 	public static void fillSurfaceComboBox(String surfaceType, ComboBox<VolatilitySurface<?, ?, ?>>... comboBoxes) {
-		List<VolatilitySurface<?, ?, ?>> surfaces = surfaceBusinessDelegate.getSurfaces(surfaceType);
+		List<VolatilitySurface<?, ?, ?>> surfaces = null;
+		try {
+			surfaces = surfaceBusinessDelegate.getSurfaces(surfaceType);
+		} catch (TradistaBusinessException _) {
+			// Not expected here
+		}
 		ObservableList<VolatilitySurface<?, ?, ?>> data = null;
 		if (surfaces != null && !surfaces.isEmpty()) {
 			data = FXCollections.observableArrayList(surfaces);

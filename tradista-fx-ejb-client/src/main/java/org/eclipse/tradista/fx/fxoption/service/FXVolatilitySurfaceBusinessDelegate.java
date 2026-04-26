@@ -41,7 +41,7 @@ public class FXVolatilitySurfaceBusinessDelegate {
 	private static Map<String, Number> optionExpiries;
 
 	{
-		optionExpiries = new HashMap<String, Number>(10);
+		optionExpiries = HashMap.newHashMap(10);
 		optionExpiries.put("1M", 30);
 		optionExpiries.put("3M", 91);
 		optionExpiries.put("6M", 183);
@@ -59,6 +59,13 @@ public class FXVolatilitySurfaceBusinessDelegate {
 
 	public Set<FXVolatilitySurface> getAllFXVolatilitySurfaces() {
 		return SecurityUtil.run(() -> fxVolatilitySurfaceService.getAllFXVolatilitySurfaces());
+	}
+
+	public Set<FXVolatilitySurface> getFXVolatilitySurfacesByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
+		return SecurityUtil.run(() -> fxVolatilitySurfaceService.getFXVolatilitySurfacesByPoId(poId));
 	}
 
 	public FXVolatilitySurface getFXVolatilitySurfaceByName(String name) {
@@ -120,7 +127,7 @@ public class FXVolatilitySurfaceBusinessDelegate {
 			errMsg.append(String.format("The quote set is mandatory.%n"));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> fxVolatilitySurfaceService.generate(algorithm, interpolator, instance, quoteDate,

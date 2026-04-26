@@ -55,7 +55,7 @@ public class PricingParameterVolatilitySurfaceModuleValidator implements Pricing
 				}
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
@@ -68,7 +68,7 @@ public class PricingParameterVolatilitySurfaceModuleValidator implements Pricing
 				FXVolatilitySurface vol = null;
 				try {
 					vol = fxVolatilitySurfaceBusinessDelegate.getFXVolatilitySurfaceById(surface.getId());
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Not expected here.
 				}
 				if (vol == null) {

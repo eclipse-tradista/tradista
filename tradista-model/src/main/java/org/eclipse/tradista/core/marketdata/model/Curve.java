@@ -36,6 +36,8 @@ public abstract class Curve<X, Y> extends TradistaObject implements MarketData {
 	@Id
 	private LegalEntity processingOrg;
 
+	abstract String getType();
+
 	public Curve(String name, LegalEntity po) {
 		this.name = name;
 		processingOrg = po;

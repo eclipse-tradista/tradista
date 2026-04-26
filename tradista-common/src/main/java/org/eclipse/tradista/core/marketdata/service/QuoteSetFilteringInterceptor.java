@@ -44,8 +44,10 @@ public class QuoteSetFilteringInterceptor extends TradistaAuthorizationFiltering
 
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameters.length > 0) {
-			if (parameters[0] instanceof QuoteSet) {
+			if (parameterTypes[0].equals(QuoteSet.class)) {
 				QuoteSet quoteSet = (QuoteSet) parameters[0];
 				StringBuilder errMsg = new StringBuilder();
 				if (quoteSet.getId() != 0) {
@@ -62,13 +64,12 @@ public class QuoteSetFilteringInterceptor extends TradistaAuthorizationFiltering
 						&& !quoteSet.getProcessingOrg().equals(getCurrentUser().getProcessingOrg())) {
 					errMsg.append(String.format("The processing org %s was not found.", quoteSet.getProcessingOrg()));
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}
-			if (parameters[0] instanceof Long) {
-				Method method = ic.getMethod();
-				if (!method.getName().equals("getQuoteSetById")) {
+			if (parameterTypes[0].equals(Long.class)) {
+				if (!method.getName().equals("getQuoteSetById") && !method.getName().equals("getQuoteSetsByPoId")) {
 					Long quoteSetId = (Long) parameters[0];
 					StringBuilder errMsg = new StringBuilder();
 					if (quoteSetId != 0) {
@@ -83,8 +84,18 @@ public class QuoteSetFilteringInterceptor extends TradistaAuthorizationFiltering
 							}
 						}
 					}
-					if (errMsg.length() > 0) {
+					if (!errMsg.isEmpty()) {
 						throw new TradistaBusinessException(errMsg.toString());
+					}
+				}
+				if (method.getName().equals("getQuoteSetsByPoId")) {
+					Long poId = (Long) parameters[0];
+					if (poId != 0 && (getCurrentUser().getProcessingOrg() == null
+							|| poId != getCurrentUser().getProcessingOrg().getId())) {
+						if (getCurrentUser().getProcessingOrg() != null) {
+							throw new TradistaBusinessException(
+									"You are not allowed to access QuoteSets from this PO.");
+						}
 					}
 				}
 			}
@@ -104,8 +115,7 @@ public class QuoteSetFilteringInterceptor extends TradistaAuthorizationFiltering
 							.collect(Collectors.toSet());
 				}
 			}
-			if (value instanceof QuoteSet) {
-				QuoteSet qs = (QuoteSet) value;
+			if (value instanceof QuoteSet qs) {
 				if (qs.getProcessingOrg() != null
 						&& !qs.getProcessingOrg().equals(getCurrentUser().getProcessingOrg())) {
 					value = null;

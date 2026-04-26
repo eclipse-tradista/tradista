@@ -53,6 +53,12 @@ public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVol
 
 	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
+	public Set<EquityOptionVolatilitySurface> getEquityOptionVolatilitySurfacesByPoId(long poId) {
+		return EquityOptionVolatilitySurfaceSQL.getEquityOptionVolatilitySurfacesByPoId(poId);
+	}
+
+	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
+	@Override
 	public EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(long id) {
 		return EquityOptionVolatilitySurfaceSQL.getEquityOptionVolatilitySurfaceById(id);
 	}
@@ -107,7 +113,9 @@ public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVol
 			EquityOptionVolatilitySurface oldSurface = EquityOptionVolatilitySurfaceSQL
 					.getEquityOptionVolatilitySurfaceById(surface.getId());
 			if (!oldSurface.getName().equals(surface.getName())
-					|| !oldSurface.getProcessingOrg().equals(surface.getProcessingOrg())) {
+					|| (oldSurface.getProcessingOrg() == null && surface.getProcessingOrg() != null)
+					|| (oldSurface.getProcessingOrg() != null
+							&& !oldSurface.getProcessingOrg().equals(surface.getProcessingOrg()))) {
 				checkSurfaceExistence(surface);
 			}
 		}

@@ -31,6 +31,19 @@ public interface Importer<X> extends Runnable {
 
 	LegalEntity getProcessingOrg();
 
+	/**
+	 * Identifies the Processing Org involved in the processing of the external
+	 * message. By default, returns the Importer's configured Processing Org.
+	 * 
+	 * @param externalMessage the external message being processed
+	 * @return the ProcessingOrg associated with the message
+	 * @throws TradistaBusinessException if the Processing Org cannot be identified
+	 *                                   from the message
+	 */
+	default LegalEntity getMessageProcessingOrg(X externalMessage) throws TradistaBusinessException {
+		return getProcessingOrg();
+	}
+
 	void importMessage(X externalMessage) throws TradistaBusinessException;
 
 	/**

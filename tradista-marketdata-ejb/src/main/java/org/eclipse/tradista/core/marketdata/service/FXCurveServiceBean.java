@@ -52,6 +52,12 @@ public class FXCurveServiceBean implements FXCurveService {
 	}
 
 	@Interceptors(CurveFilteringInterceptor.class)
+	@Override
+	public Set<FXCurve> getFXCurvesByPoId(long poId) {
+		return FXCurveSQL.getFXCurvesByPoId(poId);
+	}
+
+	@Interceptors(CurveFilteringInterceptor.class)
 	public List<RatePoint> getFXCurvePointsByCurveIdAndDate(long curveId, Year year, Month month)
 			throws TradistaBusinessException {
 		return FXCurveSQL.getAllFXCurvePointsByCurveIdAndDate(curveId, year, month);
@@ -82,7 +88,10 @@ public class FXCurveServiceBean implements FXCurveService {
 			checkCurveExistence(curve);
 		} else {
 			FXCurve oldFXCurve = FXCurveSQL.getFXCurveById(curve.getId());
-			if (!oldFXCurve.getName().equals(oldFXCurve.getName())) {
+			if (!oldFXCurve.getName().equals(curve.getName())
+					|| (oldFXCurve.getProcessingOrg() == null && curve.getProcessingOrg() != null)
+					|| (oldFXCurve.getProcessingOrg() != null
+							&& !oldFXCurve.getProcessingOrg().equals(curve.getProcessingOrg()))) {
 				checkCurveExistence(curve);
 			}
 		}

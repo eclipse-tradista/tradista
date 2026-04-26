@@ -1,12 +1,8 @@
 package org.eclipse.tradista.core.marketdata.ui.view;
 
-import java.util.Set;
-
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
-import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 
 /********************************************************************************
@@ -28,15 +24,7 @@ import javafx.scene.control.ComboBox;
 public class TradistaQuoteSetComboBox extends ComboBox<QuoteSet> {
 
 	public TradistaQuoteSetComboBox() {
-		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
-		Set<QuoteSet> quoteSets = quoteBusinessDelegate.getAllQuoteSets();
-		ObservableList<QuoteSet> quoteSetsObservableList = null;
-		if (quoteSets == null) {
-			quoteSetsObservableList = FXCollections.emptyObservableList();
-		} else {
-			quoteSetsObservableList = FXCollections.observableArrayList(quoteSets);
-		}
-		setItems(quoteSetsObservableList);
+		TradistaGUIUtil.fillQuoteSetComboBox(this);
 	}
 
 	private QuoteSet model;

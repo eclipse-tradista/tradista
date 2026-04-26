@@ -13,7 +13,6 @@ import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
-import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
@@ -28,14 +27,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
@@ -77,63 +74,31 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	@FXML
 	private Button addDividendYieldCurveButton;
 
-	private InterestRateCurveBusinessDelegate interestRateCurveBusinessDelegate;
-
 	private Map<String, List<String>> errors;
 
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		interestRateCurveBusinessDelegate = new InterestRateCurveBusinessDelegate();
+		Callback<TableColumn<DividendYieldCurveProperty, Equity>, TableCell<DividendYieldCurveProperty, Equity>> dividendYieldCurveEquityCellFactory = _ -> new DividendYieldCurveEquityEditingCell();
+		Callback<TableColumn<DividendYieldCurveProperty, InterestRateCurve>, TableCell<DividendYieldCurveProperty, InterestRateCurve>> dividendYieldCurveCellFactory = _ -> new DividendYieldCurveEditingCell();
 
-		Callback<TableColumn<DividendYieldCurveProperty, Equity>, TableCell<DividendYieldCurveProperty, Equity>> dividendYieldCurveEquityCellFactory = new Callback<TableColumn<DividendYieldCurveProperty, Equity>, TableCell<DividendYieldCurveProperty, Equity>>() {
-			public TableCell<DividendYieldCurveProperty, Equity> call(
-					TableColumn<DividendYieldCurveProperty, Equity> p) {
-				return new DividendYieldCurveEquityEditingCell();
-			}
-		};
-
-		Callback<TableColumn<DividendYieldCurveProperty, InterestRateCurve>, TableCell<DividendYieldCurveProperty, InterestRateCurve>> dividendYieldCurveCellFactory = new Callback<TableColumn<DividendYieldCurveProperty, InterestRateCurve>, TableCell<DividendYieldCurveProperty, InterestRateCurve>>() {
-			public TableCell<DividendYieldCurveProperty, InterestRateCurve> call(
-					TableColumn<DividendYieldCurveProperty, InterestRateCurve> p) {
-				return new DividendYieldCurveEditingCell();
-			}
-		};
-
-		equity.setCellValueFactory(new PropertyValueFactory<DividendYieldCurveProperty, Equity>("equity"));
-
+		equity.setCellValueFactory(new PropertyValueFactory<>("equity"));
 		equity.setCellFactory(dividendYieldCurveEquityCellFactory);
+		equity.setOnEditCommit(
+				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setEquity(t.getNewValue()));
 
-		equity.setOnEditCommit(new EventHandler<CellEditEvent<DividendYieldCurveProperty, Equity>>() {
-			@Override
-			public void handle(CellEditEvent<DividendYieldCurveProperty, Equity> t) {
-				((DividendYieldCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setEquity(t.getNewValue());
-			}
-		});
-
-		dividendYieldCurve
-				.setCellValueFactory(new PropertyValueFactory<DividendYieldCurveProperty, InterestRateCurve>("curve"));
-
+		dividendYieldCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
 		dividendYieldCurve.setCellFactory(dividendYieldCurveCellFactory);
-
-		dividendYieldCurve
-				.setOnEditCommit(new EventHandler<CellEditEvent<DividendYieldCurveProperty, InterestRateCurve>>() {
-					@Override
-					public void handle(CellEditEvent<DividendYieldCurveProperty, InterestRateCurve> t) {
-						((DividendYieldCurveProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-								.setCurve(t.getNewValue());
-					}
-				});
+		dividendYieldCurve.setOnEditCommit(
+				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setCurve(t.getNewValue()));
 
 		equityComboBox.setPromptText("Equity");
 		dividendYieldCurveComboBox.setPromptText("Dividend Yield Curve");
-
+		TradistaSecurityGUIUtil.fillEquityComboBox(equityComboBox);
 		try {
-			TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterestRateCurves(),
-					dividendYieldCurveComboBox);
-		} catch (TradistaTechnicalException tte) {
-			errors = new HashMap<String, List<String>>();
+			TradistaGUIUtil.fillInterestRateCurveComboBox(dividendYieldCurveComboBox);
+		} catch (TradistaTechnicalException _) {
+			errors = new HashMap<>();
 			List<String> err = new ArrayList<>(1);
 			err.add("dividend yield curves");
 			errors.put("get", err);
@@ -170,7 +135,7 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 				}
 			}
 
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -244,7 +209,7 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 								.contains(new DividendYieldCurveProperty(newEquity, null))) {
 							errMsg.append(String.format("The Equity %s is already in the list.%n", newEquity));
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -261,14 +226,11 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 				equityComboBox.setValue(getItem());
 			}
 			equityComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			equityComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!dividendYieldCurveTable.getItems()
-								.contains(new DividendYieldCurveProperty(equityComboBox.getValue(), null))) {
-							commitEdit(equityComboBox.getValue());
-						}
+			equityComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					if (!dividendYieldCurveTable.getItems()
+							.contains(new DividendYieldCurveProperty(equityComboBox.getValue(), null))) {
+						commitEdit(equityComboBox.getValue());
 					}
 				}
 			});
@@ -330,12 +292,9 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 				interestRateCurveComboBox.setValue(getItem());
 			}
 			interestRateCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			interestRateCurveComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(interestRateCurveComboBox.getValue());
-					}
+			interestRateCurveComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit(interestRateCurveComboBox.getValue());
 				}
 			});
 		}
@@ -349,15 +308,15 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 
 		PricingParameterDividendYieldCurveModule module = null;
 		for (PricingParameterModule mod : pricingParam.getModules()) {
-			if (mod instanceof PricingParameterDividendYieldCurveModule) {
-				module = (PricingParameterDividendYieldCurveModule) mod;
+			if (mod instanceof PricingParameterDividendYieldCurveModule ppdycm) {
+				module = ppdycm;
 				break;
 			}
 		}
 
 		if (module != null) {
 
-			List<DividendYieldCurveProperty> dividendYieldCurvePropertyList = new ArrayList<DividendYieldCurveProperty>();
+			List<DividendYieldCurveProperty> dividendYieldCurvePropertyList = new ArrayList<>();
 
 			for (Map.Entry<Equity, InterestRateCurve> entry : module.getDividendYieldCurves().entrySet()) {
 				dividendYieldCurvePropertyList.add(new DividendYieldCurveProperty(entry.getKey(), entry.getValue()));
@@ -381,12 +340,12 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 
 	protected class DividendYieldCurveProperty implements Comparable<DividendYieldCurveProperty> {
 
-		private final SimpleObjectProperty equity;
-		private final SimpleObjectProperty curve;
+		private final SimpleObjectProperty<Object> equity;
+		private final SimpleObjectProperty<Object> curve;
 
 		private DividendYieldCurveProperty(Object equity, Object curve) {
-			this.equity = new SimpleObjectProperty(equity);
-			this.curve = new SimpleObjectProperty(curve);
+			this.equity = new SimpleObjectProperty<>(equity);
+			this.curve = new SimpleObjectProperty<>(curve);
 		}
 
 		public Object getEquity() {
@@ -447,14 +406,13 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	public void refresh() {
 		TradistaSecurityGUIUtil.fillEquityComboBox(equityComboBox);
 		try {
-			TradistaGUIUtil.fillComboBox(interestRateCurveBusinessDelegate.getAllInterestRateCurves(),
-					dividendYieldCurveComboBox);
+			TradistaGUIUtil.fillInterestRateCurveComboBox(dividendYieldCurveComboBox);
 			if (errors != null) {
 				errors.clear();
 			}
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			if (errors == null) {
-				errors = new HashMap<String, List<String>>();
+				errors = new HashMap<>();
 			} else {
 				errors.clear();
 			}

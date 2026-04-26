@@ -128,7 +128,7 @@ public final class Field implements Expression {
 
 	public void setTable(Table table) {
 		if (this.table != null) {
-			throw new IllegalStateException(String.format("The %s field has already a table (%s).", name, table));
+			throw new IllegalStateException(String.format("The %s field has already a table (%s).", name, this.table));
 		}
 		this.table = table;
 	}

@@ -50,9 +50,22 @@ public class InterestRateCurveServiceBean implements InterestRateCurveService {
 		return InterestRateCurveSQL.getAllInterestRateCurves();
 	}
 
+	@Interceptors(CurveFilteringInterceptor.class)
+	@Override
+	public Set<InterestRateCurve> getInterestRateCurvesByPoId(long poId) {
+		return InterestRateCurveSQL.getInterestRateCurvesByPoId(poId);
+	}
+
+	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<ZeroCouponCurve> getAllZeroCouponCurves() {
 		return InterestRateCurveSQL.getAllZeroCouponCurves();
+	}
+
+	@Interceptors(CurveFilteringInterceptor.class)
+	@Override
+	public Set<ZeroCouponCurve> getZeroCouponCurvesByPoId(long poId) {
+		return InterestRateCurveSQL.getZeroCouponCurvesByPoId(poId);
 	}
 
 	@Interceptors(CurveFilteringInterceptor.class)
@@ -105,8 +118,10 @@ public class InterestRateCurveServiceBean implements InterestRateCurveService {
 			checkCurveExistence(curve);
 		} else {
 			InterestRateCurve oldInterestRateCurve = InterestRateCurveSQL.getInterestRateCurveById(curve.getId());
-			if (!oldInterestRateCurve.getName().equals(oldInterestRateCurve.getName())
-					|| !oldInterestRateCurve.getProcessingOrg().equals(oldInterestRateCurve.getProcessingOrg())) {
+			if (!oldInterestRateCurve.getName().equals(curve.getName())
+					|| (oldInterestRateCurve.getProcessingOrg() == null && curve.getProcessingOrg() != null)
+					|| (oldInterestRateCurve.getProcessingOrg() != null
+							&& !oldInterestRateCurve.getProcessingOrg().equals(curve.getProcessingOrg()))) {
 				checkCurveExistence(curve);
 			}
 		}

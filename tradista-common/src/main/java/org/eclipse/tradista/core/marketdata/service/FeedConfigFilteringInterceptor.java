@@ -44,8 +44,10 @@ public class FeedConfigFilteringInterceptor extends TradistaAuthorizationFilteri
 
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameters.length > 0) {
-			if (parameters[0] instanceof FeedConfig) {
+			if (parameterTypes[0].equals(FeedConfig.class)) {
 				FeedConfig feedConfig = (FeedConfig) parameters[0];
 				StringBuilder errMsg = new StringBuilder();
 				if (feedConfig.getId() != 0) {
@@ -62,12 +64,11 @@ public class FeedConfigFilteringInterceptor extends TradistaAuthorizationFilteri
 						&& !feedConfig.getProcessingOrg().equals(getCurrentUser().getProcessingOrg())) {
 					errMsg.append(String.format("The processing org %s was not found.", feedConfig.getProcessingOrg()));
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}
-			if (parameters[0] instanceof Long) {
-				Method method = ic.getMethod();
+			if (parameterTypes[0].equals(Long.class)) {
 				if (method.getName().equals("deleteFeedConfig")) {
 					Long feedConfigId = (Long) parameters[0];
 					StringBuilder errMsg = new StringBuilder();
@@ -81,8 +82,15 @@ public class FeedConfigFilteringInterceptor extends TradistaAuthorizationFilteri
 									feedConfigId));
 						}
 					}
-					if (errMsg.length() > 0) {
+					if (!errMsg.isEmpty()) {
 						throw new TradistaBusinessException(errMsg.toString());
+					}
+				}
+				if (method.getName().equals("getFeedConfigsByPoId")) {
+					Long poId = (Long) parameters[0];
+					if (poId != getCurrentUser().getProcessingOrg().getId()) {
+						throw new TradistaBusinessException(
+								"You are not allowed to access Feed Configs of this Processing Org.");
 					}
 				}
 			}

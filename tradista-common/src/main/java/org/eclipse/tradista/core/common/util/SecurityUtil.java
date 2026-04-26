@@ -7,6 +7,8 @@ import javax.security.sasl.SaslException;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.jboss.ejb.client.RequestSendFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wildfly.common.function.ExceptionConsumer;
 import org.wildfly.common.function.ExceptionSupplier;
 import org.wildfly.security.auth.client.AuthenticationConfiguration;
@@ -38,6 +40,8 @@ import jakarta.ejb.NoSuchEJBException;
 
 public final class SecurityUtil {
 
+	private static final Logger logger = LoggerFactory.getLogger(SecurityUtil.class);
+
 	private static final String LOGON_DENIED = "Logon denied.";
 
 	private static AuthenticationContext authenticationContext;
@@ -65,8 +69,7 @@ public final class SecurityUtil {
 						Throwable supprCauseException = suppressedException.getCause();
 						if (supprCauseException != null) {
 							if (supprCauseException instanceof SaslException) {
-								// TODO Add Log error
-								supprCauseException.printStackTrace();
+								logger.error(supprCauseException.getMessage());
 								throw new TradistaTechnicalException(LOGON_DENIED);
 							}
 						}
@@ -89,8 +92,7 @@ public final class SecurityUtil {
 						Throwable supprCauseException = suppressedException.getCause();
 						if (supprCauseException != null) {
 							if (supprCauseException instanceof SaslException) {
-								// TODO Add Log error
-								supprCauseException.printStackTrace();
+								logger.error(supprCauseException.getMessage());
 								throw new TradistaTechnicalException(LOGON_DENIED);
 							}
 						}
@@ -117,8 +119,7 @@ public final class SecurityUtil {
 						Throwable supprCauseException = suppressedException.getCause();
 						if (supprCauseException != null) {
 							if (supprCauseException instanceof SaslException) {
-								// TODO Add Log error
-								supprCauseException.printStackTrace();
+								logger.error(supprCauseException.getMessage());
 								throw new TradistaTechnicalException(LOGON_DENIED);
 							}
 						}
@@ -145,8 +146,7 @@ public final class SecurityUtil {
 						Throwable supprCauseException = suppressedException.getCause();
 						if (supprCauseException != null) {
 							if (supprCauseException instanceof SaslException) {
-								// TODO Add Log error
-								supprCauseException.printStackTrace();
+								logger.error(supprCauseException.getMessage());
 								throw new TradistaTechnicalException(LOGON_DENIED);
 							}
 						}
@@ -173,8 +173,7 @@ public final class SecurityUtil {
 						Throwable supprCauseException = suppressedException.getCause();
 						if (supprCauseException != null) {
 							if (supprCauseException instanceof SaslException) {
-								// TODO Add Log error
-								supprCauseException.printStackTrace();
+								logger.error(supprCauseException.getMessage());
 								throw new TradistaTechnicalException(LOGON_DENIED);
 							}
 						}

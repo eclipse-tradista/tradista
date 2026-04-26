@@ -23,9 +23,12 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.error.ui.view.TradistaErrorTypeComboBox;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaFeedConfigComboBox;
@@ -114,6 +117,21 @@ public class JobsController extends TradistaControllerAdapter {
 	private TableColumn<JobExecutionProperty, List<Button>> executionActions;
 
 	@FXML
+	private Button loadButton;
+
+	@FXML
+	private Button saveButton;
+
+	@FXML
+	private Button copyButton;
+
+	@FXML
+	private Button runButton;
+
+	@FXML
+	private Button deleteButton;
+
+	@FXML
 	private ComboBox<TradistaJobInstance> jobInstance;
 
 	@FXML
@@ -143,7 +161,7 @@ public class JobsController extends TradistaControllerAdapter {
 
 		propertyName.setCellValueFactory(cellData -> cellData.getValue().getName());
 
-		propertyValue.setCellFactory(tc -> new EditingCell());
+		propertyValue.setCellFactory(_ -> new EditingCell());
 
 		propertyValue.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setValue(cee.getNewValue()));
@@ -166,7 +184,7 @@ public class JobsController extends TradistaControllerAdapter {
 
 		executionActions.setCellValueFactory(cellData -> cellData.getValue().getActions());
 
-		executionActions.setCellFactory(tc -> new ExecutionActionsCellFactory());
+		executionActions.setCellFactory(_ -> new ExecutionActionsCellFactory());
 
 		jobExecutionDate.setValue(LocalDate.now());
 
@@ -174,12 +192,12 @@ public class JobsController extends TradistaControllerAdapter {
 				? ClientUtil.getCurrentUser().getProcessingOrg().getShortName()
 				: null;
 
-		try {
-			TradistaGUIUtil.fillComboBox(batchBusinessDelegate.getAllJobInstances(po), jobInstance);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-			alert.showAndWait();
-		}
+		TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
+
+		saveButton.setDisable(true);
+		copyButton.setDisable(true);
+		runButton.setDisable(true);
+		deleteButton.setDisable(true);
 
 		jobPropertiesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
@@ -215,6 +233,10 @@ public class JobsController extends TradistaControllerAdapter {
 			jobInstanceName.setText(currentJobInstance.getName());
 			jobPropertiesTable.setItems(data);
 			jobPropertiesTable.refresh();
+			saveButton.setDisable(false);
+			copyButton.setDisable(false);
+			runButton.setDisable(false);
+			deleteButton.setDisable(false);
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
@@ -230,7 +252,7 @@ public class JobsController extends TradistaControllerAdapter {
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
-		} catch (InterruptedException ie) {
+		} catch (InterruptedException _) {
 			Thread.currentThread().interrupt();
 		}
 	}
@@ -276,31 +298,50 @@ public class JobsController extends TradistaControllerAdapter {
 				throw new TradistaBusinessException("A job instance must be loaded before copying it.");
 			}
 			Map<String, Object> properties = toMap(jobPropertiesTable.getItems());
-			StringBuilder jobName = new StringBuilder();
-			TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-			dialog.setTitle("Job instance name");
-			dialog.setHeaderText("Job instance name selection");
-			dialog.setContentText("Please choose a Job instance name:");
+			String copyJobInstanceName = null;
+			LegalEntity selectedPo = null;
+			boolean proceed = false;
 
-			Optional<String> result = dialog.showAndWait();
-			if (result.isPresent()) {
-				jobName.append(result.get());
-				TradistaJobInstance job = new TradistaJobInstance(jobName.toString(), currentJobInstance.getJobType(),
-						ClientUtil.getCurrentUser().getProcessingOrg());
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("Job instance",
+						currentJobInstance.getProcessingOrg(), currentJobInstance.getName(), false);
+				dialog.setContentText("Please choose a Job instance name:");
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyJobInstanceName = result.get().getName();
+					selectedPo = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
+				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+				dialog.setTitle("Job instance name");
+				dialog.setHeaderText("Job instance name selection");
+				dialog.setContentText("Please choose a Job instance name:");
+				Optional<String> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyJobInstanceName = result.get();
+					selectedPo = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
+				}
+			}
+
+			if (proceed) {
+				TradistaJobInstance job = new TradistaJobInstance(copyJobInstanceName, currentJobInstance.getJobType(),
+						selectedPo);
 				job.setProperties(properties);
 				batchBusinessDelegate.saveJobInstance(job);
 
 				TradistaJobInstance jobInst = jobInstance.getValue();
-				TradistaGUIUtil.fillComboBox(batchBusinessDelegate.getAllJobInstances(po), jobInstance);
+				TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
 				if (jobInst != null && !jobInst.equals(jobInstance.getValue())) {
 					jobPropertiesTable.setItems(null);
 					jobType.setText(null);
 					this.jobName.setText(null);
 				}
-				this.jobName.setText(jobName.toString());
-				jobInstanceName.setText(jobName.toString());
-				currentJobInstance = batchBusinessDelegate.getJobInstanceByNameAndPo(jobName.toString(), po);
-
+				this.jobName.setText(copyJobInstanceName);
+				jobInstanceName.setText(copyJobInstanceName);
+				currentJobInstance = batchBusinessDelegate.getJobInstanceByNameAndPo(copyJobInstanceName,
+						selectedPo != null ? selectedPo.getShortName() : null);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -360,13 +401,17 @@ public class JobsController extends TradistaControllerAdapter {
 
 				batchBusinessDelegate.deleteJobInstance(currentJobInstance.getName(), po);
 
-				TradistaGUIUtil.fillComboBox(batchBusinessDelegate.getAllJobInstances(po), jobInstance);
+				TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
 				if (!jobInstance.getItems().contains(currentJobInstance)) {
 					jobPropertiesTable.setItems(null);
 					jobType.setText(null);
 					jobName.setText(null);
 					jobInstanceName.setText(null);
 					currentJobInstance = null;
+					saveButton.setDisable(true);
+					copyButton.setDisable(true);
+					runButton.setDisable(true);
+					deleteButton.setDisable(true);
 				}
 
 			}
@@ -378,7 +423,21 @@ public class JobsController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void create(ActionEvent event) {
-		JobInstanceCreatorDialog dialog = new JobInstanceCreatorDialog();
+		LegalEntity po = null;
+		if (ClientUtil.currentUserIsAdmin()) {
+			TradistaSaveConfirmationDialog saveDialog = new TradistaSaveConfirmationDialog("Job Instance",
+					ClientUtil.getCurrentProcessingOrg(), false);
+			Optional<LegalEntity> saveResult = saveDialog.showAndWait();
+			if (saveResult.isPresent()) {
+				po = saveResult.get();
+			} else {
+				return;
+			}
+		} else {
+			po = ClientUtil.getCurrentUser().getProcessingOrg();
+		}
+
+		JobInstanceCreatorDialog dialog = new JobInstanceCreatorDialog(po);
 		Optional<TradistaJobInstance> result = dialog.showAndWait();
 
 		if (result.isPresent()) {
@@ -386,7 +445,7 @@ public class JobsController extends TradistaControllerAdapter {
 				TradistaJobInstance job = result.get();
 				batchBusinessDelegate.saveJobInstance(job);
 
-				TradistaGUIUtil.fillComboBox(batchBusinessDelegate.getAllJobInstances(po), jobInstance);
+				TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
 				if (currentJobInstance != null && !jobInstance.getItems().contains(currentJobInstance)) {
 					jobPropertiesTable.setItems(null);
 					jobType.setText(null);
@@ -520,7 +579,7 @@ public class JobsController extends TradistaControllerAdapter {
 				textField.setText(getItem().toString());
 			}
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((b, ov, nv) -> {
+			textField.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(textField.getText());
 					commitEdit(textField.getText());
@@ -535,7 +594,7 @@ public class JobsController extends TradistaControllerAdapter {
 				calendarComboBox.setValue((Calendar) getItem());
 			}
 			calendarComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			calendarComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			calendarComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(calendarComboBox.getValue());
 					commitEdit(calendarComboBox.getValue());
@@ -550,7 +609,7 @@ public class JobsController extends TradistaControllerAdapter {
 				positionDefinitionComboBox.setValue((PositionDefinition) getItem());
 			}
 			positionDefinitionComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			positionDefinitionComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			positionDefinitionComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(positionDefinitionComboBox.getValue());
 					commitEdit(positionDefinitionComboBox.getValue());
@@ -565,7 +624,7 @@ public class JobsController extends TradistaControllerAdapter {
 				quoteSetComboBox.setValue((QuoteSet) getItem());
 			}
 			quoteSetComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			quoteSetComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			quoteSetComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(quoteSetComboBox.getValue());
 					commitEdit(quoteSetComboBox.getValue());
@@ -589,7 +648,7 @@ public class JobsController extends TradistaControllerAdapter {
 				}
 			}
 			quoteSetsListView.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			quoteSetsListView.focusedProperty().addListener((b, ov, nv) -> {
+			quoteSetsListView.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					Set<QuoteSet> quoteSets = null;
 					if (quoteSetsListView.getSelectionModel().getSelectedItems() != null) {
@@ -599,14 +658,14 @@ public class JobsController extends TradistaControllerAdapter {
 					commitEdit(quoteSets);
 				}
 			});
-			focusedProperty().addListener((b, ov, nv) -> {
+			focusedProperty().addListener(_ -> {
 				if (isSelected()) {
 					quoteSetsListView.setStyle(SECONDARY_STYLE);
 				} else {
 					quoteSetsListView.setStyle(MAIN_STYLE);
 				}
 			});
-			hoverProperty().addListener((b, ov, nv) -> {
+			hoverProperty().addListener((_, _, nv) -> {
 				if (Boolean.TRUE.equals(nv)) {
 					quoteSetsListView.setStyle(SECONDARY_STYLE);
 				}
@@ -621,7 +680,7 @@ public class JobsController extends TradistaControllerAdapter {
 				feedConfigComboBox.setValue((FeedConfig) getItem());
 			}
 			feedConfigComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			feedConfigComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			feedConfigComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(feedConfigComboBox.getValue());
 					commitEdit(feedConfigComboBox.getValue());
@@ -636,7 +695,7 @@ public class JobsController extends TradistaControllerAdapter {
 				datePicker.setValue(LocalDate.parse(getString(), DateTimeFormatter.ofPattern(DATE_PATTERN)));
 			}
 			setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-			datePicker.focusedProperty().addListener((b, ov, nv) -> {
+			datePicker.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					LocalDate date = datePicker.getValue();
 					model.setValue(date);
@@ -652,7 +711,7 @@ public class JobsController extends TradistaControllerAdapter {
 				checkBox.setSelected((Boolean) getItem());
 			}
 			checkBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			checkBox.focusedProperty().addListener((b, ov, nv) -> {
+			checkBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(checkBox.isSelected());
 					commitEdit(checkBox.isSelected());
@@ -667,7 +726,7 @@ public class JobsController extends TradistaControllerAdapter {
 				errorTypeComboBox.setValue((String) getItem());
 			}
 			errorTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			errorTypeComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			errorTypeComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(errorTypeComboBox.getValue());
 					commitEdit(errorTypeComboBox.getValue());
@@ -683,7 +742,7 @@ public class JobsController extends TradistaControllerAdapter {
 				errorStatusComboBox.setValue((String) getItem());
 			}
 			errorStatusComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			errorStatusComboBox.focusedProperty().addListener((b, ov, nv) -> {
+			errorStatusComboBox.focusedProperty().addListener((_, _, nv) -> {
 				if (Boolean.FALSE.equals(nv)) {
 					model.setValue(errorStatusComboBox.getValue());
 					commitEdit(errorStatusComboBox.getValue());
@@ -823,18 +882,18 @@ public class JobsController extends TradistaControllerAdapter {
 
 			if (status.equals("FAILED") && jobInstanceStillExists) {
 				Button retryButton = new Button("Retry");
-				retryButton.setOnAction(ae -> JobsController.this.retry(jobInstanceName, po));
+				retryButton.setOnAction(_ -> JobsController.this.retry(jobInstanceName, po));
 				buttons.add(retryButton);
 			}
 			if (status.equals("IN PROGRESS")) {
 				Button stopButton = new Button("Stop");
-				stopButton.setOnAction(ae -> JobsController.this.stop(name));
+				stopButton.setOnAction(_ -> JobsController.this.stop(name));
 				buttons.add(stopButton);
 			}
 
 			if (status.equals("PAUSED")) {
 				Button stopButton = new Button("Stop");
-				stopButton.setOnAction(ae -> JobsController.this.stop(name));
+				stopButton.setOnAction(_ -> JobsController.this.stop(name));
 				buttons.add(stopButton);
 			}
 			actions = new SimpleObjectProperty<>(buttons);
@@ -948,16 +1007,15 @@ public class JobsController extends TradistaControllerAdapter {
 	@FXML
 	public void refresh() {
 		TradistaJobInstance jobInst = jobInstance.getValue();
-		try {
-			TradistaGUIUtil.fillComboBox(batchBusinessDelegate.getAllJobInstances(po), jobInstance);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-			alert.showAndWait();
-		}
+		TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
 		if (jobInst != null && !jobInst.equals(jobInstance.getValue())) {
 			jobType.setText(null);
 			jobName.setText(null);
 			jobPropertiesTable.setItems(null);
+			saveButton.setDisable(true);
+			copyButton.setDisable(true);
+			runButton.setDisable(true);
+			deleteButton.setDisable(true);
 		}
 	}
 

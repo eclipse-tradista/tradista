@@ -1,16 +1,22 @@
 package org.eclipse.tradista.core.marketdata.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
@@ -33,13 +39,24 @@ import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 
 public class QuoteSetSQL {
 
+	private static final Field QUOTE_SET_ID_FIELD = new Field(ID);
+
+	private static final Field QUOTE_SET_NAME_FIELD = new Field(NAME);
+
+	private static final Field QUOTE_SET_PROCESSING_ORG_ID_FIELD = new Field(PROCESSING_ORG_ID);
+
+	private static final Field[] QUOTE_SET_FIELDS = { QUOTE_SET_ID_FIELD, QUOTE_SET_NAME_FIELD,
+			QUOTE_SET_PROCESSING_ORG_ID_FIELD };
+
+	private static final Table QUOTE_SET_TABLE = new Table("QUOTE_SET", QUOTE_SET_FIELDS);
+
 	public static long saveQuoteSet(QuoteSet quoteSet) {
-		long quoteSetId = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveQuoteSet = (quoteSet.getId() == 0)
-						? con.prepareStatement("INSERT INTO QUOTE_SET(NAME, PROCESSING_ORG_ID) VALUES(?, ?) ",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement("UPDATE QUOTE_SET SET NAME=?, PROCESSING_ORG_ID=? WHERE ID=?")) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, QUOTE_SET_TABLE, QUOTE_SET_NAME_FIELD,
+								QUOTE_SET_PROCESSING_ORG_ID_FIELD)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, QUOTE_SET_ID_FIELD, QUOTE_SET_TABLE,
+								QUOTE_SET_NAME_FIELD, QUOTE_SET_PROCESSING_ORG_ID_FIELD)) {
 			if (quoteSet.getId() != 0) {
 				stmtSaveQuoteSet.setLong(3, quoteSet.getId());
 			}
@@ -55,133 +72,100 @@ public class QuoteSetSQL {
 			if (quoteSet.getId() == 0) {
 				try (ResultSet generatedKeys = stmtSaveQuoteSet.getGeneratedKeys()) {
 					if (generatedKeys.next()) {
-						quoteSetId = generatedKeys.getLong(1);
+						quoteSet.setId(generatedKeys.getLong(1));
 					} else {
 						throw new SQLException("QuoteSet creation failed, no generated key obtained.");
 					}
 				}
-			} else {
-				quoteSetId = quoteSet.getId();
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-		quoteSet.setId(quoteSetId);
-		return quoteSetId;
+		return quoteSet.getId();
 	}
 
 	public static boolean deleteQuoteSet(long quoteSetId) {
 		boolean bSaved = false;
 		QuoteSQL.deleteQuoteValues(quoteSetId);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtDeleteQuoteSet = con.prepareStatement("DELETE FROM QUOTE_SET WHERE ID = ? ")) {
+				PreparedStatement stmtDeleteQuoteSet = TradistaDBUtil.buildDeletePreparedStatement(con, QUOTE_SET_TABLE,
+						QUOTE_SET_ID_FIELD)) {
 			stmtDeleteQuoteSet.setLong(1, quoteSetId);
 			stmtDeleteQuoteSet.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
 	}
 
 	public static Set<QuoteSet> getAllQuoteSets() {
+		return getQuoteSets(null, null, null);
+	}
+
+	public static Set<QuoteSet> getQuoteSetsByPoId(long poId) {
+		return getQuoteSets(null, poId, null);
+	}
+
+	public static QuoteSet getQuoteSetByName(String name) {
+		Set<QuoteSet> quoteSets = getQuoteSets(name, null, null);
+		return (quoteSets == null || quoteSets.isEmpty()) ? null : quoteSets.iterator().next();
+	}
+
+	public static QuoteSet getQuoteSetByNameAndPo(String name, long poId) {
+		Set<QuoteSet> quoteSets = getQuoteSets(name, poId, null);
+		return (quoteSets == null || quoteSets.isEmpty()) ? null : quoteSets.iterator().next();
+	}
+
+	public static QuoteSet getQuoteSetById(long id) {
+		Set<QuoteSet> quoteSets = getQuoteSets(null, null, id);
+		return (quoteSets == null || quoteSets.isEmpty()) ? null : quoteSets.iterator().next();
+	}
+
+	private static Set<QuoteSet> getQuoteSets(String name, Long poId, Long id) {
 		Set<QuoteSet> quoteSets = null;
+		StringBuilder query = new StringBuilder(TradistaDBUtil.buildSelectQuery(QUOTE_SET_TABLE));
+		if (name != null) {
+			TradistaDBUtil.addParameterizedFilter(query, QUOTE_SET_NAME_FIELD);
+		}
+		if (poId != null) {
+			TradistaDBUtil.addParameterizedFilter(query, QUOTE_SET_PROCESSING_ORG_ID_FIELD);
+		}
+		if (id != null) {
+			TradistaDBUtil.addParameterizedFilter(query, QUOTE_SET_ID_FIELD);
+		}
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllQuoteSets = con.prepareStatement("SELECT * FROM QUOTE_SET");
-				ResultSet results = stmtGetAllQuoteSets.executeQuery()) {
-			while (results.next()) {
-				long quoteSetId = results.getLong("id");
-				String quoteSetName = results.getString("name");
-				long poId = results.getLong("processing_org_id");
-				LegalEntity po = null;
-				if (poId > 0) {
-					po = LegalEntitySQL.getLegalEntityById(results.getLong("processing_org_id"));
+				PreparedStatement stmtGetQuoteSets = con.prepareStatement(query.toString())) {
+			int i = 1;
+			if (name != null) {
+				stmtGetQuoteSets.setString(i++, name);
+			}
+			if (poId != null) {
+				stmtGetQuoteSets.setLong(i++, poId);
+			}
+			if (id != null) {
+				stmtGetQuoteSets.setLong(i++, id);
+			}
+			try (ResultSet results = stmtGetQuoteSets.executeQuery()) {
+				while (results.next()) {
+					if (quoteSets == null) {
+						quoteSets = new HashSet<>();
+					}
+					long resId = results.getLong(QUOTE_SET_ID_FIELD.getName());
+					String resName = results.getString(QUOTE_SET_NAME_FIELD.getName());
+					long resPoId = results.getLong(QUOTE_SET_PROCESSING_ORG_ID_FIELD.getName());
+					LegalEntity po = null;
+					if (resPoId > 0) {
+						po = LegalEntitySQL.getLegalEntityById(resPoId);
+					}
+					quoteSets.add(new QuoteSet(resId, resName, po));
 				}
-				QuoteSet quoteSet = new QuoteSet(quoteSetId, quoteSetName, po);
-				if (quoteSets == null) {
-					quoteSets = new HashSet<QuoteSet>();
-				}
-				quoteSets.add(quoteSet);
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return quoteSets;
-	}
-
-	public static QuoteSet getQuoteSetByName(String quoteSetName) {
-		QuoteSet quoteSet = null;
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetQuoteSetByName = con
-						.prepareStatement("SELECT * FROM QUOTE_SET WHERE NAME = ?")) {
-			stmtGetQuoteSetByName.setString(1, quoteSetName);
-			try (ResultSet results = stmtGetQuoteSetByName.executeQuery()) {
-				while (results.next()) {
-					long quoteSetId = results.getLong("id");
-					long poId = results.getLong("processing_org_id");
-					LegalEntity po = null;
-					if (poId > 0) {
-						po = LegalEntitySQL.getLegalEntityById(results.getLong("processing_org_id"));
-					}
-					quoteSet = new QuoteSet(quoteSetId, quoteSetName, po);
-				}
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-		return quoteSet;
-	}
-
-	public static QuoteSet getQuoteSetByNameAndPo(String quoteSetName, long poId) {
-		QuoteSet quoteSet = null;
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetQuoteSetByName = con
-						.prepareStatement("SELECT * FROM QUOTE_SET WHERE NAME = ? AND PROCESSING_ORG_ID=?")) {
-			stmtGetQuoteSetByName.setString(1, quoteSetName);
-			stmtGetQuoteSetByName.setLong(2, poId);
-			try (ResultSet results = stmtGetQuoteSetByName.executeQuery()) {
-				while (results.next()) {
-					long quoteSetId = results.getLong("id");
-					LegalEntity po = null;
-					if (poId > 0) {
-						po = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					quoteSet = new QuoteSet(quoteSetId, quoteSetName, po);
-				}
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-		return quoteSet;
-	}
-
-	public static QuoteSet getQuoteSetById(long quoteSetId) {
-
-		QuoteSet quoteSet = null;
-		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetQuoteSetById = con.prepareStatement("SELECT * FROM QUOTE_SET WHERE ID = ?")) {
-			stmtGetQuoteSetById.setLong(1, quoteSetId);
-			try (ResultSet results = stmtGetQuoteSetById.executeQuery()) {
-				while (results.next()) {
-					String quoteSetName = results.getString("name");
-					long poId = results.getLong("processing_org_id");
-					LegalEntity po = null;
-					if (poId > 0) {
-						po = LegalEntitySQL.getLegalEntityById(results.getLong("processing_org_id"));
-					}
-					quoteSet = new QuoteSet(quoteSetId, quoteSetName, po);
-				}
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
-		}
-		return quoteSet;
 	}
 
 }

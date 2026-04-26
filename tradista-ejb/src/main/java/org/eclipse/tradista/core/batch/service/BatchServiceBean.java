@@ -225,10 +225,14 @@ public class BatchServiceBean implements BatchService {
 				if (po != null && !po.equals(groupName)) {
 					continue;
 				}
+				LegalEntity currentPo = processingOrg;
+				if (currentPo == null && groupName != null && !groupName.equals(Scheduler.DEFAULT_GROUP)) {
+					currentPo = legalEntityService.getLegalEntityByShortName(groupName);
+				}
 				for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
 					JobDetail jobDetail = scheduler.getJobDetail(jobKey);
 					String jobType = getJobTypeByClass((Class<? extends TradistaJob>) jobDetail.getJobClass());
-					TradistaJobInstance inst = new TradistaJobInstance(jobDetail, jobType, processingOrg);
+					TradistaJobInstance inst = new TradistaJobInstance(jobDetail, jobType, currentPo);
 					jobInstances.add(inst);
 				}
 			}

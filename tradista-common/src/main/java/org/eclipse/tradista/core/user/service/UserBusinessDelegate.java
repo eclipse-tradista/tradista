@@ -44,7 +44,7 @@ public class UserBusinessDelegate {
 			}
 		}
 		if (StringUtils.isBlank(user.getSurname())) {
-			errMsg.append(String.format("The first name cannot be empty.%n"));
+			errMsg.append(String.format("The surname cannot be empty.%n"));
 		} else {
 			if (user.getSurname().length() > 20) {
 				errMsg.append(String.format("The surname cannot exceed 20 characters.%n"));
@@ -88,6 +88,13 @@ public class UserBusinessDelegate {
 		return SecurityUtil.run(() -> userService.getUsersBySurname(surname));
 	}
 
+	public Set<User> getUsersByPoId(long poId) throws TradistaBusinessException {
+		if (poId <= 0) {
+			throw new TradistaBusinessException(String.format("The po id (%s) must be positive.", poId));
+		}
+		return SecurityUtil.run(() -> userService.getUsersByPoId(poId));
+	}
+
 	public User getUserById(long id) throws TradistaBusinessException {
 		if (id <= 0) {
 			throw new TradistaBusinessException(String.format("The id (%s) must be positive.", id));
@@ -113,7 +120,10 @@ public class UserBusinessDelegate {
 		return user;
 	}
 
-	public User getUserByLogin(String login) {
+	public User getUserByLogin(String login) throws TradistaBusinessException {
+		if (StringUtils.isBlank(login)) {
+			throw new TradistaBusinessException("The login is mandatory.");
+		}
 		return SecurityUtil.run(() -> userService.getUserByLogin(login));
 	}
 

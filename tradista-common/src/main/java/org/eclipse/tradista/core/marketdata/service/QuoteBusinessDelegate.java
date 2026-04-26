@@ -16,6 +16,7 @@ import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
+import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
 import org.eclipse.tradista.core.marketdata.validator.QuoteValidator;
 
@@ -99,7 +100,7 @@ public class QuoteBusinessDelegate {
 			}
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -204,7 +205,7 @@ public class QuoteBusinessDelegate {
 					String.format("The start date (%tD) cannot be after the end date (%tD).%n", startDate, endDate));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> quoteService.getQuoteValueByQuoteSetIdQuoteNameTypeAndDates(quoteSetId, quoteName,
@@ -237,7 +238,7 @@ public class QuoteBusinessDelegate {
 			errMsg.append(String.format("The month cannot be null.%n"));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -255,6 +256,13 @@ public class QuoteBusinessDelegate {
 
 	public Set<QuoteSet> getAllQuoteSets() {
 		return SecurityUtil.run(() -> quoteService.getAllQuoteSets());
+	}
+
+	public Set<QuoteSet> getQuoteSetsByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException(String.format("The po id (%d) cannot be negative.", poId));
+		}
+		return SecurityUtil.run(() -> quoteService.getQuoteSetsByPoId(poId));
 	}
 
 	public long saveQuoteSet(QuoteSet quoteSet) throws TradistaBusinessException {
@@ -280,7 +288,7 @@ public class QuoteBusinessDelegate {
 
 	public boolean saveQuoteValues(long quoteSetId, List<QuoteValue> quoteValues) throws TradistaBusinessException {
 		if (quoteSetId <= 0) {
-			throw new TradistaBusinessException("Quote set id (" + quoteSetId + ") must be greater than 0.");
+			throw new TradistaBusinessException(String.format(QUOTE_SET_ID_MUST_BE_POSITIVE));
 		}
 		if (quoteValues == null) {
 			throw new TradistaBusinessException("Quote values cannot be null.");

@@ -13,7 +13,18 @@
 				<p:outputLabel styleClass="tradista-menu-item" value="-"
 					rendered="#{not empty userManager.currentUserProcessingOrg}" />
 				<p:outputLabel styleClass="tradista-menu-item"
-					value="#{userManager.currentUserProcessingOrg}" />
+					value="#{userManager.currentUserProcessingOrg}"
+					rendered="#{not userManager.currentUserAdmin}" />
+				<p:outputLabel styleClass="tradista-menu-item"
+					value="Current Processing Organization:"
+					rendered="#{userManager.currentUserAdmin}" />
+				<p:selectOneMenu value="#{menuController.currentProcessingOrg}"
+					rendered="#{userManager.currentUserAdmin}"
+					converter="legalEntityConverter" styleClass="tradista-menu-item" style="vertical-align: middle;">
+					<f:selectItem itemLabel="All" itemValue="#{null}" />
+					<f:selectItems value="#{menuController.allProcessingOrgs}" />
+					<p:ajax event="change" listener="#{menuController.updateProcessingOrg}" />
+				</p:selectOneMenu>
 				<p:commandButton icon="pi pi-power-off"
 					action="#{menuController.logout}" />
 			</f:facet>

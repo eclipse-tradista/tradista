@@ -123,4 +123,6 @@ public interface QuoteService {
 	 */
 	List<QuoteValue> getQuoteValuesByQuoteSetIdQuoteNameAndDate(long quoteSetId, String quoteName, LocalDate quoteDate);
 
+	Set<QuoteSet> getQuoteSetsByPoId(long poId);
+
 }

@@ -27,7 +27,7 @@
 								readonly="#{allocationConfigurationController.allocationConfiguration ne null}" />
 						</p:column>
 					</p:row>
-					<p:row rendered="#{empty userManager.currentUserProcessingOrg}">
+					<p:row rendered="#{empty userManager.currentUserProcessingOrg and empty menuController.currentProcessingOrg}">
 						<p:column>
 							<p:outputLabel styleClass="tradista-menu-item"
 								value="Processing Org :" />
@@ -47,7 +47,7 @@
 							<p:card>
 								<p:pickList id="allocationConfigurationPickList"
 									value="#{allocationConfigurationController.books}" var="book"
-									itemValue="#{book}" itemLabel="#{book.name}"
+									itemValue="#{book}" itemLabel="#{allocationConfigurationController.getDisambiguatedBookName(book)}"
 									showSourceControls="true" showTargetControls="true"
 									showCheckbox="true" showSourceFilter="true"
 									showTargetFilter="true" filterMatchMode="contains"
@@ -56,7 +56,7 @@
 									<f:facet name="targetCaption">Configured books</f:facet>
 									<p:column styleClass="tradista-picklist-item">
 										<div class="flex align-items-center">
-											<h:outputText value="#{book.name}" />
+											<h:outputText value="#{allocationConfigurationController.getDisambiguatedBookName(book)}" />
 										</div>
 									</p:column>
 								</p:pickList>
@@ -68,13 +68,13 @@
 					<p:row>
 						<p:column>
 							<p:commandButton value="Save" styleClass="rounded-button"
-								update="@form">
-								<f:actionListener
-									binding="#{allocationConfigurationController.save()}" />
+								action="#{allocationConfigurationController.checkSave()}"
+								update="@form saveConfirmationForm">
 							</p:commandButton>
-							<p:commandButton value="Copy" type="button"
-								styleClass="rounded-button" update="@form"
-								onclick="PF('copy').show()"
+							<p:commandButton value="Copy" styleClass="rounded-button"
+								action="#{allocationConfigurationController.prepareCopy()}"
+								oncomplete="PF('copy').show()"
+								update="copyForm"
 								rendered="#{allocationConfigurationController.allocationConfiguration ne null}" />
 							<p:commandButton value="New" styleClass="rounded-button"
 								action="#{allocationConfigurationController.clear()}"
@@ -82,14 +82,10 @@
 							<p:outputLabel value="Load by Allocation Configuration"
 								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
-								value="#{allocationConfigurationController.loadingCriterion}"
-								styleClass="tradista-menu-item">
-								<f:selectItems
-									value="#{allocationConfigurationController.allLoadingCriteria}" />
+								value="#{allocationConfigurationController.loadAllocationConfiguration}"
+								styleClass="tradista-menu-item" converter="allocationConfigurationConverter">
+								<f:selectItems value="#{allocationConfigurationController.allAllocationConfigurations}" var="ac" itemLabel="#{allocationConfigurationController.getDisambiguatedName(ac)}" itemValue="#{ac}" />
 							</p:selectOneMenu>
-							<p:inputText
-								value="#{allocationConfigurationController.idOrName}"
-								styleClass="tradista-menu-item" />
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{allocationConfigurationController.load()}"
 								update="@form" />
@@ -98,11 +94,18 @@
 				</f:facet>
 			</p:panel>
 		</h:form>
-		<h:form style="position: absolute;visibility: hidden;">
-			<p:dialog header="Copy an Allocation Configuration" widgetVar="copy"
+		<h:form id="copyForm" style="position: absolute;visibility: hidden;">
+			<p:dialog header="Allocation Configuration Copy" widgetVar="copy"
 				showEffect="fade" modal="true">
 				<p:panelGrid id="allocationConfiguration"
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
+					<p:row>
+						<p:column colspan="2">
+							<p:outputPanel id="copyMsg">
+								<h:outputText value="#{allocationConfigurationController.copyMessage}" />
+							</p:outputPanel>
+						</p:column>
+					</p:row>
 					<p:row>
 						<p:column>
 							<p:outputLabel
@@ -127,13 +130,14 @@
 								converter="legalEntityConverter">
 								<f:selectItems
 									value="#{allocationConfigurationController.allProcessingOrgs}" />
+								<p:ajax event="change" update="copyMsg" />
 							</p:selectOneMenu>
 						</p:column>
 					</p:row>
 				</p:panelGrid>
 				<f:facet name="footer">
-					<p:commandButton value="Ok" styleClass="rounded-button"
-						onclick="PF('copy').hide()"
+					<p:commandButton value="Copy" styleClass="rounded-button"
+						oncomplete="PF('copy').hide()"
 						update=":allocationConfigurationForm:allocationConfiguration">
 						<f:actionListener
 							binding="#{allocationConfigurationController.copy()}" />
@@ -141,6 +145,48 @@
 					<p:commandButton value="Cancel" styleClass="rounded-button"
 						onclick="PF('copy').hide()" />
 				</f:facet>
+			</p:dialog>
+		</h:form>
+		<h:form id="saveConfirmationForm" style="position: absolute;visibility: hidden;">
+			<p:dialog header="Save an Allocation Configuration" widgetVar="saveConfirmation"
+				showEffect="fade" modal="true">
+				<p:panelGrid id="saveConfirmationPanel"
+					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
+					<p:row>
+						<p:column colspan="2">
+							<p:outputPanel id="saveMsg">
+								<h:outputText value="#{allocationConfigurationController.saveMessage}" />
+							</p:outputPanel>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:outputLabel styleClass="tradista-menu-item"
+								value="Processing Org :" />
+						</p:column>
+						<p:column>
+							<p:selectOneMenu
+								value="#{allocationConfigurationController.processingOrg}"
+								styleClass="tradista-menu-item" converter="legalEntityConverter">
+								<f:selectItems
+									value="#{allocationConfigurationController.allProcessingOrgs}" />
+								<p:ajax event="change" update="saveMsg" />
+							</p:selectOneMenu>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:commandButton value="Save" styleClass="rounded-button"
+								action="#{allocationConfigurationController.save()}"
+								oncomplete="PF('saveConfirmation').hide()"
+								update="allocationConfigurationForm" />
+						</p:column>
+						<p:column>
+							<p:commandButton value="Cancel" styleClass="rounded-button"
+								type="button" onclick="PF('saveConfirmation').hide()" />
+						</p:column>
+					</p:row>
+				</p:panelGrid>
 			</p:dialog>
 		</h:form>
 	</ui:define>

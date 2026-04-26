@@ -114,4 +114,10 @@ public class FeedServiceBean implements LocalFeedService, FeedService {
 		return results;
 	}
 
+	@Interceptors(FeedConfigFilteringInterceptor.class)
+	@Override
+	public Set<FeedConfig> getFeedConfigsByPoId(long poId) {
+		return FeedConfigSQL.getFeedConfigsByPoId(poId);
+	}
+
 }

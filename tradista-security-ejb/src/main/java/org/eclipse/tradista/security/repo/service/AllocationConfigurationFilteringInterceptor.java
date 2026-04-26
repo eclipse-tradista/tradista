@@ -1,5 +1,6 @@
 package org.eclipse.tradista.security.repo.service;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,9 +42,12 @@ public class AllocationConfigurationFilteringInterceptor extends TradistaAuthori
 	@Override
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameters.length > 0) {
 			StringBuilder errMsg = new StringBuilder();
-			if (parameters[0] instanceof AllocationConfiguration allocConfig) {
+			if (parameterTypes[0].equals(AllocationConfiguration.class)) {
+				AllocationConfiguration allocConfig = (AllocationConfiguration) parameters[0];
 				if (!allocConfig.getProcessingOrg().equals(getCurrentUser().getProcessingOrg())) {
 					errMsg.append(String.format("You are not allowed to save this Allocation Configuration.%n"));
 				}

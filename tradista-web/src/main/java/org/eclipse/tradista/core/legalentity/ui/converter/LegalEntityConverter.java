@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.legalentity.ui.converter;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
@@ -41,11 +42,17 @@ public class LegalEntityConverter implements Serializable, Converter<LegalEntity
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, LegalEntity legalEntity) {
+		if (legalEntity == null) {
+			return StringUtils.EMPTY;
+		}
 		return legalEntity.toString();
 	}
 
 	@Override
 	public LegalEntity getAsObject(FacesContext context, UIComponent component, String value) {
+		if (StringUtils.isBlank(value)) {
+			return null;
+		}
 		LegalEntity legalEntity = null;
 		try {
 			legalEntity = legalEntityBusinessDelegate.getLegalEntityByShortName(value);

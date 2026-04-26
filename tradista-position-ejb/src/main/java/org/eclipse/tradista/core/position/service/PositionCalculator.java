@@ -194,7 +194,7 @@ public class PositionCalculator {
 						Set<? extends Product> products = null;
 						try {
 							products = new ProductBusinessDelegate().getProducts(posDef);
-						} catch (TradistaBusinessException abe) {
+						} catch (TradistaBusinessException _) {
 							// no exception should appear at this stage as
 							// posDef is not null.
 						}
@@ -219,8 +219,8 @@ public class PositionCalculator {
 									if (currentProductQuantity != null
 											&& currentProductQuantity.add(quantity).compareTo(BigDecimal.ZERO) != 0) {
 										BigDecimal currentProductAveragePrice = inventoryBusinessDelegate
-												.getAveragePriceByDateProductAndBookIds(product.getId(),
-														posDef.getBook().getId(), valueDate);
+												.getAveragePriceByDateProductAndBookIds(product.getId(), bookId,
+														valueDate);
 										if (currentProductAveragePrice != null) {
 											averagePrice = averagePrice.multiply(quantity)
 													.add(currentProductAveragePrice.multiply(currentProductQuantity))

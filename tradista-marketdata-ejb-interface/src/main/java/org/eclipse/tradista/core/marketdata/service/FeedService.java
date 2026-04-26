@@ -41,4 +41,6 @@ public interface FeedService {
 
 	Set<String> getFeedConfigsUsingQuote(String quoteName, QuoteType quoteType);
 
+	Set<FeedConfig> getFeedConfigsByPoId(long poId);
+
 }

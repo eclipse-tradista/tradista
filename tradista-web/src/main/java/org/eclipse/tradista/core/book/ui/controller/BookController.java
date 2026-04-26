@@ -74,7 +74,7 @@ public class BookController implements Serializable {
 
 	public void loadBook() {
 		try {
-			refresh(bookBusinessDelegate.getBookByName("Demo Book"));
+			refresh(bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));

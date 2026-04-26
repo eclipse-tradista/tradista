@@ -1,23 +1,22 @@
 package org.eclipse.tradista.core.user.ui.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
-import org.eclipse.tradista.core.common.ui.view.TradistaChoiceDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
@@ -56,40 +55,69 @@ public class UsersController extends TradistaControllerAdapter {
 	private UserBusinessDelegate userBusinessDelegate;
 
 	@FXML
-	private ComboBox<String> load;
+	private ComboBox<User> userComboBox;
+
+	@FXML
+	private Button saveButton;
+
+	@FXML
+	private Button copyButton;
 
 	private User user;
 
-	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 		userBusinessDelegate = new UserBusinessDelegate();
-		Set<User> users = userBusinessDelegate.getAllUsers();
-		List<String> userSurnames = users == null ? new ArrayList<String>()
-				: users.stream().map(u -> u.getSurname()).collect(Collectors.toList());
-		TradistaGUIUtil.fillComboBox(userSurnames, load);
+		TradistaGUIUtil.fillUserComboBox(userComboBox);
+
+		copyButton.setDisable(true);
+
+		userComboBox.valueProperty().addListener((_, _, u) -> copyButton.setDisable(u == null));
 	}
 
 	@FXML
 	protected void save() {
-		TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-		confirmation.setTitle("Save User");
-		confirmation.setHeaderText("Save User");
-		confirmation.setContentText("Do you want to save this User?");
+		try {
+			boolean isNew = (user == null);
+			LegalEntity po = null;
+			boolean proceed = false;
 
-		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
-			try {
-				if (user == null) {
-					user = new User(firstName.getText(), surname.getText(),
-							ClientUtil.getCurrentUser().getProcessingOrg());
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("User",
+						ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save User");
+				confirmation.setHeaderText("Save User");
+				confirmation.setContentText("Do you want to save this User?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					if (!isNew) {
+						po = user.getProcessingOrg();
+					} else {
+						po = ClientUtil.getCurrentUser().getProcessingOrg();
+					}
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					user = new User(firstName.getText(), surname.getText(), po);
 				}
 				user.setLogin(login.getText());
 				user.setPassword(password.getText());
 				user.setId(userBusinessDelegate.saveUser(user));
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
+				load(user);
 			}
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
@@ -97,25 +125,48 @@ public class UsersController extends TradistaControllerAdapter {
 	protected void copy() {
 		long oldUserId = 0;
 		try {
-			TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-			dialog.setTitle("User Copy");
-			dialog.setHeaderText("Do you want to copy this User ?");
-			dialog.setContentText("Please enter the login of the new User:");
-			Optional<String> result = dialog.showAndWait();
-			if (result.isPresent()) {
-				if (user == null) {
-					user = new User(firstName.getText(), surname.getText(),
-							ClientUtil.getCurrentUser().getProcessingOrg());
+			String copyLogin = null;
+			LegalEntity po = null;
+			boolean proceed = false;
+
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("User", user.getProcessingOrg(), user.getLogin(),
+						false);
+				dialog.setContentText("Please enter the login of the new User:");
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyLogin = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
 				}
-				user.setLogin(result.get());
-				user.setPassword(password.getText());
+			} else {
+				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+				dialog.setTitle("User Copy");
+				dialog.setHeaderText("Do you want to copy this User ?");
+				dialog.setContentText("Please enter the login of the new User:");
+				Optional<String> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyLogin = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
+				}
+			}
+
+			if (proceed) {
+				User copyUser = new User(firstName.getText(), surname.getText(), po);
+				copyUser.setLogin(copyLogin);
+				copyUser.setPassword(password.getText());
 				oldUserId = user.getId();
-				user.setId(0);
-				user.setId(userBusinessDelegate.saveUser(user));
+				copyUser.setId(0);
+				copyUser.setId(userBusinessDelegate.saveUser(copyUser));
+				user = copyUser;
 				login.setText(user.getLogin());
+				copyButton.setDisable(false);
 			}
 		} catch (TradistaBusinessException tbe) {
-			user.setId(oldUserId);
+			if (oldUserId != 0) {
+				user.setId(oldUserId);
+			}
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
 		}
@@ -123,30 +174,11 @@ public class UsersController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void load() {
-		String surname = null;
-		Set<User> users = null;
 		try {
-
-			if (load.getValue() != null) {
-				surname = load.getValue();
-			} else {
-				throw new TradistaBusinessException("Please specify a surname.");
+			if (userComboBox.getValue() == null) {
+				throw new TradistaBusinessException("Please select a user.");
 			}
-
-			users = userBusinessDelegate.getUsersBySurname(surname);
-
-			if (users.size() > 1) {
-				TradistaChoiceDialog<User> dialog = new TradistaChoiceDialog<User>((User) users.toArray()[0], users);
-				dialog.setTitle("User Selection");
-				dialog.setHeaderText("Please choose a User");
-				dialog.setContentText("Selected User:");
-
-				Optional<User> result = dialog.showAndWait();
-				result.ifPresent(user -> load(user));
-			} else {
-				load((User) users.toArray()[0]);
-			}
-
+			load(userComboBox.getValue());
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
@@ -159,6 +191,7 @@ public class UsersController extends TradistaControllerAdapter {
 		surname.setText(user.getSurname());
 		login.setText(user.getLogin());
 		password.setText(user.getPassword());
+		copyButton.setDisable(false);
 	}
 
 	@Override
@@ -169,6 +202,7 @@ public class UsersController extends TradistaControllerAdapter {
 		surname.clear();
 		login.clear();
 		password.clear();
+		copyButton.setDisable(true);
 	}
 
 }

@@ -27,13 +27,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
@@ -81,66 +79,25 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		Callback<TableColumn<UnrealizedPnlCalculationProperty, String>, TableCell<UnrealizedPnlCalculationProperty, String>> unrealizedPnlCalculationProductTypeCellFactory = new Callback<TableColumn<UnrealizedPnlCalculationProperty, String>, TableCell<UnrealizedPnlCalculationProperty, String>>() {
-			public TableCell<UnrealizedPnlCalculationProperty, String> call(
-					TableColumn<UnrealizedPnlCalculationProperty, String> p) {
-				return new UnrealizedPnlCalculationProductTypeEditingCell();
-			}
-		};
-
-		Callback<TableColumn<UnrealizedPnlCalculationProperty, Book>, TableCell<UnrealizedPnlCalculationProperty, Book>> unrealizedPnlCalculationBookCellFactory = new Callback<TableColumn<UnrealizedPnlCalculationProperty, Book>, TableCell<UnrealizedPnlCalculationProperty, Book>>() {
-			public TableCell<UnrealizedPnlCalculationProperty, Book> call(
-					TableColumn<UnrealizedPnlCalculationProperty, Book> p) {
-				return new UnrealizedPnlCalculationBookEditingCell();
-			}
-		};
-
-		Callback<TableColumn<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>, TableCell<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>> unrealizedPnlCalculationCellFactory = new Callback<TableColumn<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>, TableCell<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>>() {
-			public TableCell<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation> call(
-					TableColumn<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation> p) {
-				return new UnrealizedPnlCalculationEditingCell();
-			}
-		};
+		Callback<TableColumn<UnrealizedPnlCalculationProperty, String>, TableCell<UnrealizedPnlCalculationProperty, String>> unrealizedPnlCalculationProductTypeCellFactory = _ -> new UnrealizedPnlCalculationProductTypeEditingCell();
+		Callback<TableColumn<UnrealizedPnlCalculationProperty, Book>, TableCell<UnrealizedPnlCalculationProperty, Book>> unrealizedPnlCalculationBookCellFactory = _ -> new UnrealizedPnlCalculationBookEditingCell();
+		Callback<TableColumn<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>, TableCell<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>> unrealizedPnlCalculationCellFactory = _ -> new UnrealizedPnlCalculationEditingCell();
 
 		fxProductType
 				.setCellValueFactory(productType -> new ReadOnlyStringWrapper(productType.getValue().getProductType()));
-
 		fxProductType.setCellFactory(unrealizedPnlCalculationProductTypeCellFactory);
+		fxProductType.setOnEditCommit(
+				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setProductType(t.getNewValue()));
 
-		fxProductType.setOnEditCommit(new EventHandler<CellEditEvent<UnrealizedPnlCalculationProperty, String>>() {
-			@Override
-			public void handle(CellEditEvent<UnrealizedPnlCalculationProperty, String> t) {
-				((UnrealizedPnlCalculationProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setProductType(t.getNewValue());
-			}
-		});
-
-		book.setCellValueFactory(new PropertyValueFactory<UnrealizedPnlCalculationProperty, Book>("book"));
-
+		book.setCellValueFactory(new PropertyValueFactory<>("book"));
 		book.setCellFactory(unrealizedPnlCalculationBookCellFactory);
+		book.setOnEditCommit(
+				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setBook(t.getNewValue()));
 
-		book.setOnEditCommit(new EventHandler<CellEditEvent<UnrealizedPnlCalculationProperty, Book>>() {
-			@Override
-			public void handle(CellEditEvent<UnrealizedPnlCalculationProperty, Book> t) {
-				((UnrealizedPnlCalculationProperty) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setBook(t.getNewValue());
-			}
-		});
-
-		unrealizedPnlCalculation.setCellValueFactory(
-				new PropertyValueFactory<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>(
-						"unrealizedPnlCalculation"));
-
+		unrealizedPnlCalculation.setCellValueFactory(new PropertyValueFactory<>("unrealizedPnlCalculation"));
 		unrealizedPnlCalculation.setCellFactory(unrealizedPnlCalculationCellFactory);
-
-		unrealizedPnlCalculation.setOnEditCommit(
-				new EventHandler<CellEditEvent<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>>() {
-					@Override
-					public void handle(CellEditEvent<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation> t) {
-						((UnrealizedPnlCalculationProperty) t.getTableView().getItems()
-								.get(t.getTablePosition().getRow())).setUnrealizedPnlCalculation(t.getNewValue());
-					}
-				});
+		unrealizedPnlCalculation.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow())
+				.setUnrealizedPnlCalculation(t.getNewValue()));
 		fxProductTypeComboBox.setPromptText("Product type");
 		bookComboBox.setPromptText("Book");
 		unrealizedPnlCalculationComboBox.setPromptText("Unrealized PNL calculation");
@@ -177,7 +134,7 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 			if (unrealizedPnlCalculationComboBox.getValue() == null) {
 				errMsg.append(String.format("Please select an unrealized pnl calculation.%n"));
 			}
-			if (errMsg.length() > 0) {
+			if (!errMsg.isEmpty()) {
 				throw new TradistaBusinessException(errMsg.toString());
 			}
 
@@ -186,8 +143,8 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 			fxProductTypeComboBox.getSelectionModel().clearSelection();
 			bookComboBox.getSelectionModel().clearSelection();
 			unrealizedPnlCalculationComboBox.getSelectionModel().clearSelection();
-		} catch (TradistaBusinessException abe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -250,15 +207,15 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 					if (!changing && newProductType != null && oldProductType != null
 							&& !oldProductType.equals(newProductType)) {
 						StringBuilder errMsg = new StringBuilder();
-						if (unrealizedPnlCalculationTable.getItems().contains(new UnrealizedPnlCalculationProperty(
-								((UnrealizedPnlCalculationProperty) getTableRow().getItem()).getBook(), newProductType,
+						if (unrealizedPnlCalculationTable.getItems()
+								.contains(new UnrealizedPnlCalculationProperty(getTableRow().getItem().getBook(),
+										newProductType,
 
-								null))) {
+										null))) {
 							errMsg.append(String.format("The Product Type %s / Book %s Pair is already in the list.%n",
-									newProductType,
-									((UnrealizedPnlCalculationProperty) getTableRow().getItem()).getBook()));
+									newProductType, getTableRow().getItem().getBook()));
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -275,18 +232,13 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 				productTypeComboBox.setValue(getItem());
 			}
 			productTypeComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			productTypeComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!unrealizedPnlCalculationTable.getItems()
-								.contains(new UnrealizedPnlCalculationProperty(
-										((UnrealizedPnlCalculationProperty) getTableRow().getItem()).getBook(),
-										productTypeComboBox.getValue(), null))) {
-							commitEdit(productTypeComboBox.getValue());
-						}
-
+			productTypeComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					if (!unrealizedPnlCalculationTable.getItems().contains(new UnrealizedPnlCalculationProperty(
+							getTableRow().getItem().getBook(), productTypeComboBox.getValue(), null))) {
+						commitEdit(productTypeComboBox.getValue());
 					}
+
 				}
 			});
 		}
@@ -351,15 +303,12 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 				public void changed(ObservableValue<? extends Book> observableValue, Book oldBook, Book newBook) {
 					if (!changing && newBook != null && oldBook != null && !oldBook.equals(newBook)) {
 						StringBuilder errMsg = new StringBuilder();
-						if (unrealizedPnlCalculationTable.getItems()
-								.contains(new UnrealizedPnlCalculationProperty(newBook,
-										((UnrealizedPnlCalculationProperty) getTableRow().getItem()).getProductType(),
-										null))) {
+						if (unrealizedPnlCalculationTable.getItems().contains(new UnrealizedPnlCalculationProperty(
+								newBook, getTableRow().getItem().getProductType(), null))) {
 							errMsg.append(String.format("The Product Type %s / Book %s Pair is already in the list.%n",
-									((UnrealizedPnlCalculationProperty) getTableRow().getItem()).getProductType(),
-									newBook));
+									getTableRow().getItem().getProductType(), newBook));
 						}
-						if (errMsg.length() > 0) {
+						if (!errMsg.isEmpty()) {
 							changing = true;
 							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
 							alert.showAndWait();
@@ -376,18 +325,13 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 				bookComboBox.setValue(getItem());
 			}
 			bookComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			bookComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						if (!unrealizedPnlCalculationTable.getItems()
-								.contains(new UnrealizedPnlCalculationProperty(bookComboBox.getValue(),
-										((UnrealizedPnlCalculationProperty) getTableRow().getItem()).getProductType(),
-										null))) {
-							commitEdit(bookComboBox.getValue());
-						}
-
+			bookComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					if (!unrealizedPnlCalculationTable.getItems().contains(new UnrealizedPnlCalculationProperty(
+							bookComboBox.getValue(), getTableRow().getItem().getProductType(), null))) {
+						commitEdit(bookComboBox.getValue());
 					}
+
 				}
 			});
 		}
@@ -444,17 +388,14 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 		}
 
 		private void createUnrealizedPnlCalculationComboBox() {
-			unrealizedPnlCalculationComboBox = new ComboBox<UnrealizedPnlCalculation>();
+			unrealizedPnlCalculationComboBox = new ComboBox<>();
 			if (getItem() != null) {
 				unrealizedPnlCalculationComboBox.setValue(getItem());
 			}
 			unrealizedPnlCalculationComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			unrealizedPnlCalculationComboBox.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(unrealizedPnlCalculationComboBox.getValue());
-					}
+			unrealizedPnlCalculationComboBox.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit(unrealizedPnlCalculationComboBox.getValue());
 				}
 			});
 		}
@@ -468,15 +409,15 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 
 		PricingParameterUnrealizedPnlCalculationModule module = null;
 		for (PricingParameterModule mod : pricingParam.getModules()) {
-			if (mod instanceof PricingParameterUnrealizedPnlCalculationModule) {
-				module = (PricingParameterUnrealizedPnlCalculationModule) mod;
+			if (mod instanceof PricingParameterUnrealizedPnlCalculationModule ppupcm) {
+				module = ppupcm;
 				break;
 			}
 		}
 
 		if (module != null) {
 
-			List<UnrealizedPnlCalculationProperty> unrealizedPnlCalculationPropertyList = new ArrayList<UnrealizedPnlCalculationProperty>();
+			List<UnrealizedPnlCalculationProperty> unrealizedPnlCalculationPropertyList = new ArrayList<>();
 
 			for (Map.Entry<BookProductTypePair, UnrealizedPnlCalculation> entry : module.getUnrealizedPnlCalculations()
 					.entrySet()) {
@@ -505,14 +446,14 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 
 	protected class UnrealizedPnlCalculationProperty implements Comparable<UnrealizedPnlCalculationProperty> {
 
-		private final SimpleObjectProperty book;
+		private final SimpleObjectProperty<Object> book;
 		private final SimpleStringProperty productType;
-		private final SimpleObjectProperty unrealizedPnlCalculation;
+		private final SimpleObjectProperty<Object> unrealizedPnlCalculation;
 
 		private UnrealizedPnlCalculationProperty(Object book, String productType, Object unrealizedPnlCalculation) {
-			this.book = new SimpleObjectProperty(book);
+			this.book = new SimpleObjectProperty<>(book);
 			this.productType = new SimpleStringProperty(productType);
-			this.unrealizedPnlCalculation = new SimpleObjectProperty(unrealizedPnlCalculation);
+			this.unrealizedPnlCalculation = new SimpleObjectProperty<>(unrealizedPnlCalculation);
 		}
 
 		public Object getBook() {

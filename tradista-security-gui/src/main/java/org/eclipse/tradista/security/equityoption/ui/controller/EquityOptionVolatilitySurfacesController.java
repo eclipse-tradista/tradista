@@ -16,11 +16,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.core.marketdata.ui.controller.TradistaVolatilitySurfaceController;
+import org.eclipse.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 import org.eclipse.tradista.security.equityoption.service.EquityOptionVolatilitySurfaceBusinessDelegate;
@@ -35,7 +39,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert.AlertType;
@@ -48,7 +51,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -95,6 +97,9 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 	@FXML
 	private Button deleteButton;
+
+	@FXML
+	private Button copyButton;
 
 	@FXML
 	private Button addButton;
@@ -145,6 +150,10 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 		super.initialize();
+
+		saveButton.setDisable(true);
+		copyButton.setDisable(true);
+		deleteButton.setDisable(true);
 		equityOptionVolatilitySurfaceBusinessDelegate = new EquityOptionVolatilitySurfaceBusinessDelegate();
 
 		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> stringCellFactory = _ -> new StringEditingCell();
@@ -155,16 +164,13 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 		pointVolatility.setCellFactory(stringCellFactory);
 
-		pointVolatility.setOnEditCommit(new EventHandler<>() {
-			@Override
-			public void handle(CellEditEvent<SurfacePointProperty, String> t) {
-				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
-					t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
-				} catch (TradistaBusinessException tbe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-					alert.showAndWait();
-				}
+		pointVolatility.setOnEditCommit(t -> {
+			try {
+				TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
+				t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
+			} catch (TradistaBusinessException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+				alert.showAndWait();
 			}
 		});
 
@@ -197,100 +203,94 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 		quoteDate.setValue(LocalDate.now());
 
-		volatilitySurface.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends EquityOptionVolatilitySurface> ov,
-					EquityOptionVolatilitySurface oldSurf, EquityOptionVolatilitySurface surf) {
-				if (surf != null) {
-					surface = surf;
-					isGeneratedCheckBox.setSelected(surf.isGenerated());
-					interpolatorComboBox.setValue(surf.getInterpolator());
-					algorithmComboBox.setValue(surf.getAlgorithm());
-					instanceComboBox.setValue(surf.getInstance());
-					if (surf.getStrikes() != null) {
-						selectedStrikes.setItems(
-								FXCollections.observableArrayList(TradistaGUIUtil.formatAmounts(surf.getStrikes())));
-					}
+		volatilitySurface.valueProperty().addListener((_, _, newSurf) -> {
+			if (newSurf != null) {
+				surface = newSurf;
+				isGeneratedCheckBox.setSelected(newSurf.isGenerated());
+				interpolatorComboBox.setValue(newSurf.getInterpolator());
+				algorithmComboBox.setValue(newSurf.getAlgorithm());
+				instanceComboBox.setValue(newSurf.getInstance());
+				saveButton.setDisable(false);
+				copyButton.setDisable(false);
+				deleteButton.setDisable(false);
+				selectedStrikes.setItems(
+						FXCollections.observableArrayList(TradistaGUIUtil.formatAmounts(newSurf.getStrikes())));
 
-					List<SurfacePointProperty> properties = null;
-					try {
-						properties = buildTableContent(surf.getPoints());
-					} catch (TradistaBusinessException tbe) {
-						TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-						alert.showAndWait();
-					}
-
-					// 1. Wrap the ObservableList in a FilteredList
-					// (initially display all
-					// data).
-					FilteredList<SurfacePointProperty> filteredData = new FilteredList<>(
-							FXCollections.observableArrayList(properties));
-
-					// 3. Wrap the FilteredList in a SortedList.
-					SortedList<SurfacePointProperty> sortedData = new SortedList<>(filteredData);
-
-					// 4. Bind the SortedList comparator to the
-					// TableView
-					// comparator.
-					sortedData.comparatorProperty().bind(pointsTable.comparatorProperty());
-
-					// 2. Set the filter Predicate whenever the filter
-					// changes.
-					optionExpiryTextField.textProperty()
-							.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
-								// If filter text is
-								// empty,
-								// display all
-								// persons.
-								if (newValue == null || newValue.isEmpty()) {
-									return true;
-								}
-								return point.getOptionExpiry().toString().toUpperCase()
-										.contains(newValue.toUpperCase());
-							}));
-
-					strikeTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
-						// If filter text is
-						// empty,
-						// display all
-						// persons.
-						if (newValue == null || newValue.isEmpty()) {
-							return true;
-						}
-						return point.getStrike().getValue().toUpperCase().contains(newValue.toUpperCase());
-					}));
-
-					volatilityTextField.textProperty()
-							.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
-								// If filter text is empty, display
-								// all
-								// persons.
-								if (newValue == null || newValue.isEmpty()) {
-									return true;
-								}
-								return point.getVolatility().toString().contains(newValue);
-							}));
-
-					pointsTable.setItems(sortedData);
-					pointsTable.refresh();
-
-					quoteDate.setValue(surf.getQuoteDate());
-					quotesList.getItems().clear();
-					if (surf.getQuotes() != null) {
-						selectedQuotesList.setItems(FXCollections.observableArrayList(surf.getQuotes()));
-					}
-					quoteSet.setValue(surf.getQuoteSet());
-				} else {
-					algorithmComboBox.getSelectionModel().clearSelection();
-					interpolatorComboBox.getSelectionModel().clearSelection();
-					instanceComboBox.getSelectionModel().clearSelection();
-					selectedQuotesList.getItems().clear();
-					quoteDate.setValue(null);
-					selectedStrikes.getItems().clear();
-					pointsTable.setItems(null);
+				List<SurfacePointProperty> properties = null;
+				try {
+					properties = buildTableContent(newSurf.getPoints());
+				} catch (TradistaBusinessException tbe) {
+					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+					alert.showAndWait();
 				}
-			}
 
+				// 1. Wrap the ObservableList in a FilteredList
+				// (initially display all
+				// data).
+				FilteredList<SurfacePointProperty> filteredData = new FilteredList<>(
+						FXCollections.observableArrayList(properties));
+
+				// 3. Wrap the FilteredList in a SortedList.
+				SortedList<SurfacePointProperty> sortedData = new SortedList<>(filteredData);
+
+				// 4. Bind the SortedList comparator to the
+				// TableView
+				// comparator.
+				sortedData.comparatorProperty().bind(pointsTable.comparatorProperty());
+
+				// 2. Set the filter Predicate whenever the filter
+				// changes.
+				optionExpiryTextField.textProperty().addListener((_, _, newText) -> filteredData.setPredicate(point -> {
+					// If filter text is
+					// empty,
+					// display all
+					// persons.
+					if (newText == null || newText.isEmpty()) {
+						return true;
+					}
+					return point.getOptionExpiry().getValue().toUpperCase().contains(newText.toUpperCase());
+				}));
+
+				strikeTextField.textProperty().addListener((_, _, newText) -> filteredData.setPredicate(point -> {
+					// If filter text is
+					// empty,
+					// display all
+					// persons.
+					if (newText == null || newText.isEmpty()) {
+						return true;
+					}
+					return point.getStrike().getValue().toUpperCase().contains(newText.toUpperCase());
+				}));
+
+				volatilityTextField.textProperty().addListener((_, _, newText) -> filteredData.setPredicate(point -> {
+					// If filter text is
+					// empty,
+					// display all
+					// persons.
+					if (newText == null || newText.isEmpty()) {
+						return true;
+					}
+					return point.getVolatility().getValue().contains(newText);
+				}));
+
+				pointsTable.setItems(sortedData);
+				pointsTable.refresh();
+
+				quoteDate.setValue(newSurf.getQuoteDate());
+				quotesList.getItems().clear();
+				if (newSurf.getQuotes() != null) {
+					selectedQuotesList.setItems(FXCollections.observableArrayList(newSurf.getQuotes()));
+				}
+				quoteSet.setValue(newSurf.getQuoteSet());
+			} else {
+				algorithmComboBox.getSelectionModel().clearSelection();
+				interpolatorComboBox.getSelectionModel().clearSelection();
+				instanceComboBox.getSelectionModel().clearSelection();
+				selectedQuotesList.getItems().clear();
+				quoteDate.setValue(null);
+				selectedStrikes.getItems().clear();
+				pointsTable.setItems(null);
+			}
 		});
 
 		TradistaGUIUtil.fillComboBox(equityOptionVolatilitySurfaceBusinessDelegate.getAllGenerationAlgorithms(),
@@ -298,68 +298,96 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		TradistaGUIUtil.fillComboBox(equityOptionVolatilitySurfaceBusinessDelegate.getAllInterpolators(),
 				interpolatorComboBox);
 		TradistaGUIUtil.fillComboBox(equityOptionVolatilitySurfaceBusinessDelegate.getAllInstances(), instanceComboBox);
-		TradistaGUIUtil.fillComboBox(
-				equityOptionVolatilitySurfaceBusinessDelegate.getAllEquityOptionVolatilitySurfaces(),
-				volatilitySurface);
+		TradistaSecurityGUIUtil.fillEquityOptionVolatilitySurfaceComboBox(volatilitySurface);
 	}
 
 	private void buildSurface(EquityOptionVolatilitySurface equityOptionVolatilitySurface)
 			throws TradistaBusinessException {
-		if (surface == null) {
+		if (equityOptionVolatilitySurface == null) {
 			String name = null;
 			if (volatilitySurface.getValue() != null) {
 				name = this.volatilitySurface.getValue().getName();
 			}
-			surface = new EquityOptionVolatilitySurface(name, ClientUtil.getCurrentUser().getProcessingOrg());
+			equityOptionVolatilitySurface = new EquityOptionVolatilitySurface(name,
+					ClientUtil.getCurrentUser().getProcessingOrg());
 		}
-		surface.setQuotes(new ArrayList<>(selectedQuotesList.getItems()));
+		equityOptionVolatilitySurface.setQuotes(new ArrayList<>(selectedQuotesList.getItems()));
 
 		List<SurfacePoint<Integer, BigDecimal, BigDecimal>> surfacePoints = toSurfacePointList(pointsTable.getItems());
-		surface.setPoints(surfacePoints);
+		equityOptionVolatilitySurface.setPoints(surfacePoints);
 
-		surface.setQuoteSet(quoteSet.getValue());
+		equityOptionVolatilitySurface.setQuoteSet(quoteSet.getValue());
 
 		List<BigDecimal> strikes = TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), STRIKE_PRICE_RATIO);
-		surface.setStrikes(strikes);
+		equityOptionVolatilitySurface.setStrikes(strikes);
 		if (isGeneratedCheckBox.isSelected()) {
-			surface.setInstance(instanceComboBox.getValue());
-			surface.setInterpolator(interpolatorComboBox.getValue());
-			surface.setAlgorithm(algorithmComboBox.getValue());
+			equityOptionVolatilitySurface.setInstance(instanceComboBox.getValue());
+			equityOptionVolatilitySurface.setInterpolator(interpolatorComboBox.getValue());
+			equityOptionVolatilitySurface.setAlgorithm(algorithmComboBox.getValue());
 		}
-		surface.setQuoteDate(quoteDate.getValue());
+		equityOptionVolatilitySurface.setQuoteDate(quoteDate.getValue());
 	}
 
 	@FXML
 	protected void save() {
-		TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-		confirmation.setTitle("Save EquityOption Volatility Surface");
-		confirmation.setHeaderText("Save EquityOption Volatility Surface");
-		confirmation.setContentText("Do you want to save this EquityOption Volatility Surface?");
+		try {
+			boolean isNew = (surface.getId() == 0);
+			LegalEntity po = null;
+			boolean proceed = false;
 
-		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
-			try {
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog(
+						"Equity Option Volatility Surface", ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save EquityOption Volatility Surface");
+				confirmation.setHeaderText("Save EquityOption Volatility Surface");
+				confirmation.setContentText("Do you want to save this EquityOption Volatility Surface?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					po = surface.getProcessingOrg();
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					surface = new EquityOptionVolatilitySurface(surface.getName(), po);
+				}
 				buildSurface(surface);
 				surface.setId(equityOptionVolatilitySurfaceBusinessDelegate.saveEquityOptionVolatilitySurface(surface));
 				// Refresh of the surfaces combobox
-				TradistaGUIUtil.fillComboBox(
-						equityOptionVolatilitySurfaceBusinessDelegate.getAllEquityOptionVolatilitySurfaces(),
-						volatilitySurface);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
+				TradistaSecurityGUIUtil.fillEquityOptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
 	@FXML
 	protected void copy() {
-		boolean surfaceLoaded = (surface != null);
-		if (!surfaceLoaded) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, "Please select a volatility Surface.");
-			alert.showAndWait();
-		} else {
-			try {
+		try {
+			String copyName = null;
+			LegalEntity po = null;
+			boolean proceed = false;
+
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("Equity Option Volatility Surface",
+						surface.getProcessingOrg(), surface.getName(), false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
 				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
 				dialog.setTitle("Surface name");
 				dialog.setHeaderText("Surface name selection");
@@ -367,30 +395,31 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 				Optional<String> result = dialog.showAndWait();
 				if (result.isPresent()) {
-					EquityOptionVolatilitySurface copyEquityOptionVolatilitySurface = new EquityOptionVolatilitySurface(
-							result.get(), ClientUtil.getCurrentUser().getProcessingOrg());
-					buildSurface(copyEquityOptionVolatilitySurface);
-					copyEquityOptionVolatilitySurface.setId(equityOptionVolatilitySurfaceBusinessDelegate
-							.saveEquityOptionVolatilitySurface(copyEquityOptionVolatilitySurface));
-					surface = copyEquityOptionVolatilitySurface;
-					// Refresh of the surfaces combobox
-					TradistaGUIUtil.fillComboBox(
-							equityOptionVolatilitySurfaceBusinessDelegate.getAllEquityOptionVolatilitySurfaces(),
-							volatilitySurface);
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
 				}
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
 			}
+
+			if (proceed) {
+				EquityOptionVolatilitySurface copyEquityOptionVolatilitySurface = new EquityOptionVolatilitySurface(
+						copyName, po);
+				buildSurface(copyEquityOptionVolatilitySurface);
+				copyEquityOptionVolatilitySurface.setId(equityOptionVolatilitySurfaceBusinessDelegate
+						.saveEquityOptionVolatilitySurface(copyEquityOptionVolatilitySurface));
+				surface = copyEquityOptionVolatilitySurface;
+				// Refresh of the surfaces combobox
+				TradistaSecurityGUIUtil.fillEquityOptionVolatilitySurfaceComboBox(volatilitySurface);
+			}
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
 	@FXML
 	protected void delete() {
 		try {
-			if (surface == null) {
-				throw new TradistaBusinessException("No surface name has been selected.");
-			}
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 			confirmation.setTitle("Delete EquityOption Volatility Surface");
 			confirmation.setHeaderText("Delete EquityOption Volatility Surface");
@@ -400,9 +429,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 			if (result.get() == ButtonType.OK) {
 				equityOptionVolatilitySurfaceBusinessDelegate.deleteEquityOptionVolatilitySurface(surface.getId());
 				surface = null;
-				TradistaGUIUtil.fillComboBox(
-						equityOptionVolatilitySurfaceBusinessDelegate.getAllEquityOptionVolatilitySurfaces(),
-						volatilitySurface);
+				TradistaSecurityGUIUtil.fillEquityOptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -440,9 +467,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 			if (result.isPresent()) {
 				EquityOptionVolatilitySurface surface = result.get();
 				equityOptionVolatilitySurfaceBusinessDelegate.saveEquityOptionVolatilitySurface(surface);
-				TradistaGUIUtil.fillComboBox(
-						equityOptionVolatilitySurfaceBusinessDelegate.getAllEquityOptionVolatilitySurfaces(),
-						volatilitySurface);
+				TradistaSecurityGUIUtil.fillEquityOptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -454,6 +479,9 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 	protected void addStrike() {
 		try {
 			BigDecimal strike = TradistaGUIUtil.parseAmount(strikeToAdd.getText(), STRIKE_PRICE_RATIO);
+			if (strike == null) {
+				throw new TradistaBusinessException(String.format("The %s is mandatory.", STRIKE_PRICE_RATIO));
+			}
 			boolean strikeExists = false;
 			if (selectedStrikes.getItems() != null && !selectedStrikes.getItems().isEmpty()) {
 				for (BigDecimal s : TradistaGUIUtil.parseAmounts(selectedStrikes.getItems(), STRIKE_PRICE_RATIO)) {
@@ -479,12 +507,15 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 	@FXML
 	protected void removeStrike() {
+		String strikePriceRatioToBeRemoved = selectedStrikes.getSelectionModel().getSelectedItem();
+		if (strikePriceRatioToBeRemoved == null) {
+			return;
+		}
 		try {
 			if (pointsTable.getItems() != null && !pointsTable.getItems().isEmpty()) {
 				for (SurfacePointProperty prop : pointsTable.getItems()) {
 					if (TradistaGUIUtil.parseAmount(prop.getStrike().getValue(), STRIKE_PRICE_RATIO).compareTo(
-							TradistaGUIUtil.parseAmount(selectedStrikes.getSelectionModel().getSelectedItem(),
-									STRIKE_PRICE_RATIO)) == 0) {
+							TradistaGUIUtil.parseAmount(strikePriceRatioToBeRemoved, STRIKE_PRICE_RATIO)) == 0) {
 						if (!StringUtils.isEmpty(prop.getVolatility().getValue())) {
 							TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 							confirmation.setTitle("Remove Strike/Price Ratio");
@@ -494,8 +525,6 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 
 							Optional<ButtonType> result = confirmation.showAndWait();
 							if (result.get() == ButtonType.OK) {
-								String strikePriceRatioToBeRemoved = selectedStrikes.getSelectionModel()
-										.getSelectedItem();
 								selectedStrikes.getItems().remove(strikePriceRatioToBeRemoved);
 								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(
 										pointsTable.getItems());
@@ -518,7 +547,6 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 					}
 				}
 			}
-			String strikePriceRatioToBeRemoved = selectedStrikes.getSelectionModel().getSelectedItem();
 			selectedStrikes.getItems().remove(strikePriceRatioToBeRemoved);
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(pointsTable.getItems());
 			List<SurfacePoint<Integer, BigDecimal, BigDecimal>> toBeRemoved = new ArrayList<>();
@@ -618,19 +646,16 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (arg2 != null && !arg2) {
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((_, _, newVal) -> {
+				if (Boolean.FALSE.equals(newVal)) {
+					commitEdit(textField.getText());
 				}
 			});
 
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem();
+			return getItem() == null ? StringUtils.EMPTY : getItem();
 		}
 	}
 
@@ -696,7 +721,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem();
+			return getItem() == null ? StringUtils.EMPTY : getItem();
 		}
 	}
 
@@ -730,7 +755,8 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 					String optionExpiry = equityOptionVolatilitySurfaceBusinessDelegate
 							.getOptionExpiryName(point.getxAxis());
 					String strike = TradistaGUIUtil.formatAmount(point.getyAxis());
-					String volatility = point.getzAxis() == null ? "" : TradistaGUIUtil.formatAmount(point.getzAxis());
+					String volatility = point.getzAxis() == null ? StringUtils.EMPTY
+							: TradistaGUIUtil.formatAmount(point.getzAxis());
 					if (!optionExpiry.isEmpty()) {
 						surfacePointPropertyList.add(new SurfacePointProperty(optionExpiry, strike, volatility));
 					}
@@ -782,6 +808,15 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 		}
 
 		return nameList;
+	}
+
+	public static List<BigDecimal> toStrikeList(List<StrikeProperty> data) throws TradistaBusinessException {
+		List<BigDecimal> strikeList = new ArrayList<>();
+		for (StrikeProperty prop : data) {
+			strikeList.add(TradistaGUIUtil.parseAmount(prop.getValue().getValue(), STRIKE_PRICE_RATIO));
+		}
+
+		return strikeList;
 	}
 
 	public static class SurfacePointProperty {
@@ -888,7 +923,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 				return false;
 			}
 
-			return (getValue().toString().compareTo((((StrikeProperty) o).getValue().toString())) == 0);
+			return (getValue().getValue().compareTo((((StrikeProperty) o).getValue().getValue())) == 0);
 		}
 
 		public int hashCode() {
