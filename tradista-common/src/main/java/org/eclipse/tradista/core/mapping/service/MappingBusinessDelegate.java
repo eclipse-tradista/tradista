@@ -25,6 +25,12 @@ import org.eclipse.tradista.core.mapping.validator.InterfaceMappingSetValidator;
 
 public class MappingBusinessDelegate {
 
+	private static final String VALUE_IS_MANDATORY = "The value is mandatory.%n";
+
+	private static final String MAPPING_TYPE_IS_MANDATORY = "The mapping type is mandatory.%n";
+
+	private static final String PROCESSING_ORG_ID_CANNOT_BE_NEGATIVE = "the processing org id cannot be negative.";
+
 	private MappingService mappingService;
 
 	private InterfaceMappingSetValidator interfaceMappingSetValidator;
@@ -40,13 +46,16 @@ public class MappingBusinessDelegate {
 			InterfaceMappingSet.Direction direction, String value, long poId) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (mappingType == null) {
-			errMsg.append(String.format("the mapping type is mandatory.%n"));
+			errMsg.append(String.format(MAPPING_TYPE_IS_MANDATORY));
 		}
 		if (direction == null) {
 			errMsg.append(String.format(DIRECTION_IS_MANDATORY));
 		}
 		if (StringUtils.isEmpty(value)) {
-			errMsg.append("the value is mandatory.");
+			errMsg.append(String.format(VALUE_IS_MANDATORY));
+		}
+		if (poId < 0) {
+			errMsg.append(PROCESSING_ORG_ID_CANNOT_BE_NEGATIVE);
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -58,13 +67,16 @@ public class MappingBusinessDelegate {
 			InterfaceMappingSet.Direction direction, String value, long poId) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (mappingType == null) {
-			errMsg.append(String.format("the mapping type is mandatory.%n"));
+			errMsg.append(String.format(MAPPING_TYPE_IS_MANDATORY));
 		}
 		if (direction == null) {
 			errMsg.append(String.format(DIRECTION_IS_MANDATORY));
 		}
 		if (StringUtils.isEmpty(value)) {
-			errMsg.append("the value is mandatory.");
+			errMsg.append(String.format(VALUE_IS_MANDATORY));
+		}
+		if (poId < 0) {
+			errMsg.append(PROCESSING_ORG_ID_CANNOT_BE_NEGATIVE);
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -81,10 +93,13 @@ public class MappingBusinessDelegate {
 			InterfaceMappingSet.Direction direction, long poId) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (mappingType == null) {
-			errMsg.append(String.format("The mapping type is mandatory.%n"));
+			errMsg.append(String.format(MAPPING_TYPE_IS_MANDATORY));
 		}
 		if (direction == null) {
 			errMsg.append(String.format(DIRECTION_IS_MANDATORY));
+		}
+		if (poId < 0) {
+			errMsg.append(PROCESSING_ORG_ID_CANNOT_BE_NEGATIVE);
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
