@@ -48,7 +48,11 @@ public class CurveBusinessDelegate {
 		return SecurityUtil.run(() -> curveService.getAllCurves());
 	}
 
-	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getCurvesByPoId(long poId) {
+	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getCurvesByPoId(long poId)
+			throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
 		return SecurityUtil.run(() -> curveService.getCurvesByPoId(poId));
 	}
 

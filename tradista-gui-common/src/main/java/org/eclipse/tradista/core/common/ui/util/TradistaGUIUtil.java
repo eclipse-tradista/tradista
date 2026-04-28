@@ -77,7 +77,6 @@ import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
-import org.springframework.lang.NonNull;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -1173,7 +1172,11 @@ public final class TradistaGUIUtil {
 		Set<Curve<? extends LocalDate, ? extends BigDecimal>> curves = null;
 		CurveBusinessDelegate curveBusinessDelegate = new CurveBusinessDelegate();
 		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
-			curves = curveBusinessDelegate.getCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			try {
+				curves = curveBusinessDelegate.getCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
 		} else {
 			curves = curveBusinessDelegate.getAllCurves();
 		}
