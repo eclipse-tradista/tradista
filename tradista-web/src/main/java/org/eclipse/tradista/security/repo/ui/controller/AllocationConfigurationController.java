@@ -115,9 +115,8 @@ public class AllocationConfigurationController implements Serializable {
 	}
 
 	/**
-	 * Returns books filtered by the current PO context.
-	 * If admin with a specific current PO selected: books of that PO only.
-	 * Otherwise: all books.
+	 * Returns books filtered by the current PO context. If admin with a specific
+	 * current PO selected: books of that PO only. Otherwise: all books.
 	 */
 	private List<Book> getBooksForCurrentContext() {
 		Set<Book> allBooks = bookBusinessDelegate.getAllBooks();
@@ -126,8 +125,7 @@ public class AllocationConfigurationController implements Serializable {
 		}
 		LegalEntity currentPo = ClientUtil.getCurrentProcessingOrg();
 		if (ClientUtil.currentUserIsAdmin() && currentPo != null) {
-			return allBooks.stream()
-					.filter(b -> b.getProcessingOrg().equals(currentPo))
+			return allBooks.stream().filter(b -> b.getProcessingOrg().equals(currentPo))
 					.collect(java.util.stream.Collectors.toList());
 		}
 		return new ArrayList<>(allBooks);
@@ -215,14 +213,16 @@ public class AllocationConfigurationController implements Serializable {
 		if (processingOrg == null) {
 			return StringUtils.EMPTY;
 		}
-		return String.format("The new Allocation Configuration will be linked to Processing Org %s.", processingOrg.getShortName());
+		return String.format("The new Allocation Configuration will be linked to Processing Org %s.",
+				processingOrg.getShortName());
 	}
 
 	public String getCopyMessage() {
 		if (copyProcessingOrg == null) {
 			return StringUtils.EMPTY;
 		}
-		return String.format("The new Allocation Configuration will be linked to Processing Org %s.", copyProcessingOrg.getShortName());
+		return String.format("The new Allocation Configuration will be linked to Processing Org %s.",
+				copyProcessingOrg.getShortName());
 	}
 
 	public SortedSet<LegalEntity> getAllProcessingOrgs() {
@@ -302,11 +302,9 @@ public class AllocationConfigurationController implements Serializable {
 			allocationConfiguration = loadAllocationConfiguration;
 			allocationConfigurationName = allocationConfiguration.getName();
 			List<Book> allocConfigBooks = new ArrayList<>();
-			
 			List<Book> sourceBooks = availableBooks.stream()
-					.filter(b -> b.getProcessingOrg().equals(allocationConfiguration.getProcessingOrg()))
-					.toList();
-			
+					.filter(b -> b.getProcessingOrg().equals(allocationConfiguration.getProcessingOrg())).toList();
+
 			if (allocationConfiguration.getBooks() != null) {
 				allocConfigBooks = new ArrayList<>(allocationConfiguration.getBooks());
 				final List<Book> tmpAllocConfigBooks = allocConfigBooks;
@@ -351,6 +349,7 @@ public class AllocationConfigurationController implements Serializable {
 		}
 		if (!ClientUtil.currentUserIsAdmin() || ClientUtil.getCurrentProcessingOrg() != null) {
 			return ac.getName();
+
 		}
 		return ac.getName() + " [" + ac.getProcessingOrg().getShortName() + "]";
 	}

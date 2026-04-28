@@ -71,7 +71,6 @@ public class BooksController extends TradistaControllerAdapter {
 	public void initialize() {
 		bookBusinessDelegate = new BookBusinessDelegate();
 		TradistaGUIUtil.fillBookComboBox(bookComboBox);
-
 		copyButton.setDisable(true);
 	}
 

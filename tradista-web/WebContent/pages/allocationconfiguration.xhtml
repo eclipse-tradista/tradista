@@ -27,7 +27,8 @@
 								readonly="#{allocationConfigurationController.allocationConfiguration ne null}" />
 						</p:column>
 					</p:row>
-					<p:row rendered="#{empty userManager.currentUserProcessingOrg and empty menuController.currentProcessingOrg}">
+					<p:row
+						rendered="#{empty userManager.currentUserProcessingOrg and empty menuController.currentProcessingOrg}">
 						<p:column>
 							<p:outputLabel styleClass="tradista-menu-item"
 								value="Processing Org :" />
@@ -47,7 +48,8 @@
 							<p:card>
 								<p:pickList id="allocationConfigurationPickList"
 									value="#{allocationConfigurationController.books}" var="book"
-									itemValue="#{book}" itemLabel="#{allocationConfigurationController.getDisambiguatedBookName(book)}"
+									itemValue="#{book}"
+									itemLabel="#{allocationConfigurationController.getDisambiguatedBookName(book)}"
 									showSourceControls="true" showTargetControls="true"
 									showCheckbox="true" showSourceFilter="true"
 									showTargetFilter="true" filterMatchMode="contains"
@@ -56,7 +58,8 @@
 									<f:facet name="targetCaption">Configured books</f:facet>
 									<p:column styleClass="tradista-picklist-item">
 										<div class="flex align-items-center">
-											<h:outputText value="#{allocationConfigurationController.getDisambiguatedBookName(book)}" />
+											<h:outputText
+												value="#{allocationConfigurationController.getDisambiguatedBookName(book)}" />
 										</div>
 									</p:column>
 								</p:pickList>
@@ -73,8 +76,7 @@
 							</p:commandButton>
 							<p:commandButton value="Copy" styleClass="rounded-button"
 								action="#{allocationConfigurationController.prepareCopy()}"
-								oncomplete="PF('copy').show()"
-								update="copyForm"
+								oncomplete="PF('copy').show()" update="copyForm"
 								rendered="#{allocationConfigurationController.allocationConfiguration ne null}" />
 							<p:commandButton value="New" styleClass="rounded-button"
 								action="#{allocationConfigurationController.clear()}"
@@ -83,8 +85,13 @@
 								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
 								value="#{allocationConfigurationController.loadAllocationConfiguration}"
-								styleClass="tradista-menu-item" converter="allocationConfigurationConverter">
-								<f:selectItems value="#{allocationConfigurationController.allAllocationConfigurations}" var="ac" itemLabel="#{allocationConfigurationController.getDisambiguatedName(ac)}" itemValue="#{ac}" />
+								styleClass="tradista-menu-item"
+								converter="allocationConfigurationConverter">
+								<f:selectItems
+									value="#{allocationConfigurationController.allAllocationConfigurations}"
+									var="ac"
+									itemLabel="#{allocationConfigurationController.getDisambiguatedName(ac)}"
+									itemValue="#{ac}" />
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{allocationConfigurationController.load()}"
@@ -102,7 +109,8 @@
 					<p:row>
 						<p:column colspan="2">
 							<p:outputPanel id="copyMsg">
-								<h:outputText value="#{allocationConfigurationController.copyMessage}" />
+								<h:outputText
+									value="#{allocationConfigurationController.copyMessage}" />
 							</p:outputPanel>
 						</p:column>
 					</p:row>
@@ -147,15 +155,17 @@
 				</f:facet>
 			</p:dialog>
 		</h:form>
-		<h:form id="saveConfirmationForm" style="position: absolute;visibility: hidden;">
-			<p:dialog header="Save an Allocation Configuration" widgetVar="saveConfirmation"
-				showEffect="fade" modal="true">
+		<h:form id="saveConfirmationForm"
+			style="position: absolute;visibility: hidden;">
+			<p:dialog header="Save an Allocation Configuration"
+				widgetVar="saveConfirmation" showEffect="fade" modal="true">
 				<p:panelGrid id="saveConfirmationPanel"
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
 					<p:row>
 						<p:column colspan="2">
 							<p:outputPanel id="saveMsg">
-								<h:outputText value="#{allocationConfigurationController.saveMessage}" />
+								<h:outputText
+									value="#{allocationConfigurationController.saveMessage}" />
 							</p:outputPanel>
 						</p:column>
 					</p:row>
