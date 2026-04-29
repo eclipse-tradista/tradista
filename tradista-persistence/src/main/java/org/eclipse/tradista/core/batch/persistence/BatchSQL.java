@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +16,9 @@ import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.quartz.JobKey;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 
@@ -38,14 +40,33 @@ import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 public class BatchSQL {
 
+	private static final Field ID_FIELD = new Field("ID");
+	private static final Field TRIGGER_FIRE_INSTANCE_ID_FIELD = new Field("TRIGGER_FIRE_INSTANCE_ID");
+	private static final Field STATUS_FIELD = new Field("STATUS");
+	private static final Field START_TIME_FIELD = new Field("START_TIME");
+	private static final Field END_TIME_FIELD = new Field("END_TIME");
+	private static final Field ERROR_CAUSE_FIELD = new Field("ERROR_CAUSE");
+	private static final Field JOB_INSTANCE_NAME_FIELD = new Field("JOB_INSTANCE_NAME");
+	private static final Field JOB_TYPE_FIELD = new Field("JOB_TYPE");
+	private static final Field PROCESSING_ORG_FIELD = new Field("PROCESSING_ORG");
+
+	private static final Field[] FIELDS = { ID_FIELD, TRIGGER_FIRE_INSTANCE_ID_FIELD, STATUS_FIELD, START_TIME_FIELD,
+			END_TIME_FIELD, ERROR_CAUSE_FIELD, JOB_INSTANCE_NAME_FIELD, JOB_TYPE_FIELD, PROCESSING_ORG_FIELD };
+
+	private static final Field[] FIELDS_FOR_INSERT = { TRIGGER_FIRE_INSTANCE_ID_FIELD, STATUS_FIELD, START_TIME_FIELD,
+			JOB_INSTANCE_NAME_FIELD, JOB_TYPE_FIELD, PROCESSING_ORG_FIELD };
+
+	private static final Field[] FIELDS_FOR_UPDATE = { STATUS_FIELD, END_TIME_FIELD, ERROR_CAUSE_FIELD };
+
+	public static final Table TABLE = new Table("JOB_EXECUTION", FIELDS);
+
 	public static long saveJobExecution(String name, String po, String status, LocalDateTime startTime,
 			LocalDateTime endTime, String errorCause, String jobInstanceName, String jobType) {
 		long jobExecutionId = 0;
 		try (Connection con = TradistaDB.getConnection()) {
 			if (status.equals("IN PROGRESS")) {
-				try (PreparedStatement stmtSaveJobExecution = con.prepareStatement(
-						"INSERT INTO JOB_EXECUTION(TRIGGER_FIRE_INSTANCE_ID, STATUS, START_TIME, JOB_INSTANCE_NAME, JOB_TYPE, PROCESSING_ORG) VALUES(?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)) {
+				try (PreparedStatement stmtSaveJobExecution = TradistaDBUtil.buildInsertPreparedStatement(con, TABLE,
+						FIELDS_FOR_INSERT)) {
 					stmtSaveJobExecution.setString(1, name);
 					stmtSaveJobExecution.setString(2, status);
 					stmtSaveJobExecution.setTimestamp(3, Timestamp.valueOf(startTime));
@@ -64,8 +85,8 @@ public class BatchSQL {
 				}
 			} else {
 				// Job stopped
-				try (PreparedStatement stmtUpdateJobExecution = con.prepareStatement(
-						"UPDATE JOB_EXECUTION SET STATUS=?,END_TIME=?, ERROR_CAUSE=? WHERE TRIGGER_FIRE_INSTANCE_ID=? ")) {
+				try (PreparedStatement stmtUpdateJobExecution = TradistaDBUtil.buildUpdatePreparedStatement(con,
+						TRIGGER_FIRE_INSTANCE_ID_FIELD, TABLE, FIELDS_FOR_UPDATE)) {
 					stmtUpdateJobExecution.setString(1, status);
 					stmtUpdateJobExecution.setTimestamp(2, Timestamp.valueOf(endTime));
 					stmtUpdateJobExecution.setString(3, errorCause);
@@ -76,21 +97,48 @@ public class BatchSQL {
 			}
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return jobExecutionId;
 	}
 
+	private static TradistaJobExecution buildJobExecution(ResultSet results) throws SQLException {
+		SimpleTriggerImpl trigger = new SimpleTriggerImpl();
+		String po = results.getString(PROCESSING_ORG_FIELD.getName());
+		trigger.setEndTime(results.getDate(END_TIME_FIELD.getName()));
+		String jobInstanceName = results.getString(JOB_INSTANCE_NAME_FIELD.getName());
+		JobKey jobKey = new JobKey(jobInstanceName, po);
+		trigger.setJobKey(jobKey);
+		trigger.setJobName(jobInstanceName);
+		String triggerName = results.getString(TRIGGER_FIRE_INSTANCE_ID_FIELD.getName());
+		trigger.setStartTime(results.getDate(START_TIME_FIELD.getName()));
+		TradistaJobInstance jobInstance = null;
+		try {
+			jobInstance = new BatchBusinessDelegate().getJobInstanceByNameAndPo(jobInstanceName, po);
+		} catch (TradistaBusinessException _) {
+		}
+		TradistaJobExecution jobExecution = new TradistaJobExecution(trigger, jobInstance, triggerName);
+		jobExecution.setId(results.getLong(ID_FIELD.getName()));
+		jobExecution.setStatus(results.getString(STATUS_FIELD.getName()));
+		jobExecution.setStartTime(results.getTimestamp(START_TIME_FIELD.getName()).toLocalDateTime());
+		jobExecution.setJobType(results.getString(JOB_TYPE_FIELD.getName()));
+		Timestamp endTime = results.getTimestamp(END_TIME_FIELD.getName());
+		if (endTime != null) {
+			jobExecution.setEndTime(endTime.toLocalDateTime());
+		}
+		jobExecution.setErrorCause(results.getString(ERROR_CAUSE_FIELD.getName()));
+		return jobExecution;
+	}
+
 	public static Set<TradistaJobExecution> getJobExecutions(LocalDate date, String po) {
 		Set<TradistaJobExecution> jobExecutions = null;
-		String sqlQuery = "SELECT * FROM JOB_EXECUTION WHERE START_TIME BETWEEN ? AND ?";
+		StringBuilder sqlQuery = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		sqlQuery.append(" WHERE START_TIME BETWEEN ? AND ?");
 		if (po != null) {
-			sqlQuery += " AND PROCESSING_ORG = ?";
+			TradistaDBUtil.addParameterizedFilter(sqlQuery, PROCESSING_ORG_FIELD);
 		}
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetJobExecutions = con.prepareStatement(sqlQuery)) {
+				PreparedStatement stmtGetJobExecutions = con.prepareStatement(sqlQuery.toString())) {
 			stmtGetJobExecutions.setDate(1, java.sql.Date.valueOf(date));
 			stmtGetJobExecutions.setDate(2, java.sql.Date.valueOf(date.plusDays(1)));
 			if (po != null) {
@@ -98,38 +146,14 @@ public class BatchSQL {
 			}
 			try (ResultSet results = stmtGetJobExecutions.executeQuery()) {
 				while (results.next()) {
-					SimpleTriggerImpl trigger = new SimpleTriggerImpl();
-					trigger.setEndTime(results.getDate("end_time"));
-					String jobInstanceName = results.getString("job_instance_name");
-					JobKey jobKey = new JobKey(jobInstanceName, po);
-					trigger.setJobKey(jobKey);
-					trigger.setJobName(jobInstanceName);
-					String triggerName = results.getString("trigger_fire_instance_id");
-					trigger.setStartTime(results.getDate("start_time"));
-					TradistaJobInstance jobInstance = null;
-					try {
-						jobInstance = new BatchBusinessDelegate().getJobInstanceByNameAndPo(jobInstanceName, po);
-					} catch (TradistaBusinessException tbe) {
-					}
-					TradistaJobExecution jobExecution = new TradistaJobExecution(trigger, jobInstance, triggerName);
-					jobExecution.setId(results.getLong("id"));
-					jobExecution.setStatus(results.getString("status"));
-					jobExecution.setStartTime(results.getTimestamp("start_time").toLocalDateTime());
-					jobExecution.setJobType(results.getString("job_type"));
-					Timestamp endTime = results.getTimestamp("end_time");
-					if (endTime != null) {
-						jobExecution.setEndTime(endTime.toLocalDateTime());
-					}
-					jobExecution.setErrorCause(results.getString("error_cause"));
+					TradistaJobExecution jobExecution = buildJobExecution(results);
 					if (jobExecutions == null) {
-						jobExecutions = new HashSet<TradistaJobExecution>();
+						jobExecutions = new HashSet<>();
 					}
 					jobExecutions.add(jobExecution);
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return jobExecutions;
@@ -137,41 +161,17 @@ public class BatchSQL {
 
 	public static TradistaJobExecution getJobExecutionById(String jobExecutionId) {
 		TradistaJobExecution jobExecution = null;
+		StringBuilder sqlQuery = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sqlQuery, TRIGGER_FIRE_INSTANCE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetJobExecution = con
-						.prepareStatement("SELECT * FROM JOB_EXECUTION WHERE TRIGGER_FIRE_INSTANCE_ID  = ?")) {
+				PreparedStatement stmtGetJobExecution = con.prepareStatement(sqlQuery.toString())) {
 			stmtGetJobExecution.setString(1, jobExecutionId);
 			try (ResultSet results = stmtGetJobExecution.executeQuery()) {
 				while (results.next()) {
-					SimpleTriggerImpl trigger = new SimpleTriggerImpl();
-					String po = results.getString("processing_org");
-					trigger.setEndTime(results.getDate("end_time"));
-					String jobInstanceName = results.getString("job_instance_name");
-					JobKey jobKey = new JobKey(jobInstanceName, po);
-					trigger.setJobKey(jobKey);
-					trigger.setJobName(jobInstanceName);
-					String triggerName = results.getString("trigger_fire_instance_id");
-					trigger.setStartTime(results.getDate("start_time"));
-					TradistaJobInstance jobInstance = null;
-					try {
-						jobInstance = new BatchBusinessDelegate().getJobInstanceByNameAndPo(jobInstanceName, po);
-					} catch (TradistaBusinessException tbe) {
-					}
-					jobExecution = new TradistaJobExecution(trigger, jobInstance, triggerName);
-					jobExecution.setId(results.getLong("id"));
-					jobExecution.setStatus(results.getString("status"));
-					jobExecution.setStartTime(results.getTimestamp("start_time").toLocalDateTime());
-					jobExecution.setJobType(results.getString("job_type"));
-					Timestamp endTime = results.getTimestamp("end_time");
-					if (endTime != null) {
-						jobExecution.setEndTime(endTime.toLocalDateTime());
-					}
-					jobExecution.setErrorCause(results.getString("error_cause"));
+					jobExecution = buildJobExecution(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return jobExecution;

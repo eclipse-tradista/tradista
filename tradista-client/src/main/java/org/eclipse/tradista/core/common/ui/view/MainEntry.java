@@ -2,13 +2,12 @@ package org.eclipse.tradista.core.common.ui.view;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
@@ -16,24 +15,31 @@ import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.MathProperties;
 import org.eclipse.tradista.core.common.util.TradistaProperties;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -42,11 +48,14 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -166,7 +175,7 @@ public class MainEntry extends Application {
 				try {
 					MathProperties.setUIDecimalFormat(configurationBusinessDelegate
 							.getUIConfiguration(ClientUtil.getCurrentUser()).getDecimalFormat());
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Cannot appear here.
 				}
 				updateProgress(2, 3);
@@ -176,12 +185,12 @@ public class MainEntry extends Application {
 				try {
 					properties.load(in);
 					in.close();
-				} catch (IOException ioe) {
+				} catch (IOException _) {
 					// should not happen here.
 				}
 				try {
 					TradistaProperties.load(properties);
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// should not happen here.
 				}
 				updateProgress(3, 3);
@@ -213,7 +222,7 @@ public class MainEntry extends Application {
 		stage.sizeToScene();
 		stage.initStyle(StageStyle.UTILITY);
 		stage.setResizable(false);
-		stage.setOnCloseRequest(e -> System.exit(0));
+		stage.setOnCloseRequest(_ -> System.exit(0));
 		stage.showAndWait();
 		stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
 		stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
@@ -234,14 +243,21 @@ public class MainEntry extends Application {
 		TradistaGUIUtil.setTradistaIcons(primaryStage);
 
 		primaryStage.setTitle("Main Entry - " + ClientUtil.getCurrentUser().getFirstName() + " "
-				+ ClientUtil.getCurrentUser().getSurname() + " - " + ClientUtil.getCurrentUser().getProcessingOrg());
+				+ ClientUtil.getCurrentUser().getSurname()
+				+ (ClientUtil.getCurrentUser().getProcessingOrg() != null
+						? " - " + ClientUtil.getCurrentUser().getProcessingOrg()
+						: StringUtils.EMPTY));
 
 		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 		primaryStage.setX(0);
 		primaryStage.setY(0);
 
 		primaryStage.setWidth(primScreenBounds.getWidth());
-		primaryStage.setHeight(75);
+		primaryStage.setHeight(95);
+
+		StackPane root = new StackPane();
+		root.getStyleClass().add("root");
+		root.setAlignment(Pos.CENTER_LEFT);
 
 		menuProduct = new Menu("Product");
 		// Menu reports
@@ -322,18 +338,57 @@ public class MainEntry extends Application {
 		menuBar.getMenus().addAll(menuTrade, menuProduct, menuPosition, menuPricing, menuMarketData, menuReports,
 				menuReferential, menuConfiguration, menuBatch, menuMore);
 
-		StackPane root = new StackPane();
-		root.setAlignment(Pos.TOP_CENTER);
+		root.getChildren().add(menuBar);
+
+		if (ClientUtil.currentUserIsAdmin()) {
+			LegalEntityBusinessDelegate legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
+			ComboBox<LegalEntity> poComboBox = new ComboBox<>();
+			Set<LegalEntity> pos = legalEntityBusinessDelegate.getAllProcessingOrgs();
+			ObservableList<LegalEntity> posList = FXCollections.observableArrayList();
+			posList.add(null);
+			if (pos != null && !pos.isEmpty()) {
+				posList.addAll(pos.stream().sorted().toList());
+			}
+			poComboBox.setItems(posList);
+
+			Callback<ListView<LegalEntity>, ListCell<LegalEntity>> cellFactory = _ -> new ListCell<>() {
+				@Override
+				protected void updateItem(LegalEntity le, boolean empty) {
+					super.updateItem(le, empty);
+					if (empty) {
+						setText(null);
+					} else if (le == null) {
+						setText("All");
+					} else {
+						setText(le.getShortName());
+					}
+				}
+			};
+
+			poComboBox.setCellFactory(cellFactory);
+			poComboBox.setButtonCell(cellFactory.call(null));
+			poComboBox.getSelectionModel().selectFirst();
+			poComboBox.getSelectionModel().selectedItemProperty()
+					.addListener((_, _, newVal) -> ClientUtil.setCurrentProcessingOrg(newVal));
+			Label poLabel = new Label("Current Processing Organization: ");
+			poLabel.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+			HBox poSelectionBox = new HBox();
+			poSelectionBox.setAlignment(Pos.CENTER_LEFT);
+			poSelectionBox.getChildren().addAll(poLabel, poComboBox);
+			poSelectionBox.setPadding(new Insets(5, 20, 5, 0));
+			poSelectionBox.setPickOnBounds(false);
+			poSelectionBox.setMaxWidth(Region.USE_PREF_SIZE);
+			StackPane.setAlignment(poSelectionBox, Pos.CENTER_RIGHT);
+			root.getChildren().add(poSelectionBox);
+		}
+
 		try {
 			root.getStylesheets().add(
 					"/" + new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
 							+ "Style.css");
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Cannot appear here.
 		}
-		List<Node> nodes = new ArrayList<>();
-		nodes.add(menuBar);
-		root.getChildren().addAll(nodes);
 		primaryStage.setScene(new Scene(root, 1200, 400));
 
 		TradistaGUIUtil.resizeComponentHeights(primScreenBounds, primaryStage, 0);
@@ -477,7 +532,7 @@ public class MainEntry extends Application {
 					try {
 						root.getStylesheets().add("/" + new ConfigurationBusinessDelegate()
 								.getUIConfiguration(ClientUtil.getCurrentUser()).getStyle() + "Style.css");
-					} catch (TradistaBusinessException tbe) {
+					} catch (TradistaBusinessException _) {
 						// Cannot appear here.
 					}
 					Scene scene = new Scene(root);
@@ -500,7 +555,7 @@ public class MainEntry extends Application {
 	}
 
 	private void setupAboutMenuItem() {
-		about.setOnAction(e -> {
+		about.setOnAction(_ -> {
 			GridPane pane = new GridPane();
 			pane.getStyleClass().add("root");
 			Image image = new Image("tradista-logo.png");
@@ -511,14 +566,14 @@ public class MainEntry extends Application {
 			iv.setSmooth(true);
 			iv.setCache(true);
 			Hyperlink websiteLink = new Hyperlink("www.tradista.finance");
-			websiteLink.setOnAction(le -> getHostServices().showDocument(websiteLink.getText()));
+			websiteLink.setOnAction(_ -> getHostServices().showDocument(websiteLink.getText()));
 			pane.add(iv, 0, 0, 2, 1);
 			GridPane.setHalignment(iv, HPos.CENTER);
 			pane.add(new Label("Web Site"), 0, 1);
 			pane.add(websiteLink, 1, 1);
 			pane.add(new Label("E-Mail"), 0, 2);
 			Hyperlink mailLink = new Hyperlink("contact@tradista.finance");
-			mailLink.setOnAction(me -> getHostServices().showDocument("mailto:" + mailLink.getText()));
+			mailLink.setOnAction(_ -> getHostServices().showDocument("mailto:" + mailLink.getText()));
 			pane.setStyle("-fx-padding: 10; -fx-hgap: 10; -fx-vgap: 10;");
 			pane.add(mailLink, 1, 2);
 
@@ -532,7 +587,7 @@ public class MainEntry extends Application {
 				root.getStylesheets().add("/"
 						+ new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
 						+ "Style.css");
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 				// Should not appear here.
 			}
 			Scene scene = new Scene(root);
@@ -552,7 +607,7 @@ public class MainEntry extends Application {
 	}
 
 	private void setupVersionMenuItem() {
-		version.setOnAction(e -> {
+		version.setOnAction(_ -> {
 			GridPane pane = new GridPane();
 			pane.setStyle("-fx-padding: 10; -fx-hgap: 10; -fx-vgap: 10;");
 			pane.getStyleClass().add("root");
@@ -582,7 +637,7 @@ public class MainEntry extends Application {
 				root.getStylesheets().add("/"
 						+ new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
 						+ "Style.css");
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 				// Cannot appear here.
 			}
 			Scene scene = new Scene(root);

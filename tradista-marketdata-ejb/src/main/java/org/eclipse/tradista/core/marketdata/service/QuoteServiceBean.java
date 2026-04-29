@@ -232,4 +232,10 @@ public class QuoteServiceBean implements QuoteService {
 	public boolean saveQuoteValues(long quoteSetId, List<QuoteValue> quoteValues) {
 		return QuoteSQL.saveQuoteValues(quoteSetId, quoteValues);
 	}
+
+	@Interceptors(QuoteSetFilteringInterceptor.class)
+	@Override
+	public Set<QuoteSet> getQuoteSetsByPoId(long poId) {
+		return QuoteSetSQL.getQuoteSetsByPoId(poId);
+	}
 }

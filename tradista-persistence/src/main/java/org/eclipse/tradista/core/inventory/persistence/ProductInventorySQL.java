@@ -73,8 +73,8 @@ public class ProductInventorySQL {
 	public static ProductInventory getLastProductInventoryBeforeDateByProductAndBookIds(long productId, long bookId,
 			LocalDate date) {
 		ProductInventory inventory = null;
-		StringBuilder queryFilter = new StringBuilder(TradistaDBUtil.buildSelectQuery(
-				UnaryFunctionExpression.max(FROM_DATE_FIELD), PRODUCT_INVENTORY_TABLE));
+		StringBuilder queryFilter = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(UnaryFunctionExpression.max(FROM_DATE_FIELD), PRODUCT_INVENTORY_TABLE));
 		TradistaDBUtil.addParameterizedFilter(queryFilter, PRODUCT_ID_FIELD);
 		TradistaDBUtil.addParameterizedFilter(queryFilter, BOOK_ID_FIELD);
 		TradistaDBUtil.addParameterizedFilter(queryFilter, FROM_DATE_FIELD, false);
@@ -95,7 +95,7 @@ public class ProductInventorySQL {
 			stmtGetLastInventoryBeforeDateByProductAndBookIds.setDate(6, Date.valueOf(date));
 			try (ResultSet results = stmtGetLastInventoryBeforeDateByProductAndBookIds.executeQuery()) {
 				while (results.next()) {
-					buildProductInventory(results);
+					inventory = buildProductInventory(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -193,7 +193,6 @@ public class ProductInventorySQL {
 					stmtUpdateInventory.setLong(7, inventory.getId());
 					stmtUpdateInventory.addBatch();
 				}
-
 			}
 
 			stmtSaveInventory.executeBatch();

@@ -23,6 +23,8 @@ for %%A in (
   "tradista-marketdata-app|marketdata-app"
   "tradista-message-app|message-app"
   "tradista-importer-app|importer-app"
+  "tradista-exporter-app|exporter-app"
+  "tradista-ai-app|ai-app"
 ) do (
   for /f "tokens=1,2 delims=|" %%B in (%%A) do (
     set EAR_PATH=%~dp0\..\..\%%B\target\%%C-%TRADISTA_VERSION%.ear
@@ -55,6 +57,8 @@ for %%A in (
   "tradista-marketdata-app|marketdata-app"
   "tradista-message-app|message-app"
   "tradista-importer-app|importer-app"
+  "tradista-exporter-app|exporter-app"
+  "tradista-ai-app|ai-app"
 ) do (
   for /f "tokens=1,2 delims=|" %%B in (%%A) do (
     set EAR_PATH=%~dp0\..\..\%%B\target\%%C-!TRADISTA_VERSION!.ear

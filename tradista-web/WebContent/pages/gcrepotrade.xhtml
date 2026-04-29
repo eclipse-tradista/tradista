@@ -131,7 +131,8 @@
 														<p:ajax
 															listener="#{bookController.refresh(gCRepoTradeController.book)}"
 															update=":dashboardForm:book" />
-														<f:selectItems value="#{gCRepoTradeController.allBooks}" />
+														<f:selectItems value="#{gCRepoTradeController.allBooks}" var="b"
+															itemLabel="#{b.name}" itemValue="#{b}" />
 													</p:selectOneMenu>
 												</p:column>
 											</p:row>

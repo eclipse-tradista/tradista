@@ -1,5 +1,7 @@
 package org.eclipse.tradista.fx.fxoption.ui.view;
 
+import static org.eclipse.tradista.fx.fxoption.ui.util.FXOptionUIConstants.DELTA;
+
 import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,24 +10,24 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.ui.controller.FXVolatilitySurfacesController;
 import org.eclipse.tradista.fx.fxoption.ui.controller.FXVolatilitySurfacesController.DeltaProperty;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
-
-import static org.eclipse.tradista.fx.fxoption.ui.util.FXOptionUIConstants.DELTA;
+import javafx.scene.layout.HBox;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -47,8 +49,8 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 
 	public FXVolatilitySurfaceCreatorDialog() {
 		super();
-		setTitle("FX Volatility Surface Creation");
-		setHeaderText("Please specify a name and delta ratios for the FX Volatility Surface to create.");
+		String entityName = "FX Volatility Surface";
+		setTitle(String.format("%s Creation", entityName));
 		Label nameLabel = new Label("Name: ");
 		TextField nameTextField = new TextField();
 		Label addDeltaLabel = new Label("Add a delta: ");
@@ -59,13 +61,48 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 		deltaValue.setText(DELTA);
 		selectedDeltas.getColumns().add(deltaValue);
 		deltaValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
+
+		Label poLabel = new Label("Processing Org: ");
+		ComboBox<LegalEntity> poComboBox = new ComboBox<>();
+		TradistaGUIUtil.fillProcessingOrgComboBox(poComboBox);
+		boolean isAdmin = ClientUtil.currentUserIsAdmin();
+		if (!isAdmin) {
+			poComboBox.getItems().add(0, BlankLegalEntity.getInstance());
+		}
+		poComboBox.getSelectionModel().selectFirst();
+
 		GridPane grid = new GridPane();
 		grid.setStyle("-fx-padding: 20; -fx-hgap: 20; -fx-vgap: 20;");
-		grid.add(nameLabel, 1, 1);
-		grid.add(nameTextField, 2, 1);
-		grid.add(addDeltaLabel, 1, 2);
-		grid.add(addDeltaTextField, 2, 2);
-		grid.add(selectedDeltas, 1, 3);
+
+		HBox headerHBox = new HBox();
+		Label label1 = new Label();
+		Label label2 = new Label();
+		label2.getStyleClass().add("labelBold");
+		Label label3 = new Label();
+		headerHBox.getChildren().addAll(label1, label2, label3);
+
+		grid.add(headerHBox, 1, 1, 2, 1);
+		GridPane.setMargin(headerHBox, new Insets(0, 0, 20, 0));
+
+		updateHeader(entityName, poComboBox.getValue(), label1, label2, label3);
+
+		poComboBox.valueProperty().addListener((_, _, newValue) -> {
+			updateHeader(entityName, newValue, label1, label2, label3);
+			if (getDialogPane().getScene() != null && getDialogPane().getScene().getWindow() != null) {
+				getDialogPane().getScene().getWindow().sizeToScene();
+			}
+		});
+
+		grid.add(nameLabel, 1, 2);
+		grid.add(nameTextField, 2, 2);
+		grid.add(addDeltaLabel, 1, 3);
+		grid.add(addDeltaTextField, 2, 3);
+		grid.add(selectedDeltas, 1, 4);
+
+		if (isAdmin) {
+			grid.add(poLabel, 1, 5);
+			grid.add(poComboBox, 2, 5);
+		}
 
 		GridPane buttonsGrid = new GridPane();
 		Button add = new Button("Add");
@@ -73,60 +110,67 @@ public class FXVolatilitySurfaceCreatorDialog extends TradistaDialog<FXVolatilit
 		buttonsGrid.add(add, 1, 1);
 		buttonsGrid.add(delete, 1, 2);
 		buttonsGrid.setStyle("-fx-vgap: 20;");
-		grid.add(buttonsGrid, 2, 3);
+		grid.add(buttonsGrid, 2, 4);
 		getDialogPane().setContent(grid);
+		getDialogPane().setMinWidth(500);
 
 		delete.setOnAction(_ -> selectedDeltas.getItems().remove(selectedDeltas.getSelectionModel().getSelectedItem()));
 
-		add.setOnAction(new EventHandler<>() {
-			@Override
-			public void handle(ActionEvent arg0) {
-				try {
-					if (!StringUtils.isBlank(addDeltaTextField.getText())) {
-						BigDecimal delta = TradistaGUIUtil.parseAmount(addDeltaTextField.getText(), DELTA);
-						boolean deltaExists = false;
-						if (selectedDeltas.getItems() != null && !selectedDeltas.getItems().isEmpty()) {
-							for (DeltaProperty prop : selectedDeltas.getItems()) {
-								if (TradistaGUIUtil.parseAmount(prop.getValue().getValue(), DELTA)
-										.compareTo(delta) == 0) {
-									deltaExists = true;
-									break;
-								}
+		add.setOnAction(_ -> {
+			try {
+				if (!StringUtils.isBlank(addDeltaTextField.getText())) {
+					BigDecimal delta = TradistaGUIUtil.parseAmount(addDeltaTextField.getText(), DELTA);
+					boolean deltaExists = false;
+					if (selectedDeltas.getItems() != null && !selectedDeltas.getItems().isEmpty()) {
+						for (DeltaProperty prop : selectedDeltas.getItems()) {
+							if (TradistaGUIUtil.parseAmount(prop.getValue().getValue(), DELTA).compareTo(delta) == 0) {
+								deltaExists = true;
+								break;
 							}
 						}
-						if (!deltaExists) {
-							selectedDeltas.getItems().add(new DeltaProperty(addDeltaTextField.getText()));
-						}
 					}
-				} catch (TradistaBusinessException tbe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-					alert.showAndWait();
+					if (!deltaExists) {
+						selectedDeltas.getItems().add(new DeltaProperty(addDeltaTextField.getText()));
+					}
 				}
+			} catch (TradistaBusinessException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+				alert.showAndWait();
 			}
 		});
 
 		ButtonType buttonTypeOk = new ButtonType("Create", ButtonData.OK_DONE);
 		ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
 		getDialogPane().getButtonTypes().add(buttonTypeOk);
 		getDialogPane().getButtonTypes().add(buttonTypeCancel);
-		setResultConverter(new Callback<>() {
-			@Override
-			public FXVolatilitySurface call(ButtonType b) {
-				if (b == buttonTypeOk) {
-					try {
-						FXVolatilitySurface surface = new FXVolatilitySurface(nameTextField.getText(),
-								ClientUtil.getCurrentUser().getProcessingOrg());
-						surface.setDeltas(FXVolatilitySurfacesController.toDeltaList(selectedDeltas.getItems()));
-						return surface;
-					} catch (TradistaBusinessException tbe) {
-						TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-						alert.showAndWait();
-					}
+		setResultConverter(b -> {
+			if (b == buttonTypeOk) {
+				try {
+					LegalEntity po = (poComboBox.getValue() instanceof BlankLegalEntity) ? null : poComboBox.getValue();
+					FXVolatilitySurface surface = new FXVolatilitySurface(nameTextField.getText(), po);
+					surface.setDeltas(FXVolatilitySurfacesController.toDeltaList(selectedDeltas.getItems()));
+					return surface;
+				} catch (TradistaBusinessException tbe) {
+					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+					alert.showAndWait();
 				}
-				return null;
 			}
+			return null;
 		});
 		TradistaGUIUtil.resizeComponents(getDialogPane().getScene().getWindow());
+	}
+
+	private void updateHeader(String entityName, LegalEntity po, Label label1, Label label2, Label label3) {
+		if (po == null || po instanceof BlankLegalEntity) {
+			label1.setText(String.format("The new %s will be global.", entityName));
+			label2.setText(StringUtils.EMPTY);
+			label3.setText(StringUtils.EMPTY);
+		} else {
+			label1.setText(String.format("The new %s will be linked to Processing Org ", entityName));
+			label2.setText(po.getShortName());
+			label3.setText(".");
+		}
 	}
 
 }

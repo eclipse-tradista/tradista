@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
@@ -31,6 +32,9 @@ public class EquityOptionVolatilitySurface extends VolatilitySurface<Integer, Bi
 	private static final long serialVersionUID = -8402233398798004883L;
 
 	private List<BigDecimal> strikes;
+
+	@Id
+	private static final String TYPE = "EquityOptionVolatilitySurface";
 
 	public EquityOptionVolatilitySurface(String name, LegalEntity processingOrg) {
 		super(name, processingOrg);
@@ -84,6 +88,11 @@ public class EquityOptionVolatilitySurface extends VolatilitySurface<Integer, Bi
 			equityOptionVolatilitySurface.strikes = new ArrayList<>(strikes);
 		}
 		return equityOptionVolatilitySurface;
+	}
+
+	@Override
+	public String getType() {
+		return TYPE;
 	}
 
 }

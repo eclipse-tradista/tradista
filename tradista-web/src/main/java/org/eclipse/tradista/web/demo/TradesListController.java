@@ -51,7 +51,7 @@ public class TradesListController implements Serializable {
 		posDef = new PositionDefinition(StringUtils.EMPTY, ClientUtil.getCurrentUser().getProcessingOrg());
 		posDef.setProductType(Equity.EQUITY);
 		try {
-			posDef.setBook(new BookBusinessDelegate().getBookByName("Demo Book"));
+			posDef.setBook(new BookBusinessDelegate().getBookByNameAndPoId("Demo Book", 2));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));

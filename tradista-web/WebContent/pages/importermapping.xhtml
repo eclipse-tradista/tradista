@@ -18,7 +18,7 @@
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
 					<p:row>
 						<p:toolbar
-							rendered="#{importerMappingController.interfaceMappingSet ne null}">
+							rendered="#{importerMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or importerMappingController.interfaceMappingSet.processingOrg ne null)}">
 							<p:toolbarGroup>
 								<p:commandButton value="New Mapping" icon="pi pi-plus"
 									actionListener="#{importerMappingController.addMapping}"
@@ -106,18 +106,20 @@
 								<f:selectItems
 									value="#{importerMappingController.allMappingTypes}" />
 							</p:selectOneMenu>
+							<p:outputLabel value="Processing Org :"
+								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
 								value="#{importerMappingController.processingOrg}"
 								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
 								converter="legalEntityConverter">
+								<f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
 								<f:selectItems
-									value="#{importerMappingController.allProcessingOrgs}" />
+									value="#{importerMappingController.processingOrgs}" />
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{importerMappingController.load()}" update="@form" />
 							<p:commandButton value="Save" styleClass="rounded-button"
-								rendered="#{importerMappingController.interfaceMappingSet ne null}"
+								rendered="#{importerMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or importerMappingController.interfaceMappingSet.processingOrg ne null)}"
 								update="@form">
 								<f:actionListener binding="#{importerMappingController.save()}" />
 							</p:commandButton>

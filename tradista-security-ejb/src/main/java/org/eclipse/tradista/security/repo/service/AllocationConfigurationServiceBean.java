@@ -64,12 +64,6 @@ public class AllocationConfigurationServiceBean implements AllocationConfigurati
 
 	@Override
 	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
-	public AllocationConfiguration getAllocationConfigurationByName(String name) {
-		return AllocationConfigurationSQL.getAllocationConfigurationByName(name);
-	}
-
-	@Override
-	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
 	public AllocationConfiguration getAllocationConfigurationById(long id) {
 		return AllocationConfigurationSQL.getAllocationConfigurationById(id);
 	}
@@ -78,6 +72,12 @@ public class AllocationConfigurationServiceBean implements AllocationConfigurati
 	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
 	public Set<AllocationConfiguration> getAllAllocationConfigurations() {
 		return AllocationConfigurationSQL.getAllAllocationConfigurations();
+	}
+
+	@Override
+	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
+	public Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId) {
+		return AllocationConfigurationSQL.getAllocationConfigurationsByPoId(poId);
 	}
 
 }

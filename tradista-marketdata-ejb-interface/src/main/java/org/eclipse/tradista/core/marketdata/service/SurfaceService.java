@@ -28,7 +28,10 @@ public interface SurfaceService {
 
 	boolean surfaceExists(VolatilitySurface<?, ?, ?> surface, String type);
 
-	List<VolatilitySurface<?, ?, ?>> getSurfaces(String surfaceType);
+	List<VolatilitySurface<?, ?, ?>> getSurfaces(String surfaceType) throws TradistaBusinessException;
+
+	List<VolatilitySurface<?, ?, ?>> getSurfacesByTypeAndPoId(String surfaceType, long poId)
+			throws TradistaBusinessException;
 
 	VolatilitySurface<?, ?, ?> getSurfaceById(long id) throws TradistaBusinessException;
 

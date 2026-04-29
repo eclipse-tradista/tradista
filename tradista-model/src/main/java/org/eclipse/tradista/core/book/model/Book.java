@@ -35,6 +35,9 @@ public class Book extends TradistaObject {
 
 	public Book(String name, LegalEntity processingOrg) {
 		super();
+		if (processingOrg == null) {
+			throw new IllegalArgumentException("The processing organiation is mandatory for a book.");
+		}
 		this.name = name;
 		this.processingOrg = processingOrg;
 	}

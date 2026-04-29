@@ -28,10 +28,10 @@ public interface AllocationConfigurationService {
 
 	long saveAllocationConfiguration(AllocationConfiguration allocationConfiguration) throws TradistaBusinessException;
 
-	AllocationConfiguration getAllocationConfigurationByName(String name);
-
 	AllocationConfiguration getAllocationConfigurationById(long id);
 
 	Set<AllocationConfiguration> getAllAllocationConfigurations();
+
+	Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId);
 
 }

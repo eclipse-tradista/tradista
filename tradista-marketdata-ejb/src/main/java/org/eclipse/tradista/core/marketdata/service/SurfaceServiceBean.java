@@ -54,13 +54,17 @@ public class SurfaceServiceBean implements SurfaceService {
 		return SurfaceSQL.surfaceExists(surface, type);
 	}
 
+	public List<VolatilitySurface<?, ?, ?>> getSurfaces(String surfaceType) throws TradistaBusinessException {
+		return getSurfacesByTypeAndPoId(surfaceType, 0);
+	}
+
 	@Override
-	public List<VolatilitySurface<?, ?, ?>> getSurfaces(String surfaceType) {
+	public List<VolatilitySurface<?, ?, ?>> getSurfacesByTypeAndPoId(String surfaceType, long poId) throws TradistaBusinessException {
 		List<VolatilitySurface<?, ?, ?>> surfaces = null;
 		if (surfaceType == null) {
 			if (informationBusinessDelegate.hasFXModule()) {
 				Set<FXVolatilitySurface> fxSurfaces = new FXVolatilitySurfaceBusinessDelegate()
-						.getAllFXVolatilitySurfaces();
+						.getFXVolatilitySurfacesByPoId(poId);
 				if (fxSurfaces != null && !fxSurfaces.isEmpty()) {
 					surfaces = new ArrayList<>();
 					surfaces.addAll(fxSurfaces);
@@ -68,7 +72,7 @@ public class SurfaceServiceBean implements SurfaceService {
 			}
 			if (informationBusinessDelegate.hasSecurityModule()) {
 				Set<EquityOptionVolatilitySurface> equityOptionSurfaces = new EquityOptionVolatilitySurfaceBusinessDelegate()
-						.getAllEquityOptionVolatilitySurfaces();
+						.getEquityOptionVolatilitySurfacesByPoId(poId);
 				if (equityOptionSurfaces != null && !equityOptionSurfaces.isEmpty()) {
 					if (surfaces == null) {
 						surfaces = new ArrayList<>();
@@ -78,7 +82,7 @@ public class SurfaceServiceBean implements SurfaceService {
 			}
 			if (informationBusinessDelegate.hasIRModule()) {
 				Set<SwaptionVolatilitySurface> swaptionVolatilitySurfaces = new SwaptionVolatilitySurfaceBusinessDelegate()
-						.getAllSwaptionVolatilitySurfaces();
+						.getSwaptionVolatilitySurfacesByPoId(poId);
 				if (swaptionVolatilitySurfaces != null && !swaptionVolatilitySurfaces.isEmpty()) {
 					if (surfaces == null) {
 						surfaces = new ArrayList<>();
@@ -89,7 +93,7 @@ public class SurfaceServiceBean implements SurfaceService {
 		} else if (surfaceType.equals("IR")) {
 			if (informationBusinessDelegate.hasIRModule()) {
 				Set<SwaptionVolatilitySurface> swaptionVolatilitySurfaces = new SwaptionVolatilitySurfaceBusinessDelegate()
-						.getAllSwaptionVolatilitySurfaces();
+						.getSwaptionVolatilitySurfacesByPoId(poId);
 				if (swaptionVolatilitySurfaces != null && !swaptionVolatilitySurfaces.isEmpty()) {
 					surfaces = new ArrayList<>();
 					surfaces.addAll(swaptionVolatilitySurfaces);
@@ -98,7 +102,7 @@ public class SurfaceServiceBean implements SurfaceService {
 		} else if (surfaceType.equals("FX")) {
 			if (informationBusinessDelegate.hasFXModule()) {
 				Set<FXVolatilitySurface> fxSurfaces = new FXVolatilitySurfaceBusinessDelegate()
-						.getAllFXVolatilitySurfaces();
+						.getFXVolatilitySurfacesByPoId(poId);
 				if (fxSurfaces != null && !fxSurfaces.isEmpty()) {
 					surfaces = new ArrayList<>();
 					surfaces.addAll(fxSurfaces);
@@ -107,7 +111,7 @@ public class SurfaceServiceBean implements SurfaceService {
 		} else if (surfaceType.equals("EquityOption")) {
 			if (informationBusinessDelegate.hasSecurityModule()) {
 				Set<EquityOptionVolatilitySurface> equityOptionSurfaces = new EquityOptionVolatilitySurfaceBusinessDelegate()
-						.getAllEquityOptionVolatilitySurfaces();
+						.getEquityOptionVolatilitySurfacesByPoId(poId);
 				if (equityOptionSurfaces != null && !equityOptionSurfaces.isEmpty()) {
 					surfaces = new ArrayList<>();
 					surfaces.addAll(equityOptionSurfaces);

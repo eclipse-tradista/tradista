@@ -56,6 +56,8 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 
 	private LegalEntity processingOrg;
 
+	protected String importedProcessingOrg;
+
 	protected abstract void start();
 
 	protected abstract String getProductType(X externalMessage);
@@ -174,6 +176,42 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	@Override
 	public LegalEntity getProcessingOrg() {
 		return processingOrg;
+	}
+
+	/**
+	 * Identifies the Processing Org involved in the processing of the external
+	 * message. By default, returns the Importer's configured Processing Org. Global
+	 * Importers (without a default PO) MUST override this method to dynamically
+	 * extract the PO from the message content.
+	 * 
+	 * @param externalMessage the external message being processed
+	 * @return the ProcessingOrg associated with the message
+	 * @throws TradistaTechnicalException if the importer is global and the method
+	 *                                    is not overridden
+	 * @throws TradistaBusinessException  if the Processing Org cannot be identified
+	 *                                    from the message
+	 */
+	@Override
+	public LegalEntity getMessageProcessingOrg(X externalMessage) throws TradistaBusinessException {
+		if (getProcessingOrg() != null) {
+			return getProcessingOrg();
+		}
+		throw new TradistaTechnicalException(String.format(
+				"Importer %s is configured globally (null ProcessingOrg). "
+						+ "It must override getMessageProcessingOrg to route messages "
+						+ "because the parent class TradistaImporter cannot interpret the type %s.",
+				getName(), externalMessage.getClass().getSimpleName()));
+	}
+
+	public String getImportedMessageProcessingOrg(X externalMessage) throws TradistaBusinessException {
+		if (importedProcessingOrg != null) {
+			return importedProcessingOrg;
+		}
+		throw new TradistaTechnicalException(String.format(
+				"Importer %s is configured globally (null ProcessingOrg). "
+						+ "It must override getImportedMessageProcessingOrg to route messages "
+						+ "because the parent class TradistaImporter cannot interpret the type %s.",
+				getName(), externalMessage.getClass().getSimpleName()));
 	}
 
 	public void setProcessingOrg(LegalEntity processingOrg) {

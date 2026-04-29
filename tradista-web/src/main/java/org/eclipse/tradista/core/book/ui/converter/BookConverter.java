@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.book.ui.converter;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -40,16 +41,21 @@ public class BookConverter implements Serializable, Converter<Book> {
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, Book book) {
-		return book.toString();
+		return book == null ? StringUtils.EMPTY : String.valueOf(book.getId());
 	}
 
 	@Override
 	public Book getAsObject(FacesContext context, UIComponent component, String value) {
+		if (value == null || value.trim().isEmpty()) {
+			return null;
+		}
 		Book book = null;
 		try {
-			book = bookBusinessDelegate.getBookByName(value);
+			book = bookBusinessDelegate.getBookById(Long.parseLong(value));
 		} catch (TradistaBusinessException tbe) {
 			throw new ConverterException(String.format("Could not convert book %s", value), tbe);
+		} catch (NumberFormatException nfe) {
+			throw new ConverterException(String.format("Invalid book identifier %s", value), nfe);
 		}
 		return book;
 	}

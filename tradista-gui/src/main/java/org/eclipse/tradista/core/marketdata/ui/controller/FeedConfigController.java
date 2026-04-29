@@ -6,15 +6,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.FeedType;
 import org.eclipse.tradista.core.marketdata.model.Quote;
@@ -26,8 +31,6 @@ import org.eclipse.tradista.core.marketdata.ui.view.FeedConfigCreatorDialog;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -58,6 +61,8 @@ import javafx.scene.control.TextField;
  ********************************************************************************/
 
 public class FeedConfigController extends TradistaControllerAdapter {
+
+	private static final String FEED_CONFIGURATIONS = "feed configurations";
 
 	@FXML
 	private TableView<FeedMappingProperty> feedMappingTable;
@@ -156,7 +161,7 @@ public class FeedConfigController extends TradistaControllerAdapter {
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		errors = new HashMap<String, List<String>>();
+		errors = new HashMap<>();
 
 		feedBusinessDelegate = new FeedBusinessDelegate();
 
@@ -172,37 +177,31 @@ public class FeedConfigController extends TradistaControllerAdapter {
 		mappingLast.setCellValueFactory(cellData -> cellData.getValue().getLast());
 
 		try {
-			TradistaGUIUtil.fillComboBox(feedBusinessDelegate.getAllFeedConfigs(), feedConfig);
-		} catch (TradistaTechnicalException tte) {
+			TradistaGUIUtil.fillFeedConfigComboBox(feedConfig);
+			saveButton.setDisable(true);
+			copyButton.setDisable(true);
+			deleteButton.setDisable(true);
+		} catch (TradistaTechnicalException _) {
 			canGetFeedConfig = false;
 		}
 
 		TradistaGUIUtil.fillComboBox(Arrays.asList(QuoteType.values()), quoteType);
 		TradistaGUIUtil.fillComboBox(Arrays.asList(FeedType.values()), feedType);
 
-		feedMappingTable.getSelectionModel().selectedItemProperty()
-				.addListener(new ChangeListener<FeedMappingProperty>() {
-					// Check whether item is selected and set value of selected
-					// item to Label
-
-					@Override
-					public void changed(ObservableValue<? extends FeedMappingProperty> arg0,
-							FeedMappingProperty oldProp, FeedMappingProperty prop) {
-						if (feedMappingTable.getSelectionModel().getSelectedItem() != null) {
-							quoteNameTextField.setText(prop.getQuoteName().getValue());
-							quoteType.setValue(QuoteType.getQuoteType(prop.getQuoteType().getValue()));
-							bidTextField.setText(prop.getBid().getValue());
-							fieldNameTextField.setText(prop.getFieldName().getValue());
-							askTextField.setText(prop.getAsk().getValue());
-							openTextField.setText(prop.getOpen().getValue());
-							closeTextField.setText(prop.getClose().getValue());
-							highTextField.setText(prop.getHigh().getValue());
-							lowTextField.setText(prop.getLow().getValue());
-							lastTextField.setText(prop.getLast().getValue());
-						}
-
-					}
-				});
+		feedMappingTable.getSelectionModel().selectedItemProperty().addListener((_, _, prop) -> {
+			if (feedMappingTable.getSelectionModel().getSelectedItem() != null) {
+				quoteNameTextField.setText(prop.getQuoteName().getValue());
+				quoteType.setValue(QuoteType.getQuoteType(prop.getQuoteType().getValue()));
+				bidTextField.setText(prop.getBid().getValue());
+				fieldNameTextField.setText(prop.getFieldName().getValue());
+				askTextField.setText(prop.getAsk().getValue());
+				openTextField.setText(prop.getOpen().getValue());
+				closeTextField.setText(prop.getClose().getValue());
+				highTextField.setText(prop.getHigh().getValue());
+				lowTextField.setText(prop.getLow().getValue());
+				lastTextField.setText(prop.getLast().getValue());
+			}
+		});
 
 		updateWindow();
 	}
@@ -219,6 +218,9 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			ObservableList<FeedMappingProperty> data = buildTableContent(currentFeedConfig);
 			feedMappingTable.setItems(data);
 			feedMappingTable.refresh();
+			saveButton.setDisable(false);
+			copyButton.setDisable(false);
+			deleteButton.setDisable(false);
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
@@ -228,13 +230,35 @@ public class FeedConfigController extends TradistaControllerAdapter {
 	@FXML
 	protected void save() {
 		try {
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Save Feed Configuration");
-			confirmation.setHeaderText("Save Feed Configuration");
-			confirmation.setContentText("Do you want to save this Feed Configuration?");
+			boolean isNew = (currentFeedConfig.getId() == 0);
+			LegalEntity po = null;
+			boolean proceed = false;
 
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Feed Configuration",
+						ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save Feed Configuration");
+				confirmation.setHeaderText("Save Feed Configuration");
+				confirmation.setContentText("Do you want to save this Feed Configuration?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					po = currentFeedConfig.getProcessingOrg();
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					currentFeedConfig = new FeedConfig(currentFeedConfig.getName(), po);
+				}
 				buildFeedConfig(currentFeedConfig);
 				currentFeedConfig.setId(feedBusinessDelegate.saveFeedConfig(currentFeedConfig));
 			}
@@ -247,31 +271,44 @@ public class FeedConfigController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void copy() {
-		boolean configLoaded = (currentFeedConfig != null);
-		if (!configLoaded) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, "The feed config must be loaded.");
-			alert.showAndWait();
-		} else {
-			try {
+		try {
+			String copyName = null;
+			LegalEntity po = null;
+			boolean proceed = false;
+
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("Feed Configuration",
+						currentFeedConfig.getProcessingOrg(), currentFeedConfig.getName(), false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
 				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
 				dialog.setTitle("Feed Config name");
 				dialog.setHeaderText("Feed Config name selection");
 				dialog.setContentText("Please choose a Feed Config name:");
 
-				// Traditional way to get the response value.
 				Optional<String> result = dialog.showAndWait();
 				if (result.isPresent()) {
-					FeedConfig copyFeedConfig = new FeedConfig(result.get(),
-							ClientUtil.getCurrentUser().getProcessingOrg());
-					buildFeedConfig(copyFeedConfig);
-					copyFeedConfig.setId(feedBusinessDelegate.saveFeedConfig(copyFeedConfig));
-					TradistaGUIUtil.fillComboBox(feedBusinessDelegate.getAllFeedConfigs(), this.feedConfig);
-					feedConfigName.setText(currentFeedConfig.getName());
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
 				}
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
 			}
+
+			if (proceed) {
+				FeedConfig copyFeedConfig = new FeedConfig(copyName, po);
+				buildFeedConfig(copyFeedConfig);
+				copyFeedConfig.setId(feedBusinessDelegate.saveFeedConfig(copyFeedConfig));
+				TradistaGUIUtil.fillFeedConfigComboBox(this.feedConfig);
+				feedConfigName.setText(currentFeedConfig.getName());
+			}
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
@@ -293,7 +330,7 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			if (result.isPresent()) {
 				FeedConfig fc = result.get();
 				feedBusinessDelegate.saveFeedConfig(fc);
-				TradistaGUIUtil.fillComboBox(feedBusinessDelegate.getAllFeedConfigs(), feedConfig);
+				TradistaGUIUtil.fillFeedConfigComboBox(feedConfig);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -335,8 +372,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 
 			feedMappingTable.getItems().clear();
 			feedMappingTable.getItems().addAll(newList);
-		} catch (TradistaBusinessException abe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -344,10 +381,6 @@ public class FeedConfigController extends TradistaControllerAdapter {
 	@FXML
 	protected void delete() {
 		try {
-			if (currentFeedConfig == null) {
-				throw new TradistaBusinessException("The feed config must be loaded.");
-			}
-
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 			confirmation.setTitle("Delete Feed Configuration");
 			confirmation.setHeaderText("Delete Feed Configuration");
@@ -359,11 +392,14 @@ public class FeedConfigController extends TradistaControllerAdapter {
 				long id = currentFeedConfig.getId();
 				feedBusinessDelegate.deleteFeedConfig(id);
 				FeedConfig config = this.feedConfig.getValue();
-				TradistaGUIUtil.fillComboBox(feedBusinessDelegate.getAllFeedConfigs(), this.feedConfig);
+				TradistaGUIUtil.fillFeedConfigComboBox(this.feedConfig);
 				if (!config.equals(this.feedConfig.getValue())) {
 					feedMappingTable.setItems(null);
 					currentFeedConfig = null;
-					feedConfigName.setText("");
+					feedConfigName.setText(StringUtils.EMPTY);
+					saveButton.setDisable(true);
+					copyButton.setDisable(true);
+					deleteButton.setDisable(true);
 				}
 			}
 
@@ -382,7 +418,7 @@ public class FeedConfigController extends TradistaControllerAdapter {
 
 		@Override
 		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
+			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
 				setItem(textField.getText());
 			}
 			super.startEdit();
@@ -424,26 +460,22 @@ public class FeedConfigController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit(textField.getText());
 				}
 			});
 
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
+			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 
 	private ObservableList<FeedMappingProperty> buildTableContent(FeedConfig data) {
 
-		List<FeedMappingProperty> feedMappingPropertyList = new ArrayList<FeedMappingProperty>();
+		List<FeedMappingProperty> feedMappingPropertyList = new ArrayList<>();
 
 		for (Map.Entry<String, Map<String, String>> entry : data.getFieldsMapping().entrySet()) {
 			Quote quote = data.getMapping().get(entry.getKey());
@@ -503,15 +535,15 @@ public class FeedConfigController extends TradistaControllerAdapter {
 		}
 		feedConfig.setFeedType(feedType.getValue());
 		if (feedMappingTable.getItems() != null) {
-			Map<String, Map<String, String>> fieldsMapping = new HashMap<String, Map<String, String>>();
-			Map<String, Quote> mapping = new HashMap<String, Quote>();
+			Map<String, Map<String, String>> fieldsMapping = new HashMap<>();
+			Map<String, Quote> mapping = new HashMap<>();
 
 			for (FeedMappingProperty prop : feedMappingTable.getItems()) {
 				String quoteName = prop.getQuoteName().getValue();
 				QuoteType quoteType = QuoteType.getQuoteType(prop.getQuoteType().getValue());
 				Quote quote = new Quote(quoteName, quoteType);
 				mapping.put(prop.getFieldName().getValue(), quote);
-				Map<String, String> currentField = new HashMap<String, String>();
+				Map<String, String> currentField = new HashMap<>();
 				currentField.put(QuoteValue.ASK, prop.getAsk().getValue());
 				currentField.put(QuoteValue.BID, prop.getBid().getValue());
 				currentField.put(QuoteValue.CLOSE, prop.getClose().getValue());
@@ -638,16 +670,22 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			return getQuoteName().toString().compareTo(o.getQuoteName().toString());
 		}
 
-		public boolean equals(Object o) {
-			if (o == this) {
-				return true;
-			}
-			if (o == null || !(o instanceof FeedMappingProperty)) {
-				return false;
-			}
-			FeedMappingProperty prop = (FeedMappingProperty) o;
+		@Override
+		public int hashCode() {
+			return Objects.hash(quoteName.get(), quoteType.get());
+		}
 
-			return (prop.getQuoteName().equals(quoteName.get()) && prop.getQuoteType().equals(quoteType.get()));
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			FeedMappingProperty other = (FeedMappingProperty) obj;
+			return Objects.equals(quoteName.get(), other.quoteName.get())
+					&& Objects.equals(quoteType.get(), other.quoteType.get());
 		}
 
 	}
@@ -656,13 +694,13 @@ public class FeedConfigController extends TradistaControllerAdapter {
 	@FXML
 	public void refresh() {
 		try {
-			TradistaGUIUtil.fillComboBox(feedBusinessDelegate.getAllFeedConfigs(), feedConfig);
+			TradistaGUIUtil.fillFeedConfigComboBox(feedConfig);
 			canGetFeedConfig = true;
 			canSaveFeedConfig = true;
 			canCopyFeedConfig = true;
 			canDeleteFeedConfig = true;
 			canCreateFeedConfig = true;
-		} catch (TradistaTechnicalException tte) {
+		} catch (TradistaTechnicalException _) {
 			canGetFeedConfig = false;
 			canSaveFeedConfig = false;
 			canCopyFeedConfig = false;
@@ -697,41 +735,41 @@ public class FeedConfigController extends TradistaControllerAdapter {
 		if (!canGetFeedConfig) {
 			List<String> err = errors.get("get");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("feed configurations");
+			err.add(FEED_CONFIGURATIONS);
 			errors.put("get", err);
 		}
 		if (!canSaveFeedConfig) {
 			List<String> err = errors.get("save");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("feed configurations");
+			err.add(FEED_CONFIGURATIONS);
 			errors.put("save", err);
 		}
 		if (!canCopyFeedConfig) {
 			List<String> err = errors.get("copy");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("feed configurations");
+			err.add(FEED_CONFIGURATIONS);
 			errors.put("copy", err);
 		}
 		if (!canDeleteFeedConfig) {
 			List<String> err = errors.get("delete");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("feed configurations");
+			err.add(FEED_CONFIGURATIONS);
 			errors.put("delete", err);
 		}
 		if (!canCreateFeedConfig) {
 			List<String> err = errors.get("create");
 			if (err == null) {
-				err = new ArrayList<String>();
+				err = new ArrayList<>();
 			}
-			err.add("feed configurations");
+			err.add(FEED_CONFIGURATIONS);
 			errors.put("create", err);
 		}
 	}
@@ -743,9 +781,9 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			if (errCat.getValue().size() > 1) {
 				errMsg.append(":");
 			}
-			errMsg.append(" ");
+			errMsg.append(StringUtils.SPACE);
 			for (String err : errCat.getValue()) {
-				errMsg.append(err + ", ");
+				errMsg.append(err).append(", ");
 			}
 			errMsg.delete(errMsg.length() - 2, errMsg.length());
 			errMsg.append(".");

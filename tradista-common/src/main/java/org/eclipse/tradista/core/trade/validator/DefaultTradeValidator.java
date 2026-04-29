@@ -59,7 +59,7 @@ public class DefaultTradeValidator implements TradeValidator {
 			errMsg.append(String.format("The counterparty is mandatory.%n"));
 		}
 		if (trade.getBook() == null) {
-			errMsg.append(String.format("The book is mandatory.%n"));
+			errMsg.append("The book is mandatory.");
 		}
 		return errMsg;
 	}

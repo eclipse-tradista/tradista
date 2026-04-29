@@ -53,8 +53,28 @@ public class SurfacePoint<X extends Number, Y extends Number, Z extends Number> 
 
 	@Override
 	public int compareTo(SurfacePoint<X, Y, Z> o) {
-		return (xAxis.toString() + yAxis.toString() + zAxis.toString())
-				.compareTo((o.xAxis.toString() + o.yAxis.toString() + o.zAxis.toString()));
+		int res = compare(xAxis, o.xAxis);
+		if (res != 0) {
+			return res;
+		}
+		res = compare(yAxis, o.yAxis);
+		if (res != 0) {
+			return res;
+		}
+		return compare(zAxis, o.zAxis);
+	}
+
+	private int compare(Number n1, Number n2) {
+		if (n1 == null && n2 == null) {
+			return 0;
+		}
+		if (n1 == null) {
+			return -1;
+		}
+		if (n2 == null) {
+			return 1;
+		}
+		return Double.compare(n1.doubleValue(), n2.doubleValue());
 	}
 
 }

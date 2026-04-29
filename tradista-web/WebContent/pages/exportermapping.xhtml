@@ -3,8 +3,8 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
-	<ui:define name="title">Eclipse Tradista Importer Mapping</ui:define>
-	<ui:define name="viewname">Eclipse Tradista Importer Mapping</ui:define>
+	<ui:define name="title">Eclipse Tradista Exporter Mapping</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Exporter Mapping</ui:define>
 	<ui:define name="content">
 		<f:metadata>
 			<f:viewAction action="#{exporterMappingController.onload}" />
@@ -18,7 +18,7 @@
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
 					<p:row>
 						<p:toolbar
-							rendered="#{exporterMappingController.interfaceMappingSet ne null}">
+							rendered="#{exporterMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or exporterMappingController.interfaceMappingSet.processingOrg ne null)}">
 							<p:toolbarGroup>
 								<p:commandButton value="New Mapping" icon="pi pi-plus"
 									actionListener="#{exporterMappingController.addMapping}"
@@ -106,18 +106,20 @@
 								<f:selectItems
 									value="#{exporterMappingController.allMappingTypes}" />
 							</p:selectOneMenu>
+							<p:outputLabel value="Processing Org :"
+								styleClass="tradista-menu-item" />
 							<p:selectOneMenu
 								value="#{exporterMappingController.processingOrg}"
 								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
 								converter="legalEntityConverter">
+								<f:selectItem itemLabel="All" itemValue="#{null}" noSelectionOption="true" />
 								<f:selectItems
-									value="#{exporterMappingController.allProcessingOrgs}" />
+									value="#{exporterMappingController.processingOrgs}" />
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{exporterMappingController.load()}" update="@form" />
 							<p:commandButton value="Save" styleClass="rounded-button"
-								rendered="#{exporterMappingController.interfaceMappingSet ne null}"
+								rendered="#{exporterMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or exporterMappingController.interfaceMappingSet.processingOrg ne null)}"
 								update="@form">
 								<f:actionListener binding="#{exporterMappingController.save()}" />
 							</p:commandButton>

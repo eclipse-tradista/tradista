@@ -11,14 +11,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.core.marketdata.ui.controller.TradistaVolatilitySurfaceController;
+import org.eclipse.tradista.ir.common.ui.util.TradistaIRGUIUtil;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.eclipse.tradista.ir.irswapoption.service.SwaptionVolatilitySurfaceBusinessDelegate;
@@ -27,12 +32,9 @@ import org.eclipse.tradista.ir.irswapoption.view.IRSwapOptionVolatilitySurfaceCr
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert.AlertType;
@@ -44,7 +46,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -98,6 +99,9 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	private Button deleteButton;
 
 	@FXML
+	private Button copyButton;
+
+	@FXML
 	private Button addButton;
 
 	@FXML
@@ -132,6 +136,10 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 		super.initialize();
+
+		saveButton.setDisable(true);
+		copyButton.setDisable(true);
+		deleteButton.setDisable(true);
 		swaptionVolatilitySurfaceBusinessDelegate = new SwaptionVolatilitySurfaceBusinessDelegate();
 
 		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> cellFactory = _ -> new EditingCell();
@@ -142,18 +150,15 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 		pointVolatility.setCellFactory(cellFactory);
 
-		pointVolatility.setOnEditCommit(new EventHandler<>() {
-			@Override
-			public void handle(CellEditEvent<SurfacePointProperty, String> t) {
-				try {
-					TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
-					t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
-				} catch (TradistaBusinessException tbe) {
-					TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-					alert.showAndWait();
-				}
-				pointsTable.refresh();
+		pointVolatility.setOnEditCommit(t -> {
+			try {
+				TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
+				t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
+			} catch (TradistaBusinessException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+				alert.showAndWait();
 			}
+			pointsTable.refresh();
 		});
 
 		pointVolatility.setCellValueFactory(cellData -> cellData.getValue().getVolatility());
@@ -185,92 +190,86 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 		quoteDate.setValue(LocalDate.now());
 
-		volatilitySurface.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends SwaptionVolatilitySurface> ov,
-					SwaptionVolatilitySurface oldSurf, SwaptionVolatilitySurface surf) {
-				if (surf != null) {
-					surface = surf;
-					isGeneratedCheckBox.setSelected(surf.isGenerated());
-					interpolatorComboBox.setValue(surf.getInterpolator());
-					algorithmComboBox.setValue(surf.getAlgorithm());
-					instanceComboBox.setValue(surf.getInstance());
-					List<Quote> quotes = quoteBusinessDelegate.getQuotesByCurveId(surf.getId());
-					if (quotes != null) {
-						selectedQuotesList.setItems(FXCollections.observableArrayList(quotes));
-					} else {
-						selectedQuotesList.setItems(FXCollections.emptyObservableList());
-					}
-					List<SurfacePoint<Integer, Integer, BigDecimal>> surfacePoints = swaptionVolatilitySurfaceBusinessDelegate
-							.getSwaptionVolatilitySurfacePointsBySurfaceId(surf.getId());
-					List<SurfacePointProperty> properties = buildTableContent(surfacePoints);
-					// 1. Wrap the ObservableList in a FilteredList
-					// (initially display all
-					// data).
-					FilteredList<SurfacePointProperty> filteredData = new FilteredList<>(
-							FXCollections.observableArrayList(properties));
-
-					// 3. Wrap the FilteredList in a SortedList.
-					SortedList<SurfacePointProperty> sortedData = new SortedList<>(filteredData);
-
-					// 4. Bind the SortedList comparator to the
-					// TableView comparator.
-					sortedData.comparatorProperty().bind(pointsTable.comparatorProperty());
-
-					// 2. Set the filter Predicate whenever the filter
-					// changes.
-					optionExpiryTextField.textProperty().addListener((_, _, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty, display
-							// all persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getOptionExpiry().toString().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
-
-					swapLengthTextField.textProperty().addListener((_, _, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is
-							// empty, display
-							// all persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getSwapLength().toString().toUpperCase().contains(newValue.toUpperCase());
-						});
-					});
-
-					volatilityTextField.textProperty().addListener((_, _, newValue) -> {
-						filteredData.setPredicate(point -> {
-							// If filter text is empty, display
-							// all persons.
-							if (newValue == null || newValue.isEmpty()) {
-								return true;
-							}
-							return point.getVolatility().getValue().contains(newValue);
-						});
-					});
-
-					pointsTable.setItems(sortedData);
-					pointsTable.refresh();
-
-					quoteDate.setValue(surf.getQuoteDate());
-					quotesList.getItems().clear();
-					quoteSet.setValue(surf.getQuoteSet());
-					if (surf.getQuotes() != null) {
-						selectedQuotesList.setItems(FXCollections.observableArrayList(surf.getQuotes()));
-					}
+		volatilitySurface.valueProperty().addListener((_, _, surf) -> {
+			if (surf != null) {
+				surface = surf;
+				isGeneratedCheckBox.setSelected(surf.isGenerated());
+				interpolatorComboBox.setValue(surf.getInterpolator());
+				algorithmComboBox.setValue(surf.getAlgorithm());
+				instanceComboBox.setValue(surf.getInstance());
+				saveButton.setDisable(false);
+				copyButton.setDisable(false);
+				deleteButton.setDisable(false);
+				List<Quote> quotes = quoteBusinessDelegate.getQuotesByCurveId(surf.getId());
+				if (quotes != null) {
+					selectedQuotesList.setItems(FXCollections.observableArrayList(quotes));
 				} else {
-					algorithmComboBox.getSelectionModel().clearSelection();
-					interpolatorComboBox.getSelectionModel().clearSelection();
-					instanceComboBox.getSelectionModel().clearSelection();
-					selectedQuotesList.getItems().clear();
-					quoteDate.setValue(null);
-					pointsTable.setItems(null);
+					selectedQuotesList.setItems(FXCollections.emptyObservableList());
 				}
+				List<SurfacePoint<Integer, Integer, BigDecimal>> surfacePoints = swaptionVolatilitySurfaceBusinessDelegate
+						.getSwaptionVolatilitySurfacePointsBySurfaceId(surf.getId());
+				List<SurfacePointProperty> properties = buildTableContent(surfacePoints);
+				// 1. Wrap the ObservableList in a FilteredList
+				// (initially display all
+				// data).
+				FilteredList<SurfacePointProperty> filteredData = new FilteredList<>(
+						FXCollections.observableArrayList(properties));
+
+				// 3. Wrap the FilteredList in a SortedList.
+				SortedList<SurfacePointProperty> sortedData = new SortedList<>(filteredData);
+
+				// 4. Bind the SortedList comparator to the
+				// TableView comparator.
+				sortedData.comparatorProperty().bind(pointsTable.comparatorProperty());
+
+				// 2. Set the filter Predicate whenever the filter
+				// changes.
+				optionExpiryTextField.textProperty()
+						.addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+							// If filter text is
+							// empty, display
+							// all persons.
+							if (newValue == null || newValue.isEmpty()) {
+								return true;
+							}
+							return point.getOptionExpiry().getValue().toUpperCase().contains(newValue.toUpperCase());
+						}));
+
+				swapLengthTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+					// If filter text is
+					// empty, display
+					// all persons.
+					if (newValue == null || newValue.isEmpty()) {
+						return true;
+					}
+					return point.getSwapLength().getValue().toUpperCase().contains(newValue.toUpperCase());
+				}));
+
+				volatilityTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
+					// If filter text is empty, display
+					// all persons.
+					if (newValue == null || newValue.isEmpty()) {
+						return true;
+					}
+					return point.getVolatility().getValue().contains(newValue);
+				}));
+
+				pointsTable.setItems(sortedData);
+				pointsTable.refresh();
+
+				quoteDate.setValue(surf.getQuoteDate());
+				quotesList.getItems().clear();
+				quoteSet.setValue(surf.getQuoteSet());
+				if (surf.getQuotes() != null) {
+					selectedQuotesList.setItems(FXCollections.observableArrayList(surf.getQuotes()));
+				}
+			} else {
+				algorithmComboBox.getSelectionModel().clearSelection();
+				interpolatorComboBox.getSelectionModel().clearSelection();
+				instanceComboBox.getSelectionModel().clearSelection();
+				selectedQuotesList.getItems().clear();
+				quoteDate.setValue(null);
+				pointsTable.setItems(null);
 			}
 		});
 
@@ -279,8 +278,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		TradistaGUIUtil.fillComboBox(swaptionVolatilitySurfaceBusinessDelegate.getAllInterpolators(),
 				interpolatorComboBox);
 		TradistaGUIUtil.fillComboBox(swaptionVolatilitySurfaceBusinessDelegate.getAllInstances(), instanceComboBox);
-		TradistaGUIUtil.fillComboBox(swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-				volatilitySurface);
+		TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 	}
 
 	private void buildSurface(SwaptionVolatilitySurface surface) throws TradistaBusinessException {
@@ -309,19 +307,38 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	@FXML
 	protected void save() {
 		try {
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Save IRSwapOption Volatility Surface");
-			confirmation.setHeaderText("Save IRSwapOption Volatility Surface");
-			confirmation.setContentText("Do you want to save this IRSwapOption Volatility Surface?");
+			boolean isNew = (surface.getId() == 0);
+			LegalEntity po = null;
+			boolean proceed = false;
 
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog(
+						"IRSwapOption Volatility Surface", ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save IRSwapOption Volatility Surface");
+				confirmation.setHeaderText("Save IRSwapOption Volatility Surface");
+				confirmation.setContentText("Do you want to save this IRSwapOption Volatility Surface?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					po = surface.getProcessingOrg();
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					surface = new SwaptionVolatilitySurface(surface.getName(), po);
+				}
 				buildSurface(surface);
 				surface.setId(swaptionVolatilitySurfaceBusinessDelegate.saveSwaptionVolatilitySurface(surface));
-				TradistaGUIUtil.fillComboBox(
-						swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-						volatilitySurface);
-
+				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -331,12 +348,21 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 	@FXML
 	protected void copy() {
-		boolean surfaceLoaded = (surface != null);
-		if (!surfaceLoaded) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, "Please select a volatility Surface.");
-			alert.showAndWait();
-		} else {
-			try {
+		try {
+			String copyName = null;
+			LegalEntity po = null;
+			boolean proceed = false;
+
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("IRSwapOption Volatility Surface",
+						surface.getProcessingOrg(), surface.getName(), false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
 				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
 				dialog.setTitle("Surface name");
 				dialog.setHeaderText("Surface name selection");
@@ -344,20 +370,23 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 				Optional<String> result = dialog.showAndWait();
 				if (result.isPresent()) {
-					SwaptionVolatilitySurface copySwaptionVolatilitySurface = new SwaptionVolatilitySurface(
-							result.get(), ClientUtil.getCurrentUser().getProcessingOrg());
-					buildSurface(copySwaptionVolatilitySurface);
-					copySwaptionVolatilitySurface.setId(swaptionVolatilitySurfaceBusinessDelegate
-							.saveSwaptionVolatilitySurface(copySwaptionVolatilitySurface));
-					surface = copySwaptionVolatilitySurface;
-					TradistaGUIUtil.fillComboBox(
-							swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-							volatilitySurface);
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
 				}
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
 			}
+
+			if (proceed) {
+				SwaptionVolatilitySurface copySwaptionVolatilitySurface = new SwaptionVolatilitySurface(copyName, po);
+				buildSurface(copySwaptionVolatilitySurface);
+				copySwaptionVolatilitySurface.setId(swaptionVolatilitySurfaceBusinessDelegate
+						.saveSwaptionVolatilitySurface(copySwaptionVolatilitySurface));
+				surface = copySwaptionVolatilitySurface;
+				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
+			}
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
@@ -370,9 +399,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			if (result.isPresent()) {
 				SwaptionVolatilitySurface surface = result.get();
 				swaptionVolatilitySurfaceBusinessDelegate.saveSwaptionVolatilitySurface(surface);
-				TradistaGUIUtil.fillComboBox(
-						swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-						volatilitySurface);
+				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -383,9 +410,6 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	@FXML
 	protected void delete() {
 		try {
-			if (surface == null) {
-				throw new TradistaBusinessException("Please select a IRSwapOption Volatility Surface");
-			}
 			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 			confirmation.setTitle("Delete IRSwapOption Volatility Surface");
 			confirmation.setHeaderText("Delete IRSwapOption Volatility Surface");
@@ -395,9 +419,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			if (result.get() == ButtonType.OK) {
 				swaptionVolatilitySurfaceBusinessDelegate.deleteSwaptionVolatilitySurface(surface.getId());
 				surface = null;
-				TradistaGUIUtil.fillComboBox(
-						swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-						volatilitySurface);
+				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -452,7 +474,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 		@Override
 		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
+			if (textField != null && textField.getText() != null && !textField.getText().equals(StringUtils.EMPTY)) {
 				setItem(textField.getText());
 			}
 			super.startEdit();
@@ -493,19 +515,16 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (arg2 != null && !arg2) {
-						commitEdit(textField.getText());
-					}
+			textField.focusedProperty().addListener((_, _, isFocused) -> {
+				if (Boolean.FALSE.equals(isFocused)) {
+					commitEdit(textField.getText());
 				}
 			});
 
 		}
 
 		private String getString() {
-			return getItem() == null ? "" : getItem();
+			return getItem() == null ? StringUtils.EMPTY : getItem();
 		}
 	}
 
@@ -516,8 +535,8 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 			for (Number optionLifetime : optionLifetimes) {
 				for (Number swapLifetime : swapLifetimes) {
-					SurfacePoint<Integer, Integer, BigDecimal> point = new SurfacePoint<Integer, Integer, BigDecimal>(
-							(Integer) optionLifetime, (Integer) swapLifetime, null);
+					SurfacePoint<Integer, Integer, BigDecimal> point = new SurfacePoint<>((Integer) optionLifetime,
+							(Integer) swapLifetime, null);
 					if (!data.contains(point)) {
 						data.add(point);
 					}
@@ -540,7 +559,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			String swapLength = toPeriodString(point.getyAxis());
 			if (!optionExpiry.isEmpty() && !swapLength.isEmpty()) {
 				surfacePointPropertyList.add(new SurfacePointProperty(optionExpiry, swapLength,
-						point.getzAxis() == null ? "" : TradistaGUIUtil.formatAmount(point.getzAxis())));
+						point.getzAxis() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(point.getzAxis())));
 			}
 		}
 		return surfacePointPropertyList;
@@ -711,8 +730,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	@FXML
 	public void refresh() {
 		super.refresh();
-		TradistaGUIUtil.fillComboBox(swaptionVolatilitySurfaceBusinessDelegate.getAllSwaptionVolatilitySurfaces(),
-				volatilitySurface);
+		TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 	}
 
 }

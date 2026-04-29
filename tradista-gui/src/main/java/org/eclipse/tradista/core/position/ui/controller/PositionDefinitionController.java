@@ -12,6 +12,8 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -20,17 +22,15 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.position.service.PositionDefinitionBusinessDelegate;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
-import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import org.eclipse.tradista.core.product.model.BlankProduct;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -85,74 +85,88 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 	@FXML
 	private ComboBox<PositionDefinition> load;
 
-	private PositionDefinition positionDefinition;
+	@FXML
+	private Button copyButton;
 
-	private BookBusinessDelegate bookBusinessDelegate;
+	private PositionDefinition positionDefinition;
 
 	private ProductBusinessDelegate productBusinessDelegate;
 
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
-	private PricerBusinessDelegate pricerBusinessDelegate;
-
 	private PositionDefinitionBusinessDelegate positionBusinessDelegate;
 
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
-		bookBusinessDelegate = new BookBusinessDelegate();
 		productBusinessDelegate = new ProductBusinessDelegate();
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
-		pricerBusinessDelegate = new PricerBusinessDelegate();
 		positionBusinessDelegate = new PositionDefinitionBusinessDelegate();
-		List<LegalEntity> legalEntities = new ArrayList<LegalEntity>();
+
+		copyButton.setDisable(true);
+		List<LegalEntity> legalEntities = new ArrayList<>();
 		TradistaGUIUtil.fillComboBox(productBusinessDelegate.getAvailableProductTypes(), productType);
 		productType.getItems().add(0, StringUtils.EMPTY);
 		productType.getSelectionModel().selectFirst();
-		productType.valueProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> arg0, String arg1, String newValue) {
-				if (StringUtils.isEmpty(newValue)) {
-					product.getItems().clear();
-				} else {
-					try {
-						Set<? extends Product> products = productBusinessDelegate.getAllProductsByType(newValue);
-						if (products != null) {
-							product.setItems(FXCollections.observableArrayList(products));
-							product.getItems().add(0, BlankProduct.getInstance());
-							product.getSelectionModel().selectFirst();
-						} else {
-							product.getItems().clear();
-						}
-					} catch (TradistaBusinessException tbe) {
-						// Should not happen as values of product types are good
-						// ones.
+		productType.valueProperty().addListener((_, _, newValue) -> {
+			if (StringUtils.isEmpty(newValue)) {
+				product.getItems().clear();
+			} else {
+				try {
+					Set<? extends Product> products = productBusinessDelegate.getAllProductsByType(newValue);
+					if (products != null) {
+						product.setItems(FXCollections.observableArrayList(products));
+						product.getItems().add(0, BlankProduct.getInstance());
+						product.getSelectionModel().selectFirst();
+					} else {
+						product.getItems().clear();
 					}
+				} catch (TradistaBusinessException _) {
+					// Should not happen as values of product types are good
+					// ones.
 				}
 			}
 		});
-		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
+		TradistaGUIUtil.fillBookComboBox(book);
 		legalEntities.addAll(legalEntityBusinessDelegate.getAllCounterparties());
 		legalEntities.add(0, BlankLegalEntity.getInstance());
 		TradistaGUIUtil.fillComboBox(legalEntities, counterparty);
 		counterparty.getSelectionModel().selectFirst();
 		TradistaGUIUtil.fillCurrencyComboBox(currency);
-		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
+		TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
 		TradistaGUIUtil.fillPositionDefinitionComboBox(false, load);
 	}
 
 	@FXML
 	protected void save() {
-		TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-		confirmation.setTitle("Save Position Definition");
-		confirmation.setHeaderText("Save Position Definition");
-		confirmation.setContentText("Do you want to save this Position Definition?");
+		boolean isNew = name.isVisible();
+		LegalEntity po = null;
+		boolean proceed = false;
 
-		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (ClientUtil.currentUserIsAdmin() && isNew) {
+			TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Position Definition",
+					ClientUtil.getCurrentProcessingOrg(), false);
+			Optional<LegalEntity> result = dialog.showAndWait();
+			if (result.isPresent()) {
+				po = result.get();
+				proceed = true;
+			}
+		} else {
+			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+			confirmation.setTitle("Save Position Definition");
+			confirmation.setHeaderText("Save Position Definition");
+			confirmation.setContentText("Do you want to save this Position Definition?");
+
+			Optional<ButtonType> result = confirmation.showAndWait();
+			if (result.isPresent() && result.get() == ButtonType.OK) {
+				proceed = true;
+				po = ClientUtil.getCurrentUser().getProcessingOrg();
+			}
+		}
+
+		if (proceed) {
 			try {
-				if (name.isVisible()) {
-					positionDefinition = new PositionDefinition(name.getText(),
-							ClientUtil.getCurrentUser().getProcessingOrg());
+				if (isNew) {
+					positionDefinition = new PositionDefinition(name.getText(), po);
 					nameLabel.setText(name.getText());
 				}
 
@@ -187,15 +201,35 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void copy() {
-		TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-		dialog.setTitle("Position Definition Copy");
-		dialog.setHeaderText("Do you want to copy this Position Definition ?");
-		dialog.setContentText("Please enter the name of the new Position Definition:");
-		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()) {
+		String copyName = null;
+		LegalEntity po = null;
+		boolean proceed = false;
+
+		if (ClientUtil.currentUserIsAdmin()) {
+			TradistaCopyDialog dialog = new TradistaCopyDialog("Position Definition",
+					positionDefinition.getProcessingOrg(), nameLabel.getText(), false);
+			Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+			if (result.isPresent()) {
+				copyName = result.get().getName();
+				po = result.get().getProcessingOrg();
+				proceed = true;
+			}
+		} else {
+			TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+			dialog.setTitle("Position Definition Copy");
+			dialog.setHeaderText("Do you want to copy this Position Definition ?");
+			dialog.setContentText("Please enter the name of the new Position Definition:");
+			Optional<String> result = dialog.showAndWait();
+			if (result.isPresent()) {
+				copyName = result.get();
+				po = ClientUtil.getCurrentUser().getProcessingOrg();
+				proceed = true;
+			}
+		}
+
+		if (proceed) {
 			try {
-				PositionDefinition copyPositionDefinition = new PositionDefinition(result.get(),
-						ClientUtil.getCurrentUser().getProcessingOrg());
+				PositionDefinition copyPositionDefinition = new PositionDefinition(copyName, po);
 				copyPositionDefinition.setBook(book.getValue());
 				if (!counterparty.getValue().equals(BlankLegalEntity.getInstance())) {
 					copyPositionDefinition.setCounterparty(counterparty.getValue());
@@ -247,6 +281,11 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 			counterparty.setValue(BlankLegalEntity.getInstance());
 		}
 		currency.setValue(positionDefinition.getCurrency());
+		if (positionDefinition.getProductType() != null) {
+			productType.setValue(positionDefinition.getProductType());
+		} else {
+			productType.setValue(StringUtils.EMPTY);
+		}
 		isRealTime.setSelected(positionDefinition.isRealTime());
 		pricingParameter.setValue(positionDefinition.getPricingParameter());
 		if (positionDefinition.getProduct() != null) {
@@ -254,14 +293,10 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 		} else {
 			product.setValue(BlankProduct.getInstance());
 		}
-		if (positionDefinition.getProductType() != null) {
-			productType.setValue(positionDefinition.getProductType());
-		} else {
-			productType.setValue(StringUtils.EMPTY);
-		}
 		name.setVisible(false);
 		nameLabel.setText(positionDefinition.getName());
 		nameLabel.setVisible(true);
+		copyButton.setDisable(false);
 	}
 
 	@Override
@@ -279,32 +314,42 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 		nameLabel.setText(StringUtils.EMPTY);
 		name.setVisible(true);
 		nameLabel.setVisible(false);
+		copyButton.setDisable(true);
 	}
 
-	@Override
 	@FXML
 	public void refresh() {
-		List<LegalEntity> legalEntities = new ArrayList<LegalEntity>();
-		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
+		List<LegalEntity> legalEntities = new ArrayList<>();
+		TradistaGUIUtil.fillBookComboBox(book);
 		legalEntities.add(BlankLegalEntity.getInstance());
 		legalEntities.addAll(legalEntityBusinessDelegate.getAllLegalEntities());
 		TradistaGUIUtil.fillComboBox(legalEntities, counterparty);
 		TradistaGUIUtil.fillCurrencyComboBox(currency);
-		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
+		TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
+		PositionDefinition pd = load.getValue();
 		TradistaGUIUtil.fillPositionDefinitionComboBox(false, load);
+		if (pd != null && !load.getItems().contains(pd)) {
+			positionDefinition = null;
+			name.setVisible(true);
+			name.clear();
+			nameLabel.setVisible(false);
+			nameLabel.setText(StringUtils.EMPTY);
+			copyButton.setDisable(true);
+		}
 		if (!StringUtils.isEmpty(productType.getValue())) {
 			Set<? extends Product> products;
 			try {
 				products = productBusinessDelegate.getAllProductsByType(productType.getValue());
 				if (products != null) {
-					List<Product> productsList = new ArrayList<Product>();
+					List<Product> productsList = new ArrayList<>();
 					productsList.add(BlankProduct.getInstance());
 					productsList.addAll(products);
 					TradistaGUIUtil.fillComboBox(productsList, product);
 				} else {
 					product.getItems().clear();
 				}
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
+				// Not expected here
 			}
 		}
 	}

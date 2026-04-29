@@ -42,8 +42,16 @@ public class SurfaceBusinessDelegate {
 		return SecurityUtil.run(() -> surfaceService.surfaceExists(surface, type));
 	}
 
-	public List<VolatilitySurface<?, ?, ?>> getSurfaces(String surfaceType) {
-		return SecurityUtil.run(() -> surfaceService.getSurfaces(surfaceType));
+	public List<VolatilitySurface<?, ?, ?>> getSurfaces(String surfaceType) throws TradistaBusinessException {
+		return SecurityUtil.runEx(() -> surfaceService.getSurfaces(surfaceType));
+	}
+
+	public List<VolatilitySurface<?, ?, ?>> getSurfacesByTypeAndPoId(String surfaceType, long poId)
+			throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
+		return SecurityUtil.runEx(() -> surfaceService.getSurfacesByTypeAndPoId(surfaceType, poId));
 	}
 
 	public VolatilitySurface<?, ?, ?> getSurfaceById(long surfaceId) throws TradistaBusinessException {

@@ -79,7 +79,7 @@
 						<Insets right="10.0" />
 					</HBox.margin>
 				</Button>
-				<Button maxWidth="-Infinity" minHeight="-Infinity"
+				<Button fx:id="copyButton" maxWidth="-Infinity" minHeight="-Infinity"
 					minWidth="-Infinity" mnemonicParsing="false" onAction="#copy"
 					text="Copy">
 					<HBox.margin>

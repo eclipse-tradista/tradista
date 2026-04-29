@@ -8,8 +8,14 @@ import org.eclipse.tradista.core.position.persistence.PositionDefinitionSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJBContext;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
+
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.user.model.User;
+import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -32,6 +38,11 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class PositionDefinitionServiceBean implements LocalPositionDefinitionService, PositionDefinitionService {
 
+	@Resource
+	private EJBContext ctx;
+
+	private UserBusinessDelegate userBusinessDelegate = new UserBusinessDelegate();
+
 	@Interceptors(PositionDefinitionFilteringInterceptor.class)
 	@Override
 	public Set<PositionDefinition> getAllPositionDefinitions() {
@@ -41,7 +52,9 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 	@Interceptors(PositionDefinitionFilteringInterceptor.class)
 	@Override
 	public PositionDefinition getPositionDefinitionByName(String name) {
-		return PositionDefinitionSQL.getPositionDefinitionByName(name);
+		return PositionDefinitionSQL.getPositionDefinitionByNameAndPoId(name,
+				getCurrentUser().getProcessingOrg().getId());
+
 	}
 
 	@Interceptors(PositionDefinitionFilteringInterceptor.class)
@@ -59,7 +72,7 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 		} else {
 			PositionDefinition oldPositionDefinition = PositionDefinitionSQL
 					.getPositionDefinitionById(positionDefinition.getId());
-			if (!oldPositionDefinition.getName().equals(oldPositionDefinition.getName())) {
+			if (!oldPositionDefinition.getName().equals(positionDefinition.getName())) {
 				checkPositionDefinitionName(positionDefinition);
 			}
 		}
@@ -67,15 +80,34 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 	}
 
 	private void checkPositionDefinitionName(PositionDefinition positionDefinition) throws TradistaBusinessException {
-		if (getPositionDefinitionByName(positionDefinition.getName()) != null) {
-			throw new TradistaBusinessException(String.format(
-					"A position definition named %s already exists in the system.", positionDefinition.getName()));
+		if (PositionDefinitionSQL.getPositionDefinitionByNameAndPoId(positionDefinition.getName(),
+				positionDefinition.getProcessingOrg() == null ? 0
+						: positionDefinition.getProcessingOrg().getId()) != null) {
+			throw new TradistaBusinessException(
+					String.format("A position definition named %s already exists for this Processing Org.",
+							positionDefinition.getName()));
 		}
 	}
 
 	@Override
 	public boolean deletePositionDefinition(String name) {
-		return PositionDefinitionSQL.deletePositionDefinition(name);
+
+		return PositionDefinitionSQL.deletePositionDefinition(name, getCurrentUser().getProcessingOrg().getId());
+	}
+
+	private User getCurrentUser() {
+		User user = null;
+		if (ctx.getContextData().get(SecurityUtil.CURRENT_USER) == null) {
+			try {
+				user = userBusinessDelegate.getUserByLogin(ctx.getCallerPrincipal().getName());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+			ctx.getContextData().put(SecurityUtil.CURRENT_USER, user);
+		} else {
+			user = (User) ctx.getContextData().get(SecurityUtil.CURRENT_USER);
+		}
+		return user;
 	}
 
 	@Override
@@ -86,5 +118,11 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 	@Override
 	public Set<String> getPositionDefinitionsByPricingParametersSetId(long id) {
 		return PositionDefinitionSQL.getPositionDefinitionsByPricingParametersSetId(id);
+	}
+
+	@Interceptors(PositionDefinitionFilteringInterceptor.class)
+	@Override
+	public Set<PositionDefinition> getPositionDefinitionsByPoId(long poId) {
+		return PositionDefinitionSQL.getPositionDefinitionsByPoId(poId);
 	}
 }

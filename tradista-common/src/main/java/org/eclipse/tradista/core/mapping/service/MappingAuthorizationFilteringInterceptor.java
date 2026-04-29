@@ -51,7 +51,7 @@ public class MappingAuthorizationFilteringInterceptor extends TradistaAuthorizat
 		if (parameterTypes.length >= 5 && parameterTypes[4].equals(Long.class)) {
 			long poId = (long) parameters[4];
 			StringBuilder errMsg = new StringBuilder();
-			if (getCurrentUser().getProcessingOrg() != null && (getCurrentUser().getProcessingOrg().getId() != poId)) {
+			if (getCurrentUser().getProcessingOrg().getId() != poId) {
 				errMsg.append(String.format("The value was not found.%n"));
 			}
 			if (!errMsg.isEmpty()) {

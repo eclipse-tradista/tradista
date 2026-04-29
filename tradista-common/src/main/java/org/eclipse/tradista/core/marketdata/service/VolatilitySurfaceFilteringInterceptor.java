@@ -48,8 +48,10 @@ public class VolatilitySurfaceFilteringInterceptor extends TradistaAuthorization
 
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameters.length > 0) {
-			if (parameters[0] instanceof VolatilitySurface) {
+			if (parameterTypes[0].equals(VolatilitySurface.class)) {
 				VolatilitySurface<?, ?, ?> surface = (VolatilitySurface<?, ?, ?>) parameters[0];
 				StringBuilder errMsg = new StringBuilder();
 				if (surface.getId() != 0) {
@@ -69,12 +71,11 @@ public class VolatilitySurfaceFilteringInterceptor extends TradistaAuthorization
 								String.format("The quote set %s was not found.", surface.getQuoteSet().getName()));
 					}
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}
-			if (parameters[0] instanceof Long) {
-				Method method = ic.getMethod();
+			if (parameterTypes[0].equals(Long.class)) {
 				if (method.getName().contains("delete")) {
 					Long surfaceId = (Long) parameters[0];
 					StringBuilder errMsg = new StringBuilder();
@@ -88,7 +89,7 @@ public class VolatilitySurfaceFilteringInterceptor extends TradistaAuthorization
 									surfaceId));
 						}
 					}
-					if (errMsg.length() > 0) {
+					if (!errMsg.isEmpty()) {
 						throw new TradistaBusinessException(errMsg.toString());
 					}
 				}

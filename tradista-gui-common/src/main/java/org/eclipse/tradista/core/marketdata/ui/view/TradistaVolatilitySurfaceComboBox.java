@@ -2,12 +2,17 @@ package org.eclipse.tradista.core.marketdata.ui.view;
 
 import java.util.List;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 import org.eclipse.tradista.core.marketdata.service.SurfaceBusinessDelegate;
 
 import javafx.beans.NamedArg;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -33,10 +38,44 @@ public class TradistaVolatilitySurfaceComboBox extends ComboBox<VolatilitySurfac
 
 	public TradistaVolatilitySurfaceComboBox(@NamedArg("surfaceType") String surfaceType) {
 		SurfaceBusinessDelegate surfaceBusinessDelegate = new SurfaceBusinessDelegate();
-		List<VolatilitySurface<?, ?, ?>> allSurfaces = surfaceBusinessDelegate.getSurfaces(surfaceType);
+		List<VolatilitySurface<?, ?, ?>> allSurfaces = null;
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				allSurfaces = surfaceBusinessDelegate.getSurfacesByTypeAndPoId(surfaceType,
+						ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			try {
+				allSurfaces = surfaceBusinessDelegate.getSurfaces(surfaceType);
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		}
+
 		if (allSurfaces != null && !allSurfaces.isEmpty()) {
 			setItems(FXCollections.observableArrayList(allSurfaces));
 		}
+
+		Callback<ListView<VolatilitySurface<?, ?, ?>>, ListCell<VolatilitySurface<?, ?, ?>>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(VolatilitySurface<?, ?, ?> surface, boolean empty) {
+				super.updateItem(surface, empty);
+				if (empty || surface == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = surface.getProcessingOrg() == null ? "Global"
+							: surface.getProcessingOrg().getShortName();
+					setText(surface.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(surface.getName());
+				}
+			}
+		};
+
+		setCellFactory(cellFactory);
+		setButtonCell(cellFactory.call(null));
 	}
 
 }

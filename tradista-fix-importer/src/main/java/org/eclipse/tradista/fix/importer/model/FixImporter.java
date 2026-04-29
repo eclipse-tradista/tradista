@@ -27,6 +27,8 @@ import org.eclipse.tradista.core.importer.TradistaImporter;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.fix.common.TradistaFixUtil;
 import org.eclipse.tradista.fix.importer.processing.ImportApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import quickfix.ConfigError;
 import quickfix.DefaultMessageFactory;
@@ -54,6 +56,8 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 
 	private static Session session;
 
+	private static final Logger logger = LoggerFactory.getLogger(FixImporter.class);
+
 	protected FixImporter(String name, String configFileName, LegalEntity po) {
 		setName(name);
 		this.configFileName = configFileName;
@@ -72,8 +76,7 @@ public abstract class FixImporter<X extends Message> extends TradistaImporter<X>
 			acceptor = new SocketAcceptor(application, storeFactory, settings, logFactory, new DefaultMessageFactory());
 			acceptor.start();
 		} catch (ConfigError | IOException e) {
-			// TODO Add error logs
-			e.printStackTrace();
+			logger.error("Error when starting FIX importer {}: ", getName(), e);
 		}
 	}
 

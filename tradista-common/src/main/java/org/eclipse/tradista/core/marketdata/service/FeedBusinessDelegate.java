@@ -83,7 +83,7 @@ public class FeedBusinessDelegate {
 				}
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> feedService.saveFeedConfig(feedConfig));
@@ -105,6 +105,13 @@ public class FeedBusinessDelegate {
 			throw new TradistaBusinessException("The feed config id must be positive.");
 		}
 		return SecurityUtil.run(() -> feedService.getFeedConfigById(id));
+	}
+
+	public Set<FeedConfig> getFeedConfigsByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The po id cannot be negative.");
+		}
+		return SecurityUtil.run(() -> feedService.getFeedConfigsByPoId(poId));
 	}
 
 }

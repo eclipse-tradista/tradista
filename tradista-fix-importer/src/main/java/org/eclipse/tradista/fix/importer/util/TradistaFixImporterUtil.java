@@ -162,9 +162,6 @@ public final class TradistaFixImporterUtil {
 		if (tag <= 0) {
 			errMsg.append(String.format("The tag (%d) must be positive.%n", tag));
 		}
-		if (poId <= 0) {
-			errMsg.append(String.format("The processing org id (%d) must be positive.%n", poId));
-		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
@@ -203,9 +200,6 @@ public final class TradistaFixImporterUtil {
 		if (tag <= 0) {
 			errMsg.append(String.format("The tag (%d) must be positive.%n", tag));
 		}
-		if (poId <= 0) {
-			errMsg.append(String.format("The processing org id (%d) must be positive.%n", poId));
-		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
@@ -218,7 +212,7 @@ public final class TradistaFixImporterUtil {
 						account);
 				mapppedBookName = account;
 			}
-			book = bookBusinessDelegate.getBookByName(mapppedBookName);
+			book = bookBusinessDelegate.getBookByNameAndPoId(mapppedBookName, poId);
 		} catch (FieldNotFound _) {
 			throw new TradistaTechnicalException(String.format(FIELD_CANNOT_BE_PARSED_AS_EMPTY, tag));
 		} catch (TradistaBusinessException tbe) {

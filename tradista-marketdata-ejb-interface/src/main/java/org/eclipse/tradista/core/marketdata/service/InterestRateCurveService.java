@@ -35,7 +35,11 @@ public interface InterestRateCurveService {
 
 	Set<InterestRateCurve> getAllInterestRateCurves();
 
+	Set<InterestRateCurve> getInterestRateCurvesByPoId(long poId);
+
 	Set<ZeroCouponCurve> getAllZeroCouponCurves();
+
+	Set<ZeroCouponCurve> getZeroCouponCurvesByPoId(long poId);
 
 	Set<String> getAllInterestRateCurveTypes();
 

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -16,6 +17,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DualListModel;
 
 import jakarta.annotation.PostConstruct;
@@ -48,13 +50,11 @@ public class AllocationConfigurationController implements Serializable {
 
 	private AllocationConfiguration allocationConfiguration;
 
-	private String loadingCriterion;
+	private AllocationConfiguration loadAllocationConfiguration;
 
-	private String idOrName;
+	private Set<AllocationConfiguration> allAllocationConfigurations;
 
 	private String copyAllocationConfigurationName;
-
-	private String[] allLoadingCriteria = { "Id", "Name" };
 
 	private DualListModel<Book> books;
 
@@ -78,11 +78,6 @@ public class AllocationConfigurationController implements Serializable {
 	public void init() {
 		allocationConfigurationBusinessDelegate = new AllocationConfigurationBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
-		availableBooks = new ArrayList<>();
-		Set<Book> books = bookBusinessDelegate.getAllBooks();
-		if (books != null) {
-			availableBooks.addAll(books);
-		}
 		if (ClientUtil.currentUserIsAdmin()) {
 			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
@@ -91,19 +86,49 @@ public class AllocationConfigurationController implements Serializable {
 				allProcessingOrgs.addAll(processingOrgs);
 			}
 		}
+		availableBooks = getBooksForCurrentContext();
 		initModel();
+		refresh();
+	}
+
+	private void refresh() {
+		Set<AllocationConfiguration> allocConfigs = null;
+		try {
+			if (ClientUtil.getCurrentProcessingOrg() != null) {
+				allocConfigs = allocationConfigurationBusinessDelegate
+						.getAllocationConfigurationsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} else {
+				allocConfigs = allocationConfigurationBusinessDelegate.getAllAllocationConfigurations();
+			}
+		} catch (TradistaBusinessException _) {
+			// ignore
+		}
+		if (allocConfigs != null) {
+			allAllocationConfigurations = new HashSet<>(allocConfigs);
+		} else {
+			allAllocationConfigurations = new HashSet<>();
+		}
 	}
 
 	private void initModel() {
 		books = new DualListModel<>(availableBooks, new ArrayList<>());
 	}
 
-	public String getLoadingCriterion() {
-		return loadingCriterion;
-	}
-
-	public void setLoadingCriterion(String loadingCriterion) {
-		this.loadingCriterion = loadingCriterion;
+	/**
+	 * Returns books filtered by the current PO context. If admin with a specific
+	 * current PO selected: books of that PO only. Otherwise: all books.
+	 */
+	private List<Book> getBooksForCurrentContext() {
+		Set<Book> allBooks = bookBusinessDelegate.getAllBooks();
+		if (allBooks == null) {
+			return new ArrayList<>();
+		}
+		LegalEntity currentPo = ClientUtil.getCurrentProcessingOrg();
+		if (ClientUtil.currentUserIsAdmin() && currentPo != null) {
+			return allBooks.stream().filter(b -> b.getProcessingOrg().equals(currentPo))
+					.collect(java.util.stream.Collectors.toList());
+		}
+		return new ArrayList<>(allBooks);
 	}
 
 	public AllocationConfiguration getAllocationConfiguration() {
@@ -114,14 +139,6 @@ public class AllocationConfigurationController implements Serializable {
 		this.allocationConfiguration = allocationConfiguration;
 	}
 
-	public String[] getAllLoadingCriteria() {
-		return allLoadingCriteria;
-	}
-
-	public void setAllLoadingCriteria(String[] allLoadingCriteria) {
-		this.allLoadingCriteria = allLoadingCriteria;
-	}
-
 	public DualListModel<Book> getBooks() {
 		return books;
 	}
@@ -130,12 +147,20 @@ public class AllocationConfigurationController implements Serializable {
 		this.books = books;
 	}
 
-	public String getIdOrName() {
-		return idOrName;
+	public AllocationConfiguration getLoadAllocationConfiguration() {
+		return loadAllocationConfiguration;
 	}
 
-	public void setIdOrName(String idOrName) {
-		this.idOrName = idOrName;
+	public void setLoadAllocationConfiguration(AllocationConfiguration loadAllocationConfiguration) {
+		this.loadAllocationConfiguration = loadAllocationConfiguration;
+	}
+
+	public Set<AllocationConfiguration> getAllAllocationConfigurations() {
+		return allAllocationConfigurations;
+	}
+
+	public void setAllAllocationConfigurations(Set<AllocationConfiguration> allAllocationConfigurations) {
+		this.allAllocationConfigurations = allAllocationConfigurations;
 	}
 
 	public String getCopyAllocationConfigurationName() {
@@ -170,6 +195,36 @@ public class AllocationConfigurationController implements Serializable {
 		this.copyProcessingOrg = copyProcessingOrg;
 	}
 
+	public void checkSave() {
+		if (allocationConfiguration == null && ClientUtil.currentUserIsAdmin()
+				&& ClientUtil.getCurrentProcessingOrg() != null) {
+			processingOrg = ClientUtil.getCurrentProcessingOrg();
+			PrimeFaces.current().executeScript("PF('saveConfirmation').show()");
+		} else {
+			save();
+		}
+	}
+
+	public void prepareCopy() {
+		copyProcessingOrg = allocationConfiguration.getProcessingOrg();
+	}
+
+	public String getSaveMessage() {
+		if (processingOrg == null) {
+			return StringUtils.EMPTY;
+		}
+		return String.format("The new Allocation Configuration will be linked to Processing Org %s.",
+				processingOrg.getShortName());
+	}
+
+	public String getCopyMessage() {
+		if (copyProcessingOrg == null) {
+			return StringUtils.EMPTY;
+		}
+		return String.format("The new Allocation Configuration will be linked to Processing Org %s.",
+				copyProcessingOrg.getShortName());
+	}
+
 	public SortedSet<LegalEntity> getAllProcessingOrgs() {
 		return allProcessingOrgs;
 	}
@@ -198,6 +253,7 @@ public class AllocationConfigurationController implements Serializable {
 					allocationConfigurationBusinessDelegate.saveAllocationConfiguration(allocationConfiguration));
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Allocation Configuration " + allocationConfiguration.getId() + " successfully saved"));
+			refresh();
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -231,6 +287,7 @@ public class AllocationConfigurationController implements Serializable {
 			processingOrg = copyProcessingOrg;
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"Allocation Configuration " + allocationConfiguration.getId() + " successfully created"));
+			refresh();
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -241,49 +298,60 @@ public class AllocationConfigurationController implements Serializable {
 	}
 
 	public void load() {
-		try {
-			if (loadingCriterion.equals("Id")) {
-				allocationConfiguration = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationById(Long.parseLong(idOrName));
-			} else {
-				allocationConfiguration = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationByName(idOrName);
-			}
-			if (allocationConfiguration != null) {
-				allocationConfigurationName = allocationConfiguration.getName();
-				List<Book> allocConfigBooks = new ArrayList<>();
-				if (allocationConfiguration.getBooks() != null) {
-					allocConfigBooks = new ArrayList<>(allocationConfiguration.getBooks());
-					final List<Book> tmpAllocConfigBooks = allocConfigBooks;
-					books.setSource(books.getSource().stream().filter(s -> !tmpAllocConfigBooks.contains(s)).toList());
-				} else {
-					books.setSource(availableBooks);
-				}
-				books.setTarget(allocConfigBooks);
-				processingOrg = allocationConfiguration.getProcessingOrg();
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-						"Allocation Configuration " + allocationConfiguration.getId() + " successfully loaded."));
-			} else {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-						"Error", "Allocation Configuration " + idOrName + " was not found."));
-			}
-		} catch (NumberFormatException nfe) {
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
-		} catch (TradistaBusinessException tbe) {
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
-		}
+		if (loadAllocationConfiguration != null) {
+			allocationConfiguration = loadAllocationConfiguration;
+			allocationConfigurationName = allocationConfiguration.getName();
+			List<Book> allocConfigBooks = new ArrayList<>();
+			List<Book> sourceBooks = availableBooks.stream()
+					.filter(b -> b.getProcessingOrg().equals(allocationConfiguration.getProcessingOrg())).toList();
 
+			if (allocationConfiguration.getBooks() != null) {
+				allocConfigBooks = new ArrayList<>(allocationConfiguration.getBooks());
+				final List<Book> tmpAllocConfigBooks = allocConfigBooks;
+				books.setSource(sourceBooks.stream().filter(s -> !tmpAllocConfigBooks.contains(s)).toList());
+			} else {
+				books.setSource(sourceBooks);
+			}
+			books.setTarget(allocConfigBooks);
+			processingOrg = allocationConfiguration.getProcessingOrg();
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+					"Allocation Configuration " + allocationConfiguration.getId() + " successfully loaded."));
+		} else {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+					"Please select an Allocation Configuration."));
+		}
 	}
 
 	public void clear() {
 		allocationConfiguration = null;
 		allocationConfigurationName = null;
 		processingOrg = null;
+		loadAllocationConfiguration = null;
+		availableBooks = getBooksForCurrentContext();
 		initModel();
 		FacesContext.getCurrentInstance().addMessage(null,
 				new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Form cleared"));
+	}
+
+	public String getDisambiguatedBookName(Book book) {
+		if (book == null) {
+			return StringUtils.EMPTY;
+		}
+		if (!ClientUtil.currentUserIsAdmin() || ClientUtil.getCurrentProcessingOrg() != null) {
+			return book.getName();
+		}
+		return book.getName() + " [" + book.getProcessingOrg().getShortName() + "]";
+	}
+
+	public String getDisambiguatedName(AllocationConfiguration ac) {
+		if (ac == null) {
+			return StringUtils.EMPTY;
+		}
+		if (!ClientUtil.currentUserIsAdmin() || ClientUtil.getCurrentProcessingOrg() != null) {
+			return ac.getName();
+
+		}
+		return ac.getName() + " [" + ac.getProcessingOrg().getShortName() + "]";
 	}
 
 }

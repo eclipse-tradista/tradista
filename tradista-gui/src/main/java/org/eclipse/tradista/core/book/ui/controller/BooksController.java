@@ -9,11 +9,15 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -50,62 +54,106 @@ public class BooksController extends TradistaControllerAdapter {
 	private BookBusinessDelegate bookBusinessDelegate;
 
 	@FXML
-	private ComboBox<Book> load;
+	private ComboBox<Book> bookComboBox;
 
 	@FXML
 	private TradistaBookPieChart bookChartPane;
+
+	@FXML
+	private Button saveButton;
+
+	@FXML
+	private Button copyButton;
 
 	private Book book;
 
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 		bookBusinessDelegate = new BookBusinessDelegate();
-		TradistaGUIUtil.fillBookComboBox(load);
+		TradistaGUIUtil.fillBookComboBox(bookComboBox);
+		copyButton.setDisable(true);
 	}
 
 	@FXML
 	protected void save() {
-		TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-		confirmation.setTitle("Save Book");
-		confirmation.setHeaderText("Save Book");
-		confirmation.setContentText("Do you want to save this Book?");
+		try {
+			boolean isNew = (name.isVisible());
+			LegalEntity po = null;
+			boolean proceed = false;
 
-		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
-			try {
-				if (name.isVisible()) {
-					book = new Book(name.getText(), ClientUtil.getCurrentUser().getProcessingOrg());
+			if (ClientUtil.currentUserIsAdmin() && isNew) {
+				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Book",
+						ClientUtil.getCurrentProcessingOrg(), false);
+				Optional<LegalEntity> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					po = result.get();
+					proceed = true;
+				}
+			} else {
+				TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+				confirmation.setTitle("Save Book");
+				confirmation.setHeaderText("Save Book");
+				confirmation.setContentText("Do you want to save this Book?");
+
+				Optional<ButtonType> result = confirmation.showAndWait();
+				if (result.isPresent() && result.get() == ButtonType.OK) {
+					proceed = true;
+					if (!isNew) {
+						po = book.getProcessingOrg();
+					} else {
+						po = ClientUtil.getCurrentUser().getProcessingOrg();
+					}
+				}
+			}
+
+			if (proceed) {
+				if (isNew) {
+					book = new Book(name.getText(), po);
 				}
 				book.setDescription(description.getText());
 				book.setId(bookBusinessDelegate.saveBook(book));
-				nameLabel.setText(name.getText());
-				name.setVisible(false);
-				nameLabel.setVisible(true);
-				bookChartPane.updateBookChart(book);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
-				alert.showAndWait();
+				load(book);
 			}
+		} catch (TradistaBusinessException tbe) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			alert.showAndWait();
 		}
 	}
 
 	@FXML
 	protected void copy() {
 		try {
-			TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-			dialog.setTitle("Book Copy");
-			dialog.setHeaderText("Do you want to copy this Book ?");
-			dialog.setContentText("Please enter the name of the new Book:");
-			Optional<String> result = dialog.showAndWait();
-			if (result.isPresent()) {
-				Book copyBook = new Book(result.get(), ClientUtil.getCurrentUser().getProcessingOrg());
+			String copyName = null;
+			LegalEntity po = null;
+			boolean proceed = false;
+
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("Book", book.getProcessingOrg(), book.getName(),
+						false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
+				}
+			} else {
+				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+				dialog.setTitle("Book Copy");
+				dialog.setHeaderText("Do you want to copy this Book ?");
+				dialog.setContentText("Please enter the name of the new Book:");
+				Optional<String> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
+				}
+			}
+
+			if (proceed) {
+				Book copyBook = new Book(copyName, po);
 				copyBook.setDescription(description.getText());
 				copyBook.setId(bookBusinessDelegate.saveBook(copyBook));
-				book = copyBook;
-				name.setVisible(false);
-				nameLabel.setVisible(true);
-				nameLabel.setText(book.getName());
-				bookChartPane.updateBookChart(book);
+				load(copyBook);
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -115,24 +163,11 @@ public class BooksController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void load() {
-		Book book = null;
-		String bookName = null;
 		try {
-
-			if (load.getValue() != null) {
-				bookName = load.getValue().getName();
-			} else {
-				throw new TradistaBusinessException("Please specify a name.");
+			if (bookComboBox.getValue() == null) {
+				throw new TradistaBusinessException("Please select a book.");
 			}
-
-			book = bookBusinessDelegate.getBookByName(bookName);
-
-			if (book == null) {
-				throw new TradistaBusinessException(
-						String.format("The book %s doesn't exist in the system.", load.getValue().getName()));
-			}
-
-			load(book);
+			load(bookComboBox.getValue());
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
@@ -146,6 +181,7 @@ public class BooksController extends TradistaControllerAdapter {
 		nameLabel.setText(book.getName());
 		nameLabel.setVisible(true);
 		bookChartPane.updateBookChart(book);
+		copyButton.setDisable(false);
 	}
 
 	@Override
@@ -158,12 +194,24 @@ public class BooksController extends TradistaControllerAdapter {
 		name.setVisible(true);
 		nameLabel.setVisible(false);
 		bookChartPane.clear();
+		copyButton.setDisable(true);
 	}
 
 	@Override
 	@FXML
 	public void refresh() {
-		TradistaGUIUtil.fillBookComboBox(load);
+		Book b = bookComboBox.getValue();
+		TradistaGUIUtil.fillBookComboBox(bookComboBox);
+		if (b != null && !bookComboBox.getItems().contains(b)) {
+			book = null;
+			name.setVisible(true);
+			name.clear();
+			nameLabel.setVisible(false);
+			nameLabel.setText(StringUtils.EMPTY);
+			description.clear();
+			bookChartPane.clear();
+			copyButton.setDisable(true);
+		}
 	}
 
 }

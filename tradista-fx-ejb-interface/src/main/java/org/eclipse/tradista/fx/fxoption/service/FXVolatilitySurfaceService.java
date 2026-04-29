@@ -33,6 +33,8 @@ public interface FXVolatilitySurfaceService {
 
 	Set<FXVolatilitySurface> getAllFXVolatilitySurfaces();
 
+	Set<FXVolatilitySurface> getFXVolatilitySurfacesByPoId(long poId);
+
 	FXVolatilitySurface getFXVolatilitySurfaceByName(String name);
 
 	boolean saveFXVolatilitySurfacePoints(long id, List<SurfacePoint<Long, BigDecimal, BigDecimal>> ratePoints,

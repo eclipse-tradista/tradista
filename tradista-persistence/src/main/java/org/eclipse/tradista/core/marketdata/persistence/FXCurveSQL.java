@@ -1,16 +1,16 @@
 package org.eclipse.tradista.core.marketdata.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,6 +20,10 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
@@ -45,15 +49,33 @@ import org.eclipse.tradista.core.marketdata.model.RatePoint;
 
 public class FXCurveSQL {
 
+	public static final String PRIMARY_CURRENCY_CURVE_ID = "PRIMARY_CURRENCY_CURVE_ID";
+	public static final String QUOTE_CURRENCY_CURVE_ID = "QUOTE_CURRENCY_CURVE_ID";
+
+	private static final Field PRIMARY_CURRENCY_ID_FIELD = new Field(TradistaDBConstants.PRIMARY_CURRENCY_ID);
+	private static final Field QUOTE_CURRENCY_ID_FIELD = new Field(TradistaDBConstants.QUOTE_CURRENCY_ID);
+	private static final Field PRIMARY_CURRENCY_CURVE_ID_FIELD = new Field(PRIMARY_CURRENCY_CURVE_ID);
+	private static final Field QUOTE_CURRENCY_CURVE_ID_FIELD = new Field(QUOTE_CURRENCY_CURVE_ID);
+	private static final Field ID_FIELD = new Field(ID);
+
+	private static final Field[] FXC_FIELDS = { PRIMARY_CURRENCY_ID_FIELD, QUOTE_CURRENCY_ID_FIELD,
+			PRIMARY_CURRENCY_CURVE_ID_FIELD, QUOTE_CURRENCY_CURVE_ID_FIELD, ID_FIELD };
+
+	private static final Field[] FXC_FIELDS_FOR_INSERT = { PRIMARY_CURRENCY_ID_FIELD, QUOTE_CURRENCY_ID_FIELD,
+			PRIMARY_CURRENCY_CURVE_ID_FIELD, QUOTE_CURRENCY_CURVE_ID_FIELD };
+
+	public static final Table FX_CURVE_TABLE = new Table("FX_CURVE", FXC_FIELDS);
+
 	public static long saveFXCurve(String curveName) {
 		long curveId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveCurve = con.prepareStatement("INSERT INTO CURVE(NAME) VALUES(?)",
-						Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement stmtSaveFXCurve = con.prepareStatement("INSERT INTO FX_CURVE(ID) VALUES(?)")) {
+				PreparedStatement stmtSaveCurve = TradistaDBUtil.buildInsertPreparedStatement(con, CurveSQL.CURVE_TABLE,
+						CurveSQL.NAME_FIELD);
+				PreparedStatement stmtSaveFXCurve = TradistaDBUtil.buildInsertPreparedStatement(con, FX_CURVE_TABLE,
+						ID_FIELD)) {
 			stmtSaveCurve.setString(1, curveName);
 			stmtSaveCurve.executeUpdate();
-			try (ResultSet generatedKeys = stmtSaveFXCurve.getGeneratedKeys()) {
+			try (ResultSet generatedKeys = stmtSaveCurve.getGeneratedKeys()) {
 				if (generatedKeys.next()) {
 					curveId = generatedKeys.getLong(1);
 				} else {
@@ -63,7 +85,6 @@ public class FXCurveSQL {
 			stmtSaveFXCurve.setLong(1, curveId);
 			stmtSaveFXCurve.executeUpdate();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return curveId;
@@ -72,23 +93,22 @@ public class FXCurveSQL {
 	public static boolean deleteFXCurve(long curveId) {
 		boolean bSaved = false;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtDeleteRatePoints = con
-						.prepareStatement("DELETE FROM CURVE_POINT WHERE CURVE_ID = ? ");
-				PreparedStatement stmtDeleteQuotesByCurveName = con
-						.prepareStatement("DELETE FROM CURVE_QUOTE WHERE CURVE_ID = ? ");
-				PreparedStatement stmtDeleteFXCurve = con.prepareStatement("DELETE FROM FX_CURVE WHERE ID = ? ");
-				PreparedStatement stmtDeleteCurve = con.prepareStatement("DELETE FROM CURVE WHERE ID = ? ")) {
+				PreparedStatement stmtDeleteRatePoints = CurveSQL.getDeleteCurvePointsByCurveIdPreparedStatement(con);
+				PreparedStatement stmtDeleteQuotesByCurveId = CurveSQL.getDeleteCurveQuotesByCurveIdPreparedStatement(con);
+				PreparedStatement stmtDeleteFXCurve = TradistaDBUtil.buildDeletePreparedStatement(con, FX_CURVE_TABLE,
+						ID_FIELD);
+				PreparedStatement stmtDeleteCurve = TradistaDBUtil.buildDeletePreparedStatement(con,
+						CurveSQL.CURVE_TABLE, CurveSQL.ID_FIELD)) {
 			stmtDeleteRatePoints.setLong(1, curveId);
 			stmtDeleteRatePoints.executeUpdate();
-			stmtDeleteQuotesByCurveName.setLong(1, curveId);
-			stmtDeleteQuotesByCurveName.executeUpdate();
+			stmtDeleteQuotesByCurveId.setLong(1, curveId);
+			stmtDeleteQuotesByCurveId.executeUpdate();
 			stmtDeleteFXCurve.setLong(1, curveId);
 			stmtDeleteFXCurve.executeUpdate();
 			stmtDeleteCurve.setLong(1, curveId);
 			stmtDeleteCurve.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
@@ -96,57 +116,42 @@ public class FXCurveSQL {
 
 	public static Set<FXCurve> getAllFXCurves() {
 		Set<FXCurve> fxCurves = null;
+		org.eclipse.tradista.core.common.persistence.util.Join join = org.eclipse.tradista.core.common.persistence.util.Join
+				.innerEq(FX_CURVE_TABLE, CurveSQL.ID_FIELD, ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetAllFXCurves = con
-						.prepareStatement("SELECT * FROM FX_CURVE, CURVE WHERE FX_CURVE.ID = CURVE.ID");
+						.prepareStatement(TradistaDBUtil.buildSelectQuery(CurveSQL.CURVE_TABLE, join));
 				ResultSet results = stmtGetAllFXCurves.executeQuery()) {
 			while (results.next()) {
 				if (fxCurves == null) {
 					fxCurves = new HashSet<FXCurve>();
 				}
-				long poId = results.getLong("processing_org_id");
-				LegalEntity processingOrg = null;
-				if (poId > 0) {
-					processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-				}
-				FXCurve fxCurve = new FXCurve(results.getString("name"), processingOrg);
-				fxCurve.setId(results.getLong("id"));
-				fxCurve.setAlgorithm(results.getString("algorithm"));
-				fxCurve.setInterpolator(results.getString("interpolator"));
-				fxCurve.setInstance(results.getString("instance"));
-				long primaryCurrencyId = results.getLong("primary_currency_id");
-				long quoteCurrencyId = results.getLong("quote_currency_id");
-				long primaryCurrencyIRCurveId = results.getLong("primary_currency_curve_id");
-				long quoteCurrencyIRCurveId = results.getLong("quote_currency_curve_id");
-				long quoteSetId = results.getLong("quote_set_id");
-
-				java.sql.Date quoteDate = results.getDate("quote_date");
-
-				if (primaryCurrencyId != 0) {
-					fxCurve.setPrimaryCurrency(CurrencySQL.getCurrencyById(primaryCurrencyId));
-				}
-
-				if (quoteCurrencyId != 0) {
-					fxCurve.setQuoteCurrency(CurrencySQL.getCurrencyById(quoteCurrencyId));
-				}
-				if (primaryCurrencyIRCurveId != 0) {
-					fxCurve.setPrimaryCurrencyIRCurve(
-							InterestRateCurveSQL.getInterestRateCurveById(primaryCurrencyIRCurveId));
-				}
-				if (quoteCurrencyIRCurveId != 0) {
-					fxCurve.setQuoteCurrencyIRCurve(
-							InterestRateCurveSQL.getInterestRateCurveById(quoteCurrencyIRCurveId));
-				}
-				if (quoteSetId != 0) {
-					fxCurve.setQuoteSet(QuoteSetSQL.getQuoteSetById(quoteSetId));
-				}
-				if (quoteDate != null) {
-					fxCurve.setQuoteDate(quoteDate.toLocalDate());
-				}
-				fxCurves.add(fxCurve);
+				fxCurves.add(buildFXCurve(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
+			throw new TradistaTechnicalException(sqle);
+		}
+		return fxCurves;
+	}
+
+	public static Set<FXCurve> getFXCurvesByPoId(long poId) {
+		Set<FXCurve> fxCurves = null;
+		org.eclipse.tradista.core.common.persistence.util.Join join = org.eclipse.tradista.core.common.persistence.util.Join
+				.innerEq(FX_CURVE_TABLE, CurveSQL.ID_FIELD, ID_FIELD);
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(CurveSQL.CURVE_TABLE, join));
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.PROCESSING_ORG_ID_FIELD);
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmtGetFXCurvesByPoId = con.prepareStatement(sql.toString())) {
+			stmtGetFXCurvesByPoId.setLong(1, poId);
+			try (ResultSet results = stmtGetFXCurvesByPoId.executeQuery()) {
+				while (results.next()) {
+					if (fxCurves == null) {
+						fxCurves = new HashSet<>();
+					}
+					fxCurves.add(buildFXCurve(results));
+				}
+			}
+		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxCurves;
@@ -154,27 +159,29 @@ public class FXCurveSQL {
 
 	public static List<RatePoint> getAllFXCurvePointsByCurveIdAndDate(long curveId, Year year, Month month) {
 		List<RatePoint> points = null;
-		try (Connection con = TradistaDB.getConnection(); Statement stmt = con.createStatement()) {
+		LocalDate startDate = LocalDate.of(year.getValue(), month, 1);
+		LocalDate endDate = startDate.plus(1, ChronoUnit.MONTHS);
 
-			LocalDate startDate = LocalDate.of(year.getValue(), month, 1);
-			LocalDate endDate = startDate.plus(1, ChronoUnit.MONTHS);
+		StringBuilder sql = new StringBuilder(CurveSQL.getCurvePointSelectQuery());
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.CURVE_POINT_CURVE_ID_FIELD);
+		TradistaDBUtil.addFilter(sql, CurveSQL.DATE_FIELD, startDate, true);
+		TradistaDBUtil.addFilter(sql, CurveSQL.DATE_FIELD, endDate, false, false);
 
-			String query = "SELECT DATE DATE, RATE RATE " + "FROM CURVE_POINT WHERE " + "CURVE_ID = " + curveId
-					+ " AND DATE >= '" + startDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) + "'"
-					+ " AND DATE < '" + endDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) + "'";
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setLong(1, curveId);
 
-			try (ResultSet results = stmt.executeQuery(query)) {
+			try (ResultSet results = stmt.executeQuery()) {
 				while (results.next()) {
-					LocalDate date = results.getDate("date").toLocalDate();
-					BigDecimal rate = results.getBigDecimal("rate");
 					if (points == null) {
-						points = new ArrayList<RatePoint>();
+						points = new ArrayList<>();
 					}
+					LocalDate date = results.getDate(CurveSQL.DATE_FIELD.getName()).toLocalDate();
+					BigDecimal rate = results.getBigDecimal(CurveSQL.RATE_FIELD.getName());
 					points.add(new RatePoint(date, rate));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return points;
@@ -182,24 +189,25 @@ public class FXCurveSQL {
 
 	public static List<RatePoint> getFXCurvePointsByCurveIdAndDates(long curveId, LocalDate min, LocalDate max) {
 		List<RatePoint> points = null;
-		try (Connection con = TradistaDB.getConnection(); Statement stmt = con.createStatement()) {
-			String query = "SELECT DATE DATE, RATE RATE "
-					+ "FROM CURVE_POINT, FX_CURVE WHERE CURVE_POINT.CURVE_ID = FX_CURVE.ID" + " AND FX_CURVE.ID = "
-					+ curveId + " AND DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(min) + "'"
-					+ " AND DATE <= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(max) + "'";
+		StringBuilder sql = new StringBuilder(CurveSQL.getCurvePointSelectQuery());
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.CURVE_POINT_CURVE_ID_FIELD);
+		TradistaDBUtil.addFilter(sql, CurveSQL.DATE_FIELD, min, true);
+		TradistaDBUtil.addFilter(sql, CurveSQL.DATE_FIELD, max, false);
 
-			try (ResultSet results = stmt.executeQuery(query)) {
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setLong(1, curveId);
+			try (ResultSet results = stmt.executeQuery()) {
 				while (results.next()) {
-					LocalDate date = results.getDate("date").toLocalDate();
-					BigDecimal rate = results.getBigDecimal("rate");
 					if (points == null) {
 						points = new ArrayList<RatePoint>();
 					}
+					LocalDate date = results.getDate(CurveSQL.DATE_FIELD.getName()).toLocalDate();
+					BigDecimal rate = results.getBigDecimal(CurveSQL.RATE_FIELD.getName());
 					points.add(new RatePoint(date, rate));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return points;
@@ -207,16 +215,21 @@ public class FXCurveSQL {
 
 	public static boolean saveFXCurvePoints(long id, List<RatePoint> ratePoints, Year year, Month month) {
 		boolean bSaved = false;
-		// First, we delete the data for this curve and this month
 		LocalDate startDate = LocalDate.of(year.getValue(), month, 1);
 		LocalDate endDate = startDate.plus(1, ChronoUnit.MONTHS);
+
+		StringBuilder deleteSql = new StringBuilder("DELETE FROM " + CurveSQL.CURVE_POINT_TABLE);
+		TradistaDBUtil.addParameterizedFilter(deleteSql, CurveSQL.CURVE_POINT_CURVE_ID_FIELD);
+		TradistaDBUtil.addFilter(deleteSql, CurveSQL.DATE_FIELD, startDate, true);
+		TradistaDBUtil.addFilter(deleteSql, CurveSQL.DATE_FIELD, endDate, false, false);
+
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtDeleteRatePointsByCurveIdYearAndMonth = con
-						.prepareStatement("DELETE FROM CURVE_POINT WHERE CURVE_ID = ? AND DATE  >= ? AND DATE < ? ");
-				PreparedStatement stmtSaveRatePoints = con.prepareStatement("INSERT INTO CURVE_POINT VALUES(?,?,?) ")) {
+						.prepareStatement(deleteSql.toString());
+				PreparedStatement stmtSaveRatePoints = CurveSQL.getInsertCurvePointPreparedStatement(con)) {
+
 			stmtDeleteRatePointsByCurveIdYearAndMonth.setLong(1, id);
-			stmtDeleteRatePointsByCurveIdYearAndMonth.setDate(2, java.sql.Date.valueOf(startDate));
-			stmtDeleteRatePointsByCurveIdYearAndMonth.setDate(3, java.sql.Date.valueOf(endDate));
+
 			stmtDeleteRatePointsByCurveIdYearAndMonth.executeUpdate();
 			for (RatePoint point : ratePoints) {
 				if (point != null && point.getRate() != null) {
@@ -230,30 +243,20 @@ public class FXCurveSQL {
 			}
 			stmtSaveRatePoints.executeBatch();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-
 		return bSaved;
-
 	}
 
 	public static long saveFXCurve(FXCurve curve) {
-		long curveId = 0;
-		// First, we save the IR Curve definition
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveCurve = (curve.getId() != 0) ? con.prepareStatement(
-						"UPDATE CURVE SET NAME=?, ALGORITHM =?, INTERPOLATOR=?, INSTANCE=?, QUOTE_DATE=?, QUOTE_SET_ID=?, PROCESSING_ORG_ID=?  WHERE ID = ?")
-						: con.prepareStatement(
-								"INSERT INTO CURVE(NAME, ALGORITHM, INTERPOLATOR, INSTANCE, QUOTE_DATE, QUOTE_SET_ID, PROCESSING_ORG_ID) VALUES (?,?,?,?,?,?,?)",
-								Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement stmtSaveFXCurve = (curve.getId() != 0) ? con.prepareStatement(
-						"UPDATE FX_CURVE SET PRIMARY_CURRENCY_ID=?, QUOTE_CURRENCY_ID=?, PRIMARY_CURRENCY_CURVE_ID=?, QUOTE_CURRENCY_CURVE_ID=? WHERE ID = ?")
-						: con.prepareStatement(
-								"INSERT INTO FX_CURVE(PRIMARY_CURRENCY_ID, QUOTE_CURRENCY_ID, PRIMARY_CURRENCY_CURVE_ID, QUOTE_CURRENCY_CURVE_ID, ID) VALUES (?,?,?,?,?)")) {
-			if (curve.getId() != 0) {
-				stmtSaveCurve.setLong(8, curve.getId());
-			}
+				PreparedStatement stmtSaveCurve = (curve.getId() == 0) ? CurveSQL.getInsertCurvePreparedStatement(con)
+						: CurveSQL.getUpdateCurvePreparedStatement(con);
+				PreparedStatement stmtSaveFXCurve = (curve.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, FX_CURVE_TABLE, FXC_FIELDS)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, FX_CURVE_TABLE,
+								FXC_FIELDS_FOR_INSERT)) {
+
 			stmtSaveCurve.setString(1, curve.getName());
 			stmtSaveCurve.setString(2, curve.getAlgorithm());
 			stmtSaveCurve.setString(3, curve.getInterpolator());
@@ -268,23 +271,36 @@ public class FXCurveSQL {
 			} else {
 				stmtSaveCurve.setLong(6, curve.getQuoteSet().getId());
 			}
+
 			if (curve.getProcessingOrg() == null) {
 				stmtSaveCurve.setNull(7, Types.BIGINT);
 			} else {
 				stmtSaveCurve.setLong(7, curve.getProcessingOrg().getId());
+			}
+			if (curve.getId() != 0) {
+				stmtSaveCurve.setLong(8, curve.getId());
 			}
 			stmtSaveCurve.executeUpdate();
 
 			if (curve.getId() == 0) {
 				try (ResultSet generatedKeys = stmtSaveCurve.getGeneratedKeys()) {
 					if (generatedKeys.next()) {
-						curveId = generatedKeys.getLong(1);
+						curve.setId(generatedKeys.getLong(1));
 					} else {
-						throw new SQLException("Creation of FX Curve failed, no generated key obtained.");
+						throw new SQLException("Creating FX curve failed, no generated key obtained.");
 					}
 				}
 			} else {
-				curveId = curve.getId();
+				// We delete the current curve's quote ids list.
+				try (PreparedStatement stmtDeleteQuotesByCurveId = CurveSQL.getDeleteCurveQuotesByCurveIdPreparedStatement(con)) {
+					stmtDeleteQuotesByCurveId.setLong(1, curve.getId());
+					stmtDeleteQuotesByCurveId.executeUpdate();
+				}
+				// Now, we must delete the current rate points
+				try (PreparedStatement stmtDeleteRatePointsByCurveId = CurveSQL.getDeleteCurvePointsByCurveIdPreparedStatement(con)) {
+					stmtDeleteRatePointsByCurveId.setLong(1, curve.getId());
+					stmtDeleteRatePointsByCurveId.executeUpdate();
+				}
 			}
 
 			if (curve.getPrimaryCurrency() == null) {
@@ -307,117 +323,57 @@ public class FXCurveSQL {
 			} else {
 				stmtSaveFXCurve.setLong(4, curve.getQuoteCurrencyIRCurve().getId());
 			}
-			stmtSaveFXCurve.setLong(5, curveId);
-
+			stmtSaveFXCurve.setLong(5, curve.getId());
 			stmtSaveFXCurve.executeUpdate();
 
-			if (curve.getId() != 0) {
-				// Then, we delete the current curve's quote ids list.
-				try (PreparedStatement stmtDeleteQuotesByCurveId = con
-						.prepareStatement("DELETE FROM CURVE_QUOTE WHERE CURVE_ID = ? ")) {
-					stmtDeleteQuotesByCurveId.setLong(1, curve.getId());
-					stmtDeleteQuotesByCurveId.executeUpdate();
-				}
-			}
-
 			// We insert the new curve's quote ids list
-			if (curve.getQuotes() != null && !curve.getQuotes().isEmpty()) {
-				try (PreparedStatement stmtSaveRateQuotes = con
-						.prepareStatement("INSERT INTO CURVE_QUOTE VALUES(?,?) ")) {
+			try (PreparedStatement stmtSaveRateQuotes = CurveSQL.getInsertCurveQuotePreparedStatement(con)) {
+				if (curve.getQuotes() != null && !curve.getQuotes().isEmpty()) {
 					for (Quote quote : curve.getQuotes()) {
 						stmtSaveRateQuotes.clearParameters();
-						stmtSaveRateQuotes.setLong(1, curveId);
+						stmtSaveRateQuotes.setLong(1, curve.getId());
 						stmtSaveRateQuotes.setLong(2, quote.getId());
 						stmtSaveRateQuotes.addBatch();
 					}
-					stmtSaveRateQuotes.executeBatch();
 				}
+				stmtSaveRateQuotes.executeBatch();
 			}
 
-			if (curve.getId() != 0) {
-				// Now, we must delete the current rate points
-				try (PreparedStatement stmtDeleteRatePointsByCurveId = con
-						.prepareStatement("DELETE FROM CURVE_POINT WHERE CURVE_ID = ?")) {
-					stmtDeleteRatePointsByCurveId.setLong(1, curve.getId());
-					stmtDeleteRatePointsByCurveId.executeUpdate();
-				}
-			}
-
-			if (curve.getPoints() != null && !curve.getPoints().isEmpty()) {
-				try (PreparedStatement stmtSaveRatePoints = con
-						.prepareStatement("INSERT INTO CURVE_POINT VALUES(?,?,?) ")) {
-					for (Map.Entry<LocalDate, BigDecimal> point : curve.getPoints().entrySet()) {
-						if (point != null && point.getValue() != null) {
-							stmtSaveRatePoints.clearParameters();
-							stmtSaveRatePoints.setLong(1, curveId);
-							stmtSaveRatePoints.setDate(2, java.sql.Date.valueOf(point.getKey()));
-							stmtSaveRatePoints.setBigDecimal(3, point.getValue());
-							stmtSaveRatePoints.addBatch();
-						}
+			try (PreparedStatement stmtSaveRatePoints = CurveSQL.getInsertCurvePointPreparedStatement(con)) {
+				for (Map.Entry<LocalDate, BigDecimal> point : curve.getPoints().entrySet()) {
+					if (point != null && point.getValue() != null) {
+						stmtSaveRatePoints.clearParameters();
+						stmtSaveRatePoints.setLong(1, curve.getId());
+						stmtSaveRatePoints.setDate(2, java.sql.Date.valueOf(point.getKey()));
+						stmtSaveRatePoints.setBigDecimal(3, point.getValue());
+						stmtSaveRatePoints.addBatch();
 					}
-					stmtSaveRatePoints.executeBatch();
 				}
-
+				stmtSaveRatePoints.executeBatch();
 			}
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-		curve.setId(curveId);
-		return curveId;
+
+		return curve.getId();
 	}
 
 	public static FXCurve getFXCurveByName(String curveName) {
 		FXCurve fxCurve = null;
+		org.eclipse.tradista.core.common.persistence.util.Join join = org.eclipse.tradista.core.common.persistence.util.Join
+				.innerEq(FX_CURVE_TABLE, CurveSQL.ID_FIELD, ID_FIELD);
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(CurveSQL.CURVE_TABLE, join));
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.NAME_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFXCurveByName = con
-						.prepareStatement("SELECT * FROM FX_CURVE, CURVE WHERE FX_CURVE.ID = CURVE.ID AND NAME = ?")) {
+				PreparedStatement stmtGetFXCurveByName = con.prepareStatement(sql.toString())) {
 			stmtGetFXCurveByName.setString(1, curveName);
 			try (ResultSet results = stmtGetFXCurveByName.executeQuery()) {
 				while (results.next()) {
-					long poId = results.getLong("processing_org_id");
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					fxCurve = new FXCurve(results.getString("name"), processingOrg);
-					fxCurve.setId(results.getLong("id"));
-					fxCurve.setAlgorithm(results.getString("algorithm"));
-					fxCurve.setInterpolator(results.getString("interpolator"));
-					fxCurve.setInstance(results.getString("instance"));
-					long primaryCurrencyId = results.getLong("primary_currency_id");
-					long quoteCurrencyId = results.getLong("quote_currency_id");
-					long primaryCurrencyIRCurveId = results.getLong("primary_currency_curve_id");
-					long quoteCurrencyIRCurveId = results.getLong("quote_currency_curve_id");
-					long quoteSetId = results.getLong("quote_set_id");
-					java.sql.Date quoteDate = results.getDate("quote_date");
-
-					if (primaryCurrencyId != 0) {
-						fxCurve.setPrimaryCurrency(CurrencySQL.getCurrencyById(primaryCurrencyId));
-					}
-
-					if (quoteCurrencyId != 0) {
-						fxCurve.setQuoteCurrency(CurrencySQL.getCurrencyById(quoteCurrencyId));
-					}
-					if (primaryCurrencyIRCurveId != 0) {
-						fxCurve.setPrimaryCurrencyIRCurve(
-								InterestRateCurveSQL.getInterestRateCurveById(primaryCurrencyIRCurveId));
-					}
-					if (quoteCurrencyIRCurveId != 0) {
-						fxCurve.setQuoteCurrencyIRCurve(
-								InterestRateCurveSQL.getInterestRateCurveById(quoteCurrencyIRCurveId));
-					}
-					if (quoteSetId != 0) {
-						fxCurve.setQuoteSet(QuoteSetSQL.getQuoteSetById(quoteSetId));
-					}
-					if (quoteDate != null) {
-						fxCurve.setQuoteDate(quoteDate.toLocalDate());
-					}
+					fxCurve = buildFXCurve(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxCurve;
@@ -425,137 +381,114 @@ public class FXCurveSQL {
 
 	public static FXCurve getFXCurveByNameAndPo(String curveName, long poId) {
 		FXCurve fxCurve = null;
+		org.eclipse.tradista.core.common.persistence.util.Join join = org.eclipse.tradista.core.common.persistence.util.Join
+				.innerEq(FX_CURVE_TABLE, CurveSQL.ID_FIELD, ID_FIELD);
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(CurveSQL.CURVE_TABLE, join));
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.NAME_FIELD);
+		if (poId > 0) {
+			TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.PROCESSING_ORG_ID_FIELD);
+		} else {
+			TradistaDBUtil.addIsNullFilter(sql, CurveSQL.PROCESSING_ORG_ID_FIELD);
+		}
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFXCurveByName = con.prepareStatement(
-						"SELECT * FROM FX_CURVE, CURVE WHERE FX_CURVE.ID = CURVE.ID AND NAME = ? AND PROCESSING_ORG_ID=?")) {
-			stmtGetFXCurveByName.setString(1, curveName);
-			stmtGetFXCurveByName.setLong(2, poId);
-			try (ResultSet results = stmtGetFXCurveByName.executeQuery()) {
+				PreparedStatement stmtGetFXCurveByNameAndPo = con.prepareStatement(sql.toString())) {
+			stmtGetFXCurveByNameAndPo.setString(1, curveName);
+			if (poId > 0) {
+				stmtGetFXCurveByNameAndPo.setLong(2, poId);
+			}
+			try (ResultSet results = stmtGetFXCurveByNameAndPo.executeQuery()) {
 				while (results.next()) {
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					fxCurve = new FXCurve(results.getString("name"), processingOrg);
-					fxCurve.setId(results.getLong("id"));
-					fxCurve.setAlgorithm(results.getString("algorithm"));
-					fxCurve.setInterpolator(results.getString("interpolator"));
-					fxCurve.setInstance(results.getString("instance"));
-					long primaryCurrencyId = results.getLong("primary_currency_id");
-					long quoteCurrencyId = results.getLong("quote_currency_id");
-					long primaryCurrencyIRCurveId = results.getLong("primary_currency_curve_id");
-					long quoteCurrencyIRCurveId = results.getLong("quote_currency_curve_id");
-					long quoteSetId = results.getLong("quote_set_id");
-					java.sql.Date quoteDate = results.getDate("quote_date");
-
-					if (primaryCurrencyId != 0) {
-						fxCurve.setPrimaryCurrency(CurrencySQL.getCurrencyById(primaryCurrencyId));
-					}
-
-					if (quoteCurrencyId != 0) {
-						fxCurve.setQuoteCurrency(CurrencySQL.getCurrencyById(quoteCurrencyId));
-					}
-					if (primaryCurrencyIRCurveId != 0) {
-						fxCurve.setPrimaryCurrencyIRCurve(
-								InterestRateCurveSQL.getInterestRateCurveById(primaryCurrencyIRCurveId));
-					}
-					if (quoteCurrencyIRCurveId != 0) {
-						fxCurve.setQuoteCurrencyIRCurve(
-								InterestRateCurveSQL.getInterestRateCurveById(quoteCurrencyIRCurveId));
-					}
-					if (quoteSetId != 0) {
-						fxCurve.setQuoteSet(QuoteSetSQL.getQuoteSetById(quoteSetId));
-					}
-					if (quoteDate != null) {
-						fxCurve.setQuoteDate(quoteDate.toLocalDate());
-					}
+					fxCurve = buildFXCurve(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxCurve;
 	}
 
 	public static FXCurve getFXCurveById(long curveId) {
-
 		FXCurve fxCurve = null;
+		org.eclipse.tradista.core.common.persistence.util.Join join = org.eclipse.tradista.core.common.persistence.util.Join
+				.innerEq(FX_CURVE_TABLE, CurveSQL.ID_FIELD, ID_FIELD);
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(CurveSQL.CURVE_TABLE, join));
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFXCurveById = con.prepareStatement(
-						"SELECT * FROM FX_CURVE, CURVE WHERE FX_CURVE.ID = CURVE.ID AND CURVE.ID = ?")) {
+				PreparedStatement stmtGetFXCurveById = con.prepareStatement(sql.toString())) {
 			stmtGetFXCurveById.setLong(1, curveId);
 			try (ResultSet results = stmtGetFXCurveById.executeQuery()) {
 				while (results.next()) {
-					long poId = results.getLong("processing_org_id");
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					fxCurve = new FXCurve(results.getString("name"), processingOrg);
-					fxCurve.setId(results.getLong("id"));
-					fxCurve.setAlgorithm(results.getString("algorithm"));
-					fxCurve.setInterpolator(results.getString("interpolator"));
-					fxCurve.setInstance(results.getString("instance"));
-					long primaryCurrencyId = results.getLong("primary_currency_id");
-					long quoteCurrencyId = results.getLong("quote_currency_id");
-					long primaryCurrencyIRCurveId = results.getLong("primary_currency_curve_id");
-					long quoteCurrencyIRCurveId = results.getLong("quote_currency_curve_id");
-					long quoteSetId = results.getLong("quote_set_id");
-					java.sql.Date quoteDate = results.getDate("quote_date");
-
-					if (primaryCurrencyId != 0) {
-						fxCurve.setPrimaryCurrency(CurrencySQL.getCurrencyById(primaryCurrencyId));
-					}
-
-					if (quoteCurrencyId != 0) {
-						fxCurve.setQuoteCurrency(CurrencySQL.getCurrencyById(quoteCurrencyId));
-					}
-					if (primaryCurrencyIRCurveId != 0) {
-						fxCurve.setPrimaryCurrencyIRCurve(
-								InterestRateCurveSQL.getInterestRateCurveById(primaryCurrencyIRCurveId));
-					}
-					if (quoteCurrencyIRCurveId != 0) {
-						fxCurve.setQuoteCurrencyIRCurve(
-								InterestRateCurveSQL.getInterestRateCurveById(quoteCurrencyIRCurveId));
-					}
-					if (quoteSetId != 0) {
-						fxCurve.setQuoteSet(QuoteSetSQL.getQuoteSetById(quoteSetId));
-					}
-					if (quoteDate != null) {
-						fxCurve.setQuoteDate(quoteDate.toLocalDate());
-					}
+					fxCurve = buildFXCurve(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return fxCurve;
 	}
 
 	public static List<RatePoint> getFXCurvePointsByCurveId(long curveId) {
-
 		List<RatePoint> points = null;
+		StringBuilder sql = new StringBuilder(CurveSQL.getCurvePointSelectQuery());
+		TradistaDBUtil.addParameterizedFilter(sql, CurveSQL.CURVE_POINT_CURVE_ID_FIELD);
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFXCurvePointsByCurveId = con
-						.prepareStatement("SELECT * FROM CURVE_POINT WHERE CURVE_ID = ? ")) {
-			stmtGetFXCurvePointsByCurveId.setLong(1, curveId);
-			try (ResultSet results = stmtGetFXCurvePointsByCurveId.executeQuery()) {
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setLong(1, curveId);
+			try (ResultSet results = stmt.executeQuery()) {
 				while (results.next()) {
 					if (points == null) {
-						points = new ArrayList<RatePoint>();
+						points = new ArrayList<>();
 					}
-					LocalDate date = results.getDate("date").toLocalDate();
-					BigDecimal rate = results.getBigDecimal("rate");
+					LocalDate date = results.getDate(CurveSQL.DATE_FIELD.getName()).toLocalDate();
+					BigDecimal rate = results.getBigDecimal(CurveSQL.RATE_FIELD.getName());
 					points.add(new RatePoint(date, rate));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return points;
 	}
 
+	private static FXCurve buildFXCurve(ResultSet results) throws SQLException {
+		long poId = results.getLong(CurveSQL.PROCESSING_ORG_ID_FIELD.getName());
+		LegalEntity processingOrg = null;
+		if (poId > 0) {
+			processingOrg = LegalEntitySQL.getLegalEntityById(poId);
+		}
+		FXCurve fxCurve = new FXCurve(results.getString(CurveSQL.NAME_FIELD.getName()), processingOrg);
+		fxCurve.setId(results.getLong(CurveSQL.ID_FIELD.getName()));
+		fxCurve.setAlgorithm(results.getString(CurveSQL.ALGORITHM_FIELD.getName()));
+		fxCurve.setInterpolator(results.getString(CurveSQL.INTERPOLATOR_FIELD.getName()));
+		fxCurve.setInstance(results.getString(CurveSQL.INSTANCE_FIELD.getName()));
+		long primaryCurrencyId = results.getLong(PRIMARY_CURRENCY_ID_FIELD.getName());
+		long quoteCurrencyId = results.getLong(QUOTE_CURRENCY_ID_FIELD.getName());
+		long primaryCurrencyIRCurveId = results.getLong(PRIMARY_CURRENCY_CURVE_ID_FIELD.getName());
+		long quoteCurrencyIRCurveId = results.getLong(QUOTE_CURRENCY_CURVE_ID_FIELD.getName());
+		long quoteSetId = results.getLong(CurveSQL.QUOTE_SET_ID_FIELD.getName());
+
+		java.sql.Date quoteDate = results.getDate(CurveSQL.QUOTE_DATE_FIELD.getName());
+
+		if (primaryCurrencyId != 0) {
+			fxCurve.setPrimaryCurrency(CurrencySQL.getCurrencyById(primaryCurrencyId));
+		}
+
+		if (quoteCurrencyId != 0) {
+			fxCurve.setQuoteCurrency(CurrencySQL.getCurrencyById(quoteCurrencyId));
+		}
+		if (primaryCurrencyIRCurveId != 0) {
+			fxCurve.setPrimaryCurrencyIRCurve(InterestRateCurveSQL.getInterestRateCurveById(primaryCurrencyIRCurveId));
+		}
+		if (quoteCurrencyIRCurveId != 0) {
+			fxCurve.setQuoteCurrencyIRCurve(InterestRateCurveSQL.getInterestRateCurveById(quoteCurrencyIRCurveId));
+		}
+		if (quoteSetId != 0) {
+			fxCurve.setQuoteSet(QuoteSetSQL.getQuoteSetById(quoteSetId));
+		}
+		if (quoteDate != null) {
+			fxCurve.setQuoteDate(quoteDate.toLocalDate());
+		}
+		return fxCurve;
+	}
 }

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
@@ -109,18 +110,22 @@ public class QuoteProperty {
 	public static List<QuoteProperty> toQuotePropertyList(Collection<QuoteValue> data) {
 		List<QuoteProperty> quotePropertyList = new ArrayList<>();
 		for (QuoteValue quoteValue : data) {
-			quotePropertyList
-					.add(new QuoteProperty(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(quoteValue.getDate()),
-							quoteValue.getQuote().getName(), quoteValue.getQuote().getType().toString(),
-							quoteValue.getBid() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getBid()),
-							quoteValue.getAsk() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getAsk()),
-							quoteValue.getOpen() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getOpen()),
-							quoteValue.getClose() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getClose()),
-							quoteValue.getHigh() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getHigh()),
-							quoteValue.getLow() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getLow()),
-							quoteValue.getLast() == null ? "" : TradistaGUIUtil.formatAmount(quoteValue.getLast()),
-							quoteValue.getEnteredDate() == null ? "" : quoteValue.getEnteredDate().toString(),
-							quoteValue.getSourceName() == null ? "" : quoteValue.getSourceName()));
+			quotePropertyList.add(new QuoteProperty(
+					DateTimeFormatter.ofPattern("yyyy-MM-dd").format(quoteValue.getDate()),
+					quoteValue.getQuote().getName(), quoteValue.getQuote().getType().toString(),
+					quoteValue.getBid() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(quoteValue.getBid()),
+					quoteValue.getAsk() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(quoteValue.getAsk()),
+					quoteValue.getOpen() == null ? StringUtils.EMPTY
+							: TradistaGUIUtil.formatAmount(quoteValue.getOpen()),
+					quoteValue.getClose() == null ? StringUtils.EMPTY
+							: TradistaGUIUtil.formatAmount(quoteValue.getClose()),
+					quoteValue.getHigh() == null ? StringUtils.EMPTY
+							: TradistaGUIUtil.formatAmount(quoteValue.getHigh()),
+					quoteValue.getLow() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(quoteValue.getLow()),
+					quoteValue.getLast() == null ? StringUtils.EMPTY
+							: TradistaGUIUtil.formatAmount(quoteValue.getLast()),
+					quoteValue.getEnteredDate() == null ? StringUtils.EMPTY : quoteValue.getEnteredDate().toString(),
+					quoteValue.getSourceName() == null ? StringUtils.EMPTY : quoteValue.getSourceName()));
 		}
 
 		return quotePropertyList;

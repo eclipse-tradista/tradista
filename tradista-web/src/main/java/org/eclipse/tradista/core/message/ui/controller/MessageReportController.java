@@ -75,9 +75,9 @@ public class MessageReportController implements Serializable {
 
 	private Long objectId;
 
-	private LocalDateTime[] creationDateTimes;
+	private List<LocalDateTime> creationDateTimes;
 
-	private LocalDateTime[] lastUpdateDateTimes;
+	private List<LocalDateTime> lastUpdateDateTimes;
 
 	private List<String> selectedStatuses;
 
@@ -210,10 +210,18 @@ public class MessageReportController implements Serializable {
 		Set<String> interfaceNames = null;
 		Set<String> objectTypes = null;
 		Boolean direction = null;
-		LocalDateTime lastUpdateDateFrom = lastUpdateDateTimes != null ? lastUpdateDateTimes[0] : null;
-		LocalDateTime lastUpdateDateTo = lastUpdateDateTimes != null ? lastUpdateDateTimes[1] : null;
-		LocalDateTime creationDateFrom = creationDateTimes != null ? creationDateTimes[0] : null;
-		LocalDateTime creationDateTo = creationDateTimes != null ? creationDateTimes[1] : null;
+		LocalDateTime lastUpdateDateFrom = (lastUpdateDateTimes != null && !lastUpdateDateTimes.isEmpty())
+				? lastUpdateDateTimes.get(0)
+				: null;
+		LocalDateTime lastUpdateDateTo = (lastUpdateDateTimes != null && lastUpdateDateTimes.size() > 1)
+				? lastUpdateDateTimes.get(1)
+				: null;
+		LocalDateTime creationDateFrom = (creationDateTimes != null && !creationDateTimes.isEmpty())
+				? creationDateTimes.get(0)
+				: null;
+		LocalDateTime creationDateTo = (creationDateTimes != null && creationDateTimes.size() > 1)
+				? creationDateTimes.get(1)
+				: null;
 		long msgId = messageId == null ? 0 : messageId.longValue();
 		long objId = objectId == null ? 0 : objectId.longValue();
 		if (selectedTypes != null) {
@@ -233,7 +241,7 @@ public class MessageReportController implements Serializable {
 		}
 		try {
 			messages = messageBusinessDelegate.getMessages(msgId, direction, types, interfaceNames, objId, objectTypes,
-					statuses, lastUpdateDateFrom, lastUpdateDateTo, creationDateFrom, creationDateTo);
+					statuses, creationDateFrom, creationDateTo, lastUpdateDateFrom, lastUpdateDateTo);
 			if (messages != null) {
 				messages = new ArrayList<>(messages);
 			}
@@ -384,19 +392,19 @@ public class MessageReportController implements Serializable {
 		this.allObjectTypes = allObjectTypes;
 	}
 
-	public LocalDateTime[] getCreationDateTimes() {
+	public List<LocalDateTime> getCreationDateTimes() {
 		return creationDateTimes;
 	}
 
-	public void setCreationDateTimes(LocalDateTime[] creationDateTimes) {
+	public void setCreationDateTimes(List<LocalDateTime> creationDateTimes) {
 		this.creationDateTimes = creationDateTimes;
 	}
 
-	public LocalDateTime[] getLastUpdateDateTimes() {
+	public List<LocalDateTime> getLastUpdateDateTimes() {
 		return lastUpdateDateTimes;
 	}
 
-	public void setLastUpdateDateTimes(LocalDateTime[] lastUpdateDateTimes) {
+	public void setLastUpdateDateTimes(List<LocalDateTime> lastUpdateDateTimes) {
 		this.lastUpdateDateTimes = lastUpdateDateTimes;
 	}
 

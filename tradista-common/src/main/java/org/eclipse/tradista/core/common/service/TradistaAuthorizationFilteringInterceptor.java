@@ -59,7 +59,11 @@ public abstract class TradistaAuthorizationFilteringInterceptor {
 	public User getCurrentUser() {
 		User user = null;
 		if (ctx.getContextData().get(SecurityUtil.CURRENT_USER) == null) {
-			user = userBusinessDelegate.getUserByLogin(ctx.getCallerPrincipal().getName());
+			try {
+				user = userBusinessDelegate.getUserByLogin(ctx.getCallerPrincipal().getName());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
 			ctx.getContextData().put(SecurityUtil.CURRENT_USER, user);
 		} else {
 			user = (User) ctx.getContextData().get(SecurityUtil.CURRENT_USER);

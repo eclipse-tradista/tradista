@@ -1,6 +1,5 @@
 package org.eclipse.tradista.core.message.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS_ID;
@@ -136,10 +135,10 @@ public class MessageSQL {
 							.objectType(objectType).type(results.getString(TYPE_FIELD.getName()))
 							.content(results.getString(CONTENT_FIELD.getName()))
 							.interfaceName(results.getString(INTERFACE_NAME_FIELD.getName()))
-							.status(StatusSQL.getStatusById(results.getLong(STATUS_ID)))
+							.status(StatusSQL.getStatusById(results.getLong(STATUS_ID_FIELD.getName())))
 							// Crucial : We reinject dates from DB in order to not regenerate "NOW"
-							.creationTime(results.getTimestamp(CREATION_DATE).toInstant())
-							.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME).toInstant());
+							.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant())
+							.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
 
 					message = builder.build();
 				}

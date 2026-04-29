@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.marketdata.model;
 
+import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 /********************************************************************************
@@ -22,12 +23,14 @@ public class ZeroCouponCurve extends InterestRateCurve {
 
 	private static final long serialVersionUID = -965571671567710336L;
 
+	@Id
 	public static final String ZERO_COUPON_CURVE = "ZeroCouponCurve";
 
 	public ZeroCouponCurve(String name, LegalEntity po) {
 		super(name, po);
 	}
 
+	@Override
 	public String getType() {
 		return ZERO_COUPON_CURVE;
 	}

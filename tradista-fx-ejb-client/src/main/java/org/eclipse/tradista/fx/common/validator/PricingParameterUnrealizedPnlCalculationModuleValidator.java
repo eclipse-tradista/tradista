@@ -39,21 +39,14 @@ public class PricingParameterUnrealizedPnlCalculationModuleValidator implements 
 		StringBuilder errMsg = new StringBuilder();
 		if (mod.getUnrealizedPnlCalculations() != null && !mod.getUnrealizedPnlCalculations().isEmpty()) {
 			for (BookProductTypePair bookProd : mod.getUnrealizedPnlCalculations().keySet()) {
-				if (po != null && bookProd.getBook() != null && bookProd.getBook().getProcessingOrg() != null
-						&& !bookProd.getBook().getProcessingOrg().equals(po)) {
+				if (po == null) {
+					errMsg.append(String.format(
+							"Global Pricing Parameters Set cannot contain unrealized P&L calculation results by book (%s).%n",
+							bookProd.getBook()));
+				} else if (bookProd.getBook() != null && !bookProd.getBook().getProcessingOrg().equals(po)) {
 					errMsg.append(
-							String.format("the Pricing Parameters Set's PO and the book %s's PO should be the same.%n",
-									bookProd.getBook()));
-				}
-				if (po == null && bookProd.getBook() != null && bookProd.getBook().getProcessingOrg() != null) {
-					errMsg.append(String.format(
-							"If the Pricing Parameters Set is a global one, the book %s must also be global.%n",
-							bookProd.getBook()));
-				}
-				if (po != null && bookProd.getBook() != null && bookProd.getBook().getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the book %s is a global one, the Pricing Parameters Set must also be global.%n",
-							bookProd.getBook()));
+							String.format("The Pricing Parameters Set's PO (%s) and the book %s's PO (%s) should be the same.%n",
+									po, bookProd.getBook(), bookProd.getBook().getProcessingOrg()));
 				}
 			}
 		}

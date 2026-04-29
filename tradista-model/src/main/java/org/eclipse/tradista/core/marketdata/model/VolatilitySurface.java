@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -31,8 +32,10 @@ public abstract class VolatilitySurface<X extends Number, Y extends Number, Z ex
 
 	protected List<SurfacePoint<X, Y, Z>> points;
 
+	@Id
 	private String name;
 
+	@Id
 	private LegalEntity processingOrg;
 
 	private String algorithm;
@@ -46,6 +49,8 @@ public abstract class VolatilitySurface<X extends Number, Y extends Number, Z ex
 	private List<Quote> quotes;
 
 	private QuoteSet quoteSet;
+
+	public abstract String getType();
 
 	public VolatilitySurface(String name, LegalEntity processingOrg) {
 		this.name = name;

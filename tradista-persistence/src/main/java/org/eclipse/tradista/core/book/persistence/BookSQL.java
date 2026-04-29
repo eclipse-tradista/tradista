@@ -1,16 +1,23 @@
 package org.eclipse.tradista.core.book.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.DESCRIPTION;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 
@@ -32,26 +39,29 @@ import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 
 public class BookSQL {
 
+	private static final Field NAME_FIELD = new Field(NAME);
+	private static final Field DESCRIPTION_FIELD = new Field(DESCRIPTION);
+	private static final Field PROCESSING_ORG_ID_FIELD = new Field(PROCESSING_ORG_ID);
+	private static final Field ID_FIELD = new Field(ID);
+
+	private static final Field[] FIELDS = { NAME_FIELD, DESCRIPTION_FIELD, PROCESSING_ORG_ID_FIELD, ID_FIELD };
+	private static final Field[] FIELDS_FOR_INSERT = { NAME_FIELD, DESCRIPTION_FIELD, PROCESSING_ORG_ID_FIELD };
+
+	public static final Table TABLE = new Table("BOOK", FIELDS);
+
 	public static Book getBookById(long id) {
 		Book book = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetBookById = con.prepareStatement("SELECT * FROM BOOK WHERE BOOK.ID = ? ")) {
+				PreparedStatement stmtGetBookById = con.prepareStatement(sql.toString())) {
 			stmtGetBookById.setLong(1, id);
 			try (ResultSet results = stmtGetBookById.executeQuery()) {
 				while (results.next()) {
-					long poId = results.getLong("processing_org_id");
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-					}
-					book = new Book(results.getString("name"), processingOrg);
-					book.setId(results.getLong("id"));
-					book.setDescription(results.getString("description"));
+					book = buildBook(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return book;
@@ -59,19 +69,19 @@ public class BookSQL {
 
 	public static boolean bookExists(String name, long poId) {
 		boolean exists = false;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(ID_FIELD, TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, NAME_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, PROCESSING_ORG_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtBookExists = con
-						.prepareStatement("SELECT 1 FROM BOOK WHERE BOOK.NAME = ? AND PROCESSING_ORG_ID = ?")) {
+				PreparedStatement stmtBookExists = con.prepareStatement(sql.toString())) {
 			stmtBookExists.setString(1, name);
 			stmtBookExists.setLong(2, poId);
 			try (ResultSet results = stmtBookExists.executeQuery()) {
-				while (results.next()) {
+				if (results.next()) {
 					exists = true;
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return exists;
@@ -80,39 +90,26 @@ public class BookSQL {
 	public static Set<Book> getAllBooks() {
 		Set<Book> books = null;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllBooks = con.prepareStatement("SELECT * FROM BOOK");
+				PreparedStatement stmtGetAllBooks = con.prepareStatement(TradistaDBUtil.buildSelectQuery(TABLE));
 				ResultSet results = stmtGetAllBooks.executeQuery()) {
 			while (results.next()) {
-				long poId = results.getLong("processing_org_id");
-				LegalEntity processingOrg = null;
-				if (poId > 0) {
-					processingOrg = LegalEntitySQL.getLegalEntityById(poId);
-				}
-				Book book = new Book(results.getString("name"), processingOrg);
-				book.setId(results.getLong("id"));
-				book.setDescription(results.getString("description"));
+				Book book = buildBook(results);
 				if (books == null) {
-					books = new HashSet<Book>();
+					books = new HashSet<>();
 				}
 				books.add(book);
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return books;
 	}
 
 	public static long saveBook(Book book) {
-		long bookId = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveBook = (book.getId() == 0)
-						? con.prepareStatement(
-								"INSERT INTO BOOK(NAME, DESCRIPTION, PROCESSING_ORG_ID) VALUES (?, ?, ?) ",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE BOOK SET NAME=?, DESCRIPTION=?, PROCESSING_ORG_ID=? WHERE ID=?")) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, TABLE, FIELDS_FOR_INSERT)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, TABLE, FIELDS_FOR_INSERT)) {
 			if (book.getId() != 0) {
 				stmtSaveBook.setLong(4, book.getId());
 			}
@@ -123,38 +120,79 @@ public class BookSQL {
 			if (book.getId() == 0) {
 				try (ResultSet generatedKeys = stmtSaveBook.getGeneratedKeys()) {
 					if (generatedKeys.next()) {
-						bookId = generatedKeys.getLong(1);
+						book.setId(generatedKeys.getLong(1));
 					} else {
 						throw new SQLException("Creating book failed, no generated key obtained.");
 					}
 				}
-			} else {
-				bookId = book.getId();
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-		book.setId(bookId);
-		return bookId;
+		return book.getId();
 	}
 
 	public static Book getBookByName(String name) {
 		Book book = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, NAME_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetBookByName = con.prepareStatement("SELECT * FROM BOOK WHERE NAME = ? ")) {
+				PreparedStatement stmtGetBookByName = con.prepareStatement(sql.toString())) {
 			stmtGetBookByName.setString(1, name);
 			try (ResultSet results = stmtGetBookByName.executeQuery()) {
 				while (results.next()) {
-					long poId = results.getLong("processing_org_id");
-					LegalEntity processingOrg = null;
-					if (poId > 0) {
-						processingOrg = LegalEntitySQL.getLegalEntityById(poId);
+					book = buildBook(results);
+				}
+			}
+		} catch (SQLException sqle) {
+			throw new TradistaTechnicalException(sqle);
+		}
+		return book;
+	}
+
+	public static Set<Book> getBooksByPoId(long poId) {
+		Set<Book> books = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PROCESSING_ORG_ID_FIELD);
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setLong(1, poId);
+			try (ResultSet results = stmt.executeQuery()) {
+				while (results.next()) {
+					Book book = buildBook(results);
+					if (books == null) {
+						books = new HashSet<>();
 					}
-					book = new Book(results.getString("name"), processingOrg);
-					book.setId(results.getLong("id"));
-					book.setDescription(results.getString("description"));
+					books.add(book);
+				}
+			}
+		} catch (SQLException sqle) {
+			throw new TradistaTechnicalException(sqle);
+		}
+		return books;
+	}
+
+	private static Book buildBook(ResultSet results) throws SQLException {
+		LegalEntity processingOrg = LegalEntitySQL
+				.getLegalEntityById(results.getLong(PROCESSING_ORG_ID_FIELD.getName()));
+		Book book = new Book(results.getString(NAME_FIELD.getName()), processingOrg);
+		book.setId(results.getLong(ID_FIELD.getName()));
+		book.setDescription(results.getString(DESCRIPTION_FIELD.getName()));
+		return book;
+	}
+
+	public static Book getBookByNameAndPoId(String name, long poId) {
+		Book book = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, NAME_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, PROCESSING_ORG_ID_FIELD);
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setString(1, name);
+			stmt.setLong(2, poId);
+			try (ResultSet results = stmt.executeQuery()) {
+				if (results.next()) {
+					book = buildBook(results);
 				}
 			}
 		} catch (SQLException sqle) {

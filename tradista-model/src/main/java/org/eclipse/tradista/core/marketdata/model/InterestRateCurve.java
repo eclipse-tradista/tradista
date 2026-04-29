@@ -28,8 +28,9 @@ public class InterestRateCurve extends GenerableCurve {
 		super(name, po);
 	}
 
+	@Override
 	public String getType() {
 		return INTEREST_RATE_CURVE;
 	}
-	
+
 }

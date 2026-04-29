@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.book.service;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.user.model.User;
 
+import jakarta.ejb.EJB;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;
 
@@ -29,12 +31,8 @@ import jakarta.interceptor.InvocationContext;
 
 public class BookFilteringInterceptor extends TradistaAuthorizationFilteringInterceptor {
 
-	private BookBusinessDelegate bookBusinessDelegate;
-
-	public BookFilteringInterceptor() {
-		super();
-		bookBusinessDelegate = new BookBusinessDelegate();
-	}
+	@EJB
+	private BookService bookService;
 
 	@AroundInvoke
 	public Object filter(InvocationContext ic) throws Exception {
@@ -44,23 +42,26 @@ public class BookFilteringInterceptor extends TradistaAuthorizationFilteringInte
 	@Override
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
-		if (parameters.length > 0 && parameters[0] instanceof Book book) {
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		if (parameters.length > 0 && parameterTypes[0].equals(Book.class)) {
+			Book book = (Book) parameters[0];
 			StringBuilder errMsg = new StringBuilder();
 			User user = getCurrentUser();
-			if (book.getId() != 0) {
-				Book b = bookBusinessDelegate.getBookById(book.getId());
-				if (b == null) {
-					errMsg.append(String.format("The book %s was not found.%n", book.getName()));
-				} else if (b.getProcessingOrg() == null) {
-					errMsg.append(String.format("The book %s is a global one and you are not allowed to update it.%n",
-							book.getName()));
+			// Non-admin users
+			if (user.getProcessingOrg() != null) {
+				if (book.getId() != 0) {
+					Book b = bookService.getBookById(book.getId());
+					if (b == null) {
+						errMsg.append(String.format("The book %s was not found.%n", book.getName()));
+					}
 				}
-			}
-			if (book.getProcessingOrg() != null && !book.getProcessingOrg().equals(user.getProcessingOrg())) {
-				errMsg.append(String.format("The processing org %s was not found.", book.getProcessingOrg()));
-			}
-			if (!errMsg.isEmpty()) {
-				throw new TradistaBusinessException(errMsg.toString());
+				if (!book.getProcessingOrg().equals(user.getProcessingOrg())) {
+					errMsg.append(String.format("The processing org %s was not found.", book.getProcessingOrg()));
+				}
+				if (!errMsg.isEmpty()) {
+					throw new TradistaBusinessException(errMsg.toString());
+				}
 			}
 		}
 	}
@@ -70,16 +71,19 @@ public class BookFilteringInterceptor extends TradistaAuthorizationFilteringInte
 	public Object postFilter(Object value) throws TradistaBusinessException {
 		if (value != null) {
 			User user = getCurrentUser();
-			if (value instanceof Set) {
-				Set<Book> books = (Set<Book>) value;
-				if (!books.isEmpty()) {
-					value = books.stream().filter(b -> b.getProcessingOrg().equals(user.getProcessingOrg()))
-							.collect(Collectors.toSet());
+			// Non-admin users
+			if (user.getProcessingOrg() != null) {
+				if (value instanceof Set) {
+					Set<Book> books = (Set<Book>) value;
+					if (!books.isEmpty()) {
+						value = books.stream().filter(b -> b.getProcessingOrg().equals(user.getProcessingOrg()))
+								.collect(Collectors.toSet());
+					}
 				}
-			}
-			if (value instanceof Book book) {
-				if (!book.getProcessingOrg().equals(user.getProcessingOrg())) {
-					value = null;
+				if (value instanceof Book book) {
+					if (!book.getProcessingOrg().equals(user.getProcessingOrg())) {
+						value = null;
+					}
 				}
 			}
 		}

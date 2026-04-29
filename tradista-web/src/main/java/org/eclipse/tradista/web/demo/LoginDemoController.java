@@ -2,6 +2,8 @@ package org.eclipse.tradista.web.demo;
 
 import java.io.Serializable;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 
@@ -64,8 +66,8 @@ public class LoginDemoController implements Serializable {
 			request.login(getLogin(), getPassword());
 			ClientUtil.setCurrentUser(
 					new UserBusinessDelegate().getUserByLogin(externalContext.getUserPrincipal().getName()));
-		} catch (ServletException se) {
-			context.addMessage(null, new FacesMessage("Login failed " + se));
+		} catch (ServletException | TradistaBusinessException | TradistaTechnicalException e) {
+			context.addMessage(null, new FacesMessage("Login failed", e.getMessage()));
 			return null;
 		}
 
