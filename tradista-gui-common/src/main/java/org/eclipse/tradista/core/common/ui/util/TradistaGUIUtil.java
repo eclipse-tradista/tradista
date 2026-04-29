@@ -1082,8 +1082,12 @@ public final class TradistaGUIUtil {
 	public static void fillZeroCouponCurveComboBox(ComboBox<ZeroCouponCurve>... comboBoxes) {
 		Set<ZeroCouponCurve> curves = null;
 		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
-			curves = interestRateCurveBusinessDelegate
-					.getZeroCouponCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			try {
+				curves = interestRateCurveBusinessDelegate
+						.getZeroCouponCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
 		} else {
 			curves = interestRateCurveBusinessDelegate.getAllZeroCouponCurves();
 		}
