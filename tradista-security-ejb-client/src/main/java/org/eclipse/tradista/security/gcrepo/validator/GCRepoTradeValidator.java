@@ -39,9 +39,8 @@ public class GCRepoTradeValidator extends RepoTradeValidator {
 			for (Security security : gcRepoTrade.getGcBasket().getSecurities()) {
 				if (!security.getCurrency().equals(trade.getCurrency())) {
 					errMsg.append(String.format(
-							"Security %s in GC Basket %s has currency %s different from the trade currency %s. This is not allowed for non cross-currency collateral repos.%n",
-							security, gcRepoTrade.getGcBasket(), security.getCurrency(),
-							trade.getCurrency()));
+							"Security %s in GC Basket %s has currency %s different from the trade currency %s. This is not allowed for non cross-currency collateral repos.",
+							security, gcRepoTrade.getGcBasket(), security.getCurrency(), trade.getCurrency()));
 				}
 			}
 		}

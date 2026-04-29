@@ -36,7 +36,7 @@ public class SpecificRepoTradeValidator extends RepoTradeValidator {
 		} else if (!specificRepoTrade.isCrossCurrencyCollateral() && trade.getCurrency() != null
 				&& !specificRepoTrade.getSecurity().getCurrency().equals(trade.getCurrency())) {
 			errMsg.append(String.format(
-					"The security %s has currency %s different from the trade currency %s. This is not allowed for non cross-currency collateral repos.%n",
+					"The security %s has currency %s different from the trade currency %s. This is not allowed for non cross-currency collateral repos.",
 					specificRepoTrade.getSecurity(), specificRepoTrade.getSecurity().getCurrency(),
 					trade.getCurrency()));
 		}
