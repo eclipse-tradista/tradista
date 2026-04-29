@@ -50,7 +50,10 @@ public class FXCurveBusinessDelegate {
 		return SecurityUtil.run(() -> fxCurveService.getAllFXCurves());
 	}
 
-	public Set<FXCurve> getFXCurvesByPoId(long poId) {
+	public Set<FXCurve> getFXCurvesByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
 		return SecurityUtil.run(() -> fxCurveService.getFXCurvesByPoId(poId));
 	}
 
