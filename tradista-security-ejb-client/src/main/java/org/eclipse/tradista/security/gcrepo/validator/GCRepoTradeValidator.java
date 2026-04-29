@@ -3,6 +3,7 @@ package org.eclipse.tradista.security.gcrepo.validator;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.repo.validator.RepoTradeValidator;
 
@@ -33,6 +34,15 @@ public class GCRepoTradeValidator extends RepoTradeValidator {
 
 		if (gcRepoTrade.getGcBasket() == null) {
 			errMsg.append(String.format("The GC basket is mandatory.%n"));
+		} else if (!gcRepoTrade.isCrossCurrencyCollateral() && trade.getCurrency() != null
+				&& gcRepoTrade.getGcBasket().getSecurities() != null) {
+			for (Security security : gcRepoTrade.getGcBasket().getSecurities()) {
+				if (!security.getCurrency().equals(trade.getCurrency())) {
+					errMsg.append(String.format(
+							"Security %s in GC Basket %s has currency %s different from the trade currency %s. This is not allowed for non cross-currency collateral repos.",
+							security, gcRepoTrade.getGcBasket(), security.getCurrency(), trade.getCurrency()));
+				}
+			}
 		}
 
 		if (!errMsg.isEmpty()) {
