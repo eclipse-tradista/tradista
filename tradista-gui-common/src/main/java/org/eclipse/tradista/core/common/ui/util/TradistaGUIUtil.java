@@ -1031,8 +1031,12 @@ public final class TradistaGUIUtil {
 	public static void fillInterestRateCurveComboBox(ComboBox<InterestRateCurve>... comboBoxes) {
 		Set<InterestRateCurve> curves = null;
 		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
-			curves = interestRateCurveBusinessDelegate
-					.getInterestRateCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			try {
+				curves = interestRateCurveBusinessDelegate
+						.getInterestRateCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
 		} else {
 			curves = interestRateCurveBusinessDelegate.getAllInterestRateCurves();
 		}
@@ -1125,7 +1129,11 @@ public final class TradistaGUIUtil {
 	public static void fillFXCurveComboBox(ComboBox<FXCurve>... comboBoxes) {
 		Set<FXCurve> curves = null;
 		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
-			curves = fxCurveBusinessDelegate.getFXCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			try {
+				curves = fxCurveBusinessDelegate.getFXCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
 		} else {
 			curves = fxCurveBusinessDelegate.getAllFXCurves();
 		}
