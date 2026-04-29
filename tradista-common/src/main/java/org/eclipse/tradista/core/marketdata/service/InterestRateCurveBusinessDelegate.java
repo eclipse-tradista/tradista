@@ -18,7 +18,7 @@ import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.model.ZeroCouponCurve;
 import org.eclipse.tradista.core.marketdata.validator.DefaultInterestRateCurveValidator;
 import org.eclipse.tradista.core.marketdata.validator.DefaultZeroCouponCurveValidator;
-import org.eclipse.tradista.core.marketdata.validator.InterestRateCurveValidator;  
+import org.eclipse.tradista.core.marketdata.validator.InterestRateCurveValidator;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
