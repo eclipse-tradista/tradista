@@ -89,6 +89,12 @@ public abstract class RepoTradeValidator extends DefaultTradeValidator {
 					errMsg.append("One of the securities to add as collateral is nul, please check.%n");
 					continue;
 				}
+				if (!repoTrade.isCrossCurrencyCollateral() && trade.getCurrency() != null
+						&& !entry.getKey().getCurrency().equals(trade.getCurrency())) {
+					errMsg.append(String.format(
+							"Security %s has currency %s different from the trade currency %s. This is not allowed for non cross-currency collateral repos.%n",
+							entry.getKey(), entry.getKey().getCurrency(), trade.getCurrency()));
+				}
 				if (entry.getValue() == null) {
 					errMsg.append(String.format(
 							"Origin book and quantity of the security %s to add as collateral is null, please check.%n",

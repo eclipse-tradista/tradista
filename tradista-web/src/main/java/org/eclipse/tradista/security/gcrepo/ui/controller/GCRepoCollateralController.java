@@ -573,12 +573,16 @@ public class GCRepoCollateralController implements Serializable {
 						if (inventory != null) {
 							for (ProductInventory inv : inventory) {
 								if (trade.getGcBasket().getSecurities().contains(inv.getProduct())) {
-									Collateral col = new Collateral();
-									col.setQuantity(inv.getQuantity());
-									col.setSecurity(((Bond) inv.getProduct()).getIsin());
-									col.setExchange(((Bond) inv.getProduct()).getExchange().getCode());
-									col.setBook(inv.getBook().getName());
-									availableCollateralValues.add(col);
+									Bond bond = (Bond) inv.getProduct();
+									if (trade.isCrossCurrencyCollateral()
+											|| bond.getCurrency().equals(trade.getCurrency())) {
+										Collateral col = new Collateral();
+										col.setQuantity(inv.getQuantity());
+										col.setSecurity(bond.getIsin());
+										col.setExchange(bond.getExchange().getCode());
+										col.setBook(inv.getBook().getName());
+										availableCollateralValues.add(col);
+									}
 								}
 							}
 						}
@@ -589,12 +593,16 @@ public class GCRepoCollateralController implements Serializable {
 						if (inventory != null) {
 							for (ProductInventory inv : inventory) {
 								if (trade.getGcBasket().getSecurities().contains(inv.getProduct())) {
-									Collateral col = new Collateral();
-									col.setQuantity(inv.getQuantity());
-									col.setSecurity(((Equity) inv.getProduct()).getIsin());
-									col.setExchange(((Equity) inv.getProduct()).getExchange().getCode());
-									col.setBook(inv.getBook().getName());
-									availableCollateralValues.add(col);
+									Equity equity = (Equity) inv.getProduct();
+									if (trade.isCrossCurrencyCollateral()
+											|| equity.getCurrency().equals(trade.getCurrency())) {
+										Collateral col = new Collateral();
+										col.setQuantity(inv.getQuantity());
+										col.setSecurity(equity.getIsin());
+										col.setExchange(equity.getExchange().getCode());
+										col.setBook(inv.getBook().getName());
+										availableCollateralValues.add(col);
+									}
 								}
 							}
 						}

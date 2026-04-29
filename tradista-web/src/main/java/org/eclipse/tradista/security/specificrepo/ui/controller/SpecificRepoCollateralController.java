@@ -565,12 +565,16 @@ public class SpecificRepoCollateralController implements Serializable {
 					if (inventory != null) {
 						for (ProductInventory inv : inventory) {
 							if (repoSecurity.equals(inv.getProduct())) {
-								Collateral col = new Collateral();
-								col.setQuantity(inv.getQuantity());
-								col.setSecurity(((Security) inv.getProduct()).getIsin());
-								col.setExchange(inv.getProduct().getExchange().getCode());
-								col.setBook(inv.getBook().getName());
-								availableCollateralValues.add(col);
+								Security invSecurity = (Security) inv.getProduct();
+								if (trade.isCrossCurrencyCollateral()
+										|| invSecurity.getCurrency().equals(trade.getCurrency())) {
+									Collateral col = new Collateral();
+									col.setQuantity(inv.getQuantity());
+									col.setSecurity(invSecurity.getIsin());
+									col.setExchange(inv.getProduct().getExchange().getCode());
+									col.setBook(inv.getBook().getName());
+									availableCollateralValues.add(col);
+								}
 							}
 						}
 					}
