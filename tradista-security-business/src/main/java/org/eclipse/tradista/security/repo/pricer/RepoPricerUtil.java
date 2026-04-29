@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.repo.pricer;
 
+import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,8 +41,8 @@ import org.eclipse.tradista.security.equity.pricer.PricerEquityUtil;
 import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
 import org.eclipse.tradista.security.repo.model.RepoTrade;
 import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
-
-import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -60,6 +62,10 @@ import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
 
 public final class RepoPricerUtil {
 
+	private static final String PRICING_PARAMETER_DOES_NOT_CONTAIN_FX_CURVE_FOR_CURRENCY = "{} Pricing Parameter doesn't contain a FX curve for currency {}/{}.";
+
+	private static final Logger logger = LoggerFactory.getLogger(RepoPricerUtil.class);
+
 	private static final String PP_DOES_NOT_CONTAIN_DISCOUNT_CURVE = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
 
 	private static ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
@@ -77,14 +83,16 @@ public final class RepoPricerUtil {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(PRICING_PARAMETER_DOES_NOT_CONTAIN_FX_CURVE_FOR_CURRENCY, params, trade.getCurrency(),
+					currency);
 		}
 
 		// 1. Get the current collateral
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		mtm = getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate);
+		mtm = getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate,
+				trade.getCurrency());
 
 		if (!currency.equals(trade.getCurrency())) {
 			mtm = PricerUtil.convertAmount(mtm, trade.getCurrency(), currency, pricingDate,
@@ -101,7 +109,8 @@ public final class RepoPricerUtil {
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate);
+		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), pricingDate,
+				trade.getCurrency());
 	}
 
 	public static BigDecimal getCurrentCollateralMarkToMarket(RepoTrade trade) throws TradistaBusinessException {
@@ -109,11 +118,12 @@ public final class RepoPricerUtil {
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), LocalDate.now());
+		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), LocalDate.now(),
+				trade.getCurrency());
 	}
 
 	public static BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
-			LocalDate pricingDate) throws TradistaBusinessException {
+			LocalDate pricingDate, Currency pricingCurrency) throws TradistaBusinessException {
 
 		BigDecimal mtm = BigDecimal.ZERO;
 
@@ -148,9 +158,14 @@ public final class RepoPricerUtil {
 							"The closing or last price of the product %s could not be found on quote set %s as of %tD",
 							entry.getKey(), qs, LocalDate.now()));
 				}
-				// Assumption : all securities are priced in the same currency.
+				Currency securityCurrency = entry.getKey().getCurrency();
 				for (BigDecimal qty : entry.getValue().values()) {
-					mtm = mtm.add(price.multiply(qty));
+					BigDecimal contribution = price.multiply(qty);
+					if (pricingCurrency != null && !securityCurrency.equals(pricingCurrency)) {
+						contribution = PricerUtil.convertAmount(contribution, securityCurrency, pricingCurrency,
+								pricingDate, qs.getId(), 0);
+					}
+					mtm = mtm.add(contribution);
 				}
 			}
 		}
@@ -159,13 +174,25 @@ public final class RepoPricerUtil {
 
 	}
 
+	/**
+	 * @deprecated use
+	 *             {@link #getCollateralMarkToMarket(Map, LegalEntity, LocalDate, Currency)}
+	 *             instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.2.0")
+	public static BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
+			LocalDate pricingDate) throws TradistaBusinessException {
+		return getCollateralMarkToMarket(securities, po, pricingDate, null);
+	}
+
 	public static BigDecimal getExposure(RepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
 		BigDecimal exposure;
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(PRICING_PARAMETER_DOES_NOT_CONTAIN_FX_CURVE_FOR_CURRENCY, params, trade.getCurrency(),
+					currency);
 		}
 
 		exposure = calculateExposure(trade, pricingDate, params);
@@ -457,7 +484,8 @@ public final class RepoPricerUtil {
 
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (discountCurve == null) {
-			// TODO Add log warn
+			logger.warn("{} Pricing Parameter doesn't contain a discount curve for currency {}.", params,
+					trade.getCurrency());
 		}
 
 		if (discountCurve != null) {
@@ -484,7 +512,7 @@ public final class RepoPricerUtil {
 		CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(PRICING_PARAMETER_DOES_NOT_CONTAIN_FX_CURVE_FOR_CURRENCY, params, tradeCurrency, currency);
 		}
 
 		// Payment for the opening leg
@@ -571,7 +599,8 @@ public final class RepoPricerUtil {
 				CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
 				FXCurve paramFXCurve = params.getFxCurves().get(pair);
 				if (paramFXCurve == null) {
-					// TODO Add log warn
+					logger.warn(PRICING_PARAMETER_DOES_NOT_CONTAIN_FX_CURVE_FOR_CURRENCY, params, tradeCurrency,
+							currency);
 				}
 				// 1. Trade currency IR curve retrieval
 				InterestRateCurve paramTradeCurrIRCurve = params.getDiscountCurves().get(tradeCurrency);
@@ -608,7 +637,8 @@ public final class RepoPricerUtil {
 					CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
 					FXCurve paramFXCurve = params.getFxCurves().get(pair);
 					if (paramFXCurve == null) {
-						// TODO Add log warn
+						logger.warn(PRICING_PARAMETER_DOES_NOT_CONTAIN_FX_CURVE_FOR_CURRENCY, params, tradeCurrency,
+								currency);
 					}
 					// 1. Primary currency IR curve retrieval
 					InterestRateCurve paramTradeCurrIRCurve = params.getDiscountCurves().get(tradeCurrency);
@@ -708,8 +738,15 @@ public final class RepoPricerUtil {
 						}
 					}
 				}
-				collateralsPricesVariation = collateralsPricesVariation
-						.add((price.subtract(initialPrice)).multiply(quantity));
+				BigDecimal variation = (price.subtract(initialPrice)).multiply(quantity);
+				Currency securityCurrency = security.getCurrency();
+				if (!securityCurrency.equals(currency)) {
+					CurrencyPair pair = new CurrencyPair(securityCurrency, currency);
+					FXCurve paramFXCurve = params.getFxCurves().get(pair);
+					variation = PricerUtil.convertAmount(variation, securityCurrency, currency, pricingDate,
+							params.getQuoteSet().getId(), paramFXCurve != null ? paramFXCurve.getId() : 0);
+				}
+				collateralsPricesVariation = collateralsPricesVariation.add(variation);
 			}
 		} else {
 			throw new TradistaBusinessException(
@@ -721,9 +758,6 @@ public final class RepoPricerUtil {
 			throw new TradistaBusinessException(
 					"Delta cannot be calculated: there is no collateral price variation for the repo trade.");
 		}
-		// 3. Convert the collateral prices variation in pricing currency
-		collateralsPricesVariation = PricerUtil.convertAmount(collateralsPricesVariation, currency, currency,
-				pricingDate, params.getQuoteSet().getId(), paramTradeCurrIRCurve.getId());
 
 		// 4. Get the repo trade value variation
 		// 4.a Get the repo trade value as of trade settlement date
@@ -732,11 +766,7 @@ public final class RepoPricerUtil {
 		BigDecimal repoTradePrice = discountedPayments(trade, currency, pricingDate, params);
 		BigDecimal repoTradeValueVariation = repoTradePrice.subtract(initialRepoTradePrice);
 
-		// 5. Convert the repo trade value variation in pricing currency
-		repoTradeValueVariation = PricerUtil.convertAmount(repoTradeValueVariation, currency, currency, pricingDate,
-				params.getQuoteSet().getId(), paramTradeCurrIRCurve.getId());
-
-		// 6. Calculate the delta : repo trade value variation in pricing currency /
+		// 5. Calculate the delta : repo trade value variation in pricing currency /
 		// collateral prices variation in pricing currency
 		return PricerUtil.divide(repoTradeValueVariation, collateralsPricesVariation);
 	}
@@ -750,14 +780,14 @@ public final class RepoPricerUtil {
 
 		// Add collateral added from the GUI
 		if (!ObjectUtils.isEmpty(addedSecurities)) {
-			pendingCollateralValue = pendingCollateralValue.add(
-					getCollateralMarkToMarket(addedSecurities, trade.getBook().getProcessingOrg(), LocalDate.now()));
+			pendingCollateralValue = pendingCollateralValue.add(getCollateralMarkToMarket(addedSecurities,
+					trade.getBook().getProcessingOrg(), LocalDate.now(), trade.getCurrency()));
 		}
 
 		// Remove collateral removed from the GUI
 		if (!ObjectUtils.isEmpty(removedSecurities)) {
-			pendingCollateralValue = pendingCollateralValue.subtract(
-					getCollateralMarkToMarket(removedSecurities, trade.getBook().getProcessingOrg(), LocalDate.now()));
+			pendingCollateralValue = pendingCollateralValue.subtract(getCollateralMarkToMarket(removedSecurities,
+					trade.getBook().getProcessingOrg(), LocalDate.now(), trade.getCurrency()));
 		}
 		pendingCollateralValue = PricerUtil.divide(pendingCollateralValue, marginRate);
 		return collateralValue.add(pendingCollateralValue);
