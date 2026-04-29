@@ -32,6 +32,10 @@ import javafx.util.Callback;
 
 public final class TradistaFXGUIUtil {
 
+	private TradistaFXGUIUtil() {
+		/* This utility class should not be instantiated */
+	}
+
 	private static FXVolatilitySurfaceBusinessDelegate fxVolatilitySurfaceBusinessDelegate = new FXVolatilitySurfaceBusinessDelegate();
 
 	@SafeVarargs

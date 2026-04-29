@@ -54,7 +54,10 @@ public class InterestRateCurveBusinessDelegate {
 		return SecurityUtil.run(() -> interestRateCurveService.getAllInterestRateCurves());
 	}
 
-	public Set<InterestRateCurve> getInterestRateCurvesByPoId(long poId) {
+	public Set<InterestRateCurve> getInterestRateCurvesByPoId(long poId) throws TradistaBusinessException {
+		if (poId < 0) {
+			throw new TradistaBusinessException("The processing org id cannot be negative.");
+		}
 		return SecurityUtil.run(() -> interestRateCurveService.getInterestRateCurvesByPoId(poId));
 	}
 
@@ -225,7 +228,8 @@ public class InterestRateCurveBusinessDelegate {
 	 * @return
 	 */
 	public Set<String> getBootstrapableProductTypes() {
-		List<BootstrapHandler> items = TradistaUtil.getAllInstancesByType(BootstrapHandler.class, "org.eclipse.tradista");
+		List<BootstrapHandler> items = TradistaUtil.getAllInstancesByType(BootstrapHandler.class,
+				"org.eclipse.tradista");
 		Set<String> productTypes = new HashSet<String>();
 		if (!items.isEmpty()) {
 			for (BootstrapHandler item : items) {
