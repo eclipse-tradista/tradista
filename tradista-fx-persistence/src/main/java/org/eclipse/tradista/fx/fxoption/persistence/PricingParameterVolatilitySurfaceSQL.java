@@ -1,5 +1,10 @@
 package org.eclipse.tradista.fx.fxoption.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRICING_PARAMETER_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRIMARY_CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUOTE_CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VOLATILITY_SURFACE_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
@@ -31,15 +39,24 @@ import org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceM
 
 public class PricingParameterVolatilitySurfaceSQL {
 
+	private static final Field PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field PRIMARY_CURRENCY_ID_FIELD = new Field(PRIMARY_CURRENCY_ID);
+	private static final Field QUOTE_CURRENCY_ID_FIELD = new Field(QUOTE_CURRENCY_ID);
+	private static final Field VOLATILITY_SURFACE_ID_FIELD = new Field(VOLATILITY_SURFACE_ID);
+
+	private static final Field[] FIELDS = { PRICING_PARAMETER_ID_FIELD, PRIMARY_CURRENCY_ID_FIELD,
+			QUOTE_CURRENCY_ID_FIELD, VOLATILITY_SURFACE_ID_FIELD };
+	private static final Table TABLE = new Table("PRICING_PARAMETER_FX_VOLATILITY_SURFACE", FIELDS);
+
 	public static void savePricingParameterModule(Connection con, PricingParameterVolatilitySurfaceModule module,
 			long pricingParamId) {
-		try (PreparedStatement stmtSavePricingParameterFXVolatilitySurfaces = con.prepareStatement(
-				"INSERT INTO PRICING_PARAMETER_FX_VOLATILITY_SURFACE(PRICING_PARAMETER_ID, PRIMARY_CURRENCY_ID, QUOTE_CURRENCY_ID, VOLATILITY_SURFACE_ID) VALUES(?, ?, ?, ?)")) {
+		try (PreparedStatement stmtSavePricingParameterFXVolatilitySurfaces = TradistaDBUtil
+				.buildInsertPreparedStatement(con, TABLE, FIELDS)) {
 
 			if (pricingParamId != 0) {
 				// Then, we delete the data for this pricingParam
-				try (PreparedStatement stmtDeletePricingParameterEquityOptionVolatilitySurfaces = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_FX_VOLATILITY_SURFACE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterEquityOptionVolatilitySurfaces = TradistaDBUtil
+						.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterEquityOptionVolatilitySurfaces.setLong(1, pricingParamId);
 					stmtDeletePricingParameterEquityOptionVolatilitySurfaces.executeUpdate();
 				}
@@ -55,7 +72,6 @@ public class PricingParameterVolatilitySurfaceSQL {
 			stmtSavePricingParameterFXVolatilitySurfaces.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -63,10 +79,12 @@ public class PricingParameterVolatilitySurfaceSQL {
 	public static PricingParameterVolatilitySurfaceModule getPricingParameterModuleByPricingParameterId(Connection con,
 			long id) {
 		PricingParameterVolatilitySurfaceModule module = null;
-		Map<CurrencyPair, FXVolatilitySurface> surfaces = new HashMap<CurrencyPair, FXVolatilitySurface>();
+		Map<CurrencyPair, FXVolatilitySurface> surfaces = new HashMap<>();
 
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
 		try (PreparedStatement stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId = con.prepareStatement(
-				"SELECT * FROM PRICING_PARAMETER_FX_VOLATILITY_SURFACE WHERE PRICING_PARAMETER_ID = ?")) {
+				sql.toString())) {
 			stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId.executeQuery()) {
 				while (results.next()) {
@@ -74,15 +92,16 @@ public class PricingParameterVolatilitySurfaceSQL {
 						module = new PricingParameterVolatilitySurfaceModule();
 					}
 					surfaces.put(
-							new CurrencyPair(CurrencySQL.getCurrencyById(results.getLong("primary_currency_id")),
-									CurrencySQL.getCurrencyById(results.getLong("quote_currency_id"))),
+							new CurrencyPair(
+									CurrencySQL.getCurrencyById(results.getLong(PRIMARY_CURRENCY_ID_FIELD.getName())),
+									CurrencySQL.getCurrencyById(results.getLong(QUOTE_CURRENCY_ID_FIELD.getName()))),
 							FXVolatilitySurfaceSQL
-									.getFXVolatilitySurfaceById(results.getLong("volatility_surface_id")));
+									.getFXVolatilitySurfaceById(
+											results.getLong(VOLATILITY_SURFACE_ID_FIELD.getName())));
 					module.setVolatilitySurfaces(surfaces);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return module;
@@ -91,13 +110,12 @@ public class PricingParameterVolatilitySurfaceSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = con.prepareStatement(
-				"DELETE FROM PRICING_PARAMETER_FX_VOLATILITY_SURFACE WHERE PRICING_PARAMETER_ID = ?")) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
+				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;

@@ -61,10 +61,12 @@ public class PricingParameterFilteringInterceptor extends TradistaAuthorizationF
 	@Override
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		Object[] parameters = ic.getParameters();
+		Method method = ic.getMethod();
+		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameters.length > 0) {
-			Method method = ic.getMethod();
 			StringBuilder errMsg = new StringBuilder();
-			if (parameters[0] instanceof PricingParameter pricingParameter) {
+			if (parameterTypes[0].equals(PricingParameter.class)) {
+				PricingParameter pricingParameter = (PricingParameter) parameters[0];
 				if (pricingParameter.getId() != 0) {
 					PricingParameter pp = pricerBusinessDelegate.getPricingParameterById(pricingParameter.getId());
 					if (pp == null) {
@@ -111,15 +113,16 @@ public class PricingParameterFilteringInterceptor extends TradistaAuthorizationF
 						}
 					}
 				}
-				if (pricingParameter.getModules() != null && pricingParameter.getModules().isEmpty()) {
+				if (pricingParameter.getModules() != null && !pricingParameter.getModules().isEmpty()) {
 					for (PricingParameterModule module : pricingParameter.getModules()) {
 						PricingParameterModuleValidator validator = pricerBusinessDelegate.getValidator(module);
 						validator.checkAccess(module, errMsg);
 					}
 				}
 			}
-			if (parameters[0] instanceof Long pricingParameterId) {
+			if (parameterTypes[0].equals(long.class) || parameterTypes[0].equals(Long.class)) {
 				if (method.getName().equals("deletePricingParameter")) {
+					Long pricingParameterId = (Long) parameters[0];
 					if (pricingParameterId != 0) {
 						PricingParameter pp = pricerBusinessDelegate.getPricingParameterById(pricingParameterId);
 						if (pp == null) {
@@ -133,7 +136,8 @@ public class PricingParameterFilteringInterceptor extends TradistaAuthorizationF
 					}
 				}
 			}
-			if (parameters[0] instanceof String && parameters[1] instanceof Long poId) {
+			if (parameterTypes.length > 1 && parameterTypes[0].equals(String.class) && (parameterTypes[1].equals(long.class) || parameterTypes[1].equals(Long.class))) {
+				Long poId = (Long) parameters[1];
 				if (getCurrentUser().getProcessingOrg().getId() != 0) {
 					if (poId != getCurrentUser().getProcessingOrg().getId()) {
 						errMsg.append(String

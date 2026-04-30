@@ -1,5 +1,9 @@
 package org.eclipse.tradista.fx.common.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRICING_PARAMETER_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_TYPE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +15,9 @@ import java.util.Map;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.BookProductTypePair;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.UnrealizedPnlCalculation;
@@ -33,15 +40,24 @@ import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalcula
 
 public class PricingParameterUnrealizedPnlCalculationSQL {
 
+	private static final Field PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field BOOK_ID_FIELD = new Field(BOOK_ID);
+	private static final Field PRODUCT_TYPE_FIELD = new Field(PRODUCT_TYPE);
+	private static final Field PNL_CALCULATION_FIELD = new Field("PNL_CALCULATION");
+
+	private static final Field[] FIELDS = { PRICING_PARAMETER_ID_FIELD, BOOK_ID_FIELD, PRODUCT_TYPE_FIELD,
+			PNL_CALCULATION_FIELD };
+	private static final Table TABLE = new Table("PRICING_PARAMETER_UNREALIZED_PNL_CALCULATION", FIELDS);
+
 	public static void savePricingParameterModule(Connection con, PricingParameterUnrealizedPnlCalculationModule module,
 			long pricingParamId) {
-		try (PreparedStatement stmtSavePricingParameterUnrealizedPnlCalculations = con.prepareStatement(
-				"INSERT INTO PRICING_PARAMETER_UNREALIZED_PNL_CALCULATION(PRICING_PARAMETER_ID, BOOK_ID, PRODUCT_TYPE, PNL_CALCULATION) VALUES(?, ?, ?, ?)")) {
+		try (PreparedStatement stmtSavePricingParameterUnrealizedPnlCalculations = TradistaDBUtil
+				.buildInsertPreparedStatement(con, TABLE, FIELDS)) {
 
 			if (pricingParamId != 0) {
 				// Then, we delete the data for this pricingParam
-				try (PreparedStatement stmtDeletePricingParameterUnrealizedPnlCalculations = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_UNREALIZED_PNL_CALCULATION WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterUnrealizedPnlCalculations = TradistaDBUtil
+						.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterUnrealizedPnlCalculations.setLong(1, pricingParamId);
 					stmtDeletePricingParameterUnrealizedPnlCalculations.executeUpdate();
 				}
@@ -64,7 +80,6 @@ public class PricingParameterUnrealizedPnlCalculationSQL {
 			stmtSavePricingParameterUnrealizedPnlCalculations.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -72,10 +87,12 @@ public class PricingParameterUnrealizedPnlCalculationSQL {
 	public static PricingParameterUnrealizedPnlCalculationModule getPricingParameterModuleByPricingParameterId(
 			Connection con, long id) {
 		PricingParameterUnrealizedPnlCalculationModule module = null;
-		Map<org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.BookProductTypePair, UnrealizedPnlCalculation> curves = new HashMap<BookProductTypePair, UnrealizedPnlCalculation>();
+		Map<org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.BookProductTypePair, UnrealizedPnlCalculation> curves = new HashMap<>();
 
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
 		try (PreparedStatement stmtGetPricingParameterDividendYieldCurvesByPricingParameterId = con.prepareStatement(
-				"SELECT * FROM PRICING_PARAMETER_UNREALIZED_PNL_CALCULATION WHERE PRICING_PARAMETER_ID = ?")) {
+				sql.toString())) {
 			stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.executeQuery()) {
 				while (results.next()) {
@@ -83,14 +100,13 @@ public class PricingParameterUnrealizedPnlCalculationSQL {
 						module = new PricingParameterUnrealizedPnlCalculationModule();
 					}
 					curves.put(
-							new BookProductTypePair(BookSQL.getBookById(results.getLong("book_id")),
-									results.getString("product_type")),
-							UnrealizedPnlCalculation.valueOf(results.getString("pnl_calculation")));
+							new BookProductTypePair(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())),
+									results.getString(PRODUCT_TYPE_FIELD.getName())),
+							UnrealizedPnlCalculation.valueOf(results.getString(PNL_CALCULATION_FIELD.getName())));
 					module.setUnrealizedPnlCalculations(curves);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return module;
@@ -99,13 +115,12 @@ public class PricingParameterUnrealizedPnlCalculationSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = con.prepareStatement(
-				"DELETE FROM PRICING_PARAMETER_UNREALIZED_PNL_CALCULATION WHERE PRICING_PARAMETER_ID = ?")) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
+				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;

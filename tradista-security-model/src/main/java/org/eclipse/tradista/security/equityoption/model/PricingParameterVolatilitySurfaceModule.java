@@ -30,7 +30,7 @@ public class PricingParameterVolatilitySurfaceModule extends PricingParameterMod
 	private Map<Equity, EquityOptionVolatilitySurface> volatilitySurfaces;
 
 	public PricingParameterVolatilitySurfaceModule() {
-		volatilitySurfaces = new HashMap<Equity, EquityOptionVolatilitySurface>();
+		volatilitySurfaces = new HashMap<>();
 	}
 
 	@Override
@@ -50,6 +50,14 @@ public class PricingParameterVolatilitySurfaceModule extends PricingParameterMod
 
 	public void setVolatilitySurfaces(Map<Equity, EquityOptionVolatilitySurface> volatilitySurfaces) {
 		this.volatilitySurfaces = volatilitySurfaces;
+	}
+
+	public void addVolatilitySurface(Equity equity, EquityOptionVolatilitySurface surface) {
+		this.volatilitySurfaces.put(equity, surface);
+	}
+
+	public void removeVolatilitySurface(Equity equity) {
+		this.volatilitySurfaces.remove(equity);
 	}
 
 	public EquityOptionVolatilitySurface getEquityOptionVolatilitySurface(Equity equity) {

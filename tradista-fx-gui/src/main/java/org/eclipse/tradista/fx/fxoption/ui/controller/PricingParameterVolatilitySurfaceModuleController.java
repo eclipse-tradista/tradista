@@ -470,7 +470,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public PricingParameterModule buildModule() {
 		PricingParameterVolatilitySurfaceModule param = new PricingParameterVolatilitySurfaceModule();
 		for (FXVolatilitySurfaceProperty prop : fxVolatilitySurfaceTable.getItems()) {
-			param.getVolatilitySurfaces().put(
+			param.addVolatilitySurface(
 					new CurrencyPair((Currency) prop.getPrimaryCurrency(), (Currency) prop.getQuoteCurrency()),
 					(FXVolatilitySurface) prop.getVolatilitySurface());
 		}

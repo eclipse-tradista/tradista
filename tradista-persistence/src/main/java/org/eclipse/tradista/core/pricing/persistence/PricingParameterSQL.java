@@ -431,7 +431,7 @@ public class PricingParameterSQL {
 			if (pricingParam.getModules() != null && !pricingParam.getModules().isEmpty()) {
 				for (PricingParameterModule module : pricingParam.getModules()) {
 					// Save the module
-					PricingParameterSQL.savePricingParameterModule(module, con, pricingParam.getId());
+					PricingParameterSQL.savePricingParameterModule(module, con, pricingParamId);
 				}
 			}
 
@@ -581,7 +581,9 @@ public class PricingParameterSQL {
 						long.class);
 				PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
 						pricingParameter.getId());
-				pricingParameter.getModules().add(module);
+				if (module != null) {
+					pricingParameter.addModule(module);
+				}
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException e) {
 				throw new TradistaTechnicalException(e);

@@ -233,8 +233,8 @@ public class PricerBusinessDelegate {
 				PricingParameterModuleValidator validator = getValidator(module);
 				try {
 					validator.validateModule(module, param.getProcessingOrg());
-				} catch (TradistaBusinessException abe) {
-					errMsg.append(abe.getMessage());
+				} catch (TradistaBusinessException tbe) {
+					errMsg.append(tbe.getMessage());
 				}
 			}
 		}

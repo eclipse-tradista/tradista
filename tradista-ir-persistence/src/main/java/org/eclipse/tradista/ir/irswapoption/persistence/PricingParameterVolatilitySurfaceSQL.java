@@ -1,5 +1,9 @@
 package org.eclipse.tradista.ir.irswapoption.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INDEX_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRICING_PARAMETER_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VOLATILITY_SURFACE_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.persistence.IndexSQL;
 import org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule;
@@ -31,15 +38,22 @@ import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 
 public class PricingParameterVolatilitySurfaceSQL {
 
+	private static final Field PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field INDEX_ID_FIELD = new Field(INDEX_ID);
+	private static final Field VOLATILITY_SURFACE_ID_FIELD = new Field(VOLATILITY_SURFACE_ID);
+
+	private static final Field[] FIELDS = { PRICING_PARAMETER_ID_FIELD, INDEX_ID_FIELD, VOLATILITY_SURFACE_ID_FIELD };
+	private static final Table TABLE = new Table("PRICING_PARAMETER_SWAPTION_VOLATILITY_SURFACE", FIELDS);
+
 	public static void savePricingParameterModule(Connection con, PricingParameterVolatilitySurfaceModule module,
 			long pricingParamId) {
-		try (PreparedStatement stmtSavePricingParameterSwaptionVolatilitySurfaces = con.prepareStatement(
-				"INSERT INTO PRICING_PARAMETER_SWAPTION_VOLATILITY_SURFACE(PRICING_PARAMETER_ID, INDEX_ID, VOLATILITY_SURFACE_ID) VALUES(?, ?, ?)")) {
+		try (PreparedStatement stmtSavePricingParameterSwaptionVolatilitySurfaces = TradistaDBUtil
+				.buildInsertPreparedStatement(con, TABLE, FIELDS)) {
 
 			if (pricingParamId != 0) {
 				// Then, we delete the data for this pricingParam
-				try (PreparedStatement stmtDeletePricingParameterEquityOptionVolatilitySurfaces = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_SWAPTION_VOLATILITY_SURFACE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterEquityOptionVolatilitySurfaces = TradistaDBUtil
+						.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterEquityOptionVolatilitySurfaces.setLong(1, pricingParamId);
 					stmtDeletePricingParameterEquityOptionVolatilitySurfaces.executeUpdate();
 				}
@@ -54,7 +68,6 @@ public class PricingParameterVolatilitySurfaceSQL {
 			stmtSavePricingParameterSwaptionVolatilitySurfaces.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -62,11 +75,12 @@ public class PricingParameterVolatilitySurfaceSQL {
 	public static PricingParameterVolatilitySurfaceModule getPricingParameterModuleByPricingParameterId(Connection con,
 			long id) {
 		PricingParameterVolatilitySurfaceModule module = null;
-		Map<Index, SwaptionVolatilitySurface> surfaces = new HashMap<Index, SwaptionVolatilitySurface>();
+		Map<Index, SwaptionVolatilitySurface> surfaces = new HashMap<>();
 
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
 		try (PreparedStatement stmtGetPricingParameterSwaptionVolatilitySurfacesByPricingParameterId = con
-				.prepareStatement(
-						"SELECT * FROM PRICING_PARAMETER_SWAPTION_VOLATILITY_SURFACE WHERE PRICING_PARAMETER_ID = ?")) {
+				.prepareStatement(sql.toString())) {
 			stmtGetPricingParameterSwaptionVolatilitySurfacesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterSwaptionVolatilitySurfacesByPricingParameterId
 					.executeQuery()) {
@@ -74,13 +88,14 @@ public class PricingParameterVolatilitySurfaceSQL {
 					if (module == null) {
 						module = new PricingParameterVolatilitySurfaceModule();
 					}
-					surfaces.put(IndexSQL.getIndexById(results.getLong("index_id")), SwaptionVolatilitySurfaceSQL
-							.getSwaptionVolatilitySurfaceById(results.getLong("volatility_surface_id")));
+					surfaces.put(IndexSQL.getIndexById(results.getLong(INDEX_ID_FIELD.getName())),
+							SwaptionVolatilitySurfaceSQL
+									.getSwaptionVolatilitySurfaceById(
+											results.getLong(VOLATILITY_SURFACE_ID_FIELD.getName())));
 					module.setVolatilitySurfaces(surfaces);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return module;
@@ -89,13 +104,12 @@ public class PricingParameterVolatilitySurfaceSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = con.prepareStatement(
-				"DELETE FROM PRICING_PARAMETER_SWAPTION_VOLATILITY_SURFACE WHERE PRICING_PARAMETER_ID = ?")) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
+				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
