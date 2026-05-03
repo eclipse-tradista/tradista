@@ -316,8 +316,7 @@ public final class TradistaUtil {
 	 * 
 	 * @param returnType return type set as type token so the type is not erased
 	 * @param methodName the method to invoke
-	 * @param obj        the instance on which the method should be invoked. It can
-	 *                   be null if the method is static.
+	 * @param obj        the instance on which the method should be invoked.
 	 * @param params     the method parameters (optional)
 	 * @return the result of the method invocation
 	 */

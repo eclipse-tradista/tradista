@@ -63,16 +63,6 @@ public class ProcessingOrgDefaultsSQL {
 				} catch (TradistaBusinessException tbe) {
 					throw new TradistaTechnicalException(tbe);
 				}
-//				try {
-//					Method method = daoClass.getMethod("getProcessingOrgDefaultsModuleByPoId", Connection.class,
-//							long.class);
-//					ProcessingOrgDefaultsModule module = (ProcessingOrgDefaultsModule) method.invoke(daoClass, con,
-//							poId);
-//					poDefaults.addModule(module);
-//				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-//						| NoSuchMethodException | SecurityException e) {
-//					throw new TradistaTechnicalException(e);
-//				}
 			}
 		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
@@ -103,9 +93,6 @@ public class ProcessingOrgDefaultsSQL {
 		try {
 			TradistaUtil.callMethod(daoClass.getName(), Void.class, "saveProcessingOrgDefaultsModule", con, module,
 					poId);
-//			Method method = daoClass.getMethod("saveProcessingOrgDefaultsModule", Connection.class, module.getClass(),
-//					long.class);
-//			method.invoke(daoClass, con, module, poId);
 		} catch (TradistaBusinessException tbe) {
 			throw new TradistaTechnicalException(tbe);
 		}

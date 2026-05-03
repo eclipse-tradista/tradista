@@ -217,13 +217,6 @@ public class PricingParameterSQL {
 				} catch (TradistaBusinessException tbe) {
 					throw new TradistaTechnicalException(tbe.getMessage());
 				}
-//				try {
-//					Method method = daoClass.getMethod("deletePricingParameterModule", Connection.class, long.class);
-//					method.invoke(daoClass, con, id);
-//				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-//						| NoSuchMethodException | SecurityException e) {
-//					throw new TradistaTechnicalException(e);
-//				}
 			}
 
 			stmtDeletePricingParameter.setLong(1, id);
@@ -449,14 +442,6 @@ public class PricingParameterSQL {
 		} catch (TradistaBusinessException tbe) {
 			throw new TradistaTechnicalException(tbe.getMessage());
 		}
-//		try {
-//			Method method = daoClass.getMethod("savePricingParameterModule", Connection.class, module.getClass(),
-//					long.class);
-//			method.invoke(daoClass, con, module, pricingParamId);
-//		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-//				| SecurityException e) {
-//			throw new TradistaTechnicalException(e);
-//		}
 	}
 
 	public static Set<String> getPricingParametersSetByQuoteSetId(long quoteSetId) {
@@ -591,18 +576,6 @@ public class PricingParameterSQL {
 			} catch (TradistaBusinessException tbe) {
 				throw new TradistaTechnicalException(tbe.getMessage());
 			}
-//			try {
-//				Method method = daoClass.getMethod("getPricingParameterModuleByPricingParameterId", Connection.class,
-//						long.class);
-//				PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
-//						pricingParameter.getId());
-//				if (module != null) {
-//					pricingParameter.addModule(module);
-//				}
-//			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-//					| NoSuchMethodException | SecurityException e) {
-//				throw new TradistaTechnicalException(e);
-//			}
 		}
 
 		return pricingParameter;
