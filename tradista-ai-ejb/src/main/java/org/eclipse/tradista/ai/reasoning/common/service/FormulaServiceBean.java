@@ -3,7 +3,6 @@ package org.eclipse.tradista.ai.reasoning.common.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.eclipse.tradista.ai.reasoning.common.model.Formula;
 import org.eclipse.tradista.ai.reasoning.common.persistence.FormulaSQL;
 import org.eclipse.tradista.ai.reasoning.common.util.TradistaAIProperties;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import asp4j.lang.AnswerSet;
@@ -175,17 +175,13 @@ public class FormulaServiceBean implements FormulaService {
 									continue;
 								}
 								if (argAnnotation.value() == i) {
-									try {
-										String v = (String) m.invoke(a);
-										if (p.equals(v)) {
-											ok++;
-										} else {
-											ko = true;
-										}
-										break;
-									} catch (IllegalAccessException | InvocationTargetException e) {
-										// Should not appear here.
+									String v = TradistaUtil.callMethod(String.class, m, a);
+									if (p.equals(v)) {
+										ok++;
+									} else {
+										ko = true;
 									}
+									break;
 								}
 							}
 							if (ko) {

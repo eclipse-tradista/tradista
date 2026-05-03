@@ -281,10 +281,10 @@ public class TradeSQL {
 		ProductBusinessDelegate productBusinessDelegate = new ProductBusinessDelegate();
 		Set<String> products = productBusinessDelegate.getAllProductTypes();
 		try {
+			Class<Trade<? extends Product>> klass = TradistaUtil.getTradeToken();
 			for (String product : products) {
 				Class<?> serviceClass = getTradeSQLClass(productBusinessDelegate, product);
 				Trade<? extends Product> trade;
-				Class<Trade<? extends Product>> klass = null;
 				switch (product) {
 				case IR_SWAP, EQUITY, FX: {
 					trade = TradistaUtil.callMethod(serviceClass.getCanonicalName(), klass, TRADE_GETTER_BY_ID, id,
@@ -373,12 +373,12 @@ public class TradeSQL {
 				PreparedStatement stmtGetTradesByPosition = con.prepareStatement(buildSQLTradeQuery(posDef))) {
 			try (ResultSet results = stmtGetTradesByPosition.executeQuery()) {
 				while (results.next()) {
+					Class<Trade<? extends Product>> klass = null;
 					if (trades == null) {
 						trades = new HashSet<>();
+						klass = TradistaUtil.getTradeToken();
 					}
 					Trade<? extends Product> trade = null;
-					Class<Trade<? extends Product>> klass = null;
-
 					if (posDef.getProductType() != null) {
 						Class<?> serviceClass;
 						try {

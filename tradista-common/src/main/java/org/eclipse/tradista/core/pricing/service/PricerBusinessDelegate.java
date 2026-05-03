@@ -1,6 +1,5 @@
 package org.eclipse.tradista.core.pricing.service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -30,6 +27,8 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.validator.TradeValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -48,6 +47,8 @@ import org.eclipse.tradista.core.trade.validator.TradeValidator;
  ********************************************************************************/
 
 public class PricerBusinessDelegate {
+
+	private static final String METHOD = "Method";
 
 	private static final Logger logger = LoggerFactory.getLogger(PricerBusinessDelegate.class);
 
@@ -110,17 +111,21 @@ public class PricerBusinessDelegate {
 		}
 	}
 
-	public PricingParameter getPricingParameterById(long id) {
+	public PricingParameter getPricingParameterById(long id) throws TradistaBusinessException {
+		if (id <= 0) {
+			throw new TradistaBusinessException(
+					String.format("The pricing parameters set id (%d) must be positive", id));
+		}
 		return SecurityUtil.run(() -> pricerService.getPricingParameterById(id));
 	}
 
 	public PricingParameter getPricingParameterByNameAndPoId(String name, long poId) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isEmpty(name)) {
-			errMsg.append("The name is mandatory.");
+			errMsg.append(String.format("The pricing parameters set name is mandatory.%n"));
 		}
 		if (poId < 0) {
-			errMsg.append(String.format("The po id (%s) cannot be negative.", poId));
+			errMsg.append(String.format("The pricing parameters set po id (%d) cannot be negative.", poId));
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
@@ -134,7 +139,8 @@ public class PricerBusinessDelegate {
 
 	public Set<PricingParameter> getPricingParametersByPoId(long poId) throws TradistaBusinessException {
 		if (poId < 0) {
-			throw new TradistaBusinessException(String.format("The po id (%s) cannot be negative.", poId));
+			throw new TradistaBusinessException(
+					String.format("The pricing parameters set po id (%s) cannot be negative.", poId));
 		}
 		return SecurityUtil.run(() -> pricerService.getPricingParametersByPoId(poId));
 	}
@@ -251,7 +257,7 @@ public class PricerBusinessDelegate {
 
 	public boolean deletePricingParameter(long id) throws TradistaBusinessException {
 		if (id <= 0) {
-			throw new TradistaBusinessException("The id must be positive.");
+			throw new TradistaBusinessException("The pricing parameters set id must be positive.");
 		}
 		return SecurityUtil.runEx(() -> pricerService.deletePricingParameter(id));
 	}
@@ -273,7 +279,7 @@ public class PricerBusinessDelegate {
 			sBuilder.append(String.format(TRADE_IS_MANDATORY));
 		}
 		if (pricer == null) {
-			sBuilder.append("The pricer is mandatory.\n");
+			sBuilder.append(String.format("The pricer is mandatory.%n"));
 		}
 		if (pp == null) {
 			sBuilder.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
@@ -285,13 +291,11 @@ public class PricerBusinessDelegate {
 			sBuilder.append(String.format(DATE_IS_MANDATORY));
 		}
 		if (StringUtils.isEmpty(measure)) {
-			sBuilder.append("The measure name is mandatory.\n");
+			sBuilder.append("The measure name is mandatory.");
 		}
-
 		if (!sBuilder.isEmpty()) {
 			throw new TradistaBusinessException(sBuilder.toString());
 		}
-
 		PricerMeasure pm = null;
 		for (PricerMeasure currentPm : pricer.getPricerMeasures()) {
 			if (currentPm.toString().equals(measure)) {
@@ -309,13 +313,7 @@ public class PricerBusinessDelegate {
 					"The measure method was not found for measure class %s, measure %s, pricing parameters set %s and trade %s ",
 					pm.getClass().getName(), measure, pp.getName(), trade.getId()));
 		}
-		try {
-			return (BigDecimal) measureMethod.invoke(pm, pp, trade, currency, date);
-		} catch (IllegalAccessException | IllegalArgumentException e) {
-			throw new TradistaTechnicalException(e);
-		} catch (InvocationTargetException ite) {
-			throw new TradistaBusinessException(ite.getCause().getMessage());
-		}
+		return TradistaUtil.callMethod(BigDecimal.class, measureMethod, pm, pp, trade, currency, date);
 	}
 
 	public BigDecimal calculate(Trade<? extends Product> trade, PricingParameter pp, Currency currency, LocalDate date,
@@ -335,39 +333,26 @@ public class PricerBusinessDelegate {
 			sBuilder.append(String.format(DATE_IS_MANDATORY));
 		}
 		if (measure == null) {
-			sBuilder.append("The measure is mandatory.\n");
+			sBuilder.append(String.format("The measure is mandatory.%n"));
 		}
 		if (StringUtils.isEmpty(methodName)) {
-			sBuilder.append("The method name is mandatory.\n");
+			sBuilder.append("The method name is mandatory.");
 		}
-
 		if (!sBuilder.isEmpty()) {
 			throw new TradistaBusinessException(sBuilder.toString());
 		}
-
-		try {
-			return (BigDecimal) measure.getClass()
-					.getMethod(methodName, PricingParameter.class, trade.getClass(), Currency.class, LocalDate.class)
-					.invoke(measure, pp, trade, currency, date);
-		} catch (IllegalAccessException | IllegalArgumentException | SecurityException e) {
-			throw new TradistaTechnicalException(e);
-		} catch (InvocationTargetException ite) {
-			throw new TradistaBusinessException(ite.getCause().getMessage());
-		} catch (NoSuchMethodException nse) {
-			throw new TradistaBusinessException(nse);
-		}
+		return TradistaUtil.callMethod(BigDecimal.class, methodName, measure, pp, trade, currency, date);
 	}
 
 	public BigDecimal calculate(Product product, Book book, Pricer pricer, PricingParameter pp, Currency currency,
 			LocalDate date, String measure) throws TradistaBusinessException {
-
 		StringBuilder sBuilder = new StringBuilder();
 		Method productMeasureMethod;
 		if (product == null) {
 			sBuilder.append(String.format(TRADE_IS_MANDATORY));
 		}
 		if (pricer == null) {
-			sBuilder.append("The pricer is mandatory.\n");
+			sBuilder.append(String.format("The pricer is mandatory.%n"));
 		}
 		if (pp == null) {
 			sBuilder.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
@@ -381,11 +366,9 @@ public class PricerBusinessDelegate {
 		if (StringUtils.isEmpty(measure)) {
 			sBuilder.append("The measure name is mandatory.\n");
 		}
-
 		if (!sBuilder.isEmpty()) {
 			throw new TradistaBusinessException(sBuilder.toString());
 		}
-
 		PricerMeasure pm = null;
 		for (PricerMeasure currentPm : pricer.getProductPricerMeasures()) {
 			if (currentPm.toString().equals(measure)) {
@@ -403,26 +386,20 @@ public class PricerBusinessDelegate {
 					"The product measure method was not found for measure class %s, measure %s, pricing parameters set %s, book %s and product %s ",
 					pm.getClass().getName(), measure, pp.getName(), book, product.getId()));
 		}
-		try {
-			return (BigDecimal) productMeasureMethod.invoke(pm, pp, product, book, currency, date);
-		} catch (IllegalAccessException | IllegalArgumentException e) {
-			throw new TradistaTechnicalException(e);
-		} catch (InvocationTargetException ite) {
-			throw new TradistaBusinessException(ite.getCause().getMessage());
-		}
+		return TradistaUtil.callMethod(BigDecimal.class, productMeasureMethod, pm, pp, product, book, currency, date);
 	}
 
 	private Method getMeasureMethod(Class<? extends PricerMeasure> pmClass, PricingParameter pp, String measure,
 			Trade<? extends Product> trade) throws TradistaBusinessException {
 
-		String bookName = trade.getBook() != null ? trade.getBook().getName() : "";
+		String bookName = trade.getBook() != null ? trade.getBook().getName() : StringUtils.EMPTY;
 		// First, we look in the PP if the method of the measure is specified
 		// for this given book
-		String value = pp.getParams().get(bookName + "." + trade.getProductType() + "." + measure + "Method");
+		String value = pp.getParams().get(bookName + "." + trade.getProductType() + "." + measure + METHOD);
 		// Then, if it doesn't exist, we look in the PP if the method of the
 		// measure is specified for all the books
 		if (value == null) {
-			value = pp.getParams().get(trade.getProductType() + "." + measure + "Method");
+			value = pp.getParams().get(trade.getProductType() + "." + measure + METHOD);
 		}
 		if (value != null) {
 			try {
@@ -466,14 +443,14 @@ public class PricerBusinessDelegate {
 	private Method getProductMeasureMethod(Class<? extends PricerMeasure> pmClass, PricingParameter pp, Book book,
 			String measure, Product product) throws TradistaBusinessException {
 
-		String bookName = book != null ? book.getName() : "";
+		String bookName = book != null ? book.getName() : StringUtils.EMPTY;
 		// First, we look in the PP if the method of the measure is specified
 		// for this given book
-		String value = pp.getParams().get(bookName + "." + product.getProductType() + "." + measure + "Method");
+		String value = pp.getParams().get(bookName + "." + product.getProductType() + "." + measure + METHOD);
 		// Then, if it doesn't exist, we look in the PP if the method of the
 		// measure is specified for all the books
 		if (value == null) {
-			value = pp.getParams().get(product.getProductType() + "." + measure + "Method");
+			value = pp.getParams().get(product.getProductType() + "." + measure + METHOD);
 		}
 		if (value != null) {
 			try {
@@ -516,27 +493,23 @@ public class PricerBusinessDelegate {
 
 	public Set<String> getPricingParametersSetByQuoteSetId(long quoteSetId) throws TradistaBusinessException {
 		if (quoteSetId <= 0) {
-			throw new TradistaBusinessException("The Quote Set id must be positive.");
+			throw new TradistaBusinessException("The Pricing Parameters Set Quote Set id must be positive.");
 		}
 		return SecurityUtil.run(() -> pricerService.getPricingParametersSetByQuoteSetId(quoteSetId));
 	}
 
 	public List<CashFlow> generateCashFlows(long tradeId, PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
-
 		StringBuilder errMsg = new StringBuilder();
-
 		if (tradeId <= 0) {
 			errMsg.append(String.format("Trade id must be positive but it is %s.", tradeId));
 		}
 		if (pp == null) {
 			errMsg.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
 		}
-
 		if (valueDate == null) {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
-
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
@@ -545,10 +518,8 @@ public class PricerBusinessDelegate {
 
 	public List<CashFlow> generateCashFlows(Trade<?> trade, PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
-
 		StringBuilder errMsg = new StringBuilder();
 		TradeValidator validator;
-
 		if (trade == null) {
 			errMsg.append(TRADE_IS_MANDATORY);
 		} else {
@@ -559,15 +530,12 @@ public class PricerBusinessDelegate {
 				errMsg.append(tbe.getMessage());
 			}
 		}
-
 		if (pp == null) {
 			errMsg.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
 		}
-
 		if (valueDate == null) {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
-
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
@@ -576,44 +544,34 @@ public class PricerBusinessDelegate {
 
 	public List<CashFlow> generateCashFlows(PricingParameter pp, LocalDate valueDate, long positionDefinitionId)
 			throws TradistaBusinessException {
-
 		StringBuilder errMsg = new StringBuilder();
-
 		if (positionDefinitionId <= 0) {
 			errMsg.append(String.format("The Position Definition id must be positive.%n"));
 		}
-
 		if (pp == null) {
 			errMsg.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
 		}
-
 		if (valueDate == null) {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
-
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-
 		return SecurityUtil.runEx(() -> pricerService.generateCashFlows(pp, valueDate, positionDefinitionId));
 	}
 
 	public List<CashFlow> generateAllCashFlows(PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
-
 		if (pp == null) {
 			errMsg.append(String.format(PRICING_PARAMETERS_SET_IS_MANDATORY));
 		}
-
 		if (valueDate == null) {
 			errMsg.append(String.format(VALUE_DATE_IS_MANDATORY));
 		}
-
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-
 		return SecurityUtil.runEx(() -> pricerService.generateAllCashFlows(pp, valueDate));
 	}
 

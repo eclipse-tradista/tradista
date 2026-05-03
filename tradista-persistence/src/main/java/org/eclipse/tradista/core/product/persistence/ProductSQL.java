@@ -1,5 +1,8 @@
 package org.eclipse.tradista.core.product.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,6 +12,9 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
@@ -31,11 +37,18 @@ import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 
 public class ProductSQL {
 
+	private static final Field ID_FIELD = new Field(ID);
+	private static final Field CREATION_DATE_FIELD = new Field(CREATION_DATE);
+	private static final Field[] FIELDS = { ID_FIELD, CREATION_DATE_FIELD };
+	private static final Table TABLE = new Table("PRODUCT", FIELDS);
+
 	public static Product getProductById(long id) {
 		Product product = null;
 
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetProductById = con.prepareStatement("SELECT * FROM PRODUCT WHERE ID = ? ")) {
+				PreparedStatement stmtGetProductById = con.prepareStatement(sql.toString())) {
 			stmtGetProductById.setLong(1, id);
 			try (ResultSet results = stmtGetProductById.executeQuery()) {
 				while (results.next()) {
@@ -46,12 +59,11 @@ public class ProductSQL {
 							return null;
 						}
 					}
-					product.setId(results.getLong("id"));
-					product.setCreationDate(results.getDate("creation_date").toLocalDate());
+					product.setId(results.getLong(ID_FIELD.getName()));
+					product.setCreationDate(results.getDate(CREATION_DATE_FIELD.getName()).toLocalDate());
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return product;
@@ -70,13 +82,11 @@ public class ProductSQL {
 					if (product != null) {
 						return product;
 					}
-				} catch (TradistaTechnicalException tte) {
+				} catch (TradistaTechnicalException _) {
 					// There is no product for this product type (ex: FX)
-					continue;
 				}
 			}
 		} catch (TradistaBusinessException tbe) {
-			tbe.printStackTrace();
 			throw new TradistaTechnicalException(tbe);
 		}
 
@@ -98,7 +108,7 @@ public class ProductSQL {
 						"org.eclipse.tradista." + new ProductBusinessDelegate().getProductFamily(productType) + "."
 								+ productType.toLowerCase() + ".persistence." + productType + "SQL",
 						Set.class, "getAll" + productNameInMethod);
-			} catch (TradistaTechnicalException tte) {
+			} catch (TradistaTechnicalException _) {
 				// There is no product for this product type (ex: FX)
 				return null;
 			}
@@ -106,7 +116,6 @@ public class ProductSQL {
 			return products;
 
 		} catch (TradistaBusinessException tbe) {
-			tbe.printStackTrace();
 			throw new TradistaTechnicalException(tbe);
 		}
 	}

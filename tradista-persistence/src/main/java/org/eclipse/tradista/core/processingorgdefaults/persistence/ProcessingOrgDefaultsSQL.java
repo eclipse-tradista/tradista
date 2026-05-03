@@ -1,19 +1,20 @@
 package org.eclipse.tradista.core.processingorgdefaults.persistence;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaultsModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -33,6 +34,8 @@ import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaul
 
 public class ProcessingOrgDefaultsSQL {
 
+	private static final Logger logger = LoggerFactory.getLogger(ProcessingOrgDefaultsSQL.class);
+
 	private static Map<String, Class<?>> daoClasses = new HashMap<>();
 
 	static {
@@ -42,8 +45,8 @@ public class ProcessingOrgDefaultsSQL {
 					"org.eclipse.tradista.security.repo.persistence.ProcessingOrgDefaultsCollateralManagementSQL");
 			daoClasses.put("org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule",
 					daoClass);
-		} catch (TradistaTechnicalException tte) {
-			// TODO Add log info
+		} catch (TradistaTechnicalException _) {
+			logger.info("ProcessingOrgDefaultsCollateralManagementSQL module not found, skipping.");
 		}
 	}
 
@@ -52,20 +55,26 @@ public class ProcessingOrgDefaultsSQL {
 		ProcessingOrgDefaults poDefaults = new ProcessingOrgDefaults(LegalEntitySQL.getLegalEntityById(poId));
 		try (Connection con = TradistaDB.getConnection();) {
 			for (Class<?> daoClass : daoClasses.values()) {
+				ProcessingOrgDefaultsModule module;
 				try {
-					Method method = daoClass.getMethod("getProcessingOrgDefaultsModuleByPoId", Connection.class,
-							long.class);
-					ProcessingOrgDefaultsModule module = (ProcessingOrgDefaultsModule) method.invoke(daoClass, con,
-							poId);
+					module = TradistaUtil.callMethod(daoClass.getName(), ProcessingOrgDefaultsModule.class,
+							"getProcessingOrgDefaultsModuleByPoId", con, poId);
 					poDefaults.addModule(module);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-						| NoSuchMethodException | SecurityException e) {
-					e.printStackTrace();
-					throw new TradistaTechnicalException(e);
+				} catch (TradistaBusinessException tbe) {
+					throw new TradistaTechnicalException(tbe);
 				}
+//				try {
+//					Method method = daoClass.getMethod("getProcessingOrgDefaultsModuleByPoId", Connection.class,
+//							long.class);
+//					ProcessingOrgDefaultsModule module = (ProcessingOrgDefaultsModule) method.invoke(daoClass, con,
+//							poId);
+//					poDefaults.addModule(module);
+//				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+//						| NoSuchMethodException | SecurityException e) {
+//					throw new TradistaTechnicalException(e);
+//				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return poDefaults;
@@ -83,7 +92,6 @@ public class ProcessingOrgDefaultsSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return pricingParamId;
@@ -93,13 +101,13 @@ public class ProcessingOrgDefaultsSQL {
 		// Get the right DAO
 		Class<?> daoClass = daoClasses.get(module.getClass().getName());
 		try {
-			Method method = daoClass.getMethod("saveProcessingOrgDefaultsModule", Connection.class, module.getClass(),
-					long.class);
-			method.invoke(daoClass, con, module, poId);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-				| SecurityException e) {
-			e.printStackTrace();
-			throw new TradistaTechnicalException(e);
+			TradistaUtil.callMethod(daoClass.getName(), Void.class, "saveProcessingOrgDefaultsModule", con, module,
+					poId);
+//			Method method = daoClass.getMethod("saveProcessingOrgDefaultsModule", Connection.class, module.getClass(),
+//					long.class);
+//			method.invoke(daoClass, con, module, poId);
+		} catch (TradistaBusinessException tbe) {
+			throw new TradistaTechnicalException(tbe);
 		}
 	}
 
