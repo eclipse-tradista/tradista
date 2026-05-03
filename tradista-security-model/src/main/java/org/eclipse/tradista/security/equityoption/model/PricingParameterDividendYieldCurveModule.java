@@ -32,7 +32,7 @@ public class PricingParameterDividendYieldCurveModule extends PricingParameterMo
 
 	public PricingParameterDividendYieldCurveModule() {
 		super();
-		dividendYieldCurves = new HashMap<Equity, InterestRateCurve>();
+		dividendYieldCurves = new HashMap<>();
 	}
 
 	@Override
@@ -52,6 +52,14 @@ public class PricingParameterDividendYieldCurveModule extends PricingParameterMo
 
 	public void setDividendYieldCurves(Map<Equity, InterestRateCurve> dividendYieldCurves) {
 		this.dividendYieldCurves = dividendYieldCurves;
+	}
+
+	public void addDividendYieldCurve(Equity equity, InterestRateCurve curve) {
+		this.dividendYieldCurves.put(equity, curve);
+	}
+
+	public void removeDividendYieldCurve(Equity equity) {
+		this.dividendYieldCurves.remove(equity);
 	}
 
 	@SuppressWarnings("unchecked")

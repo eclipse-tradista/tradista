@@ -18,8 +18,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.error.model.Error;
+import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.validator.TradeValidator;
 import org.eclipse.tradista.core.transfer.model.TransferManager;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -46,6 +48,8 @@ import org.springframework.util.ClassUtils;
  ********************************************************************************/
 
 public final class TradistaUtil {
+
+	private static final String RETURN_TYPE_CANNOT_BE_NULL = "The return type cannot be null.%n";
 
 	private TradistaUtil() {
 	}
@@ -204,24 +208,182 @@ public final class TradistaUtil {
 		}
 	}
 
+	/**
+	 * Returns a type token for Trades
+	 * 
+	 * @return a type token for Trades
+	 */
 	@SuppressWarnings("unchecked")
+	public static Class<Trade<? extends Product>> getTradeToken() {
+		return (Class<Trade<? extends Product>>) (Class<?>) Trade.class;
+	}
+
+	/**
+	 * Calls a method using introspection.
+	 * 
+	 * @param fullClassName the full class name of the method
+	 * @param returnType    return type set as type token so the type is not erased
+	 * @param methodName    the method name
+	 * @param params        the method parameters (optional)
+	 * @return the result of the method invocation
+	 */
 	public static <T> T callMethod(String fullClassName, Class<T> returnType, String methodName, Object... params)
 			throws TradistaBusinessException {
 		T toBeReturned = null;
 		Class<?>[] klasses = new Class<?>[params.length];
+		StringBuilder errMsg = new StringBuilder();
+		if (StringUtils.isBlank(fullClassName)) {
+			errMsg.append(String.format("The full class name is mandatory.%n"));
+		}
+		if (returnType == null) {
+			errMsg.append(String.format(RETURN_TYPE_CANNOT_BE_NULL));
+		}
+		if (StringUtils.isBlank(methodName)) {
+			errMsg.append("The method name is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		try {
+			Class<?> klass = Class.forName(fullClassName);
+			Method method = TradistaUtil.getMethod(klass, methodName, params);
+			if (method == null) {
+				if (params.length > 0) {
+					for (int i = 0; i < params.length; i++) {
+						klasses[i] = params[i].getClass();
+					}
+				}
+				throw new TradistaTechnicalException(
+						String.format("%s method with %s parameters has not been found in %s class.", methodName,
+								klasses, fullClassName));
+			} else {
+				// TradistaUtil.getInstance(klass) is used so the method invocation always work,
+				// whether the method is static or not
+				toBeReturned = (T) callMethod(returnType, method, TradistaUtil.getInstance(klass), params);
+			}
+		} catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+			throw new TradistaTechnicalException(e);
+		}
+		return toBeReturned;
+	}
+
+	/**
+	 * Calls a method using introspection.
+	 * 
+	 * @param returnType return type set as type token so the type is not erased
+	 * @param method     the method to invoke
+	 * @param obj        (optional) the instance on which the method should be
+	 *                   invoked. It can be null if the method is static.
+	 * @param params     the method parameters (optional)
+	 * @return the result of the method invocation
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T callMethod(Class<T> returnType, Method method, Object obj, Object... params)
+			throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (returnType == null) {
+			errMsg.append(String.format(RETURN_TYPE_CANNOT_BE_NULL));
+		}
+		if (method == null) {
+			errMsg.append(String.format("The method cannot be null.%n"));
+		}
+		if (returnType != null && method != null) {
+			if (!ClassUtils.isAssignable(returnType, method.getReturnType())) {
+				errMsg.append(
+						String.format("The method return type is %s and not %s.", method.getReturnType(), returnType));
+			}
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		T toBeReturned;
+		try {
+			toBeReturned = (T) method.invoke(obj, params);
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
+			throw new TradistaTechnicalException(e);
+		} catch (InvocationTargetException ite) {
+			if (ite.getCause() instanceof TradistaBusinessException tbe) {
+				throw tbe;
+			} else {
+				throw new TradistaTechnicalException(ite.getCause().getMessage());
+			}
+		}
+		return toBeReturned;
+	}
+
+	/**
+	 * Calls a method using introspection.
+	 * 
+	 * @param returnType return type set as type token so the type is not erased
+	 * @param methodName the method to invoke
+	 * @param obj        the instance on which the method should be invoked.
+	 * @param params     the method parameters (optional)
+	 * @return the result of the method invocation
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T callMethod(Class<T> returnType, String methodName, Object obj, Object... params)
+			throws TradistaBusinessException {
+		Method method = null;
+		StringBuilder errMsg = new StringBuilder();
+		if (returnType == null) {
+			errMsg.append(String.format(RETURN_TYPE_CANNOT_BE_NULL));
+		}
+		if (StringUtils.isBlank(methodName)) {
+			errMsg.append(String.format("The method name is mandatory.%n"));
+		}
+		if (obj == null) {
+			errMsg.append(String.format("The object cannot be null.%n"));
+		}
+		if (!StringUtils.isBlank(methodName) && obj != null) {
+			method = TradistaUtil.getMethod(obj.getClass(), methodName, params);
+		}
+		if (returnType != null && method != null) {
+			if (!ClassUtils.isAssignable(returnType, method.getReturnType())) {
+				errMsg.append(
+						String.format("The method return type is %s and not %s.", method.getReturnType(), returnType));
+			}
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		T toBeReturned;
+		try {
+			toBeReturned = (T) method.invoke(obj, params);
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
+			throw new TradistaTechnicalException(e);
+		} catch (InvocationTargetException ite) {
+			if (ite.getCause() instanceof TradistaBusinessException tbe) {
+				throw tbe;
+			} else {
+				throw new TradistaTechnicalException(ite.getCause().getMessage());
+			}
+		}
+		return toBeReturned;
+	}
+
+	public static Method getMethod(Class<?> klass, String methodName, Object[] params) {
+		Class<?>[] klasses = new Class<?>[params.length];
+		StringBuilder errMsg = new StringBuilder();
+		if (klass == null) {
+			errMsg.append(String.format("The class cannot be null.%n"));
+		}
+		if (StringUtils.isBlank(methodName)) {
+			errMsg.append("The method name is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaTechnicalException(errMsg.toString());
+		}
 		try {
 			if (params != null && params.length > 0) {
 				for (int i = 0; i < params.length; i++) {
 					klasses[i] = params[i].getClass();
 				}
 			}
-			Class<?> klass = Class.forName(fullClassName);
-			boolean found = false;
-			for (Method method : klass.getMethods()) {
-				if (!method.getName().equals(methodName)) {
+			for (Method m : klass.getMethods()) {
+				if (!m.getName().equals(methodName)) {
 					continue;
 				}
-				Class<?>[] parameterTypes = method.getParameterTypes();
+				Class<?>[] parameterTypes = m.getParameterTypes();
 				boolean matches = true;
 				if (parameterTypes.length != params.length) {
 					continue;
@@ -235,25 +397,13 @@ public final class TradistaUtil {
 					}
 				}
 				if (matches) {
-					toBeReturned = (T) method.invoke(TradistaUtil.getInstance(klass), params);
-					found = true;
+					return m;
 				}
 			}
-			if (!found) {
-				throw new TradistaTechnicalException(
-						String.format("%s method with %s parameters has not been found in %s class.", methodName,
-								klasses, fullClassName));
-			}
-		} catch (ClassNotFoundException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			throw new TradistaTechnicalException(e);
-		} catch (InvocationTargetException ite) {
-			if (ite.getCause() instanceof TradistaBusinessException tbe) {
-				throw tbe;
-			} else {
-				throw new TradistaTechnicalException(ite.getCause().getMessage());
-			}
 		}
-		return toBeReturned;
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

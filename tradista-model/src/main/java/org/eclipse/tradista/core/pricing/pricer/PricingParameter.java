@@ -138,6 +138,7 @@ public class PricingParameter extends TradistaObject {
 		this.customPricers = customPricers;
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}
@@ -149,6 +150,13 @@ public class PricingParameter extends TradistaObject {
 
 	public void setModules(List<PricingParameterModule> modules) {
 		this.modules = modules;
+	}
+
+	public void addModule(PricingParameterModule module) {
+		if (this.modules == null) {
+			this.modules = new ArrayList<>();
+		}
+		this.modules.add(module);
 	}
 
 	public InterestRateCurve getDiscountCurve(Currency currency) {

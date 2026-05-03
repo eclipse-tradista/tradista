@@ -437,7 +437,7 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 	public PricingParameterModule buildModule() {
 		PricingParameterUnrealizedPnlCalculationModule param = new PricingParameterUnrealizedPnlCalculationModule();
 		for (UnrealizedPnlCalculationProperty prop : unrealizedPnlCalculationTable.getItems()) {
-			param.getUnrealizedPnlCalculations().put(
+			param.addUnrealizedPnlCalculation(
 					new BookProductTypePair((Book) prop.getBook(), prop.getProductType()),
 					(UnrealizedPnlCalculation) prop.getUnrealizedPnlCalculation());
 		}

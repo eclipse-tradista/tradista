@@ -29,9 +29,10 @@ public class PricingParameterUnrealizedPnlCalculationModule extends PricingParam
 
 	private static final long serialVersionUID = -1081293712767780488L;
 
-	public static enum UnrealizedPnlCalculation {
+	public enum UnrealizedPnlCalculation {
 		MARK_TO_MARKET, MARK_TO_MODEL;
 
+		@Override
 		public String toString() {
 			switch (this) {
 			case MARK_TO_MARKET:
@@ -46,7 +47,7 @@ public class PricingParameterUnrealizedPnlCalculationModule extends PricingParam
 	private Map<BookProductTypePair, UnrealizedPnlCalculation> unrealizedPnlCalculations;
 
 	public PricingParameterUnrealizedPnlCalculationModule() {
-		unrealizedPnlCalculations = new HashMap<BookProductTypePair, UnrealizedPnlCalculation>();
+		unrealizedPnlCalculations = new HashMap<>();
 	}
 
 	public static class BookProductTypePair extends TradistaObject {
@@ -57,12 +58,12 @@ public class PricingParameterUnrealizedPnlCalculationModule extends PricingParam
 		private Book book;
 
 		@Id
-		private String ProductType;
+		private String productType;
 
 		public BookProductTypePair(Book book, String productType) {
 			super();
 			this.book = book;
-			this.ProductType = productType;
+			this.productType = productType;
 		}
 
 		public Book getBook() {
@@ -70,7 +71,7 @@ public class PricingParameterUnrealizedPnlCalculationModule extends PricingParam
 		}
 
 		public String getProductType() {
-			return ProductType;
+			return productType;
 		}
 
 		@Override
@@ -79,7 +80,6 @@ public class PricingParameterUnrealizedPnlCalculationModule extends PricingParam
 			bookProductTypePair.book = TradistaModelUtil.clone(book);
 			return bookProductTypePair;
 		}
-
 	}
 
 	@Override
@@ -102,6 +102,14 @@ public class PricingParameterUnrealizedPnlCalculationModule extends PricingParam
 	public void setUnrealizedPnlCalculations(
 			Map<BookProductTypePair, UnrealizedPnlCalculation> unrealizedPnlCalculations) {
 		this.unrealizedPnlCalculations = unrealizedPnlCalculations;
+	}
+
+	public void addUnrealizedPnlCalculation(BookProductTypePair pair, UnrealizedPnlCalculation pnlCalc) {
+		this.unrealizedPnlCalculations.put(pair, pnlCalc);
+	}
+
+	public void removeUnrealizedPnlCalculation(BookProductTypePair pair) {
+		this.unrealizedPnlCalculations.remove(pair);
 	}
 
 	@Override

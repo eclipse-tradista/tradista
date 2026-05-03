@@ -15,8 +15,6 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUOTE_SET_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,12 +25,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -49,6 +46,8 @@ import org.eclipse.tradista.core.marketdata.persistence.InterestRateCurveSQL;
 import org.eclipse.tradista.core.marketdata.persistence.QuoteSetSQL;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -214,11 +213,9 @@ public class PricingParameterSQL {
 			// Module deletion
 			for (Class<?> daoClass : daoClasses.values()) {
 				try {
-					Method method = daoClass.getMethod("deletePricingParameterModule", Connection.class, long.class);
-					method.invoke(daoClass, con, id);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-						| NoSuchMethodException | SecurityException e) {
-					throw new TradistaTechnicalException(e);
+					TradistaUtil.callMethod(daoClass.getName(), Boolean.class, "deletePricingParameterModule", con, id);
+				} catch (TradistaBusinessException tbe) {
+					throw new TradistaTechnicalException(tbe.getMessage());
 				}
 			}
 
@@ -313,7 +310,6 @@ public class PricingParameterSQL {
 	}
 
 	public static long savePricingParameter(PricingParameter pricingParam) {
-		long pricingParamId = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSavePricingParameterValues = TradistaDBUtil.buildInsertPreparedStatement(con,
 						PPV_TABLE, PPV_FIELDS);
@@ -344,47 +340,43 @@ public class PricingParameterSQL {
 			if (pricingParam.getId() == 0) {
 				try (ResultSet generatedKeys = stmtSavePricingParameter.getGeneratedKeys()) {
 					if (generatedKeys.next()) {
-						pricingParamId = generatedKeys.getLong(1);
+						pricingParam.setId(generatedKeys.getLong(1));
 					} else {
 						throw new SQLException("Creating pricing parameter failed, no generated key obtained.");
 					}
 				}
 			} else {
-				pricingParamId = pricingParam.getId();
-			}
-
-			if (pricingParam.getId() != 0) {
 				// Then, we delete the data for this pricingParam
 				try (PreparedStatement stmtDeletePricingParameterValues = TradistaDBUtil
 						.buildDeletePreparedStatement(con, PPV_TABLE, PPV_PRICING_PARAMETER_ID_FIELD)) {
-					stmtDeletePricingParameterValues.setLong(1, pricingParamId);
+					stmtDeletePricingParameterValues.setLong(1, pricingParam.getId());
 					stmtDeletePricingParameterValues.executeUpdate();
 				}
 				try (PreparedStatement stmtDeletePricingParameterIndexCurves = TradistaDBUtil
 						.buildDeletePreparedStatement(con, PPIC_TABLE, PPIC_PRICING_PARAMETER_ID_FIELD)) {
-					stmtDeletePricingParameterIndexCurves.setLong(1, pricingParamId);
+					stmtDeletePricingParameterIndexCurves.setLong(1, pricingParam.getId());
 					stmtDeletePricingParameterIndexCurves.executeUpdate();
 				}
 				try (PreparedStatement stmtDeletePricingParameterDiscountCurves = TradistaDBUtil
 						.buildDeletePreparedStatement(con, PPDC_TABLE, PPDC_PRICING_PARAMETER_ID_FIELD)) {
-					stmtDeletePricingParameterDiscountCurves.setLong(1, pricingParamId);
+					stmtDeletePricingParameterDiscountCurves.setLong(1, pricingParam.getId());
 					stmtDeletePricingParameterDiscountCurves.executeUpdate();
 				}
 				try (PreparedStatement stmtDeletePricingParameterFXCurves = TradistaDBUtil
 						.buildDeletePreparedStatement(con, PPFXC_TABLE, PPFXC_PRICING_PARAMETER_ID_FIELD)) {
-					stmtDeletePricingParameterFXCurves.setLong(1, pricingParamId);
+					stmtDeletePricingParameterFXCurves.setLong(1, pricingParam.getId());
 					stmtDeletePricingParameterFXCurves.executeUpdate();
 				}
 				try (PreparedStatement stmtDeletePricingParameterCustomPricers = TradistaDBUtil
 						.buildDeletePreparedStatement(con, PPCP_TABLE, PPCP_PRICING_PARAMETER_ID_FIELD)) {
-					stmtDeletePricingParameterCustomPricers.setLong(1, pricingParamId);
+					stmtDeletePricingParameterCustomPricers.setLong(1, pricingParam.getId());
 					stmtDeletePricingParameterCustomPricers.executeUpdate();
 				}
 			}
 
 			for (Map.Entry<String, String> entry : pricingParam.getParams().entrySet()) {
 				stmtSavePricingParameterValues.clearParameters();
-				stmtSavePricingParameterValues.setLong(1, pricingParamId);
+				stmtSavePricingParameterValues.setLong(1, pricingParam.getId());
 				stmtSavePricingParameterValues.setString(2, entry.getKey());
 				stmtSavePricingParameterValues.setString(3, entry.getValue());
 				stmtSavePricingParameterValues.addBatch();
@@ -393,7 +385,7 @@ public class PricingParameterSQL {
 
 			for (Map.Entry<Index, InterestRateCurve> entry : pricingParam.getIndexCurves().entrySet()) {
 				stmtSavePricingParameterIndexCurves.clearParameters();
-				stmtSavePricingParameterIndexCurves.setLong(1, pricingParamId);
+				stmtSavePricingParameterIndexCurves.setLong(1, pricingParam.getId());
 				stmtSavePricingParameterIndexCurves.setLong(2, entry.getKey().getId());
 				stmtSavePricingParameterIndexCurves.setLong(3, entry.getValue().getId());
 				stmtSavePricingParameterIndexCurves.addBatch();
@@ -402,7 +394,7 @@ public class PricingParameterSQL {
 
 			for (Map.Entry<Currency, InterestRateCurve> entry : pricingParam.getDiscountCurves().entrySet()) {
 				stmtSavePricingParameterDiscountCurves.clearParameters();
-				stmtSavePricingParameterDiscountCurves.setLong(1, pricingParamId);
+				stmtSavePricingParameterDiscountCurves.setLong(1, pricingParam.getId());
 				stmtSavePricingParameterDiscountCurves.setLong(2, entry.getKey().getId());
 				stmtSavePricingParameterDiscountCurves.setLong(3, entry.getValue().getId());
 				stmtSavePricingParameterDiscountCurves.addBatch();
@@ -411,7 +403,7 @@ public class PricingParameterSQL {
 
 			for (Map.Entry<CurrencyPair, FXCurve> entry : pricingParam.getFxCurves().entrySet()) {
 				stmtSavePricingParameterFXCurves.clearParameters();
-				stmtSavePricingParameterFXCurves.setLong(1, pricingParamId);
+				stmtSavePricingParameterFXCurves.setLong(1, pricingParam.getId());
 				stmtSavePricingParameterFXCurves.setLong(2, entry.getKey().getPrimaryCurrency().getId());
 				stmtSavePricingParameterFXCurves.setLong(3, entry.getKey().getQuoteCurrency().getId());
 				stmtSavePricingParameterFXCurves.setLong(4, entry.getValue().getId());
@@ -421,7 +413,7 @@ public class PricingParameterSQL {
 
 			for (Map.Entry<String, String> entry : pricingParam.getCustomPricers().entrySet()) {
 				stmtSavePricingParameterCustomPricers.clearParameters();
-				stmtSavePricingParameterCustomPricers.setLong(1, pricingParamId);
+				stmtSavePricingParameterCustomPricers.setLong(1, pricingParam.getId());
 				stmtSavePricingParameterCustomPricers.setString(2, entry.getKey());
 				stmtSavePricingParameterCustomPricers.setString(3, entry.getValue());
 				stmtSavePricingParameterCustomPricers.addBatch();
@@ -438,19 +430,17 @@ public class PricingParameterSQL {
 		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
-		return pricingParamId;
+		return pricingParam.getId();
 	}
 
 	private static void savePricingParameterModule(PricingParameterModule module, Connection con, long pricingParamId) {
 		// Get the right DAO
 		Class<?> daoClass = daoClasses.get(module.getClass().getName());
 		try {
-			Method method = daoClass.getMethod("savePricingParameterModule", Connection.class, module.getClass(),
-					long.class);
-			method.invoke(daoClass, con, module, pricingParamId);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-				| SecurityException e) {
-			throw new TradistaTechnicalException(e);
+			TradistaUtil.callMethod(daoClass.getName(), Void.class, "savePricingParameterModule", con, module,
+					pricingParamId);
+		} catch (TradistaBusinessException tbe) {
+			throw new TradistaTechnicalException(tbe.getMessage());
 		}
 	}
 
@@ -577,14 +567,14 @@ public class PricingParameterSQL {
 		// Load modules
 		for (Class<?> daoClass : daoClasses.values()) {
 			try {
-				Method method = daoClass.getMethod("getPricingParameterModuleByPricingParameterId", Connection.class,
-						long.class);
-				PricingParameterModule module = (PricingParameterModule) method.invoke(daoClass, con,
+				PricingParameterModule module = TradistaUtil.callMethod(daoClass.getName(),
+						PricingParameterModule.class, "getPricingParameterModuleByPricingParameterId", con,
 						pricingParameter.getId());
-				pricingParameter.getModules().add(module);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| NoSuchMethodException | SecurityException e) {
-				throw new TradistaTechnicalException(e);
+				if (module != null) {
+					pricingParameter.addModule(module);
+				}
+			} catch (TradistaBusinessException tbe) {
+				throw new TradistaTechnicalException(tbe.getMessage());
 			}
 		}
 

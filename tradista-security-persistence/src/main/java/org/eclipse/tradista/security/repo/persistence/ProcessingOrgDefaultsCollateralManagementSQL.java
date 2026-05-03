@@ -1,5 +1,8 @@
 package org.eclipse.tradista.security.repo.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PROCESSING_ORG_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUOTE_SET_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,6 +10,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.persistence.QuoteSetSQL;
 import org.eclipse.tradista.security.gcrepo.persistence.AllocationConfigurationSQL;
@@ -31,12 +37,20 @@ import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralM
 
 public class ProcessingOrgDefaultsCollateralManagementSQL {
 
+	private static final Field PROCESSING_ORG_ID_FIELD = new Field(PROCESSING_ORG_ID);
+	private static final Field QUOTE_SET_ID_FIELD = new Field(QUOTE_SET_ID);
+	private static final Field ALLOCATION_CONFIGURATION_ID_FIELD = new Field("ALLOCATION_CONFIGURATION_ID");
+
+	private static final Field[] FIELDS = { PROCESSING_ORG_ID_FIELD, QUOTE_SET_ID_FIELD,
+			ALLOCATION_CONFIGURATION_ID_FIELD };
+	private static final Table TABLE = new Table("PROCESSING_ORG_DEFAULTS_COLLATERAL_MANAGEMENT", FIELDS);
+
 	public static void saveProcessingOrgDefaultsModule(Connection con,
 			ProcessingOrgDefaultsCollateralManagementModule module, long poId) {
-		try (PreparedStatement stmtSaveProcessingOrgDefaultsCollateralManagement = con.prepareStatement(
-				"INSERT INTO PROCESSING_ORG_DEFAULTS_COLLATERAL_MANAGEMENT(PROCESSING_ORG_ID, QUOTE_SET_ID, ALLOCATION_CONFIGURATION_ID) VALUES(?, ?, ?)");
-				PreparedStatement stmtDeleteProcessingOrgDefaultsCollateralManagement = con.prepareStatement(
-						"DELETE FROM PROCESSING_ORG_DEFAULTS_COLLATERAL_MANAGEMENT WHERE PROCESSING_ORG_ID = ?")) {
+		try (PreparedStatement stmtSaveProcessingOrgDefaultsCollateralManagement = TradistaDBUtil
+				.buildInsertPreparedStatement(con, TABLE, FIELDS);
+				PreparedStatement stmtDeleteProcessingOrgDefaultsCollateralManagement = TradistaDBUtil
+						.buildDeletePreparedStatement(con, TABLE, PROCESSING_ORG_ID_FIELD)) {
 			QuoteSet qs = module.getQuoteSet();
 			AllocationConfiguration allocConfig = module.getAllocationConfiguration();
 			stmtDeleteProcessingOrgDefaultsCollateralManagement.setLong(1, poId);
@@ -54,7 +68,6 @@ public class ProcessingOrgDefaultsCollateralManagementSQL {
 			}
 			stmtSaveProcessingOrgDefaultsCollateralManagement.executeUpdate();
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -65,22 +78,23 @@ public class ProcessingOrgDefaultsCollateralManagementSQL {
 		// ProcessingOrgDefaults modules are always returned, even if not persisted yet.
 		ProcessingOrgDefaultsCollateralManagementModule module = new ProcessingOrgDefaultsCollateralManagementModule();
 
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PROCESSING_ORG_ID_FIELD);
+
 		try (PreparedStatement stmtGetProcessingOrgDefaultsCollateralManagementByProcessingOrgDefaultsId = con
-				.prepareStatement(
-						"SELECT * FROM PROCESSING_ORG_DEFAULTS_COLLATERAL_MANAGEMENT WHERE PROCESSING_ORG_ID = ?")) {
+				.prepareStatement(sql.toString())) {
 			stmtGetProcessingOrgDefaultsCollateralManagementByProcessingOrgDefaultsId.setLong(1, poId);
 			try (ResultSet results = stmtGetProcessingOrgDefaultsCollateralManagementByProcessingOrgDefaultsId
 					.executeQuery()) {
 				while (results.next()) {
-					QuoteSet qs = QuoteSetSQL.getQuoteSetById(results.getLong("quote_set_id"));
+					QuoteSet qs = QuoteSetSQL.getQuoteSetById(results.getLong(QUOTE_SET_ID_FIELD.getName()));
 					module.setQuoteSet(qs);
 					AllocationConfiguration allocConfig = AllocationConfigurationSQL
-							.getAllocationConfigurationById(results.getLong("allocation_configuration_id"));
+							.getAllocationConfigurationById(results.getLong(ALLOCATION_CONFIGURATION_ID_FIELD.getName()));
 					module.setAllocationConfiguration(allocConfig);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 

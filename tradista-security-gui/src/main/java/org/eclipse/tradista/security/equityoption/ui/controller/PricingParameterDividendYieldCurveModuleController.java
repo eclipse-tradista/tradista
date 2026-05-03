@@ -333,7 +333,7 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	public PricingParameterModule buildModule() {
 		PricingParameterDividendYieldCurveModule param = new PricingParameterDividendYieldCurveModule();
 		for (DividendYieldCurveProperty prop : dividendYieldCurveTable.getItems()) {
-			param.getDividendYieldCurves().put((Equity) prop.getEquity(), (InterestRateCurve) prop.getCurve());
+			param.addDividendYieldCurve((Equity) prop.getEquity(), (InterestRateCurve) prop.getCurve());
 		}
 		return param;
 	}

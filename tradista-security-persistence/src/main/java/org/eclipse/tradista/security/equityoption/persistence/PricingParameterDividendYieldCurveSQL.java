@@ -1,5 +1,8 @@
 package org.eclipse.tradista.security.equityoption.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_RATE_CURVE_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRICING_PARAMETER_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.persistence.InterestRateCurveSQL;
 import org.eclipse.tradista.security.equity.model.Equity;
@@ -32,15 +38,22 @@ import org.eclipse.tradista.security.equityoption.model.PricingParameterDividend
 
 public class PricingParameterDividendYieldCurveSQL {
 
+	private static final Field PRICING_PARAMETER_ID_FIELD = new Field(PRICING_PARAMETER_ID);
+	private static final Field EQUITY_ID_FIELD = new Field("EQUITY_ID");
+	private static final Field INTEREST_RATE_CURVE_ID_FIELD = new Field(INTEREST_RATE_CURVE_ID);
+
+	private static final Field[] FIELDS = { PRICING_PARAMETER_ID_FIELD, EQUITY_ID_FIELD, INTEREST_RATE_CURVE_ID_FIELD };
+	private static final Table TABLE = new Table("PRICING_PARAMETER_DIVIDEND_YIELD_CURVE", FIELDS);
+
 	public static void savePricingParameterModule(Connection con, PricingParameterDividendYieldCurveModule module,
 			long pricingParamId) {
-		try (PreparedStatement stmtSavePricingParameterDividendYieldCurves = con.prepareStatement(
-				"INSERT INTO PRICING_PARAMETER_DIVIDEND_YIELD_CURVE(PRICING_PARAMETER_ID, EQUITY_ID, INTEREST_RATE_CURVE_ID) VALUES(?, ?, ?)")) {
+		try (PreparedStatement stmtSavePricingParameterDividendYieldCurves = TradistaDBUtil
+				.buildInsertPreparedStatement(con, TABLE, FIELDS)) {
 
 			if (pricingParamId != 0) {
 				// Then, we delete the data for this pricingParam
-				try (PreparedStatement stmtDeletePricingParameterDividendYieldCurves = con.prepareStatement(
-						"DELETE FROM PRICING_PARAMETER_DIVIDEND_YIELD_CURVE WHERE PRICING_PARAMETER_ID = ?")) {
+				try (PreparedStatement stmtDeletePricingParameterDividendYieldCurves = TradistaDBUtil
+						.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 					stmtDeletePricingParameterDividendYieldCurves.setLong(1, pricingParamId);
 					stmtDeletePricingParameterDividendYieldCurves.executeUpdate();
 				}
@@ -55,7 +68,6 @@ public class PricingParameterDividendYieldCurveSQL {
 			stmtSavePricingParameterDividendYieldCurves.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -63,23 +75,25 @@ public class PricingParameterDividendYieldCurveSQL {
 	public static PricingParameterDividendYieldCurveModule getPricingParameterModuleByPricingParameterId(Connection con,
 			long id) {
 		PricingParameterDividendYieldCurveModule module = null;
-		Map<Equity, InterestRateCurve> curves = new HashMap<Equity, InterestRateCurve>();
+		Map<Equity, InterestRateCurve> curves = new HashMap<>();
 
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
 		try (PreparedStatement stmtGetPricingParameterDividendYieldCurvesByPricingParameterId = con.prepareStatement(
-				"SELECT * FROM PRICING_PARAMETER_DIVIDEND_YIELD_CURVE WHERE PRICING_PARAMETER_ID = ?")) {
+				sql.toString())) {
 			stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.executeQuery()) {
 				while (results.next()) {
 					if (module == null) {
 						module = new PricingParameterDividendYieldCurveModule();
 					}
-					curves.put(EquitySQL.getEquityById(results.getLong("equity_id")),
-							InterestRateCurveSQL.getInterestRateCurveById(results.getLong("interest_rate_curve_id")));
+					curves.put(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())),
+							InterestRateCurveSQL
+									.getInterestRateCurveById(results.getLong(INTEREST_RATE_CURVE_ID_FIELD.getName())));
 					module.setDividendYieldCurves(curves);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return module;
@@ -88,13 +102,12 @@ public class PricingParameterDividendYieldCurveSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = con.prepareStatement(
-				"DELETE FROM PRICING_PARAMETER_DIVIDEND_YIELD_CURVE WHERE PRICING_PARAMETER_ID = ?")) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
+				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bSaved;
