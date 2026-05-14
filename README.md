@@ -4,7 +4,7 @@
 **The modular, enterprise-grade Open Source platform for Cross-Asset Trading and Risk Management, powered by Jakarta EE.**
 
 ![License](https://img.shields.io/badge/License-Apache_2.0-33ff99.svg?link=https://www.apache.org/licenses/LICENSE-2.0)&emsp;
-![Version](https://img.shields.io/badge/Version%20-%203.1.0%20-%2033ff99?color=33ff99)&emsp;
+![Version](https://img.shields.io/badge/Version%20-%203.2.0--SNAPSHOT%20-%2033ff99?color=33ff99)&emsp;
 
 <br>
 
