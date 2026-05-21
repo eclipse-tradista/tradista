@@ -127,19 +127,47 @@ Ensures that exceptions are properly logged and transformed into meaningful busi
 
 ## 5. Configuration
 
-Interceptors are typically registered in the `ejb-jar.xml` file of the corresponding EJB module to ensure they are applied consistently.
+Interceptors are registered in the `ejb-jar.xml` file of the corresponding EJB module to ensure they are applied consistently.
 
-**Example `ejb-jar.xml` entry:**
+**Example `ejb-jar.xml` configuration:**
 
 ```xml
-<assembly-descriptor>
-    <interceptor-binding>
-        <ejb-name>*</ejb-name>
-        <interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
-        <interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>
-        <interceptor-class>org.eclipse.tradista.core.trade.service.TradistaProductScopeHandlerInterceptor</interceptor-class>
-    </interceptor-binding>
-</assembly-descriptor>
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/ejb-jar_4_0.xsd"
+	version="4.0">
+	
+	<module-name>core-ejb</module-name>
+	<display-name>core-ejb</display-name>
+	
+	<interceptors>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>
+		</interceptor>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor>
+		<interceptor>
+			<interceptor-class>org.eclipse.tradista.core.trade.service.TradistaProductScopeHandlerInterceptor</interceptor-class>
+		</interceptor>
+	</interceptors>
+	
+	<assembly-descriptor>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+		<interceptor-binding>
+			<ejb-name>*</ejb-name>
+			<interceptor-class>org.eclipse.tradista.core.trade.service.TradistaProductScopeHandlerInterceptor</interceptor-class>
+		</interceptor-binding>
+	</assembly-descriptor>
+</ejb-jar>
 ```
 
 ---
