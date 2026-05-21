@@ -35,16 +35,17 @@ import org.eclipse.tradista.core.trade.model.Trade;
  */
 public abstract class LoanDepositTrade extends Trade<Product> {
 
-	public static String LOAN_DEPOSIT = "LoanDeposit";
+	public static final String LOAN_DEPOSIT = "LoanDeposit";
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3579586407106122139L;
 
-	public static enum Direction {
+	public enum Direction {
 		LOAN, DEPOSIT;
 
+		@Override
 		public String toString() {
 			switch (this) {
 			case LOAN:
@@ -56,9 +57,10 @@ public abstract class LoanDepositTrade extends Trade<Product> {
 		}
 	};
 
-	public static enum InterestType {
+	public enum InterestType {
 		SIMPLE, COMPOUND;
 
+		@Override
 		public String toString() {
 			switch (this) {
 			case SIMPLE:

@@ -1,5 +1,6 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 import static org.eclipse.tradista.core.pricing.util.PricerUtil.cnd;
 
 import java.math.BigDecimal;
@@ -18,16 +19,18 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
 import org.eclipse.tradista.ir.ircapfloorcollar.pricer.PricerIRCapFloorCollarUtil;
 import org.eclipse.tradista.ir.irforward.model.IRForwardTrade;
 import org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -48,8 +51,10 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(IRCapFloorCollarTradeProductScopeFilteringInterceptor.class)
+@ProductScope(IRCapFloorCollarTrade.IR_CAP_FLOOR_COLLAR)
 public class IRCapFloorCollarPricerServiceBean implements IRCapFloorCollarPricerService {
+
+	private static final Logger logger = LoggerFactory.getLogger(IRCapFloorCollarPricerServiceBean.class);
 
 	@Override
 	public BigDecimal npvBlack(PricingParameter params, IRCapFloorCollarTrade trade, Currency currency,
@@ -60,7 +65,7 @@ public class IRCapFloorCollarPricerServiceBean implements IRCapFloorCollarPricer
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// conversion of the premium to the Pricing currency
@@ -92,7 +97,7 @@ public class IRCapFloorCollarPricerServiceBean implements IRCapFloorCollarPricer
 		CurrencyPair pair = new CurrencyPair(irForwardTrade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// Volatility surface
@@ -257,12 +262,12 @@ public class IRCapFloorCollarPricerServiceBean implements IRCapFloorCollarPricer
 			CurrencyPair pair = new CurrencyPair(trade.getIrForwardTrade().getCurrency(), currency);
 			FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 			if (paramTradeCcyPricingCcyFXCurve == null) {
-				// TODO Add log warn
+				logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 			}
 			pair = new CurrencyPair(trade.getCurrency(), currency);
 			FXCurve paramPremiumCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 			if (paramPremiumCcyPricingCcyFXCurve == null) {
-				// TODO Add log warn
+				logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 			}
 			BigDecimal payments = PricerIRCapFloorCollarUtil.getPaymentsTotalAmount(trade, null, 0,
 					params.getQuoteSet().getId());

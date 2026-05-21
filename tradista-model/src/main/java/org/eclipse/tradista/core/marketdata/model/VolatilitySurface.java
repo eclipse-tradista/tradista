@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -26,7 +27,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  ********************************************************************************/
 
 public abstract class VolatilitySurface<X extends Number, Y extends Number, Z extends Number> extends TradistaObject
-		implements MarketData, Generable {
+		implements MarketData, Generable, Segregable {
 
 	private static final long serialVersionUID = -8759394476672552715L;
 

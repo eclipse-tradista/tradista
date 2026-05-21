@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -25,7 +26,7 @@ import org.eclipse.tradista.core.currency.model.Currency;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class CashInventory extends TradistaObject implements Comparable<CashInventory> {
+public class CashInventory extends TradistaObject implements Comparable<CashInventory>, Segregable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -74,6 +75,11 @@ public class CashInventory extends TradistaObject implements Comparable<CashInve
 
 	public Book getBook() {
 		return TradistaModelUtil.clone(book);
+	}
+
+	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return book != null ? book.getProcessingOrg() : null;
 	}
 
 	@Override

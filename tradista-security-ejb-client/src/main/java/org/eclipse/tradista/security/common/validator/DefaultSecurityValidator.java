@@ -39,9 +39,8 @@ public class DefaultSecurityValidator extends DefaultProductValidator {
 	/*
 	 * Making issue date and issue price optional. (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.tradista.core.validator.DefaultProductValidator#validateProductBasics
-	 * (org.eclipse.tradista.core.product.Product)
+	 * @see org.eclipse.tradista.core.validator.DefaultProductValidator#
+	 * validateProductBasics (org.eclipse.tradista.core.product.Product)
 	 */
 	protected StringBuilder validateProductBasics(Product product) throws TradistaBusinessException {
 		Security security = (Security) product;

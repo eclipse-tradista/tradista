@@ -7,6 +7,7 @@ import org.eclipse.tradista.core.common.util.MathProperties;
 import org.eclipse.tradista.core.configuration.model.UIConfiguration;
 import org.eclipse.tradista.core.configuration.persistence.UIConfigurationSQL;
 import org.eclipse.tradista.core.user.model.User;
+import org.eclipse.tradista.core.user.service.CheckUserAccess;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.quartz.Scheduler;
 import org.springframework.context.ApplicationContext;
@@ -76,7 +77,7 @@ public class ConfigurationServiceBean implements LocalConfigurationService, Conf
 
 	@Interceptors(ConfigurationPreFilteringInterceptor.class)
 	@Override
-	public UIConfiguration getUIConfiguration(User user) {
+	public UIConfiguration getUIConfiguration(@CheckUserAccess User user) {
 		UIConfiguration uiConfiguration = UIConfigurationSQL.getUIConfiguration(user);
 		// if the UI Configuration is not customized, we load a default one.
 		if (uiConfiguration == null) {

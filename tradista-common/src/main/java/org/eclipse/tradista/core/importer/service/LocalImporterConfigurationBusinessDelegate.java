@@ -24,11 +24,11 @@ import org.eclipse.tradista.core.importer.model.Importer;
 public class LocalImporterConfigurationBusinessDelegate extends ImporterConfigurationBusinessDelegate {
 
 	private LocalImporterConfigurationService localImporterConfigurationService;
-	
+
 	public LocalImporterConfigurationBusinessDelegate() {
 		localImporterConfigurationService = TradistaServiceLocator.getInstance().getLocalImporterConfigurationService();
 	}
-	
+
 	public Importer<?> getImporterByName(String name) throws TradistaBusinessException {
 		if (StringUtils.isBlank(name)) {
 			throw new TradistaBusinessException("The name is mandatory.");

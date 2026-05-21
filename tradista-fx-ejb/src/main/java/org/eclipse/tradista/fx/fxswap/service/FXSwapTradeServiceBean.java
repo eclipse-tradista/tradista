@@ -1,7 +1,10 @@
 package org.eclipse.tradista.fx.fxswap.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.fx.fxswap.messaging.FXSwapTradeEvent;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 import org.eclipse.tradista.fx.fxswap.persistence.FXSwapTradeSQL;
@@ -10,8 +13,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -47,14 +50,18 @@ public class FXSwapTradeServiceBean implements FXSwapTradeService {
 
 	private Destination destination;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ FXSwapTradeProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = FXSwapTrade.FX_SWAP, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveFXSwapTrade(FXSwapTrade trade) throws TradistaBusinessException {
+	public long saveFXSwapTrade(@CheckTradeAccess FXSwapTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 
 		FXSwapTradeEvent event = new FXSwapTradeEvent();
 		if (trade.getId() != 0) {
@@ -69,7 +76,6 @@ public class FXSwapTradeServiceBean implements FXSwapTradeService {
 		return result;
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public FXSwapTrade getFXSwapTradeById(long id) {
 		return FXSwapTradeSQL.getTradeById(id);

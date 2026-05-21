@@ -11,13 +11,14 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.exchange.service.ExchangeBusinessDelegate;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureContractSpecification;
 import org.eclipse.tradista.ir.future.persistence.FutureContractSpecificationSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -83,7 +84,7 @@ public class FutureContractSpecificationServiceBean implements FutureContractSpe
 	}
 
 	@Override
-	@Interceptors(FutureProductScopeFilteringInterceptor.class)
+	@ProductScope(Future.FUTURE)
 	public long saveFutureContractSpecification(FutureContractSpecification fcs) throws TradistaBusinessException {
 		if (fcs.getId() == 0) {
 			checkFutureContractSpecification(fcs);

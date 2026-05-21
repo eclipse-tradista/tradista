@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.legalentity.model;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 
 /********************************************************************************
@@ -19,7 +20,7 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class LegalEntity extends TradistaObject implements Comparable<LegalEntity> {
+public class LegalEntity extends TradistaObject implements Comparable<LegalEntity>, Segregable {
 
 	private static final long serialVersionUID = -2952827349654099841L;
 
@@ -104,6 +105,20 @@ public class LegalEntity extends TradistaObject implements Comparable<LegalEntit
 	@Override
 	public int compareTo(LegalEntity le) {
 		return shortName.compareTo(le.getShortName());
+	}
+
+	/**
+	 * Returns the processing org that owns this legal entity.
+	 * <ul>
+	 * <li>For a {@link Role#COUNTERPARTY}: returns {@code null} — counterparties
+	 * are shared across all processing orgs.</li>
+	 * <li>For a {@link Role#PROCESSING_ORG}: returns {@code this} — the entity
+	 * itself is the processing org.</li>
+	 * </ul>
+	 */
+	@Override
+	public LegalEntity getProcessingOrg() {
+		return Role.PROCESSING_ORG.equals(role) ? this : null;
 	}
 
 }

@@ -88,9 +88,8 @@ public class PricingParameterVolatilitySurfaceSQL {
 						module = new PricingParameterVolatilitySurfaceModule();
 					}
 					surfaces.put(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())),
-							EquityOptionVolatilitySurfaceSQL
-									.getEquityOptionVolatilitySurfaceById(
-											results.getLong(VOLATILITY_SURFACE_ID_FIELD.getName())));
+							EquityOptionVolatilitySurfaceSQL.getEquityOptionVolatilitySurfaceById(
+									results.getLong(VOLATILITY_SURFACE_ID_FIELD.getName())));
 					module.setVolatilitySurfaces(surfaces);
 				}
 			}
@@ -103,8 +102,8 @@ public class PricingParameterVolatilitySurfaceSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
-				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil.buildDeletePreparedStatement(con,
+				TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;

@@ -83,8 +83,8 @@ public class PricingParameterVolatilitySurfaceSQL {
 
 		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
 		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
-		try (PreparedStatement stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId = con.prepareStatement(
-				sql.toString())) {
+		try (PreparedStatement stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId = con
+				.prepareStatement(sql.toString())) {
 			stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterFxVolatilitySurfacesByPricingParameterId.executeQuery()) {
 				while (results.next()) {
@@ -95,9 +95,8 @@ public class PricingParameterVolatilitySurfaceSQL {
 							new CurrencyPair(
 									CurrencySQL.getCurrencyById(results.getLong(PRIMARY_CURRENCY_ID_FIELD.getName())),
 									CurrencySQL.getCurrencyById(results.getLong(QUOTE_CURRENCY_ID_FIELD.getName()))),
-							FXVolatilitySurfaceSQL
-									.getFXVolatilitySurfaceById(
-											results.getLong(VOLATILITY_SURFACE_ID_FIELD.getName())));
+							FXVolatilitySurfaceSQL.getFXVolatilitySurfaceById(
+									results.getLong(VOLATILITY_SURFACE_ID_FIELD.getName())));
 					module.setVolatilitySurfaces(surfaces);
 				}
 			}
@@ -110,8 +109,8 @@ public class PricingParameterVolatilitySurfaceSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
-				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil.buildDeletePreparedStatement(con,
+				TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;

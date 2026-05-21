@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.exporter.model;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 /********************************************************************************
@@ -19,7 +20,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public interface Exporter<X, Y> extends Runnable {
+public interface Exporter<X, Y> extends Runnable, Segregable {
 
 	String getType();
 

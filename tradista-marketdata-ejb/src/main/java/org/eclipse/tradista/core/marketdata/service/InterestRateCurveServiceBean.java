@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
 import org.eclipse.tradista.core.marketdata.generationalgorithm.InterestRateCurveGenerationAlgorithm;
@@ -21,7 +22,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -44,46 +44,41 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class InterestRateCurveServiceBean implements InterestRateCurveService {
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<InterestRateCurve> getAllInterestRateCurves() {
 		return InterestRateCurveSQL.getAllInterestRateCurves();
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<InterestRateCurve> getInterestRateCurvesByPoId(long poId) {
 		return InterestRateCurveSQL.getInterestRateCurvesByPoId(poId);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<ZeroCouponCurve> getAllZeroCouponCurves() {
 		return InterestRateCurveSQL.getAllZeroCouponCurves();
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<ZeroCouponCurve> getZeroCouponCurvesByPoId(long poId) {
 		return InterestRateCurveSQL.getZeroCouponCurvesByPoId(poId);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
-	public List<RatePoint> getInterestRateCurvePointsByCurveIdAndDate(long curveId, Year year, Month month)
-			throws TradistaBusinessException {
+	public List<RatePoint> getInterestRateCurvePointsByCurveIdAndDate(@CheckCurveAccess long curveId, Year year,
+			Month month) throws TradistaBusinessException {
 		return InterestRateCurveSQL.getAllInterestRateCurvePointsByCurveIdAndDate(curveId, year, month);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean saveInterestRateCurvePoints(long id, List<RatePoint> ratePoints, Year year, Month month)
-			throws TradistaBusinessException {
+	public boolean saveInterestRateCurvePoints(@CheckCurveAccess long id, List<RatePoint> ratePoints, Year year,
+			Month month) throws TradistaBusinessException {
 		return InterestRateCurveSQL.saveInterestRateCurvePoints(id, ratePoints, year, month);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteInterestRateCurve(long curveId) throws TradistaBusinessException {
+	public boolean deleteInterestRateCurve(@CheckCurveAccess long curveId) throws TradistaBusinessException {
 		return InterestRateCurveSQL.deleteInterestRateCurve(curveId);
 	}
 
@@ -105,15 +100,15 @@ public class InterestRateCurveServiceBean implements InterestRateCurveService {
 
 	@Override
 	public Set<String> getAllInterestRateCurveTypes() {
-		Set<String> types = new HashSet<String>();
+		Set<String> types = new HashSet<>();
 		types.add(InterestRateCurve.INTEREST_RATE_CURVE);
 		types.add(ZeroCouponCurve.ZERO_COUPON_CURVE);
 		return types;
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveInterestRateCurve(InterestRateCurve curve) throws TradistaBusinessException {
+	public long saveInterestRateCurve(@CheckCurveAccess InterestRateCurve curve) throws TradistaBusinessException {
 		if (curve.getId() == 0) {
 			checkCurveExistence(curve);
 		} else {
@@ -192,7 +187,6 @@ public class InterestRateCurveServiceBean implements InterestRateCurveService {
 		return TradistaUtil.getAvailableNames(UnivariateInterpolator.class, MarketDataConstants.INTERPOLATOR_PACKAGE);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public InterestRateCurve getInterestRateCurveById(long id) {
 		return InterestRateCurveSQL.getInterestRateCurveById(id);

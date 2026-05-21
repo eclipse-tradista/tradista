@@ -2,12 +2,14 @@ package org.eclipse.tradista.core.position.model;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.model.ProductScoped;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -25,7 +27,7 @@ import org.eclipse.tradista.core.product.model.Product;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class PositionDefinition extends TradistaObject {
+public class PositionDefinition extends TradistaObject implements Segregable, ProductScoped {
 
 	private static final long serialVersionUID = -4204899247050005377L;
 
@@ -115,6 +117,7 @@ public class PositionDefinition extends TradistaObject {
 		this.pricingParameter = pricingParameter;
 	}
 
+	@Override
 	public LegalEntity getProcessingOrg() {
 		return TradistaModelUtil.clone(processingOrg);
 	}

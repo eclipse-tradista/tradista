@@ -11,6 +11,8 @@ import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.model.BondTrade;
 import org.eclipse.tradista.security.bond.validator.BondTradeValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -30,6 +32,10 @@ import org.eclipse.tradista.security.bond.validator.BondTradeValidator;
 
 public class BondTradeBusinessDelegate {
 
+	private static final Logger logger = LoggerFactory.getLogger(BondTradeBusinessDelegate.class);
+
+	private static final String EXCHANGE_CALENDAR_IS_MISSING_FOR_EXCHANGE = "Exchange calendar is missing for exchange {}.";
+
 	private BondTradeService bondTradeService;
 
 	private BondTradeValidator validator;
@@ -41,7 +47,7 @@ public class BondTradeBusinessDelegate {
 
 	public long saveBondTrade(BondTrade trade) throws TradistaBusinessException {
 		validator.validateTrade(trade);
-		return SecurityUtil.run(() -> bondTradeService.saveBondTrade(trade));
+		return SecurityUtil.runEx(() -> bondTradeService.saveBondTrade(trade));
 	}
 
 	public boolean isBusinessDay(BondTrade bondTrade, LocalDate date) throws TradistaBusinessException {
@@ -51,7 +57,7 @@ public class BondTradeBusinessDelegate {
 		if (bondTrade == null) {
 			throw new TradistaBusinessException("The Bond trade cannot be null");
 		}
-		bond = (Bond) bondTrade.getProduct();
+		bond = bondTrade.getProduct();
 		if (bond == null) {
 			throw new TradistaBusinessException("The Bond product cannot be null");
 		}
@@ -62,7 +68,8 @@ public class BondTradeBusinessDelegate {
 
 		exchangeCalendar = bondExchange.getCalendar();
 		if (exchangeCalendar == null) {
-			// TODO add a warning log.
+			logger.warn(EXCHANGE_CALENDAR_IS_MISSING_FOR_EXCHANGE, bondExchange);
+			return true;
 		}
 
 		return exchangeCalendar.isBusinessDay(date);

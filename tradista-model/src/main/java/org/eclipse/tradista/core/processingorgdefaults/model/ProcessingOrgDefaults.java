@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -27,7 +28,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ProcessingOrgDefaults extends TradistaObject {
+public class ProcessingOrgDefaults extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = 1344658382239565337L;
 

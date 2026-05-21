@@ -22,7 +22,7 @@ public abstract class VanillaOptionTrade<T extends Trade<? extends Product>> ext
 
 	private static final long serialVersionUID = -9194967197051172928L;
 
-	public static enum Style {
+	public enum Style {
 		EUROPEAN, AMERICAN;
 
 		public String toString() {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.marketdata.model.Curve;
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
@@ -18,7 +19,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -47,7 +47,6 @@ public class CurveServiceBean implements CurveService {
 	@EJB
 	private FXCurveService fxCurveService;
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Curve<LocalDate, BigDecimal> getCurveById(long curveId) {
 		// Method to be enriched when new curve types will exist.
@@ -59,8 +58,8 @@ public class CurveServiceBean implements CurveService {
 	}
 
 	@Override
-	public List<RatePoint> getCurvePointsByCurveAndDates(Curve<LocalDate, BigDecimal> curve, LocalDate min,
-			LocalDate max) {
+	public List<RatePoint> getCurvePointsByCurveAndDates(@CheckCurveAccess Curve<LocalDate, BigDecimal> curve,
+			LocalDate min, LocalDate max) {
 		// Method to be enriched when new curve types will exist.
 		if (curve instanceof InterestRateCurve) {
 			return irCurveService.getInterestRateCurvePointsByCurveIdAndDates(curve.getId(), min, max);
@@ -78,45 +77,44 @@ public class CurveServiceBean implements CurveService {
 		Set<Curve<? extends LocalDate, ? extends BigDecimal>> result = null;
 		if (irCurves != null) {
 			if (fxCurves != null) {
-				result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+				result = new HashSet<>();
 				result.addAll(irCurves);
 				result.addAll(fxCurves);
 			} else {
-				result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+				result = new HashSet<>();
 				result.addAll(irCurves);
 			}
 		} else {
 			if (fxCurves != null) {
-				result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+				result = new HashSet<>();
 				result.addAll(fxCurves);
 			}
 		}
 		return result;
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<Curve<? extends LocalDate, ? extends BigDecimal>> getCurvesByPoId(long poId) {
 		Set<InterestRateCurve> irCurves = irCurveService.getInterestRateCurvesByPoId(poId);
 		Set<FXCurve> fxCurves = fxCurveService.getFXCurvesByPoId(poId);
 		Set<Curve<? extends LocalDate, ? extends BigDecimal>> result = null;
 		if (irCurves != null) {
-			result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+			result = new HashSet<>();
 			result.addAll(irCurves);
 		}
 		if (fxCurves != null) {
 			if (result == null) {
-				result = new HashSet<Curve<? extends LocalDate, ? extends BigDecimal>>();
+				result = new HashSet<>();
 			}
 			result.addAll(fxCurves);
 		}
 		return result;
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
-	public List<RatePoint> getCurvePointsByCurveAndDate(Curve<? extends LocalDate, ? extends BigDecimal> curve,
-			Year year, Month month) throws TradistaBusinessException {
+	public List<RatePoint> getCurvePointsByCurveAndDate(
+			@CheckCurveAccess Curve<? extends LocalDate, ? extends BigDecimal> curve, Year year, Month month)
+			throws TradistaBusinessException {
 		// Method to be enriched when new curve types will exist.
 
 		if (curve instanceof InterestRateCurve) {
@@ -128,10 +126,10 @@ public class CurveServiceBean implements CurveService {
 		return null;
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean saveCurvePoints(Curve<? extends LocalDate, ? extends BigDecimal> curve, List<RatePoint> ratePoints,
-			Year year, Month month) throws TradistaBusinessException {
+	public boolean saveCurvePoints(@CheckCurveAccess Curve<? extends LocalDate, ? extends BigDecimal> curve,
+			List<RatePoint> ratePoints, Year year, Month month) throws TradistaBusinessException {
 		// Method to be enriched when new curve types will exist.
 
 		if (curve instanceof InterestRateCurve) {
@@ -150,23 +148,23 @@ public class CurveServiceBean implements CurveService {
 		return irTypes;
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveCurve(Curve<LocalDate, BigDecimal> curve) throws TradistaBusinessException {
+	public long saveCurve(@CheckCurveAccess Curve<LocalDate, BigDecimal> curve) throws TradistaBusinessException {
 		// Method to be enriched when new curve types will exist.
 
-		if (curve instanceof InterestRateCurve) {
-			return irCurveService.saveInterestRateCurve((InterestRateCurve) curve);
+		if (curve instanceof InterestRateCurve irCurve) {
+			return irCurveService.saveInterestRateCurve(irCurve);
 		}
-		if (curve instanceof FXCurve) {
-			return fxCurveService.saveFXCurve((FXCurve) curve);
+		if (curve instanceof FXCurve fxCurve) {
+			return fxCurveService.saveFXCurve(fxCurve);
 		}
 		return -1;
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteCurve(Curve<? extends LocalDate, ? extends BigDecimal> curve)
+	public boolean deleteCurve(@CheckCurveAccess Curve<? extends LocalDate, ? extends BigDecimal> curve)
 			throws TradistaBusinessException {
 		// Method to be enriched when new curve types will exist.
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.persistence.FixingErrorSQL;
@@ -13,7 +14,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -39,11 +39,13 @@ public class FixingErrorServiceBean implements FixingErrorService {
 	@EJB
 	TransferService transferService;
 
+	@ProtectGlobal
 	@Override
 	public boolean saveFixingErrors(List<FixingError> errors) {
 		return FixingErrorSQL.saveFixingErrors(errors);
 	}
 
+	@ProtectGlobal
 	@Override
 	public void solveFixingError(Set<Long> solved, LocalDate date) {
 		FixingErrorSQL.solveFixingError(solved, date);
@@ -54,18 +56,18 @@ public class FixingErrorServiceBean implements FixingErrorService {
 	 * controls are important for saving methods but for getXXX methods like this
 	 * one, not sure it is a good idea.
 	 */
-	@Interceptors(FixingErrorFilteringInterceptor.class)
 	@Override
-	public List<FixingError> getFixingErrors(long transferId, Status status, LocalDate errorDateFrom,
-			LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo)
+	public List<FixingError> getFixingErrors(@CheckCashTransferAccess long transferId, Status status,
+			LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo)
 			throws TradistaBusinessException {
 		return FixingErrorSQL.getFixingErrors(transferId, status, errorDateFrom, errorDateTo, solvingDateFrom,
 				solvingDateTo);
 	}
 
-	@Interceptors(FixingErrorFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public void solveFixingError(long transferId, LocalDate date) throws TradistaBusinessException {
+	public void solveFixingError(@CheckCashTransferAccess long transferId, LocalDate date)
+			throws TradistaBusinessException {
 		FixingErrorSQL.solveFixingError(transferId, date);
 	}
 

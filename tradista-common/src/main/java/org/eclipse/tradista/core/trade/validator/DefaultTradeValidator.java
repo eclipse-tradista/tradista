@@ -47,14 +47,12 @@ public class DefaultTradeValidator implements TradeValidator {
 		if (trade.getCurrency() == null) {
 			errMsg.append(String.format("The currency is mandatory.%n"));
 		}
-
 		if (trade.getTradeDate() != null && trade.getSettlementDate() != null) {
 			if (trade.getSettlementDate().isBefore(trade.getTradeDate())) {
 				errMsg.append(String.format("The settlement date (%s) cannot be before trade date (%s).%n",
 						trade.getSettlementDate(), trade.getTradeDate()));
 			}
 		}
-
 		if (trade.getCounterparty() == null) {
 			errMsg.append(String.format("The counterparty is mandatory.%n"));
 		}

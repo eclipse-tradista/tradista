@@ -12,7 +12,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
@@ -48,13 +47,11 @@ public class LocalExporterConfigurationServiceBean implements LocalExporterConfi
 				"/" + TradistaConstants.META_INF + "/" + CONFIG_FILE_NAME);
 	}
 
-	@Interceptors(ExporterConfigurationAuthorizationFilteringInterceptor.class)
 	@Override
 	public Set<Exporter<?, ?>> getAllExporters() {
 		return ((ExporterConfiguration) applicationContext.getBean(EXPORTER_CONFIGURATION_BEAN)).getExporters();
 	}
 
-	@Interceptors(ExporterConfigurationAuthorizationFilteringInterceptor.class)
 	@Override
 	public Exporter<?, ?> getExporterByName(String name) {
 		return getAllExporters().stream().filter(i -> i.getName().equals(name)).findFirst().get();

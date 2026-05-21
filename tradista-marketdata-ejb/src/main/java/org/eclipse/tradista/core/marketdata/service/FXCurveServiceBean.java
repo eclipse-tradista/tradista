@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
@@ -22,7 +23,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -45,34 +45,31 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class FXCurveServiceBean implements FXCurveService {
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<FXCurve> getAllFXCurves() {
 		return FXCurveSQL.getAllFXCurves();
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public Set<FXCurve> getFXCurvesByPoId(long poId) {
 		return FXCurveSQL.getFXCurvesByPoId(poId);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
-	public List<RatePoint> getFXCurvePointsByCurveIdAndDate(long curveId, Year year, Month month)
+	public List<RatePoint> getFXCurvePointsByCurveIdAndDate(@CheckCurveAccess long curveId, Year year, Month month)
 			throws TradistaBusinessException {
 		return FXCurveSQL.getAllFXCurvePointsByCurveIdAndDate(curveId, year, month);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean saveFXCurvePoints(long id, List<RatePoint> ratePoints, Year year, Month month)
+	public boolean saveFXCurvePoints(@CheckCurveAccess long id, List<RatePoint> ratePoints, Year year, Month month)
 			throws TradistaBusinessException {
 		return FXCurveSQL.saveFXCurvePoints(id, ratePoints, year, month);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteFXCurve(long curveId) throws TradistaBusinessException {
+	public boolean deleteFXCurve(@CheckCurveAccess long curveId) throws TradistaBusinessException {
 		return FXCurveSQL.deleteFXCurve(curveId);
 	}
 
@@ -81,9 +78,9 @@ public class FXCurveServiceBean implements FXCurveService {
 		return FXCurveSQL.getFXCurvePointsByCurveIdAndDates(curveId, min, max);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveFXCurve(FXCurve curve) throws TradistaBusinessException {
+	public long saveFXCurve(@CheckCurveAccess FXCurve curve) throws TradistaBusinessException {
 		if (curve.getId() == 0) {
 			checkCurveExistence(curve);
 		} else {
@@ -162,7 +159,6 @@ public class FXCurveServiceBean implements FXCurveService {
 		return TradistaUtil.getAvailableNames(UnivariateInterpolator.class, MarketDataConstants.INTERPOLATOR_PACKAGE);
 	}
 
-	@Interceptors(CurveFilteringInterceptor.class)
 	@Override
 	public FXCurve getFXCurveById(long id) {
 		return FXCurveSQL.getFXCurveById(id);

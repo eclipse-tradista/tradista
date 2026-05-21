@@ -3,8 +3,10 @@ package org.eclipse.tradista.core.batch.model;
 import java.time.LocalDateTime;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.AbstractTrigger;
 
@@ -24,7 +26,7 @@ import org.quartz.impl.triggers.AbstractTrigger;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class TradistaJobExecution extends TradistaObject {
+public class TradistaJobExecution extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = -1515249258612193803L;
 
@@ -45,6 +47,11 @@ public class TradistaJobExecution extends TradistaObject {
 
 	public TradistaJobInstance getJobInstance() {
 		return TradistaModelUtil.clone(jobInstance);
+	}
+
+	@Override
+	public LegalEntity getProcessingOrg() {
+		return jobInstance != null ? jobInstance.getProcessingOrg() : null;
 	}
 
 	public TradistaJobExecution(Trigger trigger, TradistaJobInstance jobInstance, String name) {

@@ -25,8 +25,8 @@ import jakarta.ejb.Local;
 @Local
 public interface LocalExporterConfigurationService {
 
-	Set<Exporter<?,?>> getAllExporters();
+	Set<Exporter<?, ?>> getAllExporters();
 
-	Exporter<?,?> getExporterByName(String name);
+	Exporter<?, ?> getExporterByName(String name);
 
 }

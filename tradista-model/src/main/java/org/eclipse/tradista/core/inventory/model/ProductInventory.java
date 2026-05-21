@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.product.model.Product;
@@ -25,7 +26,7 @@ import org.eclipse.tradista.core.product.model.Product;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ProductInventory extends TradistaObject implements Comparable<ProductInventory> {
+public class ProductInventory extends TradistaObject implements Comparable<ProductInventory>, Segregable {
 
 	private static final long serialVersionUID = -386706153298729738L;
 
@@ -88,13 +89,18 @@ public class ProductInventory extends TradistaObject implements Comparable<Produ
 	}
 
 	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return book != null ? book.getProcessingOrg() : null;
+	}
+
+	@Override
 	public int compareTo(ProductInventory pi) {
 		if (pi == null) {
 			return 1;
 		}
 		int eq = getBook().toString().compareTo(pi.getBook().toString());
 		if (eq == 0) {
-			eq = getProduct().getProductType().toString().compareTo(pi.getProduct().getProductType().toString());
+			eq = getProduct().getProductType().compareTo(pi.getProduct().getProductType());
 			if (eq == 0) {
 				eq = (int) (getProduct().getId() - pi.getProduct().getId());
 				if (eq == 0) {

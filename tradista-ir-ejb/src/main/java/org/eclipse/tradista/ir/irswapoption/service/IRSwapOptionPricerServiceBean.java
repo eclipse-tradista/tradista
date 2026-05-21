@@ -1,5 +1,6 @@
 package org.eclipse.tradista.ir.irswapoption.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 import static org.eclipse.tradista.core.pricing.util.PricerUtil.cnd;
 
 import java.math.BigDecimal;
@@ -17,17 +18,19 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
 import org.eclipse.tradista.ir.irswap.service.IRSwapPricerService;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -48,8 +51,12 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(IRSwapOptionTradeProductScopeFilteringInterceptor.class)
+@ProductScope(IRSwapOptionTrade.IR_SWAP_OPTION)
 public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService {
+
+	private static final String MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The maturity date ({}) must be after the current and pricing dates.";
+
+	private static final Logger logger = LoggerFactory.getLogger(IRSwapOptionPricerServiceBean.class);
 
 	@EJB
 	private SwaptionVolatilitySurfaceService swaptionVolatilitySurfaceService;
@@ -85,7 +92,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramPremiumCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramPremiumCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		if (trade.getExerciseDate() != null) {
@@ -93,7 +100,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 			pv = irSwapPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 		if (trade.getExerciseDate() == null) {
@@ -131,7 +138,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())
 				|| trade.getExerciseDate() != null) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -157,7 +164,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		CurrencyPair pair = new CurrencyPair(underlying.getCurrency(), currency);
 		FXCurve paramUndCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramUndCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// 1. Calculation of the Forward Swap Forward Rate
@@ -268,7 +275,7 @@ public class IRSwapOptionPricerServiceBean implements IRSwapOptionPricerService 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramPremiumCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramPremiumCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// convert the premium

@@ -91,8 +91,8 @@ public class PricingParameterUnrealizedPnlCalculationSQL {
 
 		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
 		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
-		try (PreparedStatement stmtGetPricingParameterDividendYieldCurvesByPricingParameterId = con.prepareStatement(
-				sql.toString())) {
+		try (PreparedStatement stmtGetPricingParameterDividendYieldCurvesByPricingParameterId = con
+				.prepareStatement(sql.toString())) {
 			stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.executeQuery()) {
 				while (results.next()) {
@@ -115,8 +115,8 @@ public class PricingParameterUnrealizedPnlCalculationSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
-				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil.buildDeletePreparedStatement(con,
+				TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;

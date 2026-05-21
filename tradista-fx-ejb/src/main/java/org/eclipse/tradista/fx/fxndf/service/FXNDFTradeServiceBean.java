@@ -1,7 +1,10 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.fx.fxndf.messaging.FXNDFTradeEvent;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 import org.eclipse.tradista.fx.fxndf.persistence.FXNDFTradeSQL;
@@ -10,8 +13,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -43,14 +46,18 @@ public class FXNDFTradeServiceBean implements FXNDFTradeService {
 
 	private Destination destination;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ FXNDFTradeProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = FXNDFTrade.FX_NDF, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveFXNDFTrade(FXNDFTrade trade) throws TradistaBusinessException {
+	public long saveFXNDFTrade(@CheckTradeAccess FXNDFTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 
 		FXNDFTradeEvent event = new FXNDFTradeEvent();
 		if (trade.getId() != 0) {
@@ -67,7 +74,6 @@ public class FXNDFTradeServiceBean implements FXNDFTradeService {
 
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public FXNDFTrade getFXNDFTradeById(long id) {
 		return FXNDFTradeSQL.getTradeById(id);

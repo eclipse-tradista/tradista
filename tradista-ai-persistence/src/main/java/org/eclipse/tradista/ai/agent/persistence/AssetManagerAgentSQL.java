@@ -149,8 +149,8 @@ public class AssetManagerAgentSQL {
 				agent.setStarted(results.getBoolean(STARTED_FIELD.getName()));
 				agent.setMandate(MandateSQL.getMandateById(results.getLong(MANDATE_ID_FIELD.getName())));
 				try {
-					agent.setPricingParameter(
-							pricerBusinessDelegate.getPricingParameterById(results.getLong(PRICING_PARAMETER_ID_FIELD.getName())));
+					agent.setPricingParameter(pricerBusinessDelegate
+							.getPricingParameterById(results.getLong(PRICING_PARAMETER_ID_FIELD.getName())));
 				} catch (TradistaBusinessException _) {
 					// Not expected here
 				}

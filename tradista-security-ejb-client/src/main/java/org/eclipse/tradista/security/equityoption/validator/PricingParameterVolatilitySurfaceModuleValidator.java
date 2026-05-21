@@ -48,20 +48,15 @@ public class PricingParameterVolatilitySurfaceModuleValidator implements Pricing
 							"If the Pricing Parameters Set is a global one, the Equity Option Volatility Surface %s must also be global.%n",
 							surface));
 				}
-				if (po != null && surface.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the Equity Option Volatility Surface %s is a global one, the Pricing Parameters Set must also be global.%n",
-							surface));
-				}
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
 
 	@Override
-	public void checkAccess(PricingParameterModule module, StringBuilder errMsg) {
+	public void checkIntegrity(PricingParameterModule module, StringBuilder errMsg) {
 		PricingParameterVolatilitySurfaceModule mod = (PricingParameterVolatilitySurfaceModule) module;
 		if (mod.getVolatilitySurfaces() != null && !mod.getVolatilitySurfaces().isEmpty()) {
 			for (EquityOptionVolatilitySurface surface : mod.getVolatilitySurfaces().values()) {
@@ -69,7 +64,7 @@ public class PricingParameterVolatilitySurfaceModuleValidator implements Pricing
 				try {
 					vol = equityOptionVolatilitySurfaceBusinessDelegate
 							.getEquityOptionVolatilitySurfaceById(surface.getId());
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Not expected here.
 				}
 				if (vol == null) {

@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.transfer.model;
 
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.error.model.Error;
 
@@ -19,7 +20,7 @@ import org.eclipse.tradista.core.error.model.Error;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FixingError extends Error {
+public class FixingError extends Error implements Segregable {
 
 	private static final long serialVersionUID = -2169465011804908473L;
 
@@ -42,6 +43,12 @@ public class FixingError extends Error {
 
 	public void setCashTransfer(CashTransfer cashTransfer) {
 		this.cashTransfer = cashTransfer;
+	}
+
+	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return cashTransfer != null && cashTransfer.getBook() != null ? cashTransfer.getBook().getProcessingOrg()
+				: null;
 	}
 
 	@Override

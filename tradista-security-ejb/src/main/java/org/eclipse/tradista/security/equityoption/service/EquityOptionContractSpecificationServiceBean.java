@@ -3,13 +3,14 @@ package org.eclipse.tradista.security.equityoption.service;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
 import org.eclipse.tradista.security.equityoption.persistence.EquityOptionContractSpecificationSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion
@@ -33,7 +34,7 @@ import jakarta.interceptor.Interceptors;
 public class EquityOptionContractSpecificationServiceBean implements EquityOptionContractSpecificationService {
 
 	@Override
-	@Interceptors(EquityOptionProductScopeFilteringInterceptor.class)
+	@ProductScope(EquityOption.EQUITY_OPTION)
 	public long saveEquityOptionContractSpecification(EquityOptionContractSpecification eocs)
 			throws TradistaBusinessException {
 		if (eocs.getId() == 0) {

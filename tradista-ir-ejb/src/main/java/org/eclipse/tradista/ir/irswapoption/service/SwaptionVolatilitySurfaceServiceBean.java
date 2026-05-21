@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
 import org.eclipse.tradista.core.marketdata.generationalgorithm.SurfaceGenerationAlgorithm;
@@ -17,8 +18,10 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.service.CheckVolatilitySurfaceAccess;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.SurfaceBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.service.VolatilitySurfaceFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.eclipse.tradista.ir.irswapoption.persistence.SwaptionVolatilitySurfaceSQL;
@@ -26,7 +29,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -49,13 +51,11 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilitySurfaceService {
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public Set<SwaptionVolatilitySurface> getAllSwaptionVolatilitySurfaces() {
 		return SwaptionVolatilitySurfaceSQL.getAllSwaptionVolatilitySurfaces();
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public Set<SwaptionVolatilitySurface> getSwaptionVolatilitySurfacesByPoId(long poId) {
 		return SwaptionVolatilitySurfaceSQL.getSwaptionVolatilitySurfacesByPoId(poId);
@@ -66,9 +66,8 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 		return SwaptionVolatilitySurfaceSQL.getSwaptionVolatilitySurfaceByName(name);
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
-	public SwaptionVolatilitySurface getSwaptionVolatilitySurfaceById(long id) {
+	public SwaptionVolatilitySurface getSwaptionVolatilitySurfaceById(@CheckVolatilitySurfaceAccess long id) {
 		return SwaptionVolatilitySurfaceSQL.getSwaptionVolatilitySurfaceById(id);
 	}
 
@@ -86,9 +85,10 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 				swapLifetime);
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteSwaptionVolatilitySurface(long surfaceId) throws TradistaBusinessException {
+	public boolean deleteSwaptionVolatilitySurface(@CheckVolatilitySurfaceAccess long surfaceId)
+			throws TradistaBusinessException {
 		return SwaptionVolatilitySurfaceSQL.deleteSwaptionVolatilitySurface(surfaceId);
 	}
 
@@ -117,10 +117,11 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 				currentSwaptionVolatilitySurfaceId, optionLifetime, swapLifetime);
 	}
 
-	@Interceptors({ IRSwapOptionTradeProductScopeFilteringInterceptor.class,
-			VolatilitySurfaceFilteringInterceptor.class })
+	@ProtectGlobal
+	@ProductScope(IRSwapOptionTrade.IR_SWAP_OPTION)
 	@Override
-	public long saveSwaptionVolatilitySurface(SwaptionVolatilitySurface surface) throws TradistaBusinessException {
+	public long saveSwaptionVolatilitySurface(@CheckVolatilitySurfaceAccess SwaptionVolatilitySurface surface)
+			throws TradistaBusinessException {
 		if (surface.getId() == 0) {
 			checkSurfaceExistence(surface);
 		} else {
@@ -133,6 +134,14 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 				checkSurfaceExistence(surface);
 			}
 		}
+
+		if (surface.getQuoteSet() != null) {
+			if (new QuoteBusinessDelegate().getQuoteSetById(surface.getQuoteSet().getId()) == null) {
+				throw new TradistaBusinessException(
+						String.format("The quote set %d was not found.", surface.getQuoteSet().getId()));
+			}
+		}
+
 		return SwaptionVolatilitySurfaceSQL.saveSwaptionVolatilitySurface(surface);
 	}
 
@@ -185,7 +194,7 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 			return null;
 		}
 
-		result = new ArrayList<SurfacePoint<Integer, Integer, BigDecimal>>(surfacePoints.size());
+		result = new ArrayList<>(surfacePoints.size());
 
 		if (surfacePoints.isEmpty()) {
 			return result;
@@ -212,7 +221,7 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 
 	@Override
 	public Set<String> getAllInstances() {
-		Set<String> instances = new HashSet<String>();
+		Set<String> instances = new HashSet<>();
 		instances.add("CLOSE");
 		instances.add("OPEN");
 		instances.add("BID");

@@ -47,9 +47,9 @@ public class PricerConverter implements Serializable, Converter<Pricer> {
 		Pricer pricer = null;
 		try {
 			pricer = (Pricer) TradistaUtil.getInstance(TradistaUtil
-					.getAllClassesByTypeAndAnnotation(Pricer.class, Parameterizable.class, "org.eclipse.tradista").stream()
-					.filter(p -> p.getClass().getAnnotation(Parameterizable.class).name().equals(value)).findFirst()
-					.get());
+					.getAllClassesByTypeAndAnnotation(Pricer.class, Parameterizable.class, "org.eclipse.tradista")
+					.stream().filter(p -> p.getClass().getAnnotation(Parameterizable.class).name().equals(value))
+					.findFirst().get());
 		} catch (TradistaTechnicalException tte) {
 			throw new ConverterException(String.format("Could not convert pricer %s", value), tte);
 		}

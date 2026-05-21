@@ -3,9 +3,14 @@ package org.eclipse.tradista.security.equity.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.security.equity.messaging.EquityTradeEvent;
+import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 import org.eclipse.tradista.security.equity.persistence.EquityTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -13,8 +18,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -46,14 +51,18 @@ public class EquityTradeServiceBean implements EquityTradeService {
 
 	private Destination destination;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ EquityProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = Equity.EQUITY, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveEquityTrade(EquityTrade trade) throws TradistaBusinessException {
+	public long saveEquityTrade(@CheckTradeAccess EquityTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 		EquityTradeEvent event = new EquityTradeEvent();
 		if (trade.getId() != 0) {
 			EquityTrade oldTrade = EquityTradeSQL.getTradeById(trade.getId(), false);
@@ -75,11 +84,10 @@ public class EquityTradeServiceBean implements EquityTradeService {
 
 	@Override
 	public List<EquityTrade> getEquityTradesBeforeTradeDateByEquityAndBookIds(LocalDate date, long equityId,
-			long bookId) {
+			@CheckBookAccess long bookId) {
 		return EquityTradeSQL.getEquityTradesBeforeTradeDateByEquityAndBookIds(date, equityId, bookId);
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public EquityTrade getEquityTradeById(long id) {
 		return EquityTradeSQL.getTradeById(id, false);

@@ -9,22 +9,25 @@ import java.util.Set;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.calendar.service.CalendarBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.dailypnl.model.DailyPnl;
 import org.eclipse.tradista.core.dailypnl.persistence.DailyPnlSQL;
+import org.eclipse.tradista.core.error.model.Error;
 import org.eclipse.tradista.core.position.model.Position;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.service.CheckPositionDefinitionAccess;
 import org.eclipse.tradista.core.position.service.PositionCalculationErrorService;
-import org.eclipse.tradista.core.position.service.PositionDefinitionProductScopeFilteringInterceptor;
 import org.eclipse.tradista.core.position.service.PositionDefinitionService;
 import org.eclipse.tradista.core.position.service.PositionService;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -56,8 +59,10 @@ public class DailyPnlServiceBean implements DailyPnlService {
 	@EJB
 	private PositionCalculationErrorService positionCalculationErrorService;
 
+	private static final String POSITION_MUST_BE_CALCULATED = "The position as of %tD must be calculated. The position calculation error must be solved.";
+
 	@Override
-	@Interceptors(PositionDefinitionProductScopeFilteringInterceptor.class)
+	@ProductScope
 	public DailyPnl calculateDailyPnl(String positionDefinitionName, String calendarCode, LocalDate valueDate)
 			throws TradistaBusinessException {
 		PositionDefinition posDef = positionDefinitionService.getPositionDefinitionByName(positionDefinitionName);
@@ -83,12 +88,9 @@ public class DailyPnlServiceBean implements DailyPnlService {
 		// error
 		if (previousDayPosition == null) {
 			List<PositionCalculationError> errors = positionCalculationErrorService.getPositionCalculationErrors(
-					posDef.getId(), PositionCalculationError.Status.UNSOLVED, 0, 0, previousDay, previousDay, null,
-					null, null, null);
+					posDef.getId(), Error.Status.UNSOLVED, 0, 0, previousDay, previousDay, null, null, null, null);
 			if (errors != null && !errors.isEmpty()) {
-				throw new TradistaBusinessException(String.format(
-						"The position as of %tD must be calculated. The position calculation error must be solved.",
-						previousDay));
+				throw new TradistaBusinessException(String.format(POSITION_MUST_BE_CALCULATED, previousDay));
 			} else {
 				// There was no error, so we calculate the position
 				positionService.calculatePosition(posDef.getName(), LocalDateTime.of(previousDay, LocalTime.MIN));
@@ -97,9 +99,7 @@ public class DailyPnlServiceBean implements DailyPnlService {
 				// 3. If the position still doesn't exist, it means there was an
 				// unsolved error to be solved.
 				if (previousDayPosition == null) {
-					throw new TradistaBusinessException(String.format(
-							"The position as of %tD must be calculated. The position calculation error must be solved.",
-							previousDay));
+					throw new TradistaBusinessException(String.format(POSITION_MUST_BE_CALCULATED, previousDay));
 				}
 			}
 		}
@@ -107,13 +107,10 @@ public class DailyPnlServiceBean implements DailyPnlService {
 		positionService.calculatePosition(posDef.getName(), valueDate.atTime(LocalTime.MAX));
 
 		List<PositionCalculationError> errors = positionCalculationErrorService.getPositionCalculationErrors(
-				posDef.getId(), PositionCalculationError.Status.UNSOLVED, 0, 0, valueDate, valueDate, null, null, null,
-				null);
+				posDef.getId(), Error.Status.UNSOLVED, 0, 0, valueDate, valueDate, null, null, null, null);
 
 		if (errors != null && !errors.isEmpty()) {
-			throw new TradistaBusinessException(String.format(
-					"The position as of %tD must be calculated. The position calculation error must be solved.",
-					valueDate));
+			throw new TradistaBusinessException(String.format(POSITION_MUST_BE_CALCULATED, valueDate));
 		} else {
 			position = positionService.getLastPositionByDefinitionNameAndValueDate(posDef.getName(), valueDate);
 		}
@@ -142,15 +139,16 @@ public class DailyPnlServiceBean implements DailyPnlService {
 	}
 
 	@Override
-	@Interceptors(DailyPnlProductScopeFilteringInterceptor.class)
+	@ProtectGlobal
+	@ProductScope(mode = ProductScopeMode.ON_CREATION)
 	public long saveDailyPnl(DailyPnl dailyPnl) {
 		return DailyPnlSQL.saveDailyPnl(dailyPnl);
 	}
 
-	@Interceptors(DailyPnlFilteringInterceptor.class)
 	@Override
-	public Set<DailyPnl> getDailyPnlsByDefinitionIdCalendarAndValueDates(long positionDefinitionId, String calendarCode,
-			LocalDate valueDateFrom, LocalDate valueDateTo) throws TradistaBusinessException {
+	public Set<DailyPnl> getDailyPnlsByDefinitionIdCalendarAndValueDates(
+			@CheckPositionDefinitionAccess long positionDefinitionId, String calendarCode, LocalDate valueDateFrom,
+			LocalDate valueDateTo) throws TradistaBusinessException {
 		return DailyPnlSQL.getDailyPnlsByPositionDefinitionCalendarAndValueDate(positionDefinitionId, calendarCode,
 				valueDateFrom, valueDateTo);
 	}

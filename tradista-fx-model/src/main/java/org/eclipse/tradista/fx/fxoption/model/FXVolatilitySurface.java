@@ -33,7 +33,7 @@ public class FXVolatilitySurface extends VolatilitySurface<Integer, BigDecimal, 
 	private static final long serialVersionUID = 2717361966579455059L;
 
 	private List<BigDecimal> deltas;
-	
+
 	@Id
 	private static final String TYPE = "FXVolatilitySurface";
 
@@ -90,7 +90,7 @@ public class FXVolatilitySurface extends VolatilitySurface<Integer, BigDecimal, 
 		}
 		return fxVolatilitySurface;
 	}
-	
+
 	@Override
 	public String getType() {
 		return TYPE;

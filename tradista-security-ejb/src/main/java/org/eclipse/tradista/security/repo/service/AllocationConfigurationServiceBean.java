@@ -3,14 +3,15 @@ package org.eclipse.tradista.security.repo.service;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.gcrepo.persistence.AllocationConfigurationSQL;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
-import org.eclipse.tradista.security.specificrepo.service.SpecificRepoProductScopeFilteringInterceptor;
+import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -34,7 +35,7 @@ import jakarta.interceptor.Interceptors;
 public class AllocationConfigurationServiceBean implements AllocationConfigurationService {
 
 	@Override
-	@Interceptors({ SpecificRepoProductScopeFilteringInterceptor.class, AllocationConfigurationFilteringInterceptor.class })
+	@ProductScope(SpecificRepoTrade.SPECIFIC_REPO)
 	public long saveAllocationConfiguration(AllocationConfiguration allocationConfiguration)
 			throws TradistaBusinessException {
 		if (allocationConfiguration.getId() == 0) {
@@ -63,20 +64,17 @@ public class AllocationConfigurationServiceBean implements AllocationConfigurati
 	}
 
 	@Override
-	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
 	public AllocationConfiguration getAllocationConfigurationById(long id) {
 		return AllocationConfigurationSQL.getAllocationConfigurationById(id);
 	}
 
 	@Override
-	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
 	public Set<AllocationConfiguration> getAllAllocationConfigurations() {
 		return AllocationConfigurationSQL.getAllAllocationConfigurations();
 	}
 
 	@Override
-	@Interceptors(AllocationConfigurationFilteringInterceptor.class)
-	public Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId) {
+	public Set<AllocationConfiguration> getAllocationConfigurationsByPoId(@CheckProcessingOrg long poId) {
 		return AllocationConfigurationSQL.getAllocationConfigurationsByPoId(poId);
 	}
 

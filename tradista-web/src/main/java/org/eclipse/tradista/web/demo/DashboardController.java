@@ -52,22 +52,22 @@ public class DashboardController implements Serializable {
 
 		cell1.setStyleClass(SMALL_COLUMN_RESPONSIVE_CLASS);
 		cell1.addWidget("book");
-		
+
 		model.addWidget(cell1);
-		
+
 		cell2.setStyleClass(LARGE_COLUMN_RESPONSIVE_CLASS);
 		cell2.addWidget("tradeBooking");
-		
+
 		model.addWidget(cell2);
-		
+
 		cell3.setStyleClass(SMALL_COLUMN_RESPONSIVE_CLASS);
 		cell3.addWidget("inventory");
-		
+
 		model.addWidget(cell3);
-		
+
 		cell4.setStyleClass(LARGE_COLUMN_RESPONSIVE_CLASS);
 		cell4.addWidget("tradesList");
-		
+
 		model.addWidget(cell4);
 	}
 

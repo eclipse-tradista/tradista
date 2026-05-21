@@ -55,12 +55,14 @@ public class CurveCreatorDialog extends TradistaDialog<Curve<LocalDate, BigDecim
 
 		Label poLabel = new Label("Processing Org: ");
 		ComboBox<LegalEntity> poComboBox = new ComboBox<>();
-		TradistaGUIUtil.fillProcessingOrgComboBox(poComboBox);
 		boolean isAdmin = ClientUtil.currentUserIsAdmin();
-		if (!isAdmin) {
+		if (isAdmin) {
+			TradistaGUIUtil.fillProcessingOrgComboBox(poComboBox);
 			poComboBox.getItems().add(0, BlankLegalEntity.getInstance());
+			poComboBox.getSelectionModel().selectFirst();
+		} else {
+			poComboBox.setValue(ClientUtil.getCurrentUser().getProcessingOrg());
 		}
-		poComboBox.getSelectionModel().selectFirst();
 
 		GridPane grid = new GridPane();
 		grid.setStyle("-fx-padding: 20; -fx-hgap: 20; -fx-vgap: 20;");

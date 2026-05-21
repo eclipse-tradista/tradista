@@ -1,16 +1,13 @@
 package org.eclipse.tradista.core.message.service;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.message.model.Message.ObjectType;
-import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 import org.eclipse.tradista.core.user.model.User;
-import org.springframework.util.CollectionUtils;
 
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;
@@ -33,11 +30,9 @@ import jakarta.interceptor.InvocationContext;
 
 public class MessageAuthorizationFilteringInterceptor extends TradistaAuthorizationFilteringInterceptor {
 
-	private MessageBusinessDelegate messageBusinessDelegate;
 	private TradeBusinessDelegate tradeBusinessDelegate;
 
 	public MessageAuthorizationFilteringInterceptor() {
-		messageBusinessDelegate = new MessageBusinessDelegate();
 		tradeBusinessDelegate = new TradeBusinessDelegate();
 	}
 
@@ -48,31 +43,6 @@ public class MessageAuthorizationFilteringInterceptor extends TradistaAuthorizat
 
 	@Override
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
-		Object[] parameters = ic.getParameters();
-		Method method = ic.getMethod();
-		Class<?>[] parameterTypes = method.getParameterTypes();
-		if (parameterTypes[0].equals(Message.class)) {
-			Message message = (Message) parameters[0];
-			StringBuilder errMsg = new StringBuilder();
-			if (message.getId() != 0) {
-				List<Message> msgs = messageBusinessDelegate.getMessages(message.getId(), null, null, null, 0, null,
-						null, null, null, null, null);
-				if (CollectionUtils.isEmpty(msgs)) {
-					errMsg.append(String.format("The message %d was not found.%n", message.getId()));
-				}
-			}
-			if (message.getObjectId() != 0) {
-				if (ObjectType.TRADE.equals(message.getObjectType())) {
-					Trade<?> trade = tradeBusinessDelegate.getTradeById(message.getObjectId());
-					if (trade == null) {
-						errMsg.append(String.format("The trade %d was not found.", message.getObjectId()));
-					}
-				}
-			}
-			if (!errMsg.isEmpty()) {
-				throw new TradistaBusinessException(errMsg.toString());
-			}
-		}
 	}
 
 	@Override
@@ -85,7 +55,7 @@ public class MessageAuthorizationFilteringInterceptor extends TradistaAuthorizat
 				value = messages.stream().filter(m -> {
 					try {
 						return (m.getObjectId() == 0) || (!ObjectType.TRADE.equals(m.getObjectType()))
-								|| (tradeBusinessDelegate.getTradeById(m.getObjectId()).getBook().getProcessingOrg()
+								|| (tradeBusinessDelegate.getTradeById(m.getObjectId()).getProcessingOrg()
 										.equals(user.getProcessingOrg()));
 					} catch (TradistaBusinessException _) {
 						return false;

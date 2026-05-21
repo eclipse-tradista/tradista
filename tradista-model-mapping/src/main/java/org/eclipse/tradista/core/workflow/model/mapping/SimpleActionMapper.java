@@ -57,8 +57,7 @@ public final class SimpleActionMapper {
 			actionResult.setArrivalStatus(StatusMapper.map(action.getArrivalStatus(), workflow));
 			actionResult.setDepartureStatus(StatusMapper.map(action.getDepartureStatus(), workflow));
 			if (action.getGuards() != null) {
-				actionResult.setGuards(
-						action.getGuards().stream().map(GuardMapper::map).collect(Collectors.toSet()));
+				actionResult.setGuards(action.getGuards().stream().map(GuardMapper::map).collect(Collectors.toSet()));
 			}
 			if (action.getProcesses() != null) {
 				actionResult.setProcesses(

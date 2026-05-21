@@ -3,13 +3,14 @@ package org.eclipse.tradista.security.gcrepo.service;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.gcrepo.persistence.GCBasketSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -33,7 +34,7 @@ import jakarta.interceptor.Interceptors;
 public class GCBasketServiceBean implements GCBasketService {
 
 	@Override
-	@Interceptors(GCRepoProductScopeFilteringInterceptor.class)
+	@ProductScope(GCRepoTrade.GC_REPO)
 	public long saveGCBasket(GCBasket gcBasket) throws TradistaBusinessException {
 		if (gcBasket.getId() == 0) {
 			checkNameExistence(gcBasket);

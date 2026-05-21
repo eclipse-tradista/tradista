@@ -12,16 +12,18 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXPricerService;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /*
  * Copyright 2015 Olivier Asuncion
@@ -46,8 +48,16 @@ under the License.    */
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(FXSwapTradeProductScopeFilteringInterceptor.class)
+@ProductScope(FXSwapTrade.FX_SWAP)
 public class FXSwapPricerServiceBean implements FXSwapPricerService {
+
+	private static final String FX_SWAP_FORWARD_LEG_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The FX Swap ({}) forward leg settlement date must be after the current and pricing dates.";
+
+	private static final String FX_SWAP_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The FX Swap ({}) settlement date must be after the current and pricing dates.";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
+
+	private static final Logger logger = LoggerFactory.getLogger(FXSwapPricerServiceBean.class);
 
 	@EJB
 	private FXPricerService fxPricerService;
@@ -58,7 +68,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getSettlementDateForward())
 				|| !pricingDate.isBefore(trade.getSettlementDateForward())) {
-			// TODO Log warn
+			logger.warn(FX_SWAP_FORWARD_LEG_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade);
 			return BigDecimal.ZERO;
 		}
 
@@ -84,7 +94,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getSettlementDateForward())
 				|| !pricingDate.isBefore(trade.getSettlementDateForward())) {
-			// TODO Log warn
+			logger.warn(FX_SWAP_FORWARD_LEG_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade);
 			return BigDecimal.ZERO;
 		}
 
@@ -113,7 +123,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getSettlementDate()) || !pricingDate.isBefore(trade.getSettlementDate())) {
-			// TODO Log warn
+			logger.warn(FX_SWAP_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade);
 			return BigDecimal.ZERO;
 		}
 
@@ -261,16 +271,16 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 					"When the pricing date is not before the forward leg settlement date, it is not possible to forecast cashflows.");
 		}
 
-		// Primary currency IR curve retrieval
 		InterestRateCurve primaryLegDiscountCurve = params.getDiscountCurves().get(trade.getCurrencyOne());
 		if (primaryLegDiscountCurve == null) {
-			// TODO Add log warn
+			logger.warn(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+					trade.getCurrencyOne()));
 		}
 
-		// Quote currency IR curve retrieval
 		InterestRateCurve quoteLegDiscountCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (quoteLegDiscountCurve == null) {
-			// TODO Add log warn
+			logger.warn(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+					trade.getCurrency()));
 		}
 
 		CashFlow primarySpotCf = new CashFlow();

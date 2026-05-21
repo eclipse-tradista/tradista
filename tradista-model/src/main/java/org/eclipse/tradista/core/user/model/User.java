@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.user.model;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -21,7 +22,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class User extends TradistaObject {
+public class User extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = 7677381398422965047L;
 

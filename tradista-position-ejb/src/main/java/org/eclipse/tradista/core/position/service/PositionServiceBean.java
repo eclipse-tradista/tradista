@@ -19,6 +19,8 @@ import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import org.eclipse.tradista.core.trade.model.Trade;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
@@ -26,7 +28,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -66,26 +67,26 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 	private PositionService positionService;
 
 	@Override
-	@Interceptors(PositionProductScopeFilteringInterceptor.class)
+	@ProductScope(mode = ProductScopeMode.ON_CREATION)
 	public long savePosition(Position position) {
 		return PositionSQL.savePosition(position);
 	}
 
 	@Override
-	@Interceptors(PositionProductScopeFilteringInterceptor.class)
+	@ProductScope(mode = ProductScopeMode.ON_CREATION)
 	public void savePositions(List<Position> positions) {
 		PositionSQL.savePositions(positions);
 
 	}
 
-	@Interceptors(PositionFilteringInterceptor.class)
 	@Override
-	public List<Position> getPositionsByDefinitionIdAndValueDates(long positionDefinitionId, LocalDate valueDateFrom,
-			LocalDate valueDateTo) throws TradistaBusinessException {
+	public List<Position> getPositionsByDefinitionIdAndValueDates(
+			@CheckPositionDefinitionAccess long positionDefinitionId, LocalDate valueDateFrom, LocalDate valueDateTo)
+			throws TradistaBusinessException {
 		return PositionSQL.getPositionsByDefinitionAndValueDates(positionDefinitionId, valueDateFrom, valueDateTo);
 	}
 
-	@Interceptors(PositionDefinitionProductScopeFilteringInterceptor.class)
+	@ProductScope
 	@Override
 	public void calculatePosition(String positionDefinitionName, LocalDateTime valueDateTime)
 			throws TradistaBusinessException {
@@ -190,7 +191,7 @@ public class PositionServiceBean implements LocalPositionService, PositionServic
 				long bookId = posDef.getBook() != null ? posDef.getBook().getId() : 0;
 				try {
 					products = new ProductBusinessDelegate().getProducts(posDef);
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// no exception should appear at this stage as
 					// posDef is not null.
 				}

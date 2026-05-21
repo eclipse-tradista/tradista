@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.tradista.core.cashinventory.service.CashInventoryFilteringInterceptor;
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -23,7 +23,6 @@ import jakarta.ejb.ConcurrencyManagementType;
 import jakarta.ejb.Lock;
 import jakarta.ejb.LockType;
 import jakarta.ejb.Singleton;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -143,7 +142,7 @@ public class CashInventoryServiceBean implements CashInventoryService {
 		fusionContiguousCashInventories(transfer.getCurrency().getId(), transfer.getBook().getId());
 	}
 
-	private void fusionContiguousCashInventories(long currencyId, long bookId) {
+	private void fusionContiguousCashInventories(long currencyId, @CheckBookAccess long bookId) {
 		Map<LocalDate, CashInventory> cashInventories = new HashMap<>();
 		Set<CashInventory> cashInventoriesByCurrencyAndBookIds = CashInventorySQL
 				.getCashInventoriesByCurrencyAndBookIds(currencyId, bookId);
@@ -178,30 +177,30 @@ public class CashInventoryServiceBean implements CashInventoryService {
 	}
 
 	@Override
-	public Set<CashInventory> getCashInventoriesBeforeDateByCurrencyAndBookIds(long currencyId, long bookId,
-			LocalDate date) {
+	public Set<CashInventory> getCashInventoriesBeforeDateByCurrencyAndBookIds(long currencyId,
+			@CheckBookAccess long bookId, LocalDate date) {
 		return CashInventorySQL.getCashInventoriesBeforeDateByCurrencyAndBookIds(currencyId, bookId, date);
 	}
 
 	@Override
-	public Set<CashInventory> getOpenPositionsFromCashInventoryByCurrencyAndBookIds(long currencyId, long bookId) {
+	public Set<CashInventory> getOpenPositionsFromCashInventoryByCurrencyAndBookIds(long currencyId,
+			@CheckBookAccess long bookId) {
 		return CashInventorySQL.getOpenPositionsFromCashInventoryByCurrencyAndBookIds(currencyId, bookId);
 	}
 
 	@Override
-	public BigDecimal getAmountByDateCurrencyAndBookIds(long currencyId, long bookId, LocalDate date) {
+	public BigDecimal getAmountByDateCurrencyAndBookIds(long currencyId, @CheckBookAccess long bookId, LocalDate date) {
 		return CashInventorySQL.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date);
 	}
 
-	@Interceptors(CashInventoryFilteringInterceptor.class)
 	@Override
-	public Set<CashInventory> getCashInventories(LocalDate from, LocalDate to, long currencyId, long bookId,
-			boolean onlyOpenPositions) throws TradistaBusinessException {
+	public Set<CashInventory> getCashInventories(LocalDate from, LocalDate to, long currencyId,
+			@CheckBookAccess long bookId, boolean onlyOpenPositions) throws TradistaBusinessException {
 		return CashInventorySQL.getCashInventories(from, to, currencyId, bookId, onlyOpenPositions);
 	}
 
 	@Override
-	public Map<String, BigDecimal> getBookCashContent(LocalDate date, long bookId) {
+	public Map<String, BigDecimal> getBookCashContent(LocalDate date, @CheckBookAccess long bookId) {
 		Set<Currency> currencies = CurrencySQL.getAllCurrencies();
 		Map<String, BigDecimal> bookCashContent = null;
 		if (currencies != null && !currencies.isEmpty()) {

@@ -1,12 +1,10 @@
 package org.eclipse.tradista.core.message.service;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.model.ExportError;
-import org.eclipse.tradista.core.message.model.Message;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.interceptor.AroundInvoke;
@@ -26,7 +24,7 @@ import jakarta.interceptor.InvocationContext;
  * the License.
  * 
  * SPDX-License-Identifier: Apache-2.0
- ********************************************************************************/
+ *******************************************************************************/
 
 public class ExportErrorAuthorizationFilteringInterceptor extends TradistaAuthorizationFilteringInterceptor {
 
@@ -42,27 +40,6 @@ public class ExportErrorAuthorizationFilteringInterceptor extends TradistaAuthor
 	}
 
 	@Override
-	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
-		Object[] parameters = ic.getParameters();
-		Method method = ic.getMethod();
-		Class<?>[] parameterTypes = method.getParameterTypes();
-		if (parameterTypes[0].equals(ExportError.class)) {
-			ExportError exportError = (ExportError) parameters[0];
-			StringBuilder errMsg = new StringBuilder();
-			if (exportError.getMessage().getId() != 0) {
-				List<Message> msgs = messageBusinessDelegate.getMessages(exportError.getMessage().getId(),
-						Boolean.FALSE, null, null, 0, null, null, null, null, null, null);
-				if (CollectionUtils.isEmpty(msgs)) {
-					errMsg.append(String.format("The message %d was not found.", exportError.getMessage().getId()));
-				}
-			}
-			if (!errMsg.isEmpty()) {
-				throw new TradistaBusinessException(errMsg.toString());
-			}
-		}
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	protected Object postFilter(Object value) throws TradistaBusinessException {
 		if (value != null) {
@@ -70,17 +47,18 @@ public class ExportErrorAuthorizationFilteringInterceptor extends TradistaAuthor
 				List<ExportError> errors = (List<ExportError>) value;
 				value = errors.stream().filter(e -> {
 					try {
-						return (messageBusinessDelegate.getMessages(e.getMessage().getId(), Boolean.FALSE, null, null,
-								0, null, null, null, null, null, null) != null);
+						List<?> msgs = messageBusinessDelegate.getMessages(e.getMessage().getId(), Boolean.FALSE, null,
+								null, 0, null, null, null, null, null, null);
+						return !CollectionUtils.isEmpty(msgs);
 					} catch (TradistaBusinessException _) {
 						return false;
 					}
 				}).toList();
 			}
 			if (value instanceof ExportError error) {
-				value = messageBusinessDelegate.getMessages(error.getMessage().getId(), Boolean.FALSE, null, null, 0,
-						null, null, null, null, null, null) == null ? null : value;
-
+				List<?> msgs = messageBusinessDelegate.getMessages(error.getMessage().getId(), Boolean.FALSE, null,
+						null, 0, null, null, null, null, null, null);
+				value = CollectionUtils.isEmpty(msgs) ? null : value;
 			}
 		}
 		return value;

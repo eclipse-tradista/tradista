@@ -48,11 +48,6 @@ public class PricingParameterVolatilitySurfaceModuleValidator implements Pricing
 							"If the Pricing Parameters Set is a global one, the FX Volatility Surface %s must also be global.%n",
 							surface));
 				}
-				if (po != null && surface.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the FX Volatility Surface %s is a global one, the Pricing Parameters Set must also be global.%n",
-							surface));
-				}
 			}
 		}
 		if (!errMsg.isEmpty()) {
@@ -61,7 +56,7 @@ public class PricingParameterVolatilitySurfaceModuleValidator implements Pricing
 	}
 
 	@Override
-	public void checkAccess(PricingParameterModule module, StringBuilder errMsg) {
+	public void checkIntegrity(PricingParameterModule module, StringBuilder errMsg) {
 		PricingParameterVolatilitySurfaceModule mod = (PricingParameterVolatilitySurfaceModule) module;
 		if (mod.getVolatilitySurfaces() != null && !mod.getVolatilitySurfaces().isEmpty()) {
 			for (FXVolatilitySurface surface : mod.getVolatilitySurfaces().values()) {
