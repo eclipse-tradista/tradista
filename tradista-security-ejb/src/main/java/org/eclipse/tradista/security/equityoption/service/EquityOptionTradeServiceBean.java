@@ -3,11 +3,16 @@ package org.eclipse.tradista.security.equityoption.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.security.equity.service.EquityTradeService;
 import org.eclipse.tradista.security.equityoption.messaging.EquityOptionTradeEvent;
+import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 import org.eclipse.tradista.security.equityoption.persistence.EquityOptionTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -17,7 +22,6 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -52,14 +56,18 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 	@EJB
 	private EquityTradeService equityTradeService;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ EquityOptionProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = EquityOption.EQUITY_OPTION, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveEquityOptionTrade(EquityOptionTrade trade) throws TradistaBusinessException {
+	public long saveEquityOptionTrade(@CheckTradeAccess EquityOptionTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade, true);
 
 		EquityOptionTradeEvent event = new EquityOptionTradeEvent();
 
@@ -93,12 +101,11 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 
 	@Override
 	public List<EquityOptionTrade> getEquityOptionTradesBeforeTradeDateByEquityOptionAndBookIds(LocalDate tradeDate,
-			long equityOptionId, long bookId) {
+			long equityOptionId, @CheckBookAccess long bookId) {
 		return EquityOptionTradeSQL.getEquityOptionTradesBeforeTradeDateByEquityOptionAndBookIds(tradeDate,
 				equityOptionId, bookId);
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public EquityOptionTrade getEquityOptionTradeById(long id) {
 		return EquityOptionTradeSQL.getTradeById(id);

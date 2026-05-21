@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
@@ -39,4 +40,8 @@ public interface TradeService {
 	Set<Trade<? extends Product>> getTrades(PositionDefinition posDef);
 
 	Trade<?> getTradeById(long tradeId, boolean includeUnderlying);
+
+	void checkTradeBasics(Trade<?> trade) throws TradistaBusinessException;
+
+	void checkTradeBasics(Trade<?> trade, boolean checkCurrency) throws TradistaBusinessException;
 }

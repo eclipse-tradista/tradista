@@ -3,8 +3,12 @@ package org.eclipse.tradista.ir.future.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.ir.future.messaging.FutureTradeEvent;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
@@ -16,7 +20,6 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -51,14 +54,18 @@ public class FutureTradeServiceBean implements FutureTradeService {
 	@EJB
 	private FutureService futureService;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ FutureProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = Future.FUTURE, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveFutureTrade(FutureTrade trade) throws TradistaBusinessException {
+	public long saveFutureTrade(@CheckTradeAccess FutureTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 
 		FutureTradeEvent event = new FutureTradeEvent();
 
@@ -88,11 +95,10 @@ public class FutureTradeServiceBean implements FutureTradeService {
 
 	@Override
 	public List<FutureTrade> getFutureTradesBeforeTradeDateByFutureAndBookIds(LocalDate date, long futureId,
-			long bookId) {
+			@CheckBookAccess long bookId) {
 		return FutureTradeSQL.getFutureTradesBeforeTradeDateByFutureAndBookIds(date, futureId, bookId);
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public FutureTrade getFutureTradeById(long id) {
 		return FutureTradeSQL.getTradeById(id);

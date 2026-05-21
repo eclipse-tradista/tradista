@@ -34,7 +34,7 @@ public interface ExportErrorService {
 
 	List<ExportError> getExportErrors(Set<String> exporterTypes, Set<String> exporterNames, long messageId,
 			Status status, ExportErrorType exportErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
-			LocalDate solvingDateFrom, LocalDate solvingDateTo);
+			LocalDate solvingDateFrom, LocalDate solvingDateTo) throws TradistaBusinessException;
 
-	ExportError getExportError(long msgId, ExportErrorType exportErrorType);
+	ExportError getExportError(long msgId, ExportErrorType exportErrorType) throws TradistaBusinessException;
 }

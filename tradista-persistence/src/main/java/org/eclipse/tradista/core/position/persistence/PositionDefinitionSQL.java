@@ -151,7 +151,8 @@ public class PositionDefinitionSQL {
 	public static boolean deletePositionDefinition(String positionDefinitionName) {
 		boolean deleted = false;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtDeletePositionDefinition = TradistaDBUtil.buildDeletePreparedStatement(con, TABLE, NAME_FIELD)) {
+				PreparedStatement stmtDeletePositionDefinition = TradistaDBUtil.buildDeletePreparedStatement(con, TABLE,
+						NAME_FIELD)) {
 			stmtDeletePositionDefinition.setString(1, positionDefinitionName);
 			stmtDeletePositionDefinition.executeUpdate();
 			deleted = true;

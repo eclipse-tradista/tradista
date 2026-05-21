@@ -1,5 +1,7 @@
 package org.eclipse.tradista.fx.fx.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,14 +18,16 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -44,8 +48,12 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(FXProductScopeFilteringInterceptor.class)
+@ProductScope(FXTrade.FX)
 public class FXPricerServiceBean implements FXPricerService {
+
+	private static final String SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The settlement date ({}) must be after the current and pricing dates.";
+
+	private static final Logger logger = LoggerFactory.getLogger(FXPricerServiceBean.class);
 
 	@EJB
 	private ConfigurationService configurationService;
@@ -54,7 +62,7 @@ public class FXPricerServiceBean implements FXPricerService {
 	public BigDecimal npvDiscountedLegsDiff(PricingParameter params, FXTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		if (!LocalDate.now().isBefore(trade.getSettlementDate()) || !pricingDate.isBefore(trade.getSettlementDate())) {
-			// TODO Log warn
+			logger.warn(SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getSettlementDate());
 			return BigDecimal.ZERO;
 		}
 		if (trade.isBuy()) {
@@ -70,7 +78,7 @@ public class FXPricerServiceBean implements FXPricerService {
 	public BigDecimal primaryPvDiscountedLegsDiff(PricingParameter params, FXTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		if (!LocalDate.now().isBefore(trade.getSettlementDate()) || !pricingDate.isBefore(trade.getSettlementDate())) {
-			// TODO Log warn
+			logger.warn(SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getSettlementDate());
 			return BigDecimal.ZERO;
 		}
 		try {
@@ -78,7 +86,7 @@ public class FXPricerServiceBean implements FXPricerService {
 			CurrencyPair pair = new CurrencyPair(primaryCurrency, currency);
 			FXCurve paramFXCurve = params.getFxCurves().get(pair);
 			if (paramFXCurve == null) {
-				// TODO Add log warn
+				logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 			}
 			// 1. Primary currency IR curve retrieval
 			InterestRateCurve paramPrimCurrIRCurve = params.getDiscountCurves().get(primaryCurrency);
@@ -100,7 +108,6 @@ public class FXPricerServiceBean implements FXPricerService {
 
 			return discountedPrimaryLeg;
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
@@ -109,11 +116,11 @@ public class FXPricerServiceBean implements FXPricerService {
 	public BigDecimal quotePvDiscountedLegsDiff(PricingParameter params, FXTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		if (!LocalDate.now().isBefore(trade.getSettlementDate()) || !pricingDate.isBefore(trade.getSettlementDate())) {
-			// TODO Log warn
+			logger.warn(SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getSettlementDate());
 			return BigDecimal.ZERO;
 		}
 		try {
-			Currency quoteCurrency = ((FXTrade) trade).getCurrency();
+			Currency quoteCurrency = trade.getCurrency();
 			// Quote currency IR curve retrieval
 			InterestRateCurve paramQuoteCurrIRCurve = params.getDiscountCurves().get(quoteCurrency);
 			if (paramQuoteCurrIRCurve == null) {
@@ -125,10 +132,10 @@ public class FXPricerServiceBean implements FXPricerService {
 			CurrencyPair pair = new CurrencyPair(quoteCurrency, currency);
 			FXCurve paramFXCurve = params.getFxCurves().get(pair);
 			if (paramFXCurve == null) {
-				// TODO add a log warn
+				logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 			}
 
-			DayCountConvention dcc = new DayCountConvention("ACT/360");
+			DayCountConvention dcc = new DayCountConvention(DayCountConvention.ACT_360);
 
 			// Discount the quote leg
 			BigDecimal discountedQuoteLeg = PricerUtil.discountAmount(trade.getAmount(), paramQuoteCurrIRCurve.getId(),
@@ -140,7 +147,6 @@ public class FXPricerServiceBean implements FXPricerService {
 
 			return discountedQuoteLeg;
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
@@ -191,7 +197,7 @@ public class FXPricerServiceBean implements FXPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 		// 1. Get the current FX rate:
 		BigDecimal currentFxRate = PricerUtil.getFXExchangeRate(trade.getCurrencyOne(), trade.getCurrency(),
@@ -264,7 +270,7 @@ public class FXPricerServiceBean implements FXPricerService {
 
 		InterestRateCurve quoteLegDiscountCurve = params.getDiscountCurves().get(trade.getCurrency());
 
-		List<CashFlow> cashFlows = new ArrayList<CashFlow>();
+		List<CashFlow> cashFlows = new ArrayList<>();
 
 		if (primaryLegDiscountCurve != null) {
 			try {

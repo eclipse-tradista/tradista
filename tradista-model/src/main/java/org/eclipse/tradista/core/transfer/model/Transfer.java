@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.product.model.Product;
@@ -27,7 +28,7 @@ import org.eclipse.tradista.core.trade.model.Trade;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Transfer extends TradistaObject {
+public abstract class Transfer extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = 3471863038215096341L;
 
@@ -160,7 +161,7 @@ public abstract class Transfer extends TradistaObject {
 	@Id
 	private Book book;
 
-	public Transfer(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate, Trade<?> trade) {
+	protected Transfer(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate, Trade<?> trade) {
 		this.book = book;
 		this.product = product;
 		this.purpose = purpose;
@@ -225,6 +226,11 @@ public abstract class Transfer extends TradistaObject {
 
 	public Book getBook() {
 		return TradistaModelUtil.clone(book);
+	}
+
+	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return book != null ? book.getProcessingOrg() : null;
 	}
 
 	@Override

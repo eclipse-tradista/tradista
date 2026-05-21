@@ -24,5 +24,4 @@ public interface ProcessingOrgDefaultsModuleValidator {
 
 	void validateModule(ProcessingOrgDefaultsModule module, LegalEntity po) throws TradistaBusinessException;
 
-	void checkAccess(ProcessingOrgDefaultsModule module, StringBuilder errMsg) throws TradistaBusinessException;
 }

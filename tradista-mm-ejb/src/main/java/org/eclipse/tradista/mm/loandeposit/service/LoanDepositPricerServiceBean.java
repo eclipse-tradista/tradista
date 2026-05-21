@@ -1,5 +1,7 @@
 package org.eclipse.tradista.mm.loandeposit.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,14 +15,16 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 import org.eclipse.tradista.mm.loandeposit.pricer.PricerLoanDepositUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -41,15 +45,19 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(LoanDepositTradeProductScopeFilteringInterceptor.class)
+@ProductScope(LoanDepositTrade.LOAN_DEPOSIT)
 public class LoanDepositPricerServiceBean implements LoanDepositPricerService {
+
+	private static final String END_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The end date ({}) must be after the current and pricing dates.";
+
+	private static final Logger logger = LoggerFactory.getLogger(LoanDepositPricerServiceBean.class);
 
 	@Override
 	public BigDecimal npvDiscountedCashFlow(PricingParameter params, LoanDepositTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getEndDate()) || !pricingDate.isBefore(trade.getEndDate())) {
-			// TODO Log warn
+			logger.warn(END_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getEndDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -82,7 +90,7 @@ public class LoanDepositPricerServiceBean implements LoanDepositPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		try {

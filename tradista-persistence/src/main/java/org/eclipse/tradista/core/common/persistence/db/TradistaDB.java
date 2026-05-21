@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.common.persistence.db;
 
+import static org.eclipse.tradista.core.common.util.TradistaConstants.DATASOURCE_JNDI_URL;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -10,8 +12,6 @@ import javax.sql.DataSource;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.eclipse.tradista.core.common.util.TradistaConstants.DATASOURCE_JNDI_URL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

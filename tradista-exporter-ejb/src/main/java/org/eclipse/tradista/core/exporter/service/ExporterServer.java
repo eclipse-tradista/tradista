@@ -40,7 +40,7 @@ public class ExporterServer {
 
 	@PostConstruct
 	public void init() {
-		Set<Exporter<?,?>> exporters = localExporterConfigurationService.getAllExporters();
+		Set<Exporter<?, ?>> exporters = localExporterConfigurationService.getAllExporters();
 
 		if (exporters == null || exporters.isEmpty()) {
 			// No exporter, we add a log and exit this method.
@@ -48,7 +48,7 @@ public class ExporterServer {
 			return;
 		}
 		try (ExecutorService executor = Executors.newScheduledThreadPool(exporters.size())) {
-			for (Exporter<?,?> exporter : exporters) {
+			for (Exporter<?, ?> exporter : exporters) {
 				executor.submit(exporter);
 			}
 		}

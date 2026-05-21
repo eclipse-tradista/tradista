@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.ccyswap.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,14 +17,16 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.ir.ccyswap.model.CcySwapTrade;
 import org.eclipse.tradista.ir.irswap.pricer.PricerIRSwapUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -43,15 +47,21 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(CcySwapTradeProductScopeFilteringInterceptor.class)
+@ProductScope(CcySwapTrade.CCY_SWAP)
 public class CcySwapPricerServiceBean implements CcySwapPricerService {
+
+	private static final String MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The maturity date ({}) must be after the current and pricing dates.";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
+
+	private static final Logger logger = LoggerFactory.getLogger(CcySwapPricerServiceBean.class);
 
 	@Override
 	public BigDecimal fixedLegPvDiscountedCashFlow(PricingParameter params, CcySwapTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -65,7 +75,7 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrencyTwo(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// 1. Determine the pending flows of the fixed leg
@@ -103,7 +113,7 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -117,7 +127,7 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// 1. Determine the pending flows of the fixed leg
@@ -193,7 +203,7 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -298,16 +308,16 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 					params.getName(), trade.getReceptionReferenceRateIndex()));
 		}
 
-		// Primary currency IR curve retrieval
 		InterestRateCurve discountCurveFloatingLeg = params.getDiscountCurves().get(trade.getCurrency());
 		if (discountCurveFloatingLeg == null) {
-			// TODO Add log warn
+			logger.warn(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+					trade.getCurrency()));
 		}
 
-		// Quote currency IR curve retrieval
 		InterestRateCurve discountCurveFixedLeg = params.getDiscountCurves().get(trade.getCurrencyTwo());
 		if (discountCurveFixedLeg == null) {
-			// TODO Add log warn
+			logger.warn(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+					trade.getCurrencyTwo()));
 		}
 
 		cashFlows = PricerIRSwapUtil.generateCashFlows(trade, pricingDate, params.getQuoteSet(),

@@ -199,4 +199,21 @@ public final class SecurityUtil {
 		authenticationContext = authenticationContext.with(MatchRule.ALL, adminConfig);
 	}
 
+	public static void checkProcessingOrg(org.eclipse.tradista.core.user.model.User user,
+			org.eclipse.tradista.core.legalentity.model.LegalEntity po, StringBuilder errMsg, boolean protectGlobal) {
+		if (user == null) {
+			errMsg.append(String.format("The user is null.%n"));
+		} else if (user.getProcessingOrg() != null) {
+			if (po == null) {
+				if (protectGlobal) {
+					errMsg.append(String.format("You are not allowed to update or delete a global object.%n"));
+				}
+			} else if (!user.getProcessingOrg().equals(po)) {
+				errMsg.append(
+						String.format("The processing org %s is not the same as the user's processing org (%s).%n",
+								po.getShortName(), user.getProcessingOrg().getShortName()));
+			}
+		}
+	}
+
 }

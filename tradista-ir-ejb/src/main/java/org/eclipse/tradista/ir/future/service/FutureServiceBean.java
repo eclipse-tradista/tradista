@@ -3,13 +3,13 @@ package org.eclipse.tradista.ir.future.service;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.persistence.FutureSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -48,7 +48,7 @@ public class FutureServiceBean implements FutureService {
 	}
 
 	@Override
-	@Interceptors(FutureProductScopeFilteringInterceptor.class)
+	@ProductScope(Future.FUTURE)
 	public long saveFuture(Future future) throws TradistaBusinessException {
 		if (future.getId() == 0) {
 			checkSymbolExistence(future);

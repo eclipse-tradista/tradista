@@ -2,7 +2,10 @@ package org.eclipse.tradista.ir.irswapoption.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.ir.irswap.service.IRSwapTradeService;
 import org.eclipse.tradista.ir.irswapoption.messaging.IRSwapOptionTradeEvent;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
@@ -14,7 +17,6 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -49,15 +51,18 @@ public class IRSwapOptionTradeServiceBean implements IRSwapOptionTradeService {
 	@EJB
 	private IRSwapTradeService irSwapTradeService;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ IRSwapOptionTradeProductScopeFilteringInterceptor.class,
-			TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = IRSwapOptionTrade.IR_SWAP_OPTION, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveIRSwapOptionTrade(IRSwapOptionTrade trade) throws TradistaBusinessException {
+	public long saveIRSwapOptionTrade(@CheckTradeAccess IRSwapOptionTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade, true);
 		IRSwapOptionTradeEvent event = new IRSwapOptionTradeEvent();
 
 		IRSwapOptionTrade oldTrade = null;
@@ -94,7 +99,6 @@ public class IRSwapOptionTradeServiceBean implements IRSwapOptionTradeService {
 
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public IRSwapOptionTrade getIRSwapOptionTradeById(long id) {
 		return IRSwapOptionTradeSQL.getTradeById(id);

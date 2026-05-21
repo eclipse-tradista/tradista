@@ -7,15 +7,19 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
 import org.eclipse.tradista.core.marketdata.generationalgorithm.SurfaceGenerationAlgorithm;
 import org.eclipse.tradista.core.marketdata.interpolator.MultivariateInterpolator;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.service.CheckVolatilitySurfaceAccess;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.SurfaceBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.service.VolatilitySurfaceFilteringInterceptor;
-import org.eclipse.tradista.fx.fx.service.FXProductScopeFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.persistence.FXVolatilitySurfaceSQL;
@@ -23,7 +27,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /*
  * Copyright 2015 Olivier Asuncion
@@ -50,13 +53,11 @@ under the License.    */
 @Stateless
 public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceService {
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public Set<FXVolatilitySurface> getAllFXVolatilitySurfaces() {
 		return FXVolatilitySurfaceSQL.getAllFXVolatilitySurfaces();
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public Set<FXVolatilitySurface> getFXVolatilitySurfacesByPoId(long poId) {
 		return FXVolatilitySurfaceSQL.getFXVolatilitySurfacesByPoId(poId);
@@ -67,22 +68,21 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 		return FXVolatilitySurfaceSQL.getFXVolatilitySurfaceByName(name);
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
-	public FXVolatilitySurface getFXVolatilitySurfaceById(long id) {
+	public FXVolatilitySurface getFXVolatilitySurfaceById(@CheckVolatilitySurfaceAccess long id) {
 		return FXVolatilitySurfaceSQL.getFXVolatilitySurfaceById(id);
 	}
 
 	@Override
 	public boolean saveFXVolatilitySurfacePoints(long id,
 			List<SurfacePoint<Long, BigDecimal, BigDecimal>> surfacePoints, Long optionExpiry, BigDecimal strike) {
-		// TODO Auto-generated method stub
 		return FXVolatilitySurfaceSQL.saveFXVolatilitySurfacePoints(id, surfacePoints, optionExpiry, strike);
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteFXVolatilitySurface(long surfaceId) throws TradistaBusinessException {
+	public boolean deleteFXVolatilitySurface(@CheckVolatilitySurfaceAccess long surfaceId)
+			throws TradistaBusinessException {
 		return FXVolatilitySurfaceSQL.deleteFXVolatilitySurface(surfaceId);
 	}
 
@@ -99,9 +99,11 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 				optionExpiry, strike);
 	}
 
-	@Interceptors({ FXProductScopeFilteringInterceptor.class, VolatilitySurfaceFilteringInterceptor.class })
+	@ProtectGlobal
+	@ProductScope(value = FXTrade.FX, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveFXVolatilitySurface(FXVolatilitySurface surface) throws TradistaBusinessException {
+	public long saveFXVolatilitySurface(@CheckVolatilitySurfaceAccess FXVolatilitySurface surface)
+			throws TradistaBusinessException {
 		if (surface.getId() == 0) {
 			checkSurfaceExistence(surface);
 		} else {
@@ -113,6 +115,14 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 				checkSurfaceExistence(surface);
 			}
 		}
+
+		if (surface.getQuoteSet() != null) {
+			if (new QuoteBusinessDelegate().getQuoteSetById(surface.getQuoteSet().getId()) == null) {
+				throw new TradistaBusinessException(
+						String.format("The quote set %d was not found.", surface.getQuoteSet().getId()));
+			}
+		}
+
 		return FXVolatilitySurfaceSQL.saveFXVolatilitySurface(surface);
 	}
 
@@ -170,7 +180,7 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 
 	@Override
 	public Set<String> getAllInstances() {
-		Set<String> instances = new HashSet<String>();
+		Set<String> instances = new HashSet<>();
 		instances.add("CLOSE");
 		instances.add("OPEN");
 		instances.add("BID");

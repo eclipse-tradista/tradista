@@ -1,5 +1,8 @@
 package org.eclipse.tradista.security.specificrepo.ui.controller;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FIXED;
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FLOATING;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,9 +37,6 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
-
-import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FIXED;
-import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FLOATING;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion

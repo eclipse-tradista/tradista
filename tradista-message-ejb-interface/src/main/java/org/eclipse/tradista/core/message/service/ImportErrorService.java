@@ -34,7 +34,7 @@ public interface ImportErrorService {
 
 	List<ImportError> getImportErrors(Set<String> importerTypes, Set<String> importerNames, long messageId,
 			Status status, ImportErrorType importErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
-			LocalDate solvingDateFrom, LocalDate solvingDateTo);
+			LocalDate solvingDateFrom, LocalDate solvingDateTo) throws TradistaBusinessException;
 
-	ImportError getImportError(long msgId, ImportErrorType importErrorType);
+	ImportError getImportError(long msgId, ImportErrorType importErrorType) throws TradistaBusinessException;
 }

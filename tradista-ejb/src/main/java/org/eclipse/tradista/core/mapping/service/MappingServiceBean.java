@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.mapping.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.persistence.MappingSQL;
@@ -8,7 +9,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2025 Olivier Asuncion
@@ -31,10 +31,9 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class MappingServiceBean implements MappingService {
 
-	@Interceptors(MappingAuthorizationFilteringInterceptor.class)
 	@Override
 	public String getMappingValue(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction, String value, long poId) {
+			InterfaceMappingSet.Direction direction, String value, @CheckProcessingOrg long poId) {
 		String mappedValue = null;
 		if (poId > 0) {
 			// 1. Specific PO, Specific Interface
@@ -57,10 +56,9 @@ public class MappingServiceBean implements MappingService {
 		return mappedValue;
 	}
 
-	@Interceptors(MappingAuthorizationFilteringInterceptor.class)
 	@Override
 	public String getOriginalValue(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction, String mappedValue, long poId) {
+			InterfaceMappingSet.Direction direction, String mappedValue, @CheckProcessingOrg long poId) {
 		String value = null;
 		if (poId > 0) {
 			// 1. Specific PO, Specific Interface
@@ -83,16 +81,14 @@ public class MappingServiceBean implements MappingService {
 		return value;
 	}
 
-	@Interceptors(MappingAuthorizationFilteringInterceptor.class)
 	@Override
 	public long saveInterfaceMappingSet(InterfaceMappingSet ims) {
 		return MappingSQL.saveInterfaceMappingSet(ims);
 	}
 
-	@Interceptors(MappingAuthorizationFilteringInterceptor.class)
 	@Override
 	public InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction, long poId) {
+			InterfaceMappingSet.Direction direction, @CheckProcessingOrg long poId) {
 		return MappingSQL.getInterfaceMappingSet(interfaceName, mappingType, direction, poId);
 	}
 

@@ -5,11 +5,11 @@ import java.util.Set;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -32,14 +32,13 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class BookServiceBean implements BookService {
 
-	@Interceptors(BookFilteringInterceptor.class)
 	@Override
 	public Set<Book> getAllBooks() {
 		return BookSQL.getAllBooks();
 	}
 
 	@Override
-	public long saveBook(Book book) throws TradistaBusinessException {
+	public long saveBook(@CheckBookAccess Book book) throws TradistaBusinessException {
 		if (book.getId() == 0) {
 			checkBookExistence(book);
 		} else {
@@ -60,27 +59,23 @@ public class BookServiceBean implements BookService {
 		}
 	}
 
-	@Interceptors(BookFilteringInterceptor.class)
 	@Override
 	public Book getBookByName(String name) {
 		return BookSQL.getBookByName(name);
 	}
 
-	@Interceptors(BookFilteringInterceptor.class)
 	@Override
 	public Book getBookById(long id) {
 		return BookSQL.getBookById(id);
 	}
 
-	@Interceptors(BookFilteringInterceptor.class)
 	@Override
-	public Set<Book> getBooksByPoId(long poId) {
+	public Set<Book> getBooksByPoId(@CheckProcessingOrg long poId) {
 		return BookSQL.getBooksByPoId(poId);
 	}
 
-	@Interceptors(BookFilteringInterceptor.class)
 	@Override
-	public Book getBookByNameAndPoId(String name, long poId) {
+	public Book getBookByNameAndPoId(String name, @CheckProcessingOrg long poId) {
 		return BookSQL.getBookByNameAndPoId(name, poId);
 	}
 

@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.exporter.workflow.process;
 
 import org.eclipse.tradista.core.exporter.service.ExporterBusinessDelegate;
-
 import org.eclipse.tradista.core.message.workflow.mapping.OutgoingMessage;
 
 import finance.tradista.flow.model.Process;

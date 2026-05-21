@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
@@ -20,7 +22,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -58,16 +59,15 @@ public class QuoteServiceBean implements QuoteService {
 		return QuoteSetSQL.getQuoteSetByName(name);
 	}
 
-	@Interceptors(QuoteSetFilteringInterceptor.class)
 	@Override
 	public QuoteSet getQuoteSetById(long id) {
 		return QuoteSetSQL.getQuoteSetById(id);
 	}
 
-	@Interceptors(QuoteValueFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean saveQuoteValues(long quoteSetId, String quoteName, QuoteType quoteType, List<QuoteValue> quoteValues,
-			Year year, Month month) {
+	public boolean saveQuoteValues(@CheckQuoteSetAccess long quoteSetId, String quoteName, QuoteType quoteType,
+			List<QuoteValue> quoteValues, Year year, Month month) {
 		return QuoteSQL.saveQuoteValues(quoteSetId, quoteName, quoteType, quoteValues, year, month);
 	}
 
@@ -150,10 +150,9 @@ public class QuoteServiceBean implements QuoteService {
 		return QuoteSQL.getQuoteValuesByQuoteSetIdTypeDateAndQuoteNames(quoteSetId, quoteType, date, quoteNames);
 	}
 
-	@Interceptors(QuoteValueFilteringInterceptor.class)
 	@Override
-	public List<QuoteValue> getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(long quoteSetId, String quoteName,
-			QuoteType quoteType, Year year, Month month) {
+	public List<QuoteValue> getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(@CheckQuoteSetAccess long quoteSetId,
+			String quoteName, QuoteType quoteType, Year year, Month month) {
 		return QuoteSQL.getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(quoteSetId, quoteName, quoteType, year, month);
 	}
 
@@ -174,15 +173,14 @@ public class QuoteServiceBean implements QuoteService {
 		return quoteIds;
 	}
 
-	@Interceptors(QuoteSetFilteringInterceptor.class)
 	@Override
 	public Set<QuoteSet> getAllQuoteSets() {
 		return QuoteSetSQL.getAllQuoteSets();
 	}
 
-	@Interceptors(QuoteSetFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveQuoteSet(QuoteSet quoteSet) throws TradistaBusinessException {
+	public long saveQuoteSet(@CheckQuoteSetAccess QuoteSet quoteSet) throws TradistaBusinessException {
 		if (quoteSet.getId() == 0) {
 			checkQuoteSetExistence(quoteSet);
 		} else {
@@ -208,9 +206,9 @@ public class QuoteServiceBean implements QuoteService {
 		}
 	}
 
-	@Interceptors(QuoteSetFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public void deleteQuoteSet(long quoteSetId) throws TradistaBusinessException {
+	public void deleteQuoteSet(@CheckQuoteSetAccess long quoteSetId) throws TradistaBusinessException {
 		Set<String> pricingParametersSetByQuoteSetId = new PricerBusinessDelegate()
 				.getPricingParametersSetByQuoteSetId(quoteSetId);
 		if (pricingParametersSetByQuoteSetId != null && !pricingParametersSetByQuoteSetId.isEmpty()) {
@@ -227,15 +225,14 @@ public class QuoteServiceBean implements QuoteService {
 		return QuoteSQL.getQuoteByNameAndType(quoteName, quoteType);
 	}
 
-	@Interceptors(QuoteSetFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean saveQuoteValues(long quoteSetId, List<QuoteValue> quoteValues) {
+	public boolean saveQuoteValues(@CheckQuoteSetAccess long quoteSetId, List<QuoteValue> quoteValues) {
 		return QuoteSQL.saveQuoteValues(quoteSetId, quoteValues);
 	}
 
-	@Interceptors(QuoteSetFilteringInterceptor.class)
 	@Override
-	public Set<QuoteSet> getQuoteSetsByPoId(long poId) {
+	public Set<QuoteSet> getQuoteSetsByPoId(@CheckProcessingOrg long poId) {
 		return QuoteSetSQL.getQuoteSetsByPoId(poId);
 	}
 }

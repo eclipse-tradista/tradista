@@ -70,8 +70,7 @@ public class ProcessingOrgDefaultsSQL {
 		return poDefaults;
 	}
 
-	public static long saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) {
-		long pricingParamId = 0;
+	public static void saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) {
 		try (Connection con = TradistaDB.getConnection()) {
 			List<ProcessingOrgDefaultsModule> modules = poDefaults.getModules();
 			if (modules != null && !modules.isEmpty()) {
@@ -84,7 +83,6 @@ public class ProcessingOrgDefaultsSQL {
 		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
-		return pricingParamId;
 	}
 
 	private static void saveProcessingOrgDefaultsModule(ProcessingOrgDefaultsModule module, Connection con, long poId) {

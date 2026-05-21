@@ -4,11 +4,13 @@ import java.time.LocalDateTime;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.importer.model.Importer;
 import org.eclipse.tradista.core.message.model.ImportError;
 import org.eclipse.tradista.core.message.model.ImportError.ImportErrorType;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
+import org.eclipse.tradista.core.message.service.CheckMessageAccess;
 import org.eclipse.tradista.core.message.service.ImportErrorBusinessDelegate;
 import org.eclipse.tradista.core.message.service.MessageAuthorizationFilteringInterceptor;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -50,10 +52,12 @@ public class ImporterServiceBean implements ImporterService {
 		importErrorBusinessDelegate = new ImportErrorBusinessDelegate();
 	}
 
+	@ProtectGlobal
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
-	public IncomingMessage mapIncomingMessage(IncomingMessage msg) throws TradistaBusinessException {
+	public IncomingMessage mapIncomingMessage(@CheckMessageAccess IncomingMessage msg)
+			throws TradistaBusinessException {
 		// Load the importer
 		Importer<Object> importer = (Importer<Object>) localImporterConfigurationService
 				.getImporterByName(msg.getInterfaceName());
@@ -90,7 +94,7 @@ public class ImporterServiceBean implements ImporterService {
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
-	public void validateMessage(IncomingMessage msg) throws TradistaBusinessException {
+	public void validateMessage(@CheckMessageAccess IncomingMessage msg) throws TradistaBusinessException {
 		// Load the importer
 		Importer<Object> importer = (Importer<Object>) localImporterConfigurationService
 				.getImporterByName(msg.getInterfaceName());

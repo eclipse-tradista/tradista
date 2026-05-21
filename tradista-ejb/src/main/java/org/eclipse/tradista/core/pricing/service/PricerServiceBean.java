@@ -12,27 +12,36 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.configuration.service.LocalConfigurationService;
+import org.eclipse.tradista.core.marketdata.model.FXCurve;
+import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
+import org.eclipse.tradista.core.marketdata.persistence.FXCurveSQL;
+import org.eclipse.tradista.core.marketdata.persistence.InterestRateCurveSQL;
+import org.eclipse.tradista.core.marketdata.persistence.QuoteSetSQL;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.position.service.CheckPositionDefinitionAccess;
 import org.eclipse.tradista.core.position.service.PositionDefinitionBusinessDelegate;
-import org.eclipse.tradista.core.position.service.PositionDefinitionProductScopeFilteringInterceptor;
 import org.eclipse.tradista.core.pricing.persistence.PricingParameterSQL;
 import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
 import org.eclipse.tradista.core.pricing.pricer.Pricer;
 import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.Pricing;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -58,6 +67,8 @@ public class PricerServiceBean implements PricerService {
 	@EJB
 	private LocalConfigurationService configurationService;
 
+	private static final String TRADE_ID_MSG = "Trade id %d: %s";
+
 	private ProductBusinessDelegate productBusinessDelegate;
 
 	@PostConstruct
@@ -65,32 +76,30 @@ public class PricerServiceBean implements PricerService {
 		productBusinessDelegate = new ProductBusinessDelegate();
 	}
 
-	@Interceptors(PricingParameterFilteringInterceptor.class)
 	@Override
 	public PricingParameter getPricingParameterById(long id) {
 		return PricingParameterSQL.getPricingParameterById(id);
 	}
 
-	@Interceptors(PricingParameterFilteringInterceptor.class)
 	@Override
-	public PricingParameter getPricingParameterByNameAndPoId(String name, long poId) {
+	public PricingParameter getPricingParameterByNameAndPoId(String name, @CheckProcessingOrg long poId) {
 		return PricingParameterSQL.getPricingParameterByNameAndPoId(name, poId);
 	}
 
-	@Interceptors(PricingParameterFilteringInterceptor.class)
 	@Override
 	public Set<PricingParameter> getAllPricingParameters() {
 		return PricingParameterSQL.getAllPricingParameters();
 	}
 
-	@Interceptors(PricingParameterFilteringInterceptor.class)
 	@Override
-	public Set<PricingParameter> getPricingParametersByPoId(long poId) {
+	public Set<PricingParameter> getPricingParametersByPoId(@CheckProcessingOrg long poId) {
 		return PricingParameterSQL.getPricingParametersByPoId(poId);
 	}
 
-	@Interceptors(PricingParameterFilteringInterceptor.class)
-	public long savePricingParameter(PricingParameter param) throws TradistaBusinessException {
+	@ProtectGlobal
+	@Override
+	public long savePricingParameter(@CheckPricingParameterAccess PricingParameter param)
+			throws TradistaBusinessException {
 		if (param.getId() == 0) {
 			checkPricingParameterExistence(param);
 		} else {
@@ -99,6 +108,7 @@ public class PricerServiceBean implements PricerService {
 				checkPricingParameterExistence(param);
 			}
 		}
+		checkPricingParameterIntegrity(param);
 		return PricingParameterSQL.savePricingParameter(param);
 
 	}
@@ -116,8 +126,49 @@ public class PricerServiceBean implements PricerService {
 		}
 	}
 
-	@Interceptors(PricingParameterFilteringInterceptor.class)
-	public boolean deletePricingParameter(long id) throws TradistaBusinessException {
+	private void checkPricingParameterIntegrity(PricingParameter param) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (param.getQuoteSet() != null && QuoteSetSQL.getQuoteSetById(param.getQuoteSet().getId()) == null) {
+			errMsg.append(String.format("The quote set %s was not found.%n", param.getQuoteSet().getName()));
+		}
+		if (param.getDiscountCurves() != null && !param.getDiscountCurves().isEmpty()) {
+			for (InterestRateCurve curve : param.getDiscountCurves().values()) {
+				if (InterestRateCurveSQL.getInterestRateCurveById(curve.getId()) == null) {
+					errMsg.append(String.format("The discount curve %s was not found.%n", curve.getName()));
+				}
+			}
+		}
+		if (param.getIndexCurves() != null && !param.getIndexCurves().isEmpty()) {
+			for (InterestRateCurve curve : param.getIndexCurves().values()) {
+				if (InterestRateCurveSQL.getInterestRateCurveById(curve.getId()) == null) {
+					errMsg.append(String.format("The index curve %s was not found.%n", curve.getName()));
+				}
+			}
+		}
+		if (param.getFxCurves() != null && !param.getFxCurves().isEmpty()) {
+			for (FXCurve curve : param.getFxCurves().values()) {
+				if (FXCurveSQL.getFXCurveById(curve.getId()) == null) {
+					errMsg.append(String.format("The FX curve %s was not found.%n", curve.getName()));
+				}
+			}
+		}
+
+		if (param.getModules() != null && !param.getModules().isEmpty()) {
+			PricerBusinessDelegate pb = new PricerBusinessDelegate();
+			for (PricingParameterModule module : param.getModules()) {
+				PricingParameterModuleValidator validator = pb.getValidator(module);
+				validator.checkIntegrity(module, errMsg);
+			}
+		}
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+	}
+
+	@ProtectGlobal
+	@Override
+	public boolean deletePricingParameter(@CheckPricingParameterAccess long id) throws TradistaBusinessException {
 		// First, check if there is a position definition depending on this
 		// pricing parameters set.
 		// If it is the case, we alert the user and do not try to remove the
@@ -196,9 +247,9 @@ public class PricerServiceBean implements PricerService {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Interceptors(CashFlowPreFilteringInterceptor.class)
 	@Override
-	public List<CashFlow> generateCashFlows(long tradeId, PricingParameter pp, LocalDate valueDate)
+	public List<CashFlow> generateCashFlows(@CheckTradeAccess long tradeId,
+			@org.eclipse.tradista.core.common.service.CheckProcessingOrg PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
 		Trade<?> trade = TradeSQL.getTradeById(tradeId, true);
 		try {
@@ -207,8 +258,7 @@ public class PricerServiceBean implements PricerService {
 					+ ".service." + trade.getProductType() + "PricerBusinessDelegate";
 			return (TradistaUtil.callMethod(fullClassName, List.class, "generateCashFlows", trade, pp, valueDate));
 		} catch (TradistaBusinessException tbe) {
-			String errMsg = "Trade id " + trade.getId() + ": " + tbe.getMessage();
-			throw new TradistaBusinessException(errMsg);
+			throw new TradistaBusinessException(String.format(TRADE_ID_MSG, trade.getId(), tbe.getMessage()));
 		}
 	}
 
@@ -222,16 +272,15 @@ public class PricerServiceBean implements PricerService {
 					+ ".service." + trade.getProductType() + "PricerBusinessDelegate";
 			return (TradistaUtil.callMethod(fullClassName, List.class, "generateCashFlows", trade, pp, valueDate));
 		} catch (TradistaBusinessException tbe) {
-			String errMsg = "Trade id " + trade.getId() + ": " + tbe.getMessage();
-			throw new TradistaBusinessException(errMsg);
+			throw new TradistaBusinessException(String.format(TRADE_ID_MSG, trade.getId(), tbe.getMessage()));
 		}
 	}
 
-	@Interceptors({ PositionDefinitionProductScopeFilteringInterceptor.class, CashFlowPreFilteringInterceptor.class })
+	@ProductScope
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CashFlow> generateCashFlows(PricingParameter pp, LocalDate valueDate, long positionDefinitionId)
-			throws TradistaBusinessException {
+	public List<CashFlow> generateCashFlows(@CheckProcessingOrg PricingParameter pp, LocalDate valueDate,
+			@CheckPositionDefinitionAccess long positionDefinitionId) throws TradistaBusinessException {
 		PositionDefinitionBusinessDelegate positionDefinitionBusinessDelegate = new PositionDefinitionBusinessDelegate();
 		PositionDefinition posDef = positionDefinitionBusinessDelegate.getPositionDefinitionById(positionDefinitionId);
 		if (posDef == null) {
@@ -250,8 +299,7 @@ public class PricerServiceBean implements PricerService {
 					cfs.addAll(TradistaUtil.callMethod(fullClassName, List.class, "generateCashFlows", trade, pp,
 							valueDate));
 				} catch (TradistaBusinessException tbe) {
-					String errMsg = "Trade id " + trade.getId() + ": " + tbe.getMessage();
-					throw new TradistaBusinessException(errMsg);
+					throw new TradistaBusinessException(String.format(TRADE_ID_MSG, trade.getId(), tbe.getMessage()));
 				}
 			}
 		}
@@ -259,10 +307,9 @@ public class PricerServiceBean implements PricerService {
 		return cfs;
 	}
 
-	@Interceptors(CashFlowPreFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CashFlow> generateAllCashFlows(PricingParameter pp, LocalDate valueDate)
+	public List<CashFlow> generateAllCashFlows(@CheckProcessingOrg PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
 		List<Trade<?>> trades = TradeSQL.getAllTrades();
 		List<CashFlow> cfs = new ArrayList<>();
@@ -276,8 +323,7 @@ public class PricerServiceBean implements PricerService {
 					cfs.addAll(TradistaUtil.callMethod(fullClassName, List.class, "generateCashFlows", trade, pp,
 							valueDate));
 				} catch (TradistaBusinessException tbe) {
-					String errMsg = "Trade id " + trade.getId() + ": " + tbe.getMessage();
-					throw new TradistaBusinessException(errMsg);
+					throw new TradistaBusinessException(String.format(TRADE_ID_MSG, trade.getId(), tbe.getMessage()));
 				}
 			}
 		}

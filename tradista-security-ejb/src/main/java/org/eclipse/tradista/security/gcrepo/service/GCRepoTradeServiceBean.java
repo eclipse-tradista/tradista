@@ -9,7 +9,10 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.messaging.MessagingConfigurationService;
 import org.eclipse.tradista.core.common.messaging.TradistaEventGateway;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.gcrepo.messaging.GCRepoTradeEvent;
@@ -28,7 +31,6 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -65,15 +67,19 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 	@EJB
 	private MessagingConfigurationService messagingConfigurationService;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 		eventGateway = messagingConfigurationService.getTradistaEventGateway();
 	}
 
-	@Interceptors({ GCRepoProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = GCRepoTrade.GC_REPO, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveGCRepoTrade(GCRepoTrade trade, String action) throws TradistaBusinessException {
+	public long saveGCRepoTrade(@CheckTradeAccess GCRepoTrade trade, String action) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 		GCRepoTradeEvent event = new GCRepoTradeEvent();
 		long result;
 		if (trade.getId() != 0) {
@@ -112,15 +118,13 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 		context.close();
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public GCRepoTrade getGCRepoTradeById(long id) {
 		return GCRepoTradeSQL.getTradeById(id);
 	}
 
 	@Override
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
-	public Map<Security, Map<Book, BigDecimal>> getAllocatedCollateral(GCRepoTrade trade)
+	public Map<Security, Map<Book, BigDecimal>> getAllocatedCollateral(@CheckTradeAccess GCRepoTrade trade)
 			throws TradistaBusinessException {
 		return RepoTradeUtil.getAllocatedCollateral(trade);
 	}

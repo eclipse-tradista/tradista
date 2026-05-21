@@ -30,12 +30,10 @@ public final class ErrorUtil {
 	public static void checkErrorDates(LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,
 			LocalDate solvingDateTo, StringBuilder errMsg) {
 		if (errMsg == null) {
-            throw new TradistaTechnicalException("StringBuilder for error messages cannot be null");
-        }
-		DateUtil.checkNotAfter(errorDateFrom, errorDateTo, "Error Date From", "Error Date To",
-				errMsg);
-		DateUtil.checkNotAfter(solvingDateFrom, solvingDateTo, "Solving Date From", "Solving Date To",
-				errMsg);
+			throw new TradistaTechnicalException("StringBuilder for error messages cannot be null");
+		}
+		DateUtil.checkNotAfter(errorDateFrom, errorDateTo, "Error Date From", "Error Date To", errMsg);
+		DateUtil.checkNotAfter(solvingDateFrom, solvingDateTo, "Solving Date From", "Solving Date To", errMsg);
 	}
 
 	public static void checkErrorDates(LocalDate errorDateFrom, LocalDate errorDateTo, LocalDate solvingDateFrom,

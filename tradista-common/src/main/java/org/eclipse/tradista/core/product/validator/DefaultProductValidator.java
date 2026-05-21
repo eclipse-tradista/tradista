@@ -21,15 +21,12 @@ import org.eclipse.tradista.core.product.model.Product;
 
 public class DefaultProductValidator implements ProductValidator {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7230180363740521856L;
 
 	@Override
 	public void validateProduct(Product product) throws TradistaBusinessException {
 		StringBuilder errMsg = validateProductBasics(product);
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

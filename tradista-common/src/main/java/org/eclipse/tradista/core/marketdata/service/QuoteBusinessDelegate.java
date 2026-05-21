@@ -16,7 +16,6 @@ import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
-import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
 import org.eclipse.tradista.core.marketdata.validator.QuoteValidator;
 

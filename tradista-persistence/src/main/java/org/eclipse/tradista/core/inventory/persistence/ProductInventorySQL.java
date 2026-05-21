@@ -1,12 +1,12 @@
 package org.eclipse.tradista.core.inventory.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUANTITY;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
 
 import java.math.BigDecimal;
 import java.sql.Connection;

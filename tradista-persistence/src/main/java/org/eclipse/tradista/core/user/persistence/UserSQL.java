@@ -51,8 +51,8 @@ public class UserSQL {
 
 	private static final Field[] FIELDS = { FIRST_NAME_FIELD, SURNAME_FIELD, PROCESSING_ORG_ID_FIELD, LOGIN_FIELD,
 			PASSWORD_FIELD, ID_FIELD };
-	private static final Field[] FIELDS_FOR_INSERT_OR_UPDATE = { FIRST_NAME_FIELD, SURNAME_FIELD, PROCESSING_ORG_ID_FIELD,
-			LOGIN_FIELD, PASSWORD_FIELD };
+	private static final Field[] FIELDS_FOR_INSERT_OR_UPDATE = { FIRST_NAME_FIELD, SURNAME_FIELD,
+			PROCESSING_ORG_ID_FIELD, LOGIN_FIELD, PASSWORD_FIELD };
 
 	public static final Table TABLE = new Table("TRADISTA_USER", FIELDS);
 
@@ -131,7 +131,8 @@ public class UserSQL {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveUser = (user.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, TABLE, FIELDS_FOR_INSERT_OR_UPDATE)
-						: TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, TABLE, FIELDS_FOR_INSERT_OR_UPDATE)) {
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, TABLE,
+								FIELDS_FOR_INSERT_OR_UPDATE)) {
 			if (user.getId() != 0) {
 				stmtSaveUser.setLong(6, user.getId());
 			}

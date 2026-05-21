@@ -32,6 +32,20 @@ public class FXOptionVolatilitySurfaceValidator {
 		if (surface.getName() == null) {
 			errMsg.append(String.format("The surface name is mandatory.%n"));
 		}
+		if (surface.getQuoteSet() != null) {
+			if (surface.getProcessingOrg() == null && surface.getQuoteSet().getProcessingOrg() != null) {
+				errMsg.append(String.format(
+						"The Volatility Surface (%s) is global, so the Quote Set (%s) must also be global.%n",
+						surface.getName(), surface.getQuoteSet()));
+			}
+			if (surface.getProcessingOrg() != null && surface.getQuoteSet().getProcessingOrg() != null
+					&& !surface.getProcessingOrg().equals(surface.getQuoteSet().getProcessingOrg())) {
+				errMsg.append(String.format(
+						"The Volatility Surface (%s) and the Quote Set (%s) must have the same Processing Org.%n",
+						surface.getName(), surface.getQuoteSet()));
+			}
+		}
+
 		if (surface.isGenerated()) {
 			if (surface.getAlgorithm() == null) {
 				errMsg.append(String.format("The algorithm is mandatory when the surface is generated.%n"));

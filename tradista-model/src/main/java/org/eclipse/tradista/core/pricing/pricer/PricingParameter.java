@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -32,7 +33,7 @@ import org.eclipse.tradista.core.marketdata.model.QuoteSet;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class PricingParameter extends TradistaObject {
+public class PricingParameter extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = -5219479844754106015L;
 

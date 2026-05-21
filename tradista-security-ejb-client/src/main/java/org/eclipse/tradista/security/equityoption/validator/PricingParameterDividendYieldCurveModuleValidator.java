@@ -48,11 +48,6 @@ public class PricingParameterDividendYieldCurveModuleValidator implements Pricin
 							"If the Pricing Parameters Set is a global one, the Dividend Yield curve %s must also be global.%n",
 							curve));
 				}
-				if (po != null && curve.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the Dividend Yield curve %s is a global one, the Pricing Parameters Set must also be global.%n",
-							curve));
-				}
 			}
 		}
 		if (!errMsg.isEmpty()) {
@@ -61,14 +56,14 @@ public class PricingParameterDividendYieldCurveModuleValidator implements Pricin
 	}
 
 	@Override
-	public void checkAccess(PricingParameterModule module, StringBuilder errMsg) {
+	public void checkIntegrity(PricingParameterModule module, StringBuilder errMsg) {
 		PricingParameterDividendYieldCurveModule mod = (PricingParameterDividendYieldCurveModule) module;
 		if (mod.getDividendYieldCurves() != null && !mod.getDividendYieldCurves().isEmpty()) {
 			for (InterestRateCurve curve : mod.getDividendYieldCurves().values()) {
 				InterestRateCurve c = null;
 				try {
 					c = interestRateCurveBusinessDelegate.getInterestRateCurveById(curve.getId());
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Not expected here.
 				}
 				if (c == null) {

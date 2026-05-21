@@ -3,8 +3,11 @@ package org.eclipse.tradista.core.position.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.model.ProductScoped;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -22,7 +25,7 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class Position extends TradistaObject {
+public class Position extends TradistaObject implements Segregable, ProductScoped {
 
 	private static final long serialVersionUID = -1061624313259067674L;
 
@@ -42,6 +45,11 @@ public class Position extends TradistaObject {
 
 	public PositionDefinition getPositionDefinition() {
 		return TradistaModelUtil.clone(positionDefinition);
+	}
+
+	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return positionDefinition != null ? positionDefinition.getProcessingOrg() : null;
 	}
 
 	public void setPositionDefinition(PositionDefinition positionDefinition) {
@@ -94,6 +102,16 @@ public class Position extends TradistaObject {
 
 	public void setAveragePrice(BigDecimal averagePrice) {
 		this.averagePrice = averagePrice;
+	}
+
+	@Override
+	public String getProductType() {
+		return positionDefinition != null ? positionDefinition.getProductType() : null;
+	}
+
+	@Override
+	public Product getProduct() {
+		return positionDefinition != null ? positionDefinition.getProduct() : null;
 	}
 
 	@Override

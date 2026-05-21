@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -29,7 +30,7 @@ import org.eclipse.tradista.core.workflow.model.WorkflowObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Trade<P extends Product> extends TradistaObject implements WorkflowObject {
+public abstract class Trade<P extends Product> extends TradistaObject implements WorkflowObject, Segregable {
 
 	private static final long serialVersionUID = 3681323495299195621L;
 
@@ -99,6 +100,11 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 
 	public Book getBook() {
 		return TradistaModelUtil.clone(book);
+	}
+
+	@Override
+	public LegalEntity getProcessingOrg() {
+		return book != null ? book.getProcessingOrg() : null;
 	}
 
 	public void setBook(Book book) {

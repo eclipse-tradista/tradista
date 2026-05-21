@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.bond.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -7,10 +9,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.DateUtil;
-import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.inventory.model.ProductInventory;
@@ -21,6 +23,8 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.model.BondTrade;
 import org.eclipse.tradista.security.bond.model.Coupon;
@@ -32,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -53,10 +56,10 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(BondProductScopeFilteringInterceptor.class)
+@ProductScope(Bond.BOND)
 public class BondPricerServiceBean implements BondPricerService {
 
-	private static final String BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The bond (%s) maturity date must be after the current and pricing dates";
+	private static final String BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The bond ({}) maturity date must be after the current and pricing dates";
 
 	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX = "%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.";
 
@@ -68,7 +71,7 @@ public class BondPricerServiceBean implements BondPricerService {
 	private BondTradeService bondTradeService;
 
 	@Override
-	public BigDecimal ytmNewtonRaphson(PricingParameter params, BondTrade trade, Currency currency,
+	public BigDecimal ytmNewtonRaphson(PricingParameter params, @CheckTradeAccess BondTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		// 1. Define a starting rate
 		BigDecimal rate = new BigDecimal("0.01");
@@ -116,13 +119,12 @@ public class BondPricerServiceBean implements BondPricerService {
 			// 3. return new x
 			return rate.multiply(BigDecimal.valueOf(100));
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
 
 	@Override
-	public BigDecimal parYieldParYield(PricingParameter params, BondTrade trade, Currency currency,
+	public BigDecimal parYieldParYield(PricingParameter params, @CheckTradeAccess BondTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		Bond bond = trade.getProduct();
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(bond.getCurrency());
@@ -146,8 +148,8 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public BigDecimal npvDiscountedCashFlow(PricingParameter params, BondTrade trade, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal npvDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
@@ -188,8 +190,8 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public BigDecimal pvDiscountedCashFlow(PricingParameter params, BondTrade trade, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal pvDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
@@ -225,8 +227,8 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public List<CashFlow> generateCashFlows(PricingParameter params, BondTrade trade, LocalDate pricingDate)
-			throws TradistaBusinessException {
+	public List<CashFlow> generateCashFlows(PricingParameter params, @CheckTradeAccess BondTrade trade,
+			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())) {
 			throw new TradistaBusinessException(
@@ -354,8 +356,8 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public BigDecimal cleanPriceDiscountedCashFlow(PricingParameter params, BondTrade trade, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal cleanPriceDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
@@ -414,8 +416,8 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public BigDecimal dirtyPriceDiscountedCashFlow(PricingParameter params, BondTrade trade, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal dirtyPriceDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
@@ -472,15 +474,15 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public BigDecimal pnlDefault(PricingParameter params, Bond bond, Book book, Currency currency,
+	public BigDecimal pnlDefault(PricingParameter params, Bond bond, @CheckBookAccess Book book, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		return realizedPnlDefault(params, bond, book, currency, pricingDate)
 				.add(unrealizedPnlDefault(params, bond, book, currency, pricingDate));
 	}
 
 	@Override
-	public BigDecimal realizedPnlDefault(PricingParameter params, Bond bond, Book book, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal realizedPnlDefault(PricingParameter params, Bond bond, @CheckBookAccess Book book,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 		long bookId = book != null ? book.getId() : 0;
 		Set<ProductInventory> inventories = new ProductInventoryBusinessDelegate()
 				.getInventoriesBeforeDateByProductAndBookIds(bond.getId(), bookId, pricingDate);
@@ -515,8 +517,8 @@ public class BondPricerServiceBean implements BondPricerService {
 	}
 
 	@Override
-	public BigDecimal unrealizedPnlDefault(PricingParameter params, Bond bond, Book book, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal unrealizedPnlDefault(PricingParameter params, Bond bond, @CheckBookAccess Book book,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 		long bookId = book != null ? book.getId() : 0;
 		Set<ProductInventory> inventories = new ProductInventoryBusinessDelegate()
 				.getOpenPositionsFromInventoryByProductAndBookIds(bond.getId(), bookId);

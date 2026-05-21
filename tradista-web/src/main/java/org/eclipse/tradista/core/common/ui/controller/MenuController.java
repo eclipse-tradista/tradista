@@ -1,7 +1,13 @@
 package org.eclipse.tradista.core.common.ui.controller;
 
 import java.io.Serializable;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import org.eclipse.tradista.core.common.util.ClientUtil;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
 import org.primefaces.model.menu.DefaultSubMenu;
@@ -12,14 +18,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
-
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.eclipse.tradista.core.common.util.ClientUtil;
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion

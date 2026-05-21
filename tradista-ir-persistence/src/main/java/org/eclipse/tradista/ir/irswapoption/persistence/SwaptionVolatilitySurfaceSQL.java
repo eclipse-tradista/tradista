@@ -12,10 +12,10 @@ import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.NAME_F
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.PROCESSING_ORG_ID_FIELD;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.QUOTE_DATE_FIELD;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.QUOTE_SET_ID_FIELD;
-import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_QUOTE_TABLE;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.SURFACE_ID_FIELD;
-import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_TABLE;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.TYPE_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_QUOTE_TABLE;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_TABLE;
 
 import java.math.BigDecimal;
 import java.sql.Connection;

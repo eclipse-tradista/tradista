@@ -32,7 +32,6 @@ import org.eclipse.tradista.core.common.persistence.util.Join;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.error.model.Error.Status;
-import org.eclipse.tradista.core.error.persistence.ErrorSQL;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;

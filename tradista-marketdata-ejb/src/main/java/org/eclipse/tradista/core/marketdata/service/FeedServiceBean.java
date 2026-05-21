@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
@@ -13,7 +15,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -39,13 +40,11 @@ public class FeedServiceBean implements LocalFeedService, FeedService {
 	@EJB
 	private QuoteService quoteService;
 
-	@Interceptors(FeedConfigFilteringInterceptor.class)
 	@Override
 	public Set<FeedConfig> getFeedConfigsByName(String name) {
 		return FeedConfigSQL.getFeedConfigsByName(name);
 	}
 
-	@Interceptors(FeedConfigFilteringInterceptor.class)
 	@Override
 	public FeedConfig getFeedConfigById(long id) {
 		return FeedConfigSQL.getFeedConfigById(id);
@@ -56,15 +55,14 @@ public class FeedServiceBean implements LocalFeedService, FeedService {
 		return FeedConfigSQL.getAllFeedConfigNames();
 	}
 
-	@Interceptors(FeedConfigFilteringInterceptor.class)
 	@Override
 	public Set<FeedConfig> getAllFeedConfigs() {
 		return FeedConfigSQL.getAllFeedConfigs();
 	}
 
-	@Interceptors(FeedConfigFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveFeedConfig(FeedConfig feedConfig) throws TradistaBusinessException {
+	public long saveFeedConfig(@CheckFeedConfigAccess FeedConfig feedConfig) throws TradistaBusinessException {
 		if (feedConfig.getId() == 0) {
 			checkFeedConfigExistence(feedConfig);
 		} else {
@@ -90,9 +88,9 @@ public class FeedServiceBean implements LocalFeedService, FeedService {
 		}
 	}
 
-	@Interceptors(FeedConfigFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteFeedConfig(long id) throws TradistaBusinessException {
+	public boolean deleteFeedConfig(@CheckFeedConfigAccess long id) throws TradistaBusinessException {
 		return FeedConfigSQL.deleteFeedConfig(id);
 	}
 
@@ -105,7 +103,7 @@ public class FeedServiceBean implements LocalFeedService, FeedService {
 				Quote quote = quoteService.getQuoteByNameAndType(quoteName, quoteType);
 				if (conf.getMapping().values().contains(quote)) {
 					if (results == null) {
-						results = new HashSet<String>(feedConfigs.size());
+						results = HashSet.newHashSet(feedConfigs.size());
 					}
 					results.add(conf.getName());
 				}
@@ -114,9 +112,8 @@ public class FeedServiceBean implements LocalFeedService, FeedService {
 		return results;
 	}
 
-	@Interceptors(FeedConfigFilteringInterceptor.class)
 	@Override
-	public Set<FeedConfig> getFeedConfigsByPoId(long poId) {
+	public Set<FeedConfig> getFeedConfigsByPoId(@CheckProcessingOrg long poId) {
 		return FeedConfigSQL.getFeedConfigsByPoId(poId);
 	}
 

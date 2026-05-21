@@ -5,14 +5,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.position.model.PositionCalculationError;
 import org.eclipse.tradista.core.position.persistence.PositionCalculationErrorSQL;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -36,11 +38,13 @@ import jakarta.interceptor.Interceptors;
 public class PositionCalculationErrorServiceBean
 		implements LocalPositionCalculationErrorService, PositionCalculationErrorService {
 
+	@ProtectGlobal
 	@Override
 	public boolean savePositionCalculationErrors(List<PositionCalculationError> errors) {
 		return PositionCalculationErrorSQL.savePositionCalculationErrors(errors);
 	}
 
+	@ProtectGlobal
 	@Override
 	public void solvePositionCalculationError(Set<Long> solved, LocalDate date) {
 		PositionCalculationErrorSQL.solvePositionCalculationError(solved, date);
@@ -51,19 +55,21 @@ public class PositionCalculationErrorServiceBean
 	 * controls are important for saving methods but for getXXX methods like this
 	 * one, not sure it is a good idea.
 	 */
-	@Interceptors(PositionCalculationErrorFilteringInterceptor.class)
+	@ProductScope
 	@Override
-	public List<PositionCalculationError> getPositionCalculationErrors(long positionDefinitionId, Status status,
-			long tradeId, long productId, LocalDate valueDateFrom, LocalDate valueDateTo, LocalDate errorDateFrom,
+	public List<PositionCalculationError> getPositionCalculationErrors(
+			@CheckPositionDefinitionAccess long positionDefinitionId, Status status, @CheckTradeAccess long tradeId,
+			long productId, LocalDate valueDateFrom, LocalDate valueDateTo, LocalDate errorDateFrom,
 			LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo)
 			throws TradistaBusinessException {
 		return PositionCalculationErrorSQL.getPositionCalculationErrors(positionDefinitionId, status, tradeId,
 				productId, valueDateFrom, valueDateTo, errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 	}
 
-	@Interceptors(PositionCalculationErrorFilteringInterceptor.class)
+	@ProtectGlobal
+	@ProductScope
 	@Override
-	public void solvePositionCalculationError(long positionDefinitionId, LocalDate date)
+	public void solvePositionCalculationError(@CheckPositionDefinitionAccess long positionDefinitionId, LocalDate date)
 			throws TradistaBusinessException {
 		PositionCalculationErrorSQL.solvePositionCalculationError(positionDefinitionId, date);
 	}

@@ -44,26 +44,26 @@ public class PricingParameterUnrealizedPnlCalculationModuleValidator implements 
 							"Global Pricing Parameters Set cannot contain unrealized P&L calculation results by book (%s).%n",
 							bookProd.getBook()));
 				} else if (bookProd.getBook() != null && !bookProd.getBook().getProcessingOrg().equals(po)) {
-					errMsg.append(
-							String.format("The Pricing Parameters Set's PO (%s) and the book %s's PO (%s) should be the same.%n",
-									po, bookProd.getBook(), bookProd.getBook().getProcessingOrg()));
+					errMsg.append(String.format(
+							"The Pricing Parameters Set's PO (%s) and the book %s's PO (%s) should be the same.%n", po,
+							bookProd.getBook(), bookProd.getBook().getProcessingOrg()));
 				}
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
 
 	@Override
-	public void checkAccess(PricingParameterModule module, StringBuilder errMsg) {
+	public void checkIntegrity(PricingParameterModule module, StringBuilder errMsg) {
 		PricingParameterUnrealizedPnlCalculationModule mod = (PricingParameterUnrealizedPnlCalculationModule) module;
 		if (mod.getUnrealizedPnlCalculations() != null && !mod.getUnrealizedPnlCalculations().isEmpty()) {
 			for (BookProductTypePair bookProd : mod.getUnrealizedPnlCalculations().keySet()) {
 				Book b = null;
 				try {
 					b = bookBusinessDelegate.getBookById(bookProd.getBook().getId());
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// Not expected here.
 				}
 				if (b == null) {

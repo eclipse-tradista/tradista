@@ -5,12 +5,11 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
-import org.eclipse.tradista.legalentity.service.LegalEntityFilteringInterceptor;
+import org.eclipse.tradista.legalentity.service.CheckLegalEntityAccess;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -38,15 +37,13 @@ public class LegalEntityServiceBean implements LegalEntityService {
 		return LegalEntitySQL.getAllLegalEntities();
 	}
 
-	@Interceptors(LegalEntityFilteringInterceptor.class)
 	@Override
 	public Set<LegalEntity> getAllProcessingOrgs() {
 		return LegalEntitySQL.getAllProcessingOrgs();
 	}
 
-	@Interceptors(LegalEntityFilteringInterceptor.class)
 	@Override
-	public long saveLegalEntity(LegalEntity legalEntity) throws TradistaBusinessException {
+	public long saveLegalEntity(@CheckLegalEntityAccess LegalEntity legalEntity) throws TradistaBusinessException {
 		if (legalEntity.getId() == 0) {
 			checkShortNameExistence(legalEntity);
 			checkLongNameExistence(legalEntity);
@@ -76,13 +73,11 @@ public class LegalEntityServiceBean implements LegalEntityService {
 		}
 	}
 
-	@Interceptors(LegalEntityFilteringInterceptor.class)
 	@Override
 	public Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role) {
 		return LegalEntitySQL.getLegalEntitiesByShortNameAndRole(shortName, role);
 	}
 
-	@Interceptors(LegalEntityFilteringInterceptor.class)
 	@Override
 	public LegalEntity getLegalEntityByShortName(String shortName) {
 		return LegalEntitySQL.getLegalEntityByShortName(shortName);
@@ -93,7 +88,6 @@ public class LegalEntityServiceBean implements LegalEntityService {
 		return LegalEntitySQL.getLegalEntityByLongName(longName);
 	}
 
-	@Interceptors(LegalEntityFilteringInterceptor.class)
 	@Override
 	public LegalEntity getLegalEntityById(long id) {
 		return LegalEntitySQL.getLegalEntityById(id);

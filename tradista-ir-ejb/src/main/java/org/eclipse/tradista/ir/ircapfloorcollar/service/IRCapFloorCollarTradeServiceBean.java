@@ -1,7 +1,10 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.ir.ircapfloorcollar.messaging.IRCapFloorCollarTradeEvent;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
 import org.eclipse.tradista.ir.ircapfloorcollar.persistence.IRCapFloorCollarTradeSQL;
@@ -10,8 +13,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -43,15 +46,19 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 
 	private Destination destination;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ IRCapFloorCollarTradeProductScopeFilteringInterceptor.class,
-			TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = IRCapFloorCollarTrade.IR_CAP_FLOOR_COLLAR, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveIRCapFloorCollarTrade(IRCapFloorCollarTrade trade) throws TradistaBusinessException {
+	public long saveIRCapFloorCollarTrade(@CheckTradeAccess IRCapFloorCollarTrade trade)
+			throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade, true);
 		IRCapFloorCollarTradeEvent event = new IRCapFloorCollarTradeEvent();
 		if (trade.getId() != 0) {
 			IRCapFloorCollarTrade oldTrade = IRCapFloorCollarTradeSQL.getTradeById(trade.getId());
@@ -66,7 +73,6 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 		return result;
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public IRCapFloorCollarTrade getIRCapFloorCollarTradeById(long id) {
 		return IRCapFloorCollarTradeSQL.getTradeById(id);

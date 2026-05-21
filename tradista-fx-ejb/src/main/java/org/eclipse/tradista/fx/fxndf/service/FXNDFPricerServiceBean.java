@@ -1,5 +1,7 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,14 +17,16 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -43,8 +47,14 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(FXNDFTradeProductScopeFilteringInterceptor.class)
+@ProductScope(FXNDFTrade.FX_NDF)
 public class FXNDFPricerServiceBean implements FXNDFPricerService {
+
+	private static final String FX_NDF_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The FX NDF ({}) settlement date must be after the current and pricing dates.";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
+
+	private static final Logger logger = LoggerFactory.getLogger(FXNDFPricerServiceBean.class);
 
 	private FXNDFTradeBusinessDelegate fxNdfTradeBusinessDelegate;
 
@@ -57,7 +67,7 @@ public class FXNDFPricerServiceBean implements FXNDFPricerService {
 	public BigDecimal npvDiscountedLegsDiff(PricingParameter params, FXNDFTrade trade, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		if (!LocalDate.now().isBefore(trade.getSettlementDate()) || !pricingDate.isBefore(trade.getSettlementDate())) {
-			// TODO Log warn
+			logger.warn(FX_NDF_SETTLEMENT_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade);
 			return BigDecimal.ZERO;
 		}
 		BigDecimal npv;
@@ -74,7 +84,7 @@ public class FXNDFPricerServiceBean implements FXNDFPricerService {
 		pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		BigDecimal convertedNominal = PricerUtil.convertAmount(trade.getAmount(), trade.getCurrency(),
@@ -163,7 +173,7 @@ public class FXNDFPricerServiceBean implements FXNDFPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// 2. Calculate the diff
@@ -204,12 +214,13 @@ public class FXNDFPricerServiceBean implements FXNDFPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), trade.getNonDeliverableCurrency());
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (discountCurve == null) {
-			// TODO Add log
+			logger.warn(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+					trade.getCurrency()));
 		}
 
 		CashFlow cf = new CashFlow();

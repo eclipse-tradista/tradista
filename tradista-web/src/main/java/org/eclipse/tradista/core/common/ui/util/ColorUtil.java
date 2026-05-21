@@ -183,7 +183,7 @@ public final class ColorUtil {
 	public static String getTurquoiseAsString() {
 		return getBlueColorsAsStringList().get(0);
 	}
-	
+
 	/**
 	 * Returns the blood red color see https://htmlcolorcodes.com/colors/blood-red/
 	 * 

@@ -35,7 +35,9 @@ import org.eclipse.tradista.core.batch.persistence.BatchSQL;
 import org.eclipse.tradista.core.batch.triggerlistener.JobExecutionHistoryTriggerListener;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
 import org.eclipse.tradista.core.common.service.CustomProperties;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaConstants;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.configuration.service.LocalConfigurationService;
@@ -54,7 +56,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 @SecurityDomain(value = "other")
 @PermitAll
@@ -125,7 +126,7 @@ public class BatchServiceBean implements BatchService {
 		throw new TradistaBusinessException(String.format("Job type was not found for '%s' class.", className));
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
 	public void saveJobInstance(TradistaJobInstance jobInstance) throws TradistaBusinessException {
 		String po = jobInstance.getProcessingOrg() != null ? jobInstance.getProcessingOrg().getShortName() : null;
@@ -198,8 +199,8 @@ public class BatchServiceBean implements BatchService {
 		throw new TradistaBusinessException(String.format("Job class was not found for '%s' type.", jobType));
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
-	public void deleteJobInstance(String jobInstanceName, String po) {
+	@Override
+	public void deleteJobInstance(String jobInstanceName, @CheckProcessingOrg String po) {
 		try {
 			scheduler.deleteJob(JobKey.jobKey(jobInstanceName, po));
 		} catch (SchedulerException e) {
@@ -210,9 +211,8 @@ public class BatchServiceBean implements BatchService {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
-	public Set<TradistaJobInstance> getAllJobInstances(String po) throws TradistaBusinessException {
+	public Set<TradistaJobInstance> getAllJobInstances(@CheckProcessingOrg String po) throws TradistaBusinessException {
 		Set<TradistaJobInstance> jobInstances = new HashSet<>();
 
 		LegalEntity processingOrg = null;
@@ -237,17 +237,15 @@ public class BatchServiceBean implements BatchService {
 				}
 			}
 		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new TradistaTechnicalException(e.getMessage());
 		}
 
 		return jobInstances;
 	}
 
 	@SuppressWarnings("unchecked")
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
-	public TradistaJobInstance getJobInstanceByNameAndPo(String jobInstanceName, String po)
+	public TradistaJobInstance getJobInstanceByNameAndPo(String jobInstanceName, @CheckProcessingOrg String po)
 			throws TradistaBusinessException {
 		TradistaJobInstance jobInstance = null;
 
@@ -264,50 +262,42 @@ public class BatchServiceBean implements BatchService {
 			String jobType = getJobTypeByClass((Class<? extends TradistaJob>) jobDetail.getJobClass());
 			jobInstance = new TradistaJobInstance(jobDetail, jobType, processingOrg);
 		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new TradistaTechnicalException(e.getMessage());
 		}
 
 		return jobInstance;
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
-	public Set<TradistaJobExecution> getJobExecutions(LocalDate date, String po) {
+	public Set<TradistaJobExecution> getJobExecutions(LocalDate date, @CheckProcessingOrg String po) {
 		return BatchSQL.getJobExecutions(date, po);
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
-	public void runJobInstance(String jobInstanceName, String po) {
+	public void runJobInstance(String jobInstanceName, @CheckProcessingOrg String po) {
 		try {
 			scheduler.triggerJob(JobKey.jobKey(jobInstanceName, po));
 		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new TradistaTechnicalException(e.getMessage());
 		}
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
-	public void stopJobExecution(String jobExecutionId) {
+	public void stopJobExecution(@CheckJobExecutionAccess String jobExecutionId) {
 		try {
 			scheduler.interrupt(jobExecutionId);
 		} catch (SchedulerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new TradistaTechnicalException(e.getMessage());
 		}
 
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
-	public long saveJobExecution(String name, String po, String status, LocalDateTime startTime, LocalDateTime endTime,
-			String errorCause, String jobInstanceName, String jobType) {
+	public long saveJobExecution(String name, @CheckProcessingOrg String po, String status, LocalDateTime startTime,
+			LocalDateTime endTime, String errorCause, String jobInstanceName, String jobType) {
 		return BatchSQL.saveJobExecution(name, po, status, startTime, endTime, errorCause, jobInstanceName, jobType);
 	}
 
-	@Interceptors(JobFilteringInterceptor.class)
 	@Override
 	public TradistaJobExecution getJobExecutionById(String jobExecutionId) {
 		return BatchSQL.getJobExecutionById(jobExecutionId);

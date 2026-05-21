@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -24,7 +25,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Curve<X, Y> extends TradistaObject implements MarketData {
+public abstract class Curve<X, Y> extends TradistaObject implements MarketData, Segregable {
 
 	private static final long serialVersionUID = -2297522690673041454L;
 
@@ -38,7 +39,7 @@ public abstract class Curve<X, Y> extends TradistaObject implements MarketData {
 
 	abstract String getType();
 
-	public Curve(String name, LegalEntity po) {
+	protected Curve(String name, LegalEntity po) {
 		this.name = name;
 		processingOrg = po;
 	}
@@ -70,6 +71,7 @@ public abstract class Curve<X, Y> extends TradistaObject implements MarketData {
 		return curve;
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}

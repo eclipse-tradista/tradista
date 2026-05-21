@@ -58,7 +58,7 @@ public class ProcessingOrgDefaultsBusinessDelegate {
 		return SecurityUtil.run(() -> poDefaultsService.getProcessingOrgDefaultsByPoId(poId));
 	}
 
-	public long saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) throws TradistaBusinessException {
+	public void saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) throws TradistaBusinessException {
 		if (poDefaults == null) {
 			throw new TradistaBusinessException("The Processing Org Defaults cannot be null.");
 		}
@@ -80,7 +80,7 @@ public class ProcessingOrgDefaultsBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> poDefaultsService.saveProcessingOrgDefaults(poDefaults));
+		SecurityUtil.runEx(() -> poDefaultsService.saveProcessingOrgDefaults(poDefaults));
 	}
 
 	ProcessingOrgDefaultsModuleValidator getValidator(ProcessingOrgDefaultsModule module) {

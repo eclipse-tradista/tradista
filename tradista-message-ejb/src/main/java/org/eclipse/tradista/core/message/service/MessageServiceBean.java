@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaConstants;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.message.model.Message;
@@ -43,15 +44,17 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class MessageServiceBean implements MessageService {
 
+	@ProtectGlobal
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@Override
-	public long saveMessage(Message message) {
+	public long saveMessage(@CheckMessageAccess Message message) {
 		return MessageSQL.saveMessage(message);
 	}
 
+	@ProtectGlobal
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@Override
-	public Message applyAction(Message message, String action) throws TradistaBusinessException {
+	public Message applyAction(@CheckMessageAccess Message message, String action) throws TradistaBusinessException {
 		try {
 			Workflow<org.eclipse.tradista.core.message.workflow.mapping.Message> workflow = WorkflowManager
 					.getWorkflowByName(message.getWorkflow());

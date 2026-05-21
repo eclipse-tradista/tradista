@@ -19,7 +19,7 @@ package org.eclipse.tradista.core.message.model;
 public class IncomingMessage extends Message {
 
 	private static final long serialVersionUID = 1983583031474077668L;
-	
+
 	public static final String INCOMING = "Incoming";
 
 	protected IncomingMessage(Builder builder) {

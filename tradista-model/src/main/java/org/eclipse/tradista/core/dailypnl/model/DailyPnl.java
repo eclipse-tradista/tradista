@@ -5,9 +5,13 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.product.model.Product;
+import org.eclipse.tradista.core.product.model.ProductScoped;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -25,7 +29,7 @@ import org.eclipse.tradista.core.position.model.PositionDefinition;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class DailyPnl extends TradistaObject {
+public class DailyPnl extends TradistaObject implements Segregable, ProductScoped {
 
 	private static final long serialVersionUID = 8562519011584539331L;
 
@@ -53,6 +57,11 @@ public class DailyPnl extends TradistaObject {
 
 	public PositionDefinition getPositionDefinition() {
 		return (PositionDefinition) TradistaModelUtil.clone(positionDefinition);
+	}
+
+	@Override
+	public LegalEntity getProcessingOrg() {
+		return positionDefinition != null ? positionDefinition.getProcessingOrg() : null;
 	}
 
 	public Calendar getCalendar() {
@@ -85,6 +94,16 @@ public class DailyPnl extends TradistaObject {
 
 	public void setUnrealizedPnl(BigDecimal unrealizedPnl) {
 		this.unrealizedPnl = unrealizedPnl;
+	}
+
+	@Override
+	public String getProductType() {
+		return positionDefinition != null ? positionDefinition.getProductType() : null;
+	}
+
+	@Override
+	public Product getProduct() {
+		return positionDefinition != null ? positionDefinition.getProduct() : null;
 	}
 
 	@Override
