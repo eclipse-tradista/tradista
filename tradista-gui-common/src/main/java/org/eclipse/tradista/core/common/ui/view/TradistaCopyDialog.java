@@ -5,6 +5,7 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -12,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.geometry.Insets;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion

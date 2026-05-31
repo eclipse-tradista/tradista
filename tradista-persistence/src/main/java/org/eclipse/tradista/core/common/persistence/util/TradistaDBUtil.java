@@ -245,9 +245,9 @@ public final class TradistaDBUtil {
 			for (Expression filter : filters) {
 				if (filter != null && (filter instanceof Field || filter instanceof UnaryFunctionExpression)) {
 					if (!filter.getTable().equals(table)) {
-						errMsg.append(String.format(
-								"The expression %s doesn't have the expected table (%s instead of %s).%n", filter,
-								filter.getTable(), table));
+						errMsg.append(
+								String.format("The expression %s doesn't have the expected table (%s instead of %s).%n",
+										filter, filter.getTable(), table));
 					}
 				}
 			}

@@ -5,11 +5,13 @@ import java.time.LocalDateTime;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.exporter.model.Exporter;
 import org.eclipse.tradista.core.message.model.ExportError;
 import org.eclipse.tradista.core.message.model.ExportError.ExportErrorType;
 import org.eclipse.tradista.core.message.model.OutgoingMessage;
+import org.eclipse.tradista.core.message.service.CheckMessageAccess;
 import org.eclipse.tradista.core.message.service.ExportErrorBusinessDelegate;
 import org.eclipse.tradista.core.message.service.MessageAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.util.MessageUtil;
@@ -47,10 +49,12 @@ public class ExporterServiceBean implements ExporterService {
 
 	private ExportErrorBusinessDelegate exportErrorBusinessDelegate;
 
+	@ProtectGlobal
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
-	public OutgoingMessage generateOutgoingMessage(OutgoingMessage msg) throws TradistaBusinessException {
+	public OutgoingMessage generateOutgoingMessage(@CheckMessageAccess OutgoingMessage msg)
+			throws TradistaBusinessException {
 		// Get the exporter
 		Exporter<TradistaObject, ?> exporter = (Exporter<TradistaObject, ?>) localExporterConfigurationService
 				.getExporterByName(msg.getInterfaceName());
@@ -89,10 +93,11 @@ public class ExporterServiceBean implements ExporterService {
 		}
 	}
 
+	@ProtectGlobal
 	@Interceptors(MessageAuthorizationFilteringInterceptor.class)
 	@SuppressWarnings("unchecked")
 	@Override
-	public void sendOutgoingMessage(OutgoingMessage msg) throws TradistaBusinessException {
+	public void sendOutgoingMessage(@CheckMessageAccess OutgoingMessage msg) throws TradistaBusinessException {
 		// Get the exporter
 		Exporter<TradistaObject, Object> exporter = (Exporter<TradistaObject, Object>) localExporterConfigurationService
 				.getExporterByName(msg.getInterfaceName());

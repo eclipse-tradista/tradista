@@ -25,6 +25,6 @@ public interface ProcessingOrgDefaultsService {
 
 	ProcessingOrgDefaults getProcessingOrgDefaultsByPoId(long poId);
 
-	long saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults);
+	void saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults);
 
 }

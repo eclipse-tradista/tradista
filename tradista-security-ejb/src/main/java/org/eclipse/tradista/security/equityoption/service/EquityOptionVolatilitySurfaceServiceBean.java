@@ -7,14 +7,17 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.constants.MarketDataConstants;
 import org.eclipse.tradista.core.marketdata.generationalgorithm.SurfaceGenerationAlgorithm;
 import org.eclipse.tradista.core.marketdata.interpolator.MultivariateInterpolator;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
+import org.eclipse.tradista.core.marketdata.service.CheckVolatilitySurfaceAccess;
+import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.service.SurfaceBusinessDelegate;
-import org.eclipse.tradista.core.marketdata.service.VolatilitySurfaceFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 import org.eclipse.tradista.security.equityoption.persistence.EquityOptionVolatilitySurfaceSQL;
@@ -22,7 +25,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -45,27 +47,25 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVolatilitySurfaceService {
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public Set<EquityOptionVolatilitySurface> getAllEquityOptionVolatilitySurfaces() {
 		return EquityOptionVolatilitySurfaceSQL.getAllEquityOptionVolatilitySurfaces();
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public Set<EquityOptionVolatilitySurface> getEquityOptionVolatilitySurfacesByPoId(long poId) {
 		return EquityOptionVolatilitySurfaceSQL.getEquityOptionVolatilitySurfacesByPoId(poId);
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
-	public EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(long id) {
+	public EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(@CheckVolatilitySurfaceAccess long id) {
 		return EquityOptionVolatilitySurfaceSQL.getEquityOptionVolatilitySurfaceById(id);
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public boolean deleteEquityOptionVolatilitySurface(long surfaceId) throws TradistaBusinessException {
+	public boolean deleteEquityOptionVolatilitySurface(@CheckVolatilitySurfaceAccess long surfaceId)
+			throws TradistaBusinessException {
 		return EquityOptionVolatilitySurfaceSQL.deleteEquityOptionVolatilitySurface(surfaceId);
 	}
 
@@ -82,7 +82,7 @@ public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVol
 
 	@Override
 	public Set<String> getAllInstances() {
-		Set<String> instances = new HashSet<String>();
+		Set<String> instances = new HashSet<>();
 		instances.add("CLOSE");
 		instances.add("OPEN");
 		instances.add("BID");
@@ -103,9 +103,10 @@ public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVol
 		return false;
 	}
 
-	@Interceptors({ EquityOptionProductScopeFilteringInterceptor.class, VolatilitySurfaceFilteringInterceptor.class })
+	@ProtectGlobal
+	@ProductScope(EquityOption.EQUITY_OPTION)
 	@Override
-	public long saveEquityOptionVolatilitySurface(EquityOptionVolatilitySurface surface)
+	public long saveEquityOptionVolatilitySurface(@CheckVolatilitySurfaceAccess EquityOptionVolatilitySurface surface)
 			throws TradistaBusinessException {
 		if (surface.getId() == 0) {
 			checkSurfaceExistence(surface);
@@ -119,6 +120,14 @@ public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVol
 				checkSurfaceExistence(surface);
 			}
 		}
+
+		if (surface.getQuoteSet() != null) {
+			if (new QuoteBusinessDelegate().getQuoteSetById(surface.getQuoteSet().getId()) == null) {
+				throw new TradistaBusinessException(
+						String.format("The quote set %d was not found.", surface.getQuoteSet().getId()));
+			}
+		}
+
 		return EquityOptionVolatilitySurfaceSQL.saveEquityOptionVolatilitySurface(surface);
 	}
 

@@ -6,13 +6,13 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.persistence.EquityOptionSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -36,7 +36,7 @@ import jakarta.interceptor.Interceptors;
 public class EquityOptionServiceBean implements EquityOptionService {
 
 	@Override
-	@Interceptors(EquityOptionProductScopeFilteringInterceptor.class)
+	@ProductScope(EquityOption.EQUITY_OPTION)
 	public long saveEquityOption(EquityOption equityOption) throws TradistaBusinessException {
 		if (equityOption.getId() == 0) {
 			checkProductExistence(equityOption);

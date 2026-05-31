@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
-import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -102,10 +101,7 @@ public class ProcessingOrgDefaultsController implements Serializable {
 
 	public void save() {
 		try {
-			long poDefaultsId = poDefaultsBusinessDelegate.saveProcessingOrgDefaults(poDefaults);
-			if (poDefaults.getId() == 0) {
-				poDefaults.setId(poDefaultsId);
-			}
+			poDefaultsBusinessDelegate.saveProcessingOrgDefaults(poDefaults);
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Processing Org Defaults successfully saved"));
 		} catch (TradistaBusinessException tbe) {

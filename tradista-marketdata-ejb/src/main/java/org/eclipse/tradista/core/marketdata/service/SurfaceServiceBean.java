@@ -19,7 +19,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -59,7 +58,8 @@ public class SurfaceServiceBean implements SurfaceService {
 	}
 
 	@Override
-	public List<VolatilitySurface<?, ?, ?>> getSurfacesByTypeAndPoId(String surfaceType, long poId) throws TradistaBusinessException {
+	public List<VolatilitySurface<?, ?, ?>> getSurfacesByTypeAndPoId(String surfaceType, long poId)
+			throws TradistaBusinessException {
 		List<VolatilitySurface<?, ?, ?>> surfaces = null;
 		if (surfaceType == null) {
 			if (informationBusinessDelegate.hasFXModule()) {
@@ -121,7 +121,6 @@ public class SurfaceServiceBean implements SurfaceService {
 		return surfaces;
 	}
 
-	@Interceptors(VolatilitySurfaceFilteringInterceptor.class)
 	@Override
 	public VolatilitySurface<?, ?, ?> getSurfaceById(long id) throws TradistaBusinessException {
 		VolatilitySurface<?, ?, ?> surface = null;

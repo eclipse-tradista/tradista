@@ -32,7 +32,6 @@ public abstract class Product extends TradistaObject {
 	private Exchange exchange;
 
 	public Product(Exchange exchange) {
-		super();
 		this.exchange = exchange;
 	}
 

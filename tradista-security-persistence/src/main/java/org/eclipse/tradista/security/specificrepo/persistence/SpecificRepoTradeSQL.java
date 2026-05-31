@@ -3,10 +3,10 @@ package org.eclipse.tradista.security.specificrepo.persistence;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
 import static org.eclipse.tradista.security.gcrepo.persistence.GCRepoTradeSQL.GCREPO_TRADE_ID_FIELD;
 import static org.eclipse.tradista.security.gcrepo.persistence.GCRepoTradeSQL.GCREPO_TRADE_TABLE;
-import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.TRADE_AND_REPO_TRADE_INNER_JOIN;
 import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.PARTIAL_TERMINATION_AND_REPO_TRADE_LEFT_OUTER_JOIN;
 import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.REPO_TRADE_ID_FIELD;
 import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.REPO_TRADE_TABLE;
+import static org.eclipse.tradista.security.repo.persistence.RepoTradeSQL.TRADE_AND_REPO_TRADE_INNER_JOIN;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

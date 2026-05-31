@@ -24,5 +24,5 @@ public interface PricingParameterModuleValidator {
 
 	void validateModule(PricingParameterModule module, LegalEntity po) throws TradistaBusinessException;
 
-	void checkAccess(PricingParameterModule module, StringBuilder errMsg);
+	void checkIntegrity(PricingParameterModule module, StringBuilder errMsg);
 }

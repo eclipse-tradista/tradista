@@ -3,8 +3,14 @@ package org.eclipse.tradista.security.bond.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.security.bond.messaging.BondTradeEvent;
+import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.model.BondTrade;
 import org.eclipse.tradista.security.bond.persistence.BondTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -12,8 +18,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -45,14 +51,18 @@ public class BondTradeServiceBean implements BondTradeService {
 
 	private Destination destination;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ BondProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = Bond.BOND, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveBondTrade(BondTrade trade) {
+	public long saveBondTrade(@CheckTradeAccess BondTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 		BondTradeEvent event = new BondTradeEvent();
 		if (trade.getId() != 0) {
 			BondTrade oldTrade = BondTradeSQL.getTradeById(trade.getId());
@@ -73,11 +83,11 @@ public class BondTradeServiceBean implements BondTradeService {
 	}
 
 	@Override
-	public List<BondTrade> getBondTradesBeforeTradeDateByBondAndBookIds(LocalDate date, long bondId, long bookId) {
+	public List<BondTrade> getBondTradesBeforeTradeDateByBondAndBookIds(LocalDate date, long bondId,
+			@CheckBookAccess long bookId) {
 		return BondTradeSQL.getBondTradesBeforeTradeDateByBondAndBookIds(date, bondId, bookId);
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public BondTrade getBondTradeById(long id) {
 		return BondTradeSQL.getTradeById(id);

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -31,7 +32,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * @author olivier_asuncion
  *
  */
-public class FeedConfig extends TradistaObject {
+public class FeedConfig extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = -5519797441712646656L;
 
@@ -49,7 +50,7 @@ public class FeedConfig extends TradistaObject {
 
 	@SuppressWarnings("unchecked")
 	public Map<String, Map<String, String>> getFieldsMapping() {
-		Map<String, Map<String, String>> fieldsMapping = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, String>> fieldsMapping = new HashMap<>();
 		for (Map.Entry<String, Map<String, String>> entry : this.fieldsMapping.entrySet()) {
 			if (entry.getValue() != null) {
 				fieldsMapping.put(entry.getKey(),
@@ -66,8 +67,8 @@ public class FeedConfig extends TradistaObject {
 	public FeedConfig(String name, LegalEntity po) {
 		this.name = name;
 		processingOrg = po;
-		mapping = new HashMap<String, Quote>();
-		fieldsMapping = new HashMap<String, Map<String, String>>();
+		mapping = new HashMap<>();
+		fieldsMapping = new HashMap<>();
 	}
 
 	public FeedConfig(String name, FeedType feedType, LegalEntity po) {
@@ -96,6 +97,7 @@ public class FeedConfig extends TradistaObject {
 		this.mapping = mapping;
 	}
 
+	@Override
 	public LegalEntity getProcessingOrg() {
 		return TradistaModelUtil.clone(processingOrg);
 	}
@@ -107,11 +109,12 @@ public class FeedConfig extends TradistaObject {
 	public String putField(String providerData, String providerField, String tradistaField) {
 		Map<String, String> fldMapping = fieldsMapping.get(providerData);
 		if (fldMapping == null) {
-			fldMapping = new HashMap<String, String>();
+			fldMapping = new HashMap<>();
 		}
 		return fldMapping.put(providerField, tradistaField);
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}

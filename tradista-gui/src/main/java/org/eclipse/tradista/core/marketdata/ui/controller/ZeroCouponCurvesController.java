@@ -195,8 +195,8 @@ public class ZeroCouponCurvesController extends TradistaGenerableCurveController
 					if (newValue == null) {
 						return true;
 					}
-					return newValue.equals(LocalDate
-							.from(DateTimeFormatter.ofPattern(YYYY_MM_DD).parse(point.getDate().getValue())));
+					return newValue.equals(
+							LocalDate.from(DateTimeFormatter.ofPattern(YYYY_MM_DD).parse(point.getDate().getValue())));
 				}));
 
 				rateTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
@@ -352,50 +352,49 @@ public class ZeroCouponCurvesController extends TradistaGenerableCurveController
 	protected void copy() {
 		try {
 			String copyName = null;
-				LegalEntity po = null;
-				boolean proceed = false;
+			LegalEntity po = null;
+			boolean proceed = false;
 
-				if (ClientUtil.currentUserIsAdmin()) {
-					TradistaCopyDialog dialog = new TradistaCopyDialog("Zero Coupon Curve", curve.getProcessingOrg(),
-							curve.getName(), false);
-					Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
-					if (result.isPresent()) {
-						copyName = result.get().getName();
-						po = result.get().getProcessingOrg();
-						proceed = true;
-					}
-				} else {
-					TradistaTextInputDialog dialog = new TradistaTextInputDialog();
-					dialog.setTitle("Curve name");
-					dialog.setHeaderText("Curve name selection");
-					dialog.setContentText("Please choose a Curve name:");
-
-					Optional<String> result = dialog.showAndWait();
-					if (result.isPresent()) {
-						copyName = result.get();
-						po = ClientUtil.getCurrentUser().getProcessingOrg();
-						proceed = true;
-					}
+			if (ClientUtil.currentUserIsAdmin()) {
+				TradistaCopyDialog dialog = new TradistaCopyDialog("Zero Coupon Curve", curve.getProcessingOrg(),
+						curve.getName(), false);
+				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get().getName();
+					po = result.get().getProcessingOrg();
+					proceed = true;
 				}
+			} else {
+				TradistaTextInputDialog dialog = new TradistaTextInputDialog();
+				dialog.setTitle("Curve name");
+				dialog.setHeaderText("Curve name selection");
+				dialog.setContentText("Please choose a Curve name:");
 
-				if (proceed) {
-					ZeroCouponCurve copyCurve = new ZeroCouponCurve(copyName, po);
-					buildCurve(copyCurve);
-					try {
-						copyCurve.setId(interestRateCurveBusinessDelegate.saveInterestRateCurve(copyCurve));
-					} catch (TradistaTechnicalException tte) {
-						canCopyCurve = false;
-						throw tte;
-					}
-					curve = copyCurve;
-					TradistaGUIUtil
-							.fillZeroCouponCurveComboBox((ComboBox<ZeroCouponCurve>) (ComboBox<?>) curveComboBox);
+				Optional<String> result = dialog.showAndWait();
+				if (result.isPresent()) {
+					copyName = result.get();
+					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					proceed = true;
 				}
-			} catch (TradistaBusinessException | TradistaTechnicalException te) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
-				alert.showAndWait();
 			}
+
+			if (proceed) {
+				ZeroCouponCurve copyCurve = new ZeroCouponCurve(copyName, po);
+				buildCurve(copyCurve);
+				try {
+					copyCurve.setId(interestRateCurveBusinessDelegate.saveInterestRateCurve(copyCurve));
+				} catch (TradistaTechnicalException tte) {
+					canCopyCurve = false;
+					throw tte;
+				}
+				curve = copyCurve;
+				TradistaGUIUtil.fillZeroCouponCurveComboBox((ComboBox<ZeroCouponCurve>) (ComboBox<?>) curveComboBox);
+			}
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
+			alert.showAndWait();
 		}
+	}
 
 	@SuppressWarnings("unchecked")
 	@FXML

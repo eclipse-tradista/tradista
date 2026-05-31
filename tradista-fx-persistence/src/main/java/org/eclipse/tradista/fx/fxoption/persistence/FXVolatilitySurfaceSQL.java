@@ -3,9 +3,9 @@ package org.eclipse.tradista.fx.fxoption.persistence;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.OR;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SURFACE_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VOLATILITY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VOLATILITY_SURFACE_ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALUE;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.ALGORITHM_FIELD;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.ID_FIELD;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.INSTANCE_FIELD;
@@ -13,10 +13,10 @@ import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.INTERP
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.NAME_FIELD;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.PROCESSING_ORG_ID_FIELD;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.QUOTE_DATE_FIELD;
-import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_QUOTE_TABLE;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.SURFACE_ID_FIELD;
-import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_TABLE;
 import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.TYPE_FIELD;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_QUOTE_TABLE;
+import static org.eclipse.tradista.core.marketdata.persistence.SurfaceSQL.VOLATILITY_SURFACE_TABLE;
 
 import java.math.BigDecimal;
 import java.sql.Connection;

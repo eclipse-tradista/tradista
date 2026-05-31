@@ -1,5 +1,6 @@
 package org.eclipse.tradista.fx.fxoption.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 import static org.eclipse.tradista.core.pricing.util.PricerUtil.cnd;
 
 import java.math.BigDecimal;
@@ -18,17 +19,19 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXPricerService;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /*
  * Copyright 2015 Olivier Asuncion
@@ -53,10 +56,14 @@ under the License.    */
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(FXOptionTradeProductScopeFilteringInterceptor.class)
+@ProductScope(FXOptionTrade.FX_OPTION)
 public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 	private static final String PRICING_PARAMETER_DOES_NOT_CONTAIN_A_X_VALUE = "%s Pricing Parameter doesn't contain a '%s' value. please add it or change the Pricing Parameter.";
+
+	private static final String MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The maturity date ({}) must be after the current and pricing dates.";
+
+	private static final Logger logger = LoggerFactory.getLogger(FXOptionPricerServiceBean.class);
 
 	@EJB
 	private ConfigurationService configurationService;
@@ -77,14 +84,14 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		FXTrade underlying = trade.getUnderlying();
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 		if (trade.getExerciseDate() != null) {
 			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
 			pv = fxPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 		if (trade.getExerciseDate() == null) {
@@ -113,14 +120,14 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		FXTrade underlying = trade.getUnderlying();
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 		if (trade.getExerciseDate() != null) {
 			underlying.setSettlementDate(trade.getUnderlyingSettlementDate());
 			pv = fxPricerService.npvDiscountedLegsDiff(params, underlying, currency, pricingDate);
 		}
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 		if (trade.getExerciseDate() == null) {
@@ -156,7 +163,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())
 				|| trade.getExerciseDate() != null) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -189,19 +196,19 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 				trade.getUnderlying().getCurrencyOne());
 		FXCurve paramCcyCcyOneFXCurve = params.getFxCurves().get(pair);
 		if (paramCcyCcyOneFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		pair = new CurrencyPair(trade.getUnderlying().getCurrencyOne(), trade.getUnderlying().getCurrency());
 		FXCurve paramCcyOneCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramCcyOneCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		pair = new CurrencyPair(trade.getUnderlying().getCurrency(), currency);
 		FXCurve paramUndCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramUndCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// Volatility surface
@@ -320,7 +327,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())
 				|| trade.getExerciseDate() != null) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -353,13 +360,13 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 				trade.getUnderlying().getCurrencyOne());
 		FXCurve paramCcyCcyOneFXCurve = params.getFxCurves().get(pair);
 		if (paramCcyCcyOneFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		pair = new CurrencyPair(trade.getUnderlying().getCurrency(), currency);
 		FXCurve paramUndCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramUndCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 		try {
 			BigDecimal r = PricerUtil.getDiscountFactor(paramPrimCurrIRCurve, trade.getMaturityDate());
@@ -455,7 +462,6 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 					paramUndCcyPricingCcyFXCurve != null ? paramUndCcyPricingCcyFXCurve.getId() : 0);
 
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
@@ -469,7 +475,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// convert the premium
@@ -551,7 +557,7 @@ public class FXOptionPricerServiceBean implements FXOptionPricerService {
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		FXTrade underlying = trade.getUnderlying();
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		// convert the premium

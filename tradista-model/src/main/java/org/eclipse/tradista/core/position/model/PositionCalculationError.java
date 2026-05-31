@@ -3,6 +3,7 @@ package org.eclipse.tradista.core.position.model;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.error.model.Error;
 import org.eclipse.tradista.core.product.model.Product;
@@ -24,7 +25,7 @@ import org.eclipse.tradista.core.trade.model.Trade;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class PositionCalculationError extends Error {
+public class PositionCalculationError extends Error implements Segregable {
 
 	private static final long serialVersionUID = -6672980501663576889L;
 
@@ -82,6 +83,11 @@ public class PositionCalculationError extends Error {
 			return trade.getBook();
 		}
 		return null;
+	}
+
+	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return positionDefinition != null ? positionDefinition.getProcessingOrg() : null;
 	}
 
 	@Override

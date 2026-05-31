@@ -3,6 +3,7 @@ package org.eclipse.tradista.security.bond.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.bond.model.BondTrade;
 
 import jakarta.ejb.Remote;
@@ -26,7 +27,7 @@ import jakarta.ejb.Remote;
 @Remote
 public interface BondTradeService {
 
-	long saveBondTrade(BondTrade trade);
+	long saveBondTrade(BondTrade trade) throws TradistaBusinessException;
 
 	List<BondTrade> getBondTradesBeforeTradeDateByBondAndBookIds(LocalDate date, long bondId, long bookId);
 

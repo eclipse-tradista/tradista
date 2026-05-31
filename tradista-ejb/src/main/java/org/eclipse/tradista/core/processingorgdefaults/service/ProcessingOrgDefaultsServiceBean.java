@@ -1,12 +1,12 @@
 package org.eclipse.tradista.core.processingorgdefaults.service;
 
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.persistence.ProcessingOrgDefaultsSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -30,15 +30,13 @@ import jakarta.interceptor.Interceptors;
 public class ProcessingOrgDefaultsServiceBean implements ProcessingOrgDefaultsService {
 
 	@Override
-	@Interceptors(ProcessingOrgDefaultsFilteringInterceptor.class)
-	public ProcessingOrgDefaults getProcessingOrgDefaultsByPoId(long poId) {
+	public ProcessingOrgDefaults getProcessingOrgDefaultsByPoId(@CheckProcessingOrg long poId) {
 		return ProcessingOrgDefaultsSQL.getProcessingOrgDefaultsByPoId(poId);
 	}
 
 	@Override
-	@Interceptors(ProcessingOrgDefaultsFilteringInterceptor.class)
-	public long saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) {
-		return ProcessingOrgDefaultsSQL.saveProcessingOrgDefaults(poDefaults);
+	public void saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) {
+		ProcessingOrgDefaultsSQL.saveProcessingOrgDefaults(poDefaults);
 	}
 
 }

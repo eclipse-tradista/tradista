@@ -11,6 +11,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.repo.pricer.RepoPricerUtil;
@@ -18,7 +19,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -39,7 +39,7 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(GCRepoProductScopeFilteringInterceptor.class)
+@ProductScope(GCRepoTrade.GC_REPO)
 public class GCRepoPricerServiceBean implements GCRepoPricerService {
 
 	@Override

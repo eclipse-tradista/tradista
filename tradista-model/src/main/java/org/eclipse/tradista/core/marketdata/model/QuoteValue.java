@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 
@@ -23,7 +24,7 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class QuoteValue extends TradistaObject implements MarketData, Comparable<QuoteValue> {
+public class QuoteValue extends TradistaObject implements MarketData, Comparable<QuoteValue>, Segregable {
 
 	private static final long serialVersionUID = -8712317853305269754L;
 
@@ -215,6 +216,11 @@ public class QuoteValue extends TradistaObject implements MarketData, Comparable
 
 	public QuoteSet getQuoteSet() {
 		return TradistaModelUtil.clone(quoteSet);
+	}
+
+	@Override
+	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+		return quoteSet != null ? quoteSet.getProcessingOrg() : null;
 	}
 
 	/**

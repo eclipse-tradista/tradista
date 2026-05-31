@@ -3,13 +3,15 @@ package org.eclipse.tradista.core.user.service;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.persistence.UserSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
+import jakarta.interceptor.ExcludeDefaultInterceptors;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -32,15 +34,14 @@ import jakarta.interceptor.Interceptors;
 @Stateless
 public class UserServiceBean implements UserService {
 
-	@Interceptors(UserFilteringInterceptor.class)
 	@Override
 	public Set<User> getAllUsers() {
 		return UserSQL.getAllUsers();
 	}
 
-	@Interceptors(UserFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveUser(User user) throws TradistaBusinessException {
+	public long saveUser(@CheckUserAccess User user) throws TradistaBusinessException {
 		checkLoginExistence(user);
 		if (user.getId() == 0) {
 			checkIdentityExistence(user);
@@ -66,40 +67,36 @@ public class UserServiceBean implements UserService {
 		User u = UserSQL.getUserByFirstNameSurnameAndPoId(user.getFirstName(), user.getSurname(),
 				user.getProcessingOrg().getId());
 		if (u != null && u.getId() != user.getId()) {
-			throw new TradistaBusinessException(
-					String.format("A user with this first name (%s), surname (%s) and processing org (%s) already exists.",
-							user.getFirstName(), user.getSurname(), user.getProcessingOrg()));
+			throw new TradistaBusinessException(String.format(
+					"A user with this first name (%s), surname (%s) and processing org (%s) already exists.",
+					user.getFirstName(), user.getSurname(), user.getProcessingOrg()));
 		}
 	}
-	
-	@Interceptors(UserFilteringInterceptor.class)
+
 	@Override
 	public Set<User> getUsersBySurname(String surname) {
 		return UserSQL.getUsersBySurname(surname);
 	}
 
-	@Interceptors(UserFilteringInterceptor.class)
 	@Override
 	public User getUserById(long id) {
 		return UserSQL.getUserById(id);
 	}
 
-	// No interceptor as this method is the method used to authenticate the user in
-	// UserFilteringInterceptor
+	// No interceptor as this method is the method used to authenticate the user
+	@ExcludeDefaultInterceptors
 	@Override
 	public User getUserByLogin(String login) {
 		return UserSQL.getUserByLogin(login);
 	}
 
-	@Interceptors(UserFilteringInterceptor.class)
 	@Override
-	public Set<User> getUsersByPoId(long poId) {
+	public Set<User> getUsersByPoId(@CheckProcessingOrg long poId) {
 		return UserSQL.getUsersByPoId(poId);
 	}
 
-	@Interceptors(UserFilteringInterceptor.class)
 	@Override
-	public User getUserByFirstNameSurnameAndPoId(String firstName, String surname, long poId) {
+	public User getUserByFirstNameSurnameAndPoId(String firstName, String surname, @CheckProcessingOrg long poId) {
 		return UserSQL.getUserByFirstNameSurnameAndPoId(firstName, surname, poId);
 	}
 

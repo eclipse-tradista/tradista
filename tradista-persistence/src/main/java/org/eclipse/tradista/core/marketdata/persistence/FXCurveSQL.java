@@ -94,7 +94,8 @@ public class FXCurveSQL {
 		boolean bSaved = false;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtDeleteRatePoints = CurveSQL.getDeleteCurvePointsByCurveIdPreparedStatement(con);
-				PreparedStatement stmtDeleteQuotesByCurveId = CurveSQL.getDeleteCurveQuotesByCurveIdPreparedStatement(con);
+				PreparedStatement stmtDeleteQuotesByCurveId = CurveSQL
+						.getDeleteCurveQuotesByCurveIdPreparedStatement(con);
 				PreparedStatement stmtDeleteFXCurve = TradistaDBUtil.buildDeletePreparedStatement(con, FX_CURVE_TABLE,
 						ID_FIELD);
 				PreparedStatement stmtDeleteCurve = TradistaDBUtil.buildDeletePreparedStatement(con,
@@ -292,12 +293,14 @@ public class FXCurveSQL {
 				}
 			} else {
 				// We delete the current curve's quote ids list.
-				try (PreparedStatement stmtDeleteQuotesByCurveId = CurveSQL.getDeleteCurveQuotesByCurveIdPreparedStatement(con)) {
+				try (PreparedStatement stmtDeleteQuotesByCurveId = CurveSQL
+						.getDeleteCurveQuotesByCurveIdPreparedStatement(con)) {
 					stmtDeleteQuotesByCurveId.setLong(1, curve.getId());
 					stmtDeleteQuotesByCurveId.executeUpdate();
 				}
 				// Now, we must delete the current rate points
-				try (PreparedStatement stmtDeleteRatePointsByCurveId = CurveSQL.getDeleteCurvePointsByCurveIdPreparedStatement(con)) {
+				try (PreparedStatement stmtDeleteRatePointsByCurveId = CurveSQL
+						.getDeleteCurvePointsByCurveIdPreparedStatement(con)) {
 					stmtDeleteRatePointsByCurveId.setLong(1, curve.getId());
 					stmtDeleteRatePointsByCurveId.executeUpdate();
 				}

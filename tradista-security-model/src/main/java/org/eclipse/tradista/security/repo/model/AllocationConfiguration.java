@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -24,7 +25,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class AllocationConfiguration extends TradistaObject implements Comparable<AllocationConfiguration> {
+public class AllocationConfiguration extends TradistaObject implements Comparable<AllocationConfiguration>, Segregable {
 
 	private static final long serialVersionUID = -1407477512383084643L;
 

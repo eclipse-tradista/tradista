@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.service.BondService;
 import org.eclipse.tradista.security.equity.model.Equity;
@@ -13,7 +14,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -40,7 +40,7 @@ public class EquityServiceBean implements EquityService {
 	private BondService bondService;
 
 	@Override
-	@Interceptors(EquityProductScopeFilteringInterceptor.class)
+	@ProductScope(Equity.EQUITY)
 	public long saveEquity(Equity equity) throws TradistaBusinessException {
 		if (equity.getId() == 0) {
 			checkProductExistence(equity);

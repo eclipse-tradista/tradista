@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
 import org.eclipse.tradista.core.error.model.Error.Status;
 import org.eclipse.tradista.core.message.model.ExportError;
 import org.eclipse.tradista.core.message.model.ExportError.ExportErrorType;
@@ -28,31 +30,32 @@ import jakarta.interceptor.Interceptors;
  * the License.
  * 
  * SPDX-License-Identifier: Apache-2.0
- ********************************************************************************/
+ *******************************************************************************/
 
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
+@Interceptors(ExportErrorAuthorizationFilteringInterceptor.class)
 public class ExportErrorServiceBean implements ExportErrorService {
 
-	@Interceptors(ExportErrorAuthorizationFilteringInterceptor.class)
+	@ProtectGlobal
 	@Override
-	public long saveExportError(ExportError error) {
+	public long saveExportError(@CheckExportErrorAccess ExportError error) {
 		return ExportErrorSQL.saveExportError(error);
 	}
 
-	@Interceptors(ExportErrorAuthorizationFilteringInterceptor.class)
 	@Override
-	public List<ExportError> getExportErrors(Set<String> exporterTypes, Set<String> exporterNames, long messageId,
-			Status status, ExportErrorType exportErrorType, LocalDate errorDateFrom, LocalDate errorDateTo,
-			LocalDate solvingDateFrom, LocalDate solvingDateTo) {
+	public List<ExportError> getExportErrors(Set<String> exporterTypes, Set<String> exporterNames,
+			@CheckMessageAccess long messageId, Status status, ExportErrorType exportErrorType, LocalDate errorDateFrom,
+			LocalDate errorDateTo, LocalDate solvingDateFrom, LocalDate solvingDateTo)
+			throws TradistaBusinessException {
 		return ExportErrorSQL.getExportErrors(exporterTypes, exporterNames, messageId, status, exportErrorType,
 				errorDateFrom, errorDateTo, solvingDateFrom, solvingDateTo);
 	}
 
-	@Interceptors(ExportErrorAuthorizationFilteringInterceptor.class)
 	@Override
-	public ExportError getExportError(long msgId, ExportErrorType importErrorType) {
+	public ExportError getExportError(@CheckMessageAccess long msgId, ExportErrorType importErrorType)
+			throws TradistaBusinessException {
 		return ExportErrorSQL.getExportError(msgId, importErrorType);
 	}
 

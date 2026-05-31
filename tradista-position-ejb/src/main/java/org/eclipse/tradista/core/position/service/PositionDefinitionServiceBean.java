@@ -2,20 +2,28 @@ package org.eclipse.tradista.core.position.service;
 
 import java.util.Set;
 
+import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.service.CheckProcessingOrg;
+import org.eclipse.tradista.core.common.service.ProtectGlobal;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.position.persistence.PositionDefinitionSQL;
-import org.jboss.ejb3.annotation.SecurityDomain;
-
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.Resource;
-import jakarta.ejb.EJBContext;
-import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
-
-import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
+import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.jboss.ejb3.annotation.SecurityDomain;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJBContext;
+import jakarta.ejb.Stateless;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -41,32 +49,60 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 	@Resource
 	private EJBContext ctx;
 
-	private UserBusinessDelegate userBusinessDelegate = new UserBusinessDelegate();
+	private UserBusinessDelegate userBusinessDelegate;
 
-	@Interceptors(PositionDefinitionFilteringInterceptor.class)
+	private BookBusinessDelegate bookBusinessDelegate;
+
+	private ProductBusinessDelegate productBusinessDelegate;
+
+	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
+
+	private CurrencyBusinessDelegate currencyBusinessDelegate;
+
+	private PricerBusinessDelegate pricerBusinessDelegate;
+
+	@PostConstruct
+	private void init() {
+		userBusinessDelegate = new UserBusinessDelegate();
+		bookBusinessDelegate = new BookBusinessDelegate();
+		productBusinessDelegate = new ProductBusinessDelegate();
+		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
+		currencyBusinessDelegate = new CurrencyBusinessDelegate();
+		pricerBusinessDelegate = new PricerBusinessDelegate();
+	}
+
 	@Override
 	public Set<PositionDefinition> getAllPositionDefinitions() {
 		return PositionDefinitionSQL.getAllPositionDefinitions();
 	}
 
-	@Interceptors(PositionDefinitionFilteringInterceptor.class)
 	@Override
 	public PositionDefinition getPositionDefinitionByName(String name) {
 		return PositionDefinitionSQL.getPositionDefinitionByNameAndPoId(name,
-				getCurrentUser().getProcessingOrg().getId());
-
+				getCurrentUser().getProcessingOrg() == null ? 0 : getCurrentUser().getProcessingOrg().getId());
 	}
 
-	@Interceptors(PositionDefinitionFilteringInterceptor.class)
 	@Override
 	public PositionDefinition getPositionDefinitionById(long id) {
 		return PositionDefinitionSQL.getPositionDefinitionById(id);
 	}
 
-	@Interceptors({ PositionDefinitionProductScopeFilteringInterceptor.class,
-			PositionDefinitionFilteringInterceptor.class })
+	@ProtectGlobal
+	@ProductScope(mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long savePositionDefinition(PositionDefinition positionDefinition) throws TradistaBusinessException {
+	public long savePositionDefinition(@CheckPositionDefinitionAccess PositionDefinition positionDefinition)
+			throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		checkBook(positionDefinition, errMsg);
+		checkCounterparty(positionDefinition, errMsg);
+		checkProduct(positionDefinition, errMsg);
+		checkCurrency(positionDefinition, errMsg);
+		checkPricingParameter(positionDefinition, errMsg);
+
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+
 		if (positionDefinition.getId() == 0) {
 			checkPositionDefinitionName(positionDefinition);
 		} else {
@@ -91,7 +127,6 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 
 	@Override
 	public boolean deletePositionDefinition(String name) {
-
 		return PositionDefinitionSQL.deletePositionDefinition(name, getCurrentUser().getProcessingOrg().getId());
 	}
 
@@ -120,9 +155,56 @@ public class PositionDefinitionServiceBean implements LocalPositionDefinitionSer
 		return PositionDefinitionSQL.getPositionDefinitionsByPricingParametersSetId(id);
 	}
 
-	@Interceptors(PositionDefinitionFilteringInterceptor.class)
 	@Override
-	public Set<PositionDefinition> getPositionDefinitionsByPoId(long poId) {
+	public Set<PositionDefinition> getPositionDefinitionsByPoId(@CheckProcessingOrg long poId) {
 		return PositionDefinitionSQL.getPositionDefinitionsByPoId(poId);
+	}
+
+	private void checkBook(PositionDefinition positionDefinition, StringBuilder errMsg)
+			throws TradistaBusinessException {
+		if (positionDefinition.getBook() != null) {
+			if (bookBusinessDelegate.getBookById(positionDefinition.getBook().getId()) == null) {
+				errMsg.append(String.format("The book %s was not found.%n", positionDefinition.getBook()));
+			}
+		}
+	}
+
+	private void checkProduct(PositionDefinition positionDefinition, StringBuilder errMsg)
+			throws TradistaBusinessException {
+		if (positionDefinition.getProduct() != null) {
+			if (productBusinessDelegate.getProductById(positionDefinition.getProduct().getId()) == null) {
+				errMsg.append(String.format("The product %s was not found.%n", positionDefinition.getProduct()));
+			}
+		}
+	}
+
+	private void checkCounterparty(PositionDefinition positionDefinition, StringBuilder errMsg)
+			throws TradistaBusinessException {
+		if (positionDefinition.getCounterparty() != null) {
+			if (legalEntityBusinessDelegate.getLegalEntityById(positionDefinition.getCounterparty().getId()) == null) {
+				errMsg.append(
+						String.format("The counterparty %s was not found.%n", positionDefinition.getCounterparty()));
+			}
+		}
+	}
+
+	private void checkCurrency(PositionDefinition positionDefinition, StringBuilder errMsg)
+			throws TradistaBusinessException {
+		if (positionDefinition.getCurrency() != null) {
+			if (currencyBusinessDelegate.getCurrencyById(positionDefinition.getCurrency().getId()) == null) {
+				errMsg.append(String.format("The currency %s was not found.%n", positionDefinition.getCurrency()));
+			}
+		}
+	}
+
+	private void checkPricingParameter(PositionDefinition positionDefinition, StringBuilder errMsg)
+			throws TradistaBusinessException {
+		if (positionDefinition.getPricingParameter() != null) {
+			if (pricerBusinessDelegate
+					.getPricingParameterById(positionDefinition.getPricingParameter().getId()) == null) {
+				errMsg.append(String.format("The pricing parameters set %s was not found.%n",
+						positionDefinition.getPricingParameter()));
+			}
+		}
 	}
 }

@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.marketdata.ui.view;
 
 import java.util.Set;
 
+import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.service.InterestRateCurveBusinessDelegate;
 
@@ -11,7 +12,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 
 /********************************************************************************
  * Copyright (c) 2019 Olivier Asuncion
@@ -49,7 +49,8 @@ public class TradistaInterestRateCurveComboBox extends ComboBox<InterestRateCurv
 				if (empty || curve == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = curve.getProcessingOrg() == null ? "Global" : curve.getProcessingOrg().getShortName();
+					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
 				} else {
 					setText(curve.getName());

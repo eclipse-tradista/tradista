@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -26,7 +27,7 @@ import org.quartz.JobDetail;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class TradistaJobInstance extends TradistaObject {
+public class TradistaJobInstance extends TradistaObject implements Segregable {
 
 	private static final long serialVersionUID = 8887650019932154806L;
 
@@ -49,7 +50,7 @@ public class TradistaJobInstance extends TradistaObject {
 		this.jobDetail = jobDetail;
 		this.jobType = jobType;
 		this.name = jobDetail.getKey().getName();
-		properties = new HashMap<String, Object>();
+		properties = new HashMap<>();
 		if (po != null && po.getRole().equals(Role.PROCESSING_ORG)) {
 			jobDetail.getJobDataMap().put(PROCESSING_ORG_PROPERTY_KEY, po);
 		}
@@ -64,7 +65,7 @@ public class TradistaJobInstance extends TradistaObject {
 		super();
 		this.jobType = jobType;
 		this.name = name;
-		properties = new HashMap<String, Object>();
+		properties = new HashMap<>();
 		if (po != null && po.getRole().equals(Role.PROCESSING_ORG)) {
 			properties.put(PROCESSING_ORG_PROPERTY_KEY, po);
 		}

@@ -44,7 +44,7 @@ public class ProductInventoryBusinessDelegate {
 
 		// TODO Should we validate the transfer here
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
@@ -61,8 +61,7 @@ public class ProductInventoryBusinessDelegate {
 				.getProductInventoriesBeforeDateByProductAndBookIds(productId, bookId, date));
 	}
 
-	public Set<ProductInventory> getOpenPositionsFromInventoryByProductAndBookIds(long productId, long bookId)
-			throws TradistaBusinessException {
+	public Set<ProductInventory> getOpenPositionsFromInventoryByProductAndBookIds(long productId, long bookId) {
 		return SecurityUtil.run(() -> productInventoryService
 				.getOpenPositionsFromProductInventoryByProductAndBookIds(productId, bookId));
 	}
@@ -87,7 +86,7 @@ public class ProductInventoryBusinessDelegate {
 
 	public Set<ProductInventory> getProductInventories(LocalDate from, LocalDate to, String productType, long productId,
 			long bookId, boolean onlyOpenPositions) throws TradistaBusinessException {
-		StringBuffer errMsg = new StringBuffer();
+		StringBuilder errMsg = new StringBuilder();
 		if (onlyOpenPositions && to != null) {
 			errMsg.append(String.format("'Only Open positions' and 'To' cannot be selected together.%n"));
 		}
@@ -96,7 +95,7 @@ public class ProductInventoryBusinessDelegate {
 				errMsg.append(String.format("'To' date cannot be before 'From' date.%n"));
 			}
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> productInventoryService.getProductInventories(from, to, productType, productId,

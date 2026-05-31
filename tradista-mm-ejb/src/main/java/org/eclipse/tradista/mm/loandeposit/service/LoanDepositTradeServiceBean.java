@@ -1,7 +1,10 @@
 package org.eclipse.tradista.mm.loandeposit.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.mm.loandeposit.messaging.LoanDepositTradeEvent;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 import org.eclipse.tradista.mm.loandeposit.persistence.LoanDepositTradeSQL;
@@ -10,8 +13,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -43,15 +46,18 @@ public class LoanDepositTradeServiceBean implements LoanDepositTradeService {
 
 	private Destination destination;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 	}
 
-	@Interceptors({ LoanDepositTradeProductScopeFilteringInterceptor.class,
-			TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = LoanDepositTrade.LOAN_DEPOSIT, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveLoanDepositTrade(LoanDepositTrade trade) throws TradistaBusinessException {
+	public long saveLoanDepositTrade(@CheckTradeAccess LoanDepositTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade, true);
 
 		LoanDepositTradeEvent event = new LoanDepositTradeEvent();
 		if (trade.getId() != 0) {
@@ -67,7 +73,6 @@ public class LoanDepositTradeServiceBean implements LoanDepositTradeService {
 		return result;
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public LoanDepositTrade getLoanDepositTradeById(long id) {
 		return LoanDepositTradeSQL.getTradeById(id);

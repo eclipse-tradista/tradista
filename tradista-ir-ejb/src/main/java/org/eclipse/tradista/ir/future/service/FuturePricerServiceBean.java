@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.future.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.DateUtil;
@@ -22,15 +25,18 @@ import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -51,26 +57,40 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(FutureProductScopeFilteringInterceptor.class)
+@ProductScope(Future.FUTURE)
 public class FuturePricerServiceBean implements FuturePricerService {
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX = "%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
+
+	private static final String FUTURE_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The future ({}) maturity date must be after the current and pricing dates.";
+
+	private static final String MATURITY_DATE_PASSED_FORECAST_IMPOSSIBLE = "When the trade maturity date has passed, it is not possible to forecast cashflows.";
+
+	private static final String PRICING_DATE_AFTER_MATURITY_DATE_FORECAST_IMPOSSIBLE = "When the pricing date is not before the trade maturity date, it is not possible to forecast cashflows.";
+
+	private static final String SETTLEMENT_DATE_PASSED_AND_PRICING_DATE_IN_THE_PAST_FORECAST_IMPOSSIBLE = "When the trade settlement date has passed and the pricing date is in the past, it is not possible to forecast cashflows.";
+
+	private static final Logger logger = LoggerFactory.getLogger(FuturePricerServiceBean.class);
 
 	@EJB
 	private FutureTradeService futureTradeService;
 
 	@Override
-	public BigDecimal npvValuation(PricingParameter params, FutureTrade trade, Currency currency, LocalDate pricingDate)
-			throws TradistaBusinessException {
+	public BigDecimal npvValuation(PricingParameter params, @CheckTradeAccess FutureTrade trade, Currency currency,
+			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(FUTURE_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		BigDecimal pv = pvValuation(params, trade, currency, pricingDate);
@@ -91,15 +111,15 @@ public class FuturePricerServiceBean implements FuturePricerService {
 	}
 
 	@Override
-	public BigDecimal pnlDefault(PricingParameter params, Future future, Book book, Currency currency,
+	public BigDecimal pnlDefault(PricingParameter params, Future future, @CheckBookAccess Book book, Currency currency,
 			LocalDate pricingDate) throws TradistaBusinessException {
 		return realizedPnlDefault(params, future, book, currency, pricingDate)
 				.add(unrealizedPnlDefault(params, future, book, currency, pricingDate));
 	}
 
 	@Override
-	public BigDecimal realizedPnlDefault(PricingParameter params, Future future, Book book, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal realizedPnlDefault(PricingParameter params, Future future, @CheckBookAccess Book book,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 		long bookId = book != null ? book.getId() : 0;
 		Set<ProductInventory> inventories = new ProductInventoryBusinessDelegate()
 				.getInventoriesBeforeDateByProductAndBookIds(future.getId(), bookId, pricingDate);
@@ -146,8 +166,8 @@ public class FuturePricerServiceBean implements FuturePricerService {
 	}
 
 	@Override
-	public BigDecimal unrealizedPnlDefault(PricingParameter params, Future future, Book book, Currency currency,
-			LocalDate pricingDate) throws TradistaBusinessException {
+	public BigDecimal unrealizedPnlDefault(PricingParameter params, Future future, @CheckBookAccess Book book,
+			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 		long bookId = book != null ? book.getId() : 0;
 		Set<ProductInventory> inventories = new ProductInventoryBusinessDelegate()
 				.getOpenPositionsFromInventoryByProductAndBookIds(future.getId(), bookId);
@@ -165,33 +185,32 @@ public class FuturePricerServiceBean implements FuturePricerService {
 	}
 
 	@Override
-	public BigDecimal pvValuation(PricingParameter params, FutureTrade trade, Currency currency, LocalDate pricingDate)
-			throws TradistaBusinessException {
+	public BigDecimal pvValuation(PricingParameter params, @CheckTradeAccess FutureTrade trade, Currency currency,
+			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(FUTURE_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
 		InterestRateCurve futureIRCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (futureIRCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.",
-					params.getName(), trade.getCurrency()));
+			throw new TradistaBusinessException(
+					String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+							trade.getCurrency()));
 		}
 
 		InterestRateCurve indexCurve = params.getIndexCurves().get(trade.getReferenceRateIndex());
 		if (indexCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.",
+			throw new TradistaBusinessException(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX,
 					params.getName(), trade.getReferenceRateIndex()));
 		}
 
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramFXCurve = params.getFxCurves().get(pair);
 		if (paramFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		try {
@@ -220,36 +239,32 @@ public class FuturePricerServiceBean implements FuturePricerService {
 
 			return discountedFuturePayment;
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
 
 	@Override
-	public List<CashFlow> generateCashFlows(PricingParameter params, FutureTrade trade, LocalDate pricingDate)
-			throws TradistaBusinessException {
+	public List<CashFlow> generateCashFlows(PricingParameter params, @CheckTradeAccess FutureTrade trade,
+			LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate())) {
-			throw new TradistaBusinessException(
-					"When the trade maturity date has passed, it is not possible to forecast cashflows.");
+			throw new TradistaBusinessException(MATURITY_DATE_PASSED_FORECAST_IMPOSSIBLE);
 		}
 
 		if (!pricingDate.isBefore(trade.getMaturityDate())) {
-			throw new TradistaBusinessException(
-					"When the pricing date is not before the trade maturity date, it is not possible to forecast cashflows.");
+			throw new TradistaBusinessException(PRICING_DATE_AFTER_MATURITY_DATE_FORECAST_IMPOSSIBLE);
 		}
 
 		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
 			if (pricingDate.isBefore(LocalDate.now())) {
 				throw new TradistaBusinessException(
-						"When the trade settlement date has passed and the pricing date is in the past, it is not possible to forecast cashflows.");
+						SETTLEMENT_DATE_PASSED_AND_PRICING_DATE_IN_THE_PAST_FORECAST_IMPOSSIBLE);
 			}
 		}
 
 		InterestRateCurve indexCurve = params.getIndexCurves().get(trade.getReferenceRateIndex());
 		if (indexCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.",
+			throw new TradistaBusinessException(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX,
 					params.getName(), trade.getReferenceRateIndex()));
 		}
 
@@ -290,19 +305,17 @@ public class FuturePricerServiceBean implements FuturePricerService {
 
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (discountCurve == null) {
-			throw new TradistaBusinessException(String.format(
-					"%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.",
-					params.getName(), trade.getCurrency()));
+			throw new TradistaBusinessException(
+					String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+							trade.getCurrency()));
 		}
 
-		List<CashFlow> cashFlows = new ArrayList<CashFlow>();
+		List<CashFlow> cashFlows = new ArrayList<>();
 
-		if (discountCurve != null) {
-			try {
-				PricerUtil.discountCashFlow(cashSettlementCf, pricingDate, discountCurve.getId(), null);
-			} catch (PricerException pe) {
-				throw new TradistaBusinessException(pe.getMessage());
-			}
+		try {
+			PricerUtil.discountCashFlow(cashSettlementCf, pricingDate, discountCurve.getId(), null);
+		} catch (PricerException pe) {
+			throw new TradistaBusinessException(pe.getMessage());
 		}
 
 		cashFlows.add(cashSettlementCf);

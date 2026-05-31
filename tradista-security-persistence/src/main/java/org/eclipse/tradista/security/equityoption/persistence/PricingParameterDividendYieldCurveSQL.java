@@ -79,17 +79,16 @@ public class PricingParameterDividendYieldCurveSQL {
 
 		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
 		TradistaDBUtil.addParameterizedFilter(sql, PRICING_PARAMETER_ID_FIELD);
-		try (PreparedStatement stmtGetPricingParameterDividendYieldCurvesByPricingParameterId = con.prepareStatement(
-				sql.toString())) {
+		try (PreparedStatement stmtGetPricingParameterDividendYieldCurvesByPricingParameterId = con
+				.prepareStatement(sql.toString())) {
 			stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.setLong(1, id);
 			try (ResultSet results = stmtGetPricingParameterDividendYieldCurvesByPricingParameterId.executeQuery()) {
 				while (results.next()) {
 					if (module == null) {
 						module = new PricingParameterDividendYieldCurveModule();
 					}
-					curves.put(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())),
-							InterestRateCurveSQL
-									.getInterestRateCurveById(results.getLong(INTEREST_RATE_CURVE_ID_FIELD.getName())));
+					curves.put(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())), InterestRateCurveSQL
+							.getInterestRateCurveById(results.getLong(INTEREST_RATE_CURVE_ID_FIELD.getName())));
 					module.setDividendYieldCurves(curves);
 				}
 			}
@@ -102,8 +101,8 @@ public class PricingParameterDividendYieldCurveSQL {
 	public static boolean deletePricingParameterModule(Connection con, long id) {
 		boolean bSaved = false;
 
-		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil
-				.buildDeletePreparedStatement(con, TABLE, PRICING_PARAMETER_ID_FIELD)) {
+		try (PreparedStatement stmtDeletePricingParameterModule = TradistaDBUtil.buildDeletePreparedStatement(con,
+				TABLE, PRICING_PARAMETER_ID_FIELD)) {
 			stmtDeletePricingParameterModule.setLong(1, id);
 			stmtDeletePricingParameterModule.executeUpdate();
 			bSaved = true;

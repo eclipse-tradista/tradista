@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.irswap.service;
 
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,13 +15,16 @@ import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.ir.irswap.model.IRSwapTrade;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
 import org.eclipse.tradista.ir.irswap.pricer.PricerIRSwapUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -40,15 +45,21 @@ import jakarta.interceptor.Interceptors;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-@Interceptors(IRSwapTradeProductScopeFilteringInterceptor.class)
+@ProductScope(IRSwapTrade.IR_SWAP)
 public class IRSwapPricerServiceBean implements IRSwapPricerService {
+
+	private static final String MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The maturity date ({}) must be after the current and pricing dates.";
+
+	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY = "%s Pricing Parameter doesn't contain a discount curve for currency %s. please add it or change the Pricing Parameter.";
+
+	private static final Logger logger = LoggerFactory.getLogger(IRSwapPricerServiceBean.class);
 
 	@Override
 	public BigDecimal fixedLegPvDiscountedCashFlow(PricingParameter params, SingleCurrencyIRSwapTrade trade,
 			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -80,7 +91,7 @@ public class IRSwapPricerServiceBean implements IRSwapPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 
 		try {
@@ -104,7 +115,7 @@ public class IRSwapPricerServiceBean implements IRSwapPricerService {
 			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
 		if (!LocalDate.now().isBefore(trade.getMaturityDate()) || !pricingDate.isBefore(trade.getMaturityDate())) {
-			// TODO Log warn
+			logger.warn(MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getMaturityDate());
 			return BigDecimal.ZERO;
 		}
 
@@ -131,7 +142,7 @@ public class IRSwapPricerServiceBean implements IRSwapPricerService {
 		CurrencyPair pair = new CurrencyPair(trade.getCurrency(), currency);
 		FXCurve paramTradeCcyPricingCcyFXCurve = params.getFxCurves().get(pair);
 		if (paramTradeCcyPricingCcyFXCurve == null) {
-			// TODO Add log warn
+			logger.warn(FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR, params, pair);
 		}
 		try {
 			BigDecimal discountedCashFlows = PricerIRSwapUtil.discountFloatingLegCashFlows(trade,
@@ -299,7 +310,8 @@ public class IRSwapPricerServiceBean implements IRSwapPricerService {
 		}
 		InterestRateCurve discountCurve = params.getDiscountCurves().get(trade.getCurrency());
 		if (discountCurve == null) {
-			// TODO Add log warn
+			logger.warn(String.format(PRICING_PARAMETER_DOESNT_CONTAIN_DISCOUNT_CURVE_FOR_CURRENCY, params.getName(),
+					trade.getCurrency()));
 		}
 
 		List<CashFlow> cashFlows = PricerIRSwapUtil.generateCashFlows(trade, pricingDate, params.getQuoteSet(),

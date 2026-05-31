@@ -43,25 +43,17 @@ public class ConfigurationPreFilteringInterceptor extends TradistaAuthorizationF
 				if (!user.equals(uiConfiguration.getUser())) {
 					errMsg.append(UI_CONFIGURATION_IS_NOT_YOURS);
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}
 			if (parameters[0] instanceof User user) {
 				StringBuilder errMsg = new StringBuilder();
 				User currentUser = getCurrentUser();
-				if (user.getId() != 0) {
-					User u = userBusinessDelegate.getUserById(user.getId());
-					if (u == null) {
-						errMsg.append(String.format("The User %s was not found.%n", user.getSurname()));
-					} else if (!u.equals(currentUser)) {
-						errMsg.append(UI_CONFIGURATION_IS_NOT_YOURS);
-					}
-				}
 				if (!currentUser.equals(user)) {
 					errMsg.append(UI_CONFIGURATION_IS_NOT_YOURS);
 				}
-				if (errMsg.length() > 0) {
+				if (!errMsg.isEmpty()) {
 					throw new TradistaBusinessException(errMsg.toString());
 				}
 			}

@@ -364,8 +364,8 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			boolean proceed = false;
 
 			if (ClientUtil.currentUserIsAdmin()) {
-				TradistaCopyDialog dialog = new TradistaCopyDialog("FX Curve", curve.getProcessingOrg(), curve.getName(),
-						false);
+				TradistaCopyDialog dialog = new TradistaCopyDialog("FX Curve", curve.getProcessingOrg(),
+						curve.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
 				if (result.isPresent()) {
 					copyName = result.get().getName();

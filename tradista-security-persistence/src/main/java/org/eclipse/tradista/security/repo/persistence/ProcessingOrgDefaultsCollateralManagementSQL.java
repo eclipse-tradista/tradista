@@ -89,8 +89,8 @@ public class ProcessingOrgDefaultsCollateralManagementSQL {
 				while (results.next()) {
 					QuoteSet qs = QuoteSetSQL.getQuoteSetById(results.getLong(QUOTE_SET_ID_FIELD.getName()));
 					module.setQuoteSet(qs);
-					AllocationConfiguration allocConfig = AllocationConfigurationSQL
-							.getAllocationConfigurationById(results.getLong(ALLOCATION_CONFIGURATION_ID_FIELD.getName()));
+					AllocationConfiguration allocConfig = AllocationConfigurationSQL.getAllocationConfigurationById(
+							results.getLong(ALLOCATION_CONFIGURATION_ID_FIELD.getName()));
 					module.setAllocationConfiguration(allocConfig);
 				}
 			}

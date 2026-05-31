@@ -30,7 +30,7 @@ import org.eclipse.tradista.security.specificrepo.service.SpecificRepoPricerBusi
 public class PricerMeasureREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -930281138085259718L;
-	
+
 	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureREALIZED_PNL() {

@@ -3,9 +3,7 @@ package org.eclipse.tradista.core.pricing.service;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,18 +15,15 @@ import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.marketdata.model.FXCurve;
-import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.pricer.Pricer;
 import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.Pricing;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
+import org.eclipse.tradista.core.pricing.validator.PricingParameterValidator;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.validator.TradeValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -50,8 +45,6 @@ public class PricerBusinessDelegate {
 
 	private static final String METHOD = "Method";
 
-	private static final Logger logger = LoggerFactory.getLogger(PricerBusinessDelegate.class);
-
 	private PricerService pricerService;
 
 	private static final String TRADE_IS_MANDATORY = "The trade is mandatory.%n";
@@ -64,51 +57,11 @@ public class PricerBusinessDelegate {
 
 	private static final String VALUE_DATE_IS_MANDATORY = "The value date is mandatory.%n";
 
-	private Map<String, PricingParameterModuleValidator> validators;
+	private PricingParameterValidator validator;
 
 	public PricerBusinessDelegate() {
 		pricerService = TradistaServiceLocator.getInstance().getPricerService();
-		validators = new HashMap<>();
-		PricingParameterModuleValidator validator = null;
-		try {
-			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
-					"org.eclipse.tradista.security.equityoption.validator.PricingParameterDividendYieldCurveModuleValidator");
-			validators.put("org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule",
-					validator);
-		} catch (TradistaTechnicalException _) {
-			logger.info("PricingParameterDividendYieldCurveModuleValidator not found, skipping.");
-		}
-		try {
-			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
-					"org.eclipse.tradista.fx.common.validator.PricingParameterUnrealizedPnlCalculationModuleValidator");
-			validators.put("org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule",
-					validator);
-		} catch (TradistaTechnicalException _) {
-			logger.info("PricingParameterUnrealizedPnlCalculationModuleValidator not found, skipping.");
-		}
-		try {
-			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
-					"org.eclipse.tradista.fx.fxoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
-			validators.put("org.eclipse.tradista.fx.fxoption.model.PricingParameterVolatilitySurfaceModule", validator);
-		} catch (TradistaTechnicalException _) {
-			logger.info("FX Option PricingParameterVolatilitySurfaceModuleValidator not found, skipping.");
-		}
-		try {
-			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
-					"org.eclipse.tradista.ir.irswapoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
-			validators.put("org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule",
-					validator);
-		} catch (TradistaTechnicalException _) {
-			logger.info("IR Swap Option PricingParameterVolatilitySurfaceModuleValidator not found, skipping.");
-		}
-		try {
-			validator = TradistaUtil.getInstance(PricingParameterModuleValidator.class,
-					"org.eclipse.tradista.security.equityoption.validator.PricingParameterVolatilitySurfaceModuleValidator");
-			validators.put("org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule",
-					validator);
-		} catch (TradistaTechnicalException _) {
-			logger.info("Equity Option PricingParameterVolatilitySurfaceModuleValidator not found, skipping.");
-		}
+		validator = new PricingParameterValidator();
 	}
 
 	public PricingParameter getPricingParameterById(long id) throws TradistaBusinessException {
@@ -146,113 +99,12 @@ public class PricerBusinessDelegate {
 	}
 
 	public long savePricingParameter(PricingParameter param) throws TradistaBusinessException {
-		if (param == null) {
-			throw new TradistaBusinessException("The Pricing Parameter Set cannot be null.");
-		}
-		StringBuilder errMsg = new StringBuilder();
-		if (StringUtils.isEmpty(param.getName())) {
-			errMsg.append(String.format("Please select a Pricing Parameters Set Name.%n"));
-		} else {
-			if (param.getName().length() > 20) {
-				errMsg.append(String.format("The Pricing Parameters Set Name cannot exceed 20 characters.%n"));
-			}
-		}
-		if (param.getQuoteSet() == null) {
-			errMsg.append(String.format("Please select a QuoteSet.%n"));
-		} else {
-			if (param.getProcessingOrg() != null && param.getQuoteSet().getProcessingOrg() != null
-					&& !param.getQuoteSet().getProcessingOrg().equals(param.getProcessingOrg())) {
-				errMsg.append(
-						String.format("the Pricing Parameters Set's PO and the QuoteSet's PO should be the same.%n"));
-			}
-			if (param.getProcessingOrg() == null && param.getQuoteSet().getProcessingOrg() != null) {
-				errMsg.append(String
-						.format("If the Pricing Parameters Set is a global one, the QuoteSet must also be global.%n"));
-			}
-			if (param.getProcessingOrg() != null && param.getQuoteSet().getProcessingOrg() == null) {
-				errMsg.append(String
-						.format("If the QuoteSet is a global one, the Pricing Parameters Set must also be global.%n"));
-			}
-		}
-		if (param.getDiscountCurves() != null && !param.getDiscountCurves().isEmpty()) {
-			for (InterestRateCurve curve : param.getDiscountCurves().values()) {
-				if (param.getProcessingOrg() != null && curve.getProcessingOrg() != null
-						&& !curve.getProcessingOrg().equals(param.getProcessingOrg())) {
-					errMsg.append(String.format(
-							"the Pricing Parameters Set's PO and the Discount curve %s's PO should be the same.%n",
-							curve));
-				}
-				if (param.getProcessingOrg() == null && curve.getProcessingOrg() != null) {
-					errMsg.append(String.format(
-							"If the Pricing Parameters Set is a global one, the the Discount curve %s must also be global.%n",
-							curve));
-				}
-				if (param.getProcessingOrg() != null && curve.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the the Discount curve %s is a global one, the Pricing Parameters Set must also be global.%n",
-							curve));
-				}
-			}
-		}
-		if (param.getIndexCurves() != null && !param.getIndexCurves().isEmpty()) {
-			for (InterestRateCurve curve : param.getIndexCurves().values()) {
-				if (param.getProcessingOrg() != null && curve.getProcessingOrg() != null
-						&& !curve.getProcessingOrg().equals(param.getProcessingOrg())) {
-					errMsg.append(String.format(
-							"the Pricing Parameters Set's PO and the Index curve %s's PO should be the same.%n",
-							curve));
-				}
-				if (param.getProcessingOrg() == null && curve.getProcessingOrg() != null) {
-					errMsg.append(String.format(
-							"If the Pricing Parameters Set is a global one, the Index curve %s must also be global.%n",
-							curve));
-				}
-				if (param.getProcessingOrg() != null && curve.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the Index curve %s is a global one, the Pricing Parameters Set must also be global.%n",
-							curve));
-				}
-			}
-		}
-		if (param.getFxCurves() != null && !param.getFxCurves().isEmpty()) {
-			for (FXCurve curve : param.getFxCurves().values()) {
-				if (param.getProcessingOrg() != null && curve.getProcessingOrg() != null
-						&& !curve.getProcessingOrg().equals(param.getProcessingOrg())) {
-					errMsg.append(String.format(
-							"the Pricing Parameters Set's PO and the FX curve %s's PO should be the same.%n", curve));
-				}
-				if (param.getProcessingOrg() == null && curve.getProcessingOrg() != null) {
-					errMsg.append(String.format(
-							"If the Pricing Parameters Set is a global one, the FX curve %s must also be global.%n",
-							curve));
-				}
-				if (param.getProcessingOrg() != null && curve.getProcessingOrg() == null) {
-					errMsg.append(String.format(
-							"If the FX curve %s is a global one, the Pricing Parameters Set must also be global.%n",
-							curve));
-				}
-			}
-		}
-
-		if (param.getModules() != null && param.getModules().isEmpty()) {
-			for (PricingParameterModule module : param.getModules()) {
-				PricingParameterModuleValidator validator = getValidator(module);
-				try {
-					validator.validateModule(module, param.getProcessingOrg());
-				} catch (TradistaBusinessException tbe) {
-					errMsg.append(tbe.getMessage());
-				}
-			}
-		}
-
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
+		validator.validatePricingParameter(param);
 		return SecurityUtil.runEx(() -> pricerService.savePricingParameter(param));
 	}
 
 	public PricingParameterModuleValidator getValidator(PricingParameterModule module) {
-		return validators.get(module.getClass().getName());
+		return validator.getValidator(module);
 	}
 
 	public boolean deletePricingParameter(long id) throws TradistaBusinessException {

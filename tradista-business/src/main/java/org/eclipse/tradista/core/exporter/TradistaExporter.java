@@ -165,10 +165,10 @@ public abstract class TradistaExporter<X extends TradistaObject, Y> implements E
 	}
 
 	/**
-	 * Identifies the Processing Org involved in the export of the given object.
-	 * By default, returns the Exporter's configured Processing Org.
-	 * Subclasses should override this method if they need to determine the PO 
-	 * dynamically from the object itself (e.g., from a Trade's Book).
+	 * Identifies the Processing Org involved in the export of the given object. By
+	 * default, returns the Exporter's configured Processing Org. Subclasses should
+	 * override this method if they need to determine the PO dynamically from the
+	 * object itself (e.g., from a Trade's Book).
 	 * 
 	 * @param object the Tradista object being exported
 	 * @return the ProcessingOrg associated with the object
@@ -181,8 +181,7 @@ public abstract class TradistaExporter<X extends TradistaObject, Y> implements E
 		}
 		throw new TradistaBusinessException(String.format(
 				"Exporter %s is configured globally (null ProcessingOrg). "
-				+ "It must override getObjectProcessingOrg to determine the context "
-				+ "from the object %s.",
+						+ "It must override getObjectProcessingOrg to determine the context " + "from the object %s.",
 				getName(), object));
 	}
 

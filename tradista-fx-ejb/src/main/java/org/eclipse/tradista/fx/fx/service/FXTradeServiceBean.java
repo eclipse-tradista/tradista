@@ -1,7 +1,10 @@
 package org.eclipse.tradista.fx.fx.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.trade.service.TradeAuthorizationFilteringInterceptor;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
+import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.ProductScopeMode;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.fx.fx.messaging.FXTradeEvent;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.persistence.FXTradeSQL;
@@ -10,8 +13,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -45,15 +48,19 @@ public class FXTradeServiceBean implements FXTradeService {
 
 	private FXTradeBusinessDelegate fxTradeBusinessDelegate;
 
+	@EJB
+	private TradeService tradeService;
+
 	@PostConstruct
 	private void initialize() {
 		context = factory.createContext();
 		fxTradeBusinessDelegate = new FXTradeBusinessDelegate();
 	}
 
-	@Interceptors({ FXProductScopeFilteringInterceptor.class, TradeAuthorizationFilteringInterceptor.class })
+	@ProductScope(value = FXTrade.FX, mode = ProductScopeMode.ON_CREATION)
 	@Override
-	public long saveFXTrade(FXTrade trade) throws TradistaBusinessException {
+	public long saveFXTrade(@CheckTradeAccess FXTrade trade) throws TradistaBusinessException {
+		tradeService.checkTradeBasics(trade);
 
 		FXTradeEvent event = new FXTradeEvent();
 		if (trade.getId() != 0) {
@@ -65,7 +72,7 @@ public class FXTradeServiceBean implements FXTradeService {
 		long result = FXTradeSQL.saveFXTrade(trade);
 		try {
 			fxTradeBusinessDelegate.determinateType(trade);
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not happen here.
 		}
 
@@ -74,7 +81,6 @@ public class FXTradeServiceBean implements FXTradeService {
 		return result;
 	}
 
-	@Interceptors(TradeAuthorizationFilteringInterceptor.class)
 	@Override
 	public FXTrade getFXTradeById(long id) {
 		return FXTradeSQL.getTradeById(id, false);

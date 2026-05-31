@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.transfer.messaging.CashTransferEvent;
 import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
 import org.eclipse.tradista.core.transfer.messaging.TransferEvent;
@@ -28,7 +30,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
 import jakarta.jms.JMSContext;
@@ -72,7 +73,6 @@ public class TransferServiceBean implements TransferService {
 		return TransferSQL.getAllTransfers();
 	}
 
-	@Interceptors(TransferPostFilteringInterceptor.class)
 	@Override
 	public Transfer getTransferById(long id) {
 		return TransferSQL.getTransferById(id);
@@ -207,13 +207,13 @@ public class TransferServiceBean implements TransferService {
 	}
 
 	@Override
-	public List<Transfer> getTransfersByTradeIdAndPurpose(long tradeId, TransferPurpose purpose,
+	public List<Transfer> getTransfersByTradeIdAndPurpose(@CheckTradeAccess long tradeId, TransferPurpose purpose,
 			boolean includeCancel) {
 		return TransferSQL.getTransfersByTradeIdAndPurpose(tradeId, purpose, includeCancel);
 	}
 
 	@Override
-	public List<Transfer> getTransfersByTradeId(long tradeId) {
+	public List<Transfer> getTransfersByTradeId(@CheckTradeAccess long tradeId) {
 		return TransferSQL.getTransfersByTradeId(tradeId);
 	}
 
@@ -227,12 +227,11 @@ public class TransferServiceBean implements TransferService {
 		TransferSQL.deleteTransfer(transferId);
 	}
 
-	@Interceptors(TransferPostFilteringInterceptor.class)
 	@Override
 	public List<Transfer> getTransfers(Type type, Status status, Direction direction, TransferPurpose purpose,
-			long tradeId, long productId, long bookId, long currencyId, LocalDate startFixingDate,
-			LocalDate endFixingDate, LocalDate startSettlementDate, LocalDate endSettlementDate,
-			LocalDate startCreationDate, LocalDate endCreationDate) {
+			@CheckTradeAccess long tradeId, long productId, @CheckBookAccess long bookId, long currencyId,
+			LocalDate startFixingDate, LocalDate endFixingDate, LocalDate startSettlementDate,
+			LocalDate endSettlementDate, LocalDate startCreationDate, LocalDate endCreationDate) {
 		return TransferSQL.getTransfers(type, status, direction, purpose, tradeId, productId, bookId, currencyId,
 				startFixingDate, endFixingDate, startSettlementDate, endSettlementDate, startCreationDate,
 				endCreationDate);

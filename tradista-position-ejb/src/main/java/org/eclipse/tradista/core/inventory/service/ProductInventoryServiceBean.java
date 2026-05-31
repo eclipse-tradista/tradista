@@ -7,13 +7,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.inventory.model.ProductInventory;
 import org.eclipse.tradista.core.inventory.persistence.ProductInventorySQL;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
-import org.eclipse.tradista.core.productinventory.service.ProductInventoryFilteringInterceptor;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
 import org.eclipse.tradista.core.transfer.model.ProductTransfer;
 import org.eclipse.tradista.ir.future.model.Future;
@@ -29,7 +29,6 @@ import jakarta.ejb.ConcurrencyManagementType;
 import jakarta.ejb.Lock;
 import jakarta.ejb.LockType;
 import jakarta.ejb.Stateless;
-import jakarta.interceptor.Interceptors;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -200,30 +199,31 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 	}
 
 	@Override
-	public Set<ProductInventory> getProductInventoriesBeforeDateByProductAndBookIds(long productId, long bookId,
-			LocalDate date) {
+	public Set<ProductInventory> getProductInventoriesBeforeDateByProductAndBookIds(long productId,
+			@CheckBookAccess long bookId, LocalDate date) {
 		return ProductInventorySQL.getProductInventoriesBeforeDateByProductAndBookIds(productId, bookId, date);
 	}
 
 	@Override
-	public Set<ProductInventory> getOpenPositionsFromProductInventoryByProductAndBookIds(long productId, long bookId) {
+	public Set<ProductInventory> getOpenPositionsFromProductInventoryByProductAndBookIds(long productId,
+			@CheckBookAccess long bookId) {
 		return ProductInventorySQL.getOpenPositionsFromProductInventoryByProductAndBookIds(productId, bookId);
 	}
 
 	@Override
-	public BigDecimal getQuantityByDateProductAndBookIds(long productId, long bookId, LocalDate date) {
+	public BigDecimal getQuantityByDateProductAndBookIds(long productId, @CheckBookAccess long bookId, LocalDate date) {
 		return ProductInventorySQL.getQuantityByDateProductAndBookIds(productId, bookId, date);
 	}
 
 	@Override
-	public BigDecimal getAveragePriceByDateProductAndBookIds(long productId, long bookId, LocalDate date) {
+	public BigDecimal getAveragePriceByDateProductAndBookIds(long productId, @CheckBookAccess long bookId,
+			LocalDate date) {
 		return ProductInventorySQL.getAveragePriceByDateProductAndBookIds(productId, bookId, date);
 	}
 
-	@Interceptors(ProductInventoryFilteringInterceptor.class)
 	@Override
 	public Set<ProductInventory> getProductInventories(LocalDate from, LocalDate to, String productType, long productId,
-			long bookId, boolean onlyOpenPositions) throws TradistaBusinessException {
+			@CheckBookAccess long bookId, boolean onlyOpenPositions) throws TradistaBusinessException {
 		return ProductInventorySQL.getProductInventories(from, to, productType, productId, bookId, onlyOpenPositions);
 	}
 
@@ -269,7 +269,7 @@ public class ProductInventoryServiceBean implements ProductInventoryService {
 	}
 
 	@Override
-	public Map<String, BigDecimal> getBookProductContent(LocalDate date, long bookId) {
+	public Map<String, BigDecimal> getBookProductContent(LocalDate date, @CheckBookAccess long bookId) {
 		Set<Product> products = productBusinessDelegate.getAllProducts();
 		Map<String, BigDecimal> bookProductContent = null;
 		if (products != null && !products.isEmpty()) {
