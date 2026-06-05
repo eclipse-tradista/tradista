@@ -10,27 +10,27 @@
 				<p:card>
 					<p:chart value="#{bookController.productDonutModel}"
 						styleClass="h-full flex flex-column" type="donut" />
+					<div style="display: flex; justify-content: center; margin-top: 35px;">
+						<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
+							icon="pi pi-sparkles" iconPos="right"
+							update=":dashboardForm:analysisResultPanel"
+							oncomplete="PF('sidebarAnalysis').show();"
+							styleClass="rounded-button btn-ai" style="width: auto;" />
+					</div>
 				</p:card>
-				<div style="display: flex; justify-content: center; margin-top: 15px;">
-					<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
-						icon="pi pi-sparkles" iconPos="right"
-						update=":dashboardForm:analysisResultPanel"
-						oncomplete="PF('sidebarAnalysis').show();"
-						styleClass="rounded-button btn-ai" style="width: auto;" />
-				</div>
 			</p:tab>
 			<p:tab title="Cash">
 				<p:card>
 					<p:chart value="#{bookController.cashDonutModel}"
-						styleClass="h-full flex flex-column" type="donut" />
+						styleClass="h-full flex flex-column" type="donut" />				
+					<div style="display: flex; justify-content: center; margin-top: 35px;">
+						<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
+							icon="pi pi-sparkles" iconPos="right"
+							update=":dashboardForm:analysisResultPanel"
+							oncomplete="PF('sidebarAnalysis').show();"
+							styleClass="rounded-button btn-ai" style="width: auto;" />
+					</div>
 				</p:card>
-				<div style="display: flex; justify-content: center; margin-top: 15px;">
-					<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
-						icon="pi pi-sparkles" iconPos="right"
-						update=":dashboardForm:analysisResultPanel"
-						oncomplete="PF('sidebarAnalysis').show();"
-						styleClass="rounded-button btn-ai" style="width: auto;" />
-				</div>
 			</p:tab>
 		</p:tabView>
 	</p:panel>
