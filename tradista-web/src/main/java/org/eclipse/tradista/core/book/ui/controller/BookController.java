@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.ai.analysis.service.BookAnalysisBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.ColorUtil;
 
@@ -50,9 +51,16 @@ public class BookController implements Serializable {
 
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	private BookAnalysisBusinessDelegate bookAnalysisBusinessDelegate;
+
+	private Book book;
+
+	private String analysisResult;
+
 	@PostConstruct
-	public void init() {
+	public void init() throws TradistaBusinessException {
 		bookBusinessDelegate = new BookBusinessDelegate();
+		bookAnalysisBusinessDelegate = new BookAnalysisBusinessDelegate();
 		loadBook();
 	}
 
@@ -72,7 +80,23 @@ public class BookController implements Serializable {
 		this.cashDonutModel = cashDonutModel;
 	}
 
-	public void loadBook() {
+	public Book getBook() {
+		return book;
+	}
+
+	public void setBook(Book book) {
+		this.book = book;
+	}
+
+	public String getAnalysisResult() {
+		return analysisResult;
+	}
+
+	public void setAnalysisResult(String analysisResult) {
+		this.analysisResult = analysisResult;
+	}
+
+	public void loadBook() throws TradistaBusinessException {
 		try {
 			refresh(bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2));
 		} catch (TradistaBusinessException tbe) {
@@ -82,6 +106,7 @@ public class BookController implements Serializable {
 	}
 
 	public void refresh(Book book) {
+		this.book = book;
 		Map<String, Map<String, BigDecimal>> bookContent = null;
 
 		List<Number> productValues = new ArrayList<>();
@@ -133,6 +158,19 @@ public class BookController implements Serializable {
 								.addBackgroundColors((Object[]) blueColors.toArray(new RGBAColor[0])))
 						.setLabels(productLabels))
 				.setOptions(new DoughnutOptions().setMaintainAspectRatio(Boolean.FALSE)).toJson();
+	}
+
+	public void analyseBook() {
+		try {
+			if (book != null) {
+				analysisResult = bookAnalysisBusinessDelegate.analyseBook(book);
+			} else {
+				analysisResult = "No book selected.";
+			}
+		} catch (TradistaBusinessException tbe) {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+		}
 	}
 
 }

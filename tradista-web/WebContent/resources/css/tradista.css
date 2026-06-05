@@ -297,3 +297,24 @@ body .login-button {
 	color: white;
 	font-weight: normal;
 }
+
+/* AI Button styling */
+body .ui-button.btn-ai.ui-widget {
+	background-color: #4f46e5;
+	border: 1px solid #4f46e5;
+	color: #E0E7FF;
+}
+
+body .ui-button.btn-ai.ui-widget:hover, body .ui-button.btn-ai.ui-widget.ui-state-hover {
+	background-color: #E0E7FF;
+	border: 1px solid #4f46e5;
+	color: #4f46e5;
+}
+
+body .ui-button.btn-ai.ui-widget .ui-icon {
+	color: #E0E7FF;
+}
+
+body .ui-button.btn-ai.ui-widget:hover .ui-icon, body .ui-button.btn-ai.ui-widget.ui-state-hover .ui-icon {
+	color: #4f46e5;
+}

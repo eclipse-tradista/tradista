@@ -35,7 +35,7 @@ public final class TradistaFixUtil {
 			errMsg.append(String.format("The FIX session is mandatory.%n"));
 		}
 		if (StringUtils.isBlank(externalMessage)) {
-			errMsg.append("The message is mandatory");
+			errMsg.append("The message is mandatory.");
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaTechnicalException(errMsg.toString());

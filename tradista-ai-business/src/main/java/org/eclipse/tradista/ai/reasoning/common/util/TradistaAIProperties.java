@@ -19,23 +19,50 @@ package org.eclipse.tradista.ai.reasoning.common.util;
 import java.util.Properties;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
-public class TradistaAIProperties {
+public final class TradistaAIProperties {
+
+	private static String llmProvider;
+	private static String llmUrl;
+	private static String llmModel;
+	private static String solverPath;
 
 	private TradistaAIProperties() {
 	}
 
-	private static String solverPath;
-
-	public static void load(Properties prop) throws TradistaBusinessException {
+	public static void loadSolver(Properties prop) {
 		if (prop == null) {
-			throw new TradistaBusinessException("The properties cannot be null.");
+			throw new TradistaTechnicalException("The properties cannot be null.");
 		}
-		solverPath = prop.getProperty("solver.path");
+		if (prop.containsKey("solver.path")) {
+			solverPath = prop.getProperty("solver.path");
+		}
+	}
+
+	public static void loadLlm(Properties prop) {
+		if (prop == null) {
+			throw new TradistaTechnicalException("The properties cannot be null.");
+		}
+		llmProvider = prop.getProperty("llm.provider");
+		llmUrl = prop.getProperty("llm.url");
+		llmModel = prop.getProperty("llm.model");
 	}
 
 	public static String getSolverPath() {
 		return solverPath;
+	}
+
+	public static String getLlmProvider() {
+		return llmProvider;
+	}
+
+	public static String getLlmUrl() {
+		return llmUrl;
+	}
+
+	public static String getLlmModel() {
+		return llmModel;
 	}
 
 }

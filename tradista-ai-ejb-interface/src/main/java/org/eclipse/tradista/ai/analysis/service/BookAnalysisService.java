@@ -1,10 +1,5 @@
-package org.eclipse.tradista.core.book.model;
-
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
-
 /********************************************************************************
- * Copyright (c) 2021 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,19 +13,16 @@ import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+package org.eclipse.tradista.ai.analysis.service;
 
-public final class BlankBook extends Book {
+import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 
-	private static final long serialVersionUID = -1355461317489696329L;
+import jakarta.ejb.Remote;
 
-	private static final BlankBook instance = new BlankBook();
+@Remote
+public interface BookAnalysisService {
 
-	private BlankBook() {
-		super(StringUtils.EMPTY, BlankLegalEntity.getInstance());
-	}
-
-	public static BlankBook getInstance() {
-		return instance;
-	}
+	String analyseBook(Book book) throws TradistaBusinessException;
 
 }

@@ -12,6 +12,7 @@ import javax.naming.NamingException;
 
 import org.eclipse.tradista.ai.agent.service.AssetManagerAgentService;
 import org.eclipse.tradista.ai.agent.service.MandateService;
+import org.eclipse.tradista.ai.analysis.service.BookAnalysisService;
 import org.eclipse.tradista.ai.reasoning.common.service.FormulaService;
 import org.eclipse.tradista.ai.reasoning.fol.service.FolFormulaService;
 import org.eclipse.tradista.core.batch.service.BatchService;
@@ -239,6 +240,8 @@ public class TradistaServiceLocator {
 
 	private static final String AI_COMMON_SERVICE_PACKAGE = "org.eclipse.tradista.ai.reasoning.common.service";
 
+	private static final String AI_ANALYSIS_SERVICE_PACKAGE = "org.eclipse.tradista.ai.analysis.service";
+
 	private static final String AGENT_SERVICE_PACKAGE = "org.eclipse.tradista.ai.agent.service";
 
 	private static final String TRANSFER_APP = "transfer-app";
@@ -369,6 +372,10 @@ public class TradistaServiceLocator {
 
 	public AssetManagerAgentService getAssetManagerAgentService() {
 		return (AssetManagerAgentService) getService(AI_APP, AI_EJB, AGENT_SERVICE_PACKAGE, "AssetManagerAgentService");
+	}
+
+	public BookAnalysisService getBookAnalysisService() {
+		return (BookAnalysisService) getService(AI_APP, AI_EJB, AI_ANALYSIS_SERVICE_PACKAGE, "BookAnalysisService");
 	}
 
 	public DailyPnlService getDailyPnlService() {

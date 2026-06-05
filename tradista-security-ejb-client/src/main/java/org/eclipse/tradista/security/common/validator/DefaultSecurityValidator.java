@@ -31,7 +31,7 @@ public class DefaultSecurityValidator extends DefaultProductValidator {
 	@Override
 	public void validateProduct(Product product) throws TradistaBusinessException {
 		StringBuilder errMsg = validateProductBasics(product);
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
