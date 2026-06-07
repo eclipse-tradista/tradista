@@ -20,8 +20,6 @@ import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryBusinessDelegate;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,9 +29,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -106,105 +102,66 @@ public class ProductInventoryReportController extends TradistaControllerAdapter 
 
 		inventoryBusinessDelegate = new ProductInventoryBusinessDelegate();
 
-		from.setCellValueFactory(new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> inv) {
-				return new ReadOnlyObjectWrapper<String>(inv.getValue().getFrom().toString());
+		from.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getFrom().toString()));
+
+		to.setCellValueFactory(cellData -> {
+			LocalDate to = cellData.getValue().getTo();
+			if (to != null) {
+				return new ReadOnlyObjectWrapper<>(to.toString());
 			}
+			return new ReadOnlyObjectWrapper<>(StringUtils.EMPTY);
 		});
 
-		to.setCellValueFactory(new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> inv) {
-				LocalDate to = inv.getValue().getTo();
-				if (to != null) {
-					return new ReadOnlyObjectWrapper<String>(to.toString());
-				}
-				return new ReadOnlyObjectWrapper<String>(StringUtils.EMPTY);
-			}
-		});
-
-		book.setCellValueFactory(new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> inv) {
-				return new ReadOnlyObjectWrapper<String>(inv.getValue().getBook().getName());
-			}
-		});
+		book.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getBook().getName()));
 
 		productType.setCellValueFactory(
-				new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> inv) {
-						return new ReadOnlyObjectWrapper<String>(inv.getValue().getProduct().getProductType());
-					}
-				});
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getProduct().getProductType()));
 
 		productId.setCellValueFactory(
-				new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> inv) {
-						return new ReadOnlyObjectWrapper<String>(Long.toString(inv.getValue().getProduct().getId()));
-					}
-				});
+				cellData -> new ReadOnlyObjectWrapper<>(Long.toString(cellData.getValue().getProduct().getId())));
 
-		quantity.setCellValueFactory(
-				new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> p) {
-						return new ReadOnlyObjectWrapper<String>(
-								TradistaGUIUtil.formatAmount(p.getValue().getQuantity()));
-					}
-				});
+		quantity.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
+				TradistaGUIUtil.formatAmount(cellData.getValue().getQuantity())));
 
-		averagePrice.setCellValueFactory(
-				new Callback<CellDataFeatures<ProductInventory, String>, ObservableValue<String>>() {
-					public ObservableValue<String> call(CellDataFeatures<ProductInventory, String> p) {
-						return new ReadOnlyObjectWrapper<String>(
-								TradistaGUIUtil.formatAmount(p.getValue().getAveragePrice()));
-					}
-				});
+		averagePrice.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
+				TradistaGUIUtil.formatAmount(cellData.getValue().getAveragePrice())));
 
 		TradistaGUIUtil.fillComboBox(productBusinessDelegate.getAvailableListableProductTypes(), productTypeComboBox);
 		if (!productTypeComboBox.getItems().isEmpty()) {
-			productTypeComboBox.getItems().add(0, StringUtils.EMPTY);
+			productTypeComboBox.getItems().addFirst(StringUtils.EMPTY);
 			productTypeComboBox.getSelectionModel().selectFirst();
 		}
 		TradistaGUIUtil.fillComboBox(new BookBusinessDelegate().getAllBooks(), bookComboBox);
-		bookComboBox.getItems().add(0, BlankBook.getInstance());
+		bookComboBox.getItems().addFirst(BlankBook.getInstance());
 		bookComboBox.getSelectionModel().selectFirst();
 
-		productTypeComboBox.valueProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if (newValue != null) {
-					if (StringUtils.isEmpty(newValue)) {
-						productComboBox.getItems().clear();
-					} else {
-						try {
-							Set<? extends Product> products = productBusinessDelegate.getAllProductsByType(newValue);
-							if (products != null) {
-								productComboBox.setItems(FXCollections.observableArrayList(products));
-								productComboBox.getItems().add(0, BlankProduct.getInstance());
-							} else {
-								productComboBox.setItems(FXCollections.emptyObservableList());
-							}
-							productComboBox.getSelectionModel().selectFirst();
-						} catch (TradistaBusinessException abe) {
-							// TODO Auto-generated catch block
-							abe.printStackTrace();
+		productTypeComboBox.valueProperty().addListener((_, _, v) -> {
+			if (v != null) {
+				if (StringUtils.isEmpty(v)) {
+					productComboBox.getItems().clear();
+				} else {
+					try {
+						Set<? extends Product> products = productBusinessDelegate.getAllProductsByType(v);
+						if (products != null) {
+							productComboBox.setItems(FXCollections.observableArrayList(products));
+							productComboBox.getItems().addFirst(BlankProduct.getInstance());
+						} else {
+							productComboBox.setItems(FXCollections.emptyObservableList());
 						}
+						productComboBox.getSelectionModel().selectFirst();
+					} catch (TradistaBusinessException _) {
+						// Cannot happen here.
 					}
 				}
 			}
 		});
 
-		openPositionsCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				if (newValue.booleanValue()) {
-					ProductInventoryReportController.this.valueDateToDatePicker.setValue(null);
-					ProductInventoryReportController.this.valueDateToDatePicker.setDisable(true);
-				} else {
-					ProductInventoryReportController.this.valueDateToDatePicker.setDisable(false);
-				}
-
+		openPositionsCheckBox.selectedProperty().addListener((_, _, v) -> {
+			if (v.booleanValue()) {
+				ProductInventoryReportController.this.valueDateToDatePicker.setValue(null);
 			}
+			ProductInventoryReportController.this.valueDateToDatePicker.setDisable(v.booleanValue());
 		});
-
 	}
 
 	@FXML

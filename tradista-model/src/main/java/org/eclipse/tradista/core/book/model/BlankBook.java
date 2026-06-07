@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.book.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.legalentity.model.BlankLegalEntity;
 
 /********************************************************************************
  * Copyright (c) 2021 Olivier Asuncion
@@ -25,7 +26,7 @@ public final class BlankBook extends Book {
 	private static final BlankBook instance = new BlankBook();
 
 	private BlankBook() {
-		super(StringUtils.EMPTY, null);
+		super(StringUtils.EMPTY, BlankLegalEntity.getInstance());
 	}
 
 	public static BlankBook getInstance() {
