@@ -3,7 +3,7 @@
 	xmlns="urn:jboss:module:1.9">
 
 	<resources>
-		<resource-root path="core-model-3.2.0-SNAPSHOT.jar" />
+		<resource-root path="core-model-3.3.0-SNAPSHOT.jar" />
 	</resources>
 
 	<dependencies>
