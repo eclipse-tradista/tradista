@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
-			<version>15.0.14</version>
+			<version>15.0.15</version>
 			<classifier>jakarta</classifier>
 		</dependency>
 		<dependency>
@@ -57,6 +57,12 @@
 			<groupId>org.eclipse.tradista.fx</groupId>
 			<artifactId>fx-ejb-client</artifactId>
 			<version>${fx-ejb-client.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.ai</groupId>
+			<artifactId>ai-ejb-client</artifactId>
+			<version>${ai-ejb-client.version}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

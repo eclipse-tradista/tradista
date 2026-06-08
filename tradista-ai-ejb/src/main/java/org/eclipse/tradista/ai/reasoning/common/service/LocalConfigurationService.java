@@ -1,5 +1,6 @@
 package org.eclipse.tradista.ai.reasoning.common.service;
 
+import dev.langchain4j.model.chat.ChatModel;
 import jakarta.ejb.Local;
 
 /********************************************************************************
@@ -22,5 +23,7 @@ import jakarta.ejb.Local;
 public interface LocalConfigurationService {
 
 	String getSolverPath();
+
+	ChatModel getChatModel();
 
 }

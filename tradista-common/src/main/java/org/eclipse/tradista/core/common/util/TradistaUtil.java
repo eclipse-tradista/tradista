@@ -1,13 +1,16 @@
 package org.eclipse.tradista.core.common.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -535,6 +538,29 @@ public final class TradistaUtil {
 		}
 		// package not found.
 		return null;
+	}
+
+	/**
+	 * Reads the content of a file located in the classpath (e.g.,
+	 * src/main/resources).
+	 *
+	 * @param filePath The path to the file
+	 * @return The content of the file as a String
+	 * @throws TradistaTechnicalException if the file cannot be found or read
+	 */
+	public static String loadResourceAsString(String filePath) {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+		try (InputStream inputStream = classLoader.getResourceAsStream(filePath)) {
+			// Safety check: ensure the input stream is not null (file exists)
+			Objects.requireNonNull(inputStream, () -> "File not found in resources: " + filePath);
+
+			// Read all bytes efficiently and force UTF-8 encoding
+			return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+		} catch (IOException ioe) {
+			throw new TradistaTechnicalException(ioe.getMessage());
+		}
 	}
 
 }

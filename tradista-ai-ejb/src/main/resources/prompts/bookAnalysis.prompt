@@ -1,0 +1,4 @@
+Please analyze the following trading book named '{{bookName}}'. 
+Provide a comment related to potential concentration, liquidity, or FX risks.
+
+{{bookData}}

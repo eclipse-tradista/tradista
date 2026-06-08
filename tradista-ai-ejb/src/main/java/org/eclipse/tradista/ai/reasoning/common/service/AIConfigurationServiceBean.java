@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.ai.reasoning.common.util.TradistaAIProperties;
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Singleton;
@@ -39,21 +42,51 @@ public class AIConfigurationServiceBean implements LocalConfigurationService {
 	public void init() {
 		Properties properties = new Properties();
 		InputStream in = TradistaAIProperties.class.getResourceAsStream("/META-INF/solver.properties");
-		try {
-			properties.load(in);
-			in.close();
-		} catch (IOException ioe) {
-			// should not happen here.
+		if (in != null) {
+			try {
+				properties.load(in);
+				in.close();
+				TradistaAIProperties.loadSolver(properties);
+			} catch (IOException _) {
+				// should not happen here.
+			}
 		}
-		try {
-			TradistaAIProperties.load(properties);
-		} catch (TradistaBusinessException abe) {
-			// should not happen here.
+
+		Properties llmProps = new Properties();
+		InputStream llmIn = TradistaAIProperties.class.getResourceAsStream("/META-INF/llm.properties");
+		if (llmIn != null) {
+			try {
+				llmProps.load(llmIn);
+				llmIn.close();
+				TradistaAIProperties.loadLlm(llmProps);
+			} catch (IOException _) {
+				// should not happen here.
+			}
 		}
 	}
 
 	@Override
 	public String getSolverPath() {
 		return TradistaAIProperties.getSolverPath();
+	}
+
+	@Override
+	public ChatModel getChatModel() {
+		final String OLLAMA = "ollama";
+		String provider = TradistaAIProperties.getLlmProvider();
+		if (StringUtils.isBlank(provider)) {
+			throw new TradistaTechnicalException("The LLM Provider is mandatory.");
+		}
+		if (TradistaAIProperties.getLlmProvider().equals(OLLAMA)) {
+			final String DEFAULT_OLLAMA_URL = "http://localhost:11434";
+			final String DEFAULT_OLLAMA_MODEL_NAME = "llama3";
+			String url = TradistaAIProperties.getLlmUrl();
+			String modelName = TradistaAIProperties.getLlmModel();
+			return OllamaChatModel.builder().baseUrl(url != null ? url : DEFAULT_OLLAMA_URL)
+					.modelName(modelName != null ? modelName : DEFAULT_OLLAMA_MODEL_NAME).build();
+		} else {
+			throw new TradistaTechnicalException(
+					String.format("Unsupported LLM Provider: %s", TradistaAIProperties.getLlmProvider()));
+		}
 	}
 }

@@ -215,5 +215,10 @@
 			<version>${security-model.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.ai</groupId>
+			<artifactId>ai-ejb-client</artifactId>
+			<version>${ai-ejb-client.version}</version>
+		</dependency>
 	</dependencies>
 </project>
