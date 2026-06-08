@@ -249,7 +249,7 @@ public class ProductBusinessDelegate {
 						}
 						listableProductTypes.add(p);
 					}
-				} catch (TradistaBusinessException tbe) {
+				} catch (TradistaBusinessException _) {
 					// cannot happen here because p won't be empty.
 				}
 			}
@@ -262,7 +262,7 @@ public class ProductBusinessDelegate {
 		return productTypes.stream().filter(p -> {
 			try {
 				return getProductFamily(p).equals(FX_PRODUCT_FAMILY);
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 			}
 			return false;
 		}).collect(Collectors.toSet());

@@ -18,8 +18,6 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.inventory.model.CashInventory;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,9 +27,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -89,63 +85,40 @@ public class CashInventoryReportController extends TradistaControllerAdapter {
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		from.setCellValueFactory(new Callback<CellDataFeatures<CashInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<CashInventory, String> inv) {
-				return new ReadOnlyObjectWrapper<String>(inv.getValue().getFrom().toString());
+		from.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getFrom().toString()));
+
+		to.setCellValueFactory(cellData -> {
+			LocalDate to = cellData.getValue().getTo();
+			if (to != null) {
+				return new ReadOnlyObjectWrapper<>(to.toString());
 			}
+			return new ReadOnlyObjectWrapper<>(StringUtils.EMPTY);
 		});
 
-		to.setCellValueFactory(new Callback<CellDataFeatures<CashInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<CashInventory, String> inv) {
-				LocalDate to = inv.getValue().getTo();
-				if (to != null) {
-					return new ReadOnlyObjectWrapper<String>(to.toString());
-				}
-				return new ReadOnlyObjectWrapper<String>(StringUtils.EMPTY);
-			}
-		});
+		book.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getBook().getName()));
 
-		book.setCellValueFactory(new Callback<CellDataFeatures<CashInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<CashInventory, String> inv) {
-				return new ReadOnlyObjectWrapper<String>(inv.getValue().getBook().getName());
-			}
-		});
+		currency.setCellValueFactory(
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getCurrency().getIsoCode()));
 
-		currency.setCellValueFactory(new Callback<CellDataFeatures<CashInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<CashInventory, String> inv) {
-				return new ReadOnlyObjectWrapper<String>(inv.getValue().getCurrency().getIsoCode());
-			}
-		});
-
-		amount.setCellValueFactory(new Callback<CellDataFeatures<CashInventory, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<CashInventory, String> p) {
-				return new ReadOnlyObjectWrapper<String>(TradistaGUIUtil.formatAmount(p.getValue().getAmount()));
-			}
-		});
+		amount.setCellValueFactory(
+				cellData -> new ReadOnlyObjectWrapper<>(TradistaGUIUtil.formatAmount(cellData.getValue().getAmount())));
 
 		TradistaGUIUtil.fillBookComboBox(bookComboBox);
-		bookComboBox.getItems().add(0, BlankBook.getInstance());
+		bookComboBox.getItems().addFirst(BlankBook.getInstance());
 		bookComboBox.getSelectionModel().selectFirst();
 
 		TradistaGUIUtil.fillCurrencyComboBox(currencyComboBox);
-		currencyComboBox.getItems().add(0, BlankCurrency.getInstance());
+		currencyComboBox.getItems().addFirst(BlankCurrency.getInstance());
 		currencyComboBox.getSelectionModel().selectFirst();
 
-		openPositionsCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				if (newValue.booleanValue()) {
-					CashInventoryReportController.this.valueDateToDatePicker.setValue(null);
-					CashInventoryReportController.this.valueDateToDatePicker.setDisable(true);
-				} else {
-					CashInventoryReportController.this.valueDateToDatePicker.setDisable(false);
-				}
-
+		openPositionsCheckBox.selectedProperty().addListener((_, _, v) -> {
+			if (v.booleanValue()) {
+				CashInventoryReportController.this.valueDateToDatePicker.setValue(null);
 			}
+			CashInventoryReportController.this.valueDateToDatePicker.setDisable(v.booleanValue());
 		});
 
 		cashInventoryBusinessDelegate = new CashInventoryBusinessDelegate();
-
 	}
 
 	@FXML
