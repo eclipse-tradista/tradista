@@ -316,6 +316,11 @@ public final class RepoPricerUtil {
 
 	public static List<CashFlow> generateCashFlows(PricingParameter params, RepoTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException {
+		return generateCashFlows(params, trade, pricingDate, false);
+	}
+
+	public static List<CashFlow> generateCashFlows(PricingParameter params, RepoTrade trade, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException {
 
 		List<CashFlow> cfs = new ArrayList<>();
 
@@ -323,9 +328,11 @@ public final class RepoPricerUtil {
 			throw new TradistaBusinessException("It is not possible to forecast cashflows of an open repo.");
 		}
 
-		if (!LocalDate.now().isBefore(trade.getEndDate())) {
-			throw new TradistaBusinessException(
-					"When the repo end date has passed, it is not possible to forecast cashflows.");
+		if (!isHistoricalAnalysis) {
+			if (!LocalDate.now().isBefore(trade.getEndDate())) {
+				throw new TradistaBusinessException(
+						"When the repo end date has passed, it is not possible to forecast cashflows.");
+			}
 		}
 
 		if (!pricingDate.isBefore(trade.getEndDate())) {
@@ -333,10 +340,12 @@ public final class RepoPricerUtil {
 					"When the pricing date is after the repo end date, it is not possible to forecast cashflows.");
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-			if (pricingDate.isBefore(LocalDate.now())) {
-				throw new TradistaBusinessException(
-						"When the trade settlement date has passed and a pricing date is in the past, it is not possible to forecast cashflows.");
+		if (!isHistoricalAnalysis) {
+			if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
+				if (pricingDate.isBefore(LocalDate.now())) {
+					throw new TradistaBusinessException(
+							"When the trade settlement date has passed and a pricing date is in the past, it is not possible to forecast cashflows.");
+				}
 			}
 		}
 

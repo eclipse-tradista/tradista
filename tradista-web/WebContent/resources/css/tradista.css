@@ -8,6 +8,10 @@ html, body {
 :root {
 	--component-background-color: white;
 	--component-header-background-color: #F5F5F5;
+	--primary-brand-color: #197B84;
+	--secondary-brand-color: #00455E;
+	--ai-primary-color: #4f46e5;
+	--ai-secondary-color: #E0E7FF;
 }
 
 .ui-panel {
@@ -101,7 +105,7 @@ html, body {
 }
 
 body {
-	background: linear-gradient(to top right, #00455E, #197B84);
+	background: linear-gradient(to top right, var(--secondary-brand-color), var(--primary-brand-color));
 	background-attachment: fixed;
 }
 
@@ -120,19 +124,19 @@ body, .ui-widget {
 body .ui-button:hover {
 	background-color: white;
 	border: 0px solid white;
-	color: #197B84;
+	color: var(--primary-brand-color);
 }
 
 .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-token.ui-state-active
 	{
-	background-color: #197B84;
+	background-color: var(--primary-brand-color);
 	color: white;
 }
 
 .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-token.ui-state-active:hover
 	{
 	background-color: white;
-	color: #197B84;
+	color: var(--primary-brand-color);
 }
 
 .ui-menubar {
@@ -247,7 +251,7 @@ body .ui-button:hover {
 
 /* Login page customizations */
 .login-body {
-	background: linear-gradient(to top right, #00455E, #197B84);
+	background: linear-gradient(to top right, var(--secondary-brand-color), var(--primary-brand-color));
 }
 
 .login-body .login-wrapper {
@@ -284,8 +288,8 @@ body .ui-button:hover {
 }
 
 body .login-button {
-	background-color: #197B84;
-	border: 0px solid #197B84;
+	background-color: var(--primary-brand-color);
+	border: 0px solid var(--primary-brand-color);
 	margin-left: 0px;
 }
 
@@ -300,21 +304,46 @@ body .login-button {
 
 /* AI Button styling */
 body .ui-button.btn-ai.ui-widget {
-	background-color: #4f46e5;
-	border: 1px solid #4f46e5;
-	color: #E0E7FF;
+	background-color: var(--ai-primary-color);
+	border: 1px solid var(--ai-primary-color);
+	color: var(--ai-secondary-color);
 }
 
 body .ui-button.btn-ai.ui-widget:hover, body .ui-button.btn-ai.ui-widget.ui-state-hover {
-	background-color: #E0E7FF;
-	border: 1px solid #4f46e5;
-	color: #4f46e5;
+	background-color: var(--ai-secondary-color);
+	border: 1px solid var(--ai-primary-color);
+	color: var(--ai-primary-color);
 }
 
 body .ui-button.btn-ai.ui-widget .ui-icon {
-	color: #E0E7FF;
+	color: var(--ai-secondary-color);
 }
 
 body .ui-button.btn-ai.ui-widget:hover .ui-icon, body .ui-button.btn-ai.ui-widget.ui-state-hover .ui-icon {
-	color: #4f46e5;
+	color: var(--ai-primary-color);
+}
+
+.btn-ai-wrapper {
+	margin-left: 10px;
+}
+
+body .ui-tooltip.tooltip-ai .ui-tooltip-text {
+	background-color: var(--ai-primary-color);
+	color: var(--ai-secondary-color);
+}
+
+body .ui-tooltip.tooltip-ai.ui-tooltip-right .ui-tooltip-arrow {
+	border-right-color: var(--ai-primary-color);
+}
+
+body .ui-tooltip.tooltip-ai.ui-tooltip-left .ui-tooltip-arrow {
+	border-left-color: var(--ai-primary-color);
+}
+
+body .ui-tooltip.tooltip-ai.ui-tooltip-top .ui-tooltip-arrow {
+	border-top-color: var(--ai-primary-color);
+}
+
+body .ui-tooltip.tooltip-ai.ui-tooltip-bottom .ui-tooltip-arrow {
+	border-bottom-color: var(--ai-primary-color);
 }

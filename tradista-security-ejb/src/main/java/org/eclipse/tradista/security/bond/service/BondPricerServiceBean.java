@@ -229,10 +229,18 @@ public class BondPricerServiceBean implements BondPricerService {
 	@Override
 	public List<CashFlow> generateCashFlows(PricingParameter params, @CheckTradeAccess BondTrade trade,
 			LocalDate pricingDate) throws TradistaBusinessException {
+		return generateCashFlows(params, trade, pricingDate, false);
+	}
 
-		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())) {
-			throw new TradistaBusinessException(
-					"When the bond maturity date has passed, it is not possible to forecast cashflows.");
+	@Override
+	public List<CashFlow> generateCashFlows(PricingParameter params, @CheckTradeAccess BondTrade trade,
+			LocalDate pricingDate, boolean isHistoricalAnalysis) throws TradistaBusinessException {
+
+		if (!isHistoricalAnalysis) {
+			if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())) {
+				throw new TradistaBusinessException(
+						"When the bond maturity date has passed, it is not possible to forecast cashflows.");
+			}
 		}
 
 		if (!pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
@@ -240,10 +248,12 @@ public class BondPricerServiceBean implements BondPricerService {
 					"When the pricing date is after the bond maturity date, it is not possible to forecast cashflows.");
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-			if (pricingDate.isBefore(LocalDate.now())) {
-				throw new TradistaBusinessException(
-						"When the trade settlement date has passed and a pricing date is in the past, it is not possible to forecast cashflows.");
+		if (!isHistoricalAnalysis) {
+			if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
+				if (pricingDate.isBefore(LocalDate.now())) {
+					throw new TradistaBusinessException(
+							"When the trade settlement date has passed and a pricing date is in the past, it is not possible to forecast cashflows.");
+				}
 			}
 		}
 

@@ -53,6 +53,11 @@ public class GCRepoPricerBusinessDelegate {
 
 	public List<CashFlow> generateCashFlows(GCRepoTrade trade, PricingParameter pp, LocalDate pricingDate)
 			throws TradistaBusinessException {
+		return generateCashFlows(trade, pp, pricingDate, false);
+	}
+
+	public List<CashFlow> generateCashFlows(GCRepoTrade trade, PricingParameter pp, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException {
 		StringBuilder errorMsg = new StringBuilder();
 		if (trade == null) {
 			errorMsg.append(String.format(TRADE_IS_MANDATORY));
@@ -67,7 +72,8 @@ public class GCRepoPricerBusinessDelegate {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		validator.validateTrade(trade);
-		return SecurityUtil.runEx(() -> gcRepoPricerService.generateCashFlows(pp, trade, pricingDate));
+		return SecurityUtil
+				.runEx(() -> gcRepoPricerService.generateCashFlows(pp, trade, pricingDate, isHistoricalAnalysis));
 	}
 
 	public BigDecimal getCollateralMarkToMarket(GCRepoTrade trade, Currency currency, LocalDate pricingDate,

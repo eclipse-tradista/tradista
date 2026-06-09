@@ -38,6 +38,9 @@ public interface SpecificRepoPricerService {
 	List<CashFlow> generateCashFlows(PricingParameter params, SpecificRepoTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException;
 
+	List<CashFlow> generateCashFlows(PricingParameter params, SpecificRepoTrade trade, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException;
+
 	BigDecimal getCollateralMarkToMarket(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException;
 

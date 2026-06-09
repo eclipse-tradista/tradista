@@ -109,6 +109,11 @@ public class BondPricerBusinessDelegate implements Serializable {
 
 	public List<CashFlow> generateCashFlows(BondTrade trade, PricingParameter pp, LocalDate pricingDate)
 			throws TradistaBusinessException {
+		return generateCashFlows(trade, pp, pricingDate, false);
+	}
+
+	public List<CashFlow> generateCashFlows(BondTrade trade, PricingParameter pp, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException {
 		StringBuffer errorMsg = new StringBuffer();
 		if (trade == null) {
 			errorMsg.append(String.format("The trade cannot be null.%n"));
@@ -123,7 +128,8 @@ public class BondPricerBusinessDelegate implements Serializable {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		tradeValidator.validateTrade(trade);
-		return SecurityUtil.runEx(() -> bondPricerService.generateCashFlows(pp, trade, pricingDate));
+		return SecurityUtil
+				.runEx(() -> bondPricerService.generateCashFlows(pp, trade, pricingDate, isHistoricalAnalysis));
 	}
 
 }

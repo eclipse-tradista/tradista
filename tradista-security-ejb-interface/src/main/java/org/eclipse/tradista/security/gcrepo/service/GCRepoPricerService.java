@@ -38,6 +38,9 @@ public interface GCRepoPricerService {
 	List<CashFlow> generateCashFlows(PricingParameter params, GCRepoTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException;
 
+	List<CashFlow> generateCashFlows(PricingParameter params, GCRepoTrade trade, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException;
+
 	BigDecimal getCollateralMarkToMarket(GCRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException;
 

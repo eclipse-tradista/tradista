@@ -36,4 +36,11 @@ public final class PromptTemplateRegistry {
 		return promptTemplateCache.get(BOOK_ANALYSIS_KEY);
 	}
 
+	public static PromptTemplate getCashflowsAnalysisPromptTemplate() {
+		final String CASHFLOWS_ANALYSIS_KEY = "CashflowsAnalysis";
+		promptTemplateCache.putIfAbsent(CASHFLOWS_ANALYSIS_KEY,
+				PromptTemplate.from(TradistaUtil.loadResourceAsString("prompts/cashflowsAnalysis.prompt")));
+		return promptTemplateCache.get(CASHFLOWS_ANALYSIS_KEY);
+	}
+
 }

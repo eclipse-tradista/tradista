@@ -56,6 +56,9 @@ public interface PricerService {
 	List<CashFlow> generateCashFlows(Trade<?> trade, PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException;
 
+	List<CashFlow> generateCashFlows(Trade<?> trade, PricingParameter pp, LocalDate valueDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException;
+
 	List<CashFlow> generateCashFlows(PricingParameter pp, LocalDate valueDate, long positionDefinitionId)
 			throws TradistaBusinessException;
 
