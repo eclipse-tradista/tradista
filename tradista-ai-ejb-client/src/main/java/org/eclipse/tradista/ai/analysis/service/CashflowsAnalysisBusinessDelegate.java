@@ -32,11 +32,15 @@ public class CashflowsAnalysisBusinessDelegate {
 
 	public String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
 			throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
 		if (CollectionUtils.isEmpty(tMinusOneCashflows)) {
-			throw new TradistaBusinessException("T-1 Cashflows are mandatory for the analysis.");
+			errMsg.append(String.format("T-1 Cashflows are mandatory for the analysis.%n"));
 		}
 		if (CollectionUtils.isEmpty(tCashflows)) {
-			throw new TradistaBusinessException("Cashflows are mandatory.");
+			errMsg.append("Cashflows are mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows);
 	}
