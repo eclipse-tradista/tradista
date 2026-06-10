@@ -65,10 +65,6 @@ public class BookAnalysisServiceBean implements BookAnalysisService {
 	}
 
 	private String formatBookData(Map<String, Map<String, BigDecimal>> bookContent) {
-		if (bookContent == null || bookContent.isEmpty()) {
-			return "The book is currently empty.";
-		}
-
 		StringBuilder sb = new StringBuilder();
 		bookContent.forEach((category, items) -> {
 			if (!items.isEmpty()) {

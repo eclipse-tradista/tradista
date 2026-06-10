@@ -55,10 +55,6 @@ public class CashflowsAnalysisServiceBean implements CashflowsAnalysisService {
 	}
 
 	private String formatCashflowsData(List<CashFlow> cashflows) {
-		if (CollectionUtils.isEmpty(cashflows)) {
-			return "No cashflows generated.";
-		}
-
 		StringBuilder sb = new StringBuilder();
 		sb.append("Date | Direction | Purpose | Amount | Discounted Amount | Discount Factor | Currency\n");
 		sb.append("--------------------------------------------------------------------------------------\n");
