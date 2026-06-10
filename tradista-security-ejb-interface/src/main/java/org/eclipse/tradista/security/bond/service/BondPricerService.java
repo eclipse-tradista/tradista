@@ -62,7 +62,4 @@ public interface BondPricerService {
 
 	List<CashFlow> generateCashFlows(PricingParameter params, BondTrade trade, LocalDate pricingDate)
 			throws TradistaBusinessException;
-
-	List<CashFlow> generateCashFlows(PricingParameter params, BondTrade trade, LocalDate pricingDate,
-			boolean isHistoricalAnalysis) throws TradistaBusinessException;
 }

@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.springframework.util.CollectionUtils;
 
 public class CashflowsAnalysisBusinessDelegate {
@@ -42,7 +43,7 @@ public class CashflowsAnalysisBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows);
+		return SecurityUtil.runEx(() -> cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows));
 	}
 
 }

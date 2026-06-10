@@ -18,6 +18,7 @@ package org.eclipse.tradista.ai.analysis.service;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
+import org.eclipse.tradista.core.common.util.SecurityUtil;
 
 public class BookAnalysisBusinessDelegate {
 
@@ -31,7 +32,7 @@ public class BookAnalysisBusinessDelegate {
 		if (book == null) {
 			throw new TradistaBusinessException("The book is mandatory.");
 		}
-		return bookAnalysisService.analyseBook(book);
+		return SecurityUtil.runEx(() -> bookAnalysisService.analyseBook(book));
 	}
 
 }

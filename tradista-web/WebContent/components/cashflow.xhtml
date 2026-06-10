@@ -21,8 +21,8 @@
 									action="#{cashflowsController.analyseCashflows(tradeController.trade, pricingController.pricingParameter, pricingController.pricingDate)}"
 									disabled="#{empty cashflowsController.cashflows}"
 									icon="pi pi-sparkles" iconPos="right"
-									update=":dashboardForm:analysisResultPanel"
-									oncomplete="PF('sidebarAnalysis').show();"
+									update=":dashboardForm:analysisResultPanel :dashboardForm:quotesCashflowsTabs:cashflowsListDataTable:cfMsg"
+									oncomplete="if (!args.validationFailed) PF('sidebarAnalysis').show();"
 									styleClass="rounded-button btn-ai" />
 							</h:panelGroup>
 							<p:tooltip for="analyseCashflowsWrapper" value="Cashflows must first be generated before an analysis can be launched"

@@ -6,17 +6,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.tradista.ai.analysis.service.CashflowsAnalysisBusinessDelegate;
+import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.DateUtil;
-import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.currency.model.Currency;
-import org.springframework.util.CollectionUtils;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
-import org.eclipse.tradista.ai.analysis.service.CashflowsAnalysisBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.RepoTrade;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
@@ -77,9 +78,9 @@ public class CashflowsController implements Serializable {
 		try {
 			cashflows = pricerBusinessDelegate.generateCashFlows(trade, pp, pricingDate);
 			analysisResult = null;
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(CF_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -124,10 +125,10 @@ public class CashflowsController implements Serializable {
 			} else {
 				analysisResult = "No cashflows generated.";
 			}
-		} catch (TradistaBusinessException tbe) {
-			analysisResult = tbe.getMessage();
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			FacesContext.getCurrentInstance().validationFailed();
 			FacesContext.getCurrentInstance().addMessage(CF_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
