@@ -35,12 +35,12 @@
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-core</artifactId>
-			<version>1.15.1</version>
+			<version>1.16.1</version>
 		</dependency>
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-ollama</artifactId>
-			<version>1.15.1</version>
+			<version>1.16.1</version>
 		</dependency>
 	</dependencies>
 </project>

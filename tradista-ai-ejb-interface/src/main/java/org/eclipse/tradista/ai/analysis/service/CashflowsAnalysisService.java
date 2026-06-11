@@ -15,24 +15,17 @@
  ********************************************************************************/
 package org.eclipse.tradista.ai.analysis.service;
 
-import org.eclipse.tradista.core.book.model.Book;
+import java.util.List;
+
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
-import org.eclipse.tradista.core.common.util.SecurityUtil;
 
-public class BookAnalysisBusinessDelegate {
+import jakarta.ejb.Remote;
 
-	private BookAnalysisService bookAnalysisService;
+@Remote
+public interface CashflowsAnalysisService {
 
-	public BookAnalysisBusinessDelegate() {
-		bookAnalysisService = TradistaServiceLocator.getInstance().getBookAnalysisService();
-	}
-
-	public String analyseBook(Book book) throws TradistaBusinessException {
-		if (book == null) {
-			throw new TradistaBusinessException("The book is mandatory.");
-		}
-		return SecurityUtil.runEx(() -> bookAnalysisService.analyseBook(book));
-	}
+	String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
+			throws TradistaBusinessException;
 
 }

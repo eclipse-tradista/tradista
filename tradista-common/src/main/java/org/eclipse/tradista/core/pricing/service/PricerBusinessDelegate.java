@@ -370,6 +370,11 @@ public class PricerBusinessDelegate {
 
 	public List<CashFlow> generateCashFlows(Trade<?> trade, PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
+		return generateCashFlows(trade, pp, valueDate, false);
+	}
+
+	public List<CashFlow> generateCashFlows(Trade<?> trade, PricingParameter pp, LocalDate valueDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
 		TradeValidator validator;
 		if (trade == null) {
@@ -391,7 +396,7 @@ public class PricerBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> pricerService.generateCashFlows(trade, pp, valueDate));
+		return SecurityUtil.runEx(() -> pricerService.generateCashFlows(trade, pp, valueDate, isHistoricalAnalysis));
 	}
 
 	public List<CashFlow> generateCashFlows(PricingParameter pp, LocalDate valueDate, long positionDefinitionId)

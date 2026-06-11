@@ -15,24 +15,35 @@
  ********************************************************************************/
 package org.eclipse.tradista.ai.analysis.service;
 
-import org.eclipse.tradista.core.book.model.Book;
+import java.util.List;
+
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.springframework.util.CollectionUtils;
 
-public class BookAnalysisBusinessDelegate {
+public class CashflowsAnalysisBusinessDelegate {
 
-	private BookAnalysisService bookAnalysisService;
+	private CashflowsAnalysisService cashflowsAnalysisService;
 
-	public BookAnalysisBusinessDelegate() {
-		bookAnalysisService = TradistaServiceLocator.getInstance().getBookAnalysisService();
+	public CashflowsAnalysisBusinessDelegate() {
+		cashflowsAnalysisService = TradistaServiceLocator.getInstance().getCashflowsAnalysisService();
 	}
 
-	public String analyseBook(Book book) throws TradistaBusinessException {
-		if (book == null) {
-			throw new TradistaBusinessException("The book is mandatory.");
+	public String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
+			throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
+		if (CollectionUtils.isEmpty(tMinusOneCashflows)) {
+			errMsg.append(String.format("T-1 Cashflows are mandatory for the analysis.%n"));
 		}
-		return SecurityUtil.runEx(() -> bookAnalysisService.analyseBook(book));
+		if (CollectionUtils.isEmpty(tCashflows)) {
+			errMsg.append("Cashflows are mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
+		return SecurityUtil.runEx(() -> cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows));
 	}
 
 }

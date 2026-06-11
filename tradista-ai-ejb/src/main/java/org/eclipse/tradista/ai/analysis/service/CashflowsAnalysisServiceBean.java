@@ -15,21 +15,20 @@
  ********************************************************************************/
 package org.eclipse.tradista.ai.analysis.service;
 
-import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tradista.ai.analysis.prompt.PromptTemplateRegistry;
 import org.eclipse.tradista.ai.reasoning.common.service.LocalConfigurationService;
-import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
-import org.eclipse.tradista.core.book.service.CheckBookAccess;
+import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.util.CollectionUtils;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
 import dev.langchain4j.model.input.PromptTemplate;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -37,42 +36,34 @@ import jakarta.ejb.Stateless;
 @SecurityDomain(value = "other")
 @PermitAll
 @Stateless
-public class BookAnalysisServiceBean implements BookAnalysisService {
+public class CashflowsAnalysisServiceBean implements CashflowsAnalysisService {
 
 	@EJB
-	private LocalConfigurationService localConfigurationService;;
-
-	private BookBusinessDelegate bookBusinessDelegate;
-
-	@PostConstruct
-	public void init() {
-		bookBusinessDelegate = new BookBusinessDelegate();
-	}
+	private LocalConfigurationService localConfigurationService;
 
 	@Override
-	public String analyseBook(@CheckBookAccess Book book) throws TradistaBusinessException {
-		Map<String, Map<String, BigDecimal>> bookContent = bookBusinessDelegate.getBookContent(book.getId());
+	public String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
+			throws TradistaBusinessException {
 		ChatModel model = localConfigurationService.getChatModel();
-
-		String bookData = formatBookData(bookContent);
-
-		PromptTemplate template = PromptTemplateRegistry.getBookAnalysisPromptTemplate();
-		Map<String, Object> variables = Map.of("bookName", book.getName(), "bookData", bookData);
-
-		Prompt prompt = template.apply(variables);
+		PromptTemplate promptTemplate = PromptTemplateRegistry.getCashflowsAnalysisPromptTemplate();
+		Map<String, Object> data = new HashMap<>();
+		data.put("tMinusOneCashflowsData", formatCashflowsData(tMinusOneCashflows));
+		data.put("tCashflowsData", formatCashflowsData(tCashflows));
+		Prompt prompt = promptTemplate.apply(data);
 
 		return model.chat(prompt.text());
 	}
 
-	private String formatBookData(Map<String, Map<String, BigDecimal>> bookContent) {
+	private String formatCashflowsData(List<CashFlow> cashflows) {
 		StringBuilder sb = new StringBuilder();
-		bookContent.forEach((category, items) -> {
-			if (!items.isEmpty()) {
-				sb.append(category).append(":\n");
-				items.forEach((key, value) -> sb.append("- ").append(key).append(": ").append(value).append("\n"));
-				sb.append("\n");
-			}
-		});
+		sb.append("Date | Direction | Purpose | Amount | Discounted Amount | Discount Factor | Currency\n");
+		sb.append("--------------------------------------------------------------------------------------\n");
+
+		for (CashFlow cf : cashflows) {
+			sb.append(String.format("%s | %s | %s | %s | %s | %s | %s\n", cf.getDate(), cf.getDirection(),
+					cf.getPurpose(), cf.getAmount(), cf.getDiscountedAmount(), cf.getDiscountFactor(),
+					cf.getCurrency()));
+		}
 		return sb.toString();
 	}
 }

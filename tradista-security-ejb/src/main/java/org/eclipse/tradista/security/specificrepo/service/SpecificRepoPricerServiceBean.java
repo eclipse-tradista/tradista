@@ -82,6 +82,12 @@ public class SpecificRepoPricerServiceBean implements SpecificRepoPricerService 
 	}
 
 	@Override
+	public List<CashFlow> generateCashFlows(PricingParameter params, SpecificRepoTrade trade, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException {
+		return RepoPricerUtil.generateCashFlows(params, trade, pricingDate, isHistoricalAnalysis);
+	}
+
+	@Override
 	public BigDecimal pnlDefault(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,
 			PricingParameter params) throws TradistaBusinessException {
 		return RepoPricerUtil.pnlDefault(trade, currency, pricingDate, params);

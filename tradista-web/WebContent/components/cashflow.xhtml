@@ -16,6 +16,17 @@
 								<f:actionListener
 									binding="#{cashflowsController.generate(tradeController.trade, pricingController.pricingParameter, pricingController.pricingDate)}" />
 							</p:commandButton>
+							<h:panelGroup id="analyseCashflowsWrapper" styleClass="btn-ai-wrapper">
+								<p:commandButton id="analyseCashflowsBtn" value="Analyse"
+									action="#{cashflowsController.analyseCashflows(tradeController.trade, pricingController.pricingParameter, pricingController.pricingDate)}"
+									disabled="#{empty cashflowsController.cashflows}"
+									icon="pi pi-sparkles" iconPos="right"
+									update=":dashboardForm:analysisResultPanel :dashboardForm:quotesCashflowsTabs:cashflowsListDataTable:cfMsg"
+									oncomplete="if (!args.validationFailed) PF('sidebarAnalysis').show();"
+									styleClass="rounded-button btn-ai" />
+							</h:panelGroup>
+							<p:tooltip for="analyseCashflowsWrapper" value="Cashflows must first be generated before an analysis can be launched"
+								rendered="#{empty cashflowsController.cashflows}" styleClass="tooltip-ai" />
 						</p:column>
 						<p:column>
 							<p:outputLabel value="Pricing Date"

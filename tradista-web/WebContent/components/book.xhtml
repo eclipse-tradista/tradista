@@ -11,24 +11,36 @@
 					<p:chart value="#{bookController.productDonutModel}"
 						styleClass="h-full flex flex-column" type="donut" />
 					<div style="display: flex; justify-content: center; margin-top: 35px;">
-						<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
-							icon="pi pi-sparkles" iconPos="right"
-							update=":dashboardForm:analysisResultPanel"
-							oncomplete="PF('sidebarAnalysis').show();"
-							styleClass="rounded-button btn-ai" style="width: auto;" />
+						<h:panelGroup id="analyseBookProductWrapper" styleClass="btn-ai-wrapper">
+							<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
+								icon="pi pi-sparkles" iconPos="right"
+								disabled="#{bookController.book == null}"
+								update=":dashboardForm:analysisResultPanel"
+								oncomplete="PF('sidebarAnalysis').show();"
+								styleClass="rounded-button btn-ai" style="width: auto;" />
+						</h:panelGroup>
+						<p:tooltip for="analyseBookProductWrapper"
+							value="A book must be selected before launching an analysis"
+							rendered="#{bookController.book == null}" styleClass="tooltip-ai" />
 					</div>
 				</p:card>
 			</p:tab>
 			<p:tab title="Cash">
 				<p:card>
 					<p:chart value="#{bookController.cashDonutModel}"
-						styleClass="h-full flex flex-column" type="donut" />				
+						styleClass="h-full flex flex-column" type="donut" />
 					<div style="display: flex; justify-content: center; margin-top: 35px;">
-						<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
-							icon="pi pi-sparkles" iconPos="right"
-							update=":dashboardForm:analysisResultPanel"
-							oncomplete="PF('sidebarAnalysis').show();"
-							styleClass="rounded-button btn-ai" style="width: auto;" />
+						<h:panelGroup id="analyseBookCashWrapper" styleClass="btn-ai-wrapper">
+							<p:commandButton value="Analyse" action="#{bookController.analyseBook}"
+								icon="pi pi-sparkles" iconPos="right"
+								disabled="#{bookController.book == null}"
+								update=":dashboardForm:analysisResultPanel"
+								oncomplete="PF('sidebarAnalysis').show();"
+								styleClass="rounded-button btn-ai" style="width: auto;" />
+						</h:panelGroup>
+						<p:tooltip for="analyseBookCashWrapper"
+							value="A book must be selected before launching an analysis"
+							rendered="#{bookController.book == null}" styleClass="tooltip-ai" />
 					</div>
 				</p:card>
 			</p:tab>

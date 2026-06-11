@@ -1,0 +1,9 @@
+Please analyze the following cashflows variation for a Repo trade.
+This is a "cashflows explained" analysis where you need to explain the variations of cashflows generated at date T compared to those generated at date T-1.
+Specifically, identify and explain the Two effects: FX and Rate effects.
+
+Here are the cashflows generated at date T-1:
+{{tMinusOneCashflowsData}}
+
+Here are the cashflows generated at date T:
+{{tCashflowsData}}

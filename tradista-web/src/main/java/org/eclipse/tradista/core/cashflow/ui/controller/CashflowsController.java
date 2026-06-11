@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.tradista.ai.analysis.service.CashflowsAnalysisBusinessDelegate;
+import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.RepoTrade;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
@@ -50,10 +55,15 @@ public class CashflowsController implements Serializable {
 
 	private PricerBusinessDelegate pricerBusinessDelegate;
 
+	private CashflowsAnalysisBusinessDelegate cashflowsAnalysisBusinessDelegate;
+
+	private String analysisResult;
+
 	@PostConstruct
 	public void init() {
 		cashflows = Collections.synchronizedList(new ArrayList<CashFlow>());
 		pricerBusinessDelegate = new PricerBusinessDelegate();
+		cashflowsAnalysisBusinessDelegate = new CashflowsAnalysisBusinessDelegate();
 	}
 
 	public void setCashflows(List<CashFlow> cashflows) {
@@ -67,9 +77,10 @@ public class CashflowsController implements Serializable {
 	public void generate(RepoTrade trade, PricingParameter pp, LocalDate pricingDate) {
 		try {
 			cashflows = pricerBusinessDelegate.generateCashFlows(trade, pp, pricingDate);
-		} catch (TradistaBusinessException tbe) {
+			analysisResult = null;
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(CF_MSG,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -92,6 +103,32 @@ public class CashflowsController implements Serializable {
 			}
 		} else {
 			discountCurve = null;
+		}
+	}
+
+	public String getAnalysisResult() {
+		return analysisResult;
+	}
+
+	public void setAnalysisResult(String analysisResult) {
+		this.analysisResult = analysisResult;
+	}
+
+	public void analyseCashflows(RepoTrade trade, PricingParameter pp, LocalDate pricingDate) {
+		try {
+			if (!CollectionUtils.isEmpty(cashflows)) {
+				Calendar currencyCalendar = trade.getCurrency().getCalendar();
+				LocalDate tMinusOneDate = DateUtil.previousBusinessDay(pricingDate, currencyCalendar);
+				List<CashFlow> tMinusOneCashflows = pricerBusinessDelegate.generateCashFlows(trade, pp, tMinusOneDate,
+						true);
+				analysisResult = cashflowsAnalysisBusinessDelegate.analyseCashflows(tMinusOneCashflows, cashflows);
+			} else {
+				analysisResult = "No cashflows generated.";
+			}
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			FacesContext.getCurrentInstance().validationFailed();
+			FacesContext.getCurrentInstance().addMessage(CF_MSG,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 

@@ -56,6 +56,11 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 
 	public List<CashFlow> generateCashFlows(SpecificRepoTrade trade, PricingParameter pp, LocalDate pricingDate)
 			throws TradistaBusinessException {
+		return generateCashFlows(trade, pp, pricingDate, false);
+	}
+
+	public List<CashFlow> generateCashFlows(SpecificRepoTrade trade, PricingParameter pp, LocalDate pricingDate,
+			boolean isHistoricalAnalysis) throws TradistaBusinessException {
 		StringBuilder errorMsg = new StringBuilder();
 		if (trade == null) {
 			errorMsg.append(String.format(TRADE_IS_MANDATORY));
@@ -70,7 +75,8 @@ public class SpecificRepoPricerBusinessDelegate implements Serializable {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		validator.validateTrade(trade);
-		return SecurityUtil.runEx(() -> specificRepoPricerService.generateCashFlows(pp, trade, pricingDate));
+		return SecurityUtil
+				.runEx(() -> specificRepoPricerService.generateCashFlows(pp, trade, pricingDate, isHistoricalAnalysis));
 	}
 
 	public BigDecimal getCollateralMarkToMarket(SpecificRepoTrade trade, Currency currency, LocalDate pricingDate,

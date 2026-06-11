@@ -613,7 +613,8 @@ to remove (up to
 			<p:sidebar widgetVar="sidebarAnalysis" position="right" style="width: 500px; padding: 20px; overflow-y: auto;" baseZIndex="10000">
 				<h2 class="tradista-small-title" style="margin-top: 0; border-bottom: 2px solid #007ad9; padding-bottom: 10px;">Analysis</h2>
 				<p:outputPanel id="analysisResultPanel" style="white-space: pre-wrap; line-height: 1.6; color: #333; font-family: sans-serif; font-size: 14px; margin-top: 15px;">
-					<h:outputText value="#{bookController.analysisResult}" />
+					<h:outputText value="#{bookController.analysisResult}" rendered="#{not empty bookController.analysisResult}" />
+					<h:outputText value="#{cashflowsController.analysisResult}" rendered="#{not empty cashflowsController.analysisResult}" />
 				</p:outputPanel>
 			</p:sidebar>
 		</h:form>
