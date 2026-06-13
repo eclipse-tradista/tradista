@@ -401,6 +401,22 @@
 										<p:row
 											rendered="#{not (gCRepoCollateralController.context eq null)}">
 											<p:column>
+												<p:panel header="AI Optimization" style="margin-bottom:10px;">
+													<h:panelGrid columns="2" cellpadding="5">
+														<p:outputLabel value="Consider Basel 3 liquidity ratios:" />
+														<p:selectBooleanCheckbox value="#{gCRepoCollateralController.considerBasel3LiquidityRatios}" />
+														
+														<p:outputLabel value="Exclude bonds paying coupons during repo:" />
+														<p:selectBooleanCheckbox value="#{gCRepoCollateralController.excludeBondsPayingCoupons}" />
+														
+														<p:commandButton value="Optimize (LLM)" action="#{gCRepoCollateralController.optimizeAllocation()}" update="@form" styleClass="rounded-button" icon="pi pi-bolt" />
+													</h:panelGrid>
+												</p:panel>
+											</p:column>
+										</p:row>
+										<p:row
+											rendered="#{not (gCRepoCollateralController.context eq null)}">
+											<p:column>
 												<p:outputLabel value="Available Collateral :" />
 												<p:dataTable id="availableCollateralDataTable" var="coll"
 													value="#{gCRepoCollateralController.availableCollateralValues}"

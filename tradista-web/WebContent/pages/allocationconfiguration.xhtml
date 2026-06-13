@@ -44,6 +44,28 @@
 						</p:column>
 					</p:row>
 					<p:row>
+						<p:column>
+							<p:outputLabel styleClass="tradista-menu-item"
+								value="Consider Basel 3 liquidity ratios :" />
+						</p:column>
+						<p:column>
+							<p:selectBooleanCheckbox
+								value="#{allocationConfigurationController.considerBasel3LiquidityRatios}"
+								styleClass="tradista-menu-item" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:outputLabel styleClass="tradista-menu-item"
+								value="Exclude bonds paying coupons during repo :" />
+						</p:column>
+						<p:column>
+							<p:selectBooleanCheckbox
+								value="#{allocationConfigurationController.excludeBondsPayingCoupons}"
+								styleClass="tradista-menu-item" />
+						</p:column>
+					</p:row>
+					<p:row>
 						<p:column colspan="2">
 							<p:card>
 								<p:pickList id="allocationConfigurationPickList"

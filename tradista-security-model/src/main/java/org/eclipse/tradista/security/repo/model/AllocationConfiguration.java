@@ -37,6 +37,9 @@ public class AllocationConfiguration extends TradistaObject implements Comparabl
 
 	private Set<Book> books;
 
+	private boolean considerBasel3LiquidityRatios;
+
+	private boolean excludeBondsPayingCoupons;
 	public AllocationConfiguration(String name, LegalEntity po) {
 		this.name = name;
 		this.processingOrg = po;
@@ -57,6 +60,22 @@ public class AllocationConfiguration extends TradistaObject implements Comparabl
 
 	public void setBooks(Set<Book> books) {
 		this.books = books;
+	}
+
+	public boolean isConsiderBasel3LiquidityRatios() {
+		return considerBasel3LiquidityRatios;
+	}
+
+	public void setConsiderBasel3LiquidityRatios(boolean considerBasel3LiquidityRatios) {
+		this.considerBasel3LiquidityRatios = considerBasel3LiquidityRatios;
+	}
+
+	public boolean isExcludeBondsPayingCoupons() {
+		return excludeBondsPayingCoupons;
+	}
+
+	public void setExcludeBondsPayingCoupons(boolean excludeBondsPayingCoupons) {
+		this.excludeBondsPayingCoupons = excludeBondsPayingCoupons;
 	}
 
 	@Override

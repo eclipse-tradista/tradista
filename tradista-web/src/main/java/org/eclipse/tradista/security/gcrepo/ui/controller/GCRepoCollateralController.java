@@ -26,6 +26,7 @@ import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
+import org.eclipse.tradista.ai.agent.service.CollateralOptimizationBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
 import org.eclipse.tradista.security.repo.ui.controller.Collateral;
@@ -75,6 +76,12 @@ public class GCRepoCollateralController implements Serializable {
 	private ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate;
 
 	private SecurityBusinessDelegate securityBusinessDelegate;
+
+	private CollateralOptimizationBusinessDelegate collateralOptimizationBusinessDelegate;
+
+	private boolean considerBasel3LiquidityRatios;
+
+	private boolean excludeBondsPayingCoupons;
 
 	private String context;
 
@@ -154,6 +161,7 @@ public class GCRepoCollateralController implements Serializable {
 		bookBusinessDelegate = new BookBusinessDelegate();
 		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
 		securityBusinessDelegate = new SecurityBusinessDelegate();
+		collateralOptimizationBusinessDelegate = new CollateralOptimizationBusinessDelegate();
 		DoughnutChart dc = new DoughnutChart();
 		dc.setData(DoughnutChart.data());
 		dc.getData().addDataset(new DoughnutDataset());
@@ -513,6 +521,8 @@ public class GCRepoCollateralController implements Serializable {
 					throw new TradistaBusinessException(
 							"An Allocation Configuration must be set in the Processing Org Defaults.");
 				}
+				considerBasel3LiquidityRatios = ac.isConsiderBasel3LiquidityRatios();
+				excludeBondsPayingCoupons = ac.isExcludeBondsPayingCoupons();
 				Set<Book> configuredBooks = ac.getBooks();
 				if (configuredBooks == null || configuredBooks.isEmpty()) {
 					throw new TradistaBusinessException(String
@@ -806,4 +816,60 @@ public class GCRepoCollateralController implements Serializable {
 		}
 	}
 
+	public boolean isConsiderBasel3LiquidityRatios() {
+		return considerBasel3LiquidityRatios;
+	}
+
+	public void setConsiderBasel3LiquidityRatios(boolean considerBasel3LiquidityRatios) {
+		this.considerBasel3LiquidityRatios = considerBasel3LiquidityRatios;
+	}
+
+	public boolean isExcludeBondsPayingCoupons() {
+		return excludeBondsPayingCoupons;
+	}
+
+	public void setExcludeBondsPayingCoupons(boolean excludeBondsPayingCoupons) {
+		this.excludeBondsPayingCoupons = excludeBondsPayingCoupons;
+	}
+
+	public void optimizeAllocation() {
+		try {
+			if (trade == null) {
+				return;
+			}
+			Map<Security, BigDecimal> availables = new HashMap<>();
+			if (availableCollateralValues != null) {
+				for (Collateral coll : availableCollateralValues) {
+					Security sec = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(coll.getSecurity(), coll.getExchange());
+					if (sec != null) {
+						availables.put(sec, availables.getOrDefault(sec, BigDecimal.ZERO).add(coll.getQuantity()));
+					}
+				}
+			}
+			
+			BigDecimal exposure = trade.getAmount();
+			
+			Map<Security, BigDecimal> allocation = collateralOptimizationBusinessDelegate.optimizeCollateral(trade, exposure, availables, considerBasel3LiquidityRatios, excludeBondsPayingCoupons);
+			
+			if (allocation != null) {
+				for (Map.Entry<Security, BigDecimal> entry : allocation.entrySet()) {
+					String bookName = null;
+					String exchangeCode = entry.getKey().getExchange().getCode();
+					for (Collateral coll : availableCollateralValues) {
+						if (coll.getSecurity().equals(entry.getKey().getIsin()) && coll.getExchange().equals(exchangeCode)) {
+							bookName = coll.getBook();
+							break;
+						}
+					}
+					if (bookName != null) {
+						setCollateralToAdd(entry.getKey().getIsin(), exchangeCode, bookName, entry.getValue());
+						updateCollateralToAdd(entry.getValue());
+					}
+				}
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "AI Optimization completed successfully."));
+			}
+		} catch (TradistaBusinessException e) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "AI Optimization failed: " + e.getMessage()));
+		}
+	}
 }

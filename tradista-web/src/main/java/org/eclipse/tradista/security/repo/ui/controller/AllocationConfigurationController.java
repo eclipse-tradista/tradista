@@ -68,6 +68,10 @@ public class AllocationConfigurationController implements Serializable {
 
 	private String allocationConfigurationName;
 
+	private boolean considerBasel3LiquidityRatios;
+
+	private boolean excludeBondsPayingCoupons;
+
 	private LegalEntity processingOrg;
 
 	private LegalEntity copyProcessingOrg;
@@ -179,6 +183,22 @@ public class AllocationConfigurationController implements Serializable {
 		this.allocationConfigurationName = allocationConfigurationName;
 	}
 
+	public boolean isConsiderBasel3LiquidityRatios() {
+		return considerBasel3LiquidityRatios;
+	}
+
+	public void setConsiderBasel3LiquidityRatios(boolean considerBasel3LiquidityRatios) {
+		this.considerBasel3LiquidityRatios = considerBasel3LiquidityRatios;
+	}
+
+	public boolean isExcludeBondsPayingCoupons() {
+		return excludeBondsPayingCoupons;
+	}
+
+	public void setExcludeBondsPayingCoupons(boolean excludeBondsPayingCoupons) {
+		this.excludeBondsPayingCoupons = excludeBondsPayingCoupons;
+	}
+
 	public LegalEntity getProcessingOrg() {
 		return processingOrg;
 	}
@@ -249,6 +269,8 @@ public class AllocationConfigurationController implements Serializable {
 				allocationConfiguration = new AllocationConfiguration(allocationConfigurationName, po);
 			}
 			allocationConfiguration.setBooks(bookSet);
+			allocationConfiguration.setConsiderBasel3LiquidityRatios(considerBasel3LiquidityRatios);
+			allocationConfiguration.setExcludeBondsPayingCoupons(excludeBondsPayingCoupons);
 			allocationConfiguration.setId(
 					allocationConfigurationBusinessDelegate.saveAllocationConfiguration(allocationConfiguration));
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
@@ -280,6 +302,8 @@ public class AllocationConfigurationController implements Serializable {
 				bookSet = new HashSet<>(books.getTarget());
 			}
 			copyAllocationConfiguration.setBooks(bookSet);
+			copyAllocationConfiguration.setConsiderBasel3LiquidityRatios(considerBasel3LiquidityRatios);
+			copyAllocationConfiguration.setExcludeBondsPayingCoupons(excludeBondsPayingCoupons);
 			copyAllocationConfiguration.setId(
 					allocationConfigurationBusinessDelegate.saveAllocationConfiguration(copyAllocationConfiguration));
 			allocationConfiguration = copyAllocationConfiguration;
@@ -301,6 +325,8 @@ public class AllocationConfigurationController implements Serializable {
 		if (loadAllocationConfiguration != null) {
 			allocationConfiguration = loadAllocationConfiguration;
 			allocationConfigurationName = allocationConfiguration.getName();
+			considerBasel3LiquidityRatios = allocationConfiguration.isConsiderBasel3LiquidityRatios();
+			excludeBondsPayingCoupons = allocationConfiguration.isExcludeBondsPayingCoupons();
 			List<Book> allocConfigBooks = new ArrayList<>();
 			List<Book> sourceBooks = availableBooks.stream()
 					.filter(b -> b.getProcessingOrg().equals(allocationConfiguration.getProcessingOrg())).toList();
@@ -325,6 +351,8 @@ public class AllocationConfigurationController implements Serializable {
 	public void clear() {
 		allocationConfiguration = null;
 		allocationConfigurationName = null;
+		considerBasel3LiquidityRatios = false;
+		excludeBondsPayingCoupons = false;
 		processingOrg = null;
 		loadAllocationConfiguration = null;
 		availableBooks = getBooksForCurrentContext();

@@ -1,0 +1,26 @@
+Optimally allocate available bonds to cover a required exposure.
+
+Trade Details:
+{{tradeDetails}}
+
+Target Exposure to cover:
+{{exposure}}
+
+Available Collaterals (ISIN, Market Value, Next Coupon Date, LCR Rating):
+{{availableCollateralList}}
+
+Options:
+- Consider Basel 3 liquidity ratios (prefer HQLA / high LCR rated bonds): {{considerBasel3LiquidityRatios}}
+- Exclude bonds paying coupons during repo: {{excludeBondsPayingCoupons}}
+
+Return a JSON array of objects representing your allocation. Each object must have:
+- "isin": The ISIN of the chosen bond.
+- "quantity": The allocated nominal quantity (as a number, not a string).
+
+Rules:
+1. The total market value of the allocated bonds (quantity * unit market price) must equal or slightly exceed the Target Exposure.
+2. Do not allocate more quantity than what is available.
+3. If "Exclude bonds paying coupons during repo" is true, DO NOT allocate any bond whose next coupon date falls between the trade settlement date and maturity date.
+4. If "Consider Basel 3 liquidity ratios" is true, prioritize bonds with better liquidity (e.g. LCR Level 1).
+5. Ensure diversification if possible.
+6. The output must be strictly valid JSON, containing only the JSON array.

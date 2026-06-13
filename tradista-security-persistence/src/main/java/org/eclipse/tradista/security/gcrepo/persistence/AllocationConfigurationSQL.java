@@ -45,13 +45,16 @@ public class AllocationConfigurationSQL {
 	private static final Field NAME_FIELD = new Field(NAME);
 	private static final Field PROCESSING_ORG_ID_FIELD = new Field(PROCESSING_ORG_ID);
 	private static final Field ID_FIELD = new Field(ID);
+	private static final Field CONSIDER_BASEL3_LIQUIDITY_RATIOS_FIELD = new Field("CONSIDER_BASEL3_LIQUIDITY_RATIOS");
+	private static final Field EXCLUDE_BONDS_PAYING_COUPONS_FIELD = new Field("EXCLUDE_BONDS_PAYING_COUPONS");
 
 	private static final Field BOOK_ID_FIELD = new Field(BOOK_ID);
 	private static final Field ALLOCATION_CONFIGURATION_ID_FIELD = new Field("ALLOCATION_CONFIGURATION_ID");
 
-	private static final Field[] ALLOCATION_CONFIGURATION_FIELDS = { NAME_FIELD, PROCESSING_ORG_ID_FIELD, ID_FIELD };
+	private static final Field[] ALLOCATION_CONFIGURATION_FIELDS = { NAME_FIELD, PROCESSING_ORG_ID_FIELD,
+			CONSIDER_BASEL3_LIQUIDITY_RATIOS_FIELD, EXCLUDE_BONDS_PAYING_COUPONS_FIELD, ID_FIELD };
 	private static final Field[] ALLOCATION_CONFIGURATION_FIELDS_FOR_INSERT_OR_UPDATE = { NAME_FIELD,
-			PROCESSING_ORG_ID_FIELD };
+			PROCESSING_ORG_ID_FIELD, CONSIDER_BASEL3_LIQUIDITY_RATIOS_FIELD, EXCLUDE_BONDS_PAYING_COUPONS_FIELD };
 	private static final Field[] ALLOCATION_CONFIGURATION_BOOK_FIELDS = { ALLOCATION_CONFIGURATION_ID_FIELD,
 			BOOK_ID_FIELD };
 
@@ -72,7 +75,7 @@ public class AllocationConfigurationSQL {
 				PreparedStatement stmtSaveAllocationConfigurationBook = TradistaDBUtil.buildInsertPreparedStatement(con,
 						ALLOCATION_CONFIGURATION_BOOK_TABLE, ALLOCATION_CONFIGURATION_BOOK_FIELDS)) {
 			if (allocationConfiguration.getId() != 0) {
-				stmtSaveAllocationConfiguration.setLong(3, allocationConfiguration.getId());
+				stmtSaveAllocationConfiguration.setLong(5, allocationConfiguration.getId());
 			}
 			stmtSaveAllocationConfiguration.setString(1, allocationConfiguration.getName());
 			if (allocationConfiguration.getProcessingOrg() == null) {
@@ -80,6 +83,8 @@ public class AllocationConfigurationSQL {
 			} else {
 				stmtSaveAllocationConfiguration.setLong(2, allocationConfiguration.getProcessingOrg().getId());
 			}
+			stmtSaveAllocationConfiguration.setBoolean(3, allocationConfiguration.isConsiderBasel3LiquidityRatios());
+			stmtSaveAllocationConfiguration.setBoolean(4, allocationConfiguration.isExcludeBondsPayingCoupons());
 			stmtSaveAllocationConfiguration.executeUpdate();
 
 			if (allocationConfiguration.getId() == 0) {
@@ -124,6 +129,10 @@ public class AllocationConfigurationSQL {
 		AllocationConfiguration allocationConfiguration = new AllocationConfiguration(
 				results.getString(NAME_FIELD.getName()), po);
 		allocationConfiguration.setId(allocationConfigurationId);
+		allocationConfiguration.setConsiderBasel3LiquidityRatios(
+				results.getBoolean(CONSIDER_BASEL3_LIQUIDITY_RATIOS_FIELD.getName()));
+		allocationConfiguration.setExcludeBondsPayingCoupons(
+				results.getBoolean(EXCLUDE_BONDS_PAYING_COUPONS_FIELD.getName()));
 
 		Set<Book> books = new HashSet<>();
 		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(ALLOCATION_CONFIGURATION_BOOK_TABLE));
