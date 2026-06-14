@@ -4,7 +4,7 @@
 **The modular, enterprise-grade Open Source platform for Cross-Asset Trading and Risk Management, powered by Jakarta EE.**
 
 ![License](https://img.shields.io/badge/License-Apache_2.0-33ff99.svg?link=https://www.apache.org/licenses/LICENSE-2.0)&emsp;
-![Version](https://img.shields.io/badge/Version%20-%203.2.0--SNAPSHOT%20-%2033ff99?color=33ff99)&emsp;
+![Version](https://img.shields.io/badge/Version%20-%203.2.0--RC1%20-%2033ff99?color=33ff99)&emsp;
 
 <br>
 
@@ -34,7 +34,7 @@ Tested configuration:
 - Server: WildFly 36.0.1.Final
 - JRE: Oracle JRE v24.0.2+12-54 and OpenJDK JRE Eclipse Temurin implementation v24.0.2+12
 - Database: Derby 10.17.1.0
-- Build automation tool: Maven 3.9.12
+- Build automation tool: Maven 3.9.16
 
 Tradista can be built using Maven, build the whole application using the tradista-parent project.
 
