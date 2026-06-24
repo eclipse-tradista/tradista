@@ -118,5 +118,8 @@ run '../sql/POSITION_DEFINITION.sql';
 run '../sql/DAILY_PNL.sql';
 run '../sql/POSITION.sql';
 run '../sql/POSITION_CALCULATION_ERROR.sql';
+run '../sql/RATING_AGENCY.sql';
+run '../sql/RATING.sql';
+run '../sql/RATING_ASSIGNMENT.sql';
 disconnect;
 exit;

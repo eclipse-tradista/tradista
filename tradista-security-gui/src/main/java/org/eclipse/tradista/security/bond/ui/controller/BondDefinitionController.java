@@ -19,13 +19,26 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.eclipse.tradista.core.rating.model.Rating;
+import org.eclipse.tradista.core.rating.model.RatingAgency;
+import org.eclipse.tradista.core.rating.model.RatingAssignment;
+import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
 import org.eclipse.tradista.security.bond.ui.view.BondCreatorDialog;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
@@ -152,12 +165,82 @@ public class BondDefinitionController implements TradistaController {
 	@FXML
 	private Label exchangeLabel;
 
+	@FXML
+	private TableView<RatingAssignment> ratingsTable;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> agencyCol;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> ratingCol;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> fromCol;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> toCol;
+
+	@FXML
+	private ComboBox<RatingAgency> agencyComboBox;
+
+	@FXML
+	private ComboBox<Rating> ratingComboBox;
+
+	@FXML
+	private DatePicker validFromPicker;
+
+	@FXML
+	private DatePicker validToPicker;
+
+	@FXML
+	private Button addRatingButton;
+
+	@FXML
+	private Button removeRatingButton;
+
+	private RatingBusinessDelegate ratingBusinessDelegate;
+
 	private BondBusinessDelegate bondBusinessDelegate;
 
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
 		bondBusinessDelegate = new BondBusinessDelegate();
+		ratingBusinessDelegate = new RatingBusinessDelegate();
+
+		addRatingButton.setDisable(true);
+		removeRatingButton.setDisable(true);
+
+		agencyCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getRating().getAgency().getName()));
+		ratingCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getRating().getCode()));
+		fromCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getValidFrom().toString()));
+		toCol.setCellValueFactory(p -> new SimpleStringProperty(
+				p.getValue().getValidTo() != null ? p.getValue().getValidTo().toString() : ""));
+
+		Set<RatingAgency> agencies = ratingBusinessDelegate.getAllRatingAgencies();
+		if (agencies != null) {
+			List<RatingAgency> activeAgencies = new ArrayList<>();
+			for (RatingAgency ag : agencies) {
+				if (ag.isActive()) {
+					activeAgencies.add(ag);
+				}
+			}
+			Collections.sort(activeAgencies);
+			agencyComboBox.setItems(FXCollections.observableArrayList(activeAgencies));
+		}
+
+		agencyComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+			if (newVal != null) {
+				try {
+					Set<Rating> ratings = ratingBusinessDelegate.getRatingsByAgencyId(newVal.getId());
+					ratingComboBox.setItems(FXCollections.observableArrayList(ratings));
+				} catch (TradistaBusinessException e) {
+					ratingComboBox.getItems().clear();
+				}
+			} else {
+				ratingComboBox.getItems().clear();
+			}
+		});
 
 		productType.setText("Bond");
 
@@ -458,6 +541,11 @@ public class BondDefinitionController implements TradistaController {
 		exchange.setVisible(false);
 		isinLabel.setVisible(true);
 		exchangeLabel.setVisible(true);
+
+		loadRatings();
+
+		addRatingButton.setDisable(false);
+		removeRatingButton.setDisable(false);
 	}
 
 	@Override
@@ -479,6 +567,71 @@ public class BondDefinitionController implements TradistaController {
 		exchangeLabel.setText(StringUtils.EMPTY);
 		exchange.setVisible(true);
 		exchangeLabel.setVisible(false);
+
+		if (ratingsTable.getItems() != null) {
+			ratingsTable.getItems().clear();
+		}
+		agencyComboBox.setValue(null);
+		ratingComboBox.setValue(null);
+		validFromPicker.setValue(null);
+		validToPicker.setValue(null);
+		addRatingButton.setDisable(true);
+		removeRatingButton.setDisable(true);
+	}
+
+	@FXML
+	protected void addRating() {
+		if (bond == null || bond.getId() == 0) {
+			new TradistaAlert(AlertType.ERROR, "Please save or load a bond first.").showAndWait();
+			return;
+		}
+		if (ratingComboBox.getValue() == null || validFromPicker.getValue() == null) {
+			new TradistaAlert(AlertType.ERROR, "Rating and Valid From are mandatory").showAndWait();
+			return;
+		}
+		RatingAssignment assignment = new RatingAssignment();
+		assignment.setRatedObject(bond);
+		assignment.setRating(ratingComboBox.getValue());
+		assignment.setValidFrom(validFromPicker.getValue());
+		assignment.setValidTo(validToPicker.getValue());
+
+		try {
+			long id = ratingBusinessDelegate.saveRatingAssignment(assignment);
+			assignment.setId(id);
+			ratingsTable.getItems().add(assignment);
+		} catch (TradistaBusinessException ex) {
+			new TradistaAlert(AlertType.ERROR, ex.getMessage()).showAndWait();
+		}
+	}
+
+	@FXML
+	protected void removeRating() {
+		RatingAssignment selected = ratingsTable.getSelectionModel().getSelectedItem();
+		if (selected != null) {
+			try {
+				ratingBusinessDelegate.deleteRatingAssignment(selected.getId());
+				ratingsTable.getItems().remove(selected);
+			} catch (TradistaBusinessException ex) {
+				new TradistaAlert(AlertType.ERROR, ex.getMessage()).showAndWait();
+			}
+		}
+	}
+
+	private void loadRatings() {
+		if (ratingsTable.getItems() != null) {
+			ratingsTable.getItems().clear();
+		}
+		if (bond != null && bond.getId() != 0) {
+			try {
+				Set<RatingAssignment> assignments = ratingBusinessDelegate
+						.getRatingAssignmentsByRatedObjectId(bond.getId(), Bond.BOND);
+				if (assignments != null) {
+					ratingsTable.setItems(FXCollections.observableArrayList(assignments));
+				}
+			} catch (TradistaBusinessException e) {
+				new TradistaAlert(AlertType.ERROR, e.getMessage()).showAndWait();
+			}
+		}
 	}
 
 	@Override

@@ -61,6 +61,7 @@ import org.eclipse.tradista.core.productinventory.service.ProductInventoryServic
 import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.core.transfer.service.FixingErrorService;
 import org.eclipse.tradista.core.transfer.service.TransferService;
+import org.eclipse.tradista.core.rating.service.RatingService;
 import org.eclipse.tradista.core.user.service.UserService;
 import org.eclipse.tradista.core.workflow.service.WorkflowService;
 import org.eclipse.tradista.fx.common.service.FXInformationService;
@@ -281,6 +282,8 @@ public class TradistaServiceLocator {
 
 	private static final String BOOK_SERVICE_PACKAGE = CORE_PACKAGE + ".book.service";
 
+	private static final String RATING_SERVICE_PACKAGE = CORE_PACKAGE + ".rating.service";
+
 	private Context context;
 
 	private Map<String, Object> services;
@@ -407,6 +410,10 @@ public class TradistaServiceLocator {
 
 	public CalendarService getCalendarService() {
 		return (CalendarService) getService(APP, CORE_EJB, CALENDAR_SERVICE_PACKAGE, "CalendarService");
+	}
+
+	public RatingService getRatingService() {
+		return (RatingService) getService(APP, CORE_EJB, RATING_SERVICE_PACKAGE, "RatingService");
 	}
 
 	public DateRuleService getDateRuleService() {

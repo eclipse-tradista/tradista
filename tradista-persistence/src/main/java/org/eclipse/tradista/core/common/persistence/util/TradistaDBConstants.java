@@ -33,6 +33,8 @@ public final class TradistaDBConstants {
 	public static final String VALUE = "VALUE";
 	public static final String STATUS = "STATUS";
 	public static final String NAME = "NAME";
+	public static final String CODE = "CODE";
+	public static final String ACTIVE = "ACTIVE";
 	public static final String DESCRIPTION = "DESCRIPTION";
 	public static final String STATUS_ID = "STATUS_ID";
 	public static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
