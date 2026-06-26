@@ -25,7 +25,7 @@ public class RatingAssignment extends TradistaObject {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	private RatedObject ratedObject;
+	private Ratable ratable;
 
 	@Id
 	private Rating rating;
@@ -35,31 +35,22 @@ public class RatingAssignment extends TradistaObject {
 
 	private LocalDate validTo;
 
-	public RatingAssignment() {
+	public RatingAssignment(Ratable ratable, Rating rating, LocalDate validFrom) {
+		this.ratable = ratable;
+		this.rating = rating;
+		this.validFrom = validFrom;
 	}
 
-	public RatedObject getRatedObject() {
-		return ratedObject;
-	}
-
-	public void setRatedObject(RatedObject ratedObject) {
-		this.ratedObject = ratedObject;
+	public Ratable getRatable() {
+		return ratable;
 	}
 
 	public Rating getRating() {
 		return rating;
 	}
 
-	public void setRating(Rating rating) {
-		this.rating = rating;
-	}
-
 	public LocalDate getValidFrom() {
 		return validFrom;
-	}
-
-	public void setValidFrom(LocalDate validFrom) {
-		this.validFrom = validFrom;
 	}
 
 	public LocalDate getValidTo() {

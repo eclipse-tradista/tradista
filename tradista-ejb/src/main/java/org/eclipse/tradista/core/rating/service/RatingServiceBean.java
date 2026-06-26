@@ -15,6 +15,8 @@
  ********************************************************************************/
 package org.eclipse.tradista.core.rating.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -61,14 +63,16 @@ public class RatingServiceBean implements RatingService {
 		} else {
 			boolean deleted = RatingSQL.deleteRatingAgency(id);
 			if (deleted) {
-				java.time.LocalDate today = java.time.LocalDate.now();
-				for (Rating rating : ratings) {
-					Set<RatingAssignment> assignments = RatingSQL.getRatingAssignmentsByRatingId(rating.getId());
-					if (assignments != null) {
-						for (RatingAssignment assignment : assignments) {
-							if (assignment.getValidTo() == null || assignment.getValidTo().isAfter(today)) {
-								assignment.setValidTo(today);
-								RatingSQL.saveRatingAssignment(assignment);
+				java.time.LocalDate today = LocalDate.now(ZoneId.systemDefault());
+				if (ratings != null) {
+					for (Rating rating : ratings) {
+						Set<RatingAssignment> assignments = RatingSQL.getRatingAssignmentsByRatingId(rating.getId());
+						if (assignments != null) {
+							for (RatingAssignment assignment : assignments) {
+								if (assignment.getValidTo() == null || assignment.getValidTo().isAfter(today)) {
+									assignment.setValidTo(today);
+									RatingSQL.saveRatingAssignment(assignment);
+								}
 							}
 						}
 					}
@@ -128,9 +132,8 @@ public class RatingServiceBean implements RatingService {
 	@Override
 	public long saveRatingAssignment(RatingAssignment ratingAssignment) throws TradistaBusinessException {
 		// Historical validation: no overlapping dates for the same agency
-		Set<RatingAssignment> existingAssignments = getRatingAssignmentsByRatedObjectId(
-				ratingAssignment.getRatedObject().getId(),
-				ratingAssignment.getRatedObject().getClass().getSimpleName());
+		Set<RatingAssignment> existingAssignments = getRatingAssignmentsByRatableId(
+				ratingAssignment.getRatable().getId(), ratingAssignment.getRatable().getClass().getSimpleName());
 
 		if (existingAssignments != null) {
 			for (RatingAssignment existing : existingAssignments) {
@@ -166,8 +169,8 @@ public class RatingServiceBean implements RatingService {
 	}
 
 	@Override
-	public Set<RatingAssignment> getRatingAssignmentsByRatedObjectId(long ratedObjectId, String ratedObjectType) {
-		return RatingSQL.getRatingAssignmentsByRatedObjectId(ratedObjectId, ratedObjectType);
+	public Set<RatingAssignment> getRatingAssignmentsByRatableId(long ratableId, String ratableType) {
+		return RatingSQL.getRatingAssignmentsByRatableId(ratableId, ratableType);
 	}
 
 }

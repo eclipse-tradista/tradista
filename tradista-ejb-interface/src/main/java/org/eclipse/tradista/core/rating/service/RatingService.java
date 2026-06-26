@@ -51,6 +51,6 @@ public interface RatingService {
 
 	boolean deleteRatingAssignment(long id) throws TradistaBusinessException;
 
-	Set<RatingAssignment> getRatingAssignmentsByRatedObjectId(long ratedObjectId, String ratedObjectType);
+	Set<RatingAssignment> getRatingAssignmentsByRatableId(long ratableId, String ratableType);
 
 }

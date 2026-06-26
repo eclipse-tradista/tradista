@@ -1,7 +1,11 @@
 package org.eclipse.tradista.security.equity.ui.controller;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,36 +18,28 @@ import org.eclipse.tradista.core.common.ui.view.TradistaChoiceDialog;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.rating.model.Rating;
+import org.eclipse.tradista.core.rating.model.RatingAgency;
+import org.eclipse.tradista.core.rating.model.RatingAssignment;
+import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.service.EquityBusinessDelegate;
 import org.eclipse.tradista.security.equity.ui.view.EquityCreatorDialog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.eclipse.tradista.core.rating.model.Rating;
-import org.eclipse.tradista.core.rating.model.RatingAgency;
-import org.eclipse.tradista.core.rating.model.RatingAssignment;
-import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
-
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.Button;
-
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 /********************************************************************************
@@ -187,7 +183,7 @@ public class EquityDefinitionController implements TradistaController {
 		ratingCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getRating().getCode()));
 		fromCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getValidFrom().toString()));
 		toCol.setCellValueFactory(p -> new SimpleStringProperty(
-				p.getValue().getValidTo() != null ? p.getValue().getValidTo().toString() : ""));
+				p.getValue().getValidTo() != null ? p.getValue().getValidTo().toString() : StringUtils.EMPTY));
 
 		Set<RatingAgency> agencies = ratingBusinessDelegate.getAllRatingAgencies();
 		if (agencies != null) {
@@ -206,7 +202,7 @@ public class EquityDefinitionController implements TradistaController {
 				try {
 					Set<Rating> ratings = ratingBusinessDelegate.getRatingsByAgencyId(newVal.getId());
 					ratingComboBox.setItems(FXCollections.observableArrayList(ratings));
-				} catch (TradistaBusinessException e) {
+				} catch (TradistaBusinessException _) {
 					ratingComboBox.getItems().clear();
 				}
 			} else {
@@ -250,7 +246,7 @@ public class EquityDefinitionController implements TradistaController {
 			if (!tradingSize.getText().isEmpty()) {
 				equity.setTradingSize(Long.parseLong(tradingSize.getText()));
 			}
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}
@@ -269,7 +265,7 @@ public class EquityDefinitionController implements TradistaController {
 
 				if (isin.isVisible()) {
 					equity = new Equity(exchange.getValue(), isin.getText());
-					equity.setCreationDate(LocalDate.now());
+					equity.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
 				}
 
 				buildProduct(equity);
@@ -439,10 +435,8 @@ public class EquityDefinitionController implements TradistaController {
 			new TradistaAlert(AlertType.ERROR, "Rating and Valid From are mandatory").showAndWait();
 			return;
 		}
-		RatingAssignment assignment = new RatingAssignment();
-		assignment.setRatedObject(equity);
-		assignment.setRating(ratingComboBox.getValue());
-		assignment.setValidFrom(validFromPicker.getValue());
+		RatingAssignment assignment = new RatingAssignment(equity, ratingComboBox.getValue(),
+				validFromPicker.getValue());
 		assignment.setValidTo(validToPicker.getValue());
 
 		try {
@@ -474,7 +468,7 @@ public class EquityDefinitionController implements TradistaController {
 		if (equity != null && equity.getId() != 0) {
 			try {
 				Set<RatingAssignment> assignments = ratingBusinessDelegate
-						.getRatingAssignmentsByRatedObjectId(equity.getId(), Equity.EQUITY);
+						.getRatingAssignmentsByRatableId(equity.getId(), Equity.EQUITY);
 				if (assignments != null) {
 					ratingsTable.setItems(FXCollections.observableArrayList(assignments));
 				}

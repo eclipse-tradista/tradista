@@ -24,6 +24,9 @@ import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALID_FROM;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALID_TO;
+
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
@@ -31,7 +34,7 @@ import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
-import org.eclipse.tradista.core.rating.model.RatedObject;
+import org.eclipse.tradista.core.rating.model.Ratable;
 import org.eclipse.tradista.core.rating.model.Rating;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.model.RatingAssignment;
@@ -42,29 +45,40 @@ public class RatingSQL {
 	private static final Field RATING_AGENCY_NAME_FIELD = new Field(TradistaDBConstants.NAME);
 	private static final Field RATING_AGENCY_ACTIVE_FIELD = new Field(TradistaDBConstants.ACTIVE);
 
-	public static final Table RATING_AGENCY_TABLE = new Table("RATING_AGENCY",
-			new Field[] { RATING_AGENCY_ID_FIELD, RATING_AGENCY_NAME_FIELD, RATING_AGENCY_ACTIVE_FIELD });
-	private static final String SELECT_RATING_AGENCY_QUERY = TradistaDBUtil.buildSelectQuery(RATING_AGENCY_TABLE);
-
 	private static final Field RATING_ID_FIELD = new Field(TradistaDBConstants.ID);
 	private static final Field RATING_CODE_FIELD = new Field(TradistaDBConstants.CODE);
 	private static final Field RATING_DESCRIPTION_FIELD = new Field(TradistaDBConstants.DESCRIPTION);
 	private static final Field RATING_AGENCY_FK_FIELD = new Field("RATING_AGENCY_ID");
 
-	public static final Table RATING_TABLE = new Table("RATING",
-			new Field[] { RATING_ID_FIELD, RATING_CODE_FIELD, RATING_DESCRIPTION_FIELD, RATING_AGENCY_FK_FIELD });
-	private static final String SELECT_RATING_QUERY = TradistaDBUtil.buildSelectQuery(RATING_TABLE);
-
 	private static final Field ASSIGNMENT_ID_FIELD = new Field(TradistaDBConstants.ID);
 	private static final Field RATED_OBJECT_ID_FIELD = new Field("RATED_OBJECT_ID");
 	private static final Field RATED_OBJECT_TYPE_FIELD = new Field("RATED_OBJECT_TYPE");
 	private static final Field ASSIGNMENT_RATING_ID_FIELD = new Field("RATING_ID");
-	private static final Field VALID_FROM_FIELD = new Field("VALID_FROM");
-	private static final Field VALID_TO_FIELD = new Field("VALID_TO");
+	private static final Field VALID_FROM_FIELD = new Field(VALID_FROM);
+	private static final Field VALID_TO_FIELD = new Field(VALID_TO);
 
-	public static final Table RATING_ASSIGNMENT_TABLE = new Table("RATING_ASSIGNMENT",
-			new Field[] { ASSIGNMENT_ID_FIELD, RATED_OBJECT_ID_FIELD, RATED_OBJECT_TYPE_FIELD,
-					ASSIGNMENT_RATING_ID_FIELD, VALID_FROM_FIELD, VALID_TO_FIELD });
+	private static final Field[] RATING_AGENCY_FIELDS = { RATING_AGENCY_ID_FIELD, RATING_AGENCY_NAME_FIELD,
+			RATING_AGENCY_ACTIVE_FIELD };
+	private static final Field[] RATING_AGENCY_INSERT_OR_UPDATE_FIELDS = { RATING_AGENCY_NAME_FIELD,
+			RATING_AGENCY_ACTIVE_FIELD };
+	private static final Field[] RATING_AGENCY_ACTIVE_UPDATE_FIELD = { RATING_AGENCY_ACTIVE_FIELD };
+
+	private static final Field[] RATING_FIELDS = { RATING_ID_FIELD, RATING_CODE_FIELD, RATING_DESCRIPTION_FIELD,
+			RATING_AGENCY_FK_FIELD };
+	private static final Field[] RATING_INSERT_OR_UPDATE_FIELDS = { RATING_CODE_FIELD, RATING_DESCRIPTION_FIELD,
+			RATING_AGENCY_FK_FIELD };
+
+	private static final Field[] RATING_ASSIGNMENT_FIELDS = { ASSIGNMENT_ID_FIELD, RATED_OBJECT_ID_FIELD,
+			RATED_OBJECT_TYPE_FIELD, ASSIGNMENT_RATING_ID_FIELD, VALID_FROM_FIELD, VALID_TO_FIELD };
+	private static final Field[] RATING_ASSIGNMENT_INSERT_OR_UPDATE_FIELDS = { RATED_OBJECT_ID_FIELD,
+			RATED_OBJECT_TYPE_FIELD, ASSIGNMENT_RATING_ID_FIELD, VALID_FROM_FIELD, VALID_TO_FIELD };
+
+	public static final Table RATING_AGENCY_TABLE = new Table("RATING_AGENCY", RATING_AGENCY_FIELDS);
+	public static final Table RATING_TABLE = new Table("RATING", RATING_FIELDS);
+	public static final Table RATING_ASSIGNMENT_TABLE = new Table("RATING_ASSIGNMENT", RATING_ASSIGNMENT_FIELDS);
+
+	private static final String SELECT_RATING_AGENCY_QUERY = TradistaDBUtil.buildSelectQuery(RATING_AGENCY_TABLE);
+	private static final String SELECT_RATING_QUERY = TradistaDBUtil.buildSelectQuery(RATING_TABLE);
 	private static final String SELECT_RATING_ASSIGNMENT_QUERY = TradistaDBUtil
 			.buildSelectQuery(RATING_ASSIGNMENT_TABLE);
 
@@ -73,9 +87,9 @@ public class RatingSQL {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveRatingAgency = (ratingAgency.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, RATING_AGENCY_TABLE,
-								new Field[] { RATING_AGENCY_NAME_FIELD, RATING_AGENCY_ACTIVE_FIELD })
+								RATING_AGENCY_INSERT_OR_UPDATE_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, RATING_AGENCY_ID_FIELD, RATING_AGENCY_TABLE,
-								new Field[] { RATING_AGENCY_NAME_FIELD, RATING_AGENCY_ACTIVE_FIELD })) {
+								RATING_AGENCY_INSERT_OR_UPDATE_FIELDS)) {
 
 			if (ratingAgency.getId() != 0) {
 				stmtSaveRatingAgency.setLong(3, ratingAgency.getId());
@@ -97,7 +111,6 @@ public class RatingSQL {
 				id = ratingAgency.getId();
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		ratingAgency.setId(id);
@@ -107,12 +120,11 @@ public class RatingSQL {
 	public static boolean deleteRatingAgency(long id) {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmt = TradistaDBUtil.buildUpdatePreparedStatement(con, RATING_AGENCY_ID_FIELD,
-						RATING_AGENCY_TABLE, new Field[] { RATING_AGENCY_ACTIVE_FIELD })) {
+						RATING_AGENCY_TABLE, RATING_AGENCY_ACTIVE_UPDATE_FIELD)) {
 			stmt.setBoolean(1, false);
 			stmt.setLong(2, id);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -124,7 +136,6 @@ public class RatingSQL {
 			stmt.setLong(1, id);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -144,7 +155,6 @@ public class RatingSQL {
 				ratingAgencies.add(ratingAgency);
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ratingAgencies;
@@ -166,7 +176,6 @@ public class RatingSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ratingAgency;
@@ -188,7 +197,6 @@ public class RatingSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ratingAgency;
@@ -198,10 +206,9 @@ public class RatingSQL {
 		long id = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveRating = (rating.getId() == 0)
-						? TradistaDBUtil.buildInsertPreparedStatement(con, RATING_TABLE,
-								new Field[] { RATING_CODE_FIELD, RATING_DESCRIPTION_FIELD, RATING_AGENCY_FK_FIELD })
+						? TradistaDBUtil.buildInsertPreparedStatement(con, RATING_TABLE, RATING_INSERT_OR_UPDATE_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, RATING_ID_FIELD, RATING_TABLE,
-								new Field[] { RATING_CODE_FIELD, RATING_DESCRIPTION_FIELD, RATING_AGENCY_FK_FIELD })) {
+								RATING_INSERT_OR_UPDATE_FIELDS)) {
 
 			if (rating.getId() != 0) {
 				stmtSaveRating.setLong(4, rating.getId());
@@ -230,7 +237,6 @@ public class RatingSQL {
 			}
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		rating.setId(id);
@@ -244,7 +250,6 @@ public class RatingSQL {
 			stmt.setLong(1, id);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -265,7 +270,6 @@ public class RatingSQL {
 				ratings.add(rating);
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ratings;
@@ -292,7 +296,6 @@ public class RatingSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return ratings;
@@ -315,7 +318,6 @@ public class RatingSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return rating;
@@ -326,18 +328,16 @@ public class RatingSQL {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSave = (ratingAssignment.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, RATING_ASSIGNMENT_TABLE,
-								new Field[] { RATED_OBJECT_ID_FIELD, RATED_OBJECT_TYPE_FIELD,
-										ASSIGNMENT_RATING_ID_FIELD, VALID_FROM_FIELD, VALID_TO_FIELD })
+								RATING_ASSIGNMENT_INSERT_OR_UPDATE_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, ASSIGNMENT_ID_FIELD, RATING_ASSIGNMENT_TABLE,
-								new Field[] { RATED_OBJECT_ID_FIELD, RATED_OBJECT_TYPE_FIELD,
-										ASSIGNMENT_RATING_ID_FIELD, VALID_FROM_FIELD, VALID_TO_FIELD })) {
+								RATING_ASSIGNMENT_INSERT_OR_UPDATE_FIELDS)) {
 
 			if (ratingAssignment.getId() != 0) {
 				stmtSave.setLong(6, ratingAssignment.getId());
 			}
 
-			stmtSave.setLong(1, ratingAssignment.getRatedObject().getId());
-			stmtSave.setString(2, ratingAssignment.getRatedObject().getClass().getSimpleName());
+			stmtSave.setLong(1, ratingAssignment.getRatable().getId());
+			stmtSave.setString(2, ratingAssignment.getRatable().getClass().getSimpleName());
 			stmtSave.setLong(3, ratingAssignment.getRating().getId());
 			stmtSave.setDate(4, Date.valueOf(ratingAssignment.getValidFrom()));
 			if (ratingAssignment.getValidTo() != null) {
@@ -361,7 +361,6 @@ public class RatingSQL {
 			}
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		ratingAssignment.setId(id);
@@ -375,13 +374,11 @@ public class RatingSQL {
 			stmt.setLong(1, id);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
 
-	public static Set<RatingAssignment> getRatingAssignmentsByRatedObjectId(long ratedObjectId,
-			String ratedObjectType) {
+	public static Set<RatingAssignment> getRatingAssignmentsByRatableId(long ratableId, String ratableType) {
 		Set<RatingAssignment> assignments = null;
 		StringBuilder sqlQuery = new StringBuilder(SELECT_RATING_ASSIGNMENT_QUERY);
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, RATED_OBJECT_ID_FIELD);
@@ -389,30 +386,29 @@ public class RatingSQL {
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmt = con.prepareStatement(sqlQuery.toString())) {
-			stmt.setLong(1, ratedObjectId);
-			stmt.setString(2, ratedObjectType);
+			stmt.setLong(1, ratableId);
+			stmt.setString(2, ratableType);
 			try (ResultSet results = stmt.executeQuery()) {
 				while (results.next()) {
 					if (assignments == null) {
 						assignments = new HashSet<RatingAssignment>();
 					}
-					RatingAssignment assignment = new RatingAssignment();
+					Rating rating = getRatingById(results.getLong(ASSIGNMENT_RATING_ID_FIELD.getName()));
+					java.time.LocalDate validFrom = results.getDate(VALID_FROM_FIELD.getName()).toLocalDate();
+					Ratable ratable = (Ratable) ProductSQL.getProductById(ratableId);
+
+					RatingAssignment assignment = new RatingAssignment(ratable, rating, validFrom);
 					assignment.setId(results.getLong(ASSIGNMENT_ID_FIELD.getName()));
-					assignment.setRating(getRatingById(results.getLong(ASSIGNMENT_RATING_ID_FIELD.getName())));
-					assignment.setValidFrom(results.getDate(VALID_FROM_FIELD.getName()).toLocalDate());
+
 					java.sql.Date validToDate = results.getDate(VALID_TO_FIELD.getName());
 					if (validToDate != null) {
 						assignment.setValidTo(validToDate.toLocalDate());
 					}
 
-					RatedObject ratedObject = (RatedObject) ProductSQL.getProductById(ratedObjectId);
-					assignment.setRatedObject(ratedObject);
-
 					assignments.add(assignment);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return assignments;
@@ -431,24 +427,23 @@ public class RatingSQL {
 					if (assignments == null) {
 						assignments = new HashSet<RatingAssignment>();
 					}
-					RatingAssignment assignment = new RatingAssignment();
+					Rating rating = getRatingById(results.getLong(ASSIGNMENT_RATING_ID_FIELD.getName()));
+					java.time.LocalDate validFrom = results.getDate(VALID_FROM_FIELD.getName()).toLocalDate();
+					Ratable ratable = (Ratable) ProductSQL
+							.getProductById(results.getLong(RATED_OBJECT_ID_FIELD.getName()));
+
+					RatingAssignment assignment = new RatingAssignment(ratable, rating, validFrom);
 					assignment.setId(results.getLong(ASSIGNMENT_ID_FIELD.getName()));
-					assignment.setRating(getRatingById(results.getLong(ASSIGNMENT_RATING_ID_FIELD.getName())));
-					assignment.setValidFrom(results.getDate(VALID_FROM_FIELD.getName()).toLocalDate());
+
 					java.sql.Date validToDate = results.getDate(VALID_TO_FIELD.getName());
 					if (validToDate != null) {
 						assignment.setValidTo(validToDate.toLocalDate());
 					}
 
-					RatedObject ratedObject = (RatedObject) ProductSQL
-							.getProductById(results.getLong(RATED_OBJECT_ID_FIELD.getName()));
-					assignment.setRatedObject(ratedObject);
-
 					assignments.add(assignment);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return assignments;

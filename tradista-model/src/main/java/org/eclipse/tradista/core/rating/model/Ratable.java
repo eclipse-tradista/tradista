@@ -17,6 +17,6 @@ package org.eclipse.tradista.core.rating.model;
 
 import java.io.Serializable;
 
-public interface RatedObject extends Serializable {
+public interface Ratable extends Serializable {
 	long getId();
 }

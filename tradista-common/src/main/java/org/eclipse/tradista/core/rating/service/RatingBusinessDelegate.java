@@ -115,24 +115,23 @@ public class RatingBusinessDelegate {
 		return SecurityUtil.runEx(() -> ratingService.deleteRating(id));
 	}
 
-	public Set<RatingAssignment> getRatingAssignmentsByRatedObjectId(long ratedObjectId, String ratedObjectType)
+	public Set<RatingAssignment> getRatingAssignmentsByRatableId(long ratableId, String ratableType)
 			throws TradistaBusinessException {
-		if (ratedObjectId <= 0) {
-			throw new TradistaBusinessException("The rated object id must be positive.");
+		if (ratableId <= 0) {
+			throw new TradistaBusinessException("The ratable object id must be positive.");
 		}
-		if (StringUtils.isBlank(ratedObjectType)) {
-			throw new TradistaBusinessException("The rated object type cannot be empty.");
+		if (StringUtils.isBlank(ratableType)) {
+			throw new TradistaBusinessException("The ratable object type cannot be empty.");
 		}
-		return SecurityUtil
-				.run(() -> ratingService.getRatingAssignmentsByRatedObjectId(ratedObjectId, ratedObjectType));
+		return SecurityUtil.run(() -> ratingService.getRatingAssignmentsByRatableId(ratableId, ratableType));
 	}
 
 	public long saveRatingAssignment(RatingAssignment ratingAssignment) throws TradistaBusinessException {
 		if (ratingAssignment == null) {
 			throw new TradistaBusinessException("The rating assignment cannot be null.");
 		}
-		if (ratingAssignment.getRatedObject() == null) {
-			throw new TradistaBusinessException("The rated object is mandatory.");
+		if (ratingAssignment.getRatable() == null) {
+			throw new TradistaBusinessException("The ratable object is mandatory.");
 		}
 		if (ratingAssignment.getRating() == null) {
 			throw new TradistaBusinessException("The rating is mandatory.");

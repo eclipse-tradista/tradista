@@ -15,7 +15,10 @@
  ********************************************************************************/
 package org.eclipse.tradista.core.rating.model;
 
+import java.util.List;
+
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 
 public class Rating extends TradistaObject implements Comparable<Rating> {
@@ -40,7 +43,7 @@ public class Rating extends TradistaObject implements Comparable<Rating> {
 	}
 
 	public RatingAgency getAgency() {
-		return agency;
+		return TradistaModelUtil.clone(agency);
 	}
 
 	public String getDescription() {
@@ -63,5 +66,13 @@ public class Rating extends TradistaObject implements Comparable<Rating> {
 			return agencyComp;
 		}
 		return code.compareTo(rating.getCode());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Rating clone() {
+		Rating rating = (Rating) super.clone();
+		rating.agency = TradistaModelUtil.clone(agency);
+		return rating;
 	}
 }

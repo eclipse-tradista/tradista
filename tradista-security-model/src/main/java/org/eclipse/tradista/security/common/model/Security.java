@@ -9,7 +9,7 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.product.model.Product;
-import org.eclipse.tradista.core.rating.model.RatedObject;
+import org.eclipse.tradista.core.rating.model.Ratable;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion
@@ -27,7 +27,7 @@ import org.eclipse.tradista.core.rating.model.RatedObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Security extends Product implements RatedObject {
+public abstract class Security extends Product implements Ratable {
 
 	private static final long serialVersionUID = 2413499120965894034L;
 

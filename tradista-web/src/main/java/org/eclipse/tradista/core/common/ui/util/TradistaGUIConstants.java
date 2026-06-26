@@ -22,6 +22,8 @@ public final class TradistaGUIConstants {
 
 	public static final String FLOATING = "Floating";
 
+	public static final String ERROR = "Error";
+
 	private TradistaGUIConstants() {
 	}
 

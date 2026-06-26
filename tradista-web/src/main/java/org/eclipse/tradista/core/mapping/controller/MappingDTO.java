@@ -1,8 +1,3 @@
-package org.eclipse.tradista.core.mapping.controller;
-
-import java.io.Serializable;
-import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
-
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
  * 
@@ -18,6 +13,11 @@ import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+
+package org.eclipse.tradista.core.mapping.controller;
+
+import java.io.Serializable;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 
 public class MappingDTO implements Serializable {
 

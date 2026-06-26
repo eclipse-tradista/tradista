@@ -15,6 +15,8 @@
  ********************************************************************************/
 package org.eclipse.tradista.core.rating.ui.controller;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.rating.model.Rating;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.ERROR;
 import org.primefaces.event.CellEditEvent;
 import jakarta.faces.component.UIComponent;
 
@@ -52,9 +55,14 @@ public class RatingAgencyController implements Serializable {
 	private String newAgencyName;
 
 	private String newRatingCode;
+
 	private String newRatingDescription;
 
-	private RatingBusinessDelegate ratingBusinessDelegate;
+	private transient RatingBusinessDelegate ratingBusinessDelegate;
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		ratingBusinessDelegate = new RatingBusinessDelegate();
+	}
 
 	@PostConstruct
 	public void init() {
@@ -87,7 +95,7 @@ public class RatingAgencyController implements Serializable {
 				}
 			} catch (TradistaBusinessException e) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
 			}
 		}
 	}
@@ -95,7 +103,7 @@ public class RatingAgencyController implements Serializable {
 	public void saveAgency() {
 		if (StringUtils.isBlank(newAgencyName)) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Agency name is mandatory."));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, "Agency name is mandatory."));
 			return;
 		}
 		try {
@@ -111,26 +119,26 @@ public class RatingAgencyController implements Serializable {
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating Agency successfully saved."));
 		} catch (TradistaBusinessException e) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
 		}
 	}
 
 	public void saveRating() {
 		if (agency == null) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please select an agency first."));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, "Please select an agency first."));
 			return;
 		}
 		if (StringUtils.isBlank(newRatingCode)) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Rating code is mandatory."));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, "Rating code is mandatory."));
 			return;
 		}
 		if (ratings != null) {
 			for (RatingDTO r : ratings) {
 				if (r.getCode().equals(newRatingCode)) {
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-							"Error", "A rating with this code already exists."));
+							ERROR, "A rating with this code already exists."));
 					return;
 				}
 			}
@@ -150,7 +158,7 @@ public class RatingAgencyController implements Serializable {
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating successfully saved."));
 		} catch (TradistaBusinessException e) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
 		}
 	}
 
@@ -162,14 +170,14 @@ public class RatingAgencyController implements Serializable {
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating successfully deleted."));
 		} catch (TradistaBusinessException e) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
 		}
 	}
 
 	public void deleteAgency() {
 		if (agency == null) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please select an agency first."));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, "Please select an agency first."));
 			return;
 		}
 		try {
@@ -194,7 +202,7 @@ public class RatingAgencyController implements Serializable {
 			loadAllAgencies();
 		} catch (Exception e) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
 		}
 	}
 
@@ -207,13 +215,13 @@ public class RatingAgencyController implements Serializable {
 			RatingDTO editedRating = ratings.get(rowIndex);
 
 			Map<String, Object> attributes = ((UIComponent) event.getColumn()).getAttributes();
-			boolean isCodeColumn = "code".equals(attributes.get("colKey"));
+			boolean isCodeColumn = attributes.get("colKey").equals("code");
 
 			if (isCodeColumn) {
 				for (RatingDTO r : ratings) {
 					if (r != editedRating && r.getCode().equals(newValue)) {
 						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-								"Error", "A rating with this code already exists."));
+								ERROR, "A rating with this code already exists."));
 						editedRating.setCode(oldValue);
 						return;
 					}
@@ -229,7 +237,7 @@ public class RatingAgencyController implements Serializable {
 						new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating successfully updated."));
 			} catch (TradistaBusinessException e) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
 				if (isCodeColumn) {
 					editedRating.setCode(oldValue);
 				} else {
