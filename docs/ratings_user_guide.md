@@ -1,6 +1,6 @@
 # User Guide: Ratings Management (Ticket 321)
 
-This document describes the concepts and management of **Ratings** (financial credit ratings) associated with financial products (Bonds, Equities, etc.) within Tradista.
+This document describes the concepts and management of **Ratings** (financial credit ratings) associated with financial products (Bonds, Equities, etc.) within Eclipse Tradista.
 
 ---
 
