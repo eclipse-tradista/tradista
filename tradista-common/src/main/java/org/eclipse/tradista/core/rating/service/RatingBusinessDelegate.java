@@ -91,20 +91,26 @@ public class RatingBusinessDelegate {
 	}
 
 	public long saveRating(Rating rating) throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
 		if (rating == null) {
 			throw new TradistaBusinessException("The rating cannot be null.");
 		}
 		if (StringUtils.isBlank(rating.getCode())) {
-			throw new TradistaBusinessException("The rating code cannot be empty.");
-		}
-		if (rating.getCode().length() > 20) {
-			throw new TradistaBusinessException("The rating code cannot exceed 20 characters.");
+			errMsg.append(String.format("The rating code cannot be empty.%n"));
+		} else {
+			if (rating.getCode().length() > 20) {
+				errMsg.append(String.format("The rating code (%s) cannot exceed 20 characters.%n", rating.getCode()));
+			}
 		}
 		if (rating.getDescription() != null && rating.getDescription().length() > 255) {
-			throw new TradistaBusinessException("The description cannot exceed 255 characters.");
+			errMsg.append(
+					String.format("The description (%s) cannot exceed 255 characters.%n", rating.getDescription()));
 		}
 		if (rating.getAgency() == null) {
-			throw new TradistaBusinessException("The rating agency is mandatory.");
+			errMsg.append("The rating agency is mandatory.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.runEx(() -> ratingService.saveRating(rating));
 	}
@@ -118,11 +124,15 @@ public class RatingBusinessDelegate {
 
 	public Set<RatingAssignment> getRatingAssignmentsByRatableId(long ratableId, String ratableType)
 			throws TradistaBusinessException {
+		StringBuilder errMsg = new StringBuilder();
 		if (ratableId <= 0) {
-			throw new TradistaBusinessException("The ratable object id must be positive.");
+			errMsg.append(String.format("The ratable object id must be positive.%n"));
 		}
 		if (StringUtils.isBlank(ratableType)) {
-			throw new TradistaBusinessException("The ratable object type cannot be empty.");
+			errMsg.append("The ratable object type cannot be empty.");
+		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
 		}
 		return SecurityUtil.run(() -> ratingService.getRatingAssignmentsByRatableId(ratableId, ratableType));
 	}
