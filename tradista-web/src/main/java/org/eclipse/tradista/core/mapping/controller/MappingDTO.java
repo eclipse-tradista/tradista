@@ -1,5 +1,3 @@
-package org.eclipse.tradista.core.common.ui.util;
-
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
  * 
@@ -16,15 +14,39 @@ package org.eclipse.tradista.core.common.ui.util;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaGUIConstants {
+package org.eclipse.tradista.core.mapping.controller;
 
-	public static final String FIXED = "Fixed";
+import java.io.Serializable;
+import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 
-	public static final String FLOATING = "Floating";
+public class MappingDTO implements Serializable {
 
-	public static final String ERROR = "Error";
+	private static final long serialVersionUID = 1L;
 
-	private TradistaGUIConstants() {
+	private String value;
+	private String mappedValue;
+
+	public MappingDTO() {
 	}
 
+	public MappingDTO(Mapping mapping) {
+		this.value = mapping.getValue();
+		this.mappedValue = mapping.getMappedValue();
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public String getMappedValue() {
+		return mappedValue;
+	}
+
+	public void setMappedValue(String mappedValue) {
+		this.mappedValue = mappedValue;
+	}
 }

@@ -347,3 +347,39 @@ body .ui-tooltip.tooltip-ai.ui-tooltip-top .ui-tooltip-arrow {
 body .ui-tooltip.tooltip-ai.ui-tooltip-bottom .ui-tooltip-arrow {
 	border-bottom-color: var(--ai-primary-color);
 }
+
+body .ui-tooltip.tooltip-primary .ui-tooltip-text {
+	background-color: var(--primary-brand-color);
+	color: #ffffff;
+}
+
+body .ui-tooltip.tooltip-primary.ui-tooltip-right .ui-tooltip-arrow {
+	border-right-color: var(--primary-brand-color);
+}
+body .ui-tooltip.tooltip-primary.ui-tooltip-left .ui-tooltip-arrow {
+	border-left-color: var(--primary-brand-color);
+}
+body .ui-tooltip.tooltip-primary.ui-tooltip-top .ui-tooltip-arrow {
+	border-top-color: var(--primary-brand-color);
+}
+body .ui-tooltip.tooltip-primary.ui-tooltip-bottom .ui-tooltip-arrow {
+	border-bottom-color: var(--primary-brand-color);
+}
+
+body .ui-tooltip.tooltip-danger .ui-tooltip-text {
+	background-color: #EF4444;
+	color: #ffffff;
+}
+
+body .ui-tooltip.tooltip-danger.ui-tooltip-right .ui-tooltip-arrow {
+	border-right-color: #EF4444;
+}
+body .ui-tooltip.tooltip-danger.ui-tooltip-left .ui-tooltip-arrow {
+	border-left-color: #EF4444;
+}
+body .ui-tooltip.tooltip-danger.ui-tooltip-top .ui-tooltip-arrow {
+	border-top-color: #EF4444;
+}
+body .ui-tooltip.tooltip-danger.ui-tooltip-bottom .ui-tooltip-arrow {
+	border-bottom-color: #EF4444;
+}

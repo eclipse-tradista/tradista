@@ -1,4 +1,7 @@
 connect 'jdbc:derby://localhost:1527/Tradista;create=true';
+run '../sql/RATING_AGENCY.sql';
+run '../sql/RATING.sql';
+run '../sql/RATING_ASSIGNMENT.sql';
 run '../sql/INT_MESSAGE.sql';
 run '../sql/INT_GROUP_TO_MESSAGE.sql';
 run '../sql/INT_MESSAGE_GROUP.sql';

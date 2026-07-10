@@ -1,5 +1,3 @@
-package org.eclipse.tradista.core.common.ui.util;
-
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
  * 
@@ -15,16 +13,43 @@ package org.eclipse.tradista.core.common.ui.util;
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+package org.eclipse.tradista.core.rating.model;
 
-public final class TradistaGUIConstants {
+import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TradistaObject;
 
-	public static final String FIXED = "Fixed";
+public class RatingAgency extends TradistaObject implements Comparable<RatingAgency> {
 
-	public static final String FLOATING = "Floating";
+	private static final long serialVersionUID = 1L;
 
-	public static final String ERROR = "Error";
+	@Id
+	private String name;
 
-	private TradistaGUIConstants() {
+	private boolean active = true;
+
+	public RatingAgency(String name) {
+		this.name = name;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	@Override
+	public int compareTo(RatingAgency agency) {
+		return name.compareTo(agency.getName());
+	}
 }

@@ -21,6 +21,7 @@ import org.eclipse.tradista.core.book.service.BookService;
 import org.eclipse.tradista.core.calendar.service.CalendarService;
 import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
 import org.eclipse.tradista.core.common.service.InformationService;
+import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
 import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.currency.service.CurrencyService;
 import org.eclipse.tradista.core.dailypnl.service.DailyPnlService;
@@ -61,6 +62,7 @@ import org.eclipse.tradista.core.productinventory.service.ProductInventoryServic
 import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.core.transfer.service.FixingErrorService;
 import org.eclipse.tradista.core.transfer.service.TransferService;
+import org.eclipse.tradista.core.rating.service.RatingService;
 import org.eclipse.tradista.core.user.service.UserService;
 import org.eclipse.tradista.core.workflow.service.WorkflowService;
 import org.eclipse.tradista.fx.common.service.FXInformationService;
@@ -110,6 +112,8 @@ import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeService;
 import org.eclipse.tradista.security.repo.service.AllocationConfigurationService;
 import org.eclipse.tradista.security.specificrepo.service.SpecificRepoPricerService;
 import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -130,6 +134,8 @@ import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServi
 public class TradistaServiceLocator {
 
 	private static TradistaServiceLocator instance = new TradistaServiceLocator();
+
+	private static final Logger logger = LoggerFactory.getLogger(TradistaServiceLocator.class);
 
 	private static final String APP = "app";
 
@@ -281,6 +287,8 @@ public class TradistaServiceLocator {
 
 	private static final String BOOK_SERVICE_PACKAGE = CORE_PACKAGE + ".book.service";
 
+	private static final String RATING_SERVICE_PACKAGE = CORE_PACKAGE + ".rating.service";
+
 	private Context context;
 
 	private Map<String, Object> services;
@@ -290,7 +298,7 @@ public class TradistaServiceLocator {
 			services = Collections.synchronizedMap(new HashMap<String, Object>());
 			context = new InitialContext();
 		} catch (NamingException ne) {
-			ne.printStackTrace();
+			logger.error(ne.getMessage(), ne);
 		}
 	}
 
@@ -407,6 +415,10 @@ public class TradistaServiceLocator {
 
 	public CalendarService getCalendarService() {
 		return (CalendarService) getService(APP, CORE_EJB, CALENDAR_SERVICE_PACKAGE, "CalendarService");
+	}
+
+	public RatingService getRatingService() {
+		return (RatingService) getService(APP, CORE_EJB, RATING_SERVICE_PACKAGE, "RatingService");
 	}
 
 	public DateRuleService getDateRuleService() {
@@ -689,8 +701,7 @@ public class TradistaServiceLocator {
 			services.put(serviceName, service);
 			return services.get(serviceName);
 		} catch (NamingException ne) {
-			// TODO Have a log instead
-			ne.printStackTrace();
+			logger.error(ne.getMessage(), ne);
 		}
 
 		// If the previous lookup fails, we try the global prefix
@@ -701,8 +712,7 @@ public class TradistaServiceLocator {
 			services.put(serviceName, service);
 			return services.get(serviceName);
 		} catch (NamingException ne) {
-			// TODO Have a log instead
-			ne.printStackTrace();
+			logger.error(ne.getMessage(), ne);
 		}
 
 		return null;
