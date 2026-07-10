@@ -57,9 +57,10 @@ public class RatingBusinessDelegate {
 		}
 		if (StringUtils.isBlank(ratingAgency.getName())) {
 			throw new TradistaBusinessException("The rating agency name cannot be empty.");
-		}
-		if (ratingAgency.getName().length() > 50) {
-			throw new TradistaBusinessException("The rating agency name cannot exceed 50 characters.");
+		} else {
+			if (ratingAgency.getName().length() > 50) {
+				throw new TradistaBusinessException("The rating agency name cannot exceed 50 characters.");
+			}
 		}
 		return SecurityUtil.runEx(() -> ratingService.saveRatingAgency(ratingAgency));
 	}
