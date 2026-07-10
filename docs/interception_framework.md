@@ -1,6 +1,6 @@
-# Tradista Interception Framework
+# Eclipse Tradista Interception Framework
 
-The Tradista Interception Framework is a declarative, annotation-driven system built on top of Jakarta EE Interceptors. It provides a clean and consistent way to handle cross-cutting concerns such as authorization, data segregation, existence validation, and exception handling across the Tradista service layer.
+The Eclipse Tradista Interception Framework is a declarative, annotation-driven system built on top of Jakarta EE Interceptors. It provides a clean and consistent way to handle cross-cutting concerns such as authorization, data segregation, existence validation, and exception handling across the Eclipse Tradista service layer.
 
 ## Overview
 
