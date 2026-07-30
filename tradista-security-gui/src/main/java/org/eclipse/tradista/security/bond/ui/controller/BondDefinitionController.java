@@ -2,6 +2,7 @@ package org.eclipse.tradista.security.bond.ui.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -19,13 +20,26 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.service.BondBusinessDelegate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.eclipse.tradista.core.rating.model.Rating;
+import org.eclipse.tradista.core.rating.model.RatingAgency;
+import org.eclipse.tradista.core.rating.model.RatingAssignment;
+import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
 import org.eclipse.tradista.security.bond.ui.view.BondCreatorDialog;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
@@ -50,6 +64,8 @@ import javafx.scene.control.TextField;
  ********************************************************************************/
 
 public class BondDefinitionController implements TradistaController {
+
+	private static final String COUPON = "Coupon";
 
 	@FXML
 	private TextField coupon;
@@ -152,12 +168,82 @@ public class BondDefinitionController implements TradistaController {
 	@FXML
 	private Label exchangeLabel;
 
+	@FXML
+	private TableView<RatingAssignment> ratingsTable;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> agencyCol;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> ratingCol;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> fromCol;
+
+	@FXML
+	private TableColumn<RatingAssignment, String> toCol;
+
+	@FXML
+	private ComboBox<RatingAgency> agencyComboBox;
+
+	@FXML
+	private ComboBox<Rating> ratingComboBox;
+
+	@FXML
+	private DatePicker validFromPicker;
+
+	@FXML
+	private DatePicker validToPicker;
+
+	@FXML
+	private Button addRatingButton;
+
+	@FXML
+	private Button removeRatingButton;
+
+	private RatingBusinessDelegate ratingBusinessDelegate;
+
 	private BondBusinessDelegate bondBusinessDelegate;
 
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
 		bondBusinessDelegate = new BondBusinessDelegate();
+		ratingBusinessDelegate = new RatingBusinessDelegate();
+
+		addRatingButton.setDisable(true);
+		removeRatingButton.setDisable(true);
+
+		agencyCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getRating().getAgency().getName()));
+		ratingCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getRating().getCode()));
+		fromCol.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getValidFrom().toString()));
+		toCol.setCellValueFactory(p -> new SimpleStringProperty(
+				p.getValue().getValidTo() != null ? p.getValue().getValidTo().toString() : StringUtils.EMPTY));
+
+		Set<RatingAgency> agencies = ratingBusinessDelegate.getAllRatingAgencies();
+		if (agencies != null) {
+			List<RatingAgency> activeAgencies = new ArrayList<>();
+			for (RatingAgency ag : agencies) {
+				if (ag.isActive()) {
+					activeAgencies.add(ag);
+				}
+			}
+			Collections.sort(activeAgencies);
+			agencyComboBox.setItems(FXCollections.observableArrayList(activeAgencies));
+		}
+
+		agencyComboBox.valueProperty().addListener((_, _, newVal) -> {
+			if (newVal != null) {
+				try {
+					Set<Rating> ratings = ratingBusinessDelegate.getRatingsByAgencyId(newVal.getId());
+					ratingComboBox.setItems(FXCollections.observableArrayList(ratings));
+				} catch (TradistaBusinessException _) {
+					ratingComboBox.getItems().clear();
+				}
+			} else {
+				ratingComboBox.getItems().clear();
+			}
+		});
 
 		productType.setText("Bond");
 
@@ -174,67 +260,60 @@ public class BondDefinitionController implements TradistaController {
 		TradistaGUIUtil.fillExchangeComboBox(exchange);
 		TradistaGUIUtil.fillIndexComboBox(referenceRateIndex);
 
-		capFloorCollar.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Bond.CapFloorCollar> observableValue,
-					Bond.CapFloorCollar oldValue, Bond.CapFloorCollar newValue) {
-				if (newValue != null) {
-					switch (newValue) {
-					case CAP: {
-						capTitle.setVisible(true);
-						cap.setVisible(true);
-						floorTitle.setVisible(false);
-						floor.setVisible(false);
-						break;
-					}
-					case FLOOR: {
-						capTitle.setVisible(false);
-						cap.setVisible(false);
-						floorTitle.setVisible(true);
-						floor.setVisible(true);
-						break;
-					}
-					case COLLAR: {
-						capTitle.setVisible(true);
-						cap.setVisible(true);
-						floorTitle.setVisible(true);
-						floor.setVisible(true);
-						break;
-					}
-					case NONE:
-						capTitle.setVisible(false);
-						cap.setVisible(false);
-						floorTitle.setVisible(false);
-						floor.setVisible(false);
-						break;
-					default:
-						break;
-					}
+		capFloorCollar.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				switch (newValue) {
+				case CAP: {
+					capTitle.setVisible(true);
+					cap.setVisible(true);
+					floorTitle.setVisible(false);
+					floor.setVisible(false);
+					break;
+				}
+				case FLOOR: {
+					capTitle.setVisible(false);
+					cap.setVisible(false);
+					floorTitle.setVisible(true);
+					floor.setVisible(true);
+					break;
+				}
+				case COLLAR: {
+					capTitle.setVisible(true);
+					cap.setVisible(true);
+					floorTitle.setVisible(true);
+					floor.setVisible(true);
+					break;
+				}
+				case NONE:
+					capTitle.setVisible(false);
+					cap.setVisible(false);
+					floorTitle.setVisible(false);
+					floor.setVisible(false);
+					break;
+				default:
+					break;
 				}
 			}
 		});
 
-		couponType.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
-				boolean isFloat = (newValue != null && newValue.equals("Float"));
-				capTitle.setVisible(isFloat);
-				cap.setVisible(isFloat);
-				floorTitle.setVisible(isFloat);
-				floor.setVisible(isFloat);
-				capFloorCollarTitle.setVisible(isFloat);
-				capFloorCollar.setVisible(isFloat);
-				spreadTitle.setVisible(isFloat);
-				spread.setVisible(isFloat);
-				leverageFactorTitle.setVisible(isFloat);
-				leverageFactor.setVisible(isFloat);
-				referenceRateIndexTitle.setVisible(isFloat);
-				referenceRateIndex.setVisible(isFloat);
-				coupon.setVisible(!isFloat);
-				couponTitle.setVisible(!isFloat);
-				capFloorCollar.getSelectionModel().clearSelection();
-				capFloorCollar.getSelectionModel().selectFirst();
-			}
+		couponType.valueProperty().addListener((_, _, newValue) -> {
+			boolean isFloat = (newValue != null && newValue.equals("Float"));
+			capTitle.setVisible(isFloat);
+			cap.setVisible(isFloat);
+			floorTitle.setVisible(isFloat);
+			floor.setVisible(isFloat);
+			capFloorCollarTitle.setVisible(isFloat);
+			capFloorCollar.setVisible(isFloat);
+			spreadTitle.setVisible(isFloat);
+			spread.setVisible(isFloat);
+			leverageFactorTitle.setVisible(isFloat);
+			leverageFactor.setVisible(isFloat);
+			referenceRateIndexTitle.setVisible(isFloat);
+			referenceRateIndex.setVisible(isFloat);
+			coupon.setVisible(!isFloat);
+			couponTitle.setVisible(!isFloat);
+			capFloorCollar.getSelectionModel().clearSelection();
+			capFloorCollar.getSelectionModel().selectFirst();
 		});
 
 		capFloorCollar.setItems(FXCollections.observableArrayList(Bond.CapFloorCollar.values()));
@@ -245,7 +324,7 @@ public class BondDefinitionController implements TradistaController {
 		try {
 			if (couponType.getValue().equals("Fixed")) {
 				if (!coupon.getText().isEmpty()) {
-					bond.setCoupon(TradistaGUIUtil.parseAmount(coupon.getText(), "Coupon"));
+					bond.setCoupon(TradistaGUIUtil.parseAmount(coupon.getText(), COUPON));
 				}
 			} else {
 				bond.setReferenceRateIndex(referenceRateIndex.getValue());
@@ -262,7 +341,7 @@ public class BondDefinitionController implements TradistaController {
 					}
 				}
 				if (!coupon.getText().isEmpty()) {
-					bond.setCoupon(TradistaGUIUtil.parseAmount(coupon.getText(), "Coupon"));
+					bond.setCoupon(TradistaGUIUtil.parseAmount(coupon.getText(), COUPON));
 				}
 				if (!spread.getText().isEmpty()) {
 					bond.setSpread(TradistaGUIUtil.parseAmount(spread.getText(), "Spread"));
@@ -307,7 +386,7 @@ public class BondDefinitionController implements TradistaController {
 
 				if (isin.isVisible()) {
 					bond = new Bond(exchange.getValue(), isin.getText());
-					bond.setCreationDate(LocalDate.now());
+					bond.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
 				}
 
 				buildProduct(bond);
@@ -458,6 +537,11 @@ public class BondDefinitionController implements TradistaController {
 		exchange.setVisible(false);
 		isinLabel.setVisible(true);
 		exchangeLabel.setVisible(true);
+
+		loadRatings();
+
+		addRatingButton.setDisable(false);
+		removeRatingButton.setDisable(false);
 	}
 
 	@Override
@@ -479,6 +563,68 @@ public class BondDefinitionController implements TradistaController {
 		exchangeLabel.setText(StringUtils.EMPTY);
 		exchange.setVisible(true);
 		exchangeLabel.setVisible(false);
+
+		if (ratingsTable.getItems() != null) {
+			ratingsTable.getItems().clear();
+		}
+		agencyComboBox.setValue(null);
+		ratingComboBox.setValue(null);
+		validFromPicker.setValue(null);
+		validToPicker.setValue(null);
+		addRatingButton.setDisable(true);
+		removeRatingButton.setDisable(true);
+	}
+
+	@FXML
+	protected void addRating() {
+		if (bond == null || bond.getId() == 0) {
+			new TradistaAlert(AlertType.ERROR, "Please save or load a bond first.").showAndWait();
+			return;
+		}
+		if (ratingComboBox.getValue() == null || validFromPicker.getValue() == null) {
+			new TradistaAlert(AlertType.ERROR, "Rating and Valid From are mandatory").showAndWait();
+			return;
+		}
+		RatingAssignment assignment = new RatingAssignment(bond, ratingComboBox.getValue(), validFromPicker.getValue());
+		assignment.setValidTo(validToPicker.getValue());
+
+		try {
+			long id = ratingBusinessDelegate.saveRatingAssignment(assignment);
+			assignment.setId(id);
+			ratingsTable.getItems().add(assignment);
+		} catch (TradistaBusinessException ex) {
+			new TradistaAlert(AlertType.ERROR, ex.getMessage()).showAndWait();
+		}
+	}
+
+	@FXML
+	protected void removeRating() {
+		RatingAssignment selected = ratingsTable.getSelectionModel().getSelectedItem();
+		if (selected != null) {
+			try {
+				ratingBusinessDelegate.deleteRatingAssignment(selected.getId());
+				ratingsTable.getItems().remove(selected);
+			} catch (TradistaBusinessException ex) {
+				new TradistaAlert(AlertType.ERROR, ex.getMessage()).showAndWait();
+			}
+		}
+	}
+
+	private void loadRatings() {
+		if (ratingsTable.getItems() != null) {
+			ratingsTable.getItems().clear();
+		}
+		if (bond != null && bond.getId() != 0) {
+			try {
+				Set<RatingAssignment> assignments = ratingBusinessDelegate.getRatingAssignmentsByRatableId(bond.getId(),
+						Bond.BOND);
+				if (assignments != null) {
+					ratingsTable.setItems(FXCollections.observableArrayList(assignments));
+				}
+			} catch (TradistaBusinessException e) {
+				new TradistaAlert(AlertType.ERROR, e.getMessage()).showAndWait();
+			}
+		}
 	}
 
 	@Override
@@ -503,7 +649,7 @@ public class BondDefinitionController implements TradistaController {
 			errMsg.append(abe.getMessage());
 		}
 		try {
-			TradistaGUIUtil.checkAmount(coupon.getText(), "Coupon");
+			TradistaGUIUtil.checkAmount(coupon.getText(), COUPON);
 		} catch (TradistaBusinessException abe) {
 			errMsg.append(abe.getMessage());
 		}

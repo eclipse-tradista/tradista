@@ -55,17 +55,8 @@ public class InterfaceMappingSet extends TradistaObject implements Segregable {
 			return value;
 		}
 
-		// Setter added because used by Primefaces in a datatable
-		public void setValue(String value) {
-			this.value = value;
-		}
-
 		public String getMappedValue() {
 			return mappedValue;
-		}
-
-		public void setMappedValue(String mappedValue) {
-			this.mappedValue = mappedValue;
 		}
 	}
 

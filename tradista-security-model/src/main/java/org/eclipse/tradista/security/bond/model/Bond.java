@@ -34,9 +34,10 @@ public class Bond extends Security implements Instrument {
 
 	public static final String BOND = "Bond";
 
-	public static enum CapFloorCollar {
+	public enum CapFloorCollar {
 		NONE, CAP, FLOOR, COLLAR;
 
+		@Override
 		public String toString() {
 			switch (this) {
 			case NONE:

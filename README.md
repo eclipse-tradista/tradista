@@ -34,7 +34,7 @@ Tested configuration:
 - Server: WildFly 36.0.1.Final
 - JRE: Oracle JRE v24.0.2+12-54 and OpenJDK JRE Eclipse Temurin implementation v24.0.2+12
 - Database: Derby 10.17.1.0
-- Build automation tool: Maven 3.9.12
+- Build automation tool: Maven 3.9.16
 
 Tradista can be built using Maven, build the whole application using the tradista-parent project.
 

@@ -33,6 +33,8 @@ public final class TradistaDBConstants {
 	public static final String VALUE = "VALUE";
 	public static final String STATUS = "STATUS";
 	public static final String NAME = "NAME";
+	public static final String CODE = "CODE";
+	public static final String ACTIVE = "ACTIVE";
 	public static final String DESCRIPTION = "DESCRIPTION";
 	public static final String STATUS_ID = "STATUS_ID";
 	public static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
@@ -66,6 +68,8 @@ public final class TradistaDBConstants {
 	public static final String VOLATILITY = "VOLATILITY";
 	public static final String VOLATILITY_SURFACE_ID = "VOLATILITY_SURFACE_ID";
 	public static final String SURFACE_ID = "SURFACE_ID";
+	public static final String VALID_FROM = "VALID_FROM";
+	public static final String VALID_TO = "VALID_TO";
 
 	private TradistaDBConstants() {
 	}

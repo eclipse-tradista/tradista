@@ -1,5 +1,3 @@
-package org.eclipse.tradista.core.common.ui.util;
-
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
  * 
@@ -15,16 +13,10 @@ package org.eclipse.tradista.core.common.ui.util;
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
+package org.eclipse.tradista.core.rating.model;
 
-public final class TradistaGUIConstants {
+import java.io.Serializable;
 
-	public static final String FIXED = "Fixed";
-
-	public static final String FLOATING = "Floating";
-
-	public static final String ERROR = "Error";
-
-	private TradistaGUIConstants() {
-	}
-
+public interface Ratable extends Serializable {
+	long getId();
 }

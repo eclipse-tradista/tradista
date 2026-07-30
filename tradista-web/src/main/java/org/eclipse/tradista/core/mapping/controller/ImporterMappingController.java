@@ -83,7 +83,7 @@ public class ImporterMappingController implements Serializable {
 
 	private SortedSet<String> allBookNames;
 
-	private List<Mapping> displayedMappings;
+	private List<MappingDTO> displayedMappings;
 
 	@PostConstruct
 	public void init() {
@@ -159,7 +159,11 @@ public class ImporterMappingController implements Serializable {
 
 	public void save() {
 		try {
-			interfaceMappingSet.setMappings(new HashSet<>(displayedMappings));
+			Set<Mapping> mappingsToSave = new HashSet<>();
+			for (MappingDTO dto : displayedMappings) {
+				mappingsToSave.add(interfaceMappingSet.new Mapping(dto.getValue(), dto.getMappedValue()));
+			}
+			interfaceMappingSet.setMappings(mappingsToSave);
 			interfaceMappingSet.setId(mappingBusinessDelegate.saveInterfaceMappingSet(interfaceMappingSet));
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully saved"));
@@ -178,7 +182,12 @@ public class ImporterMappingController implements Serializable {
 				interfaceMappingSet = new InterfaceMappingSet(importerNameLoadingCriterion, mappingTypeLoadingCriterion,
 						InterfaceMappingSet.Direction.INCOMING, processingOrg);
 			}
-			displayedMappings = new ArrayList<>(interfaceMappingSet.getMappings());
+			displayedMappings = new ArrayList<>();
+			if (interfaceMappingSet.getMappings() != null) {
+				for (Mapping m : interfaceMappingSet.getMappings()) {
+					displayedMappings.add(new MappingDTO(m));
+				}
+			}
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully loaded."));
 		} catch (TradistaBusinessException tbe) {
@@ -194,13 +203,13 @@ public class ImporterMappingController implements Serializable {
 				Map<String, Object> attributes = ((UIComponent) event.getColumn()).getAttributes();
 				boolean isOriginalValueColumn = "originalValue".equals(attributes.get("colKey"));
 				DataTable table = (DataTable) ((UIComponent) event.getColumn()).getParent();
-				List<Mapping> rows = (List<Mapping>) table.getValue();
+				List<MappingDTO> rows = (List<MappingDTO>) table.getValue();
 				Set<String> seen = new HashSet<>();
 				boolean hasDuplicate = false;
 				if (StringUtils.isBlank(event.getNewValue())) {
 					FacesContext.getCurrentInstance().addMessage(null,
 							new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "The mapping cannot be blank."));
-					Mapping mapping = (Mapping) event.getRowData();
+					MappingDTO mapping = (MappingDTO) event.getRowData();
 					if (isOriginalValueColumn) {
 						mapping.setValue(event.getOldValue());
 					} else {
@@ -208,7 +217,7 @@ public class ImporterMappingController implements Serializable {
 					}
 					return;
 				}
-				for (Mapping mapping : rows) {
+				for (MappingDTO mapping : rows) {
 					String value = isOriginalValueColumn ? mapping.getValue() : mapping.getMappedValue();
 					if (!StringUtils.isBlank(value)) {
 						if (!seen.add(value)) {
@@ -220,7 +229,7 @@ public class ImporterMappingController implements Serializable {
 				if (hasDuplicate) {
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
 							"Warning", String.format("%s is already mapped.", event.getNewValue())));
-					Mapping mapping = (Mapping) event.getRowData();
+					MappingDTO mapping = (MappingDTO) event.getRowData();
 					if (isOriginalValueColumn) {
 						mapping.setValue(event.getOldValue());
 					} else {
@@ -233,11 +242,14 @@ public class ImporterMappingController implements Serializable {
 
 	public void addMapping() {
 		if (interfaceMappingSet != null) {
-			displayedMappings.add(interfaceMappingSet.new Mapping(StringUtils.EMPTY, StringUtils.EMPTY));
+			MappingDTO dto = new MappingDTO();
+			dto.setValue(StringUtils.EMPTY);
+			dto.setMappedValue(StringUtils.EMPTY);
+			displayedMappings.add(dto);
 		}
 	}
 
-	public void removeMapping(Mapping mapping) {
+	public void removeMapping(MappingDTO mapping) {
 		if (interfaceMappingSet != null) {
 			displayedMappings.remove(mapping);
 		}
@@ -325,11 +337,11 @@ public class ImporterMappingController implements Serializable {
 		this.allBookNames = allBookNames;
 	}
 
-	public List<Mapping> getDisplayedMappings() {
+	public List<MappingDTO> getDisplayedMappings() {
 		return displayedMappings;
 	}
 
-	public void setDisplayedMappings(List<Mapping> displayedMapings) {
+	public void setDisplayedMappings(List<MappingDTO> displayedMapings) {
 		this.displayedMappings = displayedMapings;
 	}
 

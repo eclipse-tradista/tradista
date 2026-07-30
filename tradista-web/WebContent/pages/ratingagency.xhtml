@@ -1,0 +1,106 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Rating Agencies</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Rating Agencies</ui:define>
+	<ui:define name="content">
+		<h:form id="ratingAgencyForm">
+			<p:panel styleClass="tradista-central-component" header="Rating Agencies">
+				<p:messages showDetail="true" closable="true" id="msg" />
+				<p:panelGrid id="ratingAgencyPanel" header="Rating Agencies"
+					styleClass="tradista-nested"
+					columnClasses="ui-g-12 ui-md-12 ui-lg-12">
+					<p:row>
+						<p:column>
+							<p:outputLabel value="Select an Agency: " styleClass="tradista-menu-item" />
+							<p:selectOneMenu value="#{ratingAgencyController.agency}" converter="ratingAgencyConverter" style="margin-right: 10px;">
+								<f:selectItem itemLabel="Select One" itemValue="#{null}" noSelectionOption="true" />
+								<f:selectItems value="#{ratingAgencyController.allAgencies}" var="ag" itemLabel="#{ag.name}" itemValue="#{ag}" />
+								<p:ajax event="change" listener="#{ratingAgencyController.load}" update=":ratingAgencyForm:ratingsTable :ratingAgencyForm:deleteAgencyBtnWrapper :ratingAgencyForm:addRatingBtnWrapper" />
+							</p:selectOneMenu>
+							<h:panelGroup id="deleteAgencyBtnWrapper" rendered="#{ratingAgencyController.admin}">
+								<p:commandButton id="deleteAgencyBtn" value="Delete Agency" action="#{ratingAgencyController.deleteAgency}" update="@form" styleClass="rounded-button ui-button-danger" disabled="#{ratingAgencyController.agency == null}">
+									<p:confirm header="Confirmation" message="Are you sure you want to delete this agency?" icon="pi pi-exclamation-triangle" />
+								</p:commandButton>
+								<p:tooltip for="deleteAgencyBtnWrapper" value="Please select an agency first to delete it." rendered="#{ratingAgencyController.agency == null}" styleClass="tooltip-danger" />
+							</h:panelGroup>
+						</p:column>
+					</p:row>
+					<p:row rendered="#{ratingAgencyController.admin}">
+						<p:column>
+							<p:outputLabel value="Or create new Agency: " styleClass="tradista-menu-item" />
+							<p:inputText value="#{ratingAgencyController.newAgencyName}" placeholder="Agency Name" style="margin-right: 10px;" disabled="#{!ratingAgencyController.admin}">
+								<p:ajax event="keyup" update="createAgencyBtnWrapper" />
+							</p:inputText>
+							<h:panelGroup id="createAgencyBtnWrapper" rendered="#{ratingAgencyController.admin}">
+								<p:commandButton id="createAgencyBtn" value="Create Agency" action="#{ratingAgencyController.saveAgency}" update="@form" styleClass="rounded-button" disabled="#{empty ratingAgencyController.newAgencyName}" />
+								<p:tooltip for="createAgencyBtnWrapper" value="Please enter an agency name to create it." rendered="#{empty ratingAgencyController.newAgencyName}" styleClass="tooltip-primary" />
+							</h:panelGroup>
+						</p:column>
+					</p:row>
+
+					<p:row>
+						<p:column>
+							<p:card>
+								<p:dataTable id="ratingsTable" var="rating" value="#{ratingAgencyController.ratings}"
+									editable="#{ratingAgencyController.admin}" editMode="cell"
+									tableStyleClass="tradista-datatable" size="small">
+									<p:ajax event="cellEdit" listener="#{ratingAgencyController.onRatingEdit}" update=":ratingAgencyForm:msg" />
+									<f:facet name="header">
+										<p:outputLabel value="Ratings for #{ratingAgencyController.agency != null ? ratingAgencyController.agency.name : 'None'}" styleClass="tradista-menu-item" />
+									</f:facet>
+									<p:column headerText="Code" sortBy="#{rating.code}">
+										<f:attribute name="colKey" value="code" />
+										<p:cellEditor>
+											<f:facet name="output">
+												<h:outputText value="#{rating.code}" />
+											</f:facet>
+											<f:facet name="input">
+												<p:inputText value="#{rating.code}" style="width:100%" />
+											</f:facet>
+										</p:cellEditor>
+									</p:column>
+									<p:column headerText="Description" sortBy="#{rating.description}">
+										<f:attribute name="colKey" value="description" />
+										<p:cellEditor>
+											<f:facet name="output">
+												<h:outputText value="#{rating.description}" />
+											</f:facet>
+											<f:facet name="input">
+												<p:inputText value="#{rating.description}" style="width:100%" />
+											</f:facet>
+										</p:cellEditor>
+									</p:column>
+									<p:column exportable="false" headerText="Actions" rendered="#{ratingAgencyController.admin}">
+										<p:commandButton class="rounded-button ui-button-danger" icon="pi pi-trash"
+											actionListener="#{ratingAgencyController.deleteRating(rating)}"
+											update=":ratingAgencyForm:ratingsTable :ratingAgencyForm:msg">
+										</p:commandButton>
+									</p:column>
+								</p:dataTable>
+							</p:card>
+						</p:column>
+					</p:row>
+
+					<p:row rendered="#{ratingAgencyController.admin}">
+						<p:column>
+							<p:outputLabel value="Add a Rating: " styleClass="tradista-menu-item" />
+							<p:inputText value="#{ratingAgencyController.newRatingCode}" placeholder="Rating Code" style="margin-right: 10px;" disabled="#{!ratingAgencyController.admin}" />
+							<p:inputText value="#{ratingAgencyController.newRatingDescription}" placeholder="Description" style="margin-right: 10px;" disabled="#{!ratingAgencyController.admin}" />
+							<h:panelGroup id="addRatingBtnWrapper" rendered="#{ratingAgencyController.admin}">
+								<p:commandButton id="addRatingBtn" value="Add Rating" action="#{ratingAgencyController.saveRating}" update="@form" styleClass="rounded-button" disabled="#{ratingAgencyController.agency == null}" />
+								<p:tooltip for="addRatingBtnWrapper" value="Please select an agency first to add a rating." rendered="#{ratingAgencyController.agency == null}" styleClass="tooltip-primary" />
+							</h:panelGroup>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+			</p:panel>
+			<p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+				<p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat" />
+				<p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+</ui:composition>

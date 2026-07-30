@@ -128,5 +128,8 @@ drop table int_group_to_message;
 drop table int_lock;
 drop table int_channel_message;
 drop table int_metadata_store;
+drop table rating_assignment;
+drop table rating;
+drop table rating_agency;
 disconnect;
 exit;

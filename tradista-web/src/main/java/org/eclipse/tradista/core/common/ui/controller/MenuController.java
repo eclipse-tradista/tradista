@@ -68,6 +68,8 @@ public class MenuController implements Serializable {
 		tradeMenu.getElements()
 				.add(DefaultMenuItem.builder().value("Specific Repo").url("specificrepotrade.xhtml").build());
 		productMenu.getElements().add(DefaultMenuItem.builder().value("GC Basket").url("gcbasket.xhtml").build());
+		productMenu.getElements()
+				.add(DefaultMenuItem.builder().value("Rating Agencies").url("ratingagency.xhtml").build());
 		reportMenu.getElements().add(DefaultMenuItem.builder().value("Import Errors").url("importerror.xhtml").build());
 		reportMenu.getElements().add(DefaultMenuItem.builder().value("Export Errors").url("exporterror.xhtml").build());
 		reportMenu.getElements().add(DefaultMenuItem.builder().value("Messages").url("message.xhtml").build());
