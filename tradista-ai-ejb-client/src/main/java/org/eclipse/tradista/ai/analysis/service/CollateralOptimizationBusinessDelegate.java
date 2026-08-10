@@ -13,12 +13,11 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.tradista.ai.agent.service;
+package org.eclipse.tradista.ai.analysis.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.security.common.model.Security;
@@ -29,14 +28,13 @@ public class CollateralOptimizationBusinessDelegate {
 	private CollateralOptimizationService collateralOptimizationService;
 
 	public CollateralOptimizationBusinessDelegate() {
-		collateralOptimizationService = TradistaServiceLocator.getInstance()
-				.getService("CollateralOptimizationService", CollateralOptimizationService.class);
+		collateralOptimizationService = TradistaServiceLocator.getInstance().getCollateralOptimizationService();
 	}
 
 	public Map<Security, BigDecimal> optimizeCollateral(GCRepoTrade trade, BigDecimal exposure,
 			Map<Security, BigDecimal> availableQuantities, boolean considerBasel3LiquidityRatios,
-			boolean excludeBondsPayingCoupons) throws TradistaBusinessException {
-		return SecurityUtil.runEx(() -> collateralOptimizationService.optimizeCollateral(trade, exposure,
+			boolean excludeBondsPayingCoupons) {
+		return SecurityUtil.run(() -> collateralOptimizationService.optimizeCollateral(trade, exposure,
 				availableQuantities, considerBasel3LiquidityRatios, excludeBondsPayingCoupons));
 	}
 

@@ -73,6 +73,8 @@ public class QuoteProperty {
 
 		if (data == null) {
 			data = new ArrayList<>();
+		} else {
+			data = new ArrayList<>(data);
 		}
 
 		// Get the number of days in that month

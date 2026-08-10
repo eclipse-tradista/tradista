@@ -13,7 +13,7 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.tradista.ai.agent.service;
+package org.eclipse.tradista.ai.analysis.service;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -21,6 +21,9 @@ import java.util.Map;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 
+import jakarta.ejb.Remote;
+
+@Remote
 public interface CollateralOptimizationService {
 
 	Map<Security, BigDecimal> optimizeCollateral(GCRepoTrade trade, BigDecimal exposure,

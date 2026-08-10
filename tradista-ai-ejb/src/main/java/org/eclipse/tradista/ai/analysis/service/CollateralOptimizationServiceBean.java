@@ -13,7 +13,7 @@
  * 
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.tradista.ai.agent.service;
+package org.eclipse.tradista.ai.analysis.service;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -21,10 +21,13 @@ import java.util.Map;
 
 import org.eclipse.tradista.ai.analysis.prompt.PromptTemplateRegistry;
 import org.eclipse.tradista.ai.reasoning.common.service.LocalConfigurationService;
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.jboss.ejb3.annotation.SecurityDomain;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
@@ -32,9 +35,6 @@ import dev.langchain4j.model.input.PromptTemplate;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SecurityDomain(value = "other")
 @PermitAll
@@ -47,10 +47,10 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 	@Override
 	public Map<Security, BigDecimal> optimizeCollateral(GCRepoTrade trade, BigDecimal exposure,
 			Map<Security, BigDecimal> availableQuantities, boolean considerBasel3LiquidityRatios,
-			boolean excludeBondsPayingCoupons) throws TradistaBusinessException {
-		
+			boolean excludeBondsPayingCoupons) {
+
 		ChatModel model = localConfigurationService.getChatModel();
-		
+
 		PromptTemplate promptTemplate = PromptTemplateRegistry.getCollateralOptimizationPromptTemplate();
 		Map<String, Object> data = new HashMap<>();
 		data.put("tradeDetails", formatTradeDetails(trade));
@@ -58,18 +58,16 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 		data.put("availableCollateralList", formatAvailableCollateral(availableQuantities));
 		data.put("considerBasel3LiquidityRatios", String.valueOf(considerBasel3LiquidityRatios));
 		data.put("excludeBondsPayingCoupons", String.valueOf(excludeBondsPayingCoupons));
-		
+
 		Prompt prompt = promptTemplate.apply(data);
 		String response = model.chat(prompt.text());
-		
+
 		return parseLLMResponse(response, availableQuantities);
 	}
 
 	private String formatTradeDetails(GCRepoTrade trade) {
-		return "GC Repo Trade ID: " + trade.getId() + "\n" +
-				"Margin Rate: " + trade.getMarginRate() + "\n" +
-				"Settlement Date: " + trade.getSettlementDate() + "\n" +
-				"End Date: " + trade.getEndDate();
+		return "GC Repo Trade ID: " + trade.getId() + "\n" + "Margin Rate: " + trade.getMarginRate() + "\n"
+				+ "Settlement Date: " + trade.getSettlementDate() + "\n" + "End Date: " + trade.getEndDate();
 	}
 
 	private String formatAvailableCollateral(Map<Security, BigDecimal> availableQuantities) {
@@ -81,7 +79,7 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 		return sb.toString();
 	}
 
-	private Map<Security, BigDecimal> parseLLMResponse(String response, Map<Security, BigDecimal> availableQuantities) throws TradistaBusinessException {
+	private Map<Security, BigDecimal> parseLLMResponse(String response, Map<Security, BigDecimal> availableQuantities) {
 		Map<Security, BigDecimal> allocation = new HashMap<>();
 		try {
 			int startIndex = response.indexOf("[");
@@ -94,7 +92,7 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 					for (JsonNode node : arrayNode) {
 						String isin = node.get("isin").asText();
 						BigDecimal quantity = new BigDecimal(node.get("quantity").asText());
-						
+
 						for (Security sec : availableQuantities.keySet()) {
 							if (sec.getIsin().equals(isin)) {
 								allocation.put(sec, quantity);
@@ -104,10 +102,11 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 					}
 				}
 			} else {
-				throw new TradistaBusinessException("Could not find a JSON array in the LLM response. Response: " + response);
+				throw new TradistaTechnicalException(
+						"Could not find a JSON array in the LLM response. Response: " + response);
 			}
 		} catch (Exception e) {
-			throw new TradistaBusinessException("Error parsing LLM response: " + e.getMessage(), e);
+			throw new TradistaTechnicalException("Error parsing LLM response: " + e.getMessage());
 		}
 		return allocation;
 	}

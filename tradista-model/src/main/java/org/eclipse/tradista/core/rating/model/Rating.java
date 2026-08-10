@@ -15,8 +15,6 @@
  ********************************************************************************/
 package org.eclipse.tradista.core.rating.model;
 
-import java.util.List;
-
 import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;

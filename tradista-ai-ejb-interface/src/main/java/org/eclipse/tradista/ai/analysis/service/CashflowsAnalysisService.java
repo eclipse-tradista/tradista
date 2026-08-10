@@ -18,14 +18,12 @@ package org.eclipse.tradista.ai.analysis.service;
 import java.util.List;
 
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 
 import jakarta.ejb.Remote;
 
 @Remote
 public interface CashflowsAnalysisService {
 
-	String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
-			throws TradistaBusinessException;
+	String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows);
 
 }

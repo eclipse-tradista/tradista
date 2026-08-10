@@ -43,7 +43,7 @@ public class CashflowsAnalysisBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows));
+		return SecurityUtil.run(() -> cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows));
 	}
 
 }

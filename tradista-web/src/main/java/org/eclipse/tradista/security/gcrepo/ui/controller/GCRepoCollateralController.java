@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.tradista.ai.analysis.service.CollateralOptimizationBusinessDelegate;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -26,7 +27,6 @@ import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoPricerBusinessDelegate;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
-import org.eclipse.tradista.ai.agent.service.CollateralOptimizationBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 import org.eclipse.tradista.security.repo.model.ProcessingOrgDefaultsCollateralManagementModule;
 import org.eclipse.tradista.security.repo.ui.controller.Collateral;

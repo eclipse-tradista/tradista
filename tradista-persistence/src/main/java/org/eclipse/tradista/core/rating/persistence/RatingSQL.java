@@ -15,6 +15,9 @@
  ********************************************************************************/
 package org.eclipse.tradista.core.rating.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALID_FROM;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALID_TO;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,9 +26,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALID_FROM;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.VALID_TO;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
