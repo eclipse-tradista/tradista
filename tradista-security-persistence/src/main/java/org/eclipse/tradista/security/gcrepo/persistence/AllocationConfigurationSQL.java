@@ -129,10 +129,10 @@ public class AllocationConfigurationSQL {
 		AllocationConfiguration allocationConfiguration = new AllocationConfiguration(
 				results.getString(NAME_FIELD.getName()), po);
 		allocationConfiguration.setId(allocationConfigurationId);
-		allocationConfiguration.setConsiderBasel3LiquidityRatios(
-				results.getBoolean(CONSIDER_BASEL3_LIQUIDITY_RATIOS_FIELD.getName()));
-		allocationConfiguration.setExcludeBondsPayingCoupons(
-				results.getBoolean(EXCLUDE_BONDS_PAYING_COUPONS_FIELD.getName()));
+		allocationConfiguration
+				.setConsiderBasel3LiquidityRatios(results.getBoolean(CONSIDER_BASEL3_LIQUIDITY_RATIOS_FIELD.getName()));
+		allocationConfiguration
+				.setExcludeBondsPayingCoupons(results.getBoolean(EXCLUDE_BONDS_PAYING_COUPONS_FIELD.getName()));
 
 		Set<Book> books = new HashSet<>();
 		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(ALLOCATION_CONFIGURATION_BOOK_TABLE));

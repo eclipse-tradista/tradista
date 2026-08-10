@@ -18,6 +18,7 @@ package org.eclipse.tradista.ai.analysis.service;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 
@@ -28,6 +29,6 @@ public interface CollateralOptimizationService {
 
 	Map<Security, BigDecimal> optimizeCollateral(GCRepoTrade trade, BigDecimal exposure,
 			Map<Security, BigDecimal> availableQuantities, boolean considerBasel3LiquidityRatios,
-			boolean excludeBondsPayingCoupons);
+			boolean excludeBondsPayingCoupons) throws TradistaBusinessException;
 
 }

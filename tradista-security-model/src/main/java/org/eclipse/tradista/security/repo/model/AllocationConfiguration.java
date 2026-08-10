@@ -40,6 +40,7 @@ public class AllocationConfiguration extends TradistaObject implements Comparabl
 	private boolean considerBasel3LiquidityRatios;
 
 	private boolean excludeBondsPayingCoupons;
+
 	public AllocationConfiguration(String name, LegalEntity po) {
 		this.name = name;
 		this.processingOrg = po;

@@ -1,4 +1,4 @@
-Optimally allocate available bonds to cover a required exposure.
+Optimally allocate available securities to cover a required exposure.
 
 Trade Details:
 {{tradeDetails}}
@@ -6,7 +6,7 @@ Trade Details:
 Target Exposure to cover:
 {{exposure}}
 
-Available Collaterals (ISIN, Market Value, Next Coupon Date, LCR Rating):
+Available Collaterals (ISIN | Exchange | Type | Available Quantity | Unit Price | Total Market Value | Currency | Next Coupon Date):
 {{availableCollateralList}}
 
 Options:
@@ -14,13 +14,13 @@ Options:
 - Exclude bonds paying coupons during repo: {{excludeBondsPayingCoupons}}
 
 Return a JSON array of objects representing your allocation. Each object must have:
-- "isin": The ISIN of the chosen bond.
+- "isin": The ISIN of the chosen security.
 - "quantity": The allocated nominal quantity (as a number, not a string).
 
 Rules:
-1. The total market value of the allocated bonds (quantity * unit market price) must equal or slightly exceed the Target Exposure.
+1. The total market value of the allocated securities (quantity * Unit Price) must equal or slightly exceed the Target Exposure.
 2. Do not allocate more quantity than what is available.
-3. If "Exclude bonds paying coupons during repo" is true, DO NOT allocate any bond whose next coupon date falls between the trade settlement date and maturity date.
-4. If "Consider Basel 3 liquidity ratios" is true, prioritize bonds with better liquidity (e.g. LCR Level 1).
-5. Ensure diversification if possible.
-6. The output must be strictly valid JSON, containing only the JSON array.
+3. If "Exclude bonds paying coupons during repo" is true, DO NOT allocate any bond whose next coupon date falls between the request date (today) and the repo end date.
+4. If "Consider Basel 3 liquidity ratios" is true, prioritize securities with better liquidity/rating (e.g. HQLA Level 1 bonds).
+5. Ensure diversification if possible across available collaterals.
+6. The output must be strictly valid JSON, containing only the JSON array (no markdown code blocks, no explanation text).

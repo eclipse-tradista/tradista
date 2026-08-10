@@ -840,23 +840,26 @@ public class GCRepoCollateralController implements Serializable {
 			Map<Security, BigDecimal> availables = new HashMap<>();
 			if (availableCollateralValues != null) {
 				for (Collateral coll : availableCollateralValues) {
-					Security sec = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(coll.getSecurity(), coll.getExchange());
+					Security sec = securityBusinessDelegate.getSecurityByIsinAndExchangeCode(coll.getSecurity(),
+							coll.getExchange());
 					if (sec != null) {
 						availables.put(sec, availables.getOrDefault(sec, BigDecimal.ZERO).add(coll.getQuantity()));
 					}
 				}
 			}
-			
+
 			BigDecimal exposure = trade.getAmount();
-			
-			Map<Security, BigDecimal> allocation = collateralOptimizationBusinessDelegate.optimizeCollateral(trade, exposure, availables, considerBasel3LiquidityRatios, excludeBondsPayingCoupons);
-			
+
+			Map<Security, BigDecimal> allocation = collateralOptimizationBusinessDelegate.optimizeCollateral(trade,
+					exposure, availables, considerBasel3LiquidityRatios, excludeBondsPayingCoupons);
+
 			if (allocation != null) {
 				for (Map.Entry<Security, BigDecimal> entry : allocation.entrySet()) {
 					String bookName = null;
 					String exchangeCode = entry.getKey().getExchange().getCode();
 					for (Collateral coll : availableCollateralValues) {
-						if (coll.getSecurity().equals(entry.getKey().getIsin()) && coll.getExchange().equals(exchangeCode)) {
+						if (coll.getSecurity().equals(entry.getKey().getIsin())
+								&& coll.getExchange().equals(exchangeCode)) {
 							bookName = coll.getBook();
 							break;
 						}
@@ -866,10 +869,12 @@ public class GCRepoCollateralController implements Serializable {
 						updateCollateralToAdd(entry.getValue());
 					}
 				}
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "AI Optimization completed successfully."));
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+						"AI Optimization completed successfully."));
 			}
 		} catch (TradistaBusinessException e) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "AI Optimization failed: " + e.getMessage()));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+					"AI Optimization failed: " + e.getMessage()));
 		}
 	}
 }
