@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.ai.analysis.prompt.PromptTemplateRegistry;
@@ -32,6 +33,8 @@ import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsBusinessDelegate;
+import org.eclipse.tradista.core.rating.model.RatingAssignment;
+import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.model.Coupon;
 import org.eclipse.tradista.security.common.model.Security;
@@ -68,7 +71,8 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 		Map<String, Object> data = new HashMap<>();
 		data.put("tradeDetails", formatTradeDetails(trade));
 		data.put("exposure", exposure.toString());
-		data.put("availableCollateralList", loadAndFormatAvailableCollateral(trade, availableQuantities));
+		data.put("availableCollateralList",
+				loadAndFormatAvailableCollateral(trade, availableQuantities, considerBasel3LiquidityRatios));
 		data.put("considerBasel3LiquidityRatios", String.valueOf(considerBasel3LiquidityRatios));
 		data.put("excludeBondsPayingCoupons", String.valueOf(excludeBondsPayingCoupons));
 
@@ -83,10 +87,11 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 				+ "Settlement Date: " + trade.getSettlementDate() + "\n" + "End Date: " + trade.getEndDate();
 	}
 
-	private String loadAndFormatAvailableCollateral(GCRepoTrade trade, Map<Security, BigDecimal> availableQuantities)
-			throws TradistaBusinessException {
+	private String loadAndFormatAvailableCollateral(GCRepoTrade trade, Map<Security, BigDecimal> availableQuantities,
+			boolean considerBasel3LiquidityRatios) throws TradistaBusinessException {
 		ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
 		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
+		RatingBusinessDelegate ratingBusinessDelegate = new RatingBusinessDelegate();
 
 		QuoteSet qs = null;
 		if (trade != null && trade.getBook() != null && trade.getBook().getProcessingOrg() != null) {
@@ -139,7 +144,11 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(
-				"ISIN | Exchange | Type | Available Quantity | Unit Price | Total Market Value | Currency | Next Coupon Date\n");
+				"ISIN | Issuer | Exchange | Type | Available Quantity | Unit Price | Total Market Value | Currency | Next Coupon Date");
+		if (considerBasel3LiquidityRatios) {
+			sb.append(" | Rating / Liquidity");
+		}
+		sb.append("\n");
 
 		if (availableQuantities != null) {
 			for (Map.Entry<Security, BigDecimal> entry : availableQuantities.entrySet()) {
@@ -160,12 +169,46 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 				}
 
 				sb.append(sec.getIsin()).append(" | ")
+						.append(sec.getIssuer() != null ? sec.getIssuer().getShortName() : "N/A").append(" | ")
 						.append(sec.getExchange() != null ? sec.getExchange().getCode() : "N/A").append(" | ")
 						.append(sec.getProductType()).append(" | ").append(qty != null ? qty.toString() : "0")
 						.append(" | ").append(price != null ? price.toString() : "N/A").append(" | ")
 						.append(marketValue != null ? marketValue.toString() : "N/A").append(" | ")
 						.append(sec.getCurrency() != null ? sec.getCurrency().getIsoCode() : "N/A").append(" | ")
-						.append(nextCouponDate != null ? nextCouponDate.toString() : "N/A").append("\n");
+						.append(nextCouponDate != null ? nextCouponDate.toString() : "N/A");
+
+				if (considerBasel3LiquidityRatios) {
+					String ratingsStr = "N/A";
+					if (sec.getId() > 0) {
+						try {
+							Set<RatingAssignment> assignments = ratingBusinessDelegate
+									.getRatingAssignmentsByRatableId(sec.getId(), sec.getProductType());
+							if (assignments != null && !assignments.isEmpty()) {
+								StringBuilder rSb = new StringBuilder();
+								for (RatingAssignment ra : assignments) {
+									if (ra.getRating() != null
+											&& (ra.getValidTo() == null || !ra.getValidTo().isBefore(today))) {
+										if (!rSb.isEmpty()) {
+											rSb.append("; ");
+										}
+										rSb.append(ra.getRating().getAgency().getName()).append(": ")
+												.append(ra.getRating().getCode());
+									}
+								}
+								if (!rSb.isEmpty()) {
+									ratingsStr = rSb.toString();
+								}
+							}
+						} catch (Exception e) {
+							throw new TradistaBusinessException(
+									String.format("Error loading Basel 3 liquidity ratings for security (ISIN: %s): %s",
+											sec.getIsin(), e.getMessage()));
+						}
+					}
+					sb.append(" | ").append(ratingsStr);
+				}
+
+				sb.append("\n");
 			}
 		}
 		return sb.toString();
