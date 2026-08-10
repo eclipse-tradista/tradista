@@ -409,7 +409,9 @@
 														<p:outputLabel value="Exclude bonds paying coupons during repo:" />
 														<p:selectBooleanCheckbox value="#{gCRepoCollateralController.excludeBondsPayingCoupons}" />
 														
-														<p:commandButton value="Optimize (LLM)" action="#{gCRepoCollateralController.optimizeAllocation()}" update="@form" styleClass="rounded-button" icon="pi pi-bolt" />
+														<h:panelGroup id="optimizeCollateralWrapper" styleClass="btn-ai-wrapper">
+															<p:commandButton value="Optimize" action="#{gCRepoCollateralController.optimizeAllocation()}" update="@form" styleClass="rounded-button btn-ai" icon="pi pi-sparkles" iconPos="right" />
+														</h:panelGroup>
 													</h:panelGrid>
 												</p:panel>
 											</p:column>
