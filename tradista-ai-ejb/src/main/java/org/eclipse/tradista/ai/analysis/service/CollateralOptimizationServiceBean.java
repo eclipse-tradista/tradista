@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.ai.analysis.prompt.PromptTemplateRegistry;
 import org.eclipse.tradista.ai.reasoning.common.service.LocalConfigurationService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -111,7 +112,7 @@ public class CollateralOptimizationServiceBean implements CollateralOptimization
 
 		if (availableQuantities != null && !availableQuantities.isEmpty()) {
 			for (Security sec : availableQuantities.keySet()) {
-				String exchangeCode = sec.getExchange() != null ? sec.getExchange().getCode() : "";
+				String exchangeCode = sec.getExchange() != null ? sec.getExchange().getCode() : StringUtils.EMPTY;
 				String quoteName = sec.getProductType() + "." + sec.getIsin() + "." + exchangeCode;
 				QuoteType quoteType = sec.getProductType().equals(Bond.BOND) ? QuoteType.BOND_PRICE
 						: QuoteType.EQUITY_PRICE;
