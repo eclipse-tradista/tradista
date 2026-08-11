@@ -18,7 +18,6 @@ package org.eclipse.tradista.ai.reasoning.common.util;
 
 import java.util.Properties;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 
 public final class TradistaAIProperties {

@@ -5,6 +5,7 @@ import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_CO
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -59,6 +60,8 @@ import jakarta.ejb.Stateless;
 @ProductScope(Bond.BOND)
 public class BondPricerServiceBean implements BondPricerService {
 
+	private static final String FIXED = "Fixed";
+
 	private static final String BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The bond ({}) maturity date must be after the current and pricing dates";
 
 	private static final String PRICING_PARAMETER_DOESNT_CONTAIN_INDEX_CURVE_FOR_INDEX = "%s Pricing Parameter doesn't contain an Index Curve for %s. please add it or change the Pricing Parameter.";
@@ -87,7 +90,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		}
 
 		InterestRateCurve indexCurve = null;
-		if (!trade.getProduct().getCouponType().equals("Fixed")) {
+		if (!trade.getProduct().getCouponType().equals(FIXED)) {
 			indexCurve = params.getIndexCurves().get(trade.getProduct().getReferenceRateIndex());
 			if (indexCurve == null) {
 				throw new TradistaBusinessException(
@@ -100,7 +103,7 @@ public class BondPricerServiceBean implements BondPricerService {
 			// 2. Enter in the "solve and retry" process
 			while (!found) {
 				// compute f(x)
-				discountedCFsMinusMarketPrice = discountedCFsMinusMarketPrice(rate, trade.getProduct(), pricingDate,
+				discountedCFsMinusMarketPrice = discountedCFsMinusMarketPrice(trade.getProduct(), pricingDate,
 						discountCurve.getId(), indexCurve != null ? indexCurve.getId() : 0);
 				// compute f'(x)
 				// check the diff
@@ -142,7 +145,6 @@ public class BondPricerServiceBean implements BondPricerService {
 					discountCurve.getId(), pricingDate, bond.getMaturityDate(), null))).multiply(couponsByYear)
 					.divide(annuity, RoundingMode.HALF_EVEN);
 		} catch (PricerException pe) {
-			pe.printStackTrace();
 			throw new TradistaBusinessException(pe.getMessage());
 		}
 	}
@@ -151,14 +153,14 @@ public class BondPricerServiceBean implements BondPricerService {
 	public BigDecimal npvDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
 			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
-		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
 			logger.warn(BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-			if (pricingDate.isBefore(LocalDate.now())) {
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())) {
+			if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
 				throw new TradistaBusinessException(
 						"When the trade settlement date has passed, it is not allowed to specify a pricing date in the past.");
 			}
@@ -248,7 +250,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		}
 
 		InterestRateCurve indexCurve = null;
-		if (!trade.getProduct().getCouponType().equals("Fixed")) {
+		if (!trade.getProduct().getCouponType().equals(FIXED)) {
 			indexCurve = params.getIndexCurves().get(trade.getProduct().getReferenceRateIndex());
 			if (indexCurve == null) {
 				throw new TradistaBusinessException(
@@ -349,23 +351,23 @@ public class BondPricerServiceBean implements BondPricerService {
 		return price;
 	}
 
-	private BigDecimal discountedCFsMinusMarketPrice(BigDecimal rate, Bond bond, LocalDate pricingDate,
-			long discountCurveId, long indexCurveId) throws PricerException, TradistaBusinessException {
-		return PricerBondUtil.discountCoupons(rate, 0, bond, pricingDate, indexCurveId)
-				.subtract(PricerBondUtil.discountCoupons(null, discountCurveId, bond, pricingDate, indexCurveId));
+	private BigDecimal discountedCFsMinusMarketPrice(Bond bond, LocalDate pricingDate, long discountCurveId,
+			long indexCurveId) throws PricerException, TradistaBusinessException {
+		return PricerBondUtil.discountCoupons(0, bond, pricingDate, indexCurveId)
+				.subtract(PricerBondUtil.discountCoupons(discountCurveId, bond, pricingDate, indexCurveId));
 	}
 
 	@Override
 	public BigDecimal cleanPriceDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
 			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
-		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
 			return BigDecimal.ZERO;
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-			if (pricingDate.isBefore(LocalDate.now())) {
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())) {
+			if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
 				throw new TradistaBusinessException(
 						"When the trade settlement date has passed, it is not allowed to specify a pricing date in the past.");
 			}
@@ -387,7 +389,7 @@ public class BondPricerServiceBean implements BondPricerService {
 		}
 
 		InterestRateCurve indexCurve = null;
-		if (!trade.getProduct().getCouponType().equals("Fixed")) {
+		if (!trade.getProduct().getCouponType().equals(FIXED)) {
 			indexCurve = params.getIndexCurves().get(bond.getReferenceRateIndex());
 			if (indexCurve == null) {
 				throw new TradistaBusinessException(
@@ -397,8 +399,8 @@ public class BondPricerServiceBean implements BondPricerService {
 		}
 
 		try {
-			BigDecimal discountedCoupons = PricerBondUtil.discountCoupons(null, discountCurve.getId(), bond,
-					pricingDate, indexCurve != null ? indexCurve.getId() : 0);
+			BigDecimal discountedCoupons = PricerBondUtil.discountCoupons(discountCurve.getId(), bond, pricingDate,
+					indexCurve != null ? indexCurve.getId() : 0);
 
 			if (trade.isSell()) {
 				discountedCoupons = discountedCoupons.negate();
@@ -419,14 +421,14 @@ public class BondPricerServiceBean implements BondPricerService {
 	public BigDecimal dirtyPriceDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
 			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
-		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
 			logger.warn(BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-			if (pricingDate.isBefore(LocalDate.now())) {
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())) {
+			if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
 				throw new TradistaBusinessException(
 						"When the trade settlement date has passed, it is not allowed to specify a pricing date in the past.");
 			}

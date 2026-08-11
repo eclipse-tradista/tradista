@@ -15,6 +15,8 @@
  ********************************************************************************/
 package org.eclipse.tradista.core.rating.ui.controller;
 
+import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.ERROR;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -30,12 +32,11 @@ import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.rating.model.Rating;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
-import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.ERROR;
 import org.primefaces.event.CellEditEvent;
-import jakarta.faces.component.UIComponent;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;

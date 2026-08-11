@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.tradista.ai.analysis.service.BookAnalysisBusinessDelegate;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
-import org.eclipse.tradista.ai.analysis.service.BookAnalysisBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.ColorUtil;
 

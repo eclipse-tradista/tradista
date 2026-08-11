@@ -327,6 +327,8 @@ public class CurvesController extends TradistaControllerAdapter {
 
 		if (data == null) {
 			data = new ArrayList<>();
+		} else {
+			data = new ArrayList<>(data);
 		}
 		// Get the number of days in that month
 		int daysInMonth = month.getValue().length(year.getValue().isLeap());

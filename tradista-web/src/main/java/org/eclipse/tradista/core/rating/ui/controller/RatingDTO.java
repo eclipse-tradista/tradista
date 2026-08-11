@@ -16,6 +16,7 @@
 package org.eclipse.tradista.core.rating.ui.controller;
 
 import java.io.Serializable;
+
 import org.eclipse.tradista.core.rating.model.Rating;
 
 public class RatingDTO implements Serializable {

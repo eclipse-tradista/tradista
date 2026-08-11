@@ -70,6 +70,7 @@ public final class TradistaDBConstants {
 	public static final String SURFACE_ID = "SURFACE_ID";
 	public static final String VALID_FROM = "VALID_FROM";
 	public static final String VALID_TO = "VALID_TO";
+	public static final String ENTERED_DATE = "ENTERED_DATE";
 
 	private TradistaDBConstants() {
 	}

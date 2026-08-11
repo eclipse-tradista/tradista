@@ -22,9 +22,7 @@ import java.util.Map;
 import org.eclipse.tradista.ai.analysis.prompt.PromptTemplateRegistry;
 import org.eclipse.tradista.ai.reasoning.common.service.LocalConfigurationService;
 import org.eclipse.tradista.core.cashflow.model.CashFlow;
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.springframework.util.CollectionUtils;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.input.Prompt;
@@ -42,8 +40,7 @@ public class CashflowsAnalysisServiceBean implements CashflowsAnalysisService {
 	private LocalConfigurationService localConfigurationService;
 
 	@Override
-	public String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
-			throws TradistaBusinessException {
+	public String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows) {
 		ChatModel model = localConfigurationService.getChatModel();
 		PromptTemplate promptTemplate = PromptTemplateRegistry.getCashflowsAnalysisPromptTemplate();
 		Map<String, Object> data = new HashMap<>();
@@ -60,7 +57,7 @@ public class CashflowsAnalysisServiceBean implements CashflowsAnalysisService {
 		sb.append("--------------------------------------------------------------------------------------\n");
 
 		for (CashFlow cf : cashflows) {
-			sb.append(String.format("%s | %s | %s | %s | %s | %s | %s\n", cf.getDate(), cf.getDirection(),
+			sb.append(String.format("%s | %s | %s | %s | %s | %s | %s%n", cf.getDate(), cf.getDirection(),
 					cf.getPurpose(), cf.getAmount(), cf.getDiscountedAmount(), cf.getDiscountFactor(),
 					cf.getCurrency()));
 		}

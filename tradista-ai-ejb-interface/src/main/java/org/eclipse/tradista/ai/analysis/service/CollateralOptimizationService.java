@@ -15,15 +15,20 @@
  ********************************************************************************/
 package org.eclipse.tradista.ai.analysis.service;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Map;
 
-import org.eclipse.tradista.core.cashflow.model.CashFlow;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 
 import jakarta.ejb.Remote;
 
 @Remote
-public interface CashflowsAnalysisService {
+public interface CollateralOptimizationService {
 
-	String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows);
+	Map<Security, BigDecimal> optimizeCollateral(GCRepoTrade trade, BigDecimal exposure,
+			Map<Security, BigDecimal> availableQuantities, boolean considerBasel3LiquidityRatios,
+			boolean excludeBondsPayingCoupons) throws TradistaBusinessException;
 
 }

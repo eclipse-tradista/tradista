@@ -17,6 +17,7 @@
 package org.eclipse.tradista.core.mapping.controller;
 
 import java.io.Serializable;
+
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 
 public class MappingDTO implements Serializable {

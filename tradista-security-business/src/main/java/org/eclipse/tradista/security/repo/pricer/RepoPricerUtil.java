@@ -4,6 +4,7 @@ import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -118,8 +119,8 @@ public final class RepoPricerUtil {
 		Map<Security, Map<Book, BigDecimal>> securities = RepoTradeUtil.getAllocatedCollateral(trade);
 
 		// 2. Get the MTM of the current collateral as of pricing date
-		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(), LocalDate.now(),
-				trade.getCurrency());
+		return getCollateralMarkToMarket(securities, trade.getBook().getProcessingOrg(),
+				LocalDate.now(ZoneId.systemDefault()), trade.getCurrency());
 	}
 
 	public static BigDecimal getCollateralMarkToMarket(Map<Security, Map<Book, BigDecimal>> securities, LegalEntity po,
@@ -150,13 +151,13 @@ public final class RepoPricerUtil {
 				if (qv == null) {
 					throw new TradistaBusinessException(
 							String.format("The security price %s could not be found on quote set %s as of %tD",
-									quoteName, qs, LocalDate.now()));
+									quoteName, qs, LocalDate.now(ZoneId.systemDefault())));
 				}
 				BigDecimal price = qv.getClose() != null ? qv.getClose() : qv.getLast();
 				if (price == null) {
 					throw new TradistaBusinessException(String.format(
 							"The closing or last price of the product %s could not be found on quote set %s as of %tD",
-							entry.getKey(), qs, LocalDate.now()));
+							entry.getKey(), qs, LocalDate.now(ZoneId.systemDefault())));
 				}
 				Currency securityCurrency = entry.getKey().getCurrency();
 				for (BigDecimal qty : entry.getValue().values()) {
@@ -253,7 +254,7 @@ public final class RepoPricerUtil {
 			rate = trade.getRepoRate();
 			rate = PricerUtil.divide(rate, ONE_HUNDRED);
 		} else {
-			if (!pricingDate.isAfter(LocalDate.now())) {
+			if (!pricingDate.isAfter(LocalDate.now(ZoneId.systemDefault()))) {
 				rate = getFloatingRate(trade, pricingDate);
 				rate = PricerUtil.divide(rate, ONE_HUNDRED);
 			} else {
@@ -289,29 +290,30 @@ public final class RepoPricerUtil {
 		QuoteValue qv = quoteBusinessDelegate.getQuoteValueByQuoteSetIdQuoteNameTypeAndDate(qs.getId(), quoteName,
 				QuoteType.INTEREST_RATE, date);
 		if (qv == null) {
-			throw new TradistaBusinessException(String.format(
-					"The index %s could not be found on quote set %s as of %tD", quoteName, qs, LocalDate.now()));
+			throw new TradistaBusinessException(
+					String.format("The index %s could not be found on quote set %s as of %tD", quoteName, qs,
+							LocalDate.now(ZoneId.systemDefault())));
 		}
 		// the index is expected to be defined as quote closing value.
 		rate = qv.getClose();
 		if (rate == null) {
 			throw new TradistaBusinessException(
 					String.format("The index %s (closing value) could not be found on quote set %s as of %tD",
-							quoteName, qs, LocalDate.now()));
+							quoteName, qs, LocalDate.now(ZoneId.systemDefault())));
 		}
 		return rate;
 	}
 
 	public static BigDecimal getCurrentExposure(RepoTrade trade) throws TradistaBusinessException {
-		return calculateExposure(trade, LocalDate.now(), null);
+		return calculateExposure(trade, LocalDate.now(ZoneId.systemDefault()), null);
 	}
 
 	public static BigDecimal getCurrentCashValue(RepoTrade trade) throws TradistaBusinessException {
-		return calculateCashValue(trade, LocalDate.now(), null);
+		return calculateCashValue(trade, LocalDate.now(ZoneId.systemDefault()), null);
 	}
 
 	public static BigDecimal getCurrentCollateralValue(RepoTrade trade) throws TradistaBusinessException {
-		return calculateCollateralValue(trade, LocalDate.now());
+		return calculateCollateralValue(trade, LocalDate.now(ZoneId.systemDefault()));
 	}
 
 	public static List<CashFlow> generateCashFlows(PricingParameter params, RepoTrade trade, LocalDate pricingDate)
@@ -329,7 +331,7 @@ public final class RepoPricerUtil {
 		}
 
 		if (!isHistoricalAnalysis) {
-			if (!LocalDate.now().isBefore(trade.getEndDate())) {
+			if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getEndDate())) {
 				throw new TradistaBusinessException(
 						"When the repo end date has passed, it is not possible to forecast cashflows.");
 			}
@@ -341,8 +343,8 @@ public final class RepoPricerUtil {
 		}
 
 		if (!isHistoricalAnalysis) {
-			if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-				if (pricingDate.isBefore(LocalDate.now())) {
+			if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())) {
+				if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
 					throw new TradistaBusinessException(
 							"When the trade settlement date has passed and a pricing date is in the past, it is not possible to forecast cashflows.");
 				}
@@ -602,7 +604,8 @@ public final class RepoPricerUtil {
 
 		// Payment for the opening leg
 
-		if (LocalDate.now().isBefore(trade.getSettlementDate()) && pricingDate.isBefore(trade.getSettlementDate())) {
+		if (LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())
+				&& pricingDate.isBefore(trade.getSettlementDate())) {
 			try {
 				Currency tradeCurrency = trade.getCurrency();
 				CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
@@ -633,14 +636,13 @@ public final class RepoPricerUtil {
 
 				pnl = discountedOpeningLegPayment;
 			} catch (PricerException pe) {
-				pe.printStackTrace();
 				throw new TradistaBusinessException(pe.getMessage());
 			}
 		}
 
 		// Payment for the closing leg
 		if (trade.getEndDate() != null) {
-			if (LocalDate.now().isBefore(trade.getEndDate())) {
+			if (LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getEndDate())) {
 				try {
 					Currency tradeCurrency = trade.getCurrency();
 					CurrencyPair pair = new CurrencyPair(tradeCurrency, currency);
@@ -673,7 +675,6 @@ public final class RepoPricerUtil {
 
 					pnl = pnl.add(discountedClosingLegPayment);
 				} catch (PricerException pe) {
-					pe.printStackTrace();
 					throw new TradistaBusinessException(pe.getMessage());
 				}
 			}
@@ -714,8 +715,11 @@ public final class RepoPricerUtil {
 				BigDecimal initialPrice = PricerUtil.getValueAsOfDateFromQuote(quoteName, params.getQuoteSet().getId(),
 						quoteType, QuoteValue.CLOSE, trade.getSettlementDate());
 				BigDecimal price = null;
-				if (pricingDate.isBefore(LocalDate.now()) || pricingDate.isEqual(LocalDate.now())) {
-					String quoteValueType = pricingDate.isBefore(LocalDate.now()) ? QuoteValue.CLOSE : QuoteValue.LAST;
+				if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))
+						|| pricingDate.isEqual(LocalDate.now(ZoneId.systemDefault()))) {
+					String quoteValueType = pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))
+							? QuoteValue.CLOSE
+							: QuoteValue.LAST;
 					price = PricerUtil.getValueAsOfDateFromQuote(quoteName, params.getQuoteSet().getId(), quoteType,
 							quoteValueType, pricingDate);
 					if (price == null) {
@@ -725,7 +729,7 @@ public final class RepoPricerUtil {
 								params.getQuoteSet()));
 					}
 				}
-				if (pricingDate.isAfter(LocalDate.now())) {
+				if (pricingDate.isAfter(LocalDate.now(ZoneId.systemDefault()))) {
 					if (security.getProductType().equals(Bond.BOND)) {
 						// Create a dummy bond trade for determination of the bond clean price
 						BondTrade dummyTrade = new BondTrade();
@@ -790,13 +794,13 @@ public final class RepoPricerUtil {
 		// Add collateral added from the GUI
 		if (!ObjectUtils.isEmpty(addedSecurities)) {
 			pendingCollateralValue = pendingCollateralValue.add(getCollateralMarkToMarket(addedSecurities,
-					trade.getBook().getProcessingOrg(), LocalDate.now(), trade.getCurrency()));
+					trade.getBook().getProcessingOrg(), LocalDate.now(ZoneId.systemDefault()), trade.getCurrency()));
 		}
 
 		// Remove collateral removed from the GUI
 		if (!ObjectUtils.isEmpty(removedSecurities)) {
 			pendingCollateralValue = pendingCollateralValue.subtract(getCollateralMarkToMarket(removedSecurities,
-					trade.getBook().getProcessingOrg(), LocalDate.now(), trade.getCurrency()));
+					trade.getBook().getProcessingOrg(), LocalDate.now(ZoneId.systemDefault()), trade.getCurrency()));
 		}
 		pendingCollateralValue = PricerUtil.divide(pendingCollateralValue, marginRate);
 		return collateralValue.add(pendingCollateralValue);
@@ -808,7 +812,7 @@ public final class RepoPricerUtil {
 			throw new TradistaBusinessException(
 					"Convexity cannot be calculated when the pricing date is not after the repo trade settlement date");
 		}
-		if (pricingDate.isBefore(LocalDate.now())) {
+		if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
 			throw new TradistaBusinessException(
 					"Convexity cannot be calculated when the pricing date is before the current date");
 		}
@@ -823,7 +827,7 @@ public final class RepoPricerUtil {
 		// 3. Estimate the IR as of trade end date from pricing date
 		BigDecimal ir;
 		try {
-			if (!pricingDate.isAfter(LocalDate.now())) {
+			if (!pricingDate.isAfter(LocalDate.now(ZoneId.systemDefault()))) {
 				ir = PricerUtil.divide(PricerUtil.getDiscountFactor(paramTradeCurrIRCurve.getId(), trade.getEndDate()),
 						ONE_HUNDRED);
 			} else {

@@ -447,6 +447,11 @@ public final class TradistaDBUtil {
 		addFreeTextFilter(sqlQuery, expression, operator + "?");
 	}
 
+	public static void addParameterizedInFilter(StringBuilder sqlQuery, Expression expression, Object[] values) {
+		TradistaDBUtil.addFilter(false, sqlQuery, expression,
+				(values == null) ? null : Arrays.stream(values).map(v -> "?").toArray(String[]::new));
+	}
+
 	public static String wrapWithQuotes(String value) {
 		if (value == null) {
 			throw new TradistaTechnicalException("Cannot wrap with quotes a null value.");
@@ -501,6 +506,11 @@ public final class TradistaDBUtil {
 
 	public static PreparedStatement buildUpdatePreparedStatement(Connection con, Field filter, Table table,
 			Field... fields) {
+		return buildUpdatePreparedStatement(con, filter == null ? null : new Field[] { filter }, table, fields);
+	}
+
+	public static PreparedStatement buildUpdatePreparedStatement(Connection con, Field[] filters, Table table,
+			Field... fields) {
 		StringBuilder errorMessage = new StringBuilder();
 		if (con == null) {
 			errorMessage.append(String.format("The connection is mandatory.%n"));
@@ -522,10 +532,12 @@ public final class TradistaDBUtil {
 				}
 			}
 		}
-		if (filter != null) {
-			if (!filter.getTable().equals(table)) {
-				errorMessage.append(
-						String.format(THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE, filter, filter.getTable(), table));
+		if (!ArrayUtils.isEmpty(filters)) {
+			for (Field filter : filters) {
+				if (!filter.getTable().equals(table)) {
+					errorMessage.append(
+							String.format(THE_FIELD_DOESNT_HAVE_THE_EXPECTED_TABLE, filter, filter.getTable(), table));
+				}
 			}
 		}
 		if (!errorMessage.isEmpty()) {
@@ -537,10 +549,10 @@ public final class TradistaDBUtil {
 		updateSQL.append(" SET ");
 		updateSQL.append(String.join(",", Arrays.stream(fields).map(f -> f.getName() + "=?").toArray(String[]::new)));
 
-		if (filter != null) {
+		if (!ArrayUtils.isEmpty(filters)) {
 			updateSQL.append(WHERE);
-			updateSQL.append(filter.getFullName());
-			updateSQL.append("=?");
+			updateSQL.append(
+					String.join(AND, Arrays.stream(filters).map(f -> f.getName() + "=?").toArray(String[]::new)));
 		}
 
 		logger.debug("Generated update statement: {}", updateSQL);

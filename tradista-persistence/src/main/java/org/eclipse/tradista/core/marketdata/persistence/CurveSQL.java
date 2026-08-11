@@ -65,11 +65,11 @@ public final class CurveSQL {
 
 	public static final Table CURVE_POINT_TABLE = new Table("CURVE_POINT", CURVE_POINT_FIELDS);
 
-	private static final Field QUOTE_ID_FIELD = new Field(QUOTE_ID);
+	public static final Field QUOTE_ID_FIELD = new Field(QUOTE_ID);
 
 	private static final Field[] CURVE_QUOTE_FIELDS = { CURVE_QUOTE_CURVE_ID_FIELD, QUOTE_ID_FIELD };
 
-	private static final Table CURVE_QUOTE_TABLE = new Table("CURVE_QUOTE", CURVE_QUOTE_FIELDS);
+	public static final Table CURVE_QUOTE_TABLE = new Table("CURVE_QUOTE", CURVE_QUOTE_FIELDS);
 
 	public static PreparedStatement getInsertCurvePreparedStatement(Connection con) {
 		return TradistaDBUtil.buildInsertPreparedStatement(con, CURVE_TABLE, CURVE_FIELDS_FOR_INSERT_OR_UPDATE);

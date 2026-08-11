@@ -14,6 +14,7 @@ import org.eclipse.tradista.ai.agent.service.AssetManagerAgentService;
 import org.eclipse.tradista.ai.agent.service.MandateService;
 import org.eclipse.tradista.ai.analysis.service.BookAnalysisService;
 import org.eclipse.tradista.ai.analysis.service.CashflowsAnalysisService;
+import org.eclipse.tradista.ai.analysis.service.CollateralOptimizationService;
 import org.eclipse.tradista.ai.reasoning.common.service.FormulaService;
 import org.eclipse.tradista.ai.reasoning.fol.service.FolFormulaService;
 import org.eclipse.tradista.core.batch.service.BatchService;
@@ -21,7 +22,6 @@ import org.eclipse.tradista.core.book.service.BookService;
 import org.eclipse.tradista.core.calendar.service.CalendarService;
 import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
 import org.eclipse.tradista.core.common.service.InformationService;
-import org.eclipse.tradista.core.common.service.TradistaExceptionHandlerInterceptor;
 import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.currency.service.CurrencyService;
 import org.eclipse.tradista.core.dailypnl.service.DailyPnlService;
@@ -59,10 +59,10 @@ import org.eclipse.tradista.core.pricing.service.PricerService;
 import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsService;
 import org.eclipse.tradista.core.product.service.ProductService;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
+import org.eclipse.tradista.core.rating.service.RatingService;
 import org.eclipse.tradista.core.trade.service.TradeService;
 import org.eclipse.tradista.core.transfer.service.FixingErrorService;
 import org.eclipse.tradista.core.transfer.service.TransferService;
-import org.eclipse.tradista.core.rating.service.RatingService;
 import org.eclipse.tradista.core.user.service.UserService;
 import org.eclipse.tradista.core.workflow.service.WorkflowService;
 import org.eclipse.tradista.fx.common.service.FXInformationService;
@@ -390,6 +390,11 @@ public class TradistaServiceLocator {
 	public CashflowsAnalysisService getCashflowsAnalysisService() {
 		return (CashflowsAnalysisService) getService(AI_APP, AI_EJB, AI_ANALYSIS_SERVICE_PACKAGE,
 				"CashflowsAnalysisService");
+	}
+
+	public CollateralOptimizationService getCollateralOptimizationService() {
+		return (CollateralOptimizationService) getService(AI_APP, AI_EJB, AI_ANALYSIS_SERVICE_PACKAGE,
+				"CollateralOptimizationService");
 	}
 
 	public DailyPnlService getDailyPnlService() {

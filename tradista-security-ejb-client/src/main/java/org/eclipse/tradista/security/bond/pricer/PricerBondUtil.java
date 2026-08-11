@@ -35,9 +35,15 @@ import org.eclipse.tradista.security.bond.model.Coupon;
 
 public final class PricerBondUtil {
 
-	public static BigDecimal discountCoupons(BigDecimal rate, long discountCurveId, Bond bond, LocalDate pricingDate,
-			long indexCurveId) throws PricerException, TradistaBusinessException {
-		BigDecimal price = BigDecimal.ZERO;
+	private static final String FIXED = "Fixed";
+
+	private PricerBondUtil() {
+		/* This utility class should not be instantiated */
+	}
+
+	public static BigDecimal discountCoupons(long discountCurveId, Bond bond, LocalDate pricingDate, long indexCurveId)
+			throws PricerException, TradistaBusinessException {
+		BigDecimal price;
 		// 1. Generate the pending coupons
 		List<Coupon> pendingCoupons = getPendingCoupons(bond, pricingDate, indexCurveId, true);
 		// 2. loop in the coupons and increment the price with the discounted
@@ -73,7 +79,7 @@ public final class PricerBondUtil {
 				if (couponDate.isAfter(datedDate) && !couponDate.isBefore(tradeDate)) {
 					Coupon coupon = new Coupon(couponDate);
 					if (calculateAmount) {
-						if (bond.getCouponType().equals("Fixed")) {
+						if (bond.getCouponType().equals(FIXED)) {
 							coupon.setAmount(
 									bond.getPrincipal().multiply(bond.getCoupon().divide(BigDecimal.valueOf(100))));
 						} else {
@@ -139,7 +145,7 @@ public final class PricerBondUtil {
 					CashFlow coupon = new CashFlow();
 					coupon.setDate(couponDate);
 					coupon.setCurrency(bond.getCurrency());
-					if (bond.getCouponType().equals("Fixed")) {
+					if (bond.getCouponType().equals(FIXED)) {
 						coupon.setAmount(
 								bond.getPrincipal().multiply(bond.getCoupon().divide(BigDecimal.valueOf(100))));
 					} else {
@@ -237,7 +243,7 @@ public final class PricerBondUtil {
 					coupon.setCurrency(bond.getCurrency());
 					coupon.setPurpose(TransferPurpose.COUPON);
 					coupon.setDirection(trade.isBuy() ? CashFlow.Direction.RECEIVE : CashFlow.Direction.PAY);
-					if (bond.getCouponType().equals("Fixed")) {
+					if (bond.getCouponType().equals(FIXED)) {
 						coupon.setAmount(bond.getPrincipal().multiply(bond.getCoupon().divide(BigDecimal.valueOf(100)))
 								.multiply(trade.getQuantity()));
 					} else {

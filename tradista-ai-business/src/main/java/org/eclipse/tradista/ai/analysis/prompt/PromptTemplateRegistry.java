@@ -43,4 +43,11 @@ public final class PromptTemplateRegistry {
 		return promptTemplateCache.get(CASHFLOWS_ANALYSIS_KEY);
 	}
 
+	public static PromptTemplate getCollateralOptimizationPromptTemplate() {
+		final String COLLATERAL_OPTIMIZATION_KEY = "CollateralOptimization";
+		promptTemplateCache.putIfAbsent(COLLATERAL_OPTIMIZATION_KEY,
+				PromptTemplate.from(TradistaUtil.loadResourceAsString("prompts/collateralOptimization.prompt")));
+		return promptTemplateCache.get(COLLATERAL_OPTIMIZATION_KEY);
+	}
+
 }

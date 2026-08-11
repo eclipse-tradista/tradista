@@ -15,35 +15,28 @@
  ********************************************************************************/
 package org.eclipse.tradista.ai.analysis.service;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Map;
 
-import org.eclipse.tradista.core.cashflow.model.CashFlow;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
-import org.springframework.util.CollectionUtils;
+import org.eclipse.tradista.security.common.model.Security;
+import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 
-public class CashflowsAnalysisBusinessDelegate {
+public class CollateralOptimizationBusinessDelegate {
 
-	private CashflowsAnalysisService cashflowsAnalysisService;
+	private CollateralOptimizationService collateralOptimizationService;
 
-	public CashflowsAnalysisBusinessDelegate() {
-		cashflowsAnalysisService = TradistaServiceLocator.getInstance().getCashflowsAnalysisService();
+	public CollateralOptimizationBusinessDelegate() {
+		collateralOptimizationService = TradistaServiceLocator.getInstance().getCollateralOptimizationService();
 	}
 
-	public String analyseCashflows(List<CashFlow> tMinusOneCashflows, List<CashFlow> tCashflows)
-			throws TradistaBusinessException {
-		StringBuilder errMsg = new StringBuilder();
-		if (CollectionUtils.isEmpty(tMinusOneCashflows)) {
-			errMsg.append(String.format("T-1 Cashflows are mandatory for the analysis.%n"));
-		}
-		if (CollectionUtils.isEmpty(tCashflows)) {
-			errMsg.append("Cashflows are mandatory.");
-		}
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
-		return SecurityUtil.run(() -> cashflowsAnalysisService.analyseCashflows(tMinusOneCashflows, tCashflows));
+	public Map<Security, BigDecimal> optimizeCollateral(GCRepoTrade trade, BigDecimal exposure,
+			Map<Security, BigDecimal> availableQuantities, boolean considerBasel3LiquidityRatios,
+			boolean excludeBondsPayingCoupons) throws TradistaBusinessException {
+		return SecurityUtil.runEx(() -> collateralOptimizationService.optimizeCollateral(trade, exposure,
+				availableQuantities, considerBasel3LiquidityRatios, excludeBondsPayingCoupons));
 	}
 
 }
