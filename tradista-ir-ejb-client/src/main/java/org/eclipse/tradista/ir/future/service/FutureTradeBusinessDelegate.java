@@ -47,7 +47,7 @@ public class FutureTradeBusinessDelegate {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
 		return SecurityUtil
-				.run(() -> futureTradeService.getFutureTradesBeforeTradeDateByFutureAndBookIds(date, futureId, bookId));
+				.runEx(() -> futureTradeService.getFutureTradesBeforeTradeDateByFutureAndBookIds(date, futureId, bookId));
 	}
 
 	public FutureTrade getFutureTradeById(long id) throws TradistaBusinessException {

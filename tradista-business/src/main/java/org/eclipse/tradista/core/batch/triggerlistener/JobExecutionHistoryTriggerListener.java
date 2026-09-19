@@ -48,9 +48,13 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(),
-				"IN PROGRESS", LocalDateTime.ofInstant(context.getFireTime().toInstant(), ZoneId.systemDefault()), null,
-				null, trigger.getJobKey().getName(), jobType);
+		try {
+			batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(),
+					"IN PROGRESS", LocalDateTime.ofInstant(context.getFireTime().toInstant(), ZoneId.systemDefault()), null,
+					null, trigger.getJobKey().getName(), jobType);
+		} catch (TradistaBusinessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void triggerComplete(Trigger trigger, JobExecutionContext context,
@@ -72,8 +76,12 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(), status,
-				null, LocalDateTime.now(), errorCause, trigger.getJobKey().getName(), jobType);
+		try {
+			batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(), status,
+					null, LocalDateTime.now(), errorCause, trigger.getJobKey().getName(), jobType);
+		} catch (TradistaBusinessException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

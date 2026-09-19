@@ -36,7 +36,7 @@ public class PositionBusinessDelegate {
 
 	public long savePosition(Position position) throws TradistaBusinessException {
 		checkPosition(position);
-		return SecurityUtil.run(() -> positionService.savePosition(position));
+		return SecurityUtil.runEx(() -> positionService.savePosition(position));
 	}
 
 	private void checkPosition(Position position) throws TradistaBusinessException {
@@ -69,7 +69,7 @@ public class PositionBusinessDelegate {
 		if (positions == null || positions.isEmpty()) {
 			throw new TradistaBusinessException("The positions list is null or empty.");
 		}
-		SecurityUtil.run(() -> positionService.savePositions(positions));
+		SecurityUtil.runEx(() -> positionService.savePositions(positions));
 	}
 
 	public List<Position> getPositionsByDefinitionIdAndValueDates(long positionDefinitionId, LocalDate valueDateFrom,

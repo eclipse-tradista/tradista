@@ -111,7 +111,7 @@ public class FeedBusinessDelegate {
 		if (poId < 0) {
 			throw new TradistaBusinessException("The po id cannot be negative.");
 		}
-		return SecurityUtil.run(() -> feedService.getFeedConfigsByPoId(poId));
+		return SecurityUtil.runEx(() -> feedService.getFeedConfigsByPoId(poId));
 	}
 
 }

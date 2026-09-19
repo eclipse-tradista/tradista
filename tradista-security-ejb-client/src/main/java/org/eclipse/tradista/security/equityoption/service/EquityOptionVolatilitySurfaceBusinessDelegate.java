@@ -156,7 +156,7 @@ public class EquityOptionVolatilitySurfaceBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.run(() -> equityOptionVolatilitySurfaceService.generate(algorithm, interpolator, instance,
+		return SecurityUtil.runEx(() -> equityOptionVolatilitySurfaceService.generate(algorithm, interpolator, instance,
 				quoteDate, quoteSet, quoteNames, strikes));
 	}
 
@@ -198,6 +198,6 @@ public class EquityOptionVolatilitySurfaceBusinessDelegate {
 		if (id <= 0) {
 			throw new TradistaBusinessException("The equity option volatility id must be positive.");
 		}
-		return SecurityUtil.run(() -> equityOptionVolatilitySurfaceService.getEquityOptionVolatilitySurfaceById(id));
+		return SecurityUtil.runEx(() -> equityOptionVolatilitySurfaceService.getEquityOptionVolatilitySurfaceById(id));
 	}
 }

@@ -76,7 +76,7 @@ public class DailyPnlBusinessDelegate {
 			errMsg.append(String.format("The daily pnl UNREALIZED PNL is mandatory.%n"));
 		}
 
-		return SecurityUtil.run(() -> dailyPnlService.saveDailyPnl(dailyPnl));
+		return SecurityUtil.runEx(() -> dailyPnlService.saveDailyPnl(dailyPnl));
 
 	}
 

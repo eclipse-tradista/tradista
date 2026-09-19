@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -70,7 +71,7 @@ public class LegalEntityReportController extends TradistaControllerAdapter {
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
 	// This method is called by the FXMLLoader when initialization is complete
-	public void initialize() {
+	public void initialize() throws TradistaBusinessException {
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		id.setCellValueFactory(cellData -> cellData.getValue().getId());
 		shortName.setCellValueFactory(cellData -> cellData.getValue().getShortName());
@@ -108,8 +109,13 @@ public class LegalEntityReportController extends TradistaControllerAdapter {
 		if (!roleComboBox.getValue().isEmpty()) {
 			role = LegalEntity.Role.getRole(roleComboBox.getValue());
 		}
-		Set<LegalEntity> legalEntities = legalEntityBusinessDelegate
-				.getLegalEntitiesByShortNameAndRole("%" + shortNameTextField.getText() + "%", role);
+		Set<LegalEntity> legalEntities = null;
+		try {
+			legalEntities = legalEntityBusinessDelegate.getLegalEntitiesByShortNameAndRole("%" + shortNameTextField.getText() + "%", role);
+		} catch (TradistaBusinessException e) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, e.getMessage());
+			alert.showAndWait();
+		}
 
 		if (legalEntities != null) {
 			if (!legalEntities.isEmpty()) {

@@ -51,9 +51,9 @@ public class MessageBusinessDelegate {
 		if (!StringUtils.isBlank(action)) {
 			final Message msg = applyAction(message, action);
 			// If there was no error, we save the message
-			return SecurityUtil.run(() -> messageService.saveMessage(msg));
+			return SecurityUtil.runEx(() -> messageService.saveMessage(msg));
 		} else {
-			return SecurityUtil.run(() -> messageService.saveMessage(message));
+			return SecurityUtil.runEx(() -> messageService.saveMessage(message));
 		}
 	}
 

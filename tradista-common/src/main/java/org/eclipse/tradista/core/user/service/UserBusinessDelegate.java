@@ -92,7 +92,7 @@ public class UserBusinessDelegate {
 		if (poId <= 0) {
 			throw new TradistaBusinessException(String.format("The po id (%s) must be positive.", poId));
 		}
-		return SecurityUtil.run(() -> userService.getUsersByPoId(poId));
+		return SecurityUtil.runEx(() -> userService.getUsersByPoId(poId));
 	}
 
 	public User getUserById(long id) throws TradistaBusinessException {

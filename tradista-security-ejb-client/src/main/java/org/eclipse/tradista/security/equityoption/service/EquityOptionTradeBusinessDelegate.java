@@ -92,7 +92,7 @@ public class EquityOptionTradeBusinessDelegate {
 			throw new TradistaBusinessException("The trade date is mandatory.");
 		}
 
-		return SecurityUtil.run(() -> equityTradeOptionService
+		return SecurityUtil.runEx(() -> equityTradeOptionService
 				.getEquityOptionTradesBeforeTradeDateByEquityOptionAndBookIds(tradeDate, equityOptionId, bookId));
 	}
 

@@ -64,7 +64,7 @@ public class BatchBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		SecurityUtil.run(() -> batchService.deleteJobInstance(jobInstanceName, po));
+		SecurityUtil.runEx(() -> batchService.deleteJobInstance(jobInstanceName, po));
 	}
 
 	public Set<String> getAllJobTypes() {
@@ -100,7 +100,7 @@ public class BatchBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.run(() -> batchService.getJobExecutions(executionDate, po));
+		return SecurityUtil.runEx(() -> batchService.getJobExecutions(executionDate, po));
 	}
 
 	public void runJobInstance(String jobInstanceName, String po) throws TradistaBusinessException {
@@ -111,12 +111,12 @@ public class BatchBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		SecurityUtil.run(() -> batchService.runJobInstance(jobInstanceName, po));
+		SecurityUtil.runEx(() -> batchService.runJobInstance(jobInstanceName, po));
 	}
 
 	public long saveJobExecution(String name, String po, String status, LocalDateTime startTime, LocalDateTime endTime,
-			String errorCause, String jobInstanceName, String jobType) {
-		return SecurityUtil.run(() -> batchService.saveJobExecution(name, po, status, startTime, endTime, errorCause,
+			String errorCause, String jobInstanceName, String jobType) throws TradistaBusinessException {
+		return SecurityUtil.runEx(() -> batchService.saveJobExecution(name, po, status, startTime, endTime, errorCause,
 				jobInstanceName, jobType));
 	}
 
@@ -128,7 +128,7 @@ public class BatchBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		SecurityUtil.run(() -> batchService.stopJobExecution(jobExecutionId));
+		SecurityUtil.runEx(() -> batchService.stopJobExecution(jobExecutionId));
 	}
 
 	public String getJobClassByType(String jobType) throws TradistaBusinessException {

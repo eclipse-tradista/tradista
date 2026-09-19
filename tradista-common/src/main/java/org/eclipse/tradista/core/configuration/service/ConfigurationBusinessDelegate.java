@@ -44,7 +44,7 @@ public class ConfigurationBusinessDelegate {
 		if (user == null) {
 			throw new TradistaBusinessException("The user is mandatory.");
 		}
-		return SecurityUtil.run(() -> configurationService.getUIConfiguration(user));
+		return SecurityUtil.runEx(() -> configurationService.getUIConfiguration(user));
 	}
 
 	public void saveUIConfiguration(UIConfiguration configuration) throws TradistaBusinessException {

@@ -64,8 +64,8 @@ public class LegalEntityBusinessDelegate {
 		return SecurityUtil.runEx(() -> legalEntityService.saveLegalEntity(legalEntity));
 	}
 
-	public Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role) {
-		return SecurityUtil.run(() -> legalEntityService.getLegalEntitiesByShortNameAndRole(shortName, role));
+	public Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role) throws TradistaBusinessException {
+		return SecurityUtil.runEx(() -> legalEntityService.getLegalEntitiesByShortNameAndRole(shortName, role));
 	}
 
 	public LegalEntity getLegalEntityByShortName(String shortName) throws TradistaBusinessException {

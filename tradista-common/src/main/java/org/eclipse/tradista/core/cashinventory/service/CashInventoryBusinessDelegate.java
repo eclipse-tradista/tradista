@@ -57,13 +57,13 @@ public class CashInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The date cannot be null.");
 		}
 
-		return SecurityUtil.run(
+		return SecurityUtil.runEx(
 				() -> cashInventoryService.getCashInventoriesBeforeDateByCurrencyAndBookIds(currencyId, bookId, date));
 	}
 
 	public Set<CashInventory> getOpenPositionsFromCashInventoryByCurrencyAndBookIds(long currencyId, long bookId)
 			throws TradistaBusinessException {
-		return SecurityUtil.run(
+		return SecurityUtil.runEx(
 				() -> cashInventoryService.getOpenPositionsFromCashInventoryByCurrencyAndBookIds(currencyId, bookId));
 	}
 
@@ -72,7 +72,7 @@ public class CashInventoryBusinessDelegate {
 		if (date == null) {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
-		return SecurityUtil.run(() -> cashInventoryService.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date));
+		return SecurityUtil.runEx(() -> cashInventoryService.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date));
 	}
 
 	public Set<CashInventory> getCashInventories(LocalDate from, LocalDate to, long currencyId, long bookId,
