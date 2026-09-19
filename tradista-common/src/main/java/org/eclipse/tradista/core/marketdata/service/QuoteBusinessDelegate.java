@@ -241,8 +241,8 @@ public class QuoteBusinessDelegate {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
-		return SecurityUtil.runEx(() -> quoteService.getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(quoteSetId, quoteName,
-				quoteType, year, month));
+		return SecurityUtil.runEx(() -> quoteService.getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(quoteSetId,
+				quoteName, quoteType, year, month));
 	}
 
 	public List<QuoteType> getQuoteTypesByQuoteName(String quoteName) {

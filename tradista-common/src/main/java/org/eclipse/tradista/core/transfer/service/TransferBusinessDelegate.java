@@ -153,7 +153,8 @@ public class TransferBusinessDelegate {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
-		return SecurityUtil.runEx(() -> transferService.getTransfersByTradeIdAndPurpose(tradeId, purpose, includeCancel));
+		return SecurityUtil
+				.runEx(() -> transferService.getTransfersByTradeIdAndPurpose(tradeId, purpose, includeCancel));
 
 	}
 
@@ -213,8 +214,8 @@ public class TransferBusinessDelegate {
 		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> transferService.getTransfers(type, status, direction, purpose, tradeId, productId,
-				bookId, currencyId, startFixingDate, endFixingDate, startSettlementDate, endSettlementDate,
+		return SecurityUtil.runEx(() -> transferService.getTransfers(type, status, direction, purpose, tradeId,
+				productId, bookId, currencyId, startFixingDate, endFixingDate, startSettlementDate, endSettlementDate,
 				startCreationDate, endCreationDate));
 	}
 

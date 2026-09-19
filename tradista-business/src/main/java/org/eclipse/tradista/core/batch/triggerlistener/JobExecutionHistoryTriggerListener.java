@@ -50,8 +50,8 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 		}
 		try {
 			batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(),
-					"IN PROGRESS", LocalDateTime.ofInstant(context.getFireTime().toInstant(), ZoneId.systemDefault()), null,
-					null, trigger.getJobKey().getName(), jobType);
+					"IN PROGRESS", LocalDateTime.ofInstant(context.getFireTime().toInstant(), ZoneId.systemDefault()),
+					null, null, trigger.getJobKey().getName(), jobType);
 		} catch (TradistaBusinessException e) {
 			e.printStackTrace();
 		}

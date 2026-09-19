@@ -72,7 +72,8 @@ public class CashInventoryBusinessDelegate {
 		if (date == null) {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
-		return SecurityUtil.runEx(() -> cashInventoryService.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date));
+		return SecurityUtil
+				.runEx(() -> cashInventoryService.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date));
 	}
 
 	public Set<CashInventory> getCashInventories(LocalDate from, LocalDate to, long currencyId, long bookId,

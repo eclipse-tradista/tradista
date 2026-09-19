@@ -130,8 +130,8 @@ public class FXVolatilitySurfaceBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.runEx(() -> fxVolatilitySurfaceService.generate(algorithm, interpolator, instance, quoteDate,
-				quoteSet, quoteNames, deltas));
+		return SecurityUtil.runEx(() -> fxVolatilitySurfaceService.generate(algorithm, interpolator, instance,
+				quoteDate, quoteSet, quoteNames, deltas));
 
 	}
 

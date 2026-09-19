@@ -111,7 +111,8 @@ public class LegalEntityReportController extends TradistaControllerAdapter {
 		}
 		Set<LegalEntity> legalEntities = null;
 		try {
-			legalEntities = legalEntityBusinessDelegate.getLegalEntitiesByShortNameAndRole("%" + shortNameTextField.getText() + "%", role);
+			legalEntities = legalEntityBusinessDelegate
+					.getLegalEntitiesByShortNameAndRole("%" + shortNameTextField.getText() + "%", role);
 		} catch (TradistaBusinessException e) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, e.getMessage());
 			alert.showAndWait();

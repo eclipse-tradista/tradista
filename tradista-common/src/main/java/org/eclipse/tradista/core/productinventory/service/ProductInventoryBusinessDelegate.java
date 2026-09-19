@@ -61,7 +61,8 @@ public class ProductInventoryBusinessDelegate {
 				.getProductInventoriesBeforeDateByProductAndBookIds(productId, bookId, date));
 	}
 
-	public Set<ProductInventory> getOpenPositionsFromInventoryByProductAndBookIds(long productId, long bookId) throws TradistaBusinessException {
+	public Set<ProductInventory> getOpenPositionsFromInventoryByProductAndBookIds(long productId, long bookId)
+			throws TradistaBusinessException {
 		return SecurityUtil.runEx(() -> productInventoryService
 				.getOpenPositionsFromProductInventoryByProductAndBookIds(productId, bookId));
 	}
