@@ -16,8 +16,7 @@
 		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
-			<version>15.0.17</version>
-			<classifier>jakarta</classifier>
+			<version>16.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>software.xdev</groupId>

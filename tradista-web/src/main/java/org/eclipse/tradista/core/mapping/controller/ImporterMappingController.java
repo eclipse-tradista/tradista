@@ -167,9 +167,9 @@ public class ImporterMappingController implements Serializable {
 			interfaceMappingSet.setId(mappingBusinessDelegate.saveInterfaceMappingSet(interfaceMappingSet));
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully saved"));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -190,9 +190,9 @@ public class ImporterMappingController implements Serializable {
 			}
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully loaded."));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 

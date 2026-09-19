@@ -168,9 +168,9 @@ public class ExporterMappingController implements Serializable {
 			interfaceMappingSet.setId(mappingBusinessDelegate.saveInterfaceMappingSet(interfaceMappingSet));
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully saved"));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -191,9 +191,9 @@ public class ExporterMappingController implements Serializable {
 			}
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Interface Mapping Set successfully loaded."));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -204,7 +204,6 @@ public class ExporterMappingController implements Serializable {
 				Map<String, Object> attributes = ((UIComponent) event.getColumn()).getAttributes();
 				boolean isOriginalValueColumn = "originalValue".equals(attributes.get("colKey"));
 				DataTable table = (DataTable) ((UIComponent) event.getColumn()).getParent();
-				@SuppressWarnings("unchecked")
 				List<MappingDTO> rows = (List<MappingDTO>) table.getValue();
 				Set<String> seen = new HashSet<>();
 				boolean hasDuplicate = false;

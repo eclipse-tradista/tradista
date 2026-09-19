@@ -50,6 +50,8 @@ import jakarta.interceptor.InvocationContext;
 
 public class TradistaSegregationHandlerInterceptor extends TradistaAuthorizationFilteringInterceptor {
 
+	private static final String GLOBAL_DATA_CANNOT_BE_ACCESSED = "Global data cannot be accessed.";
+
 	@AroundInvoke
 	public Object filter(InvocationContext ic) throws Exception {
 		return proceed(ic);
@@ -74,12 +76,24 @@ public class TradistaSegregationHandlerInterceptor extends TradistaAuthorization
 				for (java.lang.annotation.Annotation annotation : paramAnnotations[i]) {
 					// @CheckProcessingOrg: verify non-Segregable PO params (String, Long)
 					if (annotation instanceof CheckProcessingOrg) {
-						if (parameters[i] instanceof String po) {
-							if (!user.getProcessingOrg().getShortName().equals(po)) {
+						if (parameters[i] == null) {
+							if (protectGlobal) {
+								errMsg.append(GLOBAL_DATA_CANNOT_BE_ACCESSED);
+							}
+						} else if (parameters[i] instanceof String po) {
+							if (po.isEmpty()) {
+								if (protectGlobal) {
+									errMsg.append(GLOBAL_DATA_CANNOT_BE_ACCESSED);
+								}
+							} else if (!user.getProcessingOrg().getShortName().equals(po)) {
 								errMsg.append(String.format("The processing org %s was not found.", po));
 							}
 						} else if (parameters[i] instanceof Long poId) {
-							if (user.getProcessingOrg().getId() != poId) {
+							if (poId == 0) {
+								if (protectGlobal) {
+									errMsg.append(GLOBAL_DATA_CANNOT_BE_ACCESSED);
+								}
+							} else if (user.getProcessingOrg().getId() != poId) {
 								errMsg.append(String.format("The processing org with id %d was not found.", poId));
 							}
 						}

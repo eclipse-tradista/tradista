@@ -1,5 +1,6 @@
 package org.eclipse.tradista.core.mapping.service;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 
@@ -25,14 +26,14 @@ import jakarta.ejb.Remote;
 public interface MappingService {
 
 	String getMappingValue(String importerName, MappingType mappingType, InterfaceMappingSet.Direction direction,
-			String value, long poId);
+			String value, long poId) throws TradistaBusinessException;
 
 	String getOriginalValue(String importerName, MappingType mappingType, InterfaceMappingSet.Direction direction,
-			String value, long poId);
+			String value, long poId) throws TradistaBusinessException;
 
 	long saveInterfaceMappingSet(InterfaceMappingSet ims);
 
 	InterfaceMappingSet getInterfaceMappingSet(String interfaceName, MappingType mappingType,
-			InterfaceMappingSet.Direction direction, long poId);
+			InterfaceMappingSet.Direction direction, long poId) throws TradistaBusinessException;
 
 }
