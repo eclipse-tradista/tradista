@@ -71,7 +71,7 @@ public class LegalEntityReportController extends TradistaControllerAdapter {
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
 	// This method is called by the FXMLLoader when initialization is complete
-	public void initialize() throws TradistaBusinessException {
+	public void initialize() {
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		id.setCellValueFactory(cellData -> cellData.getValue().getId());
 		shortName.setCellValueFactory(cellData -> cellData.getValue().getShortName());
