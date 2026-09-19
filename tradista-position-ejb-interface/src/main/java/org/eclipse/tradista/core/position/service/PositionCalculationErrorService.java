@@ -31,7 +31,7 @@ public interface PositionCalculationErrorService {
 
 	boolean savePositionCalculationErrors(List<PositionCalculationError> errors);
 
-	void solvePositionCalculationError(Set<Long> solved, LocalDate date);
+	void solvePositionCalculationError(Set<Long> solved, LocalDate date) throws TradistaBusinessException;
 
 	void solvePositionCalculationError(long positionDefinitionId, LocalDate date) throws TradistaBusinessException;
 

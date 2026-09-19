@@ -34,11 +34,11 @@ public interface PricerService {
 
 	PricingParameter getPricingParameterById(long id);
 
-	PricingParameter getPricingParameterByNameAndPoId(String name, long poId);
+	PricingParameter getPricingParameterByNameAndPoId(String name, long poId) throws TradistaBusinessException;
 
 	Set<PricingParameter> getAllPricingParameters();
 
-	Set<PricingParameter> getPricingParametersByPoId(long poId);
+	Set<PricingParameter> getPricingParametersByPoId(long poId) throws TradistaBusinessException;
 
 	long savePricingParameter(PricingParameter param) throws TradistaBusinessException;
 

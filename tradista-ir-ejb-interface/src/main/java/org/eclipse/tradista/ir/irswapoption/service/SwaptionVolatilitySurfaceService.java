@@ -59,7 +59,7 @@ public interface SwaptionVolatilitySurfaceService {
 			long currentSwaptionVolatilitySurfaceId, Float optionLifetime, Float swapLifetime);
 
 	List<SurfacePoint<Integer, Integer, BigDecimal>> generate(String value, String value2, String value3,
-			LocalDate quoteDate, QuoteSet quoteSet, List<Long> quoteIds);
+			LocalDate quoteDate, QuoteSet quoteSet, List<Long> quoteIds) throws TradistaBusinessException;
 
 	Set<String> getAllInstances();
 
@@ -70,6 +70,6 @@ public interface SwaptionVolatilitySurfaceService {
 	List<SurfacePoint<Integer, Integer, BigDecimal>> getSwaptionVolatilitySurfacePointsBySurfaceId(
 			long volatilitySurfaceId);
 
-	SwaptionVolatilitySurface getSwaptionVolatilitySurfaceById(long id);
+	SwaptionVolatilitySurface getSwaptionVolatilitySurfaceById(long id) throws TradistaBusinessException;
 
 }

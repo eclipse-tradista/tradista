@@ -30,7 +30,7 @@ public interface EquityOptionTradeService {
 	long saveEquityOptionTrade(EquityOptionTrade trade) throws TradistaBusinessException;
 
 	List<EquityOptionTrade> getEquityOptionTradesBeforeTradeDateByEquityOptionAndBookIds(LocalDate tradeDate,
-			long equityOptionId, long bookId);
+			long equityOptionId, long bookId) throws TradistaBusinessException;
 
 	EquityOptionTrade getEquityOptionTradeById(long id);
 

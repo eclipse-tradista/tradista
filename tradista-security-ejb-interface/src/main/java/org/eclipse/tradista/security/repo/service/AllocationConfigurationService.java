@@ -32,6 +32,6 @@ public interface AllocationConfigurationService {
 
 	Set<AllocationConfiguration> getAllAllocationConfigurations();
 
-	Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId);
+	Set<AllocationConfiguration> getAllocationConfigurationsByPoId(long poId) throws TradistaBusinessException;
 
 }

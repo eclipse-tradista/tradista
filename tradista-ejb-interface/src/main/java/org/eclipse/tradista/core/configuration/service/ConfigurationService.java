@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.configuration.service;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+
 import java.math.RoundingMode;
 
 import org.eclipse.tradista.core.configuration.model.UIConfiguration;
@@ -30,7 +32,7 @@ public interface ConfigurationService {
 
 	RoundingMode getRoundingMode();
 
-	UIConfiguration getUIConfiguration(User user);
+	UIConfiguration getUIConfiguration(User user) throws TradistaBusinessException;
 
 	void saveUIConfiguration(UIConfiguration uiConfiguration);
 

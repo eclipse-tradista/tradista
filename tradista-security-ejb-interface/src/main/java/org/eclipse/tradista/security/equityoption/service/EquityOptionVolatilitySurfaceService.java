@@ -50,7 +50,8 @@ public interface EquityOptionVolatilitySurfaceService {
 			long surfaceId, Long optionExpiry, BigDecimal strike);
 
 	List<SurfacePoint<Integer, BigDecimal, BigDecimal>> generate(String value, String value2, String value3,
-			LocalDate quoteDate, QuoteSet quoteSet, List<String> quoteNames, List<BigDecimal> strikes);
+			LocalDate quoteDate, QuoteSet quoteSet, List<String> quoteNames, List<BigDecimal> strikes)
+			throws TradistaBusinessException;
 
 	Set<String> getAllInstances();
 
@@ -63,6 +64,6 @@ public interface EquityOptionVolatilitySurfaceService {
 
 	BigDecimal getVolatility(String volatilitySurfaceName, int time);
 
-	EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(long id);
+	EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(long id) throws TradistaBusinessException;
 
 }

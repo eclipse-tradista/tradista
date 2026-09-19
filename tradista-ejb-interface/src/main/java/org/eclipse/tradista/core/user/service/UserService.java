@@ -36,8 +36,8 @@ public interface UserService {
 
 	User getUserByLogin(String login);
 
-	Set<User> getUsersByPoId(long poId);
+	Set<User> getUsersByPoId(long poId) throws TradistaBusinessException;
 
-	User getUserByFirstNameSurnameAndPoId(String firstName, String surname, long poId);
+	User getUserByFirstNameSurnameAndPoId(String firstName, String surname, long poId) throws TradistaBusinessException;
 
 }

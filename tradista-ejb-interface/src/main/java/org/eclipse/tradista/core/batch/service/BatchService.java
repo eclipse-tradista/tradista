@@ -37,20 +37,20 @@ public interface BatchService {
 
 	String getJobClassByType(String jobType) throws TradistaBusinessException;
 
-	void deleteJobInstance(String jobInstanceName, String po);
+	void deleteJobInstance(String jobInstanceName, String po) throws TradistaBusinessException;
 
 	Set<TradistaJobInstance> getAllJobInstances(String po) throws TradistaBusinessException;
 
 	TradistaJobInstance getJobInstanceByNameAndPo(String jobInstanceName, String po) throws TradistaBusinessException;
 
-	Set<TradistaJobExecution> getJobExecutions(LocalDate date, String po);
+	Set<TradistaJobExecution> getJobExecutions(LocalDate date, String po) throws TradistaBusinessException;
 
-	void runJobInstance(String jobInstanceName, String po);
+	void runJobInstance(String jobInstanceName, String po) throws TradistaBusinessException;
 
-	void stopJobExecution(String jobExecutionId);
+	void stopJobExecution(String jobExecutionId) throws TradistaBusinessException;
 
 	long saveJobExecution(String name, String po, String status, LocalDateTime startTime, LocalDateTime endTime,
-			String errorCause, String jobInstanceName, String jobType);
+			String errorCause, String jobInstanceName, String jobType) throws TradistaBusinessException;
 
 	TradistaJobExecution getJobExecutionById(String jobExecutionId);
 

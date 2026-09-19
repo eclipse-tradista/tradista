@@ -29,7 +29,8 @@ public interface FutureTradeService {
 
 	long saveFutureTrade(FutureTrade trade) throws TradistaBusinessException;
 
-	List<FutureTrade> getFutureTradesBeforeTradeDateByFutureAndBookIds(LocalDate date, long futureId, long bookId);
+	List<FutureTrade> getFutureTradesBeforeTradeDateByFutureAndBookIds(LocalDate date, long futureId, long bookId)
+			throws TradistaBusinessException;
 
 	FutureTrade getFutureTradeById(long id);
 

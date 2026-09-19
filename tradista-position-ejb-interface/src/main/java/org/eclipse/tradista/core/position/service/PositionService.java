@@ -28,9 +28,9 @@ import jakarta.ejb.Remote;
 @Remote
 public interface PositionService {
 
-	long savePosition(Position position);
+	long savePosition(Position position) throws TradistaBusinessException;
 
-	void savePositions(List<Position> positions);
+	void savePositions(List<Position> positions) throws TradistaBusinessException;
 
 	List<Position> getPositionsByDefinitionIdAndValueDates(long positionDefinitionId, LocalDate valueDateFrom,
 			LocalDate valueDateTo) throws TradistaBusinessException;
