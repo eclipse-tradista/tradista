@@ -79,7 +79,7 @@ public class LegalEntityReportController extends TradistaControllerAdapter {
 		description.setCellValueFactory(cellData -> cellData.getValue().getDescription());
 		role.setCellValueFactory(cellData -> cellData.getValue().getRole());
 		TradistaGUIUtil.fillComboBox(
-				Arrays.asList(LegalEntity.Role.values()).stream().map(t -> t.toString()).collect(Collectors.toList()),
+				Arrays.asList(LegalEntity.Role.values()).stream().map(LegalEntity.Role::toString).toList(),
 				roleComboBox);
 		roleComboBox.getItems().add(0, StringUtils.EMPTY);
 		roleComboBox.getSelectionModel().selectFirst();
@@ -113,8 +113,8 @@ public class LegalEntityReportController extends TradistaControllerAdapter {
 		try {
 			legalEntities = legalEntityBusinessDelegate
 					.getLegalEntitiesByShortNameAndRole("%" + shortNameTextField.getText() + "%", role);
-		} catch (TradistaBusinessException e) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, e.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 

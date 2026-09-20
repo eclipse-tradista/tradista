@@ -40,13 +40,7 @@ public class ProductInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The CashTransfer cannot be null.");
 		}
 
-		StringBuffer errMsg = new StringBuffer();
-
-		// TODO Should we validate the transfer here
-
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
+		// TODO Should we validate the transfer here ?
 
 		SecurityUtil.runEx(() -> productInventoryService.updateProductInventory(transfer));
 	}

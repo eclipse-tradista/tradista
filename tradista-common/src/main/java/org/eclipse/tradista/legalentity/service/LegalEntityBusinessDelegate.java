@@ -61,6 +61,9 @@ public class LegalEntityBusinessDelegate {
 		if (legalEntity.getDescription() != null && legalEntity.getDescription().length() > 1000) {
 			errMsg.append("The description cannot exceed 1000 characters.");
 		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
 		return SecurityUtil.runEx(() -> legalEntityService.saveLegalEntity(legalEntity));
 	}
 
