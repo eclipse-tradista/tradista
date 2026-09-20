@@ -32,15 +32,18 @@ public interface CashInventoryService {
 
 	void updateCashInventory(CashTransfer transfer) throws TradistaBusinessException;
 
-	Set<CashInventory> getCashInventoriesBeforeDateByCurrencyAndBookIds(long currencyId, long bookId, LocalDate date);
+	Set<CashInventory> getCashInventoriesBeforeDateByCurrencyAndBookIds(long currencyId, long bookId, LocalDate date)
+			throws TradistaBusinessException;
 
-	Set<CashInventory> getOpenPositionsFromCashInventoryByCurrencyAndBookIds(long currencyId, long bookId);
+	Set<CashInventory> getOpenPositionsFromCashInventoryByCurrencyAndBookIds(long currencyId, long bookId)
+			throws TradistaBusinessException;
 
-	BigDecimal getAmountByDateCurrencyAndBookIds(long currencyId, long bookId, LocalDate date);
+	BigDecimal getAmountByDateCurrencyAndBookIds(long currencyId, long bookId, LocalDate date)
+			throws TradistaBusinessException;
 
 	Set<CashInventory> getCashInventories(LocalDate from, LocalDate to, long currencyId, long bookId,
 			boolean onlyOpenPositions) throws TradistaBusinessException;
 
-	Map<String, BigDecimal> getBookCashContent(LocalDate date, long bookId);
+	Map<String, BigDecimal> getBookCashContent(LocalDate date, long bookId) throws TradistaBusinessException;
 
 }

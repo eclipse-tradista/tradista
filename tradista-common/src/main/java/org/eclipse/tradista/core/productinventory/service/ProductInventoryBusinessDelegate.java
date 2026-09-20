@@ -40,13 +40,7 @@ public class ProductInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The CashTransfer cannot be null.");
 		}
 
-		StringBuffer errMsg = new StringBuffer();
-
-		// TODO Should we validate the transfer here
-
-		if (!errMsg.isEmpty()) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
+		// TODO Should we validate the transfer here ?
 
 		SecurityUtil.runEx(() -> productInventoryService.updateProductInventory(transfer));
 	}
@@ -57,12 +51,13 @@ public class ProductInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The date cannot be null.");
 		}
 
-		return SecurityUtil.run(() -> productInventoryService
+		return SecurityUtil.runEx(() -> productInventoryService
 				.getProductInventoriesBeforeDateByProductAndBookIds(productId, bookId, date));
 	}
 
-	public Set<ProductInventory> getOpenPositionsFromInventoryByProductAndBookIds(long productId, long bookId) {
-		return SecurityUtil.run(() -> productInventoryService
+	public Set<ProductInventory> getOpenPositionsFromInventoryByProductAndBookIds(long productId, long bookId)
+			throws TradistaBusinessException {
+		return SecurityUtil.runEx(() -> productInventoryService
 				.getOpenPositionsFromProductInventoryByProductAndBookIds(productId, bookId));
 	}
 
@@ -72,7 +67,7 @@ public class ProductInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
 		return SecurityUtil
-				.run(() -> productInventoryService.getQuantityByDateProductAndBookIds(productId, bookId, date));
+				.runEx(() -> productInventoryService.getQuantityByDateProductAndBookIds(productId, bookId, date));
 	}
 
 	public BigDecimal getAveragePriceByDateProductAndBookIds(long productId, long bookId, LocalDate date)
@@ -81,7 +76,7 @@ public class ProductInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
 		return SecurityUtil
-				.run(() -> productInventoryService.getAveragePriceByDateProductAndBookIds(productId, bookId, date));
+				.runEx(() -> productInventoryService.getAveragePriceByDateProductAndBookIds(productId, bookId, date));
 	}
 
 	public Set<ProductInventory> getProductInventories(LocalDate from, LocalDate to, String productType, long productId,

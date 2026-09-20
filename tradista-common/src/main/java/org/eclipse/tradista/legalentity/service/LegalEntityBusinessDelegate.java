@@ -61,11 +61,15 @@ public class LegalEntityBusinessDelegate {
 		if (legalEntity.getDescription() != null && legalEntity.getDescription().length() > 1000) {
 			errMsg.append("The description cannot exceed 1000 characters.");
 		}
+		if (!errMsg.isEmpty()) {
+			throw new TradistaBusinessException(errMsg.toString());
+		}
 		return SecurityUtil.runEx(() -> legalEntityService.saveLegalEntity(legalEntity));
 	}
 
-	public Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role) {
-		return SecurityUtil.run(() -> legalEntityService.getLegalEntitiesByShortNameAndRole(shortName, role));
+	public Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role)
+			throws TradistaBusinessException {
+		return SecurityUtil.runEx(() -> legalEntityService.getLegalEntitiesByShortNameAndRole(shortName, role));
 	}
 
 	public LegalEntity getLegalEntityByShortName(String shortName) throws TradistaBusinessException {

@@ -42,7 +42,7 @@ public interface QuoteService {
 	Quote getQuoteById(long quoteId);
 
 	List<QuoteValue> getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(long quoteSetId, String quoteName,
-			QuoteType quoteType, Year year, Month month);
+			QuoteType quoteType, Year year, Month month) throws TradistaBusinessException;
 
 	/**
 	 * Delete a quote with given name and type. If the type is not specified, all
@@ -90,7 +90,7 @@ public interface QuoteService {
 			QuoteType quoteTye, LocalDate startDate, LocalDate endDate);
 
 	boolean saveQuoteValues(long quoteSetId, String quoteName, QuoteType quoteType, List<QuoteValue> quoteValues,
-			Year year, Month month);
+			Year year, Month month) throws TradistaBusinessException;
 
 	List<QuoteType> getQuoteTypesByQuoteName(String quoteName);
 
@@ -102,7 +102,7 @@ public interface QuoteService {
 
 	Quote getQuoteByNameAndType(String quoteName, QuoteType quoteType);
 
-	boolean saveQuoteValues(long quoteSetId, List<QuoteValue> quoteValues);
+	boolean saveQuoteValues(long quoteSetId, List<QuoteValue> quoteValues) throws TradistaBusinessException;
 
 	QuoteSet getQuoteSetByName(String name);
 
@@ -123,6 +123,6 @@ public interface QuoteService {
 	 */
 	List<QuoteValue> getQuoteValuesByQuoteSetIdQuoteNameAndDate(long quoteSetId, String quoteName, LocalDate quoteDate);
 
-	Set<QuoteSet> getQuoteSetsByPoId(long poId);
+	Set<QuoteSet> getQuoteSetsByPoId(long poId) throws TradistaBusinessException;
 
 }

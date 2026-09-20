@@ -10,6 +10,8 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.listeners.TriggerListenerSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -29,6 +31,8 @@ import org.quartz.listeners.TriggerListenerSupport;
 
 public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 
+	private static final Logger logger = LoggerFactory.getLogger(JobExecutionHistoryTriggerListener.class);
+
 	BatchBusinessDelegate batchBusinessDelegate;
 
 	public JobExecutionHistoryTriggerListener() {
@@ -44,13 +48,12 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 		String jobType = null;
 		try {
 			jobType = batchBusinessDelegate.getJobTypeByClass(context.getJobDetail().getJobClass().getName());
+			batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(),
+					"IN PROGRESS", LocalDateTime.ofInstant(context.getFireTime().toInstant(), ZoneId.systemDefault()),
+					null, null, trigger.getJobKey().getName(), jobType);
 		} catch (TradistaBusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
-		batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(),
-				"IN PROGRESS", LocalDateTime.ofInstant(context.getFireTime().toInstant(), ZoneId.systemDefault()), null,
-				null, trigger.getJobKey().getName(), jobType);
 	}
 
 	public void triggerComplete(Trigger trigger, JobExecutionContext context,
@@ -68,12 +71,11 @@ public class JobExecutionHistoryTriggerListener extends TriggerListenerSupport {
 		String jobType = null;
 		try {
 			jobType = batchBusinessDelegate.getJobTypeByClass(context.getJobDetail().getJobClass().getName());
+			batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(), status,
+					null, LocalDateTime.now(), errorCause, trigger.getJobKey().getName(), jobType);
 		} catch (TradistaBusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
-		batchBusinessDelegate.saveJobExecution(context.getFireInstanceId(), trigger.getJobKey().getGroup(), status,
-				null, LocalDateTime.now(), errorCause, trigger.getJobKey().getName(), jobType);
 	}
 
 }

@@ -30,7 +30,8 @@ public interface LegalEntityService {
 
 	long saveLegalEntity(LegalEntity legalEntity) throws TradistaBusinessException;
 
-	Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role);
+	Set<LegalEntity> getLegalEntitiesByShortNameAndRole(String shortName, LegalEntity.Role role)
+			throws TradistaBusinessException;
 
 	LegalEntity getLegalEntityByShortName(String shortName);
 

@@ -49,7 +49,7 @@ public class FixingErrorBusinessDelegate {
 		if (date == null) {
 			throw new TradistaBusinessException("The date cannot be null.");
 		}
-		SecurityUtil.run(() -> fixingErrorService.solveFixingError(solved, date));
+		SecurityUtil.runEx(() -> fixingErrorService.solveFixingError(solved, date));
 	}
 
 	public void solveFixingError(long transferId, LocalDate date) throws TradistaBusinessException {

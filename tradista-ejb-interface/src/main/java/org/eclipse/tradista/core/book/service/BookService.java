@@ -28,13 +28,13 @@ public interface BookService {
 
 	Set<Book> getAllBooks();
 
-	Set<Book> getBooksByPoId(long poId);
+	Set<Book> getBooksByPoId(long poId) throws TradistaBusinessException;
 
 	long saveBook(Book book) throws TradistaBusinessException;
 
 	Book getBookByName(String name);
 
-	Book getBookByNameAndPoId(String name, long poId);
+	Book getBookByNameAndPoId(String name, long poId) throws TradistaBusinessException;
 
 	Book getBookById(long id);
 

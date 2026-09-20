@@ -35,7 +35,7 @@ public class LegalEntityProperty {
 		this.id.set(legalEntity.getId());
 		this.shortName.set(legalEntity.getShortName());
 		this.longName.set(legalEntity.getLongName());
-		this.role.set(legalEntity.getRole().name());
+		this.role.set(legalEntity.getRole().toString());
 		this.description.set(legalEntity.getDescription());
 	}
 

@@ -44,9 +44,10 @@ public interface TransferService {
 
 	void createTransfers(TradeEvent<?> message) throws TradistaBusinessException;
 
-	List<Transfer> getTransfersByTradeIdAndPurpose(long tradeId, TransferPurpose purpose, boolean includeCancel);
+	List<Transfer> getTransfersByTradeIdAndPurpose(long tradeId, TransferPurpose purpose, boolean includeCancel)
+			throws TradistaBusinessException;
 
-	List<Transfer> getTransfersByTradeId(long tradeId);
+	List<Transfer> getTransfersByTradeId(long tradeId) throws TradistaBusinessException;
 
 	List<CashTransfer> getCashTransfersByProductIdAndStartDate(long productId, LocalDate startDate);
 
@@ -55,7 +56,7 @@ public interface TransferService {
 	List<Transfer> getTransfers(Type type, Status status, Direction direction, TransferPurpose purpose, long tradeId,
 			long productId, long bookId, long currencyId, LocalDate startFixingDate, LocalDate endFixingDate,
 			LocalDate startSettlementDate, LocalDate endSettlementDate, LocalDate startCreationDate,
-			LocalDate endCreationDate);
+			LocalDate endCreationDate) throws TradistaBusinessException;
 
 	void fixCashTransfers(long quoteSetId) throws TradistaBusinessException;
 }

@@ -30,7 +30,7 @@ public interface DailyPnlService {
 	DailyPnl calculateDailyPnl(String positionDefinition, String calendarName, LocalDate valueDate)
 			throws TradistaBusinessException;
 
-	long saveDailyPnl(DailyPnl dailyPnl);
+	long saveDailyPnl(DailyPnl dailyPnl) throws TradistaBusinessException;
 
 	Set<DailyPnl> getDailyPnlsByDefinitionIdCalendarAndValueDates(long positionDefinitionId, String calendarCode,
 			LocalDate valueDateFrom, LocalDate valueDateTo) throws TradistaBusinessException;

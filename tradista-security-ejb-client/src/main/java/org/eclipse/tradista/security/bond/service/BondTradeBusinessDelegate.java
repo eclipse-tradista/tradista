@@ -82,7 +82,7 @@ public class BondTradeBusinessDelegate {
 		}
 
 		return SecurityUtil
-				.run(() -> bondTradeService.getBondTradesBeforeTradeDateByBondAndBookIds(date, bondId, bookId));
+				.runEx(() -> bondTradeService.getBondTradesBeforeTradeDateByBondAndBookIds(date, bondId, bookId));
 	}
 
 	public BondTrade getBondTradeById(long id) throws TradistaBusinessException {

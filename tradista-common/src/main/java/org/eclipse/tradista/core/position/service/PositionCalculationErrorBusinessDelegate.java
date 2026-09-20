@@ -50,7 +50,7 @@ public class PositionCalculationErrorBusinessDelegate {
 		if (date == null) {
 			throw new TradistaBusinessException("The date cannot be null.");
 		}
-		SecurityUtil.run(() -> positionCalculationErrorService.solvePositionCalculationError(solved, date));
+		SecurityUtil.runEx(() -> positionCalculationErrorService.solvePositionCalculationError(solved, date));
 	}
 
 	public void solvePositionCalculationError(long positionDefinitionId, LocalDate date)

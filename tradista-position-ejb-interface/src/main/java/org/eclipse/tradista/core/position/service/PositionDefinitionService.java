@@ -40,6 +40,6 @@ public interface PositionDefinitionService {
 
 	Set<String> getPositionDefinitionsByPricingParametersSetId(long id);
 
-	Set<PositionDefinition> getPositionDefinitionsByPoId(long poId);
+	Set<PositionDefinition> getPositionDefinitionsByPoId(long poId) throws TradistaBusinessException;
 
 }

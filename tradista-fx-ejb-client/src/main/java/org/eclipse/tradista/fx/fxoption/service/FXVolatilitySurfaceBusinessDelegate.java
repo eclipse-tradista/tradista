@@ -130,8 +130,8 @@ public class FXVolatilitySurfaceBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.run(() -> fxVolatilitySurfaceService.generate(algorithm, interpolator, instance, quoteDate,
-				quoteSet, quoteNames, deltas));
+		return SecurityUtil.runEx(() -> fxVolatilitySurfaceService.generate(algorithm, interpolator, instance,
+				quoteDate, quoteSet, quoteNames, deltas));
 
 	}
 
@@ -187,7 +187,7 @@ public class FXVolatilitySurfaceBusinessDelegate {
 		if (id <= 0) {
 			throw new TradistaBusinessException("The fx volatility id must be positive.");
 		}
-		return SecurityUtil.run(() -> fxVolatilitySurfaceService.getFXVolatilitySurfaceById(id));
+		return SecurityUtil.runEx(() -> fxVolatilitySurfaceService.getFXVolatilitySurfaceById(id));
 	}
 
 }

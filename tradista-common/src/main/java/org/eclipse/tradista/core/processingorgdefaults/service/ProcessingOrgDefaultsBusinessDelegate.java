@@ -55,7 +55,7 @@ public class ProcessingOrgDefaultsBusinessDelegate {
 		if (poId <= 0) {
 			throw new TradistaBusinessException("The po id must be positive.");
 		}
-		return SecurityUtil.run(() -> poDefaultsService.getProcessingOrgDefaultsByPoId(poId));
+		return SecurityUtil.runEx(() -> poDefaultsService.getProcessingOrgDefaultsByPoId(poId));
 	}
 
 	public void saveProcessingOrgDefaults(ProcessingOrgDefaults poDefaults) throws TradistaBusinessException {

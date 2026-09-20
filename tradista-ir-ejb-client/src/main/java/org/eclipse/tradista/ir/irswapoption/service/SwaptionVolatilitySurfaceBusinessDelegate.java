@@ -163,7 +163,7 @@ public class SwaptionVolatilitySurfaceBusinessDelegate {
 		if (errMsg.length() > 0) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.run(() -> swaptionVolatilitySurfaceService.generate(algorithm, interpolator, instance,
+		return SecurityUtil.runEx(() -> swaptionVolatilitySurfaceService.generate(algorithm, interpolator, instance,
 				quoteDate, quoteSet, quoteIds));
 	}
 
@@ -241,7 +241,7 @@ public class SwaptionVolatilitySurfaceBusinessDelegate {
 		if (id <= 0) {
 			throw new TradistaBusinessException("The swaption volatility id must be positive.");
 		}
-		return SecurityUtil.run(() -> swaptionVolatilitySurfaceService.getSwaptionVolatilitySurfaceById(id));
+		return SecurityUtil.runEx(() -> swaptionVolatilitySurfaceService.getSwaptionVolatilitySurfaceById(id));
 	}
 
 }

@@ -83,7 +83,7 @@ public class PricerBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.run(() -> pricerService.getPricingParameterByNameAndPoId(name, poId));
+		return SecurityUtil.runEx(() -> pricerService.getPricingParameterByNameAndPoId(name, poId));
 	}
 
 	public Set<PricingParameter> getAllPricingParameters() {
@@ -95,7 +95,7 @@ public class PricerBusinessDelegate {
 			throw new TradistaBusinessException(
 					String.format("The pricing parameters set po id (%s) cannot be negative.", poId));
 		}
-		return SecurityUtil.run(() -> pricerService.getPricingParametersByPoId(poId));
+		return SecurityUtil.runEx(() -> pricerService.getPricingParametersByPoId(poId));
 	}
 
 	public long savePricingParameter(PricingParameter param) throws TradistaBusinessException {

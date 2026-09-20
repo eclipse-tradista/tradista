@@ -74,8 +74,8 @@ public class EquityTradeBusinessDelegate {
 		if (date == null) {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
-		return SecurityUtil
-				.run(() -> equityTradeService.getEquityTradesBeforeTradeDateByEquityAndBookIds(date, equityId, bookId));
+		return SecurityUtil.runEx(
+				() -> equityTradeService.getEquityTradesBeforeTradeDateByEquityAndBookIds(date, equityId, bookId));
 	}
 
 	public EquityTrade getEquityTradeById(long id) throws TradistaBusinessException {

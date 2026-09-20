@@ -40,13 +40,7 @@ public class CashInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The CashTransfer cannot be null.");
 		}
 
-		StringBuffer errMsg = new StringBuffer();
-
-		// TODO Should we validate the transfer here
-
-		if (errMsg.length() > 0) {
-			throw new TradistaBusinessException(errMsg.toString());
-		}
+		// TODO Should we validate the transfer here ?
 
 		SecurityUtil.runEx(() -> cashInventoryService.updateCashInventory(transfer));
 	}
@@ -57,13 +51,13 @@ public class CashInventoryBusinessDelegate {
 			throw new TradistaBusinessException("The date cannot be null.");
 		}
 
-		return SecurityUtil.run(
+		return SecurityUtil.runEx(
 				() -> cashInventoryService.getCashInventoriesBeforeDateByCurrencyAndBookIds(currencyId, bookId, date));
 	}
 
 	public Set<CashInventory> getOpenPositionsFromCashInventoryByCurrencyAndBookIds(long currencyId, long bookId)
 			throws TradistaBusinessException {
-		return SecurityUtil.run(
+		return SecurityUtil.runEx(
 				() -> cashInventoryService.getOpenPositionsFromCashInventoryByCurrencyAndBookIds(currencyId, bookId));
 	}
 
@@ -72,7 +66,8 @@ public class CashInventoryBusinessDelegate {
 		if (date == null) {
 			throw new TradistaBusinessException("The date is mandatory.");
 		}
-		return SecurityUtil.run(() -> cashInventoryService.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date));
+		return SecurityUtil
+				.runEx(() -> cashInventoryService.getAmountByDateCurrencyAndBookIds(currencyId, bookId, date));
 	}
 
 	public Set<CashInventory> getCashInventories(LocalDate from, LocalDate to, long currencyId, long bookId,

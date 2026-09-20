@@ -199,7 +199,7 @@ public class InterestRateCurveBusinessDelegate {
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
-		return SecurityUtil.run(() -> interestRateCurveService.generate(algorithm, interpolator, instance, quoteDate,
+		return SecurityUtil.runEx(() -> interestRateCurveService.generate(algorithm, interpolator, instance, quoteDate,
 				quoteSet, quoteIds));
 	}
 

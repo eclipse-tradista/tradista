@@ -31,7 +31,7 @@ public interface FixingErrorService {
 
 	boolean saveFixingErrors(List<FixingError> errors);
 
-	void solveFixingError(Set<Long> solved, LocalDate date);
+	void solveFixingError(Set<Long> solved, LocalDate date) throws TradistaBusinessException;
 
 	void solveFixingError(long transferId, LocalDate date) throws TradistaBusinessException;
 

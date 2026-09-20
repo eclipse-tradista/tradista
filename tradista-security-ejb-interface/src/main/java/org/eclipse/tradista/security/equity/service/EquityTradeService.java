@@ -29,7 +29,8 @@ public interface EquityTradeService {
 
 	long saveEquityTrade(EquityTrade trade) throws TradistaBusinessException;
 
-	List<EquityTrade> getEquityTradesBeforeTradeDateByEquityAndBookIds(LocalDate date, long equityId, long bookId);
+	List<EquityTrade> getEquityTradesBeforeTradeDateByEquityAndBookIds(LocalDate date, long equityId, long bookId)
+			throws TradistaBusinessException;
 
 	EquityTrade getEquityTradeById(long id);
 

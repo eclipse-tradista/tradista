@@ -104,7 +104,7 @@ public class QuoteBusinessDelegate {
 		}
 
 		return SecurityUtil
-				.run(() -> quoteService.saveQuoteValues(quoteSetId, quoteName, quoteType, quoteValues, year, month));
+				.runEx(() -> quoteService.saveQuoteValues(quoteSetId, quoteName, quoteType, quoteValues, year, month));
 	}
 
 	public boolean deleteQuote(String quoteName, QuoteType quoteType) throws TradistaBusinessException {
@@ -241,8 +241,8 @@ public class QuoteBusinessDelegate {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 
-		return SecurityUtil.run(() -> quoteService.getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(quoteSetId, quoteName,
-				quoteType, year, month));
+		return SecurityUtil.runEx(() -> quoteService.getQuoteValuesByQuoteSetIdQuoteNameTypeAndDate(quoteSetId,
+				quoteName, quoteType, year, month));
 	}
 
 	public List<QuoteType> getQuoteTypesByQuoteName(String quoteName) {
@@ -261,7 +261,7 @@ public class QuoteBusinessDelegate {
 		if (poId < 0) {
 			throw new TradistaBusinessException(String.format("The po id (%d) cannot be negative.", poId));
 		}
-		return SecurityUtil.run(() -> quoteService.getQuoteSetsByPoId(poId));
+		return SecurityUtil.runEx(() -> quoteService.getQuoteSetsByPoId(poId));
 	}
 
 	public long saveQuoteSet(QuoteSet quoteSet) throws TradistaBusinessException {
@@ -295,6 +295,6 @@ public class QuoteBusinessDelegate {
 		if (quoteValues.isEmpty()) {
 			throw new TradistaBusinessException("Quote values cannot be empty.");
 		}
-		return SecurityUtil.run(() -> quoteService.saveQuoteValues(quoteSetId, quoteValues));
+		return SecurityUtil.runEx(() -> quoteService.saveQuoteValues(quoteSetId, quoteValues));
 	}
 }

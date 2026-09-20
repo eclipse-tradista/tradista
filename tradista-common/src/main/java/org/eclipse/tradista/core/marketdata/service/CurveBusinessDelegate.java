@@ -61,7 +61,7 @@ public class CurveBusinessDelegate {
 		if (curve == null) {
 			throw new TradistaBusinessException("The curve cannot be null.");
 		}
-		return SecurityUtil.run(() -> curveService.getCurvePointsByCurveAndDates(curve, min, max));
+		return SecurityUtil.runEx(() -> curveService.getCurvePointsByCurveAndDates(curve, min, max));
 	}
 
 	public List<RatePoint> getCurvePointsByCurveAndDate(Curve<? extends LocalDate, ? extends BigDecimal> curve,

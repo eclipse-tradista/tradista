@@ -82,7 +82,7 @@ public class AllocationConfigurationBusinessDelegate {
 		if (poId <= 0) {
 			throw new TradistaBusinessException("The processing org id must be positive.");
 		}
-		return SecurityUtil.run(() -> allocationConfigurationService.getAllocationConfigurationsByPoId(poId));
+		return SecurityUtil.runEx(() -> allocationConfigurationService.getAllocationConfigurationsByPoId(poId));
 	}
 
 }

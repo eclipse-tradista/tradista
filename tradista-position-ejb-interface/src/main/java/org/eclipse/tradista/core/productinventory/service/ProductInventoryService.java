@@ -33,19 +33,22 @@ public interface ProductInventoryService {
 	void updateProductInventory(ProductTransfer transfer) throws TradistaBusinessException;
 
 	Set<ProductInventory> getProductInventoriesBeforeDateByProductAndBookIds(long productId, long bookId,
-			LocalDate date);
+			LocalDate date) throws TradistaBusinessException;
 
-	Set<ProductInventory> getOpenPositionsFromProductInventoryByProductAndBookIds(long productId, long bookId);
+	Set<ProductInventory> getOpenPositionsFromProductInventoryByProductAndBookIds(long productId, long bookId)
+			throws TradistaBusinessException;
 
-	BigDecimal getQuantityByDateProductAndBookIds(long productId, long bookId, LocalDate date);
+	BigDecimal getQuantityByDateProductAndBookIds(long productId, long bookId, LocalDate date)
+			throws TradistaBusinessException;
 
-	BigDecimal getAveragePriceByDateProductAndBookIds(long productId, long bookId, LocalDate date);
+	BigDecimal getAveragePriceByDateProductAndBookIds(long productId, long bookId, LocalDate date)
+			throws TradistaBusinessException;
 
 	Set<ProductInventory> getProductInventories(LocalDate from, LocalDate to, String productType, long productId,
 			long bookId, boolean onlyOpenPositions) throws TradistaBusinessException;
 
 	void closeExpiredProductsPositions();
 
-	Map<String, BigDecimal> getBookProductContent(LocalDate date, long bookId);
+	Map<String, BigDecimal> getBookProductContent(LocalDate date, long bookId) throws TradistaBusinessException;
 
 }

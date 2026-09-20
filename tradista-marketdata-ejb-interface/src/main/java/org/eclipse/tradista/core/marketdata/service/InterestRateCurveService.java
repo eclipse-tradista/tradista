@@ -68,6 +68,6 @@ public interface InterestRateCurveService {
 	List<RatePoint> getInterestRateCurvePointsByCurveAndDates(InterestRateCurve curve, LocalDate min, LocalDate max);
 
 	List<RatePoint> generate(String algorithm, String interpolator, String instance, LocalDate quoteDate,
-			QuoteSet quoteSet, List<Long> quoteIds);
+			QuoteSet quoteSet, List<Long> quoteIds) throws TradistaBusinessException;
 
 }

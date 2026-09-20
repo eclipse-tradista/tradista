@@ -29,7 +29,8 @@ public interface BondTradeService {
 
 	long saveBondTrade(BondTrade trade) throws TradistaBusinessException;
 
-	List<BondTrade> getBondTradesBeforeTradeDateByBondAndBookIds(LocalDate date, long bondId, long bookId);
+	List<BondTrade> getBondTradesBeforeTradeDateByBondAndBookIds(LocalDate date, long bondId, long bookId)
+			throws TradistaBusinessException;
 
 	BondTrade getBondTradeById(long id);
 

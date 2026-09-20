@@ -80,7 +80,7 @@ public class BookBusinessDelegate {
 		if (poId <= 0) {
 			throw new TradistaBusinessException(String.format("The po id (%s) must be positive.", poId));
 		}
-		return SecurityUtil.run(() -> bookService.getBooksByPoId(poId));
+		return SecurityUtil.runEx(() -> bookService.getBooksByPoId(poId));
 	}
 
 	public Book getBookByNameAndPoId(String name, long poId) throws TradistaBusinessException {
@@ -90,7 +90,7 @@ public class BookBusinessDelegate {
 		if (poId <= 0) {
 			throw new TradistaBusinessException(String.format("The po id (%s) must be positive.", poId));
 		}
-		return SecurityUtil.run(() -> bookService.getBookByNameAndPoId(name, poId));
+		return SecurityUtil.runEx(() -> bookService.getBookByNameAndPoId(name, poId));
 	}
 
 	public Map<String, Map<String, BigDecimal>> getBookContent(long id) throws TradistaBusinessException {

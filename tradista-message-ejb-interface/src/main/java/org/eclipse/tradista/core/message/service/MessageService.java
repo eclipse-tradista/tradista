@@ -28,7 +28,7 @@ import jakarta.ejb.Remote;
 @Remote
 public interface MessageService {
 
-	long saveMessage(Message message);
+	long saveMessage(Message message) throws TradistaBusinessException;
 
 	Message applyAction(Message message, String action) throws TradistaBusinessException;
 
