@@ -25,13 +25,9 @@ import finance.tradista.flow.exception.TradistaFlowBusinessException;
 import finance.tradista.flow.exception.TradistaFlowTechnicalException;
 import finance.tradista.flow.model.Workflow;
 import finance.tradista.flow.service.WorkflowManager;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2024 Olivier Asuncion
@@ -54,18 +50,11 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class SpecificRepoTradeServiceBean implements SpecificRepoTradeService {
 
-
-
 	@EJB
 	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-
-	}
 
 	@ProductScope(value = SpecificRepoTrade.SPECIFIC_REPO, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -105,8 +94,7 @@ public class SpecificRepoTradeServiceBean implements SpecificRepoTradeService {
 		return result;
 	}
 
-
-@Override
+	@Override
 	public SpecificRepoTrade getSpecificRepoTradeById(long id) {
 		return SpecificRepoTradeSQL.getTradeById(id);
 	}

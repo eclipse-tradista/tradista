@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -15,14 +16,9 @@ import org.eclipse.tradista.security.equity.model.EquityTrade;
 import org.eclipse.tradista.security.equity.persistence.EquityTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -51,10 +47,6 @@ public class EquityTradeServiceBean implements EquityTradeService {
 	@EJB
 	private TradeService tradeService;
 
-	@PostConstruct
-	private void initialize() {
-	}
-
 	@ProductScope(value = Equity.EQUITY, mode = ProductScopeMode.ON_CREATION)
 	@Override
 	public long saveEquityTrade(@CheckTradeAccess EquityTrade trade) throws TradistaBusinessException {
@@ -72,7 +64,6 @@ public class EquityTradeServiceBean implements EquityTradeService {
 		event.setTrade(trade);
 		long result = EquityTradeSQL.saveEquityTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 
@@ -88,6 +79,5 @@ public class EquityTradeServiceBean implements EquityTradeService {
 	public EquityTrade getEquityTradeById(long id) {
 		return EquityTradeSQL.getTradeById(id, false);
 	}
-
 
 }

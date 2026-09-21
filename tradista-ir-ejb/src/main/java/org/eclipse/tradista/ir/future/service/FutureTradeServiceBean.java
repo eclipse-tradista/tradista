@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -15,14 +16,9 @@ import org.eclipse.tradista.ir.future.model.FutureTrade;
 import org.eclipse.tradista.ir.future.persistence.FutureTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -45,7 +41,6 @@ import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingServ
 @Stateless
 public class FutureTradeServiceBean implements FutureTradeService {
 
-
 	@EJB
 	private FutureService futureService;
 
@@ -54,10 +49,6 @@ public class FutureTradeServiceBean implements FutureTradeService {
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-	}
 
 	@ProductScope(value = Future.FUTURE, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -80,13 +71,11 @@ public class FutureTradeServiceBean implements FutureTradeService {
 		event.setTrade(trade);
 		long result = FutureTradeSQL.saveFutureTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
-
-@Override
+	@Override
 	public List<FutureTrade> getFutureTradesBeforeTradeDateByFutureAndBookIds(LocalDate date, long futureId,
 			@CheckBookAccess long bookId) {
 		return FutureTradeSQL.getFutureTradesBeforeTradeDateByFutureAndBookIds(date, futureId, bookId);

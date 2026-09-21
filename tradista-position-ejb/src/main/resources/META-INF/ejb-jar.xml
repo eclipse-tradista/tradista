@@ -5,7 +5,6 @@
 	version="4.0">
 	<module-name>position-ejb</module-name>
 	<display-name>position-ejb</display-name>
-
 	<interceptors>
 		<interceptor>
 			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>

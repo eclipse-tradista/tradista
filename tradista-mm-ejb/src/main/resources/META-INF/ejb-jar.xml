@@ -5,14 +5,6 @@
 	version="4.0">
 	<module-name>mm-ejb</module-name>
 	<display-name>mm-ejb</display-name>
-	<enterprise-beans>
-		<session>
-			<ejb-name>LoanDepositTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-	</enterprise-beans>
 	<interceptors>
 		<interceptor>
 			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>

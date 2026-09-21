@@ -16,7 +16,6 @@ import org.eclipse.tradista.security.bond.model.BondTrade;
 import org.eclipse.tradista.security.bond.persistence.BondTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -42,16 +41,11 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class BondTradeServiceBean implements BondTradeService {
 
-
 	@EJB
 	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-	}
 
 	@ProductScope(value = Bond.BOND, mode = ProductScopeMode.ON_CREATION)
 	@Override

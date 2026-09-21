@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxoption.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
@@ -12,14 +13,9 @@ import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.persistence.FXOptionTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -42,7 +38,6 @@ import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingServ
 @Stateless
 public class FXOptionTradeServiceBean implements FXOptionTradeService {
 
-
 	@EJB
 	private FXTradeService fxTradeService;
 
@@ -51,10 +46,6 @@ public class FXOptionTradeServiceBean implements FXOptionTradeService {
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-	}
 
 	@ProductScope(value = FXOptionTrade.FX_OPTION, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -88,7 +79,6 @@ public class FXOptionTradeServiceBean implements FXOptionTradeService {
 		event.setTrade(trade);
 		long result = FXOptionTradeSQL.saveFXOptionTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
@@ -97,6 +87,5 @@ public class FXOptionTradeServiceBean implements FXOptionTradeService {
 	public FXOptionTrade getFXOptionTradeById(long id) {
 		return FXOptionTradeSQL.getTradeById(id);
 	}
-
 
 }

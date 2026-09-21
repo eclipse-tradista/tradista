@@ -5,34 +5,6 @@
 	version="4.0">
 	<module-name>fx-ejb</module-name>
 	<display-name>fx-ejb</display-name>
-	<enterprise-beans>
-		<session>
-			<ejb-name>FXTradeServiceBean</ejb-name>
-			<ejb-class>org.eclipse.tradista.fx.fx.service.FXTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>FXNDFTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.fx.fxndf.service.FXNDFTradeServiceBean
-			</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>FXOptionTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.fx.fxoption.service.FXOptionTradeServiceBean
-			</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>FXSwapTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.fx.fxswap.service.FXSwapTradeServiceBean
-			</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-	</enterprise-beans>
 	<interceptors>
 		<interceptor>
 			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>

@@ -5,43 +5,6 @@
 	version="4.0">
 	<module-name>ir-ejb</module-name>
 	<display-name>ir-ejb</display-name>
-	<enterprise-beans>
-		<session>
-			<ejb-name>FutureTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.ir.future.service.FutureTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>FRATradeServiceBean</ejb-name>
-			<ejb-class>org.eclipse.tradista.ir.fra.service.FRATradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>CcySwapTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.ir.ccyswap.service.CcySwapTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>IRCapFloorCollarTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>IRSwapTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.ir.irswap.service.IRSwapTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>IRSwapOptionTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-	</enterprise-beans>
 	<interceptors>
 		<interceptor>
 			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>

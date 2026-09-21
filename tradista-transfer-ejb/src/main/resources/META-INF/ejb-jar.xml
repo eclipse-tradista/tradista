@@ -5,15 +5,6 @@
 	version="4.0">
 	<module-name>transfer-ejb</module-name>
 	<display-name>transfer-ejb</display-name>
-	<enterprise-beans>
-		<session>
-			<ejb-name>TransferServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.core.transfer.service.TransferServiceBean
-			</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-	</enterprise-beans>
 	<interceptors>
 		<interceptor>
 			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>

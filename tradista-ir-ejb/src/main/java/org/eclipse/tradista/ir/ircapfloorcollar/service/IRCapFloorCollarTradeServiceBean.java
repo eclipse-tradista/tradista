@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -10,14 +11,9 @@ import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
 import org.eclipse.tradista.ir.ircapfloorcollar.persistence.IRCapFloorCollarTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -46,10 +42,6 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 	@EJB
 	private TradeService tradeService;
 
-	@PostConstruct
-	private void initialize() {
-	}
-
 	@ProductScope(value = IRCapFloorCollarTrade.IR_CAP_FLOOR_COLLAR, mode = ProductScopeMode.ON_CREATION)
 	@Override
 	public long saveIRCapFloorCollarTrade(@CheckTradeAccess IRCapFloorCollarTrade trade)
@@ -64,7 +56,6 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 		event.setTrade(trade);
 		long result = IRCapFloorCollarTradeSQL.saveIRCapFloorCollarTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
@@ -73,6 +64,5 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 	public IRCapFloorCollarTrade getIRCapFloorCollarTradeById(long id) {
 		return IRCapFloorCollarTradeSQL.getTradeById(id);
 	}
-
 
 }

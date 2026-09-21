@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.irswapoption.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
@@ -12,14 +13,9 @@ import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.persistence.IRSwapOptionTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -42,7 +38,6 @@ import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingServ
 @Stateless
 public class IRSwapOptionTradeServiceBean implements IRSwapOptionTradeService {
 
-
 	@EJB
 	private IRSwapTradeService irSwapTradeService;
 
@@ -51,10 +46,6 @@ public class IRSwapOptionTradeServiceBean implements IRSwapOptionTradeService {
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-	}
 
 	@ProductScope(value = IRSwapOptionTrade.IR_SWAP_OPTION, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -90,7 +81,6 @@ public class IRSwapOptionTradeServiceBean implements IRSwapOptionTradeService {
 		event.setTrade(trade);
 		long result = IRSwapOptionTradeSQL.saveIRSwapOptionTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 
@@ -100,6 +90,5 @@ public class IRSwapOptionTradeServiceBean implements IRSwapOptionTradeService {
 	public IRSwapOptionTrade getIRSwapOptionTradeById(long id) {
 		return IRSwapOptionTradeSQL.getTradeById(id);
 	}
-
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
@@ -17,14 +18,9 @@ import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 import org.eclipse.tradista.security.equityoption.persistence.EquityOptionTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -47,7 +43,6 @@ import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingServ
 @Stateless
 public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 
-
 	@EJB
 	private EquityTradeService equityTradeService;
 
@@ -56,10 +51,6 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-	}
 
 	@ProductScope(value = EquityOption.EQUITY_OPTION, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -91,7 +82,6 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 		event.setTrade(trade);
 		long result = EquityOptionTradeSQL.saveEquityOptionTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
@@ -107,6 +97,5 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 	public EquityOptionTrade getEquityOptionTradeById(long id) {
 		return EquityOptionTradeSQL.getTradeById(id);
 	}
-
 
 }

@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.irswap.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -11,14 +12,9 @@ import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
 import org.eclipse.tradista.ir.irswap.persistence.IRSwapTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -47,10 +43,6 @@ public class IRSwapTradeServiceBean implements IRSwapTradeService {
 	@EJB
 	private TradeService tradeService;
 
-	@PostConstruct
-	private void initialize() {
-	}
-
 	@ProductScope(value = IRSwapTrade.IR_SWAP, mode = ProductScopeMode.ON_CREATION)
 	@Override
 	public long saveIRSwapTrade(@CheckTradeAccess SingleCurrencyIRSwapTrade trade) throws TradistaBusinessException {
@@ -68,7 +60,6 @@ public class IRSwapTradeServiceBean implements IRSwapTradeService {
 		event.setTrade(trade);
 		long result = IRSwapTradeSQL.saveIRSwapTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
@@ -77,6 +68,5 @@ public class IRSwapTradeServiceBean implements IRSwapTradeService {
 	public SingleCurrencyIRSwapTrade getIRSwapTradeById(long id) {
 		return IRSwapTradeSQL.getTradeById(id, false);
 	}
-
 
 }

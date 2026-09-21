@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.fra.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -10,14 +11,9 @@ import org.eclipse.tradista.ir.fra.model.FRATrade;
 import org.eclipse.tradista.ir.fra.persistence.FRATradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -46,10 +42,6 @@ public class FRATradeServiceBean implements FRATradeService {
 	@EJB
 	private TradeService tradeService;
 
-	@PostConstruct
-	private void initialize() {
-	}
-
 	@ProductScope(value = FRATrade.FRA, mode = ProductScopeMode.ON_CREATION)
 	@Override
 	public long saveFRATrade(@CheckTradeAccess FRATrade trade) throws TradistaBusinessException {
@@ -63,7 +55,6 @@ public class FRATradeServiceBean implements FRATradeService {
 		event.setTrade(trade);
 		long result = FRATradeSQL.saveFRATrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
@@ -72,6 +63,5 @@ public class FRATradeServiceBean implements FRATradeService {
 	public FRATrade getFRATradeById(long id) {
 		return FRATradeSQL.getTradeById(id);
 	}
-
 
 }

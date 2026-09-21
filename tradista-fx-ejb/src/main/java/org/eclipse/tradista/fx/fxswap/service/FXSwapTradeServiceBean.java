@@ -11,7 +11,6 @@ import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 import org.eclipse.tradista.fx.fxswap.persistence.FXSwapTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -41,16 +40,11 @@ under the License.    */
 @Stateless
 public class FXSwapTradeServiceBean implements FXSwapTradeService {
 
-
 	@EJB
 	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-	}
 
 	@ProductScope(value = FXSwapTrade.FX_SWAP, mode = ProductScopeMode.ON_CREATION)
 	@Override

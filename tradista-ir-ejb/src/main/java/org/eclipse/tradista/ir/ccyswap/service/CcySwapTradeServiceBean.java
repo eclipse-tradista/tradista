@@ -11,13 +11,9 @@ import org.eclipse.tradista.ir.ccyswap.model.CcySwapTrade;
 import org.eclipse.tradista.ir.ccyswap.persistence.CcySwapTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-
-
-
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -46,10 +42,6 @@ public class CcySwapTradeServiceBean implements CcySwapTradeService {
 	@EJB
 	private TradeService tradeService;
 
-	@PostConstruct
-	private void initialize() {
-	}
-
 	@ProductScope(value = CcySwapTrade.CCY_SWAP, mode = ProductScopeMode.ON_CREATION)
 	@Override
 	public long saveCcySwapTrade(@CheckTradeAccess CcySwapTrade trade) throws TradistaBusinessException {
@@ -64,7 +56,6 @@ public class CcySwapTradeServiceBean implements CcySwapTradeService {
 		event.setTrade(trade);
 		long result = CcySwapTradeSQL.saveCcySwapTrade(trade);
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 
@@ -74,6 +65,5 @@ public class CcySwapTradeServiceBean implements CcySwapTradeService {
 	public CcySwapTrade getCcySwapTradeById(long id) {
 		return CcySwapTradeSQL.getTradeById(id);
 	}
-
 
 }

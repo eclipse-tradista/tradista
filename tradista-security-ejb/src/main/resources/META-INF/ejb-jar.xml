@@ -5,38 +5,6 @@
 	version="4.0">
 	<module-name>security-ejb</module-name>
 	<display-name>security-ejb</display-name>
-	<enterprise-beans>
-		<session>
-			<ejb-name>BondTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.security.bond.service.BondTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>EquityTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>EquityOptionTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>GCRepoTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-		<session>
-			<ejb-name>SpecificRepoTradeServiceBean</ejb-name>
-			<ejb-class>
-				org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</ejb-class>
-			<session-type>Stateless</session-type>
-		</session>
-	</enterprise-beans>
 	<interceptors>
 		<interceptor>
 			<interceptor-class>org.eclipse.tradista.core.common.service.TradistaSegregationHandlerInterceptor</interceptor-class>
