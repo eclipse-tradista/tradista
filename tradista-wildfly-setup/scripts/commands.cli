@@ -23,7 +23,4 @@ module add --name=org.apache.derby --resources=${env.DERBY_HOME}/lib/derbyclient
 /subsystem=undertow/application-security-domain=other:remove()
 /subsystem=undertow/application-security-domain=other:add(http-authentication-factory=application-http-authentication)
 /subsystem=remoting/http-connector=http-remoting-connector:write-attribute(name=sasl-authentication-factory,value=tradista-sasl-auth)
-/subsystem=remoting/http-connector=http-remoting-connector:undefine-attribute(name=security-realm)
-/subsystem=messaging-activemq/server=default/jms-queue=CashInventoryQueue:add(entries=["java:/jms/queue/CashInventoryQueue"])
-/subsystem=messaging-activemq/server=default/jms-queue=ProductInventoryQueue:add(entries=["java:/jms/queue/ProductInventoryQueue"])
-/subsystem=messaging-activemq/server=default/jms-queue=TransferQueue:add(entries=["java:/jms/queue/TransferQueue"])
+/subsystem=remoting/http-connector=http-remoting-connector:undefine-attribute(name=security-realm)

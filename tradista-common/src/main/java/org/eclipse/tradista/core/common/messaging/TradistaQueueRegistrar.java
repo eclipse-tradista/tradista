@@ -35,7 +35,7 @@ public class TradistaQueueRegistrar implements BeanFactoryPostProcessor {
 
 		// Hard coded for the moment. Will be replaced by listener declarations
 		// persisted in DB.
-		List<String> listeners = List.of("tradeCaptureReportExporter");
+		List<String> listeners = List.of("tradeCaptureReportExporter", "transfer", "cashInventory", "productInventory");
 
 		for (String listener : listeners) {
 			String beanName = listener.trim() + "Queue";

@@ -436,10 +436,10 @@ public class TransferSQL {
 		StringBuilder sqlQuery = new StringBuilder(TradistaDBUtil.buildSelectQuery(TRANSFER_TABLE));
 
 		if (startFixingDate != null) {
-			TradistaDBUtil.addFilter(sqlQuery, FIXING_DATETIME_FIELD, startFixingDate, true);
+			TradistaDBUtil.addFilter(sqlQuery, FIXING_DATETIME_FIELD, startFixingDate.atStartOfDay(), true);
 		}
 		if (endFixingDate != null) {
-			TradistaDBUtil.addFilter(sqlQuery, FIXING_DATETIME_FIELD, endFixingDate, false);
+			TradistaDBUtil.addFilter(sqlQuery, FIXING_DATETIME_FIELD, endFixingDate.atTime(23, 59, 59, 999999999), false);
 		}
 
 		if (startSettlementDate != null) {
@@ -450,10 +450,10 @@ public class TransferSQL {
 		}
 
 		if (startCreationDate != null) {
-			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATETIME_FIELD, startCreationDate, true);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATETIME_FIELD, startCreationDate.atStartOfDay(), true);
 		}
 		if (endCreationDate != null) {
-			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATETIME_FIELD, endCreationDate, false);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATETIME_FIELD, endCreationDate.atTime(23, 59, 59, 999999999), false);
 		}
 
 		if (type != null) {

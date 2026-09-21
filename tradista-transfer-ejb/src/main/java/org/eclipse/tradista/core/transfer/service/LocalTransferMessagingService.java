@@ -1,4 +1,6 @@
-package org.eclipse.tradista.core.common.messaging;
+package org.eclipse.tradista.core.transfer.service;
+
+import org.eclipse.tradista.core.common.messaging.TradistaMessagingService;
 
 import jakarta.ejb.Local;
 
@@ -19,8 +21,6 @@ import jakarta.ejb.Local;
  ********************************************************************************/
 
 @Local
-public interface MessagingConfigurationService {
-
-	TradistaEventGateway getTradistaEventGateway();
+public interface LocalTransferMessagingService extends TradistaMessagingService {
 
 }

@@ -32,11 +32,9 @@ import org.eclipse.tradista.core.exchange.service.ExchangeService;
 import org.eclipse.tradista.core.exporter.service.ExporterConfigurationService;
 import org.eclipse.tradista.core.exporter.service.ExporterInformationService;
 import org.eclipse.tradista.core.exporter.service.ExporterService;
-import org.eclipse.tradista.core.exporter.service.LocalExporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationService;
 import org.eclipse.tradista.core.importer.service.ImporterInformationService;
 import org.eclipse.tradista.core.importer.service.ImporterService;
-import org.eclipse.tradista.core.importer.service.LocalImporterConfigurationService;
 import org.eclipse.tradista.core.index.service.IndexService;
 import org.eclipse.tradista.core.legalentity.service.LegalEntityService;
 import org.eclipse.tradista.core.mapping.service.MappingService;
@@ -758,16 +756,6 @@ public class TradistaServiceLocator {
 		return (MappingService) getService(APP, CORE_EJB, MAPPING_SERVICE_PACKAGE, "MappingService");
 	}
 
-	/**
-	 * Local use only (remote access won't work)
-	 * 
-	 * @return a LocalImporterConfigurationService instance
-	 */
-	public LocalImporterConfigurationService getLocalImporterConfigurationService() {
-		return (LocalImporterConfigurationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
-				"LocalImporterConfigurationService");
-	}
-
 	public ImporterService getImporterService() {
 		return (ImporterService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE, "ImporterService");
 	}
@@ -784,16 +772,6 @@ public class TradistaServiceLocator {
 	public ExporterConfigurationService getExporterConfigurationService() {
 		return (ExporterConfigurationService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE,
 				"ExporterConfigurationService");
-	}
-
-	/**
-	 * Local use only (remote access won't work)
-	 * 
-	 * @return a LocalExporterConfigurationService instance
-	 */
-	public LocalExporterConfigurationService getLocalExporterConfigurationService() {
-		return (LocalExporterConfigurationService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE,
-				"LocalExporterConfigurationService");
 	}
 
 }

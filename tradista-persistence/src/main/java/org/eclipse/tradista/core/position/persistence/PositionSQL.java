@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD_HH_MM_SS;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.position.model.Position;
 
@@ -169,20 +170,20 @@ public class PositionSQL {
 			String dateSqlQuery = "";
 			if (valueDateFrom != null && valueDateTo != null) {
 				dateSqlQuery = " WHERE VALUE_DATETIME >=" + "'"
-						+ DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+						+ DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
 								.format(LocalDateTime.of(valueDateFrom, LocalTime.MIN))
-						+ "'" + " AND VALUE_DATETIME <= " + "'" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+						+ "'" + " AND VALUE_DATETIME <= " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
 								.format(LocalDateTime.of(valueDateTo, LocalTime.MAX))
 						+ "'";
 			} else {
 				if (valueDateFrom == null && valueDateTo != null) {
 					dateSqlQuery = " WHERE VALUE_DATETIME <= " + "'" + DateTimeFormatter
-							.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.of(valueDateTo, LocalTime.MAX))
+							.ofPattern(YYYY_MM_DD_HH_MM_SS).format(LocalDateTime.of(valueDateTo, LocalTime.MAX))
 							+ "'";
 				}
 				if (valueDateFrom != null && valueDateTo == null) {
 					dateSqlQuery = " WHERE VALUE_DATETIME >= " + "'" + DateTimeFormatter
-							.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.of(valueDateFrom, LocalTime.MIN))
+							.ofPattern(YYYY_MM_DD_HH_MM_SS).format(LocalDateTime.of(valueDateFrom, LocalTime.MIN))
 							+ "'";
 				}
 				if (valueDateFrom == null && valueDateTo == null) {

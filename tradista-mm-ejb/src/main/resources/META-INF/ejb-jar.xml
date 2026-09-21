@@ -11,26 +11,6 @@
 			<ejb-class>
 				org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 	</enterprise-beans>
 	<interceptors>

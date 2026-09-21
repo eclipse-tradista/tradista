@@ -13,13 +13,13 @@ import org.eclipse.tradista.fx.fxoption.persistence.FXOptionTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
+
+
+
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -42,21 +42,18 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class FXOptionTradeServiceBean implements FXOptionTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
 
 	@EJB
 	private FXTradeService fxTradeService;
+
+	@EJB
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
 
 	@PostConstruct
 	private void initialize() {
-		context = factory.createContext();
 	}
 
 	@ProductScope(value = FXOptionTrade.FX_OPTION, mode = ProductScopeMode.ON_CREATION)
@@ -91,8 +88,8 @@ public class FXOptionTradeServiceBean implements FXOptionTradeService {
 		event.setTrade(trade);
 		long result = FXOptionTradeSQL.saveFXOptionTrade(trade);
 
-		context.createProducer().send(destination, event);
 
+		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
@@ -101,9 +98,5 @@ public class FXOptionTradeServiceBean implements FXOptionTradeService {
 		return FXOptionTradeSQL.getTradeById(id);
 	}
 
-	@PreDestroy
-	private void clean() {
-		context.close();
-	}
 
 }

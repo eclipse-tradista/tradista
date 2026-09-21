@@ -160,9 +160,9 @@ public class DailyPnlSQL {
 				} else {
 					dateSqlQuery += " WHERE ";
 				}
-				dateSqlQuery += " VALUE_DATE >=" + "'" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(valueDateFrom)
+				dateSqlQuery += " VALUE_DATE >=" + "'" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(valueDateFrom)
 						+ "'" + " AND VALUE_DATE <= " + "'"
-						+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(valueDateTo) + "'";
+						+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(valueDateTo) + "'";
 			} else {
 				if (valueDateFrom == null && valueDateTo != null) {
 					if (sqlQuery.contains("WHERE")) {
@@ -171,7 +171,7 @@ public class DailyPnlSQL {
 						dateSqlQuery += " WHERE ";
 					}
 					dateSqlQuery += " VALUE_DATE <= " + "'"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(valueDateTo) + "'";
+							+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(valueDateTo) + "'";
 				}
 				if (valueDateFrom != null && valueDateTo == null) {
 					if (sqlQuery.contains("WHERE")) {
@@ -180,7 +180,7 @@ public class DailyPnlSQL {
 						dateSqlQuery += " WHERE ";
 					}
 					dateSqlQuery += " VALUE_DATE >= " + "'"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(valueDateFrom) + "'";
+							+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(valueDateFrom) + "'";
 				}
 				if (valueDateFrom == null && valueDateTo == null) {
 					dateSqlQuery = "";

@@ -1,9 +1,15 @@
-package org.eclipse.tradista.core.common.messaging.service;
+package org.eclipse.tradista.core.transfer.service;
 
-import org.eclipse.tradista.core.common.messaging.MessagingConfigurationService;
+import static org.eclipse.tradista.core.common.util.TradistaConstants.META_INF;
+
+import org.eclipse.tradista.core.common.messaging.Event;
 import org.eclipse.tradista.core.common.messaging.TradistaEventGateway;
 import org.eclipse.tradista.core.common.messaging.TradistaMessagingConfiguration;
+import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
@@ -26,24 +32,31 @@ import jakarta.ejb.Startup;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+@SecurityDomain(value = "other")
 @PermitAll
 @Startup
 @Singleton
-public class MessagingConfigurationServiceBean implements MessagingConfigurationService {
+public class TransferMessagingServiceBean implements LocalTransferMessagingService {
 
-	private static AnnotationConfigApplicationContext applicationContext;
+	private static GenericApplicationContext applicationContext;
+
+	public static final String CONFIG_FILE_NAME = "tradista-transfer-context.xml";
 
 	@PostConstruct
 	public void init() {
 		applicationContext = new AnnotationConfigApplicationContext();
-		applicationContext.register(TradistaMessagingConfiguration.class);
+		applicationContext.registerBean(TradistaMessagingConfiguration.class);
+
+		// We add here the exporter beans in the same context
+		XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
+		xmlReader.loadBeanDefinitions(new ClassPathResource("/" + META_INF + "/" + CONFIG_FILE_NAME));
+
 		applicationContext.refresh();
-		applicationContext.start();
 	}
 
 	@Override
-	public TradistaEventGateway getTradistaEventGateway() {
-		return applicationContext.getBean(TradistaEventGateway.class);
+	public void publishEvent(Event event) {
+		applicationContext.getBean(TradistaEventGateway.class).publish(event);
 	}
 
 }

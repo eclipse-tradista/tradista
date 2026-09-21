@@ -172,7 +172,7 @@ public class EquityTradeSQL {
 				Statement stmtGetTradesBeforeTradeDate = con.createStatement()) {
 			String query = "SELECT * FROM EQUITY_TRADE, TRADE WHERE "
 					+ "TRADE.ID = EQUITY_TRADE.EQUITY_TRADE_ID AND TRADE_DATE IS NOT NULL AND TRADE_DATE <= '"
-					+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date) + "'";
+					+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(date) + "'";
 
 			if (equityId > 0) {
 				query += " AND TRADE.PRODUCT_ID = " + equityId;

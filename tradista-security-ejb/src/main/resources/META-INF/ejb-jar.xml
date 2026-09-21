@@ -11,130 +11,30 @@
 			<ejb-class>
 				org.eclipse.tradista.security.bond.service.BondTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.bond.service.BondTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.bond.service.BondTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>EquityTradeServiceBean</ejb-name>
 			<ejb-class>
 				org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.equity.service.EquityTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>EquityOptionTradeServiceBean</ejb-name>
 			<ejb-class>
 				org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.equityoption.service.EquityOptionTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>GCRepoTradeServiceBean</ejb-name>
 			<ejb-class>
 				org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.gcrepo.service.GCRepoTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>SpecificRepoTradeServiceBean</ejb-name>
 			<ejb-class>
 				org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 	</enterprise-beans>
 	<interceptors>

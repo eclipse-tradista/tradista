@@ -3,7 +3,7 @@ package org.eclipse.tradista.core.inventory.persistence;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUANTITY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
@@ -278,7 +278,7 @@ public class ProductInventorySQL {
 
 			// The framework doesn't manage "OR" yet, adding it manually
 			sqlQuery.append(AND + " (TO_DATE IS NULL OR TO_DATE >= '"
-					+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(date) + "') ");
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "') ");
 
 			StringBuilder queryFilter = new StringBuilder(TradistaDBUtil.buildSelectQuery(
 					new Expression[] { UnaryFunctionExpression.max(FROM_DATE_FIELD) }, PRODUCT_INVENTORY_TABLE));
@@ -322,7 +322,7 @@ public class ProductInventorySQL {
 
 			// The framework doesn't manage "OR" yet, adding it manually
 			sqlQuery.append(AND + " (TO_DATE IS NULL OR TO_DATE >= '"
-					+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(date) + "') ");
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "') ");
 
 			StringBuilder queryFilter = new StringBuilder(TradistaDBUtil.buildSelectQuery(
 					new Expression[] { UnaryFunctionExpression.max(FROM_DATE_FIELD) }, PRODUCT_INVENTORY_TABLE));
@@ -416,7 +416,7 @@ public class ProductInventorySQL {
 				} else {
 					sqlQuery.append(WHERE);
 				}
-				sqlQuery.append(" (TO_DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(from) + "'"
+				sqlQuery.append(" (TO_DATE >= '" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(from) + "'"
 						+ " OR TO_DATE IS NULL)");
 			}
 

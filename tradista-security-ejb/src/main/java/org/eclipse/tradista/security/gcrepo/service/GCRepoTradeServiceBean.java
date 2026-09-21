@@ -7,8 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
-import org.eclipse.tradista.core.common.messaging.MessagingConfigurationService;
-import org.eclipse.tradista.core.common.messaging.TradistaEventGateway;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -27,13 +26,12 @@ import finance.tradista.flow.exception.TradistaFlowTechnicalException;
 import finance.tradista.flow.model.Workflow;
 import finance.tradista.flow.service.WorkflowManager;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
+
+
+
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -56,24 +54,17 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class GCRepoTradeServiceBean implements GCRepoTradeService {
 
-	private ConnectionFactory factory;
 
-	private JMSContext context;
-
-	private Destination destination;
-
-	private TradistaEventGateway eventGateway;
 
 	@EJB
-	private MessagingConfigurationService messagingConfigurationService;
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
 
 	@PostConstruct
 	private void initialize() {
-		context = factory.createContext();
-		eventGateway = messagingConfigurationService.getTradistaEventGateway();
+
 	}
 
 	@ProductScope(value = GCRepoTrade.GC_REPO, mode = ProductScopeMode.ON_CREATION)
@@ -107,18 +98,14 @@ public class GCRepoTradeServiceBean implements GCRepoTradeService {
 		event.setTrade(trade);
 		event.setAppliedAction(action);
 		result = GCRepoTradeSQL.saveGCRepoTrade(trade);
-		context.createProducer().send(destination, event);
-		eventGateway.publish(event);
+
+		messagingConfigurationService.publishEvent(event);
 
 		return result;
 	}
 
-	@PreDestroy
-	private void clean() {
-		context.close();
-	}
 
-	@Override
+@Override
 	public GCRepoTrade getGCRepoTradeById(long id) {
 		return GCRepoTradeSQL.getTradeById(id);
 	}

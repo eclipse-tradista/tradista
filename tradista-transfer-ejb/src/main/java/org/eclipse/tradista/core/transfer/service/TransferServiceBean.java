@@ -26,18 +26,14 @@ import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.core.transfer.persistence.TransferSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
  * 
- * This program and the accompanying materials are made available under the
+ * This program and the accompanying materials are available under the
  * terms of the Apache License, Version 2.0 which is available at
  * https://www.apache.org/licenses/LICENSE-2.0.
  * 
@@ -55,18 +51,8 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class TransferServiceBean implements TransferService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination cashInventoryDestination;
-
-	private Destination productInventoryDestination;
-
-	@PostConstruct
-	private void initialize() {
-		context = factory.createContext();
-	}
+	@EJB
+	private LocalTransferMessagingService messagingService;
 
 	@Override
 	public Set<Transfer> getAllTransfers() {
@@ -124,7 +110,7 @@ public class TransferServiceBean implements TransferService {
 					}
 
 					if (event.getOldTransfer() != null || event.getTransfer() != null) {
-						context.createProducer().send(cashInventoryDestination, event);
+						messagingService.publishEvent(event);
 					}
 				} else {
 					ProductTransferEvent event = (ProductTransferEvent) events.remove();
@@ -134,7 +120,7 @@ public class TransferServiceBean implements TransferService {
 					}
 
 					if (event.getOldTransfer() != null || event.getTransfer() != null) {
-						context.createProducer().send(productInventoryDestination, event);
+						messagingService.publishEvent(event);
 					}
 				}
 			}
@@ -161,7 +147,7 @@ public class TransferServiceBean implements TransferService {
 		}
 
 		if (inventoryToBeUpdated) {
-			context.createProducer().send(productInventoryDestination, event);
+			messagingService.publishEvent(event);
 		}
 
 		return result;
@@ -186,14 +172,9 @@ public class TransferServiceBean implements TransferService {
 		}
 
 		if (inventoryToBeUpdated) {
-			context.createProducer().send(cashInventoryDestination, event);
+			messagingService.publishEvent(event);
 		}
 		return result;
-	}
-
-	@PreDestroy
-	private void clean() {
-		context.close();
 	}
 
 	@Override

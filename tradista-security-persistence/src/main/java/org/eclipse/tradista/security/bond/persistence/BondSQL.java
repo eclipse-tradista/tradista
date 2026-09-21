@@ -180,19 +180,19 @@ public class BondSQL {
 					|| maxMaturityDate != null) {
 				if (minCreationDate != null) {
 					query += " AND CREATION_DATE >= '"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(minCreationDate) + "'";
+							+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(minCreationDate) + "'";
 				}
 				if (maxCreationDate != null) {
 					query += " AND CREATION_DATE <= '"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(maxCreationDate) + "'";
+							+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(maxCreationDate) + "'";
 				}
 				if (minMaturityDate != null) {
 					query += " AND MATURITY_DATE >= '"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(minMaturityDate) + "'";
+							+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(minMaturityDate) + "'";
 				}
 				if (maxMaturityDate != null) {
 					query += " AND MATURITY_DATE <= '"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(maxMaturityDate) + "'";
+							+ DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(maxMaturityDate) + "'";
 				}
 			}
 			try (ResultSet results = stmt.executeQuery(query)) {
@@ -345,12 +345,12 @@ public class BondSQL {
 					+ "FROM BOND, PRODUCT, SECURITY WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
 					+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID";
 			if (minDate == null) {
-				dateQuery = " AND MATURITY_DATE <= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(maxDate) + "'";
+				dateQuery = " AND MATURITY_DATE <= '" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(maxDate) + "'";
 			} else if (maxDate == null) {
-				dateQuery = " AND MATURITY_DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(minDate) + "'";
+				dateQuery = " AND MATURITY_DATE >= '" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(minDate) + "'";
 			} else {
-				dateQuery = " AND MATURITY_DATE BETWEEN '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(minDate)
-						+ "' AND '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(maxDate) + "'";
+				dateQuery = " AND MATURITY_DATE BETWEEN '" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(minDate)
+						+ "' AND '" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(maxDate) + "'";
 			}
 			query += dateQuery;
 

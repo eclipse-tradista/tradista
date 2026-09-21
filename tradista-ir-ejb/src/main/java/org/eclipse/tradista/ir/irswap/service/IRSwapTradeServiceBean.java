@@ -12,13 +12,13 @@ import org.eclipse.tradista.ir.irswap.persistence.IRSwapTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
+
+
+
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -41,18 +41,14 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class IRSwapTradeServiceBean implements IRSwapTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
+	@EJB
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
 
 	@PostConstruct
 	private void initialize() {
-		context = factory.createContext();
 	}
 
 	@ProductScope(value = IRSwapTrade.IR_SWAP, mode = ProductScopeMode.ON_CREATION)
@@ -72,8 +68,8 @@ public class IRSwapTradeServiceBean implements IRSwapTradeService {
 		event.setTrade(trade);
 		long result = IRSwapTradeSQL.saveIRSwapTrade(trade);
 
-		context.createProducer().send(destination, event);
 
+		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
@@ -82,9 +78,5 @@ public class IRSwapTradeServiceBean implements IRSwapTradeService {
 		return IRSwapTradeSQL.getTradeById(id, false);
 	}
 
-	@PreDestroy
-	private void clean() {
-		context.close();
-	}
 
 }

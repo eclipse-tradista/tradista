@@ -1,9 +1,7 @@
-package org.eclipse.tradista.core.transfer.messaging;
-
-import org.eclipse.tradista.core.transfer.model.ProductTransfer;
+package org.eclipse.tradista.core.common.messaging;
 
 /********************************************************************************
- * Copyright (c) 2018 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -18,14 +16,8 @@ import org.eclipse.tradista.core.transfer.model.ProductTransfer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class ProductTransferEvent extends TransferEvent<ProductTransfer> {
+public interface TradistaMessagingService {
 
-	private static final long serialVersionUID = -4979187544631866379L;
-	public static final String PRODUCT_TRANSFER = "ProductTransfer";
-
-	@Override
-	public String getType() {
-		return PRODUCT_TRANSFER;
-	}
+	void publishEvent(Event event);
 
 }

@@ -12,54 +12,7 @@
 				org.eclipse.tradista.core.transfer.service.TransferServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>CashInventoryQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
-					<injection-target-name>cashInventoryDestination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/CashInventoryQueue
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>ProductInventoryQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.core.transfer.service.TransferServiceBean</injection-target-class>
-					<injection-target-name>productInventoryDestination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/ProductInventoryQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
-		<message-driven>
-			<ejb-name>TransferMessageDriveBean</ejb-name>
-			<activation-config>
-				<activation-config-property>
-					<activation-config-property-name>destinationType</activation-config-property-name>
-					<activation-config-property-value>jakarta.jms.Queue</activation-config-property-value>
-				</activation-config-property>
-				<activation-config-property>
-					<activation-config-property-name>connectionFactoryLookup</activation-config-property-name>
-					<activation-config-property-value>java:/JmsXA</activation-config-property-value>
-				</activation-config-property>
-				<activation-config-property>
-					<activation-config-property-name>destinationLookup</activation-config-property-name>
-					<activation-config-property-value>java:/jms/queue/TransferQueue</activation-config-property-value>
-				</activation-config-property>
-			</activation-config>
-		</message-driven>
 	</enterprise-beans>
 	<interceptors>
 		<interceptor>

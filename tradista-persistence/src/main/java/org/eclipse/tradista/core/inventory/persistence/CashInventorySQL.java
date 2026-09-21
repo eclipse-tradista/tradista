@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.inventory.persistence;
 
 import java.math.BigDecimal;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -67,7 +68,6 @@ public class CashInventorySQL {
 
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -102,7 +102,6 @@ public class CashInventorySQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return cashInventory;
@@ -168,7 +167,6 @@ public class CashInventorySQL {
 			stmtUpdateCashInventory.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -180,7 +178,7 @@ public class CashInventorySQL {
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmtGetCashInventoriesByCurrencyBookIdsAndDate = con.createStatement()) {
 			String query = "SELECT * FROM CASH_INVENTORY WHERE FROM_DATE <= '"
-					+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date) + "'";
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "'";
 			if (currencyId > 0) {
 				query += " AND CURRENCY_ID = " + currencyId;
 			}
@@ -206,7 +204,6 @@ public class CashInventorySQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -244,7 +241,6 @@ public class CashInventorySQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -265,10 +261,10 @@ public class CashInventorySQL {
 				query += " BOOK_ID=" + bookId + " AND";
 			}
 
-			query += " (TO_DATE IS NULL OR TO_DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date)
+			query += " (TO_DATE IS NULL OR TO_DATE >= '" + DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date)
 					+ "') ";
 			query += "AND FROM_DATE = (SELECT MAX(FROM_DATE) FROM CASH_INVENTORY WHERE FROM_DATE <= '"
-					+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date) + "' ";
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "' ";
 
 			if (currencyId > 0) {
 				query += " AND CURRENCY_ID=" + currencyId;
@@ -283,7 +279,6 @@ public class CashInventorySQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -307,7 +302,6 @@ public class CashInventorySQL {
 			stmtDeleteCashInventory.executeBatch();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 	}
@@ -340,7 +334,6 @@ public class CashInventorySQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 
@@ -373,7 +366,7 @@ public class CashInventorySQL {
 				} else {
 					query += " WHERE ";
 				}
-				query += " (TO_DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(from) + "'"
+				query += " (TO_DATE >= '" + DateTimeFormatter.ofPattern(YYYY_MM_DD).format(from) + "'"
 						+ " OR TO_DATE IS NULL)";
 			}
 
@@ -391,7 +384,7 @@ public class CashInventorySQL {
 					} else {
 						query += " WHERE ";
 					}
-					query += " (FROM_DATE <= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(to) + "')";
+					query += " (FROM_DATE <= '" + DateTimeFormatter.ofPattern(YYYY_MM_DD).format(to) + "')";
 				}
 			}
 
@@ -414,7 +407,6 @@ public class CashInventorySQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 

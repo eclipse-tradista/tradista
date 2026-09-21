@@ -57,7 +57,7 @@ public class TradeCaptureReportExporter extends FixExporter<Trade<?>, TradeCaptu
 	@ServiceActivator(inputChannel = "tradeCaptureReportExporterQueue", poller = @Poller(fixedDelay = "${tradeCaptureReport.poller.delay:5000}", maxMessagesPerPoll = "${tradeCaptureReport.poller.max:20}"), adviceChain = {
 			"dlqAdvice", "txAdvice" })
 	public void processEvent(TradeEvent<?> event) throws TradistaBusinessException {
-		this.exportObject(event.getTrade());
+		exportObject(event.getTrade());
 	}
 
 	public TradeCaptureReport createContent(Trade<?> trade) throws TradistaBusinessException {

@@ -30,12 +30,12 @@
 	<util:set id="modules" set-class="java.util.TreeSet">
 		<value>Fix</value>
 	</util:set>
-	<!-- importers -->
+	<!-- exporters -->
 	<util:set id="exporters">
 		<!-- add references to exporter beans like this : <ref bean="myExporter"/> -->
 		<ref bean="fixExporter" />
 	</util:set>
-	<!-- importer beans declarations -->
+	<!-- exporter beans declarations -->
 	<bean id="fixExporter"
 		class="org.eclipse.tradista.fix.exporter.model.TradeCaptureReportExporter">
 		<constructor-arg type="String">

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
+import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
+import org.eclipse.tradista.core.transfer.messaging.CashTransferEvent;
 import org.springframework.integration.annotation.Router;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +31,8 @@ public class TradistaEventRouter {
 	// Hard-coded subscriptions for easiness. We'll check later if making it
 	// configurable is relevant.
 	private static final Map<String, List<String>> SUBSCRIPTIONS = Map.of(TradeEvent.TRADE,
-			List.of("tradeCaptureReportExporterQueue"));
+			List.of("tradeCaptureReportExporterQueue", "transferQueue"), CashTransferEvent.CASH_TRANSFER,
+			List.of("cashInventoryQueue"), ProductTransferEvent.PRODUCT_TRANSFER, List.of("productInventoryQueue"));
 
 	@Router(resolutionRequired = "true")
 	public List<String> route(Event event) {

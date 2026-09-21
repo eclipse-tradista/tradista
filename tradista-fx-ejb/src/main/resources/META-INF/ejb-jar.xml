@@ -10,26 +10,6 @@
 			<ejb-name>FXTradeServiceBean</ejb-name>
 			<ejb-class>org.eclipse.tradista.fx.fx.service.FXTradeServiceBean</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fx.service.FXTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fx.service.FXTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>FXNDFTradeServiceBean</ejb-name>
@@ -37,26 +17,6 @@
 				org.eclipse.tradista.fx.fxndf.service.FXNDFTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fxndf.service.FXNDFTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fxndf.service.FXNDFTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>FXOptionTradeServiceBean</ejb-name>
@@ -64,26 +24,6 @@
 				org.eclipse.tradista.fx.fxoption.service.FXOptionTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fxoption.service.FXOptionTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fxoption.service.FXOptionTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 		<session>
 			<ejb-name>FXSwapTradeServiceBean</ejb-name>
@@ -91,26 +31,6 @@
 				org.eclipse.tradista.fx.fxswap.service.FXSwapTradeServiceBean
 			</ejb-class>
 			<session-type>Stateless</session-type>
-			<resource-ref>
-				<res-ref-name>ConnectionFactory</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fxswap.service.FXSwapTradeServiceBean</injection-target-class>
-					<injection-target-name>factory</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/ConnectionFactory
-		 </lookup-name>
-			</resource-ref>
-			<resource-ref>
-				<res-ref-name>TransferQueue</res-ref-name>
-				<injection-target>
-					<injection-target-class>org.eclipse.tradista.fx.fxswap.service.FXSwapTradeServiceBean</injection-target-class>
-					<injection-target-name>destination</injection-target-name>
-				</injection-target>
-				<lookup-name>
-		 java:/jms/queue/TransferQueue
-		 </lookup-name>
-			</resource-ref>
 		</session>
 	</enterprise-beans>
 	<interceptors>

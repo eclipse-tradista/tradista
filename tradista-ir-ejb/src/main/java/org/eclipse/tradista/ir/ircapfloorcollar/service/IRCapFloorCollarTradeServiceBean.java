@@ -11,13 +11,13 @@ import org.eclipse.tradista.ir.ircapfloorcollar.persistence.IRCapFloorCollarTrad
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
+
+
+
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -40,18 +40,14 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
+	@EJB
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
 
 	@PostConstruct
 	private void initialize() {
-		context = factory.createContext();
 	}
 
 	@ProductScope(value = IRCapFloorCollarTrade.IR_CAP_FLOOR_COLLAR, mode = ProductScopeMode.ON_CREATION)
@@ -68,8 +64,8 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 		event.setTrade(trade);
 		long result = IRCapFloorCollarTradeSQL.saveIRCapFloorCollarTrade(trade);
 
-		context.createProducer().send(destination, event);
 
+		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
@@ -78,9 +74,5 @@ public class IRCapFloorCollarTradeServiceBean implements IRCapFloorCollarTradeSe
 		return IRCapFloorCollarTradeSQL.getTradeById(id);
 	}
 
-	@PreDestroy
-	private void clean() {
-		context.close();
-	}
 
 }
