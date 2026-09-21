@@ -37,7 +37,6 @@ import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingServ
 @Stateless
 public class FXTradeServiceBean implements FXTradeService {
 
-
 	private FXTradeBusinessDelegate fxTradeBusinessDelegate;
 
 	@EJB
@@ -70,7 +69,6 @@ public class FXTradeServiceBean implements FXTradeService {
 			// Should not happen here.
 		}
 
-
 		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
@@ -79,6 +77,5 @@ public class FXTradeServiceBean implements FXTradeService {
 	public FXTrade getFXTradeById(long id) {
 		return FXTradeSQL.getTradeById(id, false);
 	}
-
 
 }

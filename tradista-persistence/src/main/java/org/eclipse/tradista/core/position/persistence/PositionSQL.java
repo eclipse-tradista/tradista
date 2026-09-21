@@ -177,14 +177,12 @@ public class PositionSQL {
 						+ "'";
 			} else {
 				if (valueDateFrom == null && valueDateTo != null) {
-					dateSqlQuery = " WHERE VALUE_DATETIME <= " + "'" + DateTimeFormatter
-							.ofPattern(YYYY_MM_DD_HH_MM_SS).format(LocalDateTime.of(valueDateTo, LocalTime.MAX))
-							+ "'";
+					dateSqlQuery = " WHERE VALUE_DATETIME <= " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+							.format(LocalDateTime.of(valueDateTo, LocalTime.MAX)) + "'";
 				}
 				if (valueDateFrom != null && valueDateTo == null) {
-					dateSqlQuery = " WHERE VALUE_DATETIME >= " + "'" + DateTimeFormatter
-							.ofPattern(YYYY_MM_DD_HH_MM_SS).format(LocalDateTime.of(valueDateFrom, LocalTime.MIN))
-							+ "'";
+					dateSqlQuery = " WHERE VALUE_DATETIME >= " + "'" + DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS)
+							.format(LocalDateTime.of(valueDateFrom, LocalTime.MIN)) + "'";
 				}
 				if (valueDateFrom == null && valueDateTo == null) {
 					dateSqlQuery = "";

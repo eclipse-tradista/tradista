@@ -261,8 +261,7 @@ public class CashInventorySQL {
 				query += " BOOK_ID=" + bookId + " AND";
 			}
 
-			query += " (TO_DATE IS NULL OR TO_DATE >= '" + DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date)
-					+ "') ";
+			query += " (TO_DATE IS NULL OR TO_DATE >= '" + DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "') ";
 			query += "AND FROM_DATE = (SELECT MAX(FROM_DATE) FROM CASH_INVENTORY WHERE FROM_DATE <= '"
 					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "' ";
 

@@ -416,8 +416,9 @@ public class ProductInventorySQL {
 				} else {
 					sqlQuery.append(WHERE);
 				}
-				sqlQuery.append(" (TO_DATE >= '" + DateTimeFormatter.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD).format(from) + "'"
-						+ " OR TO_DATE IS NULL)");
+				sqlQuery.append(" (TO_DATE >= '" + DateTimeFormatter
+						.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+						.format(from) + "'" + " OR TO_DATE IS NULL)");
 			}
 
 			if (onlyOpenPositions) {
