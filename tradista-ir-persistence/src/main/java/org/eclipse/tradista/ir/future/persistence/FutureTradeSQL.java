@@ -1,6 +1,6 @@
 package org.eclipse.tradista.ir.future.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MM_DD_YYYY;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -166,7 +166,7 @@ public class FutureTradeSQL {
 				Statement stmtGetTradesBeforeTradeDate = con.createStatement()) {
 			String query = "SELECT * FROM IRFORWARD_TRADE, TRADE, FUTURE_TRADE WHERE "
 					+ "IRFORWARD_TRADE_ID = FUTURE_TRADE_ID AND TRADE.ID = IRFORWARD_TRADE_ID AND TRADE.TRADE_DATE <= '"
-					+ DateTimeFormatter.ofPattern(MM_DD_YYYY).format(date) + "'";
+					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "'";
 
 			if (futureId > 0) {
 				query += " AND TRADE.PRODUCT_ID = " + futureId;

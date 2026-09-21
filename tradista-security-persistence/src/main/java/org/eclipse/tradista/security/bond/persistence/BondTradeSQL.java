@@ -148,7 +148,10 @@ public class BondTradeSQL {
 				Statement stmtGetTradesBeforeTradeDateByBondAndBookIds = con.createStatement()) {
 			String query = "SELECT * FROM BOND_TRADE, TRADE WHERE "
 					+ "TRADE.ID = BOND_TRADE.BOND_TRADE_ID AND TRADE.TRADE_DATE <= '"
-					+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(date) + "'";
+					+ DateTimeFormatter
+							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+							.format(date)
+					+ "'";
 
 			if (bondId > 0) {
 				query += " AND TRADE.PRODUCT_ID = " + bondId;

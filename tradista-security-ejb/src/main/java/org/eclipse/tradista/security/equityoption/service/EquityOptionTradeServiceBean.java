@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.tradista.core.book.service.CheckBookAccess;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
@@ -17,14 +18,9 @@ import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 import org.eclipse.tradista.security.equityoption.persistence.EquityOptionTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -47,22 +43,14 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
-
 	@EJB
 	private EquityTradeService equityTradeService;
 
 	@EJB
-	private TradeService tradeService;
+	private LocalCoreMessagingService messagingConfigurationService;
 
-	@PostConstruct
-	private void initialize() {
-		context = factory.createContext();
-	}
+	@EJB
+	private TradeService tradeService;
 
 	@ProductScope(value = EquityOption.EQUITY_OPTION, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -94,8 +82,7 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 		event.setTrade(trade);
 		long result = EquityOptionTradeSQL.saveEquityOptionTrade(trade);
 
-		context.createProducer().send(destination, event);
-
+		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
@@ -109,11 +96,6 @@ public class EquityOptionTradeServiceBean implements EquityOptionTradeService {
 	@Override
 	public EquityOptionTrade getEquityOptionTradeById(long id) {
 		return EquityOptionTradeSQL.getTradeById(id);
-	}
-
-	@PreDestroy
-	private void clean() {
-		context.close();
 	}
 
 }

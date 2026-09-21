@@ -21,5 +21,11 @@ import org.eclipse.tradista.core.transfer.model.CashTransfer;
 public class CashTransferEvent extends TransferEvent<CashTransfer> {
 
 	private static final long serialVersionUID = -8806725404338297390L;
+	public static final String CASH_TRANSFER = "CashTransfer";
+
+	@Override
+	public String getType() {
+		return CASH_TRANSFER;
+	}
 
 }

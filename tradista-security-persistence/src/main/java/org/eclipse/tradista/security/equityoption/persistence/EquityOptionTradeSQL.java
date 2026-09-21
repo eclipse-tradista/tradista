@@ -257,7 +257,10 @@ public class EquityOptionTradeSQL {
 				Statement stmtGetTradesBeforeTradeDateByEquityOptionAndBookIds = con.createStatement()) {
 			String query = "SELECT TRADE.*, VANILLA_OPTION_TRADE.*, EQUITY_TRADE.*,  UND_TRADE.PRODUCT_ID UND_PRODUCT_ID, UND_TRADE.AMOUNT UND_AMOUNT, UND_TRADE.SETTLEMENT_DATE UND_SETTLEMENT_DATE, UND_TRADE.TRADE_DATE UND_TRADE_DATE, EQUITY_TRADE.QUANTITY UND_EQUITY_QUANTITY FROM TRADE, TRADE UND_TRADE, VANILLA_OPTION_TRADE, EQUITY_TRADE WHERE "
 					+ "TRADE.ID = VANILLA_OPTION_TRADE_ID AND UNDERLYING_TRADE_ID = EQUITY_TRADE_ID AND EQUITY_TRADE_ID = UND_TRADE.ID AND TRADE.TRADE_DATE <= '"
-					+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(tradeDate) + "'";
+					+ DateTimeFormatter
+							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+							.format(tradeDate)
+					+ "'";
 			if (equityOptionId > 0) {
 				query += " AND UND_TRADE.PRODUCT_ID = " + equityOptionId;
 			}

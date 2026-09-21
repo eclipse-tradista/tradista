@@ -123,15 +123,23 @@ public class EquityOptionSQL {
 			String query = "SELECT * FROM EQUITY_OPTION, PRODUCT WHERE EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID";
 			if (minDate != null || maxDate != null) {
 				if (minDate == null) {
-					dateQuery = " AND CREATION_DATE <= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(maxDate)
-							+ "'";
+					dateQuery = " AND CREATION_DATE <= '" + DateTimeFormatter
+							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+							.format(maxDate) + "'";
 				} else if (maxDate == null) {
-					dateQuery = " AND CREATION_DATE >= '" + DateTimeFormatter.ofPattern("MM/dd/yyyy").format(minDate)
-							+ "'";
+					dateQuery = " AND CREATION_DATE >= '" + DateTimeFormatter
+							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+							.format(minDate) + "'";
 				} else {
 					dateQuery = " AND CREATION_DATE BETWEEN '"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(minDate) + "' AND '"
-							+ DateTimeFormatter.ofPattern("MM/dd/yyyy").format(maxDate) + "'";
+							+ DateTimeFormatter.ofPattern(
+									org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+									.format(minDate)
+							+ "' AND '"
+							+ DateTimeFormatter.ofPattern(
+									org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
+									.format(maxDate)
+							+ "'";
 				}
 				query += dateQuery;
 			}

@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -10,14 +11,9 @@ import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 import org.eclipse.tradista.fx.fxndf.persistence.FXNDFTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -40,19 +36,11 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class FXNDFTradeServiceBean implements FXNDFTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
+	@EJB
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-		context = factory.createContext();
-	}
 
 	@ProductScope(value = FXNDFTrade.FX_NDF, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -68,8 +56,7 @@ public class FXNDFTradeServiceBean implements FXNDFTradeService {
 		event.setTrade(trade);
 		long result = FXNDFTradeSQL.saveFXNDFTrade(trade);
 
-		context.createProducer().send(destination, event);
-
+		messagingConfigurationService.publishEvent(event);
 		return result;
 
 	}
@@ -77,11 +64,6 @@ public class FXNDFTradeServiceBean implements FXNDFTradeService {
 	@Override
 	public FXNDFTrade getFXNDFTradeById(long id) {
 		return FXNDFTradeSQL.getTradeById(id);
-	}
-
-	@PreDestroy
-	private void clean() {
-		context.close();
 	}
 
 }

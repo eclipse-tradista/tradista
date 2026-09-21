@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxswap.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -10,14 +11,9 @@ import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 import org.eclipse.tradista.fx.fxswap.persistence.FXSwapTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
 
 /*
  * Copyright 2015 Olivier Asuncion
@@ -29,10 +25,10 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.  See the License for the
@@ -44,19 +40,11 @@ under the License.    */
 @Stateless
 public class FXSwapTradeServiceBean implements FXSwapTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
+	@EJB
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
-
-	@PostConstruct
-	private void initialize() {
-		context = factory.createContext();
-	}
 
 	@ProductScope(value = FXSwapTrade.FX_SWAP, mode = ProductScopeMode.ON_CREATION)
 	@Override
@@ -72,18 +60,13 @@ public class FXSwapTradeServiceBean implements FXSwapTradeService {
 		event.setTrade(trade);
 		long result = FXSwapTradeSQL.saveFXSwapTrade(trade);
 
-		context.createProducer().send(destination, event);
+		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
 	@Override
 	public FXSwapTrade getFXSwapTradeById(long id) {
 		return FXSwapTradeSQL.getTradeById(id);
-	}
-
-	@PreDestroy
-	private void clean() {
-		context.close();
 	}
 
 }

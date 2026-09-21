@@ -25,7 +25,7 @@ public final class TradistaDBConstants {
 	public static final String OR = " OR ";
 	public static final String IN = " IN ";
 	public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
-	public static final String MM_DD_YYYY = "MM/dd/yyyy";
+	public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
 	// Common field names.
 	public static final String ID = "ID";

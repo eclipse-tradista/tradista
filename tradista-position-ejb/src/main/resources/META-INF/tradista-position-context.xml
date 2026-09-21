@@ -8,4 +8,8 @@
 		<!-- data refresh frequency, expressed in seconds. -->
 		<property name="frequency" value="10" />
 	</bean>
+	
+	<!-- Registering the Spring Integration ServiceActivator endpoint for inventory events -->
+	<bean id="inventoryEventReceiver"
+		class="org.eclipse.tradista.core.inventory.messaging.InventoryEventReceiver" />
 </beans>

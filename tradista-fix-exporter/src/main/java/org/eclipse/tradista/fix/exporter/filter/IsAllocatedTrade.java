@@ -24,6 +24,9 @@ public class IsAllocatedTrade implements EventFilter<TradeEvent<?>> {
 
 	@Override
 	public boolean test(TradeEvent<?> event) {
-		return event.getTrade() != null && event.getTrade().getStatus().getName().equals(StatusConstants.ALLOCATED);
+		// Managing status nullity as workflows are not in place yet for all asset
+		// classes.
+		return event.getTrade() != null && event.getTrade().getStatus() != null
+				&& event.getTrade().getStatus().getName().equals(StatusConstants.ALLOCATED);
 	}
 }

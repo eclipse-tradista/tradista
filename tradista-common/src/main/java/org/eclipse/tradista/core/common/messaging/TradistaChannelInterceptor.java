@@ -1,9 +1,11 @@
 package org.eclipse.tradista.core.common.messaging;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.integration.config.GlobalChannelInterceptor;
@@ -38,6 +40,10 @@ public class TradistaChannelInterceptor implements ChannelInterceptor {
 	@Autowired
 	private ApplicationContext context;
 
+	// Hardcoded for now but it should be taken from a configuration in db
+	private static final Map<String, List<String>> QUEUE_FILTERS = Map.of("tradeCaptureReportExporterQueue",
+			List.of("isAllocatedTrade"));
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Message<?> postReceive(Message<?> message, MessageChannel channel) {
@@ -46,8 +52,7 @@ public class TradistaChannelInterceptor implements ChannelInterceptor {
 		String listenerName = (channel instanceof NamedComponent namedComponent) ? namedComponent.getComponentName()
 				: channel.toString();
 
-		// Hardcoded for now but it should be taken from a configuration in db
-		List<String> activeFilters = List.of("isAllocatedTrade");
+		List<String> activeFilters = (listenerName != null) ? QUEUE_FILTERS.get(listenerName) : null;
 
 		if (activeFilters == null || activeFilters.isEmpty()) {
 			return message; // No filter configured
@@ -57,11 +62,15 @@ public class TradistaChannelInterceptor implements ChannelInterceptor {
 
 		// Execute each filter
 		for (String filterName : activeFilters) {
-			EventFilter<Event> filter = context.getBean(filterName, EventFilter.class);
-			if (!filter.test(event)) {
-				logger.info("Message rejected by filter {} for listener {}", filterName, listenerName);
-				// Message removed by the poller
-				return null;
+			try {
+				EventFilter<Event> filter = context.getBean(filterName, EventFilter.class);
+				if (!filter.test(event)) {
+					logger.info("Message rejected by filter {} for listener {}", filterName, listenerName);
+					// Message removed by the poller
+					return null;
+				}
+			} catch (NoSuchBeanDefinitionException nsbde) {
+				logger.error("Class for filter {} was not deployed in this application", filterName);
 			}
 		}
 

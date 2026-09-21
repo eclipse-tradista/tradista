@@ -11,13 +11,10 @@ import org.eclipse.tradista.fx.fx.persistence.FXTradeSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import jakarta.jms.ConnectionFactory;
-import jakarta.jms.Destination;
-import jakarta.jms.JMSContext;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -40,20 +37,16 @@ import jakarta.jms.JMSContext;
 @Stateless
 public class FXTradeServiceBean implements FXTradeService {
 
-	private ConnectionFactory factory;
-
-	private JMSContext context;
-
-	private Destination destination;
-
 	private FXTradeBusinessDelegate fxTradeBusinessDelegate;
+
+	@EJB
+	private LocalCoreMessagingService messagingConfigurationService;
 
 	@EJB
 	private TradeService tradeService;
 
 	@PostConstruct
 	private void initialize() {
-		context = factory.createContext();
 		fxTradeBusinessDelegate = new FXTradeBusinessDelegate();
 	}
 
@@ -76,19 +69,13 @@ public class FXTradeServiceBean implements FXTradeService {
 			// Should not happen here.
 		}
 
-		context.createProducer().send(destination, event);
-
+		messagingConfigurationService.publishEvent(event);
 		return result;
 	}
 
 	@Override
 	public FXTrade getFXTradeById(long id) {
 		return FXTradeSQL.getTradeById(id, false);
-	}
-
-	@PreDestroy
-	private void clean() {
-		context.close();
 	}
 
 }
