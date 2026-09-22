@@ -10,17 +10,10 @@
 		system-properties-mode="OVERRIDE" />
 	<bean id="importerConfiguration"
 		class="org.eclipse.tradista.core.importer.service.ImporterConfiguration">
-		<property name="modules">
-			<ref bean="modules" />
-		</property>
 		<property name="importers">
 			<ref bean="importers" />
 		</property>
 	</bean>
-	<!-- modules -->
-	<util:set id="modules" set-class="java.util.TreeSet">
-		<value>Fix</value>
-	</util:set>
 	<!-- importers -->
 	<util:set id="importers">
 		<!-- add references to importer beans like this : <ref bean="myImporter"/> -->

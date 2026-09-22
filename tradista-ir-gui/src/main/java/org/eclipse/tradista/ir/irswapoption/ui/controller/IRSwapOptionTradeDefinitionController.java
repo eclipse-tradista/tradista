@@ -654,9 +654,8 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 
 						try {
 							return irSwapOptionTradeBusinessDelegate.isBusinessDay(irSwapOptionTrade, date);
-						} catch (TradistaBusinessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						} catch (TradistaBusinessException tbe) {
+							tbe.printStackTrace();
 						}
 						return false;
 					}
@@ -679,7 +678,7 @@ public class IRSwapOptionTradeDefinitionController extends TradistaTradeBookingC
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 		TradistaGUIUtil.fillCurrencyComboBox(currency, premiumCurrency, pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 		TradistaGUIUtil.fillDayCountConventionComboBox(paymentDayCountConvention, receptionDayCountConvention);
 		alternativeCashSettlementReferenceRateIndex.getItems().add(0, BlankIndex.getInstance());

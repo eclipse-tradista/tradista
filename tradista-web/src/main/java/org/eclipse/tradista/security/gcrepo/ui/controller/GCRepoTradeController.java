@@ -6,10 +6,12 @@ import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.FLOA
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.action.constants.ActionConstants;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
@@ -131,12 +133,12 @@ public class GCRepoTradeController implements Serializable {
 		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		setDirection(Direction.BUY);
 		setInterestType(FIXED);
-		setTradeDate(LocalDate.now());
-		setStartDate(LocalDate.now());
+		setTradeDate(LocalDate.now(ZoneId.systemDefault()));
+		setStartDate(LocalDate.now(ZoneId.systemDefault()));
 	}
 
 	public String getId() {
-		return trade.getId() == 0 ? "" : Long.toString(trade.getId());
+		return trade.getId() == 0 ? StringUtils.EMPTY : Long.toString(trade.getId());
 	}
 
 	public void setId(String id) {
@@ -403,7 +405,7 @@ public class GCRepoTradeController implements Serializable {
 		try {
 			final String actionToApply = (action != null) ? action : ActionConstants.NEW;
 
-			if (interestType == null || interestType.equals("Fixed")) {
+			if (interestType == null || interestType.equals(FIXED)) {
 				trade.setIndex(null);
 				trade.setIndexTenor(null);
 				trade.setIndexOffset(null);
@@ -430,10 +432,10 @@ public class GCRepoTradeController implements Serializable {
 		Map<Security, Map<Book, BigDecimal>> oldCollateralToAdd = trade.getCollateralToAdd();
 		Map<Security, Map<Book, BigDecimal>> oldCollateralToRemove = trade.getCollateralToRemove();
 		try {
-			trade.setCreationDate(LocalDate.now());
+			trade.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
 			trade.setId(0);
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
-			if (interestType == null || interestType.equals("Fixed")) {
+			if (interestType == null || interestType.equals(FIXED)) {
 				trade.setIndex(null);
 				trade.setIndexTenor(null);
 				trade.setIndexOffset(null);
@@ -523,8 +525,8 @@ public class GCRepoTradeController implements Serializable {
 			FacesContext.getCurrentInstance().addMessage(TRADE_MSG, new FacesMessage(FacesMessage.SEVERITY_ERROR,
 					"Error", String.format("Could not clear trade data: %s", tbe.getMessage())));
 		}
-		setTradeDate(LocalDate.now());
-		setStartDate(LocalDate.now());
+		setTradeDate(LocalDate.now(ZoneId.systemDefault()));
+		setStartDate(LocalDate.now(ZoneId.systemDefault()));
 		originalCashAmount = null;
 		action = null;
 		allAvailableActions = null;
@@ -541,7 +543,7 @@ public class GCRepoTradeController implements Serializable {
 				trade.setIndexTenor(allIndexTenors[0]);
 			}
 		}
-		if (interestType != null && interestType.equals("Fixed")) {
+		if (interestType != null && interestType.equals(FIXED)) {
 			trade.setIndex(null);
 			trade.setIndexTenor(null);
 		}
@@ -572,7 +574,8 @@ public class GCRepoTradeController implements Serializable {
 			trade.setCollateralToRemove(securitiesToRemove);
 		}
 		if (action != null && action.equals(ActionConstants.PARTIALLY_TERMINATE)) {
-			trade.addParTialTermination(LocalDate.now(), originalCashAmount.subtract(trade.getAmount()));
+			trade.addParTialTermination(LocalDate.now(ZoneId.systemDefault()),
+					originalCashAmount.subtract(trade.getAmount()));
 		}
 	}
 

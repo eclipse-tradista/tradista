@@ -91,22 +91,6 @@ public class ImportErrorReportController implements Serializable {
 		}
 	}
 
-	/**
-	 * Checks if the importer app is available, if not, display a warning message.
-	 * This check is a workaround, the target solution is to have
-	 * #getAllImporterNames and #getModules services in the core app, so they are
-	 * not dependent on the availability of the importer app
-	 */
-	public void onload() {
-		try {
-			importerConfigurationBusinessDelegate.getAllImporterNames();
-			importerConfigurationBusinessDelegate.getModules();
-		} catch (TradistaTechnicalException tte) {
-			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
-					"Issue with the Importer App: " + tte.getMessage()));
-		}
-	}
-
 	public List<String> completeImporterType(String query) {
 		String queryLowerCase = query.toLowerCase();
 		return allImporterTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();

@@ -506,7 +506,6 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 						try {
 							return fxNDFTradeBusinessDelegate.isBusinessDay(fxNdfTrade, date);
 						} catch (TradistaBusinessException tbe) {
-							// TODO Auto-generated catch block
 							tbe.printStackTrace();
 						}
 						return false;
@@ -532,7 +531,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 		TradistaGUIUtil.fillComboBox(currencyBusinessDelegate.getDeliverableCurrencies(), settlementCurrency);
 		TradistaGUIUtil.fillComboBox(currencyBusinessDelegate.getNonDeliverableCurrencies(), nonDeliverableCurrency);
 		TradistaGUIUtil.fillCurrencyComboBox(pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillBookComboBox(book);
 	}
 

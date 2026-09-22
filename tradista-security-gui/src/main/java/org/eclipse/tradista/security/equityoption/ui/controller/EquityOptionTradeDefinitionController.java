@@ -403,7 +403,6 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 						try {
 							return equityOptionTradeBusinessDelegate.isBusinessDay(equityOptionTrade, date);
 						} catch (TradistaBusinessException tbe) {
-							// TODO Auto-generated catch block
 							tbe.printStackTrace();
 						}
 						return false;
@@ -585,7 +584,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 
 		TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
 		TradistaGUIUtil.fillCurrencyComboBox(premiumCurrency, pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillBookComboBox(book);
 		TradistaGUIUtil.fillComboBox(equityBusinessDelegate.getAllEquities(), equity);
 		TradistaSecurityGUIUtil.fillEquityOptionComboBox(true, equityOption);

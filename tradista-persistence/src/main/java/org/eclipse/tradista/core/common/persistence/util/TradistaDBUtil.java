@@ -350,9 +350,11 @@ public final class TradistaDBUtil {
 				operator = eqOperator;
 			}
 			switch (value) {
-			case Collection<?> c ->
-				filterSqlQuery += expression.getRepresentation() + (isExclusion ? " NOT " : StringUtils.EMPTY) + IN
-						+ "(" + wrapWithQuotes(String.join("','", c.toArray(String[]::new))) + ")";
+			case Collection<?> c -> filterSqlQuery += expression.getRepresentation()
+					+ (isExclusion ? " NOT " : StringUtils.EMPTY) + IN + "("
+					+ wrapWithQuotes(String.join("','", c.stream()
+							.map(e -> e instanceof Enum ? ((Enum<?>) e).name() : (String) e).toArray(String[]::new)))
+					+ ")";
 			case LocalDate ld -> {
 				String formattedValue = DateTimeFormatter.ofPattern(YYYY_MM_DD).format(ld);
 				filterSqlQuery += expression.getRepresentation() + operator + wrapWithQuotes(formattedValue);

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.bond.pricer;
 
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,8 +36,6 @@ import org.eclipse.tradista.security.bond.model.Coupon;
  ********************************************************************************/
 
 public final class PricerBondUtil {
-
-	private static final String FIXED = "Fixed";
 
 	private PricerBondUtil() {
 		/* This utility class should not be instantiated */

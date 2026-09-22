@@ -186,7 +186,7 @@ public abstract class TradistaObject implements Serializable, Cloneable {
 		StringBuilder display = new StringBuilder(this.getClass().getSimpleName());
 		display.append(" [");
 		for (int i = 0; i < fields.size(); i++) {
-			display.append(fields.get(i).getName() + "=" + values.get(i));
+			display.append(fields.get(i).getName()).append("=").append(values.get(i));
 			if (i < fields.size() - 1) {
 				display.append(", ");
 			}

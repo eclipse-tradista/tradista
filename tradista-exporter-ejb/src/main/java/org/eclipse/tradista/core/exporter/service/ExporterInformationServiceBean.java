@@ -7,8 +7,8 @@ import java.util.TreeMap;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
-import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
 /********************************************************************************
@@ -32,17 +32,22 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class ExporterInformationServiceBean implements ExporterInformationService {
 
-	@EJB
-	private ExporterConfigurationService exporterConfigurationService;
+	private ExporterConfigurationBusinessDelegate exporterConfigurationBusinessDelegate;
+
+	@PostConstruct
+	private void init() {
+		exporterConfigurationBusinessDelegate = new ExporterConfigurationBusinessDelegate();
+	}
 
 	@Override
 	public Map<String, String> getExporterModuleVersions() {
 		Map<String, String> map = null;
-		Set<String> modules = exporterConfigurationService.getModules();
+		Set<String> modules = exporterConfigurationBusinessDelegate.getModules();
 		if (modules != null && !modules.isEmpty()) {
 			map = new TreeMap<>();
 			for (String m : modules) {
-				map.put(m, TradistaUtil.getModuleVersion("core.exporter." + m));
+				map.put(m + " Exporter",
+						TradistaUtil.getModuleVersion(m + ".exporter.model", getClass().getClassLoader()));
 			}
 		}
 		return map;

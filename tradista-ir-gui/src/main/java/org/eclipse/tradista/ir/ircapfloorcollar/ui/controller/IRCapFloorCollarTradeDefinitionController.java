@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart;
@@ -452,7 +453,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 		TradistaGUIUtil.fillCurrencyComboBox(currency, premiumCurrency, pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 		TradistaGUIUtil.fillDayCountConventionComboBox(dayCountConvention);
 		TradistaGUIUtil.fillTenorComboBox(referenceRateIndexTenor);
@@ -610,7 +611,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 	@FXML
 	public void clear() {
 		trade = null;
-		tradeId.setText("");
+		tradeId.setText(StringUtils.EMPTY);
 		premium.clear();
 		capStrike.clear();
 		floorStrike.clear();

@@ -349,7 +349,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 					Pricer pricer = null;
 					try {
 						pricer = pricerBusinessDelegate.getPricer(Equity.EQUITY, newPricingParam);
-					} catch (TradistaBusinessException abe) {
+					} catch (TradistaBusinessException tbe) {
 						// Will never happen in this case.
 					}
 					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
@@ -581,7 +581,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 		TradistaGUIUtil.fillCurrencyComboBox(pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 		TradistaGUIUtil.fillComboBox(equityBusinessDelegate.getAllEquities(), equity);
 		TradistaGUIUtil.fillTradeDirectionComboBox(buySell);

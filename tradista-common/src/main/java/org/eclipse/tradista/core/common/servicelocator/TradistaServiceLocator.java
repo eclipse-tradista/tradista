@@ -736,7 +736,7 @@ public class TradistaServiceLocator {
 	}
 
 	public ImporterConfigurationService getImporterConfigurationService() {
-		return (ImporterConfigurationService) getService(IMPORTER_APP, IMPORTER_EJB, IMPORTER_SERVICE_PACKAGE,
+		return (ImporterConfigurationService) getService(APP, CORE_EJB, IMPORTER_SERVICE_PACKAGE,
 				"ImporterConfigurationService");
 	}
 
@@ -770,7 +770,7 @@ public class TradistaServiceLocator {
 	}
 
 	public ExporterConfigurationService getExporterConfigurationService() {
-		return (ExporterConfigurationService) getService(EXPORTER_APP, EXPORTER_EJB, EXPORTER_SERVICE_PACKAGE,
+		return (ExporterConfigurationService) getService(APP, CORE_EJB, EXPORTER_SERVICE_PACKAGE,
 				"ExporterConfigurationService");
 	}
 

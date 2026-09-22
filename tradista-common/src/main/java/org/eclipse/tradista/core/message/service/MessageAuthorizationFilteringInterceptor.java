@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.service.TradistaAuthorizationFilteringInterceptor;
 import org.eclipse.tradista.core.message.model.Message;
-import org.eclipse.tradista.core.message.model.Message.ObjectType;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
 import org.eclipse.tradista.core.user.model.User;
 
@@ -54,7 +53,7 @@ public class MessageAuthorizationFilteringInterceptor extends TradistaAuthorizat
 				List<Message> messages = (List<Message>) value;
 				value = messages.stream().filter(m -> {
 					try {
-						return (m.getObjectId() == 0) || (!ObjectType.TRADE.equals(m.getObjectType()))
+						return (m.getObjectId() == 0) || (!Message.TRADE.equals(m.getObjectType()))
 								|| (tradeBusinessDelegate.getTradeById(m.getObjectId()).getProcessingOrg()
 										.equals(user.getProcessingOrg()));
 					} catch (TradistaBusinessException _) {

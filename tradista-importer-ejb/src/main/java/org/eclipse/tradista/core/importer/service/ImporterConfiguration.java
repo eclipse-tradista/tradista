@@ -23,17 +23,7 @@ import org.eclipse.tradista.core.importer.model.Importer;
 
 public class ImporterConfiguration {
 
-	private SortedSet<String> modules;
-
 	private Set<Importer<?>> importers;
-
-	public void setModules(SortedSet<String> modules) {
-		this.modules = modules;
-	}
-
-	public SortedSet<String> getModules() {
-		return modules;
-	}
 
 	public Set<Importer<?>> getImporters() {
 		return importers;

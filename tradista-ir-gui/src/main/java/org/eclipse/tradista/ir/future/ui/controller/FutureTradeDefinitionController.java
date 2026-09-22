@@ -439,9 +439,8 @@ public class FutureTradeDefinitionController extends TradistaTradeBookingControl
 										try {
 											return futureContractSpecificationBusinessDelegate.isBusinessDay(newSpec,
 													date);
-										} catch (TradistaBusinessException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
+										} catch (TradistaBusinessException tbe) {
+											tbe.printStackTrace();
 										}
 										return false;
 									} else {
@@ -705,7 +704,7 @@ public class FutureTradeDefinitionController extends TradistaTradeBookingControl
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 		TradistaGUIUtil.fillCurrencyComboBox(pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 	}
 

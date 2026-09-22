@@ -19,17 +19,10 @@
 		system-properties-mode="OVERRIDE" />
 	<bean id="exporterConfiguration"
 		class="org.eclipse.tradista.core.exporter.service.ExporterConfiguration">
-		<property name="modules">
-			<ref bean="modules" />
-		</property>
 		<property name="exporters">
 			<ref bean="exporters" />
 		</property>
 	</bean>
-	<!-- modules -->
-	<util:set id="modules" set-class="java.util.TreeSet">
-		<value>Fix</value>
-	</util:set>
 	<!-- exporters -->
 	<util:set id="exporters">
 		<!-- add references to exporter beans like this : <ref bean="myExporter"/> -->

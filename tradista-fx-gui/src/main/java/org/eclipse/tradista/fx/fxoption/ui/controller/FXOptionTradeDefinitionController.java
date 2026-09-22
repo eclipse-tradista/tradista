@@ -408,9 +408,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 						}
 						try {
 							return fxOptionTradeBusinessDelegate.isBusinessDay(fxOptionTrade, date);
-						} catch (TradistaBusinessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						} catch (TradistaBusinessException tbe) {
+							tbe.printStackTrace();
 						}
 						return false;
 					}
@@ -442,7 +441,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		});
 
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillCurrencyComboBox(currencyOne, currencyTwo, pricingCurrency, premiumCurrency);
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 

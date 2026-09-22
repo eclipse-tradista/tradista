@@ -91,22 +91,6 @@ public class ExportErrorReportController implements Serializable {
 		}
 	}
 
-	/**
-	 * Checks if the exporter app is available, if not, display a warning message.
-	 * This check is a workaround, the target solution is to have the
-	 * #getAllExporterNames and #getModules services in the core app, so they are
-	 * not dependent on the availability of the exporter app
-	 */
-	public void onload() {
-		try {
-			exporterConfigurationBusinessDelegate.getAllExporterNames();
-			exporterConfigurationBusinessDelegate.getModules();
-		} catch (TradistaTechnicalException tte) {
-			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
-					"Issue with the Exporter App: " + tte.getMessage()));
-		}
-	}
-
 	public List<String> completeExporterType(String query) {
 		String queryLowerCase = query.toLowerCase();
 		return allExporterTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();

@@ -31,10 +31,10 @@ public class MessageValidator {
 		if (StringUtils.isBlank(message.getType())) {
 			errMsg.append(String.format("the message type is mandatory.%n"));
 		}
-		if (message.getObjectType() == null && message.getObjectId() > 0) {
+		if (StringUtils.isBlank(message.getObjectType()) && message.getObjectId() > 0) {
 			errMsg.append(String.format("the message object type cannot be blank when the object id is positive.%n"));
 		}
-		if (message.getObjectType() != null && message.getObjectId() <= 0) {
+		if (!StringUtils.isBlank(message.getObjectType()) && message.getObjectId() <= 0) {
 			errMsg.append(String.format("the message object id should be positive when the object type is present.%n"));
 		}
 		if (message.getStatus() == null) {
