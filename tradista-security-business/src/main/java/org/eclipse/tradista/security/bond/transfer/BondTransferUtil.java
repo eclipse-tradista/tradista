@@ -3,8 +3,11 @@ package org.eclipse.tradista.security.bond.transfer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.util.DateUtil;
@@ -54,7 +57,7 @@ public final class BondTransferUtil {
 
 		CashTransfer notionalPaid = new CashTransfer(trade.getBook(), TransferPurpose.BOND_PAYMENT,
 				trade.getSettlementDate(), trade, bond.getCurrency());
-		notionalPaid.setCreationDateTime(LocalDateTime.now());
+		notionalPaid.setCreationDateTime(LocalDateTime.now(ZoneId.systemDefault()));
 		if (trade.isBuy()) {
 			notionalPaid.setDirection(Transfer.Direction.PAY);
 		} else {
@@ -71,8 +74,8 @@ public final class BondTransferUtil {
 				if (couponDate.isAfter(datedDate)) {
 					CashTransfer coupon = new CashTransfer(trade.getBook(), bond, TransferPurpose.COUPON, couponDate,
 							bond.getCurrency());
-					coupon.setCreationDateTime(LocalDateTime.now());
-					if (bond.getCouponType().equals("Fixed")) {
+					coupon.setCreationDateTime(LocalDateTime.now(ZoneId.systemDefault()));
+					if (bond.getCouponType().equals(FIXED)) {
 						coupon.setDirection(Transfer.Direction.RECEIVE);
 						coupon.setAmount(trade.getQuantity().multiply(
 								bond.getPrincipal().multiply(bond.getCoupon().divide(BigDecimal.valueOf(100)))));
@@ -91,7 +94,7 @@ public final class BondTransferUtil {
 
 		CashTransfer notionalPaidBack = new CashTransfer(trade.getBook(), TransferPurpose.NOTIONAL_REPAYMENT,
 				bond.getMaturityDate(), trade, bond.getCurrency());
-		notionalPaidBack.setCreationDateTime(LocalDateTime.now());
+		notionalPaidBack.setCreationDateTime(LocalDateTime.now(ZoneId.systemDefault()));
 		notionalPaidBack.setDirection(Transfer.Direction.RECEIVE);
 		notionalPaidBack.setAmount(bond.getPrincipal().multiply(trade.getQuantity()));
 		notionalPaidBack.setFixingDateTime(bond.getIssueDate().atStartOfDay());

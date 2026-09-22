@@ -123,27 +123,6 @@ public class MessageReportController implements Serializable {
 		}
 	}
 
-	/**
-	 * Checks if the importer and exporter apps are available, if not, display a
-	 * warning message. This check is a workaround, the target solution is to have
-	 * #getAllImporterNames and #getAllExporterNames services in the core app, so
-	 * they are not dependent on the availability of the importer/exporter apps
-	 */
-	public void onload() {
-		try {
-			importerConfigurationBusinessDelegate.getAllImporterNames();
-		} catch (TradistaTechnicalException tte) {
-			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
-					"Issue with the Importer App: " + tte.getMessage()));
-		}
-		try {
-			exporterConfigurationBusinessDelegate.getAllExporterNames();
-		} catch (TradistaTechnicalException tte) {
-			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
-					"Issue with the Exporter App: " + tte.getMessage()));
-		}
-	}
-
 	public List<String> completeType(String query) {
 		String queryLowerCase = query.toLowerCase();
 		return allTypes.stream().filter(in -> in.toLowerCase().contains(queryLowerCase)).toList();

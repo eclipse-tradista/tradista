@@ -26,9 +26,11 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private static final long serialVersionUID = -625696923557029488L;
 
+	public static final String TRADE = "Trade";
+
 	private long objectId;
 
-	private ObjectType objectType;
+	private String objectType;
 
 	private String type;
 
@@ -56,23 +58,11 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	public abstract Builder<?, ?> toBuilder();
 
-	public enum ObjectType {
-		TRADE;
-
-		@Override
-		public String toString() {
-			return switch (this) {
-			case TRADE -> "Trade";
-			default -> super.toString();
-			};
-		}
-	}
-
 	public long getObjectId() {
 		return objectId;
 	}
 
-	public ObjectType getObjectType() {
+	public String getObjectType() {
 		return objectType;
 	}
 
@@ -119,7 +109,7 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 	public abstract static class Builder<T extends Message, B extends Builder<T, B>> {
 		protected long id;
 		protected long objectId;
-		protected ObjectType objectType;
+		protected String objectType;
 		protected String type;
 		protected String content;
 		protected Status status;
@@ -141,7 +131,7 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 			return self();
 		}
 
-		public B objectType(ObjectType type) {
+		public B objectType(String type) {
 			this.objectType = type;
 			return self();
 		}

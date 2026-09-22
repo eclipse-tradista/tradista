@@ -23,17 +23,7 @@ import org.eclipse.tradista.core.exporter.model.Exporter;
 
 public class ExporterConfiguration {
 
-	private SortedSet<String> modules;
-
 	private Set<Exporter<?, ?>> exporters;
-
-	public void setModules(SortedSet<String> modules) {
-		this.modules = modules;
-	}
-
-	public SortedSet<String> getModules() {
-		return modules;
-	}
 
 	public Set<Exporter<?, ?>> getExporters() {
 		return exporters;

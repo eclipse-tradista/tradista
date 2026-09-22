@@ -530,9 +530,8 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 
 						try {
 							return loanDepositTradeBusinessDelegate.isBusinessDay(mmTrade, date);
-						} catch (TradistaBusinessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						} catch (TradistaBusinessException tbe) {
+							tbe.printStackTrace();
 						}
 						return false;
 
@@ -561,7 +560,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 		selectedQuoteDate.setDayCellFactory(businessDayCellFactory);
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 		TradistaGUIUtil.fillDayCountConventionComboBox(dayCountConvention);
 		TradistaGUIUtil.fillTradeDirectionComboBox(buySell);

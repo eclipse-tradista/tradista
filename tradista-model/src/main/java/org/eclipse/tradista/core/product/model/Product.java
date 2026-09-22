@@ -31,7 +31,7 @@ public abstract class Product extends TradistaObject {
 	@Id
 	private Exchange exchange;
 
-	public Product(Exchange exchange) {
+	protected Product(Exchange exchange) {
 		this.exchange = exchange;
 	}
 

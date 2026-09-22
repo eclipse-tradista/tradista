@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FLOAT;
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaController;
@@ -241,13 +244,13 @@ public class BondDefinitionController implements TradistaController {
 			}
 		});
 
-		productType.setText("Bond");
+		productType.setText(Bond.BOND);
 
 		loadingCriterion.getItems().add("id");
 		loadingCriterion.getItems().add("ISIN");
 		loadingCriterion.getSelectionModel().selectFirst();
 
-		couponType.setItems(FXCollections.observableArrayList("Fixed", "Float"));
+		couponType.setItems(FXCollections.observableArrayList(FIXED, FLOAT));
 		couponType.getSelectionModel().selectFirst();
 
 		TradistaGUIUtil.fillTenorComboBox(couponFrequency);
@@ -293,7 +296,7 @@ public class BondDefinitionController implements TradistaController {
 		});
 
 		couponType.valueProperty().addListener((_, _, newValue) -> {
-			boolean isFloat = (newValue != null && newValue.equals("Float"));
+			boolean isFloat = (newValue != null && newValue.equals(FLOAT));
 			capTitle.setVisible(isFloat);
 			cap.setVisible(isFloat);
 			floorTitle.setVisible(isFloat);
@@ -318,7 +321,7 @@ public class BondDefinitionController implements TradistaController {
 
 	private void buildProduct(Bond bond) {
 		try {
-			if (couponType.getValue().equals("Fixed")) {
+			if (couponType.getValue().equals(FIXED)) {
 				if (!coupon.getText().isEmpty()) {
 					bond.setCoupon(TradistaGUIUtil.parseAmount(coupon.getText(), COUPON));
 				}

@@ -21,9 +21,9 @@ import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.model.Message;
-import org.eclipse.tradista.core.message.model.Message.ObjectType;
 import org.eclipse.tradista.core.message.model.OutgoingMessage;
 import org.eclipse.tradista.core.workflow.persistence.StatusSQL;
 import org.springframework.util.CollectionUtils;
@@ -87,10 +87,10 @@ public class MessageSQL {
 			} else {
 				stmtSaveMessage.setLong(6, message.getObjectId());
 			}
-			if (message.getObjectType() == null) {
+			if (StringUtils.isBlank(message.getObjectType())) {
 				stmtSaveMessage.setNull(7, java.sql.Types.VARCHAR);
 			} else {
-				stmtSaveMessage.setString(7, message.getObjectType().name());
+				stmtSaveMessage.setString(7, message.getObjectType());
 			}
 			stmtSaveMessage.setString(8, message.getContent());
 			stmtSaveMessage.setLong(9, message.getStatus().getId());
@@ -129,10 +129,9 @@ public class MessageSQL {
 					} else {
 						builder = new OutgoingMessage.Builder();
 					}
-					String objectTypeStr = results.getString(OBJECT_TYPE_FIELD.getName());
-					ObjectType objectType = (objectTypeStr != null) ? ObjectType.valueOf(objectTypeStr) : null;
 					builder.id(results.getLong(ID)).objectId(results.getLong(OBJECT_ID_FIELD.getName()))
-							.objectType(objectType).type(results.getString(TYPE_FIELD.getName()))
+							.objectType(results.getString(OBJECT_TYPE_FIELD.getName()))
+							.type(results.getString(TYPE_FIELD.getName()))
 							.content(results.getString(CONTENT_FIELD.getName()))
 							.interfaceName(results.getString(INTERFACE_NAME_FIELD.getName()))
 							.status(StatusSQL.getStatusById(results.getLong(STATUS_ID_FIELD.getName())))
@@ -187,10 +186,9 @@ public class MessageSQL {
 					} else {
 						builder = new OutgoingMessage.Builder();
 					}
-					String objectTypeStr = results.getString(OBJECT_TYPE_FIELD.getName());
-					ObjectType objectType = (objectTypeStr != null) ? ObjectType.valueOf(objectTypeStr) : null;
 					builder.id(results.getLong(ID_FIELD.getName())).objectId(results.getLong(OBJECT_ID_FIELD.getName()))
-							.objectType(objectType).type(results.getString(TYPE_FIELD.getName()))
+							.objectType(results.getString(OBJECT_TYPE_FIELD.getName()))
+							.type(results.getString(TYPE_FIELD.getName()))
 							.content(results.getString(CONTENT_FIELD.getName()))
 							.interfaceName(results.getString(INTERFACE_NAME_FIELD.getName()))
 							.status(StatusSQL.getStatusById(results.getLong(STATUS_ID_FIELD.getName())))

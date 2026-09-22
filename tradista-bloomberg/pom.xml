@@ -32,7 +32,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-install-plugin</artifactId>
-				<version>3.1.4</version>
+				<version>3.2.0</version>
 				<configuration>
 					<groupId>com.bloombergp</groupId>
 					<artifactId>blpapi</artifactId>
@@ -49,18 +49,6 @@
 						<phase>validate</phase>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.5.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-					</archive>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

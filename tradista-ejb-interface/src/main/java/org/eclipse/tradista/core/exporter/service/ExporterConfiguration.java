@@ -1,7 +1,9 @@
-package org.eclipse.tradista.core.common.util;
+package org.eclipse.tradista.core.exporter.service;
+
+import java.util.SortedSet;
 
 /********************************************************************************
- * Copyright (c) 2019 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -16,21 +18,26 @@ package org.eclipse.tradista.core.common.util;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaConstants {
+public class ExporterConfiguration {
 
-	public static final String TRADISTA_PACKAGE = "org.eclipse.tradista";
+	private SortedSet<String> modules;
 
-	public static final String CORE_PACKAGE = TRADISTA_PACKAGE + ".core";
+	private SortedSet<String> exporterNames;
 
-	public static final String META_INF = "META-INF";
+	public SortedSet<String> getModules() {
+		return modules;
+	}
 
-	public static final String DATASOURCE_JNDI_URL = "java:/TradistaDataSource";
-	
-	public static final String FLOAT = "Float";
+	public void setModules(SortedSet<String> modules) {
+		this.modules = modules;
+	}
 
-	public static final String FIXED = "Fixed";
+	public SortedSet<String> getExporterNames() {
+		return exporterNames;
+	}
 
-	private TradistaConstants() {
+	public void setExporterNames(SortedSet<String> exporterNames) {
+		this.exporterNames = exporterNames;
 	}
 
 }

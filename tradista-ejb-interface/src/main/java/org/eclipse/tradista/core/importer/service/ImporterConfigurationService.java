@@ -1,7 +1,11 @@
-package org.eclipse.tradista.core.common.util;
+package org.eclipse.tradista.core.importer.service;
+
+import java.util.SortedSet;
+
+import jakarta.ejb.Remote;
 
 /********************************************************************************
- * Copyright (c) 2019 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -16,21 +20,11 @@ package org.eclipse.tradista.core.common.util;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class TradistaConstants {
+@Remote
+public interface ImporterConfigurationService {
 
-	public static final String TRADISTA_PACKAGE = "org.eclipse.tradista";
+	SortedSet<String> getModules();
 
-	public static final String CORE_PACKAGE = TRADISTA_PACKAGE + ".core";
-
-	public static final String META_INF = "META-INF";
-
-	public static final String DATASOURCE_JNDI_URL = "java:/TradistaDataSource";
-	
-	public static final String FLOAT = "Float";
-
-	public static final String FIXED = "Fixed";
-
-	private TradistaConstants() {
-	}
+	SortedSet<String> getAllImporterNames();
 
 }

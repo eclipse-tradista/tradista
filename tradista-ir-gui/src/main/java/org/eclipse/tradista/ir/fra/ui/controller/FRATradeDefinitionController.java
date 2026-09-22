@@ -515,7 +515,6 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 						try {
 							return fraTradeBusinessDelegate.isBusinessDay(fraTrade, date);
 						} catch (TradistaBusinessException tbe) {
-							// TODO Auto-generated catch block
 							tbe.printStackTrace();
 						}
 						return false;
@@ -538,7 +537,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 		selectedQuoteDate.setDayCellFactory(businessDayCellFactory);
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 		TradistaGUIUtil.fillDayCountConventionComboBox(dayCountConvention);
 		TradistaGUIUtil.fillIndexComboBox(referenceRateIndex, referenceRateIndex);

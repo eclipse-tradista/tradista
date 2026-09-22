@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.exporter.service.ExporterInformationBusinessDelegate;
 import org.eclipse.tradista.core.importer.service.ImporterInformationBusinessDelegate;
@@ -69,7 +70,10 @@ public class InformationServiceBean implements InformationService {
 		modules.put("Core", TradistaUtil.getModuleVersion("core.common.service", this.getClass().getClassLoader()));
 
 		// Get the Market Data modules versions
-		modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
+		try {
+			modules.putAll(new MarketDataInformationBusinessDelegate().getMarketDataModuleVersions());
+		} catch (TradistaTechnicalException _) {
+		}
 
 		Set<String> prods = productBusinessDelegate.getAvailableProductTypes();
 
@@ -103,10 +107,16 @@ public class InformationServiceBean implements InformationService {
 		}
 
 		// Get the Importer modules versions
-		modules.putAll(new ImporterInformationBusinessDelegate().getImporterModuleVersions());
+		try {
+			modules.putAll(new ImporterInformationBusinessDelegate().getImporterModuleVersions());
+		} catch (TradistaTechnicalException _) {
+		}
 
 		// Get the Exporter modules versions
-		modules.putAll(new ExporterInformationBusinessDelegate().getExporterModuleVersions());
+		try {
+			modules.putAll(new ExporterInformationBusinessDelegate().getExporterModuleVersions());
+		} catch (TradistaTechnicalException _) {
+		}
 
 		return modules;
 	}

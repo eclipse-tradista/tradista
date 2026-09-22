@@ -2,6 +2,8 @@ package org.eclipse.tradista.security.bond.service;
 
 import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -59,8 +61,6 @@ import jakarta.ejb.Stateless;
 @Stateless
 @ProductScope(Bond.BOND)
 public class BondPricerServiceBean implements BondPricerService {
-
-	private static final String FIXED = "Fixed";
 
 	private static final String BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES = "The bond ({}) maturity date must be after the current and pricing dates";
 
@@ -195,14 +195,14 @@ public class BondPricerServiceBean implements BondPricerService {
 	public BigDecimal pvDiscountedCashFlow(PricingParameter params, @CheckTradeAccess BondTrade trade,
 			Currency currency, LocalDate pricingDate) throws TradistaBusinessException {
 
-		if (!LocalDate.now().isBefore(trade.getProduct().getMaturityDate())
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getProduct().getMaturityDate())
 				|| !pricingDate.isBefore(trade.getProduct().getMaturityDate())) {
 			logger.warn(BOND_MATURITY_DATE_MUST_BE_AFTER_THE_CURRENT_AND_PRICING_DATES, trade.getProduct());
 			return BigDecimal.ZERO;
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
-			if (pricingDate.isBefore(LocalDate.now())) {
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())) {
+			if (pricingDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
 				throw new TradistaBusinessException(
 						"When the trade settlement date has passed, it is not allowed to specify a pricing date in the past.");
 			}
@@ -242,7 +242,7 @@ public class BondPricerServiceBean implements BondPricerService {
 					"When the pricing date is after the bond maturity date, it is not possible to forecast cashflows.");
 		}
 
-		if (!LocalDate.now().isBefore(trade.getSettlementDate())) {
+		if (!LocalDate.now(ZoneId.systemDefault()).isBefore(trade.getSettlementDate())) {
 			if (pricingDate.isBefore(LocalDate.now())) {
 				throw new TradistaBusinessException(
 						"When the trade settlement date has passed and a pricing date is in the past, it is not possible to forecast cashflows.");

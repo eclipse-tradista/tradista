@@ -503,7 +503,6 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 						try {
 							return fxSwapTradeBusinessDelegate.isBusinessDay(fxSwapTrade, date);
 						} catch (TradistaBusinessException tbe) {
-							// TODO Auto-generated catch block
 							tbe.printStackTrace();
 						}
 						return false;
@@ -526,7 +525,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 		TradistaGUIUtil.fillCurrencyComboBox(currencyOne, currencyTwo, pricingCurrency);
-		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), counterparty);
+		TradistaGUIUtil.fillComboBox(legalEntityBusinessDelegate.getAllCounterparties(), counterparty);
 		TradistaGUIUtil.fillComboBox(bookBusinessDelegate.getAllBooks(), book);
 
 	}

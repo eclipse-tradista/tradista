@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.trade.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Segregable;
@@ -76,7 +77,7 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 	}
 
 	protected Trade() {
-		creationDate = LocalDate.now();
+		creationDate = LocalDate.now(ZoneId.systemDefault());
 	}
 
 	@Override

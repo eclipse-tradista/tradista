@@ -126,21 +126,6 @@ public class ImporterMappingController implements Serializable {
 		Arrays.sort(allMappingTypes);
 	}
 
-	/**
-	 * Checks if the importer app is available, if not, display a warning message.
-	 * This check is a workaround, the target solution is to have the
-	 * #getAllImporterNames service in the core app, so it is not dependent on the
-	 * availability of the importer app
-	 */
-	public void onload() {
-		try {
-			importerConfigurationBusinessDelegate.getAllImporterNames();
-		} catch (TradistaTechnicalException tte) {
-			FacesContext.getCurrentInstance().addMessage("msg", new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning",
-					"Issue with the Importer App: " + tte.getMessage()));
-		}
-	}
-
 	public LegalEntity getProcessingOrg() {
 		return processingOrg;
 	}

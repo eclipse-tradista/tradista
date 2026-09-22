@@ -1,11 +1,11 @@
-package org.eclipse.tradista.core.importer.service;
+package org.eclipse.tradista.core.exporter.service;
 
 import java.util.SortedSet;
 
 import jakarta.ejb.Remote;
 
 /********************************************************************************
- * Copyright (c) 2025 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -21,10 +21,10 @@ import jakarta.ejb.Remote;
  ********************************************************************************/
 
 @Remote
-public interface ImporterConfigurationService {
+public interface ExporterConfigurationService {
 
 	SortedSet<String> getModules();
 
-	SortedSet<String> getAllImporterNames();
+	SortedSet<String> getAllExporterNames();
 
 }
