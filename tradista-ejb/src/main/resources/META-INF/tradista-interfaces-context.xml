@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- Importer metadata configuration -->
+	<bean id="importerConfiguration"
+		class="org.eclipse.tradista.core.importer.service.ImporterConfiguration">
+		<property name="modules">
+			<ref bean="importerModules" />
+		</property>
+		<property name="importerNames">
+			<ref bean="importerNames" />
+		</property>
+	</bean>
+
+	<!-- Importer modules -->
+	<util:set id="importerModules" set-class="java.util.TreeSet">
+		<value>Fix</value>
+	</util:set>
+
+	<!-- Importer names -->
+	<util:set id="importerNames" set-class="java.util.TreeSet">
+		<value>MyFixTest</value>
+	</util:set>
+
+	<!-- Exporter metadata configuration -->
+	<bean id="exporterConfiguration"
+		class="org.eclipse.tradista.core.exporter.service.ExporterConfiguration">
+		<property name="modules">
+			<ref bean="exporterModules" />
+		</property>
+		<property name="exporterNames">
+			<ref bean="exporterNames" />
+		</property>
+	</bean>
+
+	<!-- Exporter modules -->
+	<util:set id="exporterModules" set-class="java.util.TreeSet">
+		<value>Fix</value>
+	</util:set>
+
+	<!-- Exporter names -->
+	<util:set id="exporterNames" set-class="java.util.TreeSet">
+		<value>MyFixTest</value>
+	</util:set>
+
+</beans>

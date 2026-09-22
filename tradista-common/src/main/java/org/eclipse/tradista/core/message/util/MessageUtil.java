@@ -45,8 +45,7 @@ public final class MessageUtil {
 		};
 	}
 
-	public static TradistaObject loadObject(long objectId, String objectType)
-			throws TradistaBusinessException {
+	public static TradistaObject loadObject(long objectId, String objectType) throws TradistaBusinessException {
 		StringBuilder errorMessage = new StringBuilder();
 		if (objectId <= 0) {
 			errorMessage.append(String.format("The object id (%d) must be positive.%n", objectId));

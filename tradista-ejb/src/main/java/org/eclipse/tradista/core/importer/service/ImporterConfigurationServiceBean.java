@@ -13,7 +13,7 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
 /********************************************************************************
- * Copyright (c) 2026 Olivier Asuncion
+ * Copyright (c) 2025 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at

@@ -25,7 +25,7 @@ public final class TradistaConstants {
 	public static final String META_INF = "META-INF";
 
 	public static final String DATASOURCE_JNDI_URL = "java:/TradistaDataSource";
-	
+
 	public static final String FLOAT = "Float";
 
 	public static final String FIXED = "Fixed";
