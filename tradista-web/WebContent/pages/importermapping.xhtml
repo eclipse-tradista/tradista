@@ -15,7 +15,8 @@
 					columnClasses="ui-g-12 ui-md-12 ui-lg-12, ui-g-12 ui-md-12 ui-lg-12">
 					<p:row>
 						<p:toolbar
-							rendered="#{importerMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or importerMappingController.interfaceMappingSet.processingOrg ne null)}">
+							rendered="#{importerMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or importerMappingController.interfaceMappingSet.processingOrg ne null)}"
+							style="max-width: 900px; margin-bottom: 10px;">
 							<p:toolbarGroup>
 								<p:commandButton value="New Mapping" icon="pi pi-plus"
 									actionListener="#{importerMappingController.addMapping}"
@@ -27,12 +28,13 @@
 					</p:row>
 					<p:row>
 						<p:column>
-							<p:card>
+							<p:card style="max-width: 900px; margin-bottom: 15px;">
 								<p:dataTable id="importerMappingTable" var="mapping"
 									value="#{importerMappingController.displayedMappings}"
 									editable="true" editMode="cell" widgetVar=""
 									allowUnsorting="true" sortMode="single"
-									tableStyleClass="tradista-datatable" size="small">
+									tableStyleClass="tradista-datatable" size="small"
+									tableStyle="width: 100%;">
 									<f:facet name="header">
 										<p:outputLabel
 											value="#{importerMappingController.interfaceMappingSet ne null ? (importerMappingController.interfaceMappingSet.interfaceName ne null ? importerMappingController.interfaceMappingSet.interfaceName : 'Global Mapping') : ''}"
@@ -43,7 +45,8 @@
 									</f:facet>
 									<p:ajax event="cellEdit"
 										listener="#{importerMappingController.onMappingAdded}" />
-									<p:column headerText="Original Value" sortBy="#{mapping.value}">
+									<p:column headerText="Original Value" sortBy="#{mapping.value}"
+										style="width: 45%;">
 										<f:attribute name="colKey" value="originalValue" />
 										<p:cellEditor>
 											<f:facet name="output">
@@ -56,7 +59,7 @@
 										</p:cellEditor>
 									</p:column>
 									<p:column headerText="Mapped Value"
-										sortBy="#{mapping.mappedValue}">
+										sortBy="#{mapping.mappedValue}" style="width: 45%;">
 										<p:cellEditor>
 											<f:facet name="output">
 												<h:outputText value="#{mapping.mappedValue}" />
@@ -70,7 +73,8 @@
 											</f:facet>
 										</p:cellEditor>
 									</p:column>
-									<p:column exportable="false" headerText="Actions">
+									<p:column exportable="false" headerText="Actions"
+										style="width: 10%; text-align: center;">
 										<p:commandButton class="rounded-button ui-button-danger" icon="pi pi-trash"
 											actionListener="#{importerMappingController.removeMapping(mapping)}"
 											update=":importerMappingForm:importerMappingTable">
@@ -84,6 +88,11 @@
 				<f:facet name="footer">
 					<p:row>
 						<p:column>
+							<p:commandButton value="Save" styleClass="rounded-button"
+								rendered="#{importerMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or importerMappingController.interfaceMappingSet.processingOrg ne null)}"
+								update="@form">
+								<f:actionListener binding="#{importerMappingController.save()}" />
+							</p:commandButton>
 							<p:outputLabel value="Load Importer Mapping :"
 								styleClass="tradista-menu-item" />
 							<p:spacer width="5" height="1" />
@@ -115,11 +124,6 @@
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
 								action="#{importerMappingController.load()}" update="@form" />
-							<p:commandButton value="Save" styleClass="rounded-button"
-								rendered="#{importerMappingController.interfaceMappingSet ne null and (userManager.currentUserAdmin or importerMappingController.interfaceMappingSet.processingOrg ne null)}"
-								update="@form">
-								<f:actionListener binding="#{importerMappingController.save()}" />
-							</p:commandButton>
 						</p:column>
 					</p:row>
 				</f:facet>

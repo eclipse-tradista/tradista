@@ -1,0 +1,195 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	<ui:define name="title">Eclipse Tradista Messaging Configuration</ui:define>
+	<ui:define name="viewname">Eclipse Tradista Messaging Configuration</ui:define>
+	<ui:define name="content">
+		<h:form id="messagingConfigForm">
+			<p:panel header="Messaging Configuration" styleClass="tradista-central-component">
+				<p:messages showDetail="true" closable="true" id="msg">
+					<p:autoUpdate />
+				</p:messages>
+
+				<p:staticMessage severity="warn" summary="Read-Only Mode"
+					detail="You are in read-only mode. Only administrator users are allowed to modify messaging configuration."
+					rendered="#{not messagingConfigurationController.currentUserAdmin}"
+					style="margin-bottom: 15px; width: 100%;" />
+
+				<p:staticMessage severity="info" summary="Notice"
+					detail="Any changes to listeners, pollers, routing or filters will take effect upon restarting the Tradista servers."
+					rendered="#{messagingConfigurationController.currentUserAdmin}"
+					style="margin-bottom: 15px; width: 100%;" />
+
+				<p:tabView id="tabs">
+					<!-- TAB 1: Event Routing & Subscriptions -->
+					<p:tab title="Event Routing &amp; Subscriptions">
+						<p:panelGrid columns="2" columnClasses="medium-column," styleClass="ui-panelgrid-blank"
+							style="margin-bottom: 20px;">
+							<p:outputLabel for="eventTypeSelect" value="Event Type:" style="font-weight: bold;" />
+							<p:selectOneMenu id="eventTypeSelect" value="#{messagingConfigurationController.selectedEventType}">
+								<f:selectItems value="#{messagingConfigurationController.eventTypes}" />
+								<p:ajax event="change" listener="#{messagingConfigurationController.onEventTypeChange}"
+									update="subscriptionPickList" />
+							</p:selectOneMenu>
+						</p:panelGrid>
+
+						<p:card style="max-width: 750px; margin-bottom: 20px;">
+							<p:pickList id="subscriptionPickList"
+								value="#{messagingConfigurationController.subscriptionListenersPickList}"
+								var="listenerName" itemValue="#{listenerName}" itemLabel="#{listenerName}"
+								showSourceControls="false" showTargetControls="false" responsive="true"
+								disabled="#{not messagingConfigurationController.currentUserAdmin}">
+								<f:facet name="sourceCaption">Available Listeners</f:facet>
+								<f:facet name="targetCaption">Subscribed Listeners</f:facet>
+							</p:pickList>
+						</p:card>
+
+						<p:commandButton value="Save Subscriptions"
+							action="#{messagingConfigurationController.saveSubscriptions}" update="@form"
+							rendered="#{messagingConfigurationController.currentUserAdmin}"
+							styleClass="rounded-button" icon="pi pi-check" />
+					</p:tab>
+
+					<!-- TAB 2: Listeners & Pollers -->
+					<p:tab title="Listeners &amp; Pollers">
+						<p:dataTable id="listenersTable" value="#{messagingConfigurationController.listeners}"
+							var="l" style="max-width: 1100px; margin-bottom: 20px;" tableStyle="width: 100%;"
+							responsiveLayout="scroll">
+							<p:column headerText="Listener Name" style="width: 25%;">
+								<h:outputText value="#{l.name}" style="font-weight: bold;" />
+							</p:column>
+							<p:column headerText="Queue Name" style="width: 25%;">
+								<h:outputText value="#{l.queueName}" />
+							</p:column>
+							<p:column headerText="Poller Delay (ms)" style="width: 16%;">
+								<p:inputNumber value="#{l.pollerDelay}" decimalPlaces="0" minValue="1"
+									disabled="#{not messagingConfigurationController.currentUserAdmin}" style="width: 100%;" />
+							</p:column>
+							<p:column headerText="Max Messages / Poll" style="width: 16%;">
+								<p:inputNumber value="#{l.pollerMaxMessages}" decimalPlaces="0" minValue="1"
+									disabled="#{not messagingConfigurationController.currentUserAdmin}" style="width: 100%;" />
+							</p:column>
+							<p:column headerText="Enabled" style="width: 9%; text-align: center;">
+								<p:selectBooleanCheckbox value="#{l.enabled}"
+									disabled="#{not messagingConfigurationController.currentUserAdmin}" />
+							</p:column>
+							<p:column headerText="Actions" rendered="#{messagingConfigurationController.currentUserAdmin}"
+								style="width: 9%; text-align: center;">
+								<p:commandButton action="#{messagingConfigurationController.deleteListener(l)}"
+									update="@form" styleClass="rounded-button ui-button-danger" icon="pi pi-trash" title="Delete">
+									<p:confirm header="Confirmation"
+										message="Are you sure you want to delete listener #{l.name}?" icon="pi pi-exclamation-triangle" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+
+						<p:commandButton value="Save Listeners" action="#{messagingConfigurationController.saveListeners}"
+							update="@form" rendered="#{messagingConfigurationController.currentUserAdmin}"
+							styleClass="rounded-button" icon="pi pi-check" style="margin-bottom: 25px;" />
+
+						<p:panel header="Add New Listener" rendered="#{messagingConfigurationController.currentUserAdmin}"
+							style="max-width: 650px; margin-top: 10px;">
+							<p:panelGrid columns="2" columnClasses="medium-column," styleClass="ui-panelgrid-blank">
+								<p:outputLabel for="newListenerName" value="Listener Name:" style="font-weight: bold;" />
+								<p:inputText id="newListenerName" value="#{messagingConfigurationController.newListenerName}"
+									placeholder="e.g. customTradeExporter" style="width: 260px;" />
+
+								<p:outputLabel for="newListenerPollerDelay" value="Poller Delay (ms):" />
+								<p:inputNumber id="newListenerPollerDelay" value="#{messagingConfigurationController.newListenerPollerDelay}"
+									decimalPlaces="0" minValue="1" style="width: 260px;" />
+
+								<p:outputLabel for="newListenerPollerMax" value="Max Messages / Poll:" />
+								<p:inputNumber id="newListenerPollerMax" value="#{messagingConfigurationController.newListenerPollerMaxMessages}"
+									decimalPlaces="0" minValue="1" style="width: 260px;" />
+
+								<p:outputLabel for="newListenerEnabled" value="Enabled:" />
+								<p:selectBooleanCheckbox id="newListenerEnabled" value="#{messagingConfigurationController.newListenerEnabled}" />
+							</p:panelGrid>
+
+							<div style="margin-top: 15px;">
+								<p:commandButton value="Add Listener" action="#{messagingConfigurationController.addNewListener}"
+									update="@form" styleClass="rounded-button" icon="pi pi-plus" style="width: auto;" />
+							</div>
+						</p:panel>
+					</p:tab>
+
+					<!-- TAB 3: Filters & Assignments -->
+					<p:tab title="Filters &amp; Assignments">
+						<p:card header="Filter Catalog" style="max-width: 950px; margin-bottom: 25px;">
+							<p:dataTable id="filtersTable" value="#{messagingConfigurationController.filters}" var="f"
+								style="margin-bottom: 20px;" tableStyle="width: 100%;" responsiveLayout="scroll">
+								<p:column headerText="Filter Name" style="width: 220px;">
+									<h:outputText value="#{f.name}" style="font-weight: bold;" />
+								</p:column>
+								<p:column headerText="Full Class Name">
+									<h:outputText value="#{f.className}" />
+								</p:column>
+								<p:column headerText="Actions" rendered="#{messagingConfigurationController.currentUserAdmin}"
+									style="width: 80px; text-align: center;">
+									<p:commandButton action="#{messagingConfigurationController.deleteFilter(f)}"
+										update="@form" styleClass="rounded-button ui-button-danger" icon="pi pi-trash" title="Delete">
+										<p:confirm header="Confirmation" message="Are you sure you want to delete filter #{f.name}?"
+											icon="pi pi-exclamation-triangle" />
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+
+							<p:panel header="Register New Filter" rendered="#{messagingConfigurationController.currentUserAdmin}"
+								style="margin-top: 10px;">
+								<p:panelGrid columns="2" columnClasses="medium-column," styleClass="ui-panelgrid-blank">
+									<p:outputLabel for="newFilterName" value="Filter Name:" style="font-weight: bold;" />
+									<p:inputText id="newFilterName" value="#{messagingConfigurationController.newFilterName}"
+										placeholder="e.g. isAllocatedTrade" style="width: 260px;" />
+
+									<p:outputLabel for="newFilterClassName" value="Full Class Name:" style="font-weight: bold;" />
+									<p:inputText id="newFilterClassName" value="#{messagingConfigurationController.newFilterClassName}"
+										placeholder="e.g. org.eclipse.tradista.fix.exporter.filter.IsAllocatedTrade" style="width: 450px;" />
+								</p:panelGrid>
+
+								<div style="margin-top: 15px;">
+									<p:commandButton value="Register Filter" action="#{messagingConfigurationController.addNewFilter}"
+										update="@form" styleClass="rounded-button" icon="pi pi-plus" style="width: auto;" />
+								</div>
+							</p:panel>
+						</p:card>
+
+						<p:card header="Filter Assignment to Listener" style="max-width: 750px; margin-bottom: 20px;">
+							<p:panelGrid columns="2" columnClasses="medium-column," styleClass="ui-panelgrid-blank"
+								style="margin-bottom: 20px;">
+								<p:outputLabel for="filterListenerSelect" value="Select Listener:" style="font-weight: bold;" />
+								<p:selectOneMenu id="filterListenerSelect"
+									value="#{messagingConfigurationController.filterAssignmentListenerId}">
+									<f:selectItems value="#{messagingConfigurationController.listeners}" var="l"
+										itemValue="#{l.id}" itemLabel="#{l.name}" />
+									<p:ajax event="change" listener="#{messagingConfigurationController.onFilterAssignmentListenerChange}"
+										update="listenerFiltersPickList" />
+								</p:selectOneMenu>
+							</p:panelGrid>
+
+							<p:pickList id="listenerFiltersPickList"
+								value="#{messagingConfigurationController.listenerFiltersPickList}" var="filterName"
+								itemValue="#{filterName}" itemLabel="#{filterName}"
+								showSourceControls="false" showTargetControls="true" responsive="true"
+								disabled="#{not messagingConfigurationController.currentUserAdmin}">
+								<f:facet name="sourceCaption">Available Filters</f:facet>
+								<f:facet name="targetCaption">Assigned Filters (Order Top-to-Bottom)</f:facet>
+							</p:pickList>
+
+							<p:commandButton value="Save Filter Assignments"
+								action="#{messagingConfigurationController.saveListenerFilterAssignments}" update="@form"
+								rendered="#{messagingConfigurationController.currentUserAdmin}"
+								styleClass="rounded-button" icon="pi pi-check" style="margin-top: 20px;" />
+						</p:card>
+					</p:tab>
+				</p:tabView>
+
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+					<p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" />
+					<p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
+				</p:confirmDialog>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

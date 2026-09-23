@@ -1,9 +1,7 @@
-package org.eclipse.tradista.core.transfer.service;
+package org.eclipse.tradista.core.position.service;
 
 import static org.eclipse.tradista.core.common.util.TradistaConstants.META_INF;
 
-import org.eclipse.tradista.core.common.messaging.Event;
-import org.eclipse.tradista.core.common.messaging.TradistaEventGateway;
 import org.eclipse.tradista.core.common.messaging.TradistaMessagingConfiguration;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -17,7 +15,7 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
 /********************************************************************************
- * Copyright (c) 2026 Olivier Asuncion
+ * Copyright (c) 2016 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -36,27 +34,21 @@ import jakarta.ejb.Startup;
 @PermitAll
 @Startup
 @Singleton
-public class TransferMessagingServiceBean implements LocalTransferMessagingService {
-
+public class LocalPositionConfigurationServiceBean implements LocalPositionConfigurationService {
 	private static GenericApplicationContext applicationContext;
-
-	public static final String CONFIG_FILE_NAME = "tradista-transfer-context.xml";
+	public static final String CONFIG_FILE_NAME = "tradista-position-context.xml";
 
 	@PostConstruct
 	public void init() {
 		applicationContext = new AnnotationConfigApplicationContext();
 		applicationContext.registerBean(TradistaMessagingConfiguration.class);
-
-		// We add here the exporter beans in the same context
 		XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(applicationContext);
 		xmlReader.loadBeanDefinitions(new ClassPathResource("/" + META_INF + "/" + CONFIG_FILE_NAME));
-
 		applicationContext.refresh();
 	}
 
 	@Override
-	public void publishEvent(Event event) {
-		applicationContext.getBean(TradistaEventGateway.class).publish(event);
+	public int getFrequency() {
+		return ((PositionProperties) applicationContext.getBean("positionProperties")).getFrequency();
 	}
-
 }

@@ -56,7 +56,7 @@ public class PositionCalculator {
 	private static ConfigurationBusinessDelegate configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 
 	@EJB
-	private LocalConfigurationService configurationService;
+	private LocalPositionConfigurationService configurationService;
 
 	@EJB
 	private LocalPositionDefinitionService positionDefinitionService;

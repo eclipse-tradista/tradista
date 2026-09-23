@@ -21,6 +21,7 @@ import org.eclipse.tradista.core.batch.service.BatchService;
 import org.eclipse.tradista.core.book.service.BookService;
 import org.eclipse.tradista.core.calendar.service.CalendarService;
 import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
+import org.eclipse.tradista.core.common.messaging.service.MessagingConfigurationService;
 import org.eclipse.tradista.core.common.service.InformationService;
 import org.eclipse.tradista.core.configuration.service.ConfigurationService;
 import org.eclipse.tradista.core.currency.service.CurrencyService;
@@ -286,6 +287,8 @@ public class TradistaServiceLocator {
 	private static final String BOOK_SERVICE_PACKAGE = CORE_PACKAGE + ".book.service";
 
 	private static final String RATING_SERVICE_PACKAGE = CORE_PACKAGE + ".rating.service";
+
+	private static final String MESSAGING_SERVICE_PACKAGE = CORE_PACKAGE + ".common.messaging.service";
 
 	private Context context;
 
@@ -772,6 +775,11 @@ public class TradistaServiceLocator {
 	public ExporterConfigurationService getExporterConfigurationService() {
 		return (ExporterConfigurationService) getService(APP, CORE_EJB, EXPORTER_SERVICE_PACKAGE,
 				"ExporterConfigurationService");
+	}
+
+	public MessagingConfigurationService getMessagingConfigurationService() {
+		return (MessagingConfigurationService) getService(APP, CORE_EJB, MESSAGING_SERVICE_PACKAGE,
+				"MessagingConfigurationService");
 	}
 
 }

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 
@@ -32,6 +33,11 @@ import jakarta.ejb.Startup;
 @Startup
 @Singleton
 public class CoreMessagingServiceBean implements LocalCoreMessagingService {
+
+	// Enforces EJB container dependency so that MessagingConfigurationService
+	// is fully initialized before CoreMessagingServiceBean's @PostConstruct
+	@EJB
+	private MessagingConfigurationService messagingConfigurationService;
 
 	private static AnnotationConfigApplicationContext applicationContext;
 

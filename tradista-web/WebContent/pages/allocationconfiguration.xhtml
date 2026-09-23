@@ -65,30 +65,27 @@
 								styleClass="tradista-menu-item" />
 						</p:column>
 					</p:row>
-					<p:row>
-						<p:column colspan="2">
-							<p:card>
-								<p:pickList id="allocationConfigurationPickList"
-									value="#{allocationConfigurationController.books}" var="book"
-									itemValue="#{book}"
-									itemLabel="#{allocationConfigurationController.getDisambiguatedBookName(book)}"
-									showSourceControls="true" showTargetControls="true"
-									showCheckbox="true" showSourceFilter="true"
-									showTargetFilter="true" filterMatchMode="contains"
-									responsive="true" converter="bookConverter">
-									<f:facet name="sourceCaption">Available books</f:facet>
-									<f:facet name="targetCaption">Configured books</f:facet>
-									<p:column styleClass="tradista-picklist-item">
-										<div class="flex align-items-center">
-											<h:outputText
-												value="#{allocationConfigurationController.getDisambiguatedBookName(book)}" />
-										</div>
-									</p:column>
-								</p:pickList>
-							</p:card>
-						</p:column>
-					</p:row>
 				</p:panelGrid>
+
+				<p:card style="max-width: 1000px; margin-top: 15px; margin-bottom: 15px;">
+					<p:pickList id="allocationConfigurationPickList"
+						value="#{allocationConfigurationController.books}" var="book"
+						itemValue="#{book}"
+						itemLabel="#{allocationConfigurationController.getDisambiguatedBookName(book)}"
+						showSourceControls="true" showTargetControls="true"
+						showCheckbox="true" showSourceFilter="true"
+						showTargetFilter="true" filterMatchMode="contains"
+						responsive="true" converter="bookConverter">
+						<f:facet name="sourceCaption">Available books</f:facet>
+						<f:facet name="targetCaption">Configured books</f:facet>
+						<p:column styleClass="tradista-picklist-item">
+							<div class="flex align-items-center">
+								<h:outputText
+									value="#{allocationConfigurationController.getDisambiguatedBookName(book)}" />
+							</div>
+						</p:column>
+					</p:pickList>
+				</p:card>
 				<f:facet name="footer">
 					<p:row>
 						<p:column>

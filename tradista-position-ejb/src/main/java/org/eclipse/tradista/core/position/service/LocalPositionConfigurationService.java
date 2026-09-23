@@ -19,7 +19,7 @@ import jakarta.ejb.Local;
  ********************************************************************************/
 
 @Local
-public interface LocalConfigurationService {
+public interface LocalPositionConfigurationService {
 
 	int getFrequency();
 

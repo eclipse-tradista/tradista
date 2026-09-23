@@ -81,6 +81,8 @@ public class MenuController implements Serializable {
 				.add(DefaultMenuItem.builder().value("Importer Mapping").url("importermapping.xhtml").build());
 		configurationMenu.getElements()
 				.add(DefaultMenuItem.builder().value("Exporter Mapping").url("exportermapping.xhtml").build());
+		configurationMenu.getElements()
+				.add(DefaultMenuItem.builder().value("Messaging Configuration").url("messagingconfiguration.xhtml").build());
 		model.getElements().add(tradeMenu);
 		model.getElements().add(productMenu);
 		model.getElements().add(reportMenu);
