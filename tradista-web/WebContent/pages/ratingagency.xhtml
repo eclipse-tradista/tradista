@@ -43,15 +43,16 @@
 
 					<p:row>
 						<p:column>
-							<p:card>
+							<p:card style="max-width: 900px; margin-top: 10px; margin-bottom: 15px;">
 								<p:dataTable id="ratingsTable" var="rating" value="#{ratingAgencyController.ratings}"
 									editable="#{ratingAgencyController.admin}" editMode="cell"
-									tableStyleClass="tradista-datatable" size="small">
+									tableStyleClass="tradista-datatable" size="small"
+									tableStyle="width: 100%;">
 									<p:ajax event="cellEdit" listener="#{ratingAgencyController.onRatingEdit}" update=":ratingAgencyForm:msg" />
 									<f:facet name="header">
 										<p:outputLabel value="Ratings for #{ratingAgencyController.agency != null ? ratingAgencyController.agency.name : 'None'}" styleClass="tradista-menu-item" />
 									</f:facet>
-									<p:column headerText="Code" sortBy="#{rating.code}">
+									<p:column headerText="Code" sortBy="#{rating.code}" style="width: 25%;">
 										<f:attribute name="colKey" value="code" />
 										<p:cellEditor>
 											<f:facet name="output">
@@ -62,7 +63,7 @@
 											</f:facet>
 										</p:cellEditor>
 									</p:column>
-									<p:column headerText="Description" sortBy="#{rating.description}">
+									<p:column headerText="Description" sortBy="#{rating.description}" style="width: 65%;">
 										<f:attribute name="colKey" value="description" />
 										<p:cellEditor>
 											<f:facet name="output">
@@ -73,7 +74,8 @@
 											</f:facet>
 										</p:cellEditor>
 									</p:column>
-									<p:column exportable="false" headerText="Actions" rendered="#{ratingAgencyController.admin}">
+									<p:column exportable="false" headerText="Actions" rendered="#{ratingAgencyController.admin}"
+										style="width: 10%; text-align: center;">
 										<p:commandButton class="rounded-button ui-button-danger" icon="pi pi-trash"
 											actionListener="#{ratingAgencyController.deleteRating(rating)}"
 											update=":ratingAgencyForm:ratingsTable :ratingAgencyForm:msg">

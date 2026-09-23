@@ -20,7 +20,7 @@
 					rendered="#{processingOrgDefaultsController.poDefaults ne null}" />
 				<br />
 				<br />
-				<p:card>
+				<p:card style="max-width: 800px; margin-bottom: 20px;">
 					<p:tabView
 						rendered="#{processingOrgDefaultsController.poDefaults ne null}">
 						<c:forEach var="mc"
@@ -34,6 +34,11 @@
 				<f:facet name="footer">
 					<p:row>
 						<p:column>
+							<p:commandButton value="Save" styleClass="rounded-button"
+								rendered="#{processingOrgDefaultsController.moduleControllers ne null}">
+								<f:actionListener
+									binding="#{processingOrgDefaultsController.save()}" />
+							</p:commandButton>
 							<p:outputLabel value="Load by Processing Org"
 								rendered="#{empty userManager.currentUserProcessingOrg}" />
 							<p:selectOneMenu
@@ -48,11 +53,6 @@
 								update="@form">
 								<f:actionListener
 									binding="#{processingOrgDefaultsController.load()}" />
-							</p:commandButton>
-							<p:commandButton value="Save" styleClass="rounded-button"
-								rendered="#{processingOrgDefaultsController.moduleControllers ne null}">
-								<f:actionListener
-									binding="#{processingOrgDefaultsController.save()}" />
 							</p:commandButton>
 						</p:column>
 					</p:row>
