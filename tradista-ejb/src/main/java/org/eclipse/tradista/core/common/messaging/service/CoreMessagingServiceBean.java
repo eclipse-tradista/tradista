@@ -34,6 +34,8 @@ import jakarta.ejb.Startup;
 @Singleton
 public class CoreMessagingServiceBean implements LocalCoreMessagingService {
 
+	// Enforces EJB container dependency so that MessagingConfigurationService
+	// is fully initialized before CoreMessagingServiceBean's @PostConstruct
 	@EJB
 	private MessagingConfigurationService messagingConfigurationService;
 
