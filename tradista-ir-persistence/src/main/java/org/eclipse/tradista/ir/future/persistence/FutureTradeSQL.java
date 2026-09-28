@@ -1,20 +1,33 @@
 package org.eclipse.tradista.ir.future.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUANTITY;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.BOOK_ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_DATE_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.IRFORWARD_TRADE_ID_FIELD;
+import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.IRFORWARD_TRADE_TABLE;
+import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.MATURITY_DATE_FIELD;
+import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.TRADE_AND_IRFORWARD_TRADE_INNER_JOIN;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
 
@@ -36,13 +49,54 @@ import org.eclipse.tradista.ir.future.model.FutureTrade;
 
 public class FutureTradeSQL {
 
+	public static final Field FUTURE_TRADE_ID_FIELD = new Field("FUTURE_TRADE_ID");
+	public static final Field QUANTITY_FIELD = new Field(QUANTITY);
+
+	private static final Field[] FUTURE_TRADE_FIELDS = { FUTURE_TRADE_ID_FIELD, QUANTITY_FIELD };
+
+	private static final Field[] FUTURE_TRADE_FIELDS_FOR_INSERT = { QUANTITY_FIELD, FUTURE_TRADE_ID_FIELD };
+
+	private static final Field[] FUTURE_TRADE_FIELDS_FOR_UPDATE = { QUANTITY_FIELD };
+
+	public static final Table FUTURE_TRADE_TABLE = new Table("FUTURE_TRADE", FUTURE_TRADE_FIELDS);
+
+	public static final Join IRFORWARD_TRADE_AND_FUTURE_TRADE_INNER_JOIN = Join.innerEq(IRFORWARD_TRADE_TABLE,
+			IRFORWARD_TRADE_ID_FIELD, FUTURE_TRADE_ID_FIELD);
+
+	private static final Field[] IRFORWARD_FOR_FUTURE_FIELDS_FOR_INSERT = { MATURITY_DATE_FIELD,
+			IRFORWARD_TRADE_ID_FIELD };
+
+	private static final Field[] IRFORWARD_FOR_FUTURE_FIELDS_FOR_UPDATE = { MATURITY_DATE_FIELD };
+
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(FUTURE_TRADE_TABLE,
+			IRFORWARD_TRADE_AND_FUTURE_TRADE_INNER_JOIN, TRADE_AND_IRFORWARD_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, FUTURE_TRADE_TABLE, FUTURE_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, FUTURE_TRADE_ID_FIELD, FUTURE_TRADE_TABLE,
+				FUTURE_TRADE_FIELDS_FOR_UPDATE);
+	}
+
+	public static PreparedStatement getIRForwardInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, IRFORWARD_TRADE_TABLE,
+				IRFORWARD_FOR_FUTURE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getIRForwardUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, IRFORWARD_TRADE_ID_FIELD, IRFORWARD_TRADE_TABLE,
+				IRFORWARD_FOR_FUTURE_FIELDS_FOR_UPDATE);
+	}
+
 	public static FutureTrade getTradeById(long id) {
 
 		FutureTrade futureTrade = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, FUTURE_TRADE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = con
-						.prepareStatement("SELECT * FROM IRFORWARD_TRADE, TRADE, FUTURE_TRADE WHERE "
-								+ "IRFORWARD_TRADE_ID = ? AND IRFORWARD_TRADE_ID = FUTURE_TRADE_ID AND TRADE.ID = IRFORWARD_TRADE_ID ")) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
@@ -51,12 +105,12 @@ public class FutureTradeSQL {
 					}
 
 					TradeSQL.setTradeCommonFields(futureTrade, results);
-					java.sql.Date maturityDate = results.getDate("maturity_date");
+					java.sql.Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());
 					if (maturityDate != null) {
 						futureTrade.setMaturityDate(maturityDate.toLocalDate());
 					}
-					futureTrade.setProduct(FutureSQL.getFutureById(results.getLong("product_id")));
-					futureTrade.setQuantity(results.getBigDecimal("quantity"));
+					futureTrade.setProduct(FutureSQL.getFutureById(results.getLong(PRODUCT_ID_FIELD.getName())));
+					futureTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
 				}
 			}
 		} catch (SQLException | TradistaBusinessException e) {
@@ -97,37 +151,13 @@ public class FutureTradeSQL {
 	public static long saveFutureTrade(FutureTrade trade) {
 		long tradeId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, SETTLEMENT_DATE, PRODUCT_ID, COUNTERPARTY_ID, AMOUNT, BOOK_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, SETTLEMENT_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, AMOUNT=?, BOOK_ID=? WHERE ID=?");
-				PreparedStatement stmtSaveIRForwardTrade = (trade.getId() == 0)
-						? con.prepareStatement(
-								"INSERT INTO IRFORWARD_TRADE(MATURITY_DATE, IRFORWARD_TRADE_ID) VALUES (?, ?)")
-						: con.prepareStatement(
-								"UPDATE IRFORWARD_TRADE SET MATURITY_DATE=? WHERE IRFORWARD_TRADE_ID = ?");
-				PreparedStatement stmtSaveFutureTrade = (trade.getId() == 0)
-						? con.prepareStatement("INSERT INTO FUTURE_TRADE(QUANTITY, FUTURE_TRADE_ID) VALUES (?, ?)")
-						: con.prepareStatement("UPDATE FUTURE_TRADE SET QUANTITY=? WHERE FUTURE_TRADE_ID=?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(8, trade.getId());
-			}
-
-			stmtSaveTrade.setBoolean(1, isBuy);
-			if (trade.getTradeDate() != null) {
-				stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			} else {
-				stmtSaveTrade.setNull(2, java.sql.Types.DATE);
-			}
-			stmtSaveTrade.setDate(3, java.sql.Date.valueOf(trade.getSettlementDate()));
-			stmtSaveTrade.setLong(4, trade.getProduct().getId());
-			stmtSaveTrade.setLong(5, trade.getCounterparty().getId());
-			stmtSaveTrade.setBigDecimal(6, trade.getAmount());
-			stmtSaveTrade.setLong(7, trade.getBook().getId());
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveIRForwardTrade = (trade.getId() == 0) ? getIRForwardInsertStatement(con)
+						: getIRForwardUpdateStatement(con);
+				PreparedStatement stmtSaveFutureTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -142,7 +172,11 @@ public class FutureTradeSQL {
 				tradeId = trade.getId();
 			}
 
-			stmtSaveIRForwardTrade.setDate(1, java.sql.Date.valueOf(trade.getMaturityDate()));
+			if (trade.getMaturityDate() != null) {
+				stmtSaveIRForwardTrade.setDate(1, java.sql.Date.valueOf(trade.getMaturityDate()));
+			} else {
+				stmtSaveIRForwardTrade.setNull(1, Types.DATE);
+			}
 			stmtSaveIRForwardTrade.setLong(2, tradeId);
 			stmtSaveIRForwardTrade.executeUpdate();
 
@@ -150,8 +184,8 @@ public class FutureTradeSQL {
 			stmtSaveFutureTrade.setLong(2, tradeId);
 			stmtSaveFutureTrade.executeUpdate();
 
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 
 		trade.setId(tradeId);
@@ -162,19 +196,18 @@ public class FutureTradeSQL {
 			long bookId) {
 
 		List<FutureTrade> futureTrades = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addFilter(query, TRADE_DATE_FIELD, date, false);
+		if (futureId > 0) {
+			TradistaDBUtil.addFilter(query, PRODUCT_ID_FIELD, futureId);
+		}
+		if (bookId > 0) {
+			TradistaDBUtil.addFilter(query, BOOK_ID_FIELD, bookId);
+		}
+
 		try (Connection con = TradistaDB.getConnection();
 				Statement stmtGetTradesBeforeTradeDate = con.createStatement()) {
-			String query = "SELECT * FROM IRFORWARD_TRADE, TRADE, FUTURE_TRADE WHERE "
-					+ "IRFORWARD_TRADE_ID = FUTURE_TRADE_ID AND TRADE.ID = IRFORWARD_TRADE_ID AND TRADE.TRADE_DATE <= '"
-					+ DateTimeFormatter.ofPattern(YYYY_MM_DD).format(date) + "'";
-
-			if (futureId > 0) {
-				query += " AND TRADE.PRODUCT_ID = " + futureId;
-			}
-			if (bookId > 0) {
-				query += " AND TRADE.BOOK_ID = " + bookId;
-			}
-			try (ResultSet results = stmtGetTradesBeforeTradeDate.executeQuery(query)) {
+			try (ResultSet results = stmtGetTradesBeforeTradeDate.executeQuery(query.toString())) {
 				while (results.next()) {
 					if (futureTrades == null) {
 						futureTrades = new ArrayList<>();
@@ -182,12 +215,12 @@ public class FutureTradeSQL {
 					FutureTrade futureTrade = new FutureTrade();
 
 					TradeSQL.setTradeCommonFields(futureTrade, results);
-					java.sql.Date maturityDate = results.getDate("maturity_date");
+					java.sql.Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());
 					if (maturityDate != null) {
 						futureTrade.setMaturityDate(maturityDate.toLocalDate());
 					}
-					futureTrade.setProduct(FutureSQL.getFutureById(results.getLong("product_id")));
-					futureTrade.setQuantity(results.getBigDecimal("quantity"));
+					futureTrade.setProduct(FutureSQL.getFutureById(results.getLong(PRODUCT_ID_FIELD.getName())));
+					futureTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
 
 					futureTrades.add(futureTrade);
 				}

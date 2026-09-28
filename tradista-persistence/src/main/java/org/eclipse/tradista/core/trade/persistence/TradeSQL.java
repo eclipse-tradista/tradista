@@ -3,10 +3,11 @@ package org.eclipse.tradista.core.trade.persistence;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AMOUNT;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
@@ -16,7 +17,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -76,28 +80,30 @@ public class TradeSQL {
 
 	public static final Field ID_FIELD = new Field(ID, ID);
 	private static final Field BUY_SELL_FIELD = new Field("BUY_SELL", "BUY_SELL");
-	private static final Field CREATION_DATE_FIELD = new Field(CREATION_DATE, CREATION_DATE);
-	private static final Field TRADE_DATE_FIELD = new Field("TRADE_DATE", "TRADE_DATE");
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME, CREATION_TIME);
+	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME, LAST_UPDATE_TIME);
+	public static final Field TRADE_DATE_FIELD = new Field("TRADE_DATE", "TRADE_DATE");
 	private static final Field SETTLEMENT_DATE_FIELD = new Field("SETTLEMENT_DATE", "SETTLEMENT_DATE");
 	public static final Field PRODUCT_ID_FIELD = new Field("PRODUCT_ID", "PRODUCT_ID");
 	private static final Field AMOUNT_FIELD = new Field(AMOUNT, AMOUNT);
 	private static final Field COUNTERPARTY_ID_FIELD = new Field("COUNTERPARTY_ID", "COUNTERPARTY_ID");
 	private static final Field CURRENCY_ID_FIELD = new Field(CURRENCY_ID, CURRENCY_ID);
-	private static final Field BOOK_ID_FIELD = new Field(BOOK_ID, BOOK_ID);
+	public static final Field BOOK_ID_FIELD = new Field(BOOK_ID, BOOK_ID);
 	private static final Field STATUS_ID_FIELD = new Field(STATUS_ID, STATUS_ID);
 
-	private static final Field[] TRADE_FIELDS = { ID_FIELD, BUY_SELL_FIELD, CREATION_DATE_FIELD, TRADE_DATE_FIELD,
-			SETTLEMENT_DATE_FIELD, PRODUCT_ID_FIELD, AMOUNT_FIELD, COUNTERPARTY_ID_FIELD, CURRENCY_ID_FIELD,
-			BOOK_ID_FIELD, STATUS_ID_FIELD };
+	private static final Field[] TRADE_FIELDS = { ID_FIELD, BUY_SELL_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
+			TRADE_DATE_FIELD, SETTLEMENT_DATE_FIELD, PRODUCT_ID_FIELD, AMOUNT_FIELD, COUNTERPARTY_ID_FIELD,
+			CURRENCY_ID_FIELD, BOOK_ID_FIELD, STATUS_ID_FIELD };
 
 	public static final Table TRADE_TABLE = new Table("TRADE", TRADE_FIELDS);
 
-	private static final Field[] FIELDS_FOR_INSERT = { BUY_SELL_FIELD, CREATION_DATE_FIELD, TRADE_DATE_FIELD,
+	private static final Field[] FIELDS_FOR_INSERT = { BUY_SELL_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
+			TRADE_DATE_FIELD, SETTLEMENT_DATE_FIELD, PRODUCT_ID_FIELD, AMOUNT_FIELD, COUNTERPARTY_ID_FIELD,
+			CURRENCY_ID_FIELD, BOOK_ID_FIELD, STATUS_ID_FIELD };
+
+	private static final Field[] FIELDS_FOR_UPDATE = { BUY_SELL_FIELD, LAST_UPDATE_TIME_FIELD, TRADE_DATE_FIELD,
 			SETTLEMENT_DATE_FIELD, PRODUCT_ID_FIELD, AMOUNT_FIELD, COUNTERPARTY_ID_FIELD, CURRENCY_ID_FIELD,
 			BOOK_ID_FIELD, STATUS_ID_FIELD };
-
-	private static final Field[] FIELDS_FOR_UPDATE = { BUY_SELL_FIELD, TRADE_DATE_FIELD, SETTLEMENT_DATE_FIELD,
-			PRODUCT_ID_FIELD, AMOUNT_FIELD, COUNTERPARTY_ID_FIELD, CURRENCY_ID_FIELD, BOOK_ID_FIELD, STATUS_ID_FIELD };
 
 	private static final String SELECT_QUERY = TradistaDBUtil.buildSelectQuery(TRADE_TABLE);
 
@@ -116,10 +122,12 @@ public class TradeSQL {
 	public static List<Trade<? extends Product>> getTradesByCreationDate(LocalDate creationDate) {
 		List<Trade<? extends Product>> trades = null;
 		StringBuilder query = new StringBuilder(SELECT_QUERY);
-		TradistaDBUtil.addParameterizedFilter(query, CREATION_DATE_FIELD);
+		if (creationDate != null) {
+			TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, creationDate.atStartOfDay(), true);
+			TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, creationDate.atTime(23, 59, 59, 999999999), false);
+		}
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetTradesByCreationDate = con.prepareStatement(query.toString())) {
-			stmtGetTradesByCreationDate.setDate(1, java.sql.Date.valueOf(creationDate));
 			try (ResultSet results = stmtGetTradesByCreationDate.executeQuery()) {
 				while (results.next()) {
 					Trade<? extends Product> trade = getTrade(results.getLong(ID_FIELD.getName()), false);
@@ -138,7 +146,10 @@ public class TradeSQL {
 					}
 					trade.setAmount(results.getBigDecimal(AMOUNT_FIELD.getName()));
 					trade.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
-					trade.setCreationDate(results.getDate(CREATION_DATE_FIELD.getName()).toLocalDate());
+					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+					if (creationTimestamp != null) {
+						trade.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+					}
 					trade.setBook(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					long statusId = results.getLong(STATUS_ID_FIELD.getName());
 					if (statusId != 0) {
@@ -189,7 +200,10 @@ public class TradeSQL {
 					}
 					trade.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
 					trade.setAmount(results.getBigDecimal(AMOUNT_FIELD.getName()));
-					trade.setCreationDate(results.getDate(CREATION_DATE_FIELD.getName()).toLocalDate());
+					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+					if (creationTimestamp != null) {
+						trade.setCreationDate(creationTimestamp.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+					}
 					trade.setBook(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					trade.setCounterparty(
 							LegalEntitySQL.getLegalEntityById(results.getLong(COUNTERPARTY_ID_FIELD.getName())));
@@ -215,7 +229,10 @@ public class TradeSQL {
 			// Commmon fields
 			trade.setId(rs.getLong(ID_FIELD.getName()));
 			trade.setBuySell(rs.getBoolean(BUY_SELL_FIELD.getName()));
-			trade.setCreationDate(rs.getDate(CREATION_DATE_FIELD.getName()).toLocalDate());
+			Timestamp creationTimestamp = rs.getTimestamp(CREATION_TIME_FIELD.getName());
+			if (creationTimestamp != null) {
+				trade.setCreationDate(creationTimestamp.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+			}
 			java.sql.Date tradeDate = rs.getDate(TRADE_DATE_FIELD.getName());
 			if (tradeDate != null) {
 				trade.setTradeDate(tradeDate.toLocalDate());
@@ -252,10 +269,21 @@ public class TradeSQL {
 			int i = 1;
 			stmt.setBoolean(i++, trade.isBuy());
 			if (trade.getId() == 0) {
-				stmt.setDate(i++, java.sql.Date.valueOf(trade.getCreationDate()));
+				stmt.setTimestamp(i++, Timestamp.from(trade.getCreationTime() != null ? trade.getCreationTime() : Instant.now()));
+				stmt.setTimestamp(i++, Timestamp.from(trade.getLastUpdateTime() != null ? trade.getLastUpdateTime() : Instant.now()));
+			} else {
+				stmt.setTimestamp(i++, Timestamp.from(Instant.now()));
 			}
-			stmt.setDate(i++, java.sql.Date.valueOf(trade.getTradeDate()));
-			stmt.setDate(i++, java.sql.Date.valueOf(trade.getSettlementDate()));
+			if (trade.getTradeDate() != null) {
+				stmt.setDate(i++, java.sql.Date.valueOf(trade.getTradeDate()));
+			} else {
+				stmt.setNull(i++, java.sql.Types.DATE);
+			}
+			if (trade.getSettlementDate() != null) {
+				stmt.setDate(i++, java.sql.Date.valueOf(trade.getSettlementDate()));
+			} else {
+				stmt.setNull(i++, java.sql.Types.DATE);
+			}
 			if (trade.getProduct() != null) {
 				stmt.setLong(i++, trade.getProductId());
 			} else {
@@ -263,9 +291,17 @@ public class TradeSQL {
 			}
 			stmt.setBigDecimal(i++, trade.getAmount());
 			stmt.setLong(i++, trade.getCounterparty().getId());
-			stmt.setLong(i++, trade.getCurrency().getId());
+			if (trade.getCurrency() != null) {
+				stmt.setLong(i++, trade.getCurrency().getId());
+			} else {
+				stmt.setNull(i++, java.sql.Types.BIGINT);
+			}
 			stmt.setLong(i++, trade.getBook().getId());
-			stmt.setLong(i++, trade.getStatus().getId());
+			if (trade.getStatus() != null) {
+				stmt.setLong(i++, trade.getStatus().getId());
+			} else {
+				stmt.setNull(i++, java.sql.Types.BIGINT);
+			}
 			if (trade.getId() != 0) {
 				stmt.setLong(i, trade.getId());
 			}
@@ -322,16 +358,16 @@ public class TradeSQL {
 			StringBuilder query = new StringBuilder(SELECT_QUERY);
 			if (minCreationDate != null || maxCreationDate != null || minTradeDate != null || maxTradeDate != null) {
 				if (minCreationDate != null) {
-					TradistaDBUtil.addFilter(query, CREATION_DATE_FIELD, minCreationDate, true);
+					TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, minCreationDate.atStartOfDay(), true);
 				}
 				if (maxCreationDate != null) {
-					TradistaDBUtil.addFilter(query, CREATION_DATE_FIELD, maxCreationDate, false);
+					TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, maxCreationDate.atTime(23, 59, 59, 999999999), false);
 				}
 				if (minTradeDate != null) {
-					TradistaDBUtil.addFilter(query, CREATION_DATE_FIELD, minTradeDate, true);
+					TradistaDBUtil.addFilter(query, TRADE_DATE_FIELD, minTradeDate, true);
 				}
 				if (maxTradeDate != null) {
-					TradistaDBUtil.addFilter(query, CREATION_DATE_FIELD, maxTradeDate, false);
+					TradistaDBUtil.addFilter(query, TRADE_DATE_FIELD, maxTradeDate, false);
 				}
 			}
 			try (ResultSet results = stmt.executeQuery(query.toString())) {
@@ -351,7 +387,10 @@ public class TradeSQL {
 						trade.setSettlementDate(settlementDate.toLocalDate());
 					}
 					trade.setAmount(results.getBigDecimal(AMOUNT_FIELD.getName()));
-					trade.setCreationDate(results.getDate(CREATION_DATE_FIELD.getName()).toLocalDate());
+					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+					if (creationTimestamp != null) {
+						trade.setCreationDate(creationTimestamp.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+					}
 					trade.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
 					trade.setBook(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					long statusId = results.getLong(STATUS_ID_FIELD.getName());
@@ -617,7 +656,7 @@ public class TradeSQL {
 
 			aliases.append("UND_EQUITY_TRADE.ID UND_EQUITY_ID,");
 			aliases.append("UND_EQUITY_TRADE.BUY_SELL UND_EQUITY_BUY_SELL,");
-			aliases.append("UND_EQUITY_TRADE.CREATION_DATE UND_EQUITY_CREATION_DATE,");
+			aliases.append("UND_EQUITY_TRADE.CREATION_TIME UND_EQUITY_CREATION_TIME,");
 			aliases.append("UND_EQUITY_TRADE.TRADE_DATE UND_EQUITY_TRADE_DATE,");
 			aliases.append("UND_EQUITY_TRADE.SETTLEMENT_DATE UND_EQUITY_SETTLEMENT_DATE,");
 			aliases.append("UND_EQUITY_TRADE.PRODUCT_ID UND_EQUITY_PRODUCT_ID,");
@@ -628,7 +667,7 @@ public class TradeSQL {
 
 			aliases.append("UND_FXSPOT_TRADE.ID UND_FXSPOT_ID,");
 			aliases.append("UND_FXSPOT_TRADE.BUY_SELL UND_FXSPOT_BUY_SELL,");
-			aliases.append("UND_FXSPOT_TRADE.CREATION_DATE UND_FXSPOT_CREATION_DATE,");
+			aliases.append("UND_FXSPOT_TRADE.CREATION_TIME UND_FXSPOT_CREATION_TIME,");
 			aliases.append("UND_FXSPOT_TRADE.TRADE_DATE UND_FXSPOT_TRADE_DATE,");
 			aliases.append("UND_FXSPOT_TRADE.SETTLEMENT_DATE UND_FXSPOT_SETTLEMENT_DATE,");
 			aliases.append("UND_FXSPOT_TRADE.PRODUCT_ID UND_FXSPOT_PRODUCT_ID,");
@@ -639,7 +678,7 @@ public class TradeSQL {
 
 			aliases.append("UND_IRSWAP_TRADE.ID UND_IRSWAP_ID,");
 			aliases.append("UND_IRSWAP_TRADE.BUY_SELL UND_IRSWAP_BUY_SELL,");
-			aliases.append("UND_IRSWAP_TRADE.CREATION_DATE UND_IRSWAP_CREATION_DATE,");
+			aliases.append("UND_IRSWAP_TRADE.CREATION_TIME UND_IRSWAP_CREATION_TIME,");
 			aliases.append("UND_IRSWAP_TRADE.TRADE_DATE UND_IRSWAP_TRADE_DATE,");
 			aliases.append("UND_IRSWAP_TRADE.SETTLEMENT_DATE UND_IRSWAP_SETTLEMENT_DATE,");
 			aliases.append("UND_IRSWAP_TRADE.PRODUCT_ID UND_IRSWAP_PRODUCT_ID,");
@@ -650,7 +689,7 @@ public class TradeSQL {
 
 			aliases.append("UND_IRFORWARD_TRADE.ID UND_IRFORWARD_ID,");
 			aliases.append("UND_IRFORWARD_TRADE.BUY_SELL UND_IRFORWARD_BUY_SELL,");
-			aliases.append("UND_IRFORWARD_TRADE.CREATION_DATE UND_IRFORWARD_CREATION_DATE,");
+			aliases.append("UND_IRFORWARD_TRADE.CREATION_TIME UND_IRFORWARD_CREATION_TIME,");
 			aliases.append("UND_IRFORWARD_TRADE.TRADE_DATE UND_IRFORWARD_TRADE_DATE,");
 			aliases.append("UND_IRFORWARD_TRADE.SETTLEMENT_DATE UND_IRFORWARD_SETTLEMENT_DATE,");
 			aliases.append("UND_IRFORWARD_TRADE.PRODUCT_ID UND_IRFORWARD_PRODUCT_ID,");
@@ -729,7 +768,7 @@ public class TradeSQL {
 
 			aliases.append("UND_EQUITY_TRADE.ID UND_EQUITY_ID,");
 			aliases.append("UND_EQUITY_TRADE.BUY_SELL UND_EQUITY_BUY_SELL,");
-			aliases.append("UND_EQUITY_TRADE.CREATION_DATE UND_EQUITY_CREATION_DATE,");
+			aliases.append("UND_EQUITY_TRADE.CREATION_TIME UND_EQUITY_CREATION_TIME,");
 			aliases.append("UND_EQUITY_TRADE.TRADE_DATE UND_EQUITY_TRADE_DATE,");
 			aliases.append("UND_EQUITY_TRADE.SETTLEMENT_DATE UND_EQUITY_SETTLEMENT_DATE,");
 			aliases.append("UND_EQUITY_TRADE.PRODUCT_ID UND_EQUITY_PRODUCT_ID,");
@@ -881,7 +920,7 @@ public class TradeSQL {
 
 			aliases.append("UND_FXSPOT_TRADE.ID UND_FXSPOT_ID,");
 			aliases.append("UND_FXSPOT_TRADE.BUY_SELL UND_FXSPOT_BUY_SELL,");
-			aliases.append("UND_FXSPOT_TRADE.CREATION_DATE UND_FXSPOT_CREATION_DATE,");
+			aliases.append("UND_FXSPOT_TRADE.CREATION_TIME UND_FXSPOT_CREATION_TIME,");
 			aliases.append("UND_FXSPOT_TRADE.TRADE_DATE UND_FXSPOT_TRADE_DATE,");
 			aliases.append("UND_FXSPOT_TRADE.SETTLEMENT_DATE UND_FXSPOT_SETTLEMENT_DATE,");
 			aliases.append("UND_FXSPOT_TRADE.PRODUCT_ID UND_FXSPOT_PRODUCT_ID,");
@@ -923,7 +962,7 @@ public class TradeSQL {
 
 			aliases.append("UND_IRFORWARD_TRADE.ID UND_IRFORWARD_ID,");
 			aliases.append("UND_IRFORWARD_TRADE.BUY_SELL UND_IRFORWARD_BUY_SELL,");
-			aliases.append("UND_IRFORWARD_TRADE.CREATION_DATE UND_IRFORWARD_CREATION_DATE,");
+			aliases.append("UND_IRFORWARD_TRADE.CREATION_TIME UND_IRFORWARD_CREATION_TIME,");
 			aliases.append("UND_IRFORWARD_TRADE.TRADE_DATE UND_IRFORWARD_TRADE_DATE,");
 			aliases.append("UND_IRFORWARD_TRADE.SETTLEMENT_DATE UND_IRFORWARD_SETTLEMENT_DATE,");
 			aliases.append("UND_IRFORWARD_TRADE.PRODUCT_ID UND_IRFORWARD_PRODUCT_ID,");
@@ -972,7 +1011,7 @@ public class TradeSQL {
 
 			aliases.append("UND_IRSWAP_TRADE.ID UND_IRSWAP_ID,");
 			aliases.append("UND_IRSWAP_TRADE.BUY_SELL UND_IRSWAP_BUY_SELL,");
-			aliases.append("UND_IRSWAP_TRADE.CREATION_DATE UND_IRSWAP_CREATION_DATE,");
+			aliases.append("UND_IRSWAP_TRADE.CREATION_TIME UND_IRSWAP_CREATION_TIME,");
 			aliases.append("UND_IRSWAP_TRADE.TRADE_DATE UND_IRSWAP_TRADE_DATE,");
 			aliases.append("UND_IRSWAP_TRADE.SETTLEMENT_DATE UND_IRSWAP_SETTLEMENT_DATE,");
 			aliases.append("UND_IRSWAP_TRADE.PRODUCT_ID UND_IRSWAP_PRODUCT_ID,");

@@ -10,8 +10,11 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -165,6 +168,8 @@ public final class TradistaGUIUtil {
 	private static final String WARNING_CSS_CLASS = "labelWarning";
 
 	private static final String ERROR_CSS_CLASS = "labelError";
+
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss z");
 
 	private static IndexBusinessDelegate indexBusinessDelegate = new IndexBusinessDelegate();
 
@@ -1555,6 +1560,15 @@ public final class TradistaGUIUtil {
 
 	public static String formatAmount(Object amount) {
 		return MathProperties.getUIDecimalFormat().format(amount);
+	}
+
+	public static String formatInstant(Instant instant) {
+		if (instant == null) {
+			return StringUtils.EMPTY;
+		}
+		// Default to system zone for the moment. The target is to define the time zone at the user's PO level
+		ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+		return zdt.format(DATE_TIME_FORMATTER);
 	}
 
 	public static List<String> formatAmounts(List<BigDecimal> amounts) {

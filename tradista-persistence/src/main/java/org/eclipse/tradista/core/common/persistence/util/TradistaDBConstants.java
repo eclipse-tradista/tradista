@@ -40,6 +40,7 @@ public final class TradistaDBConstants {
 	public static final String PROCESSING_ORG_ID = "PROCESSING_ORG_ID";
 	public static final String BOOK_ID = "BOOK_ID";
 	public static final String CREATION_DATE = "CREATION_DATE";
+	public static final String CREATION_TIME = "CREATION_TIME";
 	public static final String LAST_UPDATE_TIME = "LAST_UPDATE_TIME";
 	public static final String ERROR_ID = "ERROR_ID";
 	public static final String DATE = "DATE";
@@ -71,6 +72,11 @@ public final class TradistaDBConstants {
 	public static final String VALID_FROM = "VALID_FROM";
 	public static final String VALID_TO = "VALID_TO";
 	public static final String ENTERED_DATE = "ENTERED_DATE";
+	public static final String EXCHANGE_ID = "EXCHANGE_ID";
+	public static final String SYMBOL = "SYMBOL";
+	public static final String MATURITY_DATE = "MATURITY_DATE";
+	public static final String PRINCIPAL = "PRINCIPAL";
+	public static final String CALENDAR_ID = "CALENDAR_ID";
 
 	private TradistaDBConstants() {
 	}

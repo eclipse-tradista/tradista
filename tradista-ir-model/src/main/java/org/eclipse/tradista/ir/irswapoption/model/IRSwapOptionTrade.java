@@ -28,6 +28,20 @@ public class IRSwapOptionTrade extends VanillaOptionTrade<SingleCurrencyIRSwapTr
 
 	private static final long serialVersionUID = 8952352869490542697L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public IRSwapOptionTrade() {
+	}
+
+	protected IRSwapOptionTrade(Builder builder) {
+		super(builder);
+		this.cashSettlementAmount = builder.cashSettlementAmount;
+		this.alternativeCashSettlementReferenceRateIndex = builder.alternativeCashSettlementReferenceRateIndex;
+		this.alternativeCashSettlementReferenceRateIndexTenor = builder.alternativeCashSettlementReferenceRateIndexTenor;
+	}
+
 	public static final String IR_SWAP_OPTION = "IRSwapOption";
 
 	private BigDecimal cashSettlementAmount;
@@ -72,6 +86,56 @@ public class IRSwapOptionTrade extends VanillaOptionTrade<SingleCurrencyIRSwapTr
 		irSwapOptionTrade.alternativeCashSettlementReferenceRateIndex = TradistaModelUtil
 				.clone(alternativeCashSettlementReferenceRateIndex);
 		return irSwapOptionTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
+				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
+				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
+				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
+				.type(getType()).underlying(getUnderlying()).maturityDate(getMaturityDate())
+				.strike(getStrike()).settlementType(getSettlementType())
+				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate())
+				.style(getStyle()).cashSettlementAmount(this.cashSettlementAmount)
+				.alternativeCashSettlementReferenceRateIndex(this.alternativeCashSettlementReferenceRateIndex)
+				.alternativeCashSettlementReferenceRateIndexTenor(this.alternativeCashSettlementReferenceRateIndexTenor);
+		return builder;
+	}
+
+	public static class Builder extends
+			VanillaOptionTrade.Builder<SingleCurrencyIRSwapTrade, IRSwapOptionTrade, Builder> {
+		protected BigDecimal cashSettlementAmount;
+		protected Index alternativeCashSettlementReferenceRateIndex;
+		protected Tenor alternativeCashSettlementReferenceRateIndexTenor;
+
+		public Builder cashSettlementAmount(BigDecimal cashSettlementAmount) {
+			this.cashSettlementAmount = cashSettlementAmount;
+			return this;
+		}
+
+		public Builder alternativeCashSettlementReferenceRateIndex(
+				Index alternativeCashSettlementReferenceRateIndex) {
+			this.alternativeCashSettlementReferenceRateIndex = alternativeCashSettlementReferenceRateIndex;
+			return this;
+		}
+
+		public Builder alternativeCashSettlementReferenceRateIndexTenor(
+				Tenor alternativeCashSettlementReferenceRateIndexTenor) {
+			this.alternativeCashSettlementReferenceRateIndexTenor = alternativeCashSettlementReferenceRateIndexTenor;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public IRSwapOptionTrade build() {
+			return new IRSwapOptionTrade(this);
+		}
 	}
 
 }

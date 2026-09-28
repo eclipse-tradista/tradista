@@ -2,6 +2,7 @@ package org.eclipse.tradista.core.trade.ui.controller;
 
 import java.time.format.DateTimeFormatter;
 
+import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 
@@ -41,7 +42,7 @@ public class TradeProperty {
 		this.tradeDate.set(trade.getTradeDate().format(dtf));
 		this.productId.set(trade.getProductId());
 		this.productType.set(trade.getProductType());
-		this.creationDate.set(trade.getCreationDate().format(dtf));
+		this.creationDate.set(TradistaGUIUtil.formatInstant(trade.getCreationTime()));
 		this.counterparty.set(trade.getCounterparty().toString());
 	}
 

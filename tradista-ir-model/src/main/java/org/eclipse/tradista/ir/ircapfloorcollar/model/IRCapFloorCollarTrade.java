@@ -36,6 +36,20 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 
 	private static final long serialVersionUID = 2669121671559387940L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public IRCapFloorCollarTrade() {
+	}
+
+	protected IRCapFloorCollarTrade(Builder builder) {
+		super(builder);
+		this.capStrike = builder.capStrike;
+		this.floorStrike = builder.floorStrike;
+		this.irForwardTrade = builder.irForwardTrade;
+	}
+
 	private BigDecimal capStrike;
 
 	private BigDecimal floorStrike;
@@ -113,6 +127,49 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 		IRCapFloorCollarTrade irCapFloorCollarTrade = (IRCapFloorCollarTrade) super.clone();
 		irCapFloorCollarTrade.irForwardTrade = TradistaModelUtil.clone(irForwardTrade);
 		return irCapFloorCollarTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
+				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
+				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
+				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
+				.capStrike(this.capStrike).floorStrike(this.floorStrike)
+				.irForwardTrade(this.irForwardTrade);
+		return builder;
+	}
+
+	public static class Builder extends Trade.Builder<Product, IRCapFloorCollarTrade, Builder> {
+		protected BigDecimal capStrike;
+		protected BigDecimal floorStrike;
+		protected IRForwardTrade<Product> irForwardTrade;
+
+		public Builder capStrike(BigDecimal capStrike) {
+			this.capStrike = capStrike;
+			return this;
+		}
+
+		public Builder floorStrike(BigDecimal floorStrike) {
+			this.floorStrike = floorStrike;
+			return this;
+		}
+
+		public Builder irForwardTrade(IRForwardTrade<Product> irForwardTrade) {
+			this.irForwardTrade = irForwardTrade;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public IRCapFloorCollarTrade build() {
+			return new IRCapFloorCollarTrade(this);
+		}
 	}
 
 }

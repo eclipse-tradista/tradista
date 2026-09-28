@@ -27,6 +27,17 @@ public class SpecificRepoTrade extends RepoTrade {
 
 	private static final long serialVersionUID = 8452035320272812574L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public SpecificRepoTrade() {
+	}
+
+	protected SpecificRepoTrade(Builder builder) {
+		super(builder);
+	}
+
 	public static final String SPECIFIC_REPO = "SpecificRepo";
 
 	@Override
@@ -45,6 +56,39 @@ public class SpecificRepoTrade extends RepoTrade {
 
 	public void setSecurity(Security security) {
 		setProduct(security);
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
+				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
+				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
+				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
+				.repoRate(getRepoRate()).marginRate(getMarginRate()).index(getIndex())
+				.indexTenor(getIndexTenor()).indexOffset(getIndexOffset()).endDate(getEndDate())
+				.rightOfSubstitution(isRightOfSubstitution()).rightOfReuse(isRightOfReuse())
+				.crossCurrencyCollateral(isCrossCurrencyCollateral()).terminableOnDemand(isTerminableOnDemand())
+				.noticePeriod(getNoticePeriod()).collateralToAdd(getCollateralToAdd())
+				.collateralToRemove(getCollateralToRemove()).partialTerminations(getPartialTerminations());
+		return builder;
+	}
+
+	public static class Builder extends RepoTrade.Builder<SpecificRepoTrade, Builder> {
+		public Builder security(Security security) {
+			this.product = security;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public SpecificRepoTrade build() {
+			return new SpecificRepoTrade(this);
+		}
 	}
 
 }

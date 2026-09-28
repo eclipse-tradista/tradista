@@ -1,22 +1,26 @@
 package org.eclipse.tradista.security.equity.persistence;
 
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
+
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
-import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 
@@ -38,42 +42,54 @@ import org.eclipse.tradista.security.equity.model.EquityTrade;
 
 public class EquityTradeSQL {
 
+	private static final Field EQUITY_TRADE_ID_FIELD = new Field("EQUITY_TRADE_ID");
+	private static final Field QUANTITY_FIELD = new Field(TradistaDBConstants.QUANTITY);
+
+	private static final Field[] EQUITY_TRADE_FIELDS = { EQUITY_TRADE_ID_FIELD, QUANTITY_FIELD };
+
+	private static final Field[] EQUITY_TRADE_FIELDS_FOR_INSERT = { QUANTITY_FIELD, EQUITY_TRADE_ID_FIELD };
+
+	private static final Field[] EQUITY_TRADE_FIELDS_FOR_UPDATE = { QUANTITY_FIELD };
+
+	private static final Table EQUITY_TRADE_TABLE = new Table("EQUITY_TRADE", EQUITY_TRADE_FIELDS);
+
+	private static final Join TRADE_AND_EQUITY_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
+			EQUITY_TRADE_ID_FIELD);
+
+	private static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(EQUITY_TRADE_TABLE,
+			TRADE_AND_EQUITY_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, EQUITY_TRADE_TABLE, EQUITY_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_TRADE_ID_FIELD, EQUITY_TRADE_TABLE,
+				EQUITY_TRADE_FIELDS_FOR_UPDATE);
+	}
+
 	public static EquityTrade getTradeById(long id, boolean includeUnderlying) {
 		EquityTrade equityTrade = null;
-		String sql = "SELECT * FROM EQUITY_TRADE, TRADE WHERE "
-				+ "TRADE.ID = EQUITY_TRADE.EQUITY_TRADE_ID AND EQUITY_TRADE.EQUITY_TRADE_ID = ?";
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, EQUITY_TRADE_ID_FIELD);
 		if (!includeUnderlying) {
-			sql += " AND TRADE.TRADE_DATE IS NOT NULL";
+			TradistaDBUtil.addIsNotNullFilter(query, TradeSQL.TRADE_DATE_FIELD);
 		}
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = con.prepareStatement(sql)) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (equityTrade == null) {
 						equityTrade = new EquityTrade();
 					}
-					equityTrade.setProduct(EquitySQL.getEquityById(results.getLong("product_id")));
-					equityTrade.setAmount(results.getBigDecimal("amount"));
-					equityTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					equityTrade.setBuySell(results.getBoolean("buy_sell"));
-					equityTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					equityTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equityTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					equityTrade.setId(results.getLong("id"));
-					equityTrade.setQuantity(results.getBigDecimal("quantity"));
-					Date settlementDate = results.getDate("settlement_date");
-					if (settlementDate != null) {
-						equityTrade.setSettlementDate(settlementDate.toLocalDate());
-					}
-					Date tradeDate = results.getDate("trade_date");
-					if (tradeDate != null) {
-						equityTrade.setTradeDate(tradeDate.toLocalDate());
-					}
+					TradeSQL.setTradeCommonFields(equityTrade, results);
+					equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
+					equityTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
 				}
 			}
-		} catch (SQLException sqle) {
+		} catch (SQLException | TradistaBusinessException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityTrade;
@@ -83,35 +99,11 @@ public class EquityTradeSQL {
 		long tradeId = 0;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, PRODUCT_ID, COUNTERPARTY_ID, AMOUNT, BOOK_ID, SETTLEMENT_DATE, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, AMOUNT=?, BOOK_ID=?, SETTLEMENT_DATE=? WHERE ID = ?");
-				PreparedStatement stmtSaveEquityTrade = (trade.getId() == 0)
-						? con.prepareStatement("INSERT INTO EQUITY_TRADE(QUANTITY, EQUITY_TRADE_ID) VALUES (?, ?) ")
-						: con.prepareStatement("UPDATE EQUITY_TRADE SET QUANTITY = ? WHERE EQUITY_TRADE_ID = ?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(8, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(8, trade.getId());
-			}
-			stmtSaveTrade.setBoolean(1, isBuy);
-			if (trade.getTradeDate() == null) {
-				stmtSaveTrade.setNull(2, java.sql.Types.DATE);
-			} else {
-				stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			}
-			stmtSaveTrade.setLong(3, trade.getProductId());
-			stmtSaveTrade.setLong(4, trade.getCounterparty().getId());
-			stmtSaveTrade.setBigDecimal(5, trade.getAmount());
-			stmtSaveTrade.setLong(6, trade.getBook().getId());
-			if (trade.getSettlementDate() == null) {
-				stmtSaveTrade.setNull(7, java.sql.Types.DATE);
-			} else {
-				stmtSaveTrade.setDate(7, java.sql.Date.valueOf(trade.getSettlementDate()));
-			}
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveEquityTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -129,7 +121,7 @@ public class EquityTradeSQL {
 			stmtSaveEquityTrade.setBigDecimal(1, trade.getQuantity());
 			stmtSaveEquityTrade.setLong(2, tradeId);
 			stmtSaveEquityTrade.executeUpdate();
-		} catch (SQLException sqle) {
+		} catch (SQLException | TradistaBusinessException sqle) {
 			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
@@ -150,7 +142,7 @@ public class EquityTradeSQL {
 				return null;
 			}
 			equityTrade = new EquityTrade();
-			equityTrade.setProduct(EquitySQL.getEquityById(rs.getLong("product_id")));
+			equityTrade.setProduct(EquitySQL.getEquityById(rs.getLong(PRODUCT_ID_FIELD.getName())));
 			equityTrade.setQuantity(rs.getBigDecimal("equity_quantity"));
 
 			// Commmon fields
@@ -168,44 +160,32 @@ public class EquityTradeSQL {
 			long bookId) {
 		List<EquityTrade> equityTrades = null;
 
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addIsNotNullFilter(query, TradeSQL.TRADE_DATE_FIELD);
+		TradistaDBUtil.addFilter(query, TradeSQL.TRADE_DATE_FIELD, date, false);
+
+		if (equityId > 0) {
+			TradistaDBUtil.addFilter(query, TradeSQL.PRODUCT_ID_FIELD, equityId);
+		}
+		if (bookId > 0) {
+			TradistaDBUtil.addFilter(query, TradeSQL.BOOK_ID_FIELD, bookId);
+		}
+
 		try (Connection con = TradistaDB.getConnection();
-				Statement stmtGetTradesBeforeTradeDate = con.createStatement()) {
-			String query = "SELECT * FROM EQUITY_TRADE, TRADE WHERE "
-					+ "TRADE.ID = EQUITY_TRADE.EQUITY_TRADE_ID AND TRADE_DATE IS NOT NULL AND TRADE_DATE <= '"
-					+ DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(date)
-					+ "'";
+				Statement stmtGetTradesBeforeTradeDate = con.createStatement();
+				ResultSet results = stmtGetTradesBeforeTradeDate.executeQuery(query.toString())) {
 
-			if (equityId > 0) {
-				query += " AND TRADE.PRODUCT_ID = " + equityId;
-			}
-			if (bookId > 0) {
-				query += " AND TRADE.BOOK_ID = " + bookId;
-			}
-
-			try (ResultSet results = stmtGetTradesBeforeTradeDate.executeQuery(query)) {
-
-				while (results.next()) {
-					if (equityTrades == null) {
-						equityTrades = new ArrayList<>();
-					}
-					EquityTrade equityTrade = new EquityTrade();
-					equityTrade.setProduct(EquitySQL.getEquityById(results.getLong("product_id")));
-					equityTrade.setAmount(results.getBigDecimal("amount"));
-					equityTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					equityTrade.setBuySell(results.getBoolean("buy_sell"));
-					equityTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					equityTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equityTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					equityTrade.setId(results.getLong("id"));
-					equityTrade.setQuantity(results.getBigDecimal("quantity"));
-					equityTrade.setSettlementDate(results.getDate("settlement_date").toLocalDate());
-					equityTrade.setTradeDate(results.getDate("trade_date").toLocalDate());
-					equityTrades.add(equityTrade);
+			while (results.next()) {
+				if (equityTrades == null) {
+					equityTrades = new ArrayList<>();
 				}
+				EquityTrade equityTrade = new EquityTrade();
+				TradeSQL.setTradeCommonFields(equityTrade, results);
+				equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
+				equityTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
+				equityTrades.add(equityTrade);
 			}
-		} catch (SQLException sqle) {
+		} catch (SQLException | TradistaBusinessException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityTrades;

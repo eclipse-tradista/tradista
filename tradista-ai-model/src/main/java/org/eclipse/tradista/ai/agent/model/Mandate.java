@@ -3,10 +3,12 @@ package org.eclipse.tradista.ai.agent.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TimestampedObject;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -27,11 +29,8 @@ import org.eclipse.tradista.core.currency.model.Currency;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class Mandate extends TradistaObject {
+public class Mandate extends TimestampedObject {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3997175280523902567L;
 
 	public static enum RiskLevel {
@@ -56,8 +55,6 @@ public class Mandate extends TradistaObject {
 
 	private RiskLevel acceptedRiskLevel;
 
-	private LocalDateTime creationDateTime;
-
 	private LocalDate startDate;
 
 	private LocalDate endDate;
@@ -77,9 +74,6 @@ public class Mandate extends TradistaObject {
 
 	public class Allocation extends TradistaObject {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -8335133920081352601L;
 
 		private short minAllocation;
@@ -103,8 +97,49 @@ public class Mandate extends TradistaObject {
 		}
 	}
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public Mandate(String name) {
 		this.name = name;
+	}
+
+	protected Mandate(Builder builder) {
+		super(builder);
+		this.name = builder.name;
+		this.acceptedRiskLevel = builder.acceptedRiskLevel;
+		this.startDate = builder.startDate;
+		this.endDate = builder.endDate;
+		this.productTypeAllocations = builder.productTypeAllocations;
+		this.currencyAllocations = builder.currencyAllocations;
+		this.initialCashAmount = builder.initialCashAmount;
+		this.initialCashCurrency = builder.initialCashCurrency;
+		this.book = builder.book;
+	}
+
+	/**
+	 * @deprecated use {@link #getCreationTime()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public LocalDateTime getCreationDateTime() {
+		if (getCreationTime() == null) {
+			return null;
+		}
+		return LocalDateTime.ofInstant(getCreationTime(), ZoneId.systemDefault());
+	}
+
+	/**
+	 * @deprecated creation time is automatically managed. Use
+	 *             {@link Builder#creationTime(java.time.Instant)} if needed during construction.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public void setCreationDateTime(LocalDateTime creationDateTime) {
+		if (creationDateTime == null) {
+			setCreationTime(null);
+		} else {
+			setCreationTime(creationDateTime.atZone(ZoneId.systemDefault()).toInstant());
+		}
 	}
 
 	public RiskLevel getAcceptedRiskLevel() {
@@ -113,14 +148,6 @@ public class Mandate extends TradistaObject {
 
 	public void setAcceptedRiskLevel(RiskLevel acceptedRiskLevel) {
 		this.acceptedRiskLevel = acceptedRiskLevel;
-	}
-
-	public LocalDateTime getCreationDateTime() {
-		return creationDateTime;
-	}
-
-	public void setCreationDateTime(LocalDateTime creationDateTime) {
-		this.creationDateTime = creationDateTime;
 	}
 
 	public LocalDate getStartDate() {
@@ -183,6 +210,81 @@ public class Mandate extends TradistaObject {
 
 	public void setEndDate(LocalDate endDate) {
 		this.endDate = endDate;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder(this.name).id(this.getId()).acceptedRiskLevel(this.acceptedRiskLevel)
+				.startDate(this.startDate).endDate(this.endDate).productTypeAllocations(this.productTypeAllocations)
+				.currencyAllocations(this.currencyAllocations).initialCashAmount(this.initialCashAmount)
+				.initialCashCurrency(this.initialCashCurrency).book(this.book).creationTime(this.getCreationTime())
+				.lastUpdateTime(this.getLastUpdateTime());
+	}
+
+	public static class Builder extends TimestampedObject.Builder<Mandate, Builder> {
+		protected String name;
+		protected RiskLevel acceptedRiskLevel;
+		protected LocalDate startDate;
+		protected LocalDate endDate;
+		protected Map<String, Allocation> productTypeAllocations;
+		protected Map<String, Allocation> currencyAllocations;
+		protected BigDecimal initialCashAmount;
+		protected Currency initialCashCurrency;
+		protected Book book;
+
+		public Builder(String name) {
+			this.name = name;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public Mandate build() {
+			return new Mandate(this);
+		}
+
+		public Builder acceptedRiskLevel(RiskLevel acceptedRiskLevel) {
+			this.acceptedRiskLevel = acceptedRiskLevel;
+			return this;
+		}
+
+		public Builder startDate(LocalDate startDate) {
+			this.startDate = startDate;
+			return this;
+		}
+
+		public Builder endDate(LocalDate endDate) {
+			this.endDate = endDate;
+			return this;
+		}
+
+		public Builder productTypeAllocations(Map<String, Allocation> productTypeAllocations) {
+			this.productTypeAllocations = productTypeAllocations;
+			return this;
+		}
+
+		public Builder currencyAllocations(Map<String, Allocation> currencyAllocations) {
+			this.currencyAllocations = currencyAllocations;
+			return this;
+		}
+
+		public Builder initialCashAmount(BigDecimal initialCashAmount) {
+			this.initialCashAmount = initialCashAmount;
+			return this;
+		}
+
+		public Builder initialCashCurrency(Currency initialCashCurrency) {
+			this.initialCashCurrency = initialCashCurrency;
+			return this;
+		}
+
+		public Builder book(Book book) {
+			this.book = book;
+			return this;
+		}
 	}
 
 	@SuppressWarnings("unchecked")

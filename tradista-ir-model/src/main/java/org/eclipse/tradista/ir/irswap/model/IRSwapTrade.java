@@ -31,6 +31,35 @@ public abstract class IRSwapTrade extends Trade<Product> {
 
 	private static final long serialVersionUID = -6188291608649255466L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public IRSwapTrade() {
+	}
+
+	protected IRSwapTrade(Builder<?, ?> builder) {
+		super(builder);
+		this.maturityDate = builder.maturityDate;
+		this.maturityTenor = builder.maturityTenor;
+		this.paymentFrequency = builder.paymentFrequency;
+		this.receptionFrequency = builder.receptionFrequency;
+		this.paymentInterestPayment = builder.paymentInterestPayment;
+		this.receptionInterestPayment = builder.receptionInterestPayment;
+		this.paymentInterestFixing = builder.paymentInterestFixing;
+		this.receptionInterestFixing = builder.receptionInterestFixing;
+		this.paymentReferenceRateIndexTenor = builder.paymentReferenceRateIndexTenor;
+		this.receptionReferenceRateIndexTenor = builder.receptionReferenceRateIndexTenor;
+		this.receptionReferenceRateIndex = builder.receptionReferenceRateIndex;
+		this.paymentReferenceRateIndex = builder.paymentReferenceRateIndex;
+		this.paymentSpread = builder.paymentSpread;
+		this.receptionSpread = builder.receptionSpread;
+		this.paymentFixedInterestRate = builder.paymentFixedInterestRate;
+		this.interestsToPayFixed = builder.interestsToPayFixed;
+		this.paymentDayCountConvention = builder.paymentDayCountConvention;
+		this.receptionDayCountConvention = builder.receptionDayCountConvention;
+	}
+
 	public static final String IR_SWAP = "IRSwap";
 
 	protected LocalDate maturityDate;
@@ -219,6 +248,118 @@ public abstract class IRSwapTrade extends Trade<Product> {
 		irSwapTrade.receptionReferenceRateIndex = TradistaModelUtil.clone(receptionReferenceRateIndex);
 		irSwapTrade.paymentReferenceRateIndex = TradistaModelUtil.clone(paymentReferenceRateIndex);
 		return irSwapTrade;
+	}
+
+	public abstract static class Builder<T extends IRSwapTrade, B extends Builder<T, B>>
+			extends Trade.Builder<Product, T, B> {
+		protected LocalDate maturityDate;
+		protected Tenor maturityTenor;
+		protected Tenor paymentFrequency;
+		protected Tenor receptionFrequency;
+		protected InterestPayment paymentInterestPayment;
+		protected InterestPayment receptionInterestPayment;
+		protected InterestPayment paymentInterestFixing;
+		protected InterestPayment receptionInterestFixing;
+		protected Tenor paymentReferenceRateIndexTenor;
+		protected Tenor receptionReferenceRateIndexTenor;
+		protected Index receptionReferenceRateIndex;
+		protected Index paymentReferenceRateIndex;
+		protected BigDecimal paymentSpread;
+		protected BigDecimal receptionSpread;
+		protected BigDecimal paymentFixedInterestRate;
+		protected boolean interestsToPayFixed;
+		protected DayCountConvention paymentDayCountConvention;
+		protected DayCountConvention receptionDayCountConvention;
+
+		public B maturityDate(LocalDate maturityDate) {
+			this.maturityDate = maturityDate;
+			return self();
+		}
+
+		public B maturityTenor(Tenor maturityTenor) {
+			this.maturityTenor = maturityTenor;
+			return self();
+		}
+
+		public B paymentFrequency(Tenor paymentFrequency) {
+			this.paymentFrequency = paymentFrequency;
+			return self();
+		}
+
+		public B receptionFrequency(Tenor receptionFrequency) {
+			this.receptionFrequency = receptionFrequency;
+			return self();
+		}
+
+		public B paymentInterestPayment(InterestPayment paymentInterestPayment) {
+			this.paymentInterestPayment = paymentInterestPayment;
+			return self();
+		}
+
+		public B receptionInterestPayment(InterestPayment receptionInterestPayment) {
+			this.receptionInterestPayment = receptionInterestPayment;
+			return self();
+		}
+
+		public B paymentInterestFixing(InterestPayment paymentInterestFixing) {
+			this.paymentInterestFixing = paymentInterestFixing;
+			return self();
+		}
+
+		public B receptionInterestFixing(InterestPayment receptionInterestFixing) {
+			this.receptionInterestFixing = receptionInterestFixing;
+			return self();
+		}
+
+		public B paymentReferenceRateIndexTenor(Tenor paymentReferenceRateIndexTenor) {
+			this.paymentReferenceRateIndexTenor = paymentReferenceRateIndexTenor;
+			return self();
+		}
+
+		public B receptionReferenceRateIndexTenor(Tenor receptionReferenceRateIndexTenor) {
+			this.receptionReferenceRateIndexTenor = receptionReferenceRateIndexTenor;
+			return self();
+		}
+
+		public B receptionReferenceRateIndex(Index receptionReferenceRateIndex) {
+			this.receptionReferenceRateIndex = receptionReferenceRateIndex;
+			return self();
+		}
+
+		public B paymentReferenceRateIndex(Index paymentReferenceRateIndex) {
+			this.paymentReferenceRateIndex = paymentReferenceRateIndex;
+			return self();
+		}
+
+		public B paymentSpread(BigDecimal paymentSpread) {
+			this.paymentSpread = paymentSpread;
+			return self();
+		}
+
+		public B receptionSpread(BigDecimal receptionSpread) {
+			this.receptionSpread = receptionSpread;
+			return self();
+		}
+
+		public B paymentFixedInterestRate(BigDecimal paymentFixedInterestRate) {
+			this.paymentFixedInterestRate = paymentFixedInterestRate;
+			return self();
+		}
+
+		public B interestsToPayFixed(boolean interestsToPayFixed) {
+			this.interestsToPayFixed = interestsToPayFixed;
+			return self();
+		}
+
+		public B paymentDayCountConvention(DayCountConvention paymentDayCountConvention) {
+			this.paymentDayCountConvention = paymentDayCountConvention;
+			return self();
+		}
+
+		public B receptionDayCountConvention(DayCountConvention receptionDayCountConvention) {
+			this.receptionDayCountConvention = receptionDayCountConvention;
+			return self();
+		}
 	}
 
 }

@@ -25,16 +25,28 @@ import org.eclipse.tradista.core.trade.model.Trade;
 
 public class ProductTransfer extends Transfer {
 
+	private static final long serialVersionUID = 3528142875953447004L;
+
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public ProductTransfer(Book book, TransferPurpose purpose, LocalDate settlementDate, Trade<?> trade) {
 		super(book, null, purpose, settlementDate, trade);
 	}
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public ProductTransfer(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate,
 			Trade<?> trade) {
 		super(book, product, purpose, settlementDate, trade);
 	}
 
-	private static final long serialVersionUID = 3528142875953447004L;
+	protected ProductTransfer(Builder builder) {
+		super(builder);
+	}
 
 	public BigDecimal getQuantity() {
 		return quantityOrAmount;
@@ -47,6 +59,41 @@ public class ProductTransfer extends Transfer {
 	@Override
 	public Type getType() {
 		return Transfer.Type.PRODUCT;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder(getBook(), getProduct(), getPurpose(), getSettlementDate());
+		builder.id(getId()).status(getStatus()).direction(getDirection()).quantityOrAmount(getQuantity())
+				.trade(getTrade()).fixingDateTime(getFixingDateTime()).creationTime(getCreationTime())
+				.lastUpdateTime(getLastUpdateTime());
+		return builder;
+	}
+
+	public static class Builder extends Transfer.Builder<ProductTransfer, Builder> {
+
+		public Builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate) {
+			this.book = book;
+			this.product = product;
+			this.purpose = purpose;
+			this.settlementDate = settlementDate;
+		}
+
+		public Builder(Book book, TransferPurpose purpose, LocalDate settlementDate) {
+			this.book = book;
+			this.purpose = purpose;
+			this.settlementDate = settlementDate;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public ProductTransfer build() {
+			return new ProductTransfer(this);
+		}
 	}
 
 }

@@ -3,12 +3,14 @@ package org.eclipse.tradista.core.transfer.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.common.model.Segregable;
+import org.eclipse.tradista.core.common.model.TimestampedObject;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
-import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.trade.model.Trade;
 
@@ -28,7 +30,7 @@ import org.eclipse.tradista.core.trade.model.Trade;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Transfer extends TradistaObject implements Segregable {
+public abstract class Transfer extends TimestampedObject implements Segregable {
 
 	private static final long serialVersionUID = 3471863038215096341L;
 
@@ -148,8 +150,6 @@ public abstract class Transfer extends TradistaObject implements Segregable {
 	@Id
 	private Trade<?> trade;
 
-	private LocalDateTime creationDateTime;
-
 	private LocalDateTime fixingDateTime;
 
 	@Id
@@ -161,6 +161,10 @@ public abstract class Transfer extends TradistaObject implements Segregable {
 	@Id
 	private Book book;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	protected Transfer(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate, Trade<?> trade) {
 		this.book = book;
 		this.product = product;
@@ -173,6 +177,24 @@ public abstract class Transfer extends TradistaObject implements Segregable {
 			}
 		}
 	}
+
+	protected Transfer(Builder<?, ?> builder) {
+		super(builder);
+		this.status = builder.status;
+		this.purpose = builder.purpose;
+		this.direction = builder.direction;
+		this.quantityOrAmount = builder.quantityOrAmount;
+		this.trade = builder.trade;
+		this.fixingDateTime = builder.fixingDateTime;
+		this.settlementDate = builder.settlementDate;
+		this.product = builder.product;
+		this.book = builder.book;
+		if (this.product == null && this.trade != null) {
+			this.product = this.trade.getProduct();
+		}
+	}
+
+	public abstract Builder<?, ?> toBuilder();
 
 	public Product getProduct() {
 		return TradistaModelUtil.clone(product);
@@ -200,20 +222,36 @@ public abstract class Transfer extends TradistaObject implements Segregable {
 		return TradistaModelUtil.clone(trade);
 	}
 
-	public LocalDateTime getCreationDateTime() {
-		return creationDateTime;
-	}
-
-	public void setCreationDateTime(LocalDateTime creationDateTime) {
-		this.creationDateTime = creationDateTime;
-	}
-
 	public LocalDateTime getFixingDateTime() {
 		return fixingDateTime;
 	}
 
 	public void setFixingDateTime(LocalDateTime fixingDateTime) {
 		this.fixingDateTime = fixingDateTime;
+	}
+
+	/**
+	 * @deprecated use {@link #getCreationTime()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public LocalDateTime getCreationDateTime() {
+		if (getCreationTime() == null) {
+			return null;
+		}
+		return LocalDateTime.ofInstant(getCreationTime(), ZoneId.systemDefault());
+	}
+
+	/**
+	 * @deprecated creation time is automatically managed. Use
+	 *             {@link Builder#creationTime(java.time.Instant)} if needed during construction.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public void setCreationDateTime(LocalDateTime creationDateTime) {
+		if (creationDateTime == null) {
+			setCreationTime(null);
+		} else {
+			setCreationTime(creationDateTime.atZone(ZoneId.systemDefault()).toInstant());
+		}
 	}
 
 	public LocalDate getSettlementDate() {
@@ -229,7 +267,7 @@ public abstract class Transfer extends TradistaObject implements Segregable {
 	}
 
 	@Override
-	public org.eclipse.tradista.core.legalentity.model.LegalEntity getProcessingOrg() {
+	public LegalEntity getProcessingOrg() {
 		return book != null ? book.getProcessingOrg() : null;
 	}
 
@@ -248,6 +286,64 @@ public abstract class Transfer extends TradistaObject implements Segregable {
 
 	public boolean isProduct() {
 		return getType() == Type.PRODUCT;
+	}
+
+	public abstract static class Builder<T extends Transfer, B extends Builder<T, B>>
+			extends TimestampedObject.Builder<T, B> {
+		protected Status status;
+		protected TransferPurpose purpose;
+		protected Direction direction;
+		protected BigDecimal quantityOrAmount;
+		protected Trade<?> trade;
+		protected LocalDateTime fixingDateTime;
+		protected LocalDate settlementDate;
+		protected Product product;
+		protected Book book;
+
+		public B status(Status status) {
+			this.status = status;
+			return self();
+		}
+
+		public B purpose(TransferPurpose purpose) {
+			this.purpose = purpose;
+			return self();
+		}
+
+		public B direction(Direction direction) {
+			this.direction = direction;
+			return self();
+		}
+
+		public B quantityOrAmount(BigDecimal quantityOrAmount) {
+			this.quantityOrAmount = quantityOrAmount;
+			return self();
+		}
+
+		public B trade(Trade<?> trade) {
+			this.trade = trade;
+			return self();
+		}
+
+		public B fixingDateTime(LocalDateTime fixingDateTime) {
+			this.fixingDateTime = fixingDateTime;
+			return self();
+		}
+
+		public B settlementDate(LocalDate settlementDate) {
+			this.settlementDate = settlementDate;
+			return self();
+		}
+
+		public B product(Product product) {
+			this.product = product;
+			return self();
+		}
+
+		public B book(Book book) {
+			this.book = book;
+			return self();
+		}
 	}
 
 }

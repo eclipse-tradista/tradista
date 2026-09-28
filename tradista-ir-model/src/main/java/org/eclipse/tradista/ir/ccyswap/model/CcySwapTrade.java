@@ -34,6 +34,19 @@ public class CcySwapTrade extends IRSwapTrade {
 
 	private static final long serialVersionUID = -6188291608649255466L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public CcySwapTrade() {
+	}
+
+	protected CcySwapTrade(Builder builder) {
+		super(builder);
+		this.currencyTwo = builder.currencyTwo;
+		this.notionalAmountTwo = builder.notionalAmountTwo;
+	}
+
 	public static final String CCY_SWAP = "CcySwap";
 
 	private Currency currencyTwo;
@@ -65,6 +78,57 @@ public class CcySwapTrade extends IRSwapTrade {
 		CcySwapTrade ccySwapTrade = (CcySwapTrade) super.clone();
 		ccySwapTrade.currencyTwo = TradistaModelUtil.clone(currencyTwo);
 		return ccySwapTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
+				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
+				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
+				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
+				.maturityDate(this.maturityDate).maturityTenor(this.maturityTenor)
+				.paymentFrequency(this.paymentFrequency).receptionFrequency(this.receptionFrequency)
+				.paymentInterestPayment(this.paymentInterestPayment)
+				.receptionInterestPayment(this.receptionInterestPayment)
+				.paymentInterestFixing(this.paymentInterestFixing)
+				.receptionInterestFixing(this.receptionInterestFixing)
+				.paymentReferenceRateIndexTenor(this.paymentReferenceRateIndexTenor)
+				.receptionReferenceRateIndexTenor(this.receptionReferenceRateIndexTenor)
+				.receptionReferenceRateIndex(this.receptionReferenceRateIndex)
+				.paymentReferenceRateIndex(this.paymentReferenceRateIndex)
+				.paymentSpread(this.paymentSpread).receptionSpread(this.receptionSpread)
+				.paymentFixedInterestRate(this.paymentFixedInterestRate)
+				.interestsToPayFixed(this.interestsToPayFixed)
+				.paymentDayCountConvention(this.paymentDayCountConvention)
+				.receptionDayCountConvention(this.receptionDayCountConvention)
+				.currencyTwo(this.currencyTwo).notionalAmountTwo(this.notionalAmountTwo);
+		return builder;
+	}
+
+	public static class Builder extends IRSwapTrade.Builder<CcySwapTrade, Builder> {
+		protected Currency currencyTwo;
+		protected BigDecimal notionalAmountTwo;
+
+		public Builder currencyTwo(Currency currencyTwo) {
+			this.currencyTwo = currencyTwo;
+			return this;
+		}
+
+		public Builder notionalAmountTwo(BigDecimal notionalAmountTwo) {
+			this.notionalAmountTwo = notionalAmountTwo;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public CcySwapTrade build() {
+			return new CcySwapTrade(this);
+		}
 	}
 
 }

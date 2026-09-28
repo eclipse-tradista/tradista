@@ -53,15 +53,15 @@ public class FutureTradeServiceBean implements FutureTradeService {
 	@ProductScope(value = Future.FUTURE, mode = ProductScopeMode.ON_CREATION)
 	@Override
 	public long saveFutureTrade(@CheckTradeAccess FutureTrade trade) throws TradistaBusinessException {
-		tradeService.checkTradeBasics(trade);
-
 		FutureTradeEvent event = new FutureTradeEvent();
 
-		if (trade.getProduct().getId() == 0) {
+		if (trade.getProduct() != null && trade.getProduct().getId() == 0) {
 			Future future = trade.getProduct();
 			future.setId(futureService.saveFuture(trade.getProduct()));
 			trade.setProduct(future);
 		}
+
+		tradeService.checkTradeBasics(trade);
 
 		if (trade.getId() != 0) {
 			FutureTrade oldTrade = FutureTradeSQL.getTradeById(trade.getId());

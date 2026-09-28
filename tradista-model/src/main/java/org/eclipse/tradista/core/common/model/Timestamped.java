@@ -1,10 +1,9 @@
-package org.eclipse.tradista.core.product.model;
+package org.eclipse.tradista.core.common.model;
 
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.tradista.core.exchange.model.Exchange;
+import java.time.Instant;
 
 /********************************************************************************
- * Copyright (c) 2021 Olivier Asuncion
+ * Copyright (c) 2026 Olivier Asuncion
  * 
  * This program and the accompanying materials are made available under the
  * terms of the Apache License, Version 2.0 which is available at
@@ -19,33 +18,10 @@ import org.eclipse.tradista.core.exchange.model.Exchange;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public final class BlankProduct extends Product {
+public interface Timestamped {
 
-	private static final long serialVersionUID = 7008346502067185499L;
+	Instant getCreationTime();
 
-	private static final BlankProduct instance = new BlankProduct();
-
-	private BlankProduct() {
-		super((Exchange) null);
-	}
-
-	public static BlankProduct getInstance() {
-		return instance;
-	}
-
-	@Override
-	public Builder<?, ?> toBuilder() {
-		return null;
-	}
-
-	@Override
-	public String getProductType() {
-		return StringUtils.EMPTY;
-	}
-
-	@Override
-	public String toString() {
-		return StringUtils.EMPTY;
-	}
+	Instant getLastUpdateTime();
 
 }

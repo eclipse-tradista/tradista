@@ -1,18 +1,33 @@
 package org.eclipse.tradista.security.equityoption.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CODE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.security.equity.persistence.EquitySQL;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
@@ -35,23 +50,62 @@ import org.eclipse.tradista.security.equityoption.model.EquityOption;
 
 public class EquityOptionSQL {
 
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
+
+	private static final Field EQUITY_OPTION_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
+	private static final Field CODE_FIELD = new Field(CODE);
+	private static final Field TYPE_FIELD = new Field(TYPE);
+	private static final Field STRIKE_FIELD = new Field("STRIKE");
+	private static final Field EQUITY_ID_FIELD = new Field("EQUITY_ID");
+	private static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
+	private static final Field EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD = new Field(
+			"EQUITY_OPTION_CONTRACT_SPECIFICATION_ID");
+
+	private static final Field[] EQUITY_OPTION_FIELDS = { CODE_FIELD, TYPE_FIELD, STRIKE_FIELD, EQUITY_ID_FIELD,
+			MATURITY_DATE_FIELD, EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD, EQUITY_OPTION_PRODUCT_ID_FIELD };
+	public static final Table EQUITY_OPTION_TABLE = new Table("EQUITY_OPTION", EQUITY_OPTION_FIELDS);
+
+	private static final Field[] EQUITY_OPTION_FIELDS_FOR_UPDATE = { CODE_FIELD, TYPE_FIELD, STRIKE_FIELD,
+			EQUITY_ID_FIELD, MATURITY_DATE_FIELD, EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD };
+
+	private static final Field CONTRACT_SPEC_ID_FIELD = new Field(ID);
+	private static final Field CONTRACT_SPEC_NAME_FIELD = new Field(NAME);
+	private static final Field[] CONTRACT_SPEC_FIELDS = { CONTRACT_SPEC_ID_FIELD, CONTRACT_SPEC_NAME_FIELD };
+	public static final Table EQUITY_OPTION_CONTRACT_SPECIFICATION_TABLE = new Table(
+			"EQUITY_OPTION_CONTRACT_SPECIFICATION", CONTRACT_SPEC_FIELDS);
+
+	private static final Join EQUITY_OPTION_PRODUCT_JOIN = Join.innerEq(ProductSQL.PRODUCT_TABLE,
+			EQUITY_OPTION_PRODUCT_ID_FIELD, ProductSQL.ID_FIELD);
+
+	private static final String BASE_SELECT_QUERY = TradistaDBUtil.buildSelectQuery(EQUITY_OPTION_TABLE,
+			EQUITY_OPTION_PRODUCT_JOIN);
+
 	public static long saveEquityOption(EquityOption equityOption) {
 		long productId = 0;
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveProduct = (equityOption.getId() == 0)
-						? con.prepareStatement("INSERT INTO PRODUCT(CREATION_DATE, EXCHANGE_ID) VALUES (?, ?) ",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement("UPDATE PRODUCT SET CREATION_DATE=?, EXCHANGE_ID=? WHERE ID=?");
-				PreparedStatement stmtSaveEquityOption = (equityOption.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO EQUITY_OPTION(CODE, TYPE, STRIKE, EQUITY_ID, MATURITY_DATE, EQUITY_OPTION_CONTRACT_SPECIFICATION_ID, PRODUCT_ID) VALUES (?, ?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE EQUITY_OPTION SET CODE=?, TYPE=?, STRIKE=?, EQUITY_ID=?, MATURITY_DATE=?, EQUITY_OPTION_CONTRACT_SPECIFICATION_ID=? WHERE PRODUCT_ID=?")) {
-			if (equityOption.getId() != 0) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, ProductSQL.PRODUCT_TABLE,
+								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
+								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveEquityOption = (equityOption.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, EQUITY_OPTION_TABLE, EQUITY_OPTION_FIELDS)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_OPTION_PRODUCT_ID_FIELD,
+								EQUITY_OPTION_TABLE, EQUITY_OPTION_FIELDS_FOR_UPDATE)) {
+			if (equityOption.getId() == 0) {
+				stmtSaveProduct.setTimestamp(1,
+						Timestamp.from(equityOption.getCreationTime() != null ? equityOption.getCreationTime()
+								: Instant.now()));
+				stmtSaveProduct.setTimestamp(2,
+						Timestamp.from(equityOption.getLastUpdateTime() != null ? equityOption.getLastUpdateTime()
+								: Instant.now()));
+				stmtSaveProduct.setLong(3, equityOption.getExchange().getId());
+			} else {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));
+				stmtSaveProduct.setLong(2, equityOption.getExchange().getId());
 				stmtSaveProduct.setLong(3, equityOption.getId());
 			}
-			stmtSaveProduct.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
-			stmtSaveProduct.setLong(2, equityOption.getExchange().getId());
 			stmtSaveProduct.executeUpdate();
 
 			if (equityOption.getId() == 0) {
@@ -70,13 +124,12 @@ public class EquityOptionSQL {
 			stmtSaveEquityOption.setString(2, equityOption.getType().name());
 			stmtSaveEquityOption.setBigDecimal(3, equityOption.getStrike());
 			stmtSaveEquityOption.setLong(4, equityOption.getUnderlying().getId());
-			stmtSaveEquityOption.setDate(5, java.sql.Date.valueOf(equityOption.getMaturityDate()));
+			stmtSaveEquityOption.setDate(5, Date.valueOf(equityOption.getMaturityDate()));
 			stmtSaveEquityOption.setLong(6, equityOption.getEquityOptionContractSpecification().getId());
 			stmtSaveEquityOption.setLong(7, productId);
 			stmtSaveEquityOption.executeUpdate();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		equityOption.setId(productId);
@@ -85,30 +138,23 @@ public class EquityOptionSQL {
 
 	public static Set<EquityOption> getEquityOptionsByCreationDate(LocalDate date) {
 		Set<EquityOption> equityOptions = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, CREATION_TIME_FIELD, true);
+		TradistaDBUtil.addParameterizedFilter(sql, CREATION_TIME_FIELD, false);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityOptionsByCreationDate = con
-						.prepareStatement("SELECT * FROM EQUITY_OPTION, PRODUCT WHERE "
-								+ "EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID AND CREATION_DATE = ? ")) {
-			stmtGetEquityOptionsByCreationDate.setDate(1, java.sql.Date.valueOf(date));
+				PreparedStatement stmtGetEquityOptionsByCreationDate = con.prepareStatement(sql.toString())) {
+			stmtGetEquityOptionsByCreationDate.setTimestamp(1, Timestamp.valueOf(date.atStartOfDay()));
+			stmtGetEquityOptionsByCreationDate.setTimestamp(2, Timestamp.valueOf(date.atTime(23, 59, 59, 999999999)));
 			try (ResultSet results = stmtGetEquityOptionsByCreationDate.executeQuery()) {
 				while (results.next()) {
-					EquityOption equityOption = new EquityOption(results.getString("code"),
-							OptionTrade.Type.valueOf(results.getString("type")), results.getBigDecimal("strike"),
-							results.getDate("maturity_date").toLocalDate(),
-							EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-									results.getLong("equity_option_contract_specification_id")));
-					equityOption.setId(results.getLong("id"));
-					equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong("equity_id")));
-					equityOption.setCreationDate(results.getDate("creation_date").toLocalDate());
 					if (equityOptions == null) {
-						equityOptions = new HashSet<EquityOption>();
+						equityOptions = new HashSet<>();
 					}
-					equityOptions.add(equityOption);
+					equityOptions.add(buildEquityOption(results));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptions;
@@ -116,53 +162,24 @@ public class EquityOptionSQL {
 
 	public static Set<EquityOption> getEquityOptionsByCreationDate(LocalDate minDate, LocalDate maxDate) {
 		Set<EquityOption> equityOptions = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		if (minDate != null) {
+			TradistaDBUtil.addFilter(sql, CREATION_TIME_FIELD, minDate.atStartOfDay(), true);
+		}
+		if (maxDate != null) {
+			TradistaDBUtil.addFilter(sql, CREATION_TIME_FIELD, maxDate.atTime(23, 59, 59), false);
+		}
 
 		try (Connection con = TradistaDB.getConnection();
-				Statement stmtGetEquityOptionsByCreationDate = con.createStatement()) {
-			String dateQuery = null;
-			String query = "SELECT * FROM EQUITY_OPTION, PRODUCT WHERE EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID";
-			if (minDate != null || maxDate != null) {
-				if (minDate == null) {
-					dateQuery = " AND CREATION_DATE <= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(maxDate) + "'";
-				} else if (maxDate == null) {
-					dateQuery = " AND CREATION_DATE >= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(minDate) + "'";
-				} else {
-					dateQuery = " AND CREATION_DATE BETWEEN '"
-							+ DateTimeFormatter.ofPattern(
-									org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-									.format(minDate)
-							+ "' AND '"
-							+ DateTimeFormatter.ofPattern(
-									org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-									.format(maxDate)
-							+ "'";
+				PreparedStatement stmtGetEquityOptionsByCreationDate = con.prepareStatement(sql.toString());
+				ResultSet results = stmtGetEquityOptionsByCreationDate.executeQuery()) {
+			while (results.next()) {
+				if (equityOptions == null) {
+					equityOptions = new HashSet<>();
 				}
-				query += dateQuery;
-			}
-
-			try (ResultSet results = stmtGetEquityOptionsByCreationDate.executeQuery(query)) {
-
-				while (results.next()) {
-					EquityOption equityOption = new EquityOption(results.getString("code"),
-							OptionTrade.Type.valueOf(results.getString("type")), results.getBigDecimal("strike"),
-							results.getDate("maturity_date").toLocalDate(),
-							EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-									results.getLong("equity_option_contract_specification_id")));
-					equityOption.setId(results.getLong("id"));
-					equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong("equity_id")));
-					equityOption.setCreationDate(results.getDate("creation_date").toLocalDate());
-					if (equityOptions == null) {
-						equityOptions = new HashSet<EquityOption>();
-					}
-					equityOptions.add(equityOption);
-				}
+				equityOptions.add(buildEquityOption(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptions;
@@ -172,25 +189,15 @@ public class EquityOptionSQL {
 		Set<EquityOption> equityOptions = null;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllEquityOptions = con.prepareStatement(
-						"SELECT * FROM EQUITY_OPTION, PRODUCT WHERE EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID");
+				PreparedStatement stmtGetAllEquityOptions = con.prepareStatement(BASE_SELECT_QUERY);
 				ResultSet results = stmtGetAllEquityOptions.executeQuery()) {
 			while (results.next()) {
-				EquityOption equityOption = new EquityOption(results.getString("code"),
-						OptionTrade.Type.valueOf(results.getString("type")), results.getBigDecimal("strike"),
-						results.getDate("maturity_date").toLocalDate(),
-						EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-								results.getLong("equity_option_contract_specification_id")));
-				equityOption.setId(results.getLong("id"));
-				equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong("equity_id")));
-				equityOption.setCreationDate(results.getDate("creation_date").toLocalDate());
 				if (equityOptions == null) {
-					equityOptions = new HashSet<EquityOption>();
+					equityOptions = new HashSet<>();
 				}
-				equityOptions.add(equityOption);
+				equityOptions.add(buildEquityOption(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptions;
@@ -198,25 +205,18 @@ public class EquityOptionSQL {
 
 	public static EquityOption getEquityOptionById(long id) {
 		EquityOption equityOption = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, ProductSQL.ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityOptionById = con.prepareStatement("SELECT * "
-						+ "FROM EQUITY_OPTION, PRODUCT WHERE EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID AND PRODUCT.ID = ?")) {
+				PreparedStatement stmtGetEquityOptionById = con.prepareStatement(sql.toString())) {
 			stmtGetEquityOptionById.setLong(1, id);
 			try (ResultSet results = stmtGetEquityOptionById.executeQuery()) {
 				while (results.next()) {
-					equityOption = new EquityOption(results.getString("code"),
-							OptionTrade.Type.valueOf(results.getString("type")), results.getBigDecimal("strike"),
-							results.getDate("maturity_date").toLocalDate(),
-							EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-									results.getLong("equity_option_contract_specification_id")));
-					equityOption.setId(results.getLong("id"));
-					equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong("equity_id")));
-					equityOption.setCreationDate(results.getDate("creation_date").toLocalDate());
+					equityOption = buildEquityOption(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOption;
@@ -224,29 +224,21 @@ public class EquityOptionSQL {
 
 	public static Set<EquityOption> getEquityOptionsByCode(String code) {
 		Set<EquityOption> equityOptions = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, CODE_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityOptionByCode = con.prepareStatement("SELECT * "
-						+ "FROM EQUITY_OPTION, PRODUCT WHERE EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID AND EQUITY_OPTION.CODE = ?")) {
+				PreparedStatement stmtGetEquityOptionByCode = con.prepareStatement(sql.toString())) {
 			stmtGetEquityOptionByCode.setString(1, code);
 			try (ResultSet results = stmtGetEquityOptionByCode.executeQuery()) {
 				while (results.next()) {
-					EquityOption equityOption = new EquityOption(results.getString("code"),
-							OptionTrade.Type.valueOf(results.getString("type")), results.getBigDecimal("strike"),
-							results.getDate("maturity_date").toLocalDate(),
-							EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-									results.getLong("equity_option_contract_specification_id")));
-					equityOption.setId(results.getLong("id"));
-					equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong("equity_id")));
-					equityOption.setCreationDate(results.getDate("creation_date").toLocalDate());
 					if (equityOptions == null) {
-						equityOptions = new HashSet<EquityOption>();
+						equityOptions = new HashSet<>();
 					}
-					equityOptions.add(equityOption);
+					equityOptions.add(buildEquityOption(results));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equityOptions;
@@ -255,40 +247,50 @@ public class EquityOptionSQL {
 	public static EquityOption getEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName(String code,
 			OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate, String contractSpecificationName) {
 		EquityOption equityOption = null;
-		String sqlQuery = "SELECT * "
-				+ "FROM EQUITY_OPTION, PRODUCT, EQUITY_OPTION_CONTRACT_SPECIFICATION WHERE EQUITY_OPTION.PRODUCT_ID = PRODUCT.ID AND EQUITY_OPTION.CODE = ? AND EQUITY_OPTION.TYPE = ? AND EQUITY_OPTION.MATURITY_DATE = ? "
-				+ " AND EQUITY_OPTION.EQUITY_OPTION_CONTRACT_SPECIFICATION_ID = EQUITY_OPTION_CONTRACT_SPECIFICATION.ID AND EQUITY_OPTION_CONTRACT_SPECIFICATION.NAME = ?";
+		Join contractSpecJoin = Join.innerEq(EQUITY_OPTION_CONTRACT_SPECIFICATION_TABLE,
+				EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD, CONTRACT_SPEC_ID_FIELD);
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(EQUITY_OPTION_TABLE,
+				EQUITY_OPTION_PRODUCT_JOIN, contractSpecJoin));
+		TradistaDBUtil.addParameterizedFilter(sql, CODE_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, TYPE_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, MATURITY_DATE_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, CONTRACT_SPEC_NAME_FIELD);
 		if (strike != null) {
-			sqlQuery += " AND EQUITY_OPTION.STRIKE = ?";
+			TradistaDBUtil.addParameterizedFilter(sql, STRIKE_FIELD);
 		}
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName = con
-						.prepareStatement(sqlQuery)) {
-			stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName.setString(1, code);
-			stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName.setString(2, type.name());
-			stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName.setDate(3,
-					java.sql.Date.valueOf(maturityDate));
-			stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName.setString(4,
-					contractSpecificationName);
+				PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+			stmt.setString(1, code);
+			stmt.setString(2, type.name());
+			stmt.setDate(3, Date.valueOf(maturityDate));
+			stmt.setString(4, contractSpecificationName);
 			if (strike != null) {
-				stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName.setBigDecimal(5, strike);
+				stmt.setBigDecimal(5, strike);
 			}
-			try (ResultSet results = stmtGetEquityOptionByCodeTypeStrikeMaturityDateAndContractSpecificationName
-					.executeQuery()) {
+			try (ResultSet results = stmt.executeQuery()) {
 				while (results.next()) {
-					equityOption = new EquityOption(results.getString("code"),
-							OptionTrade.Type.valueOf(results.getString("type")), results.getBigDecimal("strike"),
-							results.getDate("maturity_date").toLocalDate(),
-							EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-									results.getLong("equity_option_contract_specification_id")));
-					equityOption.setId(results.getLong("id"));
-					equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong("equity_id")));
-					equityOption.setCreationDate(results.getDate("creation_date").toLocalDate());
+					equityOption = buildEquityOption(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
+		}
+		return equityOption;
+	}
+
+	private static EquityOption buildEquityOption(ResultSet results) throws SQLException {
+		EquityOption equityOption = new EquityOption(results.getString(CODE_FIELD.getName()),
+				OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())),
+				results.getBigDecimal(STRIKE_FIELD.getName()),
+				results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate(),
+				EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
+						results.getLong(EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
+		equityOption.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
+		equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())));
+		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+		if (creationTimestamp != null) {
+			equityOption.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 		}
 		return equityOption;
 	}
