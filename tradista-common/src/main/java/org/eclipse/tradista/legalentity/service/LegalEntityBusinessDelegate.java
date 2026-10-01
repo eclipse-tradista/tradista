@@ -61,6 +61,9 @@ public class LegalEntityBusinessDelegate {
 		if (legalEntity.getDescription() != null && legalEntity.getDescription().length() > 1000) {
 			errMsg.append("The description cannot exceed 1000 characters.");
 		}
+		if (LegalEntity.Role.PROCESSING_ORG.equals(legalEntity.getRole()) && legalEntity.getTimeZone() == null) {
+			errMsg.append("The time zone is mandatory for a Processing Org.");
+		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}

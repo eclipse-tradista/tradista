@@ -51,9 +51,7 @@ public class UserManager implements Serializable {
 	}
 
 	public ZonedDateTime getUserTime(Instant instant) {
-		// Defaulted to the system zone for the moment. But the target is to define the
-		// time zone at the user's PO level
-		return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+		return ClientUtil.getCurrentUserTime(instant);
 	}
 
 	public boolean isCurrentUserAdmin() {

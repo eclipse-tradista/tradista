@@ -129,7 +129,7 @@ public class GCRepoTradeController implements Serializable {
 				.toArray(Tenor[]::new);
 		allBaskets = gcBasketBusinessDelegate.getAllGCBaskets();
 		workflow = workflowBusinessDelegate.getWorkflowByName(GCRepoTrade.GC_REPO);
-		trade = new GCRepoTrade();
+		trade = new GCRepoTrade.Builder().build();
 		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		setDirection(Direction.BUY);
 		setInterestType(FIXED);
@@ -432,7 +432,6 @@ public class GCRepoTradeController implements Serializable {
 		Map<Security, Map<Book, BigDecimal>> oldCollateralToAdd = trade.getCollateralToAdd();
 		Map<Security, Map<Book, BigDecimal>> oldCollateralToRemove = trade.getCollateralToRemove();
 		try {
-			trade.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
 			trade.setId(0);
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 			if (interestType == null || interestType.equals(FIXED)) {
@@ -471,30 +470,7 @@ public class GCRepoTradeController implements Serializable {
 			tradeId = Long.parseLong(idToBeLoaded);
 			GCRepoTrade gcTrade = gcRepoTradeBusinessDelegate.getGCRepoTradeById(tradeId);
 			if (gcTrade != null) {
-				trade.setCreationDate(gcTrade.getCreationDate());
-				trade.setId(gcTrade.getId());
-				trade.setBuySell(gcTrade.isBuy());
-				trade.setCounterparty(gcTrade.getCounterparty());
-				trade.setCurrency(gcTrade.getCurrency());
-				trade.setProduct(gcTrade.getProduct());
-				trade.setAmount(gcTrade.getAmount());
-				trade.setSettlementDate(gcTrade.getSettlementDate());
-				trade.setTradeDate(gcTrade.getTradeDate());
-				trade.setBook(gcTrade.getBook());
-				trade.setCreationDate(gcTrade.getCreationDate());
-				trade.setCrossCurrencyCollateral(gcTrade.isCrossCurrencyCollateral());
-				trade.setGcBasket(gcTrade.getGcBasket());
-				trade.setEndDate(gcTrade.getEndDate());
-				trade.setIndex(gcTrade.getIndex());
-				trade.setIndexOffset(gcTrade.getIndexOffset());
-				trade.setMarginRate(gcTrade.getMarginRate());
-				trade.setNoticePeriod(gcTrade.getNoticePeriod());
-				trade.setRepoRate(gcTrade.getRepoRate());
-				trade.setRightOfReuse(gcTrade.isRightOfReuse());
-				trade.setRightOfSubstitution(gcTrade.isRightOfSubstitution());
-				trade.setTerminableOnDemand(gcTrade.isTerminableOnDemand());
-				trade.setStatus(gcTrade.getStatus());
-				trade.setPartialTerminations(gcTrade.getPartialTerminations());
+				this.trade = gcTrade;
 				Set<String> availableActions = workflowBusinessDelegate
 						.getAvailableActionsFromStatus(workflow.getName(), gcTrade.getStatus());
 				if (availableActions != null && !availableActions.isEmpty()) {
@@ -518,7 +494,7 @@ public class GCRepoTradeController implements Serializable {
 	}
 
 	public void clear() {
-		trade = new GCRepoTrade();
+		trade = new GCRepoTrade.Builder().build();
 		try {
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		} catch (TradistaBusinessException tbe) {

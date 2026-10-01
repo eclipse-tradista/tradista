@@ -1566,8 +1566,7 @@ public final class TradistaGUIUtil {
 		if (instant == null) {
 			return StringUtils.EMPTY;
 		}
-		// Default to system zone for the moment. The target is to define the time zone at the user's PO level
-		ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+		ZonedDateTime zdt = ClientUtil.getCurrentUserTime(instant);
 		return zdt.format(DATE_TIME_FORMATTER);
 	}
 

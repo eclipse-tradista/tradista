@@ -38,6 +38,9 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 
 	@Override
 	public void validateTrade(Trade<? extends Product> trade) throws TradistaBusinessException {
+		if (trade == null) {
+			throw new TradistaBusinessException("The trade cannot be null.");
+		}
 		IRSwapOptionTrade irSwapOptionTrade = (IRSwapOptionTrade) trade;
 		IRSwapOptionTradeBusinessDelegate irSwapOptionTradeBusinessDelegate = new IRSwapOptionTradeBusinessDelegate();
 		StringBuilder errMsg = new StringBuilder();
@@ -124,7 +127,8 @@ public class IRSwapOptionTradeValidator extends DefaultTradeValidator {
 		}
 
 		if (irSwapOptionTrade.getUnderlying() != null) {
-			if ((!irSwapOptionTrade.getUnderlying().getMaturityTenor().equals(Tenor.NO_TENOR))
+			if ((irSwapOptionTrade.getUnderlying().getMaturityTenor() != null)
+					&& (!irSwapOptionTrade.getUnderlying().getMaturityTenor().equals(Tenor.NO_TENOR))
 					&& (irSwapOptionTrade.getUnderlying().getMaturityDate() != null)) {
 				LocalDate startingDate = null;
 				if (irSwapOptionTrade.getExerciseDate() != null) {

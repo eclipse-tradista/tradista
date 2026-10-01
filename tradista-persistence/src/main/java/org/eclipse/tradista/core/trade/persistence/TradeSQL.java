@@ -146,9 +146,9 @@ public class TradeSQL {
 					}
 					trade.setAmount(results.getBigDecimal(AMOUNT_FIELD.getName()));
 					trade.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
-					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTimestamp != null) {
-						trade.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+					Timestamp lastUpdateTimestamp = results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
+					if (lastUpdateTimestamp != null) {
+						trade.setLastUpdateTime(lastUpdateTimestamp.toInstant());
 					}
 					trade.setBook(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					long statusId = results.getLong(STATUS_ID_FIELD.getName());
@@ -200,9 +200,9 @@ public class TradeSQL {
 					}
 					trade.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
 					trade.setAmount(results.getBigDecimal(AMOUNT_FIELD.getName()));
-					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTimestamp != null) {
-						trade.setCreationDate(creationTimestamp.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+					Timestamp lastUpdateTimestamp = results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
+					if (lastUpdateTimestamp != null) {
+						trade.setLastUpdateTime(lastUpdateTimestamp.toInstant());
 					}
 					trade.setBook(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					trade.setCounterparty(
@@ -213,6 +213,10 @@ public class TradeSQL {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return trade;
+	}
+
+	public static Instant getCreationTime(ResultSet rs) throws SQLException {
+		return rs.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant();
 	}
 
 	public static void setTradeCommonFields(Trade<? extends Product> trade, ResultSet rs)
@@ -229,9 +233,9 @@ public class TradeSQL {
 			// Commmon fields
 			trade.setId(rs.getLong(ID_FIELD.getName()));
 			trade.setBuySell(rs.getBoolean(BUY_SELL_FIELD.getName()));
-			Timestamp creationTimestamp = rs.getTimestamp(CREATION_TIME_FIELD.getName());
-			if (creationTimestamp != null) {
-				trade.setCreationDate(creationTimestamp.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+			Timestamp lastUpdateTimestamp = rs.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
+			if (lastUpdateTimestamp != null) {
+				trade.setLastUpdateTime(lastUpdateTimestamp.toInstant());
 			}
 			java.sql.Date tradeDate = rs.getDate(TRADE_DATE_FIELD.getName());
 			if (tradeDate != null) {
@@ -269,8 +273,10 @@ public class TradeSQL {
 			int i = 1;
 			stmt.setBoolean(i++, trade.isBuy());
 			if (trade.getId() == 0) {
-				stmt.setTimestamp(i++, Timestamp.from(trade.getCreationTime() != null ? trade.getCreationTime() : Instant.now()));
-				stmt.setTimestamp(i++, Timestamp.from(trade.getLastUpdateTime() != null ? trade.getLastUpdateTime() : Instant.now()));
+				stmt.setTimestamp(i++,
+						Timestamp.from(trade.getCreationTime() != null ? trade.getCreationTime() : Instant.now()));
+				stmt.setTimestamp(i++,
+						Timestamp.from(trade.getLastUpdateTime() != null ? trade.getLastUpdateTime() : Instant.now()));
 			} else {
 				stmt.setTimestamp(i++, Timestamp.from(Instant.now()));
 			}
@@ -361,7 +367,8 @@ public class TradeSQL {
 					TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, minCreationDate.atStartOfDay(), true);
 				}
 				if (maxCreationDate != null) {
-					TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, maxCreationDate.atTime(23, 59, 59, 999999999), false);
+					TradistaDBUtil.addFilter(query, CREATION_TIME_FIELD, maxCreationDate.atTime(23, 59, 59, 999999999),
+							false);
 				}
 				if (minTradeDate != null) {
 					TradistaDBUtil.addFilter(query, TRADE_DATE_FIELD, minTradeDate, true);
@@ -387,9 +394,9 @@ public class TradeSQL {
 						trade.setSettlementDate(settlementDate.toLocalDate());
 					}
 					trade.setAmount(results.getBigDecimal(AMOUNT_FIELD.getName()));
-					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTimestamp != null) {
-						trade.setCreationDate(creationTimestamp.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+					Timestamp lastUpdateTimestamp = results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
+					if (lastUpdateTimestamp != null) {
+						trade.setLastUpdateTime(lastUpdateTimestamp.toInstant());
 					}
 					trade.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
 					trade.setBook(BookSQL.getBookById(results.getLong(BOOK_ID_FIELD.getName())));

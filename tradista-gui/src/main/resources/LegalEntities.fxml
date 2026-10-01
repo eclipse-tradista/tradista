@@ -90,6 +90,7 @@
 				<RowConstraints vgrow="SOMETIMES" />
 				<RowConstraints vgrow="SOMETIMES" />
 				<RowConstraints vgrow="SOMETIMES" />
+				<RowConstraints vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
 				<Label maxHeight="-Infinity" maxWidth="-Infinity"
@@ -111,11 +112,17 @@
 					maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 					GridPane.columnIndex="1" GridPane.rowIndex="3" />
 				<Label maxHeight="-Infinity" maxWidth="-Infinity"
-					minHeight="-Infinity" minWidth="-Infinity" text="Description"
+					minHeight="-Infinity" minWidth="-Infinity" text="Time zone"
 					GridPane.rowIndex="4" />
-				<TextArea fx:id="description" maxHeight="-Infinity"
+				<ComboBox fx:id="timeZone" maxHeight="-Infinity"
 					maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 					GridPane.columnIndex="1" GridPane.rowIndex="4" />
+				<Label maxHeight="-Infinity" maxWidth="-Infinity"
+					minHeight="-Infinity" minWidth="-Infinity" text="Description"
+					GridPane.rowIndex="5" />
+				<TextArea fx:id="description" maxHeight="-Infinity"
+					maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+					GridPane.columnIndex="1" GridPane.rowIndex="5" />
 				<Label fx:id="legalEntityId" styleClass="labelBold" maxHeight="-Infinity"
 					maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 					GridPane.columnIndex="1"/>

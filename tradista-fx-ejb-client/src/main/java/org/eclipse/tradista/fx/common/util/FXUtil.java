@@ -47,7 +47,7 @@ public final class FXUtil {
 	 */
 	public static BigDecimal getNPV(Currency primaryCurrency, Currency quoteCurrency, Currency valueCurrency,
 			LocalDate date, PricingParameter pp) throws TradistaBusinessException {
-		FXTrade trade = new FXTrade();
+		FXTrade trade = new FXTrade.Builder().build();
 		trade.setCurrency(quoteCurrency);
 		trade.setCurrencyOne(primaryCurrency);
 		trade.setTradeDate(LocalDate.now());

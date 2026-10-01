@@ -35,12 +35,31 @@ public class FutureTradeValidator extends DefaultTradeValidator {
 
 	@Override
 	public void validateTrade(Trade<? extends Product> trade) throws TradistaBusinessException {
+		if (trade == null) {
+			throw new TradistaBusinessException("The trade cannot be null.");
+		}
 		FutureTrade futureTrade = (FutureTrade) trade;
 		StringBuilder errMsg = new StringBuilder();
 		if (futureTrade.getProduct() == null) {
 			errMsg.append(String.format("The future is mandatory.%n"));
 		} else {
 			errMsg.append(validateTradeBasics(trade));
+			if (futureTrade.getMaturityDate() == null) {
+				errMsg.append(String.format("The maturity date is mandatory.%n"));
+			}
+
+			if (trade.getSettlementDate() == null) {
+				errMsg.append(String.format("The settlement date is mandatory.%n"));
+			}
+
+			if (futureTrade.getMaturityDate() != null && trade.getSettlementDate() != null) {
+				if (trade.getSettlementDate().isAfter(futureTrade.getMaturityDate())) {
+					errMsg.append(String.format("The settlement date (%s) cannot be after the maturity date (%s).%n",
+							trade.getSettlementDate(), futureTrade.getMaturityDate()));
+				}
+			}
+
+			futureValidator.validateProduct(trade.getProduct());
 		}
 
 		// Other business controls
@@ -54,22 +73,6 @@ public class FutureTradeValidator extends DefaultTradeValidator {
 			errMsg.append(
 					String.format("The quantity (%s) must be positive.%n", futureTrade.getQuantity().doubleValue()));
 		}
-		if (futureTrade.getMaturityDate() == null) {
-			errMsg.append(String.format("The maturity date is mandatory.%n"));
-		}
-
-		if (trade.getSettlementDate() == null) {
-			errMsg.append(String.format("The settlement date is mandatory.%n"));
-		}
-
-		if (futureTrade.getMaturityDate() != null && trade.getSettlementDate() != null) {
-			if (trade.getSettlementDate().isAfter(futureTrade.getMaturityDate())) {
-				errMsg.append(String.format("The settlement date (%s) cannot be after the maturity date (%s).%n",
-						trade.getSettlementDate(), futureTrade.getMaturityDate()));
-			}
-		}
-
-		futureValidator.validateProduct(trade.getProduct());
 
 		if (errMsg.length() > 0) {
 			throw new TradistaBusinessException(errMsg.toString());

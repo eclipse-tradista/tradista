@@ -2,8 +2,8 @@ package org.eclipse.tradista.security.equityoption.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -107,7 +107,8 @@ public class EquityOptionTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (equityOptionTrade == null) {
-						equityOptionTrade = new EquityOptionTrade();
+						equityOptionTrade = new EquityOptionTrade.Builder()
+								.creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(equityOptionTrade, results);
@@ -135,8 +136,8 @@ public class EquityOptionTradeSQL {
 					equityOptionTrade.setUnderlying(underlying);
 				}
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return equityOptionTrade;
 	}
@@ -185,9 +186,8 @@ public class EquityOptionTradeSQL {
 			stmtSaveEquityOptionTrade.setBigDecimal(9, trade.getQuantity());
 			stmtSaveEquityOptionTrade.setLong(10, tradeId);
 			stmtSaveEquityOptionTrade.executeUpdate();
-		} catch (SQLException | TradistaBusinessException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;
@@ -201,21 +201,23 @@ public class EquityOptionTradeSQL {
 
 		EquityOptionTrade equityOptionTrade = null;
 		try {
-			if ((rs.getLong("vanilla_option_trade_id") == 0) || (rs.getLong("underlying_equity_trade_id") == 0)) {
+			if ((rs.getLong(VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
+					|| (rs.getLong("underlying_equity_trade_id") == 0)) {
 				return null;
 			}
-			equityOptionTrade = new EquityOptionTrade();
-			equityOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf((rs.getString("style"))));
-			equityOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString(TradistaDBConstants.TYPE)));
-			equityOptionTrade.setStrike(rs.getBigDecimal("strike"));
+			equityOptionTrade = new EquityOptionTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			equityOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf((rs.getString(STYLE_FIELD.getName()))));
+			equityOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString(TYPE_FIELD.getName())));
+			equityOptionTrade.setStrike(rs.getBigDecimal(STRIKE_FIELD.getName()));
 			long productId = rs.getLong(PRODUCT_ID_FIELD.getName());
 			if (productId != 0) {
 				equityOptionTrade.setEquityOption(EquityOptionSQL.getEquityOptionById(productId));
 			}
-			equityOptionTrade.setSettlementType(OptionTrade.SettlementType.valueOf(rs.getString("settlement_type")));
-			equityOptionTrade.setSettlementDateOffset(rs.getInt("settlement_date_offset"));
+			equityOptionTrade.setSettlementType(
+					OptionTrade.SettlementType.valueOf(rs.getString(SETTLEMENT_TYPE_FIELD.getName())));
+			equityOptionTrade.setSettlementDateOffset(rs.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
 			equityOptionTrade.setMaturityDate(rs.getDate("option_maturity_date").toLocalDate());
-			Date exerciseDate = rs.getDate("exercise_date");
+			Date exerciseDate = rs.getDate(EXERCISE_DATE_FIELD.getName());
 			if (exerciseDate != null) {
 				equityOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
 			}
@@ -225,18 +227,18 @@ public class EquityOptionTradeSQL {
 			TradeSQL.setTradeCommonFields(equityOptionTrade, rs);
 
 			// Building the underlying
-			EquityTrade underlying = new EquityTrade();
+			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_EQUITY_creation_time");
+			EquityTrade.Builder undBuilder = new EquityTrade.Builder();
+			if (undCreationTime != null) {
+				undBuilder.creationTime(undCreationTime.toInstant());
+			}
+			EquityTrade underlying = undBuilder.build();
 			underlying.setId(rs.getLong("UNDERLYING_EQUITY_TRADE_ID"));
 			underlying.setProduct(EquitySQL.getEquityById(rs.getLong("UND_EQUITY_PRODUCT_ID")));
 			underlying.setAmount(rs.getBigDecimal("UND_EQUITY_AMOUNT"));
 			underlying.setBook(BookSQL.getBookById(rs.getLong("book_id")));
 			underlying.setBuySell(rs.getBoolean("UND_EQUITY_buy_sell"));
 			underlying.setCounterparty(LegalEntitySQL.getLegalEntityById(rs.getLong("UND_EQUITY_counterparty_id")));
-			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_EQUITY_creation_time");
-			if (undCreationTime != null) {
-				underlying.setCreationDate(
-						undCreationTime.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-			}
 			underlying.setQuantity(rs.getBigDecimal("UNDERLYING_EQUITY_QUANTITY"));
 			Date undSettleDate = rs.getDate("und_equity_settlement_date");
 			if (undSettleDate != null) {
@@ -279,7 +281,8 @@ public class EquityOptionTradeSQL {
 					equityOptionTrades = new ArrayList<>();
 				}
 
-				EquityOptionTrade equityOptionTrade = new EquityOptionTrade();
+				EquityOptionTrade equityOptionTrade = new EquityOptionTrade.Builder()
+						.creationTime(TradeSQL.getCreationTime(results)).build();
 				TradeSQL.setTradeCommonFields(equityOptionTrade, results);
 				equityOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf(results.getString(STYLE_FIELD.getName())));
 				equityOptionTrade.setType(OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())));
@@ -305,8 +308,8 @@ public class EquityOptionTradeSQL {
 
 				equityOptionTrades.add(equityOptionTrade);
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return equityOptionTrades;
 	}

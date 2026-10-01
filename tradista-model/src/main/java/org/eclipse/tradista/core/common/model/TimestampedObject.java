@@ -44,13 +44,19 @@ public abstract class TimestampedObject extends TradistaObject implements Timest
 		return creationTime;
 	}
 
-	protected void setCreationTime(Instant creationTime) {
-		this.creationTime = creationTime;
-	}
-
 	@Override
 	public Instant getLastUpdateTime() {
 		return lastUpdateTime;
+	}
+
+	/**
+	 * Important: Use with caution, setLastUpdateTime is expected to be used in the
+	 * DAL only.
+	 * 
+	 * @param lastUpdateTime the last update timestamp of the object.
+	 */
+	public void setLastUpdateTime(Instant lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
 	}
 
 	public abstract static class Builder<T extends TimestampedObject, B extends Builder<T, B>> {

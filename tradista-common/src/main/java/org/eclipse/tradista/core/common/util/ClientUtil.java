@@ -1,5 +1,9 @@
 package org.eclipse.tradista.core.common.util;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.user.model.User;
 
@@ -53,5 +57,23 @@ public final class ClientUtil {
 
 	public static void setCurrentProcessingOrg(LegalEntity processingOrg) {
 		currentProcessingOrg = processingOrg;
+	}
+
+	public static ZoneId getCurrentUserZoneId() {
+		User user = getCurrentUser();
+		if (user != null && user.getProcessingOrg() != null && user.getProcessingOrg().getTimeZone() != null) {
+			return user.getProcessingOrg().getTimeZone();
+		}
+		if (currentProcessingOrg != null && currentProcessingOrg.getTimeZone() != null) {
+			return currentProcessingOrg.getTimeZone();
+		}
+		return ZoneId.systemDefault();
+	}
+
+	public static ZonedDateTime getCurrentUserTime(Instant instant) {
+		if (instant == null) {
+			return null;
+		}
+		return ZonedDateTime.ofInstant(instant, getCurrentUserZoneId());
 	}
 }

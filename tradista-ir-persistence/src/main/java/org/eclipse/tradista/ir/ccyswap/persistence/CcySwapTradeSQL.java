@@ -1,7 +1,5 @@
 package org.eclipse.tradista.ir.ccyswap.persistence;
 
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.ir.irswap.persistence.IRSwapTradeSQL.IRSWAP_TRADE_ID_FIELD;
 import static org.eclipse.tradista.ir.irswap.persistence.IRSwapTradeSQL.IRSWAP_TRADE_TABLE;
 import static org.eclipse.tradista.ir.irswap.persistence.IRSwapTradeSQL.MATURITY_DATE_FIELD;
@@ -102,7 +100,8 @@ public class CcySwapTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (ccyswapTrade == null) {
-						ccyswapTrade = new CcySwapTrade();
+						ccyswapTrade = new CcySwapTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
+								.build();
 					}
 
 					TradeSQL.setTradeCommonFields(ccyswapTrade, results);
@@ -114,30 +113,35 @@ public class CcySwapTradeSQL {
 					if (maturityTenorString != null) {
 						ccyswapTrade.setMaturityTenor(Tenor.valueOf(maturityTenorString));
 					}
-					ccyswapTrade.setPaymentFrequency(Tenor.valueOf(results.getString(PAYMENT_FREQUENCY_FIELD.getName())));
-					ccyswapTrade.setReceptionFrequency(Tenor.valueOf(results.getString(RECEPTION_FREQUENCY_FIELD.getName())));
+					ccyswapTrade
+							.setPaymentFrequency(Tenor.valueOf(results.getString(PAYMENT_FREQUENCY_FIELD.getName())));
+					ccyswapTrade.setReceptionFrequency(
+							Tenor.valueOf(results.getString(RECEPTION_FREQUENCY_FIELD.getName())));
 					ccyswapTrade.setReceptionSpread(results.getBigDecimal(RECEPTION_SPREAD_FIELD.getName()));
-					ccyswapTrade.setCurrencyTwo(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_TWO_ID_FIELD.getName())));
+					ccyswapTrade.setCurrencyTwo(
+							CurrencySQL.getCurrencyById(results.getLong(CURRENCY_TWO_ID_FIELD.getName())));
 					ccyswapTrade.setNotionalAmountTwo(results.getBigDecimal(NOTIONAL_AMOUNT_TWO_FIELD.getName()));
-					ccyswapTrade.setPaymentFixedInterestRate(results.getBigDecimal(PAYMENT_FIXED_INTEREST_RATE_FIELD.getName()));
+					ccyswapTrade.setPaymentFixedInterestRate(
+							results.getBigDecimal(PAYMENT_FIXED_INTEREST_RATE_FIELD.getName()));
 					ccyswapTrade.setReceptionReferenceRateIndex(
 							IndexSQL.getIndexById(results.getLong(RECEPTION_REFERENCE_RATE_INDEX_ID_FIELD.getName())));
 					ccyswapTrade.setReceptionReferenceRateIndexTenor(
 							Tenor.valueOf(results.getString(RECEPTION_REFERENCE_RATE_INDEX_TENOR_FIELD.getName())));
-					ccyswapTrade.setInterestsToPayFixed(results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName()) == 0);
+					ccyswapTrade.setInterestsToPayFixed(
+							results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName()) == 0);
 					if (!ccyswapTrade.isInterestsToPayFixed()) {
 						ccyswapTrade.setPaymentReferenceRateIndexTenor(
 								Tenor.valueOf(results.getString(PAYMENT_REFERENCE_RATE_INDEX_TENOR_FIELD.getName())));
-						ccyswapTrade.setPaymentReferenceRateIndex(
-								IndexSQL.getIndexById(results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName())));
+						ccyswapTrade.setPaymentReferenceRateIndex(IndexSQL
+								.getIndexById(results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName())));
 						ccyswapTrade.setPaymentInterestFixing(
 								InterestPayment.valueOf(results.getString(PAYMENT_INTEREST_FIXING_FIELD.getName())));
 						ccyswapTrade.setPaymentSpread(results.getBigDecimal(PAYMENT_SPREAD_FIELD.getName()));
 					}
-					ccyswapTrade.setPaymentDayCountConvention(DayCountConventionSQL
-							.getDayCountConventionById(results.getLong(PAYMENT_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
-					ccyswapTrade.setReceptionDayCountConvention(DayCountConventionSQL
-							.getDayCountConventionById(results.getLong(RECEPTION_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
+					ccyswapTrade.setPaymentDayCountConvention(DayCountConventionSQL.getDayCountConventionById(
+							results.getLong(PAYMENT_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
+					ccyswapTrade.setReceptionDayCountConvention(DayCountConventionSQL.getDayCountConventionById(
+							results.getLong(RECEPTION_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
 					ccyswapTrade.setPaymentInterestPayment(
 							InterestPayment.valueOf(results.getString(PAYMENT_INTEREST_PAYMENT_FIELD.getName())));
 					ccyswapTrade.setReceptionInterestPayment(
@@ -164,7 +168,7 @@ public class CcySwapTradeSQL {
 				return null;
 			}
 
-			ccyswapTrade = new CcySwapTrade();
+			ccyswapTrade = new CcySwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			java.sql.Date maturityDate = rs.getDate("irswap_maturity_date");
 			if (maturityDate != null) {
 				ccyswapTrade.setMaturityDate(maturityDate.toLocalDate());
@@ -205,8 +209,6 @@ public class CcySwapTradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(ccyswapTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -246,8 +248,6 @@ public class CcySwapTradeSQL {
 			stmtSaveCcySwapTrade.executeUpdate();
 
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);

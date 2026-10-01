@@ -242,17 +242,14 @@ public abstract class Transfer extends TimestampedObject implements Segregable {
 	}
 
 	/**
-	 * @deprecated creation time is automatically managed. Use
+	 * @deprecated creation time is automatically managed and immutable. Use
 	 *             {@link Builder#creationTime(java.time.Instant)} if needed during construction.
 	 */
 	@Deprecated(forRemoval = true, since = "3.3.0")
 	public void setCreationDateTime(LocalDateTime creationDateTime) {
-		if (creationDateTime == null) {
-			setCreationTime(null);
-		} else {
-			setCreationTime(creationDateTime.atZone(ZoneId.systemDefault()).toInstant());
-		}
+		// No-op: creationTime is immutable and managed at construction/builder level.
 	}
+
 
 	public LocalDate getSettlementDate() {
 		return settlementDate;

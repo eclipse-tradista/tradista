@@ -1,7 +1,5 @@
 package org.eclipse.tradista.ir.fra.persistence;
 
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.DAY_COUNT_CONVENTION_ID_FIELD;
 import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.IRFORWARD_TRADE_ID_FIELD;
 import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.IRFORWARD_TRADE_TABLE;
@@ -102,9 +100,8 @@ public class FRATradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (fraTrade == null) {
-						fraTrade = new FRATrade();
+						fraTrade = new FRATrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
-
 					TradeSQL.setTradeCommonFields(fraTrade, results);
 					java.sql.Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());
 					if (maturityDate != null) {
@@ -144,7 +141,7 @@ public class FRATradeSQL {
 				return null;
 			}
 
-			fraTrade = new FRATrade();
+			fraTrade = new FRATrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 
 			java.sql.Date maturityDate = rs.getDate("irforward_maturity_date");
 			if (maturityDate != null) {
@@ -161,8 +158,6 @@ public class FRATradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(fraTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -226,8 +221,6 @@ public class FRATradeSQL {
 			stmtSaveFRATrade.executeUpdate();
 
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);

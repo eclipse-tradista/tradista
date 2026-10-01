@@ -90,7 +90,8 @@ public class IRCapFloorCollarTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irCapFloorCollarTrade == null) {
-						irCapFloorCollarTrade = new IRCapFloorCollarTrade();
+						irCapFloorCollarTrade = new IRCapFloorCollarTrade.Builder()
+								.creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(irCapFloorCollarTrade, results);
@@ -104,8 +105,8 @@ public class IRCapFloorCollarTradeSQL {
 
 				}
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return irCapFloorCollarTrade;
 	}
@@ -118,26 +119,28 @@ public class IRCapFloorCollarTradeSQL {
 
 		IRCapFloorCollarTrade irCapFloorCollarTrade = null;
 		try {
-			if (rs.getLong("ircap_floor_collar_trade_id") == 0) {
+			if (rs.getLong(IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD.getName()) == 0) {
 				return null;
 			}
-			irCapFloorCollarTrade = new IRCapFloorCollarTrade();
-			irCapFloorCollarTrade.setCapStrike(rs.getBigDecimal("CAP_STRIKE"));
-			irCapFloorCollarTrade.setFloorStrike(rs.getBigDecimal("FLOOR_STRIKE"));
+			irCapFloorCollarTrade = new IRCapFloorCollarTrade.Builder().creationTime(TradeSQL.getCreationTime(rs))
+					.build();
+			irCapFloorCollarTrade.setCapStrike(rs.getBigDecimal(CAP_STRIKE_FIELD.getName()));
+			irCapFloorCollarTrade.setFloorStrike(rs.getBigDecimal(FLOOR_STRIKE_FIELD.getName()));
 
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(irCapFloorCollarTrade, rs);
 
 			// Building the IRForward
-			IRForwardTrade<Product> irForward = new IRForwardTrade<>();
+			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_IRFORWARD_CREATION_TIME");
+			IRForwardTrade.ConcreteBuilder<Product> undBuilder = new IRForwardTrade.ConcreteBuilder<>();
+			if (undCreationTime != null) {
+				undBuilder.creationTime(undCreationTime.toInstant());
+			}
+			IRForwardTrade<Product> irForward = undBuilder.build();
 			irForward.setId(rs.getLong("UND_IRFORWARD_ID"));
 			irForward.setAmount(rs.getBigDecimal("UND_IRFORWARD_AMOUNT"));
 			irForward.setBook(BookSQL.getBookById(rs.getLong("UND_IRFORWARD_BOOK_ID")));
 			irForward.setBuySell(rs.getBoolean("UND_IRFORWARD_BUY_SELL"));
-			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_IRFORWARD_CREATION_TIME");
-			if (undCreationTime != null) {
-				irForward.setCreationDate(undCreationTime.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-			}
 			irForward.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("UND_IRFORWARD_CURRENCY_ID")));
 			irForward.setFrequency(Tenor.valueOf(rs.getString("fwd_frequency")));
 			java.sql.Date maturityDate = rs.getDate("fwd_maturity_date");
@@ -207,8 +210,8 @@ public class IRCapFloorCollarTradeSQL {
 			stmtSaveIRCapFloorCollarTrade.setLong(4, tradeId);
 			stmtSaveIRCapFloorCollarTrade.executeUpdate();
 
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

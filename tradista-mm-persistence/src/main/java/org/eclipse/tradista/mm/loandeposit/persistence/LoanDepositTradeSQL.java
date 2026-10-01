@@ -1,6 +1,15 @@
 package org.eclipse.tradista.mm.loandeposit.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.COMPOUND_PERIOD;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.DIRECTION;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.END_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FIXING_PERIOD;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_FIXING;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_PAYMENT;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_TYPE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PAYMENT_FREQUENCY;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SPREAD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
@@ -9,9 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
-import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
@@ -19,11 +26,9 @@ import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Join;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
-import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.daycountconvention.persistence.DayCountConventionSQL;
 import org.eclipse.tradista.core.index.persistence.IndexSQL;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
@@ -54,16 +59,16 @@ public class LoanDepositTradeSQL {
 	public static final Field FLOATING_RATE_INDEX_ID_FIELD = new Field("FLOATING_RATE_INDEX_ID");
 	public static final Field FLOATING_RATE_INDEX_TENOR_FIELD = new Field("FLOATING_RATE_INDEX_TENOR");
 	public static final Field DAY_COUNT_CONVENTION_ID_FIELD = new Field("DAY_COUNT_CONVENTION_ID");
-	public static final Field PAYMENT_FREQUENCY_FIELD = new Field("PAYMENT_FREQUENCY");
+	public static final Field PAYMENT_FREQUENCY_FIELD = new Field(PAYMENT_FREQUENCY);
 	public static final Field END_DATE_FIELD = new Field(END_DATE);
-	public static final Field FIXING_PERIOD_FIELD = new Field("FIXING_PERIOD");
-	public static final Field SPREAD_FIELD = new Field("SPREAD");
-	public static final Field DIRECTION_FIELD = new Field("DIRECTION");
-	public static final Field MATURITY_FIELD = new Field("MATURITY");
-	public static final Field INTEREST_TYPE_FIELD = new Field("INTEREST_TYPE");
-	public static final Field COMPOUND_PERIOD_FIELD = new Field("COMPOUND_PERIOD");
-	public static final Field INTEREST_PAYMENT_FIELD = new Field("INTEREST_PAYMENT");
-	public static final Field INTEREST_FIXING_FIELD = new Field("INTEREST_FIXING");
+	public static final Field FIXING_PERIOD_FIELD = new Field(FIXING_PERIOD);
+	public static final Field SPREAD_FIELD = new Field(SPREAD);
+	public static final Field DIRECTION_FIELD = new Field(DIRECTION);
+	public static final Field MATURITY_FIELD = new Field(MATURITY);
+	public static final Field INTEREST_TYPE_FIELD = new Field(INTEREST_TYPE);
+	public static final Field COMPOUND_PERIOD_FIELD = new Field(COMPOUND_PERIOD);
+	public static final Field INTEREST_PAYMENT_FIELD = new Field(INTEREST_PAYMENT);
+	public static final Field INTEREST_FIXING_FIELD = new Field(INTEREST_FIXING);
 
 	private static final Field[] LOAN_DEPOSIT_TRADE_FIELDS = { LOAN_DEPOSIT_TRADE_ID_FIELD, FIXED_RATE_FIELD,
 			FLOATING_RATE_INDEX_ID_FIELD, FLOATING_RATE_INDEX_TENOR_FIELD, DAY_COUNT_CONVENTION_ID_FIELD,
@@ -109,10 +114,11 @@ public class LoanDepositTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (mmTrade == null) {
-						if (results.getString(DIRECTION_FIELD.getName()).equals(LoanDepositTrade.Direction.LOAN.name())) {
-							mmTrade = new LoanTrade();
+						if (results.getString(DIRECTION_FIELD.getName())
+								.equals(LoanDepositTrade.Direction.LOAN.name())) {
+							mmTrade = new LoanTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 						} else {
-							mmTrade = new DepositTrade();
+							mmTrade = new DepositTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 						}
 					}
 					TradeSQL.setTradeCommonFields(mmTrade, results);
@@ -132,15 +138,18 @@ public class LoanDepositTradeSQL {
 					if (fixedRate != null) {
 						mmTrade.setFixedRate(fixedRate);
 					} else {
-						mmTrade.setFloatingRateIndex(IndexSQL.getIndexById(results.getLong(FLOATING_RATE_INDEX_ID_FIELD.getName())));
+						mmTrade.setFloatingRateIndex(
+								IndexSQL.getIndexById(results.getLong(FLOATING_RATE_INDEX_ID_FIELD.getName())));
 						mmTrade.setFloatingRateIndexTenor(
 								Tenor.valueOf(results.getString(FLOATING_RATE_INDEX_TENOR_FIELD.getName())));
 						mmTrade.setFixingPeriod(Tenor.valueOf(results.getString(FIXING_PERIOD_FIELD.getName())));
 						mmTrade.setSpread(results.getBigDecimal(SPREAD_FIELD.getName()));
-						mmTrade.setInterestFixing(InterestPayment.valueOf(results.getString(INTEREST_FIXING_FIELD.getName())));
+						mmTrade.setInterestFixing(
+								InterestPayment.valueOf(results.getString(INTEREST_FIXING_FIELD.getName())));
 					}
 					mmTrade.setPaymentFrequency(Tenor.valueOf(results.getString(PAYMENT_FREQUENCY_FIELD.getName())));
-					mmTrade.setInterestPayment(InterestPayment.valueOf(results.getString(INTEREST_PAYMENT_FIELD.getName())));
+					mmTrade.setInterestPayment(
+							InterestPayment.valueOf(results.getString(INTEREST_PAYMENT_FIELD.getName())));
 				}
 			}
 		} catch (SQLException | TradistaBusinessException sqle) {
@@ -231,25 +240,25 @@ public class LoanDepositTradeSQL {
 
 		LoanDepositTrade mmTrade = null;
 		try {
-			if (rs.getLong("loan_deposit_trade_id") == 0) {
+			if (rs.getLong(LOAN_DEPOSIT_TRADE_ID_FIELD.getName()) == 0) {
 				return null;
 			}
 
-			if (rs.getString("direction").equals(LoanDepositTrade.Direction.LOAN.name())) {
-				mmTrade = new LoanTrade();
+			if (rs.getString(DIRECTION_FIELD.getName()).equals(LoanDepositTrade.Direction.LOAN.name())) {
+				mmTrade = new LoanTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			} else {
-				mmTrade = new DepositTrade();
+				mmTrade = new DepositTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			}
 
 			mmTrade.setDayCountConvention(DayCountConventionSQL
 					.getDayCountConventionById(rs.getLong("loan_deposit_day_count_convention_id")));
-			mmTrade.setEndDate(rs.getDate("end_date").toLocalDate());
-			String maturity = rs.getString("maturity");
+			mmTrade.setEndDate(rs.getDate(END_DATE_FIELD.getName()).toLocalDate());
+			String maturity = rs.getString(MATURITY_FIELD.getName());
 			if (maturity != null) {
 				mmTrade.setMaturity(Tenor.valueOf(maturity));
 			}
-			mmTrade.setInterestType(InterestType.valueOf(rs.getString("interest_type")));
-			String compoundPeriod = rs.getString("compound_period");
+			mmTrade.setInterestType(InterestType.valueOf(rs.getString(INTEREST_TYPE_FIELD.getName())));
+			String compoundPeriod = rs.getString(COMPOUND_PERIOD_FIELD.getName());
 			if (compoundPeriod != null) {
 				mmTrade.setMaturity(Tenor.valueOf(compoundPeriod));
 			}
@@ -257,20 +266,18 @@ public class LoanDepositTradeSQL {
 			if (fixedRate != null) {
 				mmTrade.setFixedRate(fixedRate);
 			} else {
-				mmTrade.setFloatingRateIndex(IndexSQL.getIndexById(rs.getLong("floating_rate_index_id")));
-				mmTrade.setFloatingRateIndexTenor(Tenor.valueOf(rs.getString("floating_rate_index_tenor")));
-				mmTrade.setFixingPeriod(Tenor.valueOf(rs.getString("fixing_period")));
-				mmTrade.setSpread(rs.getBigDecimal("spread"));
+				mmTrade.setFloatingRateIndex(IndexSQL.getIndexById(rs.getLong(FLOATING_RATE_INDEX_ID_FIELD.getName())));
+				mmTrade.setFloatingRateIndexTenor(Tenor.valueOf(rs.getString(FLOATING_RATE_INDEX_TENOR_FIELD.getName())));
+				mmTrade.setFixingPeriod(Tenor.valueOf(rs.getString(FIXING_PERIOD_FIELD.getName())));
+				mmTrade.setSpread(rs.getBigDecimal(SPREAD_FIELD.getName()));
 				mmTrade.setInterestFixing(InterestPayment.valueOf(rs.getString("loan_deposit_interest_fixing")));
 			}
-			mmTrade.setPaymentFrequency(Tenor.valueOf(rs.getString("payment_frequency")));
+			mmTrade.setPaymentFrequency(Tenor.valueOf(rs.getString(PAYMENT_FREQUENCY_FIELD.getName())));
 			mmTrade.setInterestPayment(InterestPayment.valueOf(rs.getString("loan_deposit_interest_payment")));
 
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(mmTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 

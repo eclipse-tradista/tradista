@@ -141,10 +141,11 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 
 			if (underlying == null) {
 				// the equity option trade is using a listed equityOption
-				underlying = new EquityTrade();
-				underlying.setCurrency(trade.getCurrency());
-				underlying.setProduct(trade.getEquityOption().getUnderlying());
-				underlying.setQuantity(trade.getEquityOption().getQuantity());
+				underlying = new EquityTrade.Builder()
+						.currency(trade.getCurrency())
+						.product(trade.getEquityOption().getUnderlying())
+						.quantity(trade.getEquityOption().getQuantity())
+						.build();
 			}
 
 			CurrencyPair pair = new CurrencyPair(underlying.getCurrency(), currency);
@@ -388,10 +389,11 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 
 		if (underlying == null) {
 			// the equity option trade is using a listed equityOption
-			underlying = new EquityTrade();
-			underlying.setCurrency(trade.getCurrency());
-			underlying.setProduct(trade.getEquityOption().getUnderlying());
-			underlying.setQuantity(trade.getEquityOption().getQuantity());
+			underlying = new EquityTrade.Builder()
+					.currency(trade.getCurrency())
+					.product(trade.getEquityOption().getUnderlying())
+					.quantity(trade.getEquityOption().getQuantity())
+					.build();
 		}
 		return equityPricerService.expectedReturnCapm(params, underlying, currency, pricingDate);
 	}
@@ -466,10 +468,11 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 
 			if (underlying == null) {
 				// the equity option trade is using a listed equityOption
-				underlying = new EquityTrade();
-				underlying.setCurrency(trade.getCurrency());
-				underlying.setProduct(trade.getEquityOption().getUnderlying());
-				underlying.setQuantity(trade.getEquityOption().getQuantity());
+				underlying = new EquityTrade.Builder()
+						.currency(trade.getCurrency())
+						.product(trade.getEquityOption().getUnderlying())
+						.quantity(trade.getEquityOption().getQuantity())
+						.build();
 			}
 
 			CurrencyPair pair = new CurrencyPair(underlying.getCurrency(), currency);
@@ -600,12 +603,13 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 				.getOpenPositionsFromInventoryByProductAndBookIds(equityOption.getId(), bookId);
 		BigDecimal unrealizedPnl = BigDecimal.ZERO;
 		if (inventories != null && inventories.isEmpty()) {
-			EquityOptionTrade trade = new EquityOptionTrade();
-			trade.setBuySell(true);
-			trade.setEquityOption(equityOption);
-			trade.setType(equityOption.getType());
-			trade.setMaturityDate(equityOption.getMaturityDate());
-			trade.setQuantity(inventories.toArray(new ProductInventory[0])[0].getQuantity());
+			EquityOptionTrade trade = new EquityOptionTrade.Builder()
+					.buySell(true)
+					.equityOption(equityOption)
+					.type(equityOption.getType())
+					.maturityDate(equityOption.getMaturityDate())
+					.quantity(inventories.toArray(new ProductInventory[0])[0].getQuantity())
+					.build();
 			return pvBlackAndScholes(params, trade, currency, pricingDate);
 		}
 		return unrealizedPnl;

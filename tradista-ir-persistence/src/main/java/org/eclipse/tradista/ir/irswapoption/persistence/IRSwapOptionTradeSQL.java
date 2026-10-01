@@ -141,7 +141,8 @@ public class IRSwapOptionTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irSwapOptionTrade == null) {
-						irSwapOptionTrade = new IRSwapOptionTrade();
+						irSwapOptionTrade = new IRSwapOptionTrade.Builder()
+								.creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(irSwapOptionTrade, results);
@@ -267,49 +268,52 @@ public class IRSwapOptionTradeSQL {
 
 		IRSwapOptionTrade irSwapOptionTrade = null;
 		try {
-			if ((rs.getLong("vanilla_option_trade_id") == 0) || (rs.getLong("underlying_irswap_trade_id") == 0)) {
+			if ((rs.getLong(VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
+					|| (rs.getLong("underlying_irswap_trade_id") == 0)) {
 				return null;
 			}
 
-			irSwapOptionTrade = new IRSwapOptionTrade();
-			irSwapOptionTrade.setStyle(getStyle(rs.getString("style")));
-			irSwapOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString("type")));
-			irSwapOptionTrade.setSettlementType(OptionTrade.SettlementType.valueOf(rs.getString("settlement_type")));
-			irSwapOptionTrade.setSettlementDateOffset(rs.getInt("settlement_date_offset"));
-			irSwapOptionTrade.setStrike(rs.getBigDecimal("strike"));
+			irSwapOptionTrade = new IRSwapOptionTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			irSwapOptionTrade.setStyle(getStyle(rs.getString(STYLE_FIELD.getName())));
+			irSwapOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString(TYPE_FIELD.getName())));
+			irSwapOptionTrade.setSettlementType(
+					OptionTrade.SettlementType.valueOf(rs.getString(SETTLEMENT_TYPE_FIELD.getName())));
+			irSwapOptionTrade.setSettlementDateOffset(rs.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
+			irSwapOptionTrade.setStrike(rs.getBigDecimal(STRIKE_FIELD.getName()));
 			irSwapOptionTrade.setMaturityDate(rs.getDate("option_maturity_date").toLocalDate());
-			Date exerciseDate = rs.getDate("exercise_date");
+			Date exerciseDate = rs.getDate(EXERCISE_DATE_FIELD.getName());
 			if (exerciseDate != null) {
 				irSwapOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
 			}
 			long alternativeCashSettlementReferenceRateIndexId = rs
-					.getLong("alternative_cash_settlement_reference_rate_index_id");
+					.getLong(ALTERNATIVE_CASH_SETTLEMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName());
 			if (alternativeCashSettlementReferenceRateIndexId > 0) {
 				irSwapOptionTrade.setAlternativeCashSettlementReferenceRateIndex(
 						IndexSQL.getIndexById(alternativeCashSettlementReferenceRateIndexId));
 			}
 			String alternativeCashSettlementReferenceRateIndexTenor = rs
-					.getString("alternative_cash_settlement_reference_rate_index_tenor");
+					.getString(ALTERNATIVE_CASH_SETTLEMENT_REFERENCE_RATE_INDEX_TENOR_FIELD.getName());
 			if (alternativeCashSettlementReferenceRateIndexTenor != null) {
 				irSwapOptionTrade.setAlternativeCashSettlementReferenceRateIndexTenor(
 						Tenor.valueOf(alternativeCashSettlementReferenceRateIndexTenor));
 			}
-			irSwapOptionTrade.setCashSettlementAmount(rs.getBigDecimal("cash_settlement_amount"));
+			irSwapOptionTrade.setCashSettlementAmount(rs.getBigDecimal(CASH_SETTLEMENT_AMOUNT_FIELD.getName()));
 
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(irSwapOptionTrade, rs);
 
 			// Building the underlying
-			SingleCurrencyIRSwapTrade underlying = new SingleCurrencyIRSwapTrade();
+			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_IRSWAP_CREATION_TIME");
+			SingleCurrencyIRSwapTrade.Builder undBuilder = new SingleCurrencyIRSwapTrade.Builder();
+			if (undCreationTime != null) {
+				undBuilder.creationTime(undCreationTime.toInstant());
+			}
+			SingleCurrencyIRSwapTrade underlying = undBuilder.build();
 			underlying.setId(rs.getLong("UNDERLYING_IRSWAP_TRADE_ID"));
 			underlying.setAmount(rs.getBigDecimal("UND_IRSWAP_AMOUNT"));
 			underlying.setBuySell(rs.getBoolean("UND_IRSWAP_BUY_SELL"));
 			underlying.setCounterparty(LegalEntitySQL.getLegalEntityById(rs.getLong("UND_IRSWAP_counterparty_id")));
 			underlying.setBook(BookSQL.getBookById(rs.getLong("UND_IRSWAP_book_id")));
-			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_IRSWAP_CREATION_TIME");
-			if (undCreationTime != null) {
-				underlying.setCreationDate(undCreationTime.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-			}
 			underlying.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("UND_IRSWAP_CURRENCY_ID")));
 			underlying.setPaymentFrequency(Tenor.valueOf(rs.getString("UNDERLYING_IRSWAP_payment_frequency")));
 			underlying.setReceptionFrequency(Tenor.valueOf(rs.getString("UNDERLYING_IRSWAP_reception_frequency")));

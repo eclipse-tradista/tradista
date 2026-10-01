@@ -1,5 +1,6 @@
 package org.eclipse.tradista.ir.irforward.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FREQUENCY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
@@ -45,7 +46,7 @@ public class IRForwardTradeSQL {
 
 	public static final Field IRFORWARD_TRADE_ID_FIELD = new Field("IRFORWARD_TRADE_ID");
 	public static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
-	public static final Field FREQUENCY_FIELD = new Field("FREQUENCY");
+	public static final Field FREQUENCY_FIELD = new Field(FREQUENCY);
 	public static final Field REFERENCE_RATE_INDEX_ID_FIELD = new Field("REFERENCE_RATE_INDEX_ID");
 	public static final Field REFERENCE_RATE_INDEX_TENOR_FIELD = new Field("REFERENCE_RATE_INDEX_TENOR");
 	public static final Field DAY_COUNT_CONVENTION_ID_FIELD = new Field("DAY_COUNT_CONVENTION_ID");
@@ -92,7 +93,8 @@ public class IRForwardTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irforwardTrade == null) {
-						irforwardTrade = new IRForwardTrade<>();
+						irforwardTrade = new IRForwardTrade.ConcreteBuilder<Product>()
+								.creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(irforwardTrade, results);
@@ -132,8 +134,8 @@ public class IRForwardTradeSQL {
 		return irforwardTrade;
 	}
 
-	public static void setPreparedStatementFields(IRForwardTrade<Product> trade, PreparedStatement stmtSaveIRForwardTrade,
-			long tradeId) throws SQLException {
+	public static void setPreparedStatementFields(IRForwardTrade<Product> trade,
+			PreparedStatement stmtSaveIRForwardTrade, long tradeId) throws SQLException {
 		if (trade.getMaturityDate() != null) {
 			stmtSaveIRForwardTrade.setDate(1, java.sql.Date.valueOf(trade.getMaturityDate()));
 		} else {
@@ -202,8 +204,6 @@ public class IRForwardTradeSQL {
 			stmtSaveIRForwardTrade.executeUpdate();
 
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);

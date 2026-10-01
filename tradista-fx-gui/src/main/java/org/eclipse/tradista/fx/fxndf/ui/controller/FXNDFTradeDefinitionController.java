@@ -424,7 +424,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency arg1, Currency newValue) {
 				if (settlementDate.getValue() != null) {
-					FXNDFTrade fxNdfTrade = new FXNDFTrade();
+					FXNDFTrade fxNdfTrade = new FXNDFTrade.Builder().build();
 					fxNdfTrade.setCurrency(settlementCurrency.getValue());
 					fxNdfTrade.setNonDeliverableCurrency(newValue);
 					fxNdfTrade.setSettlementDate(settlementDate.getValue());
@@ -442,7 +442,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null) {
-					FXNDFTrade fxNdfTrade = new FXNDFTrade();
+					FXNDFTrade fxNdfTrade = new FXNDFTrade.Builder().build();
 					fxNdfTrade.setCurrency(settlementCurrency.getValue());
 					fxNdfTrade.setNonDeliverableCurrency(nonDeliverableCurrency.getValue());
 					fxNdfTrade.setSettlementDate(newDate);
@@ -466,7 +466,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 						boolean isAvailable = true;
 
 						if (fxNdfTrade == null) {
-							fxNdfTrade = new FXNDFTrade();
+							fxNdfTrade = new FXNDFTrade.Builder().build();
 							fxNdfTrade.setCurrency(settlementCurrency.getValue());
 							fxNdfTrade.setNonDeliverableCurrency(nonDeliverableCurrency.getValue());
 						}
@@ -499,7 +499,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxNdfTrade == null) {
-							fxNdfTrade = new FXNDFTrade();
+							fxNdfTrade = new FXNDFTrade.Builder().build();
 							fxNdfTrade.setCurrency(settlementCurrency.getValue());
 							fxNdfTrade.setNonDeliverableCurrency(nonDeliverableCurrency.getValue());
 						}
@@ -563,21 +563,17 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 				buildTrade();
 				oldTradeId = trade.getId();
-				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				trade.setId(fxNDFTradeBusinessDelegate.saveFXNDFTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -659,7 +655,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXNDFTrade();
+			trade = new FXNDFTrade.Builder().build();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

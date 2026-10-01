@@ -43,7 +43,8 @@ public class IncomingMessage extends Message {
 	public Builder toBuilder() {
 		return new Builder().id(this.getId()).objectId(this.getObjectId()).objectType(this.getObjectType())
 				.type(this.getType()).content(this.getContent()).interfaceName(this.getInterfaceName())
-				.status(this.getStatus()).creationTime(this.getCreationTime());
+				.status(this.getStatus()).creationTime(this.getCreationTime())
+				.lastUpdateTime(this.getLastUpdateTime());
 	}
 
 	@Override

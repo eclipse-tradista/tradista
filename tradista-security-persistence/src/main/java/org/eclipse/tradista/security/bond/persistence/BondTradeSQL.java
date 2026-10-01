@@ -1,8 +1,8 @@
 package org.eclipse.tradista.security.bond.persistence;
 
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -80,15 +80,15 @@ public class BondTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (bondTrade == null) {
-						bondTrade = new BondTrade();
+						bondTrade = new BondTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 					TradeSQL.setTradeCommonFields(bondTrade, results);
 					bondTrade.setProduct(BondSQL.getBondById(results.getLong(PRODUCT_ID_FIELD.getName())));
 					bondTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
 				}
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return bondTrade;
 	}
@@ -118,8 +118,8 @@ public class BondTradeSQL {
 			stmtSaveBondTrade.setBigDecimal(1, trade.getQuantity());
 			stmtSaveBondTrade.setLong(2, tradeId);
 			stmtSaveBondTrade.executeUpdate();
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;
@@ -136,7 +136,7 @@ public class BondTradeSQL {
 			if (rs.getLong("bond_trade_id") == 0) {
 				return null;
 			}
-			bondTrade = new BondTrade();
+			bondTrade = new BondTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			bondTrade.setProduct(BondSQL.getBondById(rs.getLong(PRODUCT_ID_FIELD.getName())));
 			bondTrade.setQuantity(rs.getBigDecimal("bond_quantity"));
 
@@ -170,14 +170,14 @@ public class BondTradeSQL {
 				if (bondTrades == null) {
 					bondTrades = new ArrayList<>();
 				}
-				BondTrade bondTrade = new BondTrade();
+				BondTrade bondTrade = new BondTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 				TradeSQL.setTradeCommonFields(bondTrade, results);
 				bondTrade.setProduct(BondSQL.getBondById(results.getLong(PRODUCT_ID_FIELD.getName())));
 				bondTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
 				bondTrades.add(bondTrade);
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return bondTrades;
 	}

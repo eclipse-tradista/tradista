@@ -75,8 +75,18 @@ public final class TradistaDBConstants {
 	public static final String EXCHANGE_ID = "EXCHANGE_ID";
 	public static final String SYMBOL = "SYMBOL";
 	public static final String MATURITY_DATE = "MATURITY_DATE";
+	public static final String MATURITY = "MATURITY";
+	public static final String FREQUENCY = "FREQUENCY";
 	public static final String PRINCIPAL = "PRINCIPAL";
 	public static final String CALENDAR_ID = "CALENDAR_ID";
+	public static final String DIRECTION = "DIRECTION";
+	public static final String PAYMENT_FREQUENCY = "PAYMENT_FREQUENCY";
+	public static final String FIXING_PERIOD = "FIXING_PERIOD";
+	public static final String SPREAD = "SPREAD";
+	public static final String INTEREST_TYPE = "INTEREST_TYPE";
+	public static final String COMPOUND_PERIOD = "COMPOUND_PERIOD";
+	public static final String INTEREST_PAYMENT = "INTEREST_PAYMENT";
+	public static final String INTEREST_FIXING = "INTEREST_FIXING";
 
 	private TradistaDBConstants() {
 	}

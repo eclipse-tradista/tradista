@@ -24,6 +24,7 @@ import org.eclipse.tradista.core.index.persistence.IndexSQL;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.ir.ccyswap.persistence.CcySwapTradeSQL;
 import org.eclipse.tradista.ir.irswap.model.IRSwapTrade;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
 
@@ -53,8 +54,10 @@ public class IRSwapTradeSQL {
 	public static final Field PAYMENT_FIXED_INTEREST_RATE_FIELD = new Field("PAYMENT_FIXED_INTEREST_RATE");
 	public static final Field PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD = new Field("PAYMENT_REFERENCE_RATE_INDEX_ID");
 	public static final Field RECEPTION_REFERENCE_RATE_INDEX_ID_FIELD = new Field("RECEPTION_REFERENCE_RATE_INDEX_ID");
-	public static final Field PAYMENT_REFERENCE_RATE_INDEX_TENOR_FIELD = new Field("PAYMENT_REFERENCE_RATE_INDEX_TENOR");
-	public static final Field RECEPTION_REFERENCE_RATE_INDEX_TENOR_FIELD = new Field("RECEPTION_REFERENCE_RATE_INDEX_TENOR");
+	public static final Field PAYMENT_REFERENCE_RATE_INDEX_TENOR_FIELD = new Field(
+			"PAYMENT_REFERENCE_RATE_INDEX_TENOR");
+	public static final Field RECEPTION_REFERENCE_RATE_INDEX_TENOR_FIELD = new Field(
+			"RECEPTION_REFERENCE_RATE_INDEX_TENOR");
 	public static final Field PAYMENT_SPREAD_FIELD = new Field("PAYMENT_SPREAD");
 	public static final Field RECEPTION_SPREAD_FIELD = new Field("RECEPTION_SPREAD");
 	public static final Field PAYMENT_DAY_COUNT_CONVENTION_ID_FIELD = new Field("PAYMENT_DAY_COUNT_CONVENTION_ID");
@@ -109,7 +112,8 @@ public class IRSwapTradeSQL {
 		SingleCurrencyIRSwapTrade irswapTrade = null;
 		StringBuilder query = new StringBuilder(SQL_QUERY);
 		TradistaDBUtil.addParameterizedFilter(query, IRSWAP_TRADE_ID_FIELD);
-		TradistaDBUtil.addQueryFilter(query, IRSWAP_TRADE_ID_FIELD, "SELECT CCYSWAP_TRADE_ID FROM CCYSWAP_TRADE", true);
+		TradistaDBUtil.addQueryFilter(query, IRSWAP_TRADE_ID_FIELD, TradistaDBUtil.buildSelectQuery(
+				CcySwapTradeSQL.CCYSWAP_TRADE_ID_FIELD, CcySwapTradeSQL.CCYSWAP_TRADE_TABLE), true);
 		if (!includeUnderlying) {
 			TradistaDBUtil.addIsNotNullFilter(query, TRADE_DATE_FIELD);
 		}
@@ -120,7 +124,8 @@ public class IRSwapTradeSQL {
 
 				while (results.next()) {
 					if (irswapTrade == null) {
-						irswapTrade = new SingleCurrencyIRSwapTrade();
+						irswapTrade = new SingleCurrencyIRSwapTrade.Builder()
+								.creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(irswapTrade, results);
@@ -132,28 +137,32 @@ public class IRSwapTradeSQL {
 					if (maturityTenorString != null) {
 						irswapTrade.setMaturityTenor(Tenor.valueOf(maturityTenorString));
 					}
-					irswapTrade.setPaymentFrequency(Tenor.valueOf(results.getString(PAYMENT_FREQUENCY_FIELD.getName())));
-					irswapTrade.setReceptionFrequency(Tenor.valueOf(results.getString(RECEPTION_FREQUENCY_FIELD.getName())));
+					irswapTrade
+							.setPaymentFrequency(Tenor.valueOf(results.getString(PAYMENT_FREQUENCY_FIELD.getName())));
+					irswapTrade.setReceptionFrequency(
+							Tenor.valueOf(results.getString(RECEPTION_FREQUENCY_FIELD.getName())));
 					irswapTrade.setReceptionSpread(results.getBigDecimal(RECEPTION_SPREAD_FIELD.getName()));
-					irswapTrade.setPaymentFixedInterestRate(results.getBigDecimal(PAYMENT_FIXED_INTEREST_RATE_FIELD.getName()));
+					irswapTrade.setPaymentFixedInterestRate(
+							results.getBigDecimal(PAYMENT_FIXED_INTEREST_RATE_FIELD.getName()));
 					irswapTrade.setReceptionReferenceRateIndex(
 							IndexSQL.getIndexById(results.getLong(RECEPTION_REFERENCE_RATE_INDEX_ID_FIELD.getName())));
 					irswapTrade.setReceptionReferenceRateIndexTenor(
 							Tenor.valueOf(results.getString(RECEPTION_REFERENCE_RATE_INDEX_TENOR_FIELD.getName())));
-					irswapTrade.setInterestsToPayFixed(results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName()) == 0);
+					irswapTrade.setInterestsToPayFixed(
+							results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName()) == 0);
 					if (!irswapTrade.isInterestsToPayFixed()) {
 						irswapTrade.setPaymentReferenceRateIndexTenor(
 								Tenor.valueOf(results.getString(PAYMENT_REFERENCE_RATE_INDEX_TENOR_FIELD.getName())));
-						irswapTrade.setPaymentReferenceRateIndex(
-								IndexSQL.getIndexById(results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName())));
+						irswapTrade.setPaymentReferenceRateIndex(IndexSQL
+								.getIndexById(results.getLong(PAYMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName())));
 						irswapTrade.setPaymentSpread(results.getBigDecimal(PAYMENT_SPREAD_FIELD.getName()));
 						irswapTrade.setPaymentInterestFixing(
 								InterestPayment.valueOf(results.getString(PAYMENT_INTEREST_FIXING_FIELD.getName())));
 					}
-					irswapTrade.setPaymentDayCountConvention(DayCountConventionSQL
-							.getDayCountConventionById(results.getLong(PAYMENT_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
-					irswapTrade.setReceptionDayCountConvention(DayCountConventionSQL
-							.getDayCountConventionById(results.getLong(RECEPTION_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
+					irswapTrade.setPaymentDayCountConvention(DayCountConventionSQL.getDayCountConventionById(
+							results.getLong(PAYMENT_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
+					irswapTrade.setReceptionDayCountConvention(DayCountConventionSQL.getDayCountConventionById(
+							results.getLong(RECEPTION_DAY_COUNT_CONVENTION_ID_FIELD.getName())));
 					irswapTrade.setPaymentInterestPayment(
 							InterestPayment.valueOf(results.getString(PAYMENT_INTEREST_PAYMENT_FIELD.getName())));
 					irswapTrade.setReceptionInterestPayment(
@@ -170,7 +179,8 @@ public class IRSwapTradeSQL {
 
 	public static void setPreparedStatementFields(IRSwapTrade trade, PreparedStatement stmtSaveIRSwapTrade,
 			long tradeId) throws SQLException {
-		// Maturity date can be null when the irswap is the underlying of a not exercised option.
+		// Maturity date can be null when the irswap is the underlying of a not
+		// exercised option.
 		LocalDate maturityDate = trade.getMaturityDate();
 		if (maturityDate != null) {
 			stmtSaveIRSwapTrade.setDate(1, java.sql.Date.valueOf(maturityDate));
@@ -245,8 +255,6 @@ public class IRSwapTradeSQL {
 			stmtSaveIRSwapTrade.executeUpdate();
 
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
@@ -267,7 +275,7 @@ public class IRSwapTradeSQL {
 				return null;
 			}
 
-			irswapTrade = new SingleCurrencyIRSwapTrade();
+			irswapTrade = new SingleCurrencyIRSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			java.sql.Date maturityDate = rs.getDate("irswap_maturity_date");
 			if (maturityDate != null) {
 				irswapTrade.setMaturityDate(maturityDate.toLocalDate());
@@ -306,8 +314,6 @@ public class IRSwapTradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(irswapTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 

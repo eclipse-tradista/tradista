@@ -83,11 +83,12 @@ public class FXSwapTradeSQL {
 				while (results.next()) {
 
 					if (fxswapTrade == null) {
-						fxswapTrade = new FXSwapTrade();
+						fxswapTrade = new FXSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(fxswapTrade, results);
-					fxswapTrade.setCurrencyOne(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ONE_ID_FIELD.getName())));
+					fxswapTrade.setCurrencyOne(
+							CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ONE_ID_FIELD.getName())));
 					fxswapTrade.setSettlementDateForward(
 							results.getDate(SETTLEMENT_DATE_FORWARD_FIELD.getName()).toLocalDate());
 					fxswapTrade.setAmountOneSpot(results.getBigDecimal(AMOUNT_ONE_SPOT_FIELD.getName()));
@@ -95,8 +96,8 @@ public class FXSwapTradeSQL {
 					fxswapTrade.setAmountTwoForward(results.getBigDecimal(AMOUNT_TWO_FORWARD_FIELD.getName()));
 				}
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return fxswapTrade;
 	}
@@ -113,7 +114,7 @@ public class FXSwapTradeSQL {
 				return null;
 			}
 
-			fxswapTrade = new FXSwapTrade();
+			fxswapTrade = new FXSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			TradeSQL.setTradeCommonFields(fxswapTrade, rs);
 			fxswapTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxswap_currency_one_id")));
 			fxswapTrade.setSettlementDateForward(rs.getDate("settlement_date_forward").toLocalDate());
@@ -156,10 +157,8 @@ public class FXSwapTradeSQL {
 			stmtSaveFXSwapTrade.setBigDecimal(5, trade.getAmountTwoForward());
 			stmtSaveFXSwapTrade.setLong(6, tradeId);
 			stmtSaveFXSwapTrade.executeUpdate();
-		} catch (SQLException | TradistaBusinessException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

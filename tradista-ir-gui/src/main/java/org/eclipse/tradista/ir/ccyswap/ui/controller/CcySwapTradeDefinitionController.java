@@ -729,7 +729,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 
 			private boolean isAvailable(LocalDate date) {
 				if (irSwapTrade == null) {
-					irSwapTrade = new CcySwapTrade();
+					irSwapTrade = new CcySwapTrade.Builder().build();
 					irSwapTrade.setCurrency(currencyOne.getValue());
 					irSwapTrade.setCurrencyTwo(currencyTwo.getValue());
 				}
@@ -859,21 +859,17 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 				buildTrade();
 				oldTradeId = trade.getId();
-				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				trade.setId(ccySwapTradeBusinessDelegate.saveCcySwapTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
@@ -902,7 +898,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new CcySwapTrade();
+			trade = new CcySwapTrade.Builder().build();
 		}
 		try {
 			if (!notionalAmountOne.getText().isEmpty()) {

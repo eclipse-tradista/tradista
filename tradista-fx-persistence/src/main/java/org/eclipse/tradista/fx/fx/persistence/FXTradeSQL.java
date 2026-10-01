@@ -1,7 +1,5 @@
 package org.eclipse.tradista.fx.fx.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AMOUNT;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_DATE_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
@@ -45,7 +43,8 @@ public class FXTradeSQL {
 	public static final Field CURRENCY_ONE_ID_FIELD = new Field("CURRENCY_ONE_ID");
 	public static final Field AMOUNT_ONE_FIELD = new Field("AMOUNT_ONE");
 
-	private static final Field[] FXSPOT_TRADE_FIELDS = { FXSPOT_TRADE_ID_FIELD, CURRENCY_ONE_ID_FIELD, AMOUNT_ONE_FIELD };
+	private static final Field[] FXSPOT_TRADE_FIELDS = { FXSPOT_TRADE_ID_FIELD, CURRENCY_ONE_ID_FIELD,
+			AMOUNT_ONE_FIELD };
 
 	private static final Field[] FXSPOT_TRADE_FIELDS_FOR_INSERT = { CURRENCY_ONE_ID_FIELD, AMOUNT_ONE_FIELD,
 			FXSPOT_TRADE_ID_FIELD };
@@ -85,25 +84,20 @@ public class FXTradeSQL {
 				while (results.next()) {
 
 					if (fxspotTrade == null) {
-						fxspotTrade = new FXTrade();
+						fxspotTrade = new FXTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(fxspotTrade, results);
-					fxspotTrade.setCurrencyOne(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ONE_ID_FIELD.getName())));
+					fxspotTrade.setCurrencyOne(
+							CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ONE_ID_FIELD.getName())));
 					fxspotTrade.setAmountOne(results.getBigDecimal(AMOUNT_ONE_FIELD.getName()));
 				}
 			}
 			if (fxspotTrade != null) {
-				try {
-					fxTradeBusinessDelegate.determinateType(fxspotTrade);
-				} catch (TradistaBusinessException _) {
-					// Should not appear here.
-				}
+				fxTradeBusinessDelegate.determinateType(fxspotTrade);
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 
 		return fxspotTrade;
@@ -120,7 +114,7 @@ public class FXTradeSQL {
 				return null;
 			}
 
-			fxspotTrade = new FXTrade();
+			fxspotTrade = new FXTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 
 			fxspotTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxspot_currency_one_id")));
 			fxspotTrade.setAmountOne(rs.getBigDecimal("amount_one"));
@@ -162,8 +156,8 @@ public class FXTradeSQL {
 			stmtSaveFXSpotTrade.setBigDecimal(2, trade.getAmountOne());
 			stmtSaveFXSpotTrade.setLong(3, tradeId);
 			stmtSaveFXSpotTrade.executeUpdate();
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

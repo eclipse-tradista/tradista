@@ -47,7 +47,8 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 	@Override
 	public BigDecimal getStrike() {
 		FXTrade underlying = getUnderlying();
-		if (underlying != null && underlying.getAmount() != null && underlying.getAmountOne() != null) {
+		if (underlying != null && underlying.getAmount() != null && underlying.getAmountOne() != null
+				&& underlying.getAmountOne().signum() != 0) {
 			return underlying.getAmount().divide(underlying.getAmountOne(), RoundingMode.HALF_EVEN);
 		} else {
 			return null;
@@ -57,7 +58,7 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 	@Override
 	public Exchange getExchange() {
 		// Exchange is the one of FX
-		return new FXTrade().getExchange();
+		return new FXTrade.Builder().build().getExchange();
 	}
 
 	@Override

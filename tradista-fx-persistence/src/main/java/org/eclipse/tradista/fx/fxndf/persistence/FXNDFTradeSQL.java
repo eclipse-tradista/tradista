@@ -79,7 +79,7 @@ public class FXNDFTradeSQL {
 				while (results.next()) {
 
 					if (fxndfTrade == null) {
-						fxndfTrade = new FXNDFTrade();
+						fxndfTrade = new FXNDFTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
 					TradeSQL.setTradeCommonFields(fxndfTrade, results);
@@ -88,8 +88,8 @@ public class FXNDFTradeSQL {
 					fxndfTrade.setNdfRate(results.getBigDecimal(NDF_RATE_FIELD.getName()));
 				}
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return fxndfTrade;
 	}
@@ -106,7 +106,7 @@ public class FXNDFTradeSQL {
 				return null;
 			}
 
-			fxndfTrade = new FXNDFTrade();
+			fxndfTrade = new FXNDFTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			fxndfTrade
 					.setNonDeliverableCurrency(CurrencySQL.getCurrencyById(rs.getLong("non_deliverable_currency_id")));
 			fxndfTrade.setNdfRate(rs.getBigDecimal("ndf_rate"));
@@ -114,8 +114,6 @@ public class FXNDFTradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(fxndfTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -148,10 +146,8 @@ public class FXNDFTradeSQL {
 			stmtSaveFXNDFTrade.setBigDecimal(2, trade.getNdfRate());
 			stmtSaveFXNDFTrade.setLong(3, tradeId);
 			stmtSaveFXNDFTrade.executeUpdate();
-		} catch (SQLException | TradistaBusinessException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

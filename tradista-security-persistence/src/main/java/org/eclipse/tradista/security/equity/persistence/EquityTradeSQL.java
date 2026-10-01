@@ -82,7 +82,7 @@ public class EquityTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (equityTrade == null) {
-						equityTrade = new EquityTrade();
+						equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 					TradeSQL.setTradeCommonFields(equityTrade, results);
 					equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
@@ -121,9 +121,8 @@ public class EquityTradeSQL {
 			stmtSaveEquityTrade.setBigDecimal(1, trade.getQuantity());
 			stmtSaveEquityTrade.setLong(2, tradeId);
 			stmtSaveEquityTrade.executeUpdate();
-		} catch (SQLException | TradistaBusinessException sqle) {
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;
@@ -141,7 +140,7 @@ public class EquityTradeSQL {
 			if (rs.getLong("equity_trade_id") == 0) {
 				return null;
 			}
-			equityTrade = new EquityTrade();
+			equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			equityTrade.setProduct(EquitySQL.getEquityById(rs.getLong(PRODUCT_ID_FIELD.getName())));
 			equityTrade.setQuantity(rs.getBigDecimal("equity_quantity"));
 
@@ -149,7 +148,6 @@ public class EquityTradeSQL {
 			TradeSQL.setTradeCommonFields(equityTrade, rs);
 
 		} catch (SQLException | TradistaBusinessException e) {
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -179,14 +177,14 @@ public class EquityTradeSQL {
 				if (equityTrades == null) {
 					equityTrades = new ArrayList<>();
 				}
-				EquityTrade equityTrade = new EquityTrade();
+				EquityTrade equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 				TradeSQL.setTradeCommonFields(equityTrade, results);
 				equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
 				equityTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
 				equityTrades.add(equityTrade);
 			}
-		} catch (SQLException | TradistaBusinessException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return equityTrades;
 	}
