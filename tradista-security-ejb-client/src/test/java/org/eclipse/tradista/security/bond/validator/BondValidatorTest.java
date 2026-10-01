@@ -48,131 +48,92 @@ public class BondValidatorTest {
 
 	@Test
 	public void testMissingExchange() {
-		Bond bond = new Bond.Builder(null, "FR0000120271")
-				.currency(currency)
-				.build();
+		Bond bond = new Bond.Builder(null, "FR0000120271").currency(currency).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testMissingIsin() {
-		Bond bond = new Bond.Builder(exchange, null)
-				.currency(currency)
-				.build();
+		Bond bond = new Bond.Builder(exchange, null).currency(currency).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testMissingCurrency() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(null)
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testMissingCouponForFixedRateBond() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.coupon(null)
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).coupon(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testZeroOrNegativeCouponForFixedRateBond() {
-		Bond bondZero = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.coupon(BigDecimal.ZERO)
-				.build();
+		Bond bondZero = new Bond.Builder(exchange, "FR0000120271").currency(currency).coupon(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bondZero));
 
-		Bond bondNeg = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.coupon(BigDecimal.valueOf(-1.5))
+		Bond bondNeg = new Bond.Builder(exchange, "FR0000120271").currency(currency).coupon(BigDecimal.valueOf(-1.5))
 				.build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bondNeg));
 	}
 
 	@Test
 	public void testMissingPrincipal() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.coupon(BigDecimal.valueOf(2.5))
-				.principal(null)
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).coupon(BigDecimal.valueOf(2.5))
+				.principal(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testZeroOrNegativePrincipal() {
-		Bond bondZero = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.principal(BigDecimal.ZERO)
+		Bond bondZero = new Bond.Builder(exchange, "FR0000120271").currency(currency).principal(BigDecimal.ZERO)
 				.build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bondZero));
 
-		Bond bondNeg = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.principal(BigDecimal.valueOf(-1000))
-				.build();
+		Bond bondNeg = new Bond.Builder(exchange, "FR0000120271").currency(currency)
+				.principal(BigDecimal.valueOf(-1000)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bondNeg));
 	}
 
 	@Test
 	public void testDatedDateBeforeIssueDate() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.issueDate(LocalDate.of(2025, 6, 1))
-				.datedDate(LocalDate.of(2025, 5, 1))
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).issueDate(LocalDate.of(2025, 6, 1))
+				.datedDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testMaturityDateBeforeIssueDate() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.issueDate(LocalDate.of(2025, 6, 1))
-				.maturityDate(LocalDate.of(2025, 5, 1))
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).issueDate(LocalDate.of(2025, 6, 1))
+				.maturityDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testMaturityDateBeforeDatedDate() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.datedDate(LocalDate.of(2025, 6, 1))
-				.maturityDate(LocalDate.of(2025, 5, 1))
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).datedDate(LocalDate.of(2025, 6, 1))
+				.maturityDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 
 	@Test
 	public void testZeroOrNegativeRedemptionPrice() {
-		Bond bondZero = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.principal(BigDecimal.valueOf(1000))
-				.redemptionPrice(BigDecimal.ZERO)
-				.build();
+		Bond bondZero = new Bond.Builder(exchange, "FR0000120271").currency(currency)
+				.principal(BigDecimal.valueOf(1000)).redemptionPrice(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bondZero));
 
-		Bond bondNeg = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.principal(BigDecimal.valueOf(1000))
-				.redemptionPrice(BigDecimal.valueOf(-100))
-				.build();
+		Bond bondNeg = new Bond.Builder(exchange, "FR0000120271").currency(currency).principal(BigDecimal.valueOf(1000))
+				.redemptionPrice(BigDecimal.valueOf(-100)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bondNeg));
 	}
 
 	@Test
 	public void testRedemptionPriceWithoutRedemptionCurrency() {
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.redemptionPrice(BigDecimal.valueOf(100))
-				.redemptionCurrency(null)
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency)
+				.redemptionPrice(BigDecimal.valueOf(100)).redemptionCurrency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(bond));
 	}
 

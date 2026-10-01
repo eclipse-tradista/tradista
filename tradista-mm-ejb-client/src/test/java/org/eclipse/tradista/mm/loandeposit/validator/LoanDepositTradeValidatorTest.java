@@ -59,35 +59,19 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	private LoanTrade.Builder createValidLoanTradeBuilder() {
-		return new LoanTrade.Builder()
-				.fixedRate(BigDecimal.valueOf(3.5))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.ONE_YEAR)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(InterestType.SIMPLE);
+		return new LoanTrade.Builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.ONE_YEAR).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(InterestType.SIMPLE);
 	}
 
 	private DepositTrade.Builder createValidDepositTradeBuilder() {
-		return new DepositTrade.Builder()
-				.fixedRate(BigDecimal.valueOf(2.5))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(500_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.ONE_YEAR)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(InterestType.SIMPLE);
+		return new DepositTrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).currency(currency)
+				.amount(BigDecimal.valueOf(500_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.ONE_YEAR).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(InterestType.SIMPLE);
 	}
 
 	@Test
@@ -104,24 +88,12 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testValidFloatingLoanTrade() {
-		LoanTrade trade = new LoanTrade.Builder()
-				.floatingRateIndex(index)
-				.floatingRateIndexTenor(Tenor.THREE_MONTHS)
-				.fixingPeriod(Tenor.THREE_MONTHS)
-				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.spread(BigDecimal.valueOf(0.25))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.THREE_MONTHS)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(InterestType.SIMPLE)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+				.fixingPeriod(Tenor.THREE_MONTHS).interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
+				.spread(BigDecimal.valueOf(0.25)).currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
+				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.THREE_MONTHS).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(InterestType.SIMPLE).build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
@@ -180,19 +152,15 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testSettlementDateBeforeTradeDate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.tradeDate(LocalDate.of(2025, 6, 5))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
+				.settlementDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testSettlementDateEqualsTradeDate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.tradeDate(LocalDate.of(2025, 6, 3))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().tradeDate(LocalDate.of(2025, 6, 3))
+				.settlementDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
@@ -204,27 +172,21 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testEndDateBeforeTradeDate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.endDate(LocalDate.of(2025, 5, 30))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().endDate(LocalDate.of(2025, 5, 30)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testEndDateBeforeSettlementDate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.settlementDate(LocalDate.of(2025, 6, 10))
-				.endDate(LocalDate.of(2025, 6, 5))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().settlementDate(LocalDate.of(2025, 6, 10))
+				.endDate(LocalDate.of(2025, 6, 5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testEndDateEqualsSettlementDate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 6, 3))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
@@ -248,138 +210,82 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testBothFixedAndFloatingPresent() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.floatingRateIndex(index)
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().floatingRateIndex(index).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testBothFixedAndFloatingNull() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.fixedRate(null)
-				.floatingRateIndex(null)
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().fixedRate(null).floatingRateIndex(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testZeroFixedRate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.fixedRate(BigDecimal.ZERO)
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().fixedRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testNegativeFixedRate() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.fixedRate(BigDecimal.valueOf(-1.5))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().fixedRate(BigDecimal.valueOf(-1.5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testFloatingRateMissingFixingPeriod() {
-		LoanTrade trade = new LoanTrade.Builder()
-				.floatingRateIndex(index)
-				.floatingRateIndexTenor(Tenor.THREE_MONTHS)
-				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.THREE_MONTHS)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(InterestType.SIMPLE)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.THREE_MONTHS).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(InterestType.SIMPLE).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testFloatingRateMissingInterestFixing() {
-		LoanTrade trade = new LoanTrade.Builder()
-				.floatingRateIndex(index)
-				.floatingRateIndexTenor(Tenor.THREE_MONTHS)
-				.fixingPeriod(Tenor.THREE_MONTHS)
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.THREE_MONTHS)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(InterestType.SIMPLE)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+				.fixingPeriod(Tenor.THREE_MONTHS).currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
+				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.THREE_MONTHS).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(InterestType.SIMPLE).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testFloatingRateMissingTenor() {
-		LoanTrade trade = new LoanTrade.Builder()
-				.floatingRateIndex(index)
-				.fixingPeriod(Tenor.THREE_MONTHS)
-				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.THREE_MONTHS)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(InterestType.SIMPLE)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).fixingPeriod(Tenor.THREE_MONTHS)
+				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.THREE_MONTHS).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(InterestType.SIMPLE).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testInterestPaymentBeforeInterestFixing() {
-		LoanTrade trade = new LoanTrade.Builder()
-				.floatingRateIndex(index)
-				.floatingRateIndexTenor(Tenor.THREE_MONTHS)
-				.fixingPeriod(Tenor.THREE_MONTHS)
-				.interestFixing(InterestPayment.END_OF_PERIOD)
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.THREE_MONTHS)
-				.dayCountConvention(dcc)
-				.interestPayment(InterestPayment.BEGINNING_OF_PERIOD)
-				.interestType(InterestType.SIMPLE)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+				.fixingPeriod(Tenor.THREE_MONTHS).interestFixing(InterestPayment.END_OF_PERIOD).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.THREE_MONTHS).dayCountConvention(dcc)
+				.interestPayment(InterestPayment.BEGINNING_OF_PERIOD).interestType(InterestType.SIMPLE).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testCompoundInterestMissingCompoundPeriod() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.interestType(InterestType.COMPOUND)
-				.compoundPeriod(null)
+		LoanTrade trade = createValidLoanTradeBuilder().interestType(InterestType.COMPOUND).compoundPeriod(null)
 				.build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testMaturityAndEndDateMismatch() {
-		LoanTrade trade = createValidLoanTradeBuilder()
-				.maturity(Tenor.ONE_YEAR)
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 12, 31))
-				.build();
+		LoanTrade trade = createValidLoanTradeBuilder().maturity(Tenor.ONE_YEAR)
+				.settlementDate(LocalDate.of(2025, 6, 3)).endDate(LocalDate.of(2025, 12, 31)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 }

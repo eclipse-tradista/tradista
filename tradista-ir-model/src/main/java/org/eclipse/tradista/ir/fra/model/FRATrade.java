@@ -117,16 +117,13 @@ public class FRATrade extends IRForwardTrade<Product> implements Instrument {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.maturityDate(getMaturityDate()).frequency(getFrequency())
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(getMaturityDate()).frequency(getFrequency())
 				.interestPayment(getInterestPayment()).interestFixing(getInterestFixing())
-				.referenceRateIndex(getReferenceRateIndex())
-				.referenceRateIndexTenor(getReferenceRateIndexTenor())
-				.dayCountConvention(getDayCountConvention()).fixedRate(this.fixedRate)
-				.startDate(this.startDate);
+				.referenceRateIndex(getReferenceRateIndex()).referenceRateIndexTenor(getReferenceRateIndexTenor())
+				.dayCountConvention(getDayCountConvention()).fixedRate(this.fixedRate).startDate(this.startDate);
 		return builder;
 	}
 

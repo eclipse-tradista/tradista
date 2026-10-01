@@ -55,20 +55,12 @@ public class FRATradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewFRATrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FRATrade trade = new FRATrade.Builder()
-				.fixedRate(BigDecimal.valueOf(2.5))
-				.startDate(LocalDate.of(2025, 6, 1))
-				.maturityDate(LocalDate.of(2025, 9, 1))
-				.referenceRateIndex(index)
+		FRATrade trade = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 6, 1))
+				.maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 5, 28))
-				.settlementDate(LocalDate.of(2025, 6, 1))
-				.build();
+				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -84,13 +76,8 @@ public class FRATradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FRATrade trade = new FRATrade.Builder()
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		FRATrade trade = new FRATrade.Builder().book(book).counterparty(counterparty).currency(currency)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -99,12 +86,8 @@ public class FRATradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FRATrade trade = new FRATrade.Builder()
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.creationTime(originalCreation)
-				.build();
+		FRATrade trade = new FRATrade.Builder().book(book).counterparty(counterparty).currency(currency)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -116,11 +99,7 @@ public class FRATradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FRATrade trade = new FRATrade.Builder()
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.build();
+		FRATrade trade = new FRATrade.Builder().book(book).counterparty(counterparty).currency(currency).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -135,22 +114,13 @@ public class FRATradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FRATrade original = new FRATrade.Builder()
-				.fixedRate(BigDecimal.valueOf(2.5))
-				.startDate(LocalDate.of(2025, 6, 1))
-				.maturityDate(LocalDate.of(2025, 9, 1))
-				.referenceRateIndex(index)
+		FRATrade original = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5))
+				.startDate(LocalDate.of(2025, 6, 1)).maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 5, 28))
-				.settlementDate(LocalDate.of(2025, 6, 1))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1))
+				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		FRATrade copy = original.toBuilder().build();
 

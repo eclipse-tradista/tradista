@@ -58,17 +58,16 @@ public class CcySwapTradeValidatorTest {
 	}
 
 	private CcySwapTrade.Builder createValidTradeBuilder() {
-		return new CcySwapTrade.Builder().currency(eur).currencyTwo(usd)
-				.amount(BigDecimal.valueOf(1_000_000)).notionalAmountTwo(BigDecimal.valueOf(1_100_000))
-				.book(book).counterparty(counterparty)
+		return new CcySwapTrade.Builder().currency(eur).currencyTwo(usd).amount(BigDecimal.valueOf(1_000_000))
+				.notionalAmountTwo(BigDecimal.valueOf(1_100_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.maturityDate(LocalDate.of(2030, 6, 3)).paymentFrequency(Tenor.SIX_MONTHS)
 				.receptionFrequency(Tenor.THREE_MONTHS).paymentInterestPayment(InterestPayment.END_OF_PERIOD)
 				.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
 				.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionReferenceRateIndex(index).receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.interestsToPayFixed(true).paymentFixedInterestRate(BigDecimal.valueOf(2.5))
+				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)
+				.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS).interestsToPayFixed(true)
+				.paymentFixedInterestRate(BigDecimal.valueOf(2.5))
 				.paymentDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
 				.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360));
 	}
@@ -197,8 +196,7 @@ public class CcySwapTradeValidatorTest {
 
 	@Test
 	public void testFixedInterestsMissingFixedRate() {
-		CcySwapTrade trade = createValidTradeBuilder().interestsToPayFixed(true)
-				.paymentFixedInterestRate(null).build();
+		CcySwapTrade trade = createValidTradeBuilder().interestsToPayFixed(true).paymentFixedInterestRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
@@ -222,10 +220,8 @@ public class CcySwapTradeValidatorTest {
 
 	@Test
 	public void testPaymentInterestPaymentBeforePaymentInterestFixing() {
-		CcySwapTrade trade = createValidTradeBuilder()
-				.paymentInterestPayment(InterestPayment.BEGINNING_OF_PERIOD)
-				.paymentInterestFixing(InterestPayment.END_OF_PERIOD)
-				.build();
+		CcySwapTrade trade = createValidTradeBuilder().paymentInterestPayment(InterestPayment.BEGINNING_OF_PERIOD)
+				.paymentInterestFixing(InterestPayment.END_OF_PERIOD).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 

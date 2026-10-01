@@ -90,8 +90,8 @@ public class EquityOption extends Product {
 	public Builder toBuilder() {
 		Builder builder = new Builder(this.code, this.type, this.strike, this.maturityDate,
 				this.equityOptionContractSpecification);
-		builder.id(getId()).exchange(getExchange()).creationTime(getCreationTime())
-				.lastUpdateTime(getLastUpdateTime()).underlying(this.underlying);
+		builder.id(getId()).exchange(getExchange()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
+				.underlying(this.underlying);
 		return builder;
 	}
 

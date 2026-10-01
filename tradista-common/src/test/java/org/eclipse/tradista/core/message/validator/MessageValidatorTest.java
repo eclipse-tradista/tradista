@@ -39,12 +39,8 @@ public class MessageValidatorTest {
 	}
 
 	private IncomingMessage.Builder createValidMessageBuilder() {
-		return new IncomingMessage.Builder()
-				.type("CONFIRMATION")
-				.objectType("Trade")
-				.objectId(12345L)
-				.content("Sample confirmation message")
-				.status(status);
+		return new IncomingMessage.Builder().type("CONFIRMATION").objectType("Trade").objectId(12345L)
+				.content("Sample confirmation message").status(status);
 	}
 
 	@Test
@@ -55,10 +51,7 @@ public class MessageValidatorTest {
 
 	@Test
 	public void testValidMessageWithoutObjectReference() {
-		IncomingMessage message = new IncomingMessage.Builder()
-				.type("SYSTEM")
-				.status(status)
-				.build();
+		IncomingMessage message = new IncomingMessage.Builder().type("SYSTEM").status(status).build();
 		assertDoesNotThrow(() -> validator.validateMessage(message));
 	}
 
@@ -78,31 +71,19 @@ public class MessageValidatorTest {
 
 	@Test
 	public void testBlankObjectTypeWhenObjectIdIsPositive() {
-		IncomingMessage message = createValidMessageBuilder()
-				.objectType(null)
-				.objectId(100L)
-				.build();
+		IncomingMessage message = createValidMessageBuilder().objectType(null).objectId(100L).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(message));
 
-		IncomingMessage messageBlank = createValidMessageBuilder()
-				.objectType("   ")
-				.objectId(100L)
-				.build();
+		IncomingMessage messageBlank = createValidMessageBuilder().objectType("   ").objectId(100L).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(messageBlank));
 	}
 
 	@Test
 	public void testObjectTypePresentWhenObjectIdIsNotPositive() {
-		IncomingMessage messageZero = createValidMessageBuilder()
-				.objectType("Trade")
-				.objectId(0L)
-				.build();
+		IncomingMessage messageZero = createValidMessageBuilder().objectType("Trade").objectId(0L).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(messageZero));
 
-		IncomingMessage messageNegative = createValidMessageBuilder()
-				.objectType("Trade")
-				.objectId(-5L)
-				.build();
+		IncomingMessage messageNegative = createValidMessageBuilder().objectType("Trade").objectId(-5L).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(messageNegative));
 	}
 

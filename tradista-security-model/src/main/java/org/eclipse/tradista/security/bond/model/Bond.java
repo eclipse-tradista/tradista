@@ -110,14 +110,12 @@ public class Bond extends Security implements Instrument {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder(getExchange(), getIsin());
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.issuer(getIssuer()).issueDate(getIssueDate()).issuePrice(getIssuePrice())
-				.currency(getCurrency()).coupon(this.coupon).maturityDate(this.maturityDate)
-				.principal(this.principal).redemptionPrice(this.redemptionPrice)
-				.redemptionCurrency(this.redemptionCurrency).datedDate(this.datedDate)
-				.couponType(this.couponType).couponFrequency(this.couponFrequency)
-				.referenceRateIndex(this.referenceRateindex).cap(this.cap).floor(this.floor)
-				.spread(this.spread).leverageFactor(this.leverageFactor).coupons(this.coupons);
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).issuer(getIssuer())
+				.issueDate(getIssueDate()).issuePrice(getIssuePrice()).currency(getCurrency()).coupon(this.coupon)
+				.maturityDate(this.maturityDate).principal(this.principal).redemptionPrice(this.redemptionPrice)
+				.redemptionCurrency(this.redemptionCurrency).datedDate(this.datedDate).couponType(this.couponType)
+				.couponFrequency(this.couponFrequency).referenceRateIndex(this.referenceRateindex).cap(this.cap)
+				.floor(this.floor).spread(this.spread).leverageFactor(this.leverageFactor).coupons(this.coupons);
 		return builder;
 	}
 

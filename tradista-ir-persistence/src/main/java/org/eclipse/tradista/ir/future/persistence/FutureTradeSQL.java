@@ -212,7 +212,8 @@ public class FutureTradeSQL {
 					if (futureTrades == null) {
 						futureTrades = new ArrayList<>();
 					}
-					FutureTrade futureTrade = new FutureTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+					FutureTrade futureTrade = new FutureTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
+							.build();
 
 					TradeSQL.setTradeCommonFields(futureTrade, results);
 					java.sql.Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());

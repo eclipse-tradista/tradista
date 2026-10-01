@@ -47,24 +47,20 @@ public class SingleCurrencyIRSwapTrade extends IRSwapTrade implements Instrument
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.maturityDate(this.maturityDate).maturityTenor(this.maturityTenor)
-				.paymentFrequency(this.paymentFrequency).receptionFrequency(this.receptionFrequency)
-				.paymentInterestPayment(this.paymentInterestPayment)
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(this.maturityDate)
+				.maturityTenor(this.maturityTenor).paymentFrequency(this.paymentFrequency)
+				.receptionFrequency(this.receptionFrequency).paymentInterestPayment(this.paymentInterestPayment)
 				.receptionInterestPayment(this.receptionInterestPayment)
-				.paymentInterestFixing(this.paymentInterestFixing)
-				.receptionInterestFixing(this.receptionInterestFixing)
+				.paymentInterestFixing(this.paymentInterestFixing).receptionInterestFixing(this.receptionInterestFixing)
 				.paymentReferenceRateIndexTenor(this.paymentReferenceRateIndexTenor)
 				.receptionReferenceRateIndexTenor(this.receptionReferenceRateIndexTenor)
 				.receptionReferenceRateIndex(this.receptionReferenceRateIndex)
-				.paymentReferenceRateIndex(this.paymentReferenceRateIndex)
-				.paymentSpread(this.paymentSpread).receptionSpread(this.receptionSpread)
-				.paymentFixedInterestRate(this.paymentFixedInterestRate)
-				.interestsToPayFixed(this.interestsToPayFixed)
-				.paymentDayCountConvention(this.paymentDayCountConvention)
+				.paymentReferenceRateIndex(this.paymentReferenceRateIndex).paymentSpread(this.paymentSpread)
+				.receptionSpread(this.receptionSpread).paymentFixedInterestRate(this.paymentFixedInterestRate)
+				.interestsToPayFixed(this.interestsToPayFixed).paymentDayCountConvention(this.paymentDayCountConvention)
 				.receptionDayCountConvention(this.receptionDayCountConvention);
 		return builder;
 	}

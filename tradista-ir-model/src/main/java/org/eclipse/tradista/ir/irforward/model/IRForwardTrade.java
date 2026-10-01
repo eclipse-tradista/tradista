@@ -134,14 +134,12 @@ public class IRForwardTrade<P extends Product> extends Trade<P> {
 	@Override
 	public Builder<P, ?, ?> toBuilder() {
 		ConcreteBuilder<P> builder = new ConcreteBuilder<>();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.maturityDate(this.maturityDate).frequency(this.frequency)
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(this.maturityDate).frequency(this.frequency)
 				.interestPayment(this.interestPayment).interestFixing(this.interestFixing)
-				.referenceRateIndex(this.referenceRateIndex)
-				.referenceRateIndexTenor(this.referenceRateIndexTenor)
+				.referenceRateIndex(this.referenceRateIndex).referenceRateIndexTenor(this.referenceRateIndexTenor)
 				.dayCountConvention(this.dayCountConvention);
 		return builder;
 	}
@@ -192,8 +190,7 @@ public class IRForwardTrade<P extends Product> extends Trade<P> {
 		}
 	}
 
-	public static class ConcreteBuilder<P extends Product>
-			extends Builder<P, IRForwardTrade<P>, ConcreteBuilder<P>> {
+	public static class ConcreteBuilder<P extends Product> extends Builder<P, IRForwardTrade<P>, ConcreteBuilder<P>> {
 		@Override
 		protected ConcreteBuilder<P> self() {
 			return this;

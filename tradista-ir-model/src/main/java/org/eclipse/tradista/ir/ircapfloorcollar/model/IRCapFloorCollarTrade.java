@@ -132,11 +132,10 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.capStrike(this.capStrike).floorStrike(this.floorStrike)
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).capStrike(this.capStrike).floorStrike(this.floorStrike)
 				.irForwardTrade(this.irForwardTrade);
 		return builder;
 	}

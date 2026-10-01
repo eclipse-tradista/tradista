@@ -80,7 +80,8 @@ public class FutureSQL {
 					future.setId(results.getLong(FUTURE_ID_FIELD.getName()));
 					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
 					if (creationTimestamp != null) {
-						future.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+						future.setCreationDate(
+								creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 					}
 					future.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
 				}
@@ -94,14 +95,14 @@ public class FutureSQL {
 	public static Future getFutureByContractSpecificationAndSymbol(String contractSpecification, String symbol) {
 		Future future = null;
 		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(FUTURE_TABLE,
-				Join.innerEq(ProductSQL.PRODUCT_TABLE, FUTURE_ID_FIELD, ProductSQL.ID_FIELD),
-				Join.innerEq(FUTURE_CONTRACT_SPECIFICATION_TABLE, FUTURE_CONTRACT_SPECIFICATION_ID_FIELD,
-						FCS_ID_FIELD)));
+				Join.innerEq(ProductSQL.PRODUCT_TABLE, FUTURE_ID_FIELD, ProductSQL.ID_FIELD), Join.innerEq(
+						FUTURE_CONTRACT_SPECIFICATION_TABLE, FUTURE_CONTRACT_SPECIFICATION_ID_FIELD, FCS_ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sql, FCS_NAME_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, SYMBOL_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFutureByContractSpecificationAndSymbol = con.prepareStatement(sql.toString())) {
+				PreparedStatement stmtGetFutureByContractSpecificationAndSymbol = con
+						.prepareStatement(sql.toString())) {
 			stmtGetFutureByContractSpecificationAndSymbol.setString(1, contractSpecification);
 			stmtGetFutureByContractSpecificationAndSymbol.setString(2, symbol);
 			try (ResultSet results = stmtGetFutureByContractSpecificationAndSymbol.executeQuery()) {
@@ -114,7 +115,8 @@ public class FutureSQL {
 					future.setId(results.getLong(FUTURE_ID_FIELD.getName()));
 					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
 					if (creationTimestamp != null) {
-						future.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+						future.setCreationDate(
+								creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 					}
 					future.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
 				}
@@ -137,8 +139,9 @@ public class FutureSQL {
 				if (futures == null) {
 					futures = new HashSet<>();
 				}
-				Future future = new Future(results.getString(SYMBOL_FIELD.getName()), FutureContractSpecificationSQL
-						.getFutureContractSpecificationById(results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
+				Future future = new Future(results.getString(SYMBOL_FIELD.getName()),
+						FutureContractSpecificationSQL.getFutureContractSpecificationById(
+								results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
 				future.setId(results.getLong(FUTURE_ID_FIELD.getName()));
 				Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
 				if (creationTimestamp != null) {
@@ -170,8 +173,8 @@ public class FutureSQL {
 			if (future.getId() == 0) {
 				stmtSaveProduct.setTimestamp(1,
 						Timestamp.from(future.getCreationTime() != null ? future.getCreationTime() : Instant.now()));
-				stmtSaveProduct.setTimestamp(2,
-						Timestamp.from(future.getLastUpdateTime() != null ? future.getLastUpdateTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(2, Timestamp
+						.from(future.getLastUpdateTime() != null ? future.getLastUpdateTime() : Instant.now()));
 				stmtSaveProduct.setLong(3, future.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));

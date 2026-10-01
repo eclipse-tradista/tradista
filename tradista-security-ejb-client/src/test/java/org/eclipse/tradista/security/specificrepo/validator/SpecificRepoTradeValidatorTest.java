@@ -59,18 +59,10 @@ public class SpecificRepoTradeValidatorTest {
 	}
 
 	private SpecificRepoTrade.Builder createValidTradeBuilder() {
-		return new SpecificRepoTrade.Builder()
-				.security(bond)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 6, 10))
-				.repoRate(BigDecimal.valueOf(2.5))
-				.marginRate(BigDecimal.valueOf(102.0))
-				.amount(BigDecimal.valueOf(1_000_000))
-				.status(status);
+		return new SpecificRepoTrade.Builder().security(bond).book(book).counterparty(counterparty).currency(currency)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
+				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status);
 	}
 
 	@Test
@@ -110,10 +102,8 @@ public class SpecificRepoTradeValidatorTest {
 
 	@Test
 	public void testEndDateBeforeStartDate() {
-		SpecificRepoTrade trade = createValidTradeBuilder()
-				.settlementDate(LocalDate.of(2025, 6, 10))
-				.endDate(LocalDate.of(2025, 6, 3))
-				.build();
+		SpecificRepoTrade trade = createValidTradeBuilder().settlementDate(LocalDate.of(2025, 6, 10))
+				.endDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 

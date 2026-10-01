@@ -54,35 +54,20 @@ public class EquityOptionTradeAuditTest {
 		book = new Book("TradingBook", po);
 
 		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).build();
-		underlyingTrade = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.quantity(BigDecimal.valueOf(100))
-				.amount(BigDecimal.valueOf(50.0))
-				.build();
+		underlyingTrade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).build();
 	}
 
 	@Test
 	public void testDefaultCreationTimeOnNewEquityOptionTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		EquityOptionTrade trade = new EquityOptionTrade.Builder()
-				.underlying(underlyingTrade)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.maturityDate(LocalDate.of(2025, 9, 1))
-				.strike(BigDecimal.valueOf(100))
-				.style(VanillaOptionTrade.Style.EUROPEAN)
-				.type(OptionTrade.Type.CALL)
-				.settlementType(OptionTrade.SettlementType.PHYSICAL)
-				.quantity(BigDecimal.valueOf(10))
-				.amount(BigDecimal.valueOf(5.0))
-				.build();
+		EquityOptionTrade trade = new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book)
+				.counterparty(counterparty).currency(currency).tradeDate(LocalDate.of(2025, 6, 1))
+				.settlementDate(LocalDate.of(2025, 6, 3)).maturityDate(LocalDate.of(2025, 9, 1))
+				.strike(BigDecimal.valueOf(100)).style(VanillaOptionTrade.Style.EUROPEAN).type(OptionTrade.Type.CALL)
+				.settlementType(OptionTrade.SettlementType.PHYSICAL).quantity(BigDecimal.valueOf(10))
+				.amount(BigDecimal.valueOf(5.0)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -98,13 +83,8 @@ public class EquityOptionTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		EquityOptionTrade trade = new EquityOptionTrade.Builder()
-				.underlying(underlyingTrade)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		EquityOptionTrade trade = new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book)
+				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -113,12 +93,8 @@ public class EquityOptionTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		EquityOptionTrade trade = new EquityOptionTrade.Builder()
-				.underlying(underlyingTrade)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		EquityOptionTrade trade = new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book)
+				.counterparty(counterparty).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -130,11 +106,8 @@ public class EquityOptionTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		EquityOptionTrade trade = new EquityOptionTrade.Builder()
-				.underlying(underlyingTrade)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		EquityOptionTrade trade = new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book)
+				.counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -149,20 +122,11 @@ public class EquityOptionTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		EquityOptionTrade original = new EquityOptionTrade.Builder()
-				.underlying(underlyingTrade)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.maturityDate(LocalDate.of(2025, 9, 1))
-				.strike(BigDecimal.valueOf(100))
-				.quantity(BigDecimal.valueOf(10))
-				.amount(BigDecimal.valueOf(5.0))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		EquityOptionTrade original = new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book)
+				.counterparty(counterparty).currency(currency).tradeDate(LocalDate.of(2025, 6, 1))
+				.settlementDate(LocalDate.of(2025, 6, 3)).maturityDate(LocalDate.of(2025, 9, 1))
+				.strike(BigDecimal.valueOf(100)).quantity(BigDecimal.valueOf(10)).amount(BigDecimal.valueOf(5.0))
+				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		EquityOptionTrade copy = original.toBuilder().build();
 

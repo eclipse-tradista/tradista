@@ -41,8 +41,7 @@ public class FutureAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewFuture() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		Future future = new Future.Builder("MAR26", contractSpecification)
-				.maturityDate(LocalDate.of(2026, 3, 20))
+		Future future = new Future.Builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20))
 				.build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
@@ -59,10 +58,8 @@ public class FutureAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		Future future = new Future.Builder("MAR26", contractSpecification)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		Future future = new Future.Builder("MAR26", contractSpecification).creationTime(historicalCreation)
+				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, future.getCreationTime());
 		assertEquals(historicalUpdate, future.getLastUpdateTime());
@@ -71,9 +68,7 @@ public class FutureAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		Future future = new Future.Builder("MAR26", contractSpecification)
-				.creationTime(originalCreation)
-				.build();
+		Future future = new Future.Builder("MAR26", contractSpecification).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, future.getCreationTime());
 
@@ -100,11 +95,8 @@ public class FutureAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		Future original = new Future.Builder("MAR26", contractSpecification)
-				.maturityDate(LocalDate.of(2026, 3, 20))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		Future original = new Future.Builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20))
+				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		Future copy = original.toBuilder().build();
 

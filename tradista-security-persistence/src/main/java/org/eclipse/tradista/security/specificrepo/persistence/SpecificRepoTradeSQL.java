@@ -63,7 +63,8 @@ public class SpecificRepoTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (specificRepoTrade == null) {
-						specificRepoTrade = new SpecificRepoTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						specificRepoTrade = new SpecificRepoTrade.Builder()
+								.creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 					TradeSQL.setTradeCommonFields(specificRepoTrade, results);
 					RepoTradeSQL.setRepoTradeCommonFields(specificRepoTrade, results);

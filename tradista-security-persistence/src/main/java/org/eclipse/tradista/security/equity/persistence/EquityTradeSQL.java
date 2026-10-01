@@ -177,7 +177,8 @@ public class EquityTradeSQL {
 				if (equityTrades == null) {
 					equityTrades = new ArrayList<>();
 				}
-				EquityTrade equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+				EquityTrade equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
+						.build();
 				TradeSQL.setTradeCommonFields(equityTrade, results);
 				equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
 				equityTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));

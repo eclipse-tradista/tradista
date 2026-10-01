@@ -158,14 +158,12 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.maturityDate(getMaturityDate()).frequency(getFrequency())
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(getMaturityDate()).frequency(getFrequency())
 				.interestPayment(getInterestPayment()).interestFixing(getInterestFixing())
-				.referenceRateIndex(getReferenceRateIndex())
-				.referenceRateIndexTenor(getReferenceRateIndexTenor())
+				.referenceRateIndex(getReferenceRateIndex()).referenceRateIndexTenor(getReferenceRateIndexTenor())
 				.dayCountConvention(getDayCountConvention()).quantity(this.quantity);
 		return builder;
 	}

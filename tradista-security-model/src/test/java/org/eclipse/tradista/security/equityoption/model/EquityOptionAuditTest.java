@@ -47,9 +47,7 @@ public class EquityOptionAuditTest {
 	public void testDefaultCreationTimeOnNewEquityOption() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(option.getCreationTime());
@@ -66,10 +64,8 @@ public class EquityOptionAuditTest {
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).creationTime(historicalCreation)
+				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, option.getCreationTime());
 		assertEquals(historicalUpdate, option.getLastUpdateTime());
@@ -79,9 +75,7 @@ public class EquityOptionAuditTest {
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.creationTime(originalCreation)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, option.getCreationTime());
 
@@ -110,11 +104,8 @@ public class EquityOptionAuditTest {
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
 		EquityOption original = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying)
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).creationTime(creationTime)
+				.lastUpdateTime(lastUpdateTime).build();
 
 		EquityOption copy = original.toBuilder().build();
 

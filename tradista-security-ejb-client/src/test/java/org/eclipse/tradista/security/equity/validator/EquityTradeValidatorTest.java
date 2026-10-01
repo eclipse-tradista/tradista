@@ -56,15 +56,9 @@ public class EquityTradeValidatorTest {
 	}
 
 	private EquityTrade.Builder createValidTradeBuilder() {
-		return new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.quantity(BigDecimal.valueOf(100))
-				.amount(BigDecimal.valueOf(50.0));
+		return new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty).currency(currency)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0));
 	}
 
 	@Test
@@ -110,10 +104,8 @@ public class EquityTradeValidatorTest {
 
 	@Test
 	public void testSettlementDateBeforeTradeDate() {
-		EquityTrade trade = createValidTradeBuilder()
-				.tradeDate(LocalDate.of(2025, 6, 5))
-				.settlementDate(LocalDate.of(2025, 6, 2))
-				.build();
+		EquityTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
+				.settlementDate(LocalDate.of(2025, 6, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 

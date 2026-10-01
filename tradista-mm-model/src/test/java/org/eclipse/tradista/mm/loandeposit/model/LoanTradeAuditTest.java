@@ -53,19 +53,12 @@ public class LoanTradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewLoanTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		LoanTrade trade = new LoanTrade.Builder()
-				.fixedRate(BigDecimal.valueOf(3.5))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.paymentFrequency(Tenor.ONE_YEAR)
+		LoanTrade trade = new LoanTrade.Builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.ONE_YEAR)
 				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.interestPayment(InterestPayment.END_OF_PERIOD)
-				.build();
+				.interestPayment(InterestPayment.END_OF_PERIOD).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -81,13 +74,8 @@ public class LoanTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		LoanTrade trade = new LoanTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().currency(currency).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -96,12 +84,8 @@ public class LoanTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		LoanTrade trade = new LoanTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().currency(currency).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -113,11 +97,7 @@ public class LoanTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		LoanTrade trade = new LoanTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		LoanTrade trade = new LoanTrade.Builder().currency(currency).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -132,18 +112,10 @@ public class LoanTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		LoanTrade original = new LoanTrade.Builder()
-				.fixedRate(BigDecimal.valueOf(3.5))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2026, 6, 3))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		LoanTrade original = new LoanTrade.Builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2026, 6, 3)).creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		LoanTrade copy = original.toBuilder().build();
 

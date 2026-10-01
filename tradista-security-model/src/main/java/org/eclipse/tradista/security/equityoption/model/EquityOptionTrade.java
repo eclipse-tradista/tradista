@@ -61,19 +61,17 @@ public class EquityOptionTrade extends VanillaOptionTrade<EquityTrade> {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.type(getType()).underlying(getUnderlying()).maturityDate(getMaturityDate())
-				.strike(getStrike()).settlementType(getSettlementType())
-				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate())
-				.style(getStyle()).quantity(this.quantity);
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).type(getType()).underlying(getUnderlying())
+				.maturityDate(getMaturityDate()).strike(getStrike()).settlementType(getSettlementType())
+				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate()).style(getStyle())
+				.quantity(this.quantity);
 		return builder;
 	}
 
-	public static class Builder
-			extends VanillaOptionTrade.Builder<EquityTrade, EquityOptionTrade, Builder> {
+	public static class Builder extends VanillaOptionTrade.Builder<EquityTrade, EquityOptionTrade, Builder> {
 		protected BigDecimal quantity;
 
 		public Builder quantity(BigDecimal quantity) {

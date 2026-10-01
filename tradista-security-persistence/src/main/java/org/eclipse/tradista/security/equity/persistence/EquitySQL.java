@@ -85,7 +85,6 @@ public class EquitySQL {
 			PAY_DIVIDEND_FIELD, DIVIDEND_CURRENCY_ID_FIELD, DIVIDEND_FREQUENCY_FIELD, ACTIVE_FROM_FIELD,
 			ACTIVE_TO_FIELD };
 
-
 	private static final Join EQUITY_PRODUCT_JOIN = Join.innerEq(ProductSQL.PRODUCT_TABLE, EQUITY_PRODUCT_ID_FIELD,
 			ProductSQL.ID_FIELD);
 	private static final Join EQUITY_SECURITY_JOIN = Join.innerEq(SECURITY_TABLE, EQUITY_PRODUCT_ID_FIELD,
@@ -101,8 +100,8 @@ public class EquitySQL {
 				PreparedStatement stmtSaveProduct = (equity.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, ProductSQL.PRODUCT_TABLE,
 								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
-						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD, ProductSQL.PRODUCT_TABLE,
-								ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
+								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
 				PreparedStatement stmtSaveSecurity = (equity.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, SECURITY_TABLE, SECURITY_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, SECURITY_PRODUCT_ID_FIELD, SECURITY_TABLE,
@@ -114,8 +113,8 @@ public class EquitySQL {
 			if (equity.getId() == 0) {
 				stmtSaveProduct.setTimestamp(1,
 						Timestamp.from(equity.getCreationTime() != null ? equity.getCreationTime() : Instant.now()));
-				stmtSaveProduct.setTimestamp(2,
-						Timestamp.from(equity.getLastUpdateTime() != null ? equity.getLastUpdateTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(2, Timestamp
+						.from(equity.getLastUpdateTime() != null ? equity.getLastUpdateTime() : Instant.now()));
 				stmtSaveProduct.setLong(3, equity.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));
@@ -283,9 +282,9 @@ public class EquitySQL {
 
 	public static Equity getEquityByIsinAndExchangeCode(String isin, String exchangeCode) {
 		Equity equity = null;
-		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(EQUITY_TABLE, EQUITY_PRODUCT_JOIN,
-				EQUITY_SECURITY_JOIN,
-				Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
+		StringBuilder sql = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(EQUITY_TABLE, EQUITY_PRODUCT_JOIN, EQUITY_SECURITY_JOIN,
+						Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, ExchangeSQL.CODE_FIELD);
 

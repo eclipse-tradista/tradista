@@ -66,12 +66,11 @@ public class Equity extends Security {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder(getExchange(), getIsin());
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.issuer(getIssuer()).issueDate(getIssueDate()).issuePrice(getIssuePrice())
-				.currency(getCurrency()).tradingSize(this.tradingSize).totalIssued(this.totalIssued)
-				.payDividend(this.payDividend).dividendCurrency(this.dividendCurrency)
-				.dividendFrequency(this.dividendFrequency).activeFrom(this.activeFrom)
-				.activeTo(this.activeTo);
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).issuer(getIssuer())
+				.issueDate(getIssueDate()).issuePrice(getIssuePrice()).currency(getCurrency())
+				.tradingSize(this.tradingSize).totalIssued(this.totalIssued).payDividend(this.payDividend)
+				.dividendCurrency(this.dividendCurrency).dividendFrequency(this.dividendFrequency)
+				.activeFrom(this.activeFrom).activeTo(this.activeTo);
 		return builder;
 	}
 

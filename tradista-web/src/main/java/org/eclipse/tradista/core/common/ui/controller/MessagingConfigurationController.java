@@ -228,9 +228,8 @@ public class MessagingConfigurationController implements Serializable {
 				filterAssignmentListener = listeners.get(0);
 			} else {
 				// Re-sync with refreshed listeners
-				filterAssignmentListener = listeners.stream()
-						.filter(l -> l.getId() == filterAssignmentListener.getId()).findFirst()
-						.orElse(listeners.get(0));
+				filterAssignmentListener = listeners.stream().filter(l -> l.getId() == filterAssignmentListener.getId())
+						.findFirst().orElse(listeners.get(0));
 			}
 			onFilterAssignmentListenerChange();
 		} else {
@@ -473,8 +472,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	private void addErrorMessage(String msg) {
-		FacesContext.getCurrentInstance().addMessage(null,
-				new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", msg));
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", msg));
 	}
 
 }

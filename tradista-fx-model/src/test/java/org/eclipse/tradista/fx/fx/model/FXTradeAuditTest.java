@@ -52,16 +52,9 @@ public class FXTradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewFXTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FXTrade trade = new FXTrade.Builder()
-				.currencyOne(eur)
-				.currency(usd)
-				.amountOne(BigDecimal.valueOf(100_000))
-				.amount(BigDecimal.valueOf(110_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.type(FXTrade.Type.FX_SPOT)
+		FXTrade trade = new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).type(FXTrade.Type.FX_SPOT)
 				.build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
@@ -78,14 +71,8 @@ public class FXTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FXTrade trade = new FXTrade.Builder()
-				.currencyOne(eur)
-				.currency(usd)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		FXTrade trade = new FXTrade.Builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -94,13 +81,8 @@ public class FXTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FXTrade trade = new FXTrade.Builder()
-				.currencyOne(eur)
-				.currency(usd)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		FXTrade trade = new FXTrade.Builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -112,11 +94,7 @@ public class FXTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FXTrade trade = new FXTrade.Builder()
-				.currencyOne(eur)
-				.currency(usd)
-				.book(book)
-				.counterparty(counterparty)
+		FXTrade trade = new FXTrade.Builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
 				.build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -132,19 +110,10 @@ public class FXTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FXTrade original = new FXTrade.Builder()
-				.currencyOne(eur)
-				.currency(usd)
-				.amountOne(BigDecimal.valueOf(100_000))
-				.amount(BigDecimal.valueOf(110_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.type(FXTrade.Type.FX_SPOT)
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		FXTrade original = new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).type(FXTrade.Type.FX_SPOT)
+				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		FXTrade copy = original.toBuilder().build();
 

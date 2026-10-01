@@ -69,14 +69,12 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.type(getType()).underlying(getUnderlying()).maturityDate(getMaturityDate())
-				.strike(getStrike()).settlementType(getSettlementType())
-				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate())
-				.style(getStyle());
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).type(getType()).underlying(getUnderlying())
+				.maturityDate(getMaturityDate()).strike(getStrike()).settlementType(getSettlementType())
+				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate()).style(getStyle());
 		return builder;
 	}
 

@@ -53,35 +53,21 @@ public class IRCapFloorCollarTradeAuditTest {
 		book = new Book("TradingBook", po);
 		Index index = new Index("EURIBOR");
 
-		forwardTrade = new FRATrade.Builder()
-				.fixedRate(BigDecimal.valueOf(2.5))
-				.startDate(LocalDate.of(2025, 6, 1))
-				.maturityDate(LocalDate.of(2025, 9, 1))
-				.referenceRateIndex(index)
+		forwardTrade = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 6, 1))
+				.maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 5, 28))
-				.settlementDate(LocalDate.of(2025, 6, 1))
-				.build();
+				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1)).build();
 	}
 
 	@Test
 	public void testDefaultCreationTimeOnNewIRCapFloorCollarTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder()
-				.capStrike(BigDecimal.valueOf(3.0))
-				.irForwardTrade(forwardTrade)
-				.currency(currency)
-				.amount(BigDecimal.valueOf(10_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 5, 28))
-				.settlementDate(LocalDate.of(2025, 6, 1))
-				.build();
+		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder().capStrike(BigDecimal.valueOf(3.0))
+				.irForwardTrade(forwardTrade).currency(currency).amount(BigDecimal.valueOf(10_000)).book(book)
+				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 5, 28))
+				.settlementDate(LocalDate.of(2025, 6, 1)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -97,13 +83,8 @@ public class IRCapFloorCollarTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder().currency(currency).book(book)
+				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -112,12 +93,8 @@ public class IRCapFloorCollarTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder().currency(currency).book(book)
+				.counterparty(counterparty).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -129,11 +106,8 @@ public class IRCapFloorCollarTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		IRCapFloorCollarTrade trade = new IRCapFloorCollarTrade.Builder().currency(currency).book(book)
+				.counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -148,17 +122,10 @@ public class IRCapFloorCollarTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		IRCapFloorCollarTrade original = new IRCapFloorCollarTrade.Builder()
-				.capStrike(BigDecimal.valueOf(3.0))
-				.irForwardTrade(forwardTrade)
-				.currency(currency)
-				.amount(BigDecimal.valueOf(10_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 5, 28))
-				.settlementDate(LocalDate.of(2025, 6, 1))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
+		IRCapFloorCollarTrade original = new IRCapFloorCollarTrade.Builder().capStrike(BigDecimal.valueOf(3.0))
+				.irForwardTrade(forwardTrade).currency(currency).amount(BigDecimal.valueOf(10_000)).book(book)
+				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 5, 28))
+				.settlementDate(LocalDate.of(2025, 6, 1)).creationTime(creationTime).lastUpdateTime(lastUpdateTime)
 				.build();
 
 		IRCapFloorCollarTrade copy = original.toBuilder().build();

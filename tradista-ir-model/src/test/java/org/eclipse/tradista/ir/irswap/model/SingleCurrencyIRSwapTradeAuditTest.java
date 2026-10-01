@@ -56,27 +56,18 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewSingleCurrencyIRSwapTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder()
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.maturityDate(LocalDate.of(2030, 6, 3))
-				.paymentFrequency(Tenor.SIX_MONTHS)
-				.receptionFrequency(Tenor.THREE_MONTHS)
-				.paymentInterestPayment(InterestPayment.END_OF_PERIOD)
+		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder().currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.maturityDate(LocalDate.of(2030, 6, 3)).paymentFrequency(Tenor.SIX_MONTHS)
+				.receptionFrequency(Tenor.THREE_MONTHS).paymentInterestPayment(InterestPayment.END_OF_PERIOD)
 				.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
 				.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionReferenceRateIndex(index)
-				.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.interestsToPayFixed(true)
+				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)
+				.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS).interestsToPayFixed(true)
 				.paymentFixedInterestRate(BigDecimal.valueOf(2.5))
 				.paymentDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.build();
+				.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -92,13 +83,8 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder().currency(currency).book(book)
+				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -107,12 +93,8 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder().currency(currency).book(book)
+				.counterparty(counterparty).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -124,11 +106,8 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder()
-				.currency(currency)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		SingleCurrencyIRSwapTrade trade = new SingleCurrencyIRSwapTrade.Builder().currency(currency).book(book)
+				.counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -143,16 +122,10 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		SingleCurrencyIRSwapTrade original = new SingleCurrencyIRSwapTrade.Builder()
-				.currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.maturityDate(LocalDate.of(2030, 6, 3))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
+		SingleCurrencyIRSwapTrade original = new SingleCurrencyIRSwapTrade.Builder().currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.maturityDate(LocalDate.of(2030, 6, 3)).creationTime(creationTime).lastUpdateTime(lastUpdateTime)
 				.build();
 
 		SingleCurrencyIRSwapTrade copy = original.toBuilder().build();

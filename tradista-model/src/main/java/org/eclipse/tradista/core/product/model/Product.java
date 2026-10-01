@@ -70,13 +70,13 @@ public abstract class Product extends TimestampedObject {
 
 	/**
 	 * @deprecated creation time is automatically managed and immutable. Use
-	 *             {@link Builder#creationTime(java.time.Instant)} if needed during construction.
+	 *             {@link Builder#creationTime(java.time.Instant)} if needed during
+	 *             construction.
 	 */
 	@Deprecated(forRemoval = true, since = "3.3.0")
 	public void setCreationDate(LocalDate creationDate) {
 		// No-op: creationTime is immutable and managed at construction/builder level.
 	}
-
 
 	public abstract String getProductType();
 

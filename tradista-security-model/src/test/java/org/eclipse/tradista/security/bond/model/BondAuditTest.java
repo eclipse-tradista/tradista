@@ -44,9 +44,7 @@ public class BondAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewBond() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.principal(BigDecimal.valueOf(1000))
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).principal(BigDecimal.valueOf(1000))
 				.build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
@@ -63,10 +61,8 @@ public class BondAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").creationTime(historicalCreation)
+				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, bond.getCreationTime());
 		assertEquals(historicalUpdate, bond.getLastUpdateTime());
@@ -75,9 +71,7 @@ public class BondAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		Bond bond = new Bond.Builder(exchange, "FR0000120271")
-				.creationTime(originalCreation)
-				.build();
+		Bond bond = new Bond.Builder(exchange, "FR0000120271").creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, bond.getCreationTime());
 
@@ -104,12 +98,8 @@ public class BondAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		Bond original = new Bond.Builder(exchange, "FR0000120271")
-				.currency(currency)
-				.principal(BigDecimal.valueOf(5000))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		Bond original = new Bond.Builder(exchange, "FR0000120271").currency(currency)
+				.principal(BigDecimal.valueOf(5000)).creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		Bond copy = original.toBuilder().build();
 

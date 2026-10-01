@@ -91,21 +91,21 @@ public class IRSwapOptionTrade extends VanillaOptionTrade<SingleCurrencyIRSwapTr
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.type(getType()).underlying(getUnderlying()).maturityDate(getMaturityDate())
-				.strike(getStrike()).settlementType(getSettlementType())
-				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate())
-				.style(getStyle()).cashSettlementAmount(this.cashSettlementAmount)
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).type(getType()).underlying(getUnderlying())
+				.maturityDate(getMaturityDate()).strike(getStrike()).settlementType(getSettlementType())
+				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate()).style(getStyle())
+				.cashSettlementAmount(this.cashSettlementAmount)
 				.alternativeCashSettlementReferenceRateIndex(this.alternativeCashSettlementReferenceRateIndex)
-				.alternativeCashSettlementReferenceRateIndexTenor(this.alternativeCashSettlementReferenceRateIndexTenor);
+				.alternativeCashSettlementReferenceRateIndexTenor(
+						this.alternativeCashSettlementReferenceRateIndexTenor);
 		return builder;
 	}
 
-	public static class Builder extends
-			VanillaOptionTrade.Builder<SingleCurrencyIRSwapTrade, IRSwapOptionTrade, Builder> {
+	public static class Builder
+			extends VanillaOptionTrade.Builder<SingleCurrencyIRSwapTrade, IRSwapOptionTrade, Builder> {
 		protected BigDecimal cashSettlementAmount;
 		protected Index alternativeCashSettlementReferenceRateIndex;
 		protected Tenor alternativeCashSettlementReferenceRateIndexTenor;
@@ -115,8 +115,7 @@ public class IRSwapOptionTrade extends VanillaOptionTrade<SingleCurrencyIRSwapTr
 			return this;
 		}
 
-		public Builder alternativeCashSettlementReferenceRateIndex(
-				Index alternativeCashSettlementReferenceRateIndex) {
+		public Builder alternativeCashSettlementReferenceRateIndex(Index alternativeCashSettlementReferenceRateIndex) {
 			this.alternativeCashSettlementReferenceRateIndex = alternativeCashSettlementReferenceRateIndex;
 			return this;
 		}

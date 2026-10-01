@@ -46,11 +46,8 @@ public class MessageAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		IncomingMessage message = new IncomingMessage.Builder()
-				.type("CONFIRMATION")
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		IncomingMessage message = new IncomingMessage.Builder().type("CONFIRMATION").creationTime(historicalCreation)
+				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, message.getCreationTime());
 		assertEquals(historicalUpdate, message.getLastUpdateTime());
@@ -73,12 +70,8 @@ public class MessageAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		IncomingMessage original = new IncomingMessage.Builder()
-				.type("CONFIRMATION")
-				.content("Sample content")
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		IncomingMessage original = new IncomingMessage.Builder().type("CONFIRMATION").content("Sample content")
+				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		IncomingMessage copy = original.toBuilder().build();
 

@@ -58,18 +58,10 @@ public class GCRepoTradeValidatorTest {
 	}
 
 	private GCRepoTrade.Builder createValidTradeBuilder() {
-		return new GCRepoTrade.Builder()
-				.gcBasket(basket)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 6, 10))
-				.repoRate(BigDecimal.valueOf(2.5))
-				.marginRate(BigDecimal.valueOf(102.0))
-				.amount(BigDecimal.valueOf(1_000_000))
-				.status(status);
+		return new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty).currency(currency)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
+				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status);
 	}
 
 	@Test
@@ -109,10 +101,8 @@ public class GCRepoTradeValidatorTest {
 
 	@Test
 	public void testEndDateBeforeStartDate() {
-		GCRepoTrade trade = createValidTradeBuilder()
-				.settlementDate(LocalDate.of(2025, 6, 10))
-				.endDate(LocalDate.of(2025, 6, 3))
-				.build();
+		GCRepoTrade trade = createValidTradeBuilder().settlementDate(LocalDate.of(2025, 6, 10))
+				.endDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 

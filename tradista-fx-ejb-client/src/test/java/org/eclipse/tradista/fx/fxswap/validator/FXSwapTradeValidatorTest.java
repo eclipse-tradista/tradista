@@ -55,10 +55,9 @@ public class FXSwapTradeValidatorTest {
 	}
 
 	private FXSwapTrade.Builder createValidTradeBuilder() {
-		return new FXSwapTrade.Builder().currencyOne(eur).currency(usd)
-				.amountOneSpot(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(110_000))
-				.amountOneForward(BigDecimal.valueOf(100_000)).amountTwoForward(BigDecimal.valueOf(112_000))
-				.book(book).counterparty(counterparty)
+		return new FXSwapTrade.Builder().currencyOne(eur).currency(usd).amountOneSpot(BigDecimal.valueOf(100_000))
+				.amount(BigDecimal.valueOf(110_000)).amountOneForward(BigDecimal.valueOf(100_000))
+				.amountTwoForward(BigDecimal.valueOf(112_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.settlementDateForward(LocalDate.of(2025, 9, 3));
 	}

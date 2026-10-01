@@ -57,19 +57,10 @@ public class GCRepoTradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewGCRepoTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		GCRepoTrade trade = new GCRepoTrade.Builder()
-				.gcBasket(basket)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 6, 10))
-				.repoRate(BigDecimal.valueOf(2.5))
-				.marginRate(BigDecimal.valueOf(102.0))
-				.amount(BigDecimal.valueOf(1_000_000))
-				.status(status)
-				.build();
+		GCRepoTrade trade = new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty)
+				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
+				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -85,13 +76,8 @@ public class GCRepoTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		GCRepoTrade trade = new GCRepoTrade.Builder()
-				.gcBasket(basket)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		GCRepoTrade trade = new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -100,12 +86,8 @@ public class GCRepoTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		GCRepoTrade trade = new GCRepoTrade.Builder()
-				.gcBasket(basket)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		GCRepoTrade trade = new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -117,11 +99,7 @@ public class GCRepoTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		GCRepoTrade trade = new GCRepoTrade.Builder()
-				.gcBasket(basket)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		GCRepoTrade trade = new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -136,21 +114,11 @@ public class GCRepoTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		GCRepoTrade original = new GCRepoTrade.Builder()
-				.gcBasket(basket)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 6, 10))
-				.repoRate(BigDecimal.valueOf(2.5))
-				.marginRate(BigDecimal.valueOf(102.0))
-				.amount(BigDecimal.valueOf(1_000_000))
-				.status(status)
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		GCRepoTrade original = new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty)
+				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
+				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status)
+				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		GCRepoTrade copy = original.toBuilder().build();
 

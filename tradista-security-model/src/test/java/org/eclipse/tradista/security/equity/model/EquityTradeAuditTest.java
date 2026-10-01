@@ -54,15 +54,9 @@ public class EquityTradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewEquityTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		EquityTrade trade = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.quantity(BigDecimal.valueOf(100))
-				.amount(BigDecimal.valueOf(50.0))
-				.build();
+		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -78,13 +72,8 @@ public class EquityTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		EquityTrade trade = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -93,12 +82,8 @@ public class EquityTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		EquityTrade trade = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -110,11 +95,7 @@ public class EquityTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		EquityTrade trade = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -129,17 +110,10 @@ public class EquityTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		EquityTrade original = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.quantity(BigDecimal.valueOf(100))
-				.amount(BigDecimal.valueOf(50.0))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		EquityTrade original = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).creationTime(creationTime)
+				.lastUpdateTime(lastUpdateTime).build();
 
 		EquityTrade copy = original.toBuilder().build();
 

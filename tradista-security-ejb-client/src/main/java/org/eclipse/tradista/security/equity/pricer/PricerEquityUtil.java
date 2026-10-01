@@ -90,15 +90,9 @@ public final class PricerEquityUtil {
 	public static BigDecimal getEquityPrice(PricingParameter params, Equity equity, LocalDate date)
 			throws PricerException, TradistaBusinessException {
 		// Filling the trade with (dummy) values needed by the trade validator.
-		EquityTrade trade = new EquityTrade.Builder()
-				.quantity(BigDecimal.ONE)
-				.product(equity)
-				.book(new Book(StringUtils.EMPTY, null))
-				.counterparty(new LegalEntity(StringUtils.EMPTY))
-				.amount(BigDecimal.ONE)
-				.tradeDate(LocalDate.now())
-				.settlementDate(LocalDate.now())
-				.build();
+		EquityTrade trade = new EquityTrade.Builder().quantity(BigDecimal.ONE).product(equity)
+				.book(new Book(StringUtils.EMPTY, null)).counterparty(new LegalEntity(StringUtils.EMPTY))
+				.amount(BigDecimal.ONE).tradeDate(LocalDate.now()).settlementDate(LocalDate.now()).build();
 
 		return new PricerMeasurePV().monteCarloSimulation(params, trade, equity.getCurrency(), date);
 

@@ -70,13 +70,10 @@ public class FutureBootstrapHandler implements BootstrapHandler {
 
 		// The maturity date of the product is the fixing date for the
 		// calculation of the interest rate.
-		LocalDate settlementDate = futureContractSpecificationBusinessDelegate.getMaturityDate(contractSpecificationName,
-				month, year);
+		LocalDate settlementDate = futureContractSpecificationBusinessDelegate
+				.getMaturityDate(contractSpecificationName, month, year);
 
-		return new FutureTrade.Builder()
-				.product(future)
-				.settlementDate(settlementDate)
-				.build();
+		return new FutureTrade.Builder().product(future).settlementDate(settlementDate).build();
 	}
 
 	@Override

@@ -22,8 +22,7 @@ import jakarta.interceptor.InvocationContext;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MessagingConfigurationAuthorizationFilteringInterceptor
-		extends TradistaAuthorizationFilteringInterceptor {
+public class MessagingConfigurationAuthorizationFilteringInterceptor extends TradistaAuthorizationFilteringInterceptor {
 
 	private static final String ONLY_ADMINS_ALLOWED = "Only administrator users are allowed to update messaging configuration.";
 
@@ -35,7 +34,8 @@ public class MessagingConfigurationAuthorizationFilteringInterceptor
 	@Override
 	protected void preFilter(InvocationContext ic) throws TradistaBusinessException {
 		// When preFilter is called by TradistaAuthorizationFilteringInterceptor,
-		// user != null and user.getProcessingOrg() != null, meaning the user is NOT an admin.
+		// user != null and user.getProcessingOrg() != null, meaning the user is NOT an
+		// admin.
 		throw new TradistaBusinessException(ONLY_ADMINS_ALLOWED);
 	}
 

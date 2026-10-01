@@ -63,12 +63,11 @@ public class GCRepoTrade extends RepoTrade {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.repoRate(getRepoRate()).marginRate(getMarginRate()).index(getIndex())
-				.indexTenor(getIndexTenor()).indexOffset(getIndexOffset()).endDate(getEndDate())
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).repoRate(getRepoRate()).marginRate(getMarginRate())
+				.index(getIndex()).indexTenor(getIndexTenor()).indexOffset(getIndexOffset()).endDate(getEndDate())
 				.rightOfSubstitution(isRightOfSubstitution()).rightOfReuse(isRightOfReuse())
 				.crossCurrencyCollateral(isCrossCurrencyCollateral()).terminableOnDemand(isTerminableOnDemand())
 				.noticePeriod(getNoticePeriod()).collateralToAdd(getCollateralToAdd())

@@ -61,15 +61,12 @@ public class FutureTradeValidatorTest {
 		spec.setReferenceRateIndex(new Index("EURIBOR"));
 		spec.setReferenceRateIndexTenor(Tenor.THREE_MONTHS);
 
-		future = new Future.Builder("MAR26", spec)
-				.maturityDate(LocalDate.of(2026, 3, 20))
-				.build();
+		future = new Future.Builder("MAR26", spec).maturityDate(LocalDate.of(2026, 3, 20)).build();
 	}
 
 	private FutureTrade.Builder createValidTradeBuilder() {
-		return new FutureTrade.Builder().future(future)
-				.quantity(BigDecimal.valueOf(10)).amount(BigDecimal.valueOf(98.5))
-				.book(book).counterparty(counterparty)
+		return new FutureTrade.Builder().future(future).quantity(BigDecimal.valueOf(10))
+				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3));
 	}
 

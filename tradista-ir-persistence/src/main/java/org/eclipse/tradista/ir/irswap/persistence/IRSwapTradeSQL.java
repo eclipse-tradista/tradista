@@ -112,8 +112,8 @@ public class IRSwapTradeSQL {
 		SingleCurrencyIRSwapTrade irswapTrade = null;
 		StringBuilder query = new StringBuilder(SQL_QUERY);
 		TradistaDBUtil.addParameterizedFilter(query, IRSWAP_TRADE_ID_FIELD);
-		TradistaDBUtil.addQueryFilter(query, IRSWAP_TRADE_ID_FIELD, TradistaDBUtil.buildSelectQuery(
-				CcySwapTradeSQL.CCYSWAP_TRADE_ID_FIELD, CcySwapTradeSQL.CCYSWAP_TRADE_TABLE), true);
+		TradistaDBUtil.addQueryFilter(query, IRSWAP_TRADE_ID_FIELD, TradistaDBUtil
+				.buildSelectQuery(CcySwapTradeSQL.CCYSWAP_TRADE_ID_FIELD, CcySwapTradeSQL.CCYSWAP_TRADE_TABLE), true);
 		if (!includeUnderlying) {
 			TradistaDBUtil.addIsNotNullFilter(query, TRADE_DATE_FIELD);
 		}

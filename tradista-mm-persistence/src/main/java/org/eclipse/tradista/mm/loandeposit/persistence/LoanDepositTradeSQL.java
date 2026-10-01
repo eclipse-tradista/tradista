@@ -118,7 +118,8 @@ public class LoanDepositTradeSQL {
 								.equals(LoanDepositTrade.Direction.LOAN.name())) {
 							mmTrade = new LoanTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 						} else {
-							mmTrade = new DepositTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+							mmTrade = new DepositTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
+									.build();
 						}
 					}
 					TradeSQL.setTradeCommonFields(mmTrade, results);
@@ -267,7 +268,8 @@ public class LoanDepositTradeSQL {
 				mmTrade.setFixedRate(fixedRate);
 			} else {
 				mmTrade.setFloatingRateIndex(IndexSQL.getIndexById(rs.getLong(FLOATING_RATE_INDEX_ID_FIELD.getName())));
-				mmTrade.setFloatingRateIndexTenor(Tenor.valueOf(rs.getString(FLOATING_RATE_INDEX_TENOR_FIELD.getName())));
+				mmTrade.setFloatingRateIndexTenor(
+						Tenor.valueOf(rs.getString(FLOATING_RATE_INDEX_TENOR_FIELD.getName())));
 				mmTrade.setFixingPeriod(Tenor.valueOf(rs.getString(FIXING_PERIOD_FIELD.getName())));
 				mmTrade.setSpread(rs.getBigDecimal(SPREAD_FIELD.getName()));
 				mmTrade.setInterestFixing(InterestPayment.valueOf(rs.getString("loan_deposit_interest_fixing")));

@@ -55,12 +55,11 @@ public class FRATradeValidatorTest {
 	}
 
 	private FRATrade.Builder createValidTradeBuilder() {
-		return new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5))
-				.startDate(LocalDate.of(2025, 5, 30)).maturityDate(LocalDate.of(2025, 8, 30))
-				.referenceRateIndex(index).referenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.currency(currency).amount(BigDecimal.valueOf(1_000_000))
-				.book(book).counterparty(counterparty)
+		return new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 5, 30))
+				.maturityDate(LocalDate.of(2025, 8, 30)).referenceRateIndex(index)
+				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
+				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1));
 	}
 

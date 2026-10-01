@@ -37,7 +37,7 @@ import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
  * the License.
  * 
  * SPDX-License-Identifier: Apache-2.0
- * ********************************************************************************/
+ ********************************************************************************/
 
 public class ProductSQL {
 
@@ -45,8 +45,7 @@ public class ProductSQL {
 	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
 	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME);
 	public static final Field EXCHANGE_ID_FIELD = new Field(EXCHANGE_ID);
-	private static final Field[] FIELDS = { ID_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
-			EXCHANGE_ID_FIELD };
+	private static final Field[] FIELDS = { ID_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD, EXCHANGE_ID_FIELD };
 	public static final Table PRODUCT_TABLE = new Table("PRODUCT", FIELDS);
 
 	public static final Field[] PRODUCT_FIELDS_FOR_INSERT = { CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
@@ -73,7 +72,8 @@ public class ProductSQL {
 					product.setId(results.getLong(ID_FIELD.getName()));
 					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
 					if (creationTimestamp != null) {
-						product.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+						product.setCreationDate(
+								creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 					}
 				}
 			}

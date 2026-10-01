@@ -60,32 +60,17 @@ public class EquityOptionTradeValidatorTest {
 		book = new Book("TradingBook", po);
 
 		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).build();
-		underlyingTrade = new EquityTrade.Builder()
-				.product(equity)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.quantity(BigDecimal.valueOf(100))
-				.amount(BigDecimal.valueOf(50.0))
-				.build();
+		underlyingTrade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).build();
 	}
 
 	private EquityOptionTrade.Builder createValidTradeBuilder() {
-		return new EquityOptionTrade.Builder()
-				.underlying(underlyingTrade)
-				.book(book)
-				.counterparty(counterparty)
-				.currency(currency)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.maturityDate(LocalDate.of(2025, 9, 1))
-				.strike(BigDecimal.valueOf(100))
-				.style(VanillaOptionTrade.Style.EUROPEAN)
-				.type(OptionTrade.Type.CALL)
-				.settlementType(OptionTrade.SettlementType.PHYSICAL)
-				.amount(BigDecimal.valueOf(5.0));
+		return new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
+				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.maturityDate(LocalDate.of(2025, 9, 1)).strike(BigDecimal.valueOf(100))
+				.style(VanillaOptionTrade.Style.EUROPEAN).type(OptionTrade.Type.CALL)
+				.settlementType(OptionTrade.SettlementType.PHYSICAL).amount(BigDecimal.valueOf(5.0));
 	}
 
 	@Test
@@ -155,19 +140,15 @@ public class EquityOptionTradeValidatorTest {
 
 	@Test
 	public void testMaturityDateBeforeTradeDate() {
-		EquityOptionTrade trade = createValidTradeBuilder()
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.maturityDate(LocalDate.of(2025, 5, 1))
-				.build();
+		EquityOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
+				.maturityDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
 	public void testSettlementDateAfterMaturityDate() {
-		EquityOptionTrade trade = createValidTradeBuilder()
-				.maturityDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 5))
-				.build();
+		EquityOptionTrade trade = createValidTradeBuilder().maturityDate(LocalDate.of(2025, 6, 1))
+				.settlementDate(LocalDate.of(2025, 6, 5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 

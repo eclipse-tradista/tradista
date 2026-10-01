@@ -56,16 +56,16 @@ public class IRSwapTradeValidatorTest {
 	}
 
 	private SingleCurrencyIRSwapTrade.Builder createValidTradeBuilder() {
-		return new SingleCurrencyIRSwapTrade.Builder().currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
-				.maturityDate(LocalDate.of(2030, 6, 3)).paymentFrequency(Tenor.SIX_MONTHS)
-				.receptionFrequency(Tenor.THREE_MONTHS).paymentInterestPayment(InterestPayment.END_OF_PERIOD)
+		return new SingleCurrencyIRSwapTrade.Builder().currency(currency).amount(BigDecimal.valueOf(1_000_000))
+				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1))
+				.settlementDate(LocalDate.of(2025, 6, 3)).maturityDate(LocalDate.of(2030, 6, 3))
+				.paymentFrequency(Tenor.SIX_MONTHS).receptionFrequency(Tenor.THREE_MONTHS)
+				.paymentInterestPayment(InterestPayment.END_OF_PERIOD)
 				.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
 				.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionReferenceRateIndex(index).receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.interestsToPayFixed(true).paymentFixedInterestRate(BigDecimal.valueOf(2.5))
+				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)
+				.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS).interestsToPayFixed(true)
+				.paymentFixedInterestRate(BigDecimal.valueOf(2.5))
 				.paymentDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
 				.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360));
 	}
@@ -164,7 +164,8 @@ public class IRSwapTradeValidatorTest {
 
 	@Test
 	public void testReceptionReferenceRateIndexTenorNoTenor() {
-		SingleCurrencyIRSwapTrade trade = createValidTradeBuilder().receptionReferenceRateIndexTenor(Tenor.NO_TENOR).build();
+		SingleCurrencyIRSwapTrade trade = createValidTradeBuilder().receptionReferenceRateIndexTenor(Tenor.NO_TENOR)
+				.build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
@@ -200,8 +201,7 @@ public class IRSwapTradeValidatorTest {
 	public void testPaymentInterestPaymentBeforePaymentInterestFixing() {
 		SingleCurrencyIRSwapTrade trade = createValidTradeBuilder()
 				.paymentInterestPayment(InterestPayment.BEGINNING_OF_PERIOD)
-				.paymentInterestFixing(InterestPayment.END_OF_PERIOD)
-				.build();
+				.paymentInterestFixing(InterestPayment.END_OF_PERIOD).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 

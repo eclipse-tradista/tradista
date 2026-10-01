@@ -148,10 +148,10 @@ public class MandateSQL {
 			} else {
 				stmtSaveMandate.setString(1, mandate.getName());
 				stmtSaveMandate.setString(2, mandate.getAcceptedRiskLevel().name());
-				stmtSaveMandate.setTimestamp(3,
-						Timestamp.from((mandate.getCreationTime() != null) ? mandate.getCreationTime() : Instant.now()));
-				stmtSaveMandate.setTimestamp(4,
-						Timestamp.from((mandate.getLastUpdateTime() != null) ? mandate.getLastUpdateTime() : Instant.now()));
+				stmtSaveMandate.setTimestamp(3, Timestamp
+						.from((mandate.getCreationTime() != null) ? mandate.getCreationTime() : Instant.now()));
+				stmtSaveMandate.setTimestamp(4, Timestamp
+						.from((mandate.getLastUpdateTime() != null) ? mandate.getLastUpdateTime() : Instant.now()));
 				stmtSaveMandate.setDate(5, Date.valueOf(mandate.getStartDate()));
 				stmtSaveMandate.setDate(6, Date.valueOf(mandate.getEndDate()));
 				stmtSaveMandate.setBigDecimal(7, mandate.getInitialCashAmount());
@@ -218,9 +218,9 @@ public class MandateSQL {
 				TradistaDBUtil.buildSelectQuery(MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE));
 		TradistaDBUtil.addParameterizedFilter(sqlProductAlloc, MANDATE_ID_ALLOCATION_FIELD);
 
-		StringBuilder sqlCurrencyAlloc = new StringBuilder(TradistaDBUtil.buildSelectQuery(
-				MANDATE_CURRENCY_ALLOCATION_TABLE,
-				Join.innerEq(CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ID_FIELD)));
+		StringBuilder sqlCurrencyAlloc = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(MANDATE_CURRENCY_ALLOCATION_TABLE,
+						Join.innerEq(CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sqlCurrencyAlloc, CURRENCY_ALLOCATION_MANDATE_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
@@ -251,8 +251,7 @@ public class MandateSQL {
 					try {
 						builder.initialCashCurrency(new CurrencyBusinessDelegate()
 								.getCurrencyByIsoCode(results.getString(INITIAL_CASH_CURRENCY_FIELD.getName())));
-						builder.book(new BookBusinessDelegate()
-								.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
+						builder.book(new BookBusinessDelegate().getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					} catch (TradistaBusinessException _) {
 						// Should not appear at this stage
 					}
@@ -305,9 +304,9 @@ public class MandateSQL {
 				TradistaDBUtil.buildSelectQuery(MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE));
 		TradistaDBUtil.addParameterizedFilter(sqlProductAlloc, MANDATE_ID_ALLOCATION_FIELD);
 
-		StringBuilder sqlCurrencyAlloc = new StringBuilder(TradistaDBUtil.buildSelectQuery(
-				MANDATE_CURRENCY_ALLOCATION_TABLE,
-				Join.innerEq(CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ID_FIELD)));
+		StringBuilder sqlCurrencyAlloc = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(MANDATE_CURRENCY_ALLOCATION_TABLE,
+						Join.innerEq(CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sqlCurrencyAlloc, CURRENCY_ALLOCATION_MANDATE_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
@@ -338,8 +337,7 @@ public class MandateSQL {
 					try {
 						builder.initialCashCurrency(new CurrencyBusinessDelegate()
 								.getCurrencyByIsoCode(results.getString(INITIAL_CASH_CURRENCY_FIELD.getName())));
-						builder.book(new BookBusinessDelegate()
-								.getBookById(results.getLong(BOOK_ID_FIELD.getName())));
+						builder.book(new BookBusinessDelegate().getBookById(results.getLong(BOOK_ID_FIELD.getName())));
 					} catch (TradistaBusinessException _) {
 						// Should not appear at this stage
 					}

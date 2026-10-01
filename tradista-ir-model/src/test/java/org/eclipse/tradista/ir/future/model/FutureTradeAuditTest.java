@@ -57,23 +57,15 @@ public class FutureTradeAuditTest {
 		spec.setReferenceRateIndex(new Index("EURIBOR"));
 		spec.setReferenceRateIndexTenor(Tenor.THREE_MONTHS);
 
-		future = new Future.Builder("MAR26", spec)
-				.maturityDate(LocalDate.of(2026, 3, 20))
-				.build();
+		future = new Future.Builder("MAR26", spec).maturityDate(LocalDate.of(2026, 3, 20)).build();
 	}
 
 	@Test
 	public void testDefaultCreationTimeOnNewFutureTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FutureTrade trade = new FutureTrade.Builder()
-				.future(future)
-				.quantity(BigDecimal.valueOf(10))
-				.amount(BigDecimal.valueOf(98.5))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.build();
+		FutureTrade trade = new FutureTrade.Builder().future(future).quantity(BigDecimal.valueOf(10))
+				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -89,13 +81,8 @@ public class FutureTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FutureTrade trade = new FutureTrade.Builder()
-				.future(future)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(historicalCreation)
-				.lastUpdateTime(historicalUpdate)
-				.build();
+		FutureTrade trade = new FutureTrade.Builder().future(future).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -104,12 +91,8 @@ public class FutureTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FutureTrade trade = new FutureTrade.Builder()
-				.future(future)
-				.book(book)
-				.counterparty(counterparty)
-				.creationTime(originalCreation)
-				.build();
+		FutureTrade trade = new FutureTrade.Builder().future(future).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -121,11 +104,7 @@ public class FutureTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FutureTrade trade = new FutureTrade.Builder()
-				.future(future)
-				.book(book)
-				.counterparty(counterparty)
-				.build();
+		FutureTrade trade = new FutureTrade.Builder().future(future).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -140,17 +119,10 @@ public class FutureTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FutureTrade original = new FutureTrade.Builder()
-				.future(future)
-				.quantity(BigDecimal.valueOf(10))
-				.amount(BigDecimal.valueOf(98.5))
-				.book(book)
-				.counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3))
-				.creationTime(creationTime)
-				.lastUpdateTime(lastUpdateTime)
-				.build();
+		FutureTrade original = new FutureTrade.Builder().future(future).quantity(BigDecimal.valueOf(10))
+				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).creationTime(creationTime)
+				.lastUpdateTime(lastUpdateTime).build();
 
 		FutureTrade copy = original.toBuilder().build();
 

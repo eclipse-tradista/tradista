@@ -120,8 +120,7 @@ public abstract class Security extends Product implements Ratable {
 		return security;
 	}
 
-	public abstract static class Builder<T extends Security, B extends Builder<T, B>>
-			extends Product.Builder<T, B> {
+	public abstract static class Builder<T extends Security, B extends Builder<T, B>> extends Product.Builder<T, B> {
 		protected String isin;
 		protected LegalEntity issuer;
 		protected LocalDate issueDate;

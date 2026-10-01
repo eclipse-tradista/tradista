@@ -94,12 +94,10 @@ public class EquityOptionSQL {
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_OPTION_PRODUCT_ID_FIELD,
 								EQUITY_OPTION_TABLE, EQUITY_OPTION_FIELDS_FOR_UPDATE)) {
 			if (equityOption.getId() == 0) {
-				stmtSaveProduct.setTimestamp(1,
-						Timestamp.from(equityOption.getCreationTime() != null ? equityOption.getCreationTime()
-								: Instant.now()));
-				stmtSaveProduct.setTimestamp(2,
-						Timestamp.from(equityOption.getLastUpdateTime() != null ? equityOption.getLastUpdateTime()
-								: Instant.now()));
+				stmtSaveProduct.setTimestamp(1, Timestamp
+						.from(equityOption.getCreationTime() != null ? equityOption.getCreationTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(
+						equityOption.getLastUpdateTime() != null ? equityOption.getLastUpdateTime() : Instant.now()));
 				stmtSaveProduct.setLong(3, equityOption.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));
@@ -249,8 +247,8 @@ public class EquityOptionSQL {
 		EquityOption equityOption = null;
 		Join contractSpecJoin = Join.innerEq(EQUITY_OPTION_CONTRACT_SPECIFICATION_TABLE,
 				EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD, CONTRACT_SPEC_ID_FIELD);
-		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(EQUITY_OPTION_TABLE,
-				EQUITY_OPTION_PRODUCT_JOIN, contractSpecJoin));
+		StringBuilder sql = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(EQUITY_OPTION_TABLE, EQUITY_OPTION_PRODUCT_JOIN, contractSpecJoin));
 		TradistaDBUtil.addParameterizedFilter(sql, CODE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, TYPE_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, MATURITY_DATE_FIELD);

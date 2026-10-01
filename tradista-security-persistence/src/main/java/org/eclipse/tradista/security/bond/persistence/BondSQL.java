@@ -110,8 +110,8 @@ public class BondSQL {
 				PreparedStatement stmtSaveProduct = (bond.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, ProductSQL.PRODUCT_TABLE,
 								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
-						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD, ProductSQL.PRODUCT_TABLE,
-								ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
+								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
 				PreparedStatement stmtSaveSecurity = (bond.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, SECURITY_TABLE, SECURITY_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, SECURITY_PRODUCT_ID_FIELD, SECURITY_TABLE,
@@ -326,9 +326,9 @@ public class BondSQL {
 
 	public static Bond getBondByIsinAndExchangeCode(String isin, String exchangeCode) {
 		Bond bond = null;
-		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(BOND_TABLE, BOND_PRODUCT_JOIN,
-				BOND_SECURITY_JOIN,
-				Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
+		StringBuilder sql = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(BOND_TABLE, BOND_PRODUCT_JOIN, BOND_SECURITY_JOIN,
+						Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, ExchangeSQL.CODE_FIELD);
 

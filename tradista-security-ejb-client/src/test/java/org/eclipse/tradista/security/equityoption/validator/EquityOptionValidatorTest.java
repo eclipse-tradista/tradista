@@ -50,8 +50,7 @@ public class EquityOptionValidatorTest {
 
 	private EquityOption.Builder createValidEquityOptionBuilder() {
 		return new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying);
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying);
 	}
 
 	@Test
@@ -63,9 +62,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testMissingUnderlying() {
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(null)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(null).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -74,9 +71,7 @@ public class EquityOptionValidatorTest {
 	public void testMissingStyle() {
 		EquityOptionContractSpecification specWithoutStyle = new EquityOptionContractSpecification("SAN_NO_STYLE");
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), specWithoutStyle)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), specWithoutStyle).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -84,9 +79,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testMissingCode() {
 		EquityOption option = new EquityOption.Builder(null, OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -94,9 +87,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testMissingMaturityDate() {
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				null, contractSpecification)
-				.underlying(underlying)
-				.build();
+				null, contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -104,9 +95,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testMissingContractSpecification() {
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), null)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), null).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -114,9 +103,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testMissingStrike() {
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, null,
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -124,9 +111,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testZeroStrike() {
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.ZERO,
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
@@ -134,9 +119,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testNegativeStrike() {
 		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(-10),
-				LocalDate.of(2026, 6, 19), contractSpecification)
-				.underlying(underlying)
-				.build();
+				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}

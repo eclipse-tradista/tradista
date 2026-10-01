@@ -55,20 +55,18 @@ public class IRCapFloorCollarTradeValidatorTest {
 		book = new Book("TradingBook", po);
 		Index index = new Index("EURIBOR");
 
-		forwardTrade = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5))
-				.startDate(LocalDate.of(2025, 5, 30)).maturityDate(LocalDate.of(2025, 8, 30))
-				.referenceRateIndex(index).referenceRateIndexTenor(Tenor.THREE_MONTHS)
+		forwardTrade = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 5, 30))
+				.maturityDate(LocalDate.of(2025, 8, 30)).referenceRateIndex(index)
+				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
 				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.currency(currency).amount(BigDecimal.valueOf(1_000_000))
-				.book(book).counterparty(counterparty)
+				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1)).build();
 	}
 
 	private IRCapFloorCollarTrade.Builder createValidTradeBuilder() {
-		return new IRCapFloorCollarTrade.Builder().capStrike(BigDecimal.valueOf(3.0))
-				.irForwardTrade(forwardTrade).currency(currency).amount(BigDecimal.valueOf(10_000))
-				.book(book).counterparty(counterparty)
+		return new IRCapFloorCollarTrade.Builder().capStrike(BigDecimal.valueOf(3.0)).irForwardTrade(forwardTrade)
+				.currency(currency).amount(BigDecimal.valueOf(10_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1));
 	}
 
@@ -128,10 +126,8 @@ public class IRCapFloorCollarTradeValidatorTest {
 
 	@Test
 	public void testUnderlyingMaturityDateBeforeSettlementDate() {
-		FRATrade badForward = forwardTrade.toBuilder()
-				.settlementDate(LocalDate.of(2025, 9, 1))
-				.maturityDate(LocalDate.of(2025, 8, 1))
-				.build();
+		FRATrade badForward = forwardTrade.toBuilder().settlementDate(LocalDate.of(2025, 9, 1))
+				.maturityDate(LocalDate.of(2025, 8, 1)).build();
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().irForwardTrade(badForward).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}

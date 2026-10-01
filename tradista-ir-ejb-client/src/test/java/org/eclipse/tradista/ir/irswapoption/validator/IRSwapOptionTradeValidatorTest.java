@@ -57,17 +57,16 @@ public class IRSwapOptionTradeValidatorTest {
 		book = new Book("TradingBook", po);
 		Index index = new Index("EURIBOR");
 
-		underlying = new SingleCurrencyIRSwapTrade.Builder().currency(currency)
-				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
-				.maturityDate(LocalDate.of(2030, 12, 3)).maturityTenor(Tenor.NO_TENOR)
-				.paymentFrequency(Tenor.SIX_MONTHS)
-				.receptionFrequency(Tenor.THREE_MONTHS).paymentInterestPayment(InterestPayment.END_OF_PERIOD)
+		underlying = new SingleCurrencyIRSwapTrade.Builder().currency(currency).amount(BigDecimal.valueOf(1_000_000))
+				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
+				.settlementDate(LocalDate.of(2025, 12, 3)).maturityDate(LocalDate.of(2030, 12, 3))
+				.maturityTenor(Tenor.NO_TENOR).paymentFrequency(Tenor.SIX_MONTHS).receptionFrequency(Tenor.THREE_MONTHS)
+				.paymentInterestPayment(InterestPayment.END_OF_PERIOD)
 				.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
 				.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionReferenceRateIndex(index).receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS)
-				.interestsToPayFixed(true).paymentFixedInterestRate(BigDecimal.valueOf(2.5))
+				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)
+				.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS).interestsToPayFixed(true)
+				.paymentFixedInterestRate(BigDecimal.valueOf(2.5))
 				.paymentDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
 				.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).build();
 	}

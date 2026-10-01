@@ -39,17 +39,15 @@ public class DepositTrade extends LoanDepositTrade {
 	@Override
 	public Builder toBuilder() {
 		Builder builder = new Builder();
-		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
-				.product(getProduct()).tradeDate(getTradeDate()).settlementDate(getSettlementDate())
-				.amount(getAmount()).currency(getCurrency()).counterparty(getCounterparty())
-				.book(getBook()).status(getStatus()).workflow(getWorkflow()).buySell(isBuy())
-				.fixedRate(getFixedRate()).floatingRateIndex(getFloatingRateIndex())
-				.floatingRateIndexTenor(getFloatingRateIndexTenor())
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).fixedRate(getFixedRate())
+				.floatingRateIndex(getFloatingRateIndex()).floatingRateIndexTenor(getFloatingRateIndexTenor())
 				.dayCountConvention(getDayCountConvention()).paymentFrequency(getPaymentFrequency())
 				.endDate(getEndDate()).fixingPeriod(getFixingPeriod()).spread(getSpread())
-				.interestType(getInterestType()).compoundPeriod(getCompoundPeriod())
-				.maturity(getMaturity()).interestPayment(getInterestPayment())
-				.interestFixing(getInterestFixing());
+				.interestType(getInterestType()).compoundPeriod(getCompoundPeriod()).maturity(getMaturity())
+				.interestPayment(getInterestPayment()).interestFixing(getInterestFixing());
 		return builder;
 	}
 
