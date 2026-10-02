@@ -30,6 +30,7 @@ import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Join;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 
 /********************************************************************************
@@ -96,11 +97,6 @@ public class MandateSQL {
 
 	public static final Table MANDATE_CURRENCY_ALLOCATION_TABLE = new Table("MANDATE_CURRENCY_ALLOCATION",
 			CURRENCY_ALLOCATION_FIELDS);
-
-	private static final Field CURRENCY_ID_FIELD = new Field(ID);
-	private static final Field CURRENCY_ISO_CODE_FIELD = new Field("ISO_CODE");
-	private static final Field[] CURRENCY_FIELDS = { CURRENCY_ID_FIELD, CURRENCY_ISO_CODE_FIELD };
-	public static final Table CURRENCY_TABLE = new Table("CURRENCY", CURRENCY_FIELDS);
 
 	public static long saveMandate(Mandate mandate) {
 		long mandateId = 0;
@@ -218,9 +214,9 @@ public class MandateSQL {
 				TradistaDBUtil.buildSelectQuery(MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE));
 		TradistaDBUtil.addParameterizedFilter(sqlProductAlloc, MANDATE_ID_ALLOCATION_FIELD);
 
-		StringBuilder sqlCurrencyAlloc = new StringBuilder(
-				TradistaDBUtil.buildSelectQuery(MANDATE_CURRENCY_ALLOCATION_TABLE,
-						Join.innerEq(CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ID_FIELD)));
+		StringBuilder sqlCurrencyAlloc = new StringBuilder(TradistaDBUtil.buildSelectQuery(
+				MANDATE_CURRENCY_ALLOCATION_TABLE,
+				Join.innerEq(CurrencySQL.CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CurrencySQL.ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sqlCurrencyAlloc, CURRENCY_ALLOCATION_MANDATE_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
@@ -284,7 +280,7 @@ public class MandateSQL {
 					Allocation alloc = mandate.new Allocation();
 					alloc.setMinAllocation(results.getShort(CURRENCY_ALLOCATION_MIN_ALLOCATION_FIELD.getName()));
 					alloc.setMaxAllocation(results.getShort(CURRENCY_ALLOCATION_MAX_ALLOCATION_FIELD.getName()));
-					allocations.put(results.getString(CURRENCY_ISO_CODE_FIELD.getName()), alloc);
+					allocations.put(results.getString(CurrencySQL.ISO_CODE_FIELD.getName()), alloc);
 				}
 
 				mandate.setCurrencyAllocations(allocations);
@@ -304,9 +300,9 @@ public class MandateSQL {
 				TradistaDBUtil.buildSelectQuery(MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE));
 		TradistaDBUtil.addParameterizedFilter(sqlProductAlloc, MANDATE_ID_ALLOCATION_FIELD);
 
-		StringBuilder sqlCurrencyAlloc = new StringBuilder(
-				TradistaDBUtil.buildSelectQuery(MANDATE_CURRENCY_ALLOCATION_TABLE,
-						Join.innerEq(CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ID_FIELD)));
+		StringBuilder sqlCurrencyAlloc = new StringBuilder(TradistaDBUtil.buildSelectQuery(
+				MANDATE_CURRENCY_ALLOCATION_TABLE,
+				Join.innerEq(CurrencySQL.CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CurrencySQL.ID_FIELD)));
 		TradistaDBUtil.addParameterizedFilter(sqlCurrencyAlloc, CURRENCY_ALLOCATION_MANDATE_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
@@ -369,7 +365,7 @@ public class MandateSQL {
 					Allocation alloc = mandate.new Allocation();
 					alloc.setMinAllocation(results.getShort(CURRENCY_ALLOCATION_MIN_ALLOCATION_FIELD.getName()));
 					alloc.setMaxAllocation(results.getShort(CURRENCY_ALLOCATION_MAX_ALLOCATION_FIELD.getName()));
-					allocations.put(results.getString(CURRENCY_ISO_CODE_FIELD.getName()), alloc);
+					allocations.put(results.getString(CurrencySQL.ISO_CODE_FIELD.getName()), alloc);
 				}
 
 				mandate.setCurrencyAllocations(allocations);
