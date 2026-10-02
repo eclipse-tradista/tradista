@@ -388,7 +388,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 
 			private boolean isAvailable(LocalDate date) {
 				if (bondTrade == null) {
-					bondTrade = new BondTrade();
+					bondTrade = new BondTrade.Builder().build();
 					bondTrade.setProduct(bond.getValue());
 				}
 				if (bondTrade.getProduct() != null) {
@@ -654,7 +654,6 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -662,14 +661,11 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 
 				buildTrade();
 				oldTradeId = trade.getId();
-				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
 				trade.setId(bondTradeBusinessDelegate.saveBondTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -718,7 +714,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new BondTrade();
+			trade = new BondTrade.Builder().build();
 		}
 		try {
 			if (!tradePrice.getText().isEmpty()) {

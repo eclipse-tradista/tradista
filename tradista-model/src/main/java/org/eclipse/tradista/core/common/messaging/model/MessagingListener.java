@@ -50,7 +50,8 @@ public class MessagingListener extends TradistaObject implements Comparable<Mess
 
 	public MessagingListener(String name, String queueName, long pollerDelay, int pollerMaxMessages, boolean enabled) {
 		this.name = name;
-		this.queueName = (queueName != null && !queueName.isBlank()) ? queueName : (name != null ? name + "Queue" : null);
+		this.queueName = (queueName != null && !queueName.isBlank()) ? queueName
+				: (name != null ? name + "Queue" : null);
 		this.pollerDelay = pollerDelay;
 		this.pollerMaxMessages = pollerMaxMessages;
 		this.enabled = enabled;

@@ -259,7 +259,7 @@ public class AssetManagerAgentServiceBean implements AssetManagerAgentService {
 	private FXTrade getOptimalFXTrade(AssetManagerAgent agent, Currency quoteCurrency, Currency primaryCurrency,
 			CashInventory quoteCurrencyPosition, CashInventory primaryCurrencyPosition,
 			Set<CashInventory> cashInventories) throws TradistaBusinessException {
-		FXTrade trade = new FXTrade();
+		FXTrade trade = new FXTrade.Builder().build();
 		trade.setCurrencyOne(quoteCurrency);
 		trade.setCurrency(primaryCurrency);
 		// TODO Handle selection of counterparties.

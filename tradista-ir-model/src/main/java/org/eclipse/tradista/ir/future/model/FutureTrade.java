@@ -44,6 +44,18 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 	 */
 	private static final long serialVersionUID = 7130145836929238705L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public FutureTrade() {
+	}
+
+	protected FutureTrade(Builder builder) {
+		super(builder);
+		this.quantity = builder.quantity;
+	}
+
 	private BigDecimal quantity;
 
 	public BigDecimal getQuantity() {
@@ -142,4 +154,42 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 		// the
 		// product (it is the future maturity date).
 	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(getMaturityDate()).frequency(getFrequency())
+				.interestPayment(getInterestPayment()).interestFixing(getInterestFixing())
+				.referenceRateIndex(getReferenceRateIndex()).referenceRateIndexTenor(getReferenceRateIndexTenor())
+				.dayCountConvention(getDayCountConvention()).quantity(this.quantity);
+		return builder;
+	}
+
+	public static class Builder extends IRForwardTrade.Builder<Future, FutureTrade, Builder> {
+		protected BigDecimal quantity;
+
+		public Builder quantity(BigDecimal quantity) {
+			this.quantity = quantity;
+			return this;
+		}
+
+		public Builder future(Future future) {
+			this.product = future;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public FutureTrade build() {
+			return new FutureTrade(this);
+		}
+	}
+
 }

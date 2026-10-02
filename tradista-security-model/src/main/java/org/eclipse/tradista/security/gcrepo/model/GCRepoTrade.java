@@ -26,6 +26,18 @@ public class GCRepoTrade extends RepoTrade {
 
 	private static final long serialVersionUID = 8452035320272812574L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public GCRepoTrade() {
+	}
+
+	protected GCRepoTrade(Builder builder) {
+		super(builder);
+		this.gcBasket = builder.gcBasket;
+	}
+
 	public static final String GC_REPO = "GCRepo";
 
 	private GCBasket gcBasket;
@@ -46,6 +58,41 @@ public class GCRepoTrade extends RepoTrade {
 
 	public void setGcBasket(GCBasket gcBasket) {
 		this.gcBasket = gcBasket;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).repoRate(getRepoRate()).marginRate(getMarginRate())
+				.index(getIndex()).indexTenor(getIndexTenor()).indexOffset(getIndexOffset()).endDate(getEndDate())
+				.rightOfSubstitution(isRightOfSubstitution()).rightOfReuse(isRightOfReuse())
+				.crossCurrencyCollateral(isCrossCurrencyCollateral()).terminableOnDemand(isTerminableOnDemand())
+				.noticePeriod(getNoticePeriod()).collateralToAdd(getCollateralToAdd())
+				.collateralToRemove(getCollateralToRemove()).partialTerminations(getPartialTerminations())
+				.gcBasket(this.gcBasket);
+		return builder;
+	}
+
+	public static class Builder extends RepoTrade.Builder<GCRepoTrade, Builder> {
+		protected GCBasket gcBasket;
+
+		public Builder gcBasket(GCBasket gcBasket) {
+			this.gcBasket = gcBasket;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public GCRepoTrade build() {
+			return new GCRepoTrade(this);
+		}
 	}
 
 }

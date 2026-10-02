@@ -31,6 +31,24 @@ import org.eclipse.tradista.core.product.model.Product;
  */
 public abstract class OptionTrade<T extends Trade<? extends Product>> extends Trade<Product> {
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	protected OptionTrade() {
+	}
+
+	protected OptionTrade(Builder<T, ?, ?> builder) {
+		super(builder);
+		this.type = builder.type;
+		this.underlying = builder.underlying;
+		this.maturityDate = builder.maturityDate;
+		this.strike = builder.strike;
+		this.settlementType = builder.settlementType;
+		this.settlementDateOffset = builder.settlementDateOffset;
+		this.exerciseDate = builder.exerciseDate;
+	}
+
 	public enum Type {
 		CALL, PUT;
 
@@ -179,6 +197,52 @@ public abstract class OptionTrade<T extends Trade<? extends Product>> extends Tr
 		OptionTrade<T> optionTrade = (OptionTrade<T>) super.clone();
 		optionTrade.underlying = TradistaModelUtil.clone(underlying);
 		return optionTrade;
+	}
+
+	public abstract static class Builder<T extends Trade<? extends Product>, OT extends OptionTrade<T>, B extends Builder<T, OT, B>>
+			extends Trade.Builder<Product, OT, B> {
+		protected Type type;
+		protected T underlying;
+		protected LocalDate maturityDate;
+		protected BigDecimal strike;
+		protected SettlementType settlementType;
+		protected int settlementDateOffset;
+		protected LocalDate exerciseDate;
+
+		public B type(Type type) {
+			this.type = type;
+			return self();
+		}
+
+		public B underlying(T underlying) {
+			this.underlying = underlying;
+			return self();
+		}
+
+		public B maturityDate(LocalDate maturityDate) {
+			this.maturityDate = maturityDate;
+			return self();
+		}
+
+		public B strike(BigDecimal strike) {
+			this.strike = strike;
+			return self();
+		}
+
+		public B settlementType(SettlementType settlementType) {
+			this.settlementType = settlementType;
+			return self();
+		}
+
+		public B settlementDateOffset(int settlementDateOffset) {
+			this.settlementDateOffset = settlementDateOffset;
+			return self();
+		}
+
+		public B exerciseDate(LocalDate exerciseDate) {
+			this.exerciseDate = exerciseDate;
+			return self();
+		}
 	}
 
 }

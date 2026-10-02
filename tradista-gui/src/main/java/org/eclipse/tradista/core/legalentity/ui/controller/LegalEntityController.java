@@ -1,6 +1,10 @@
 package org.eclipse.tradista.core.legalentity.ui.controller;
 
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
@@ -46,6 +50,9 @@ public class LegalEntityController extends TradistaControllerAdapter {
 	private ComboBox<LegalEntity.Role> role;
 
 	@FXML
+	private ComboBox<ZoneId> timeZone;
+
+	@FXML
 	private TextArea description;
 
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
@@ -69,6 +76,9 @@ public class LegalEntityController extends TradistaControllerAdapter {
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		role.setItems(FXCollections.observableArrayList(LegalEntity.Role.values()));
 		role.setValue(LegalEntity.Role.COUNTERPARTY);
+		List<ZoneId> zones = ZoneId.getAvailableZoneIds().stream().sorted().map(ZoneId::of)
+				.collect(Collectors.toList());
+		timeZone.setItems(FXCollections.observableArrayList(zones));
 	}
 
 	@FXML
@@ -87,6 +97,7 @@ public class LegalEntityController extends TradistaControllerAdapter {
 				legalEntity.setLongName(longName.getText());
 				legalEntity.setDescription(description.getText());
 				legalEntity.setRole(role.getValue());
+				legalEntity.setTimeZone(timeZone.getValue());
 				legalEntity.setId(legalEntityBusinessDelegate.saveLegalEntity(legalEntity));
 				legalEntityId.setText(String.valueOf(legalEntity.getId()));
 			} catch (TradistaBusinessException tbe) {
@@ -106,6 +117,7 @@ public class LegalEntityController extends TradistaControllerAdapter {
 				copyLegalEntity.setLongName(result.get().getLongName());
 				copyLegalEntity.setDescription(description.getText());
 				copyLegalEntity.setRole(role.getValue());
+				copyLegalEntity.setTimeZone(timeZone.getValue());
 				copyLegalEntity.setId(legalEntityBusinessDelegate.saveLegalEntity(copyLegalEntity));
 				legalEntity = copyLegalEntity;
 				legalEntityId.setText(String.valueOf(legalEntity.getId()));
@@ -164,6 +176,7 @@ public class LegalEntityController extends TradistaControllerAdapter {
 		longName.setText(legalEntity.getLongName());
 		shortName.setText(legalEntity.getShortName());
 		role.setValue(legalEntity.getRole());
+		timeZone.setValue(legalEntity.getTimeZone());
 	}
 
 	@Override
@@ -175,6 +188,7 @@ public class LegalEntityController extends TradistaControllerAdapter {
 		longName.clear();
 		description.clear();
 		role.setValue(LegalEntity.Role.COUNTERPARTY);
+		timeZone.setValue(null);
 	}
 
 }

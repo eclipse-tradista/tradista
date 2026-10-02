@@ -36,6 +36,7 @@ import org.eclipse.tradista.fx.common.model.AbstractFXTrade;
 public class FXSwapTrade extends AbstractFXTrade<Product> {
 
 	private static final long serialVersionUID = 6321516419712885556L;
+	public static final String FX_SWAP = "FXSwap";
 
 	private Currency currencyOne;
 
@@ -47,7 +48,21 @@ public class FXSwapTrade extends AbstractFXTrade<Product> {
 
 	private BigDecimal amountTwoForward;
 
-	public static final String FX_SWAP = "FXSwap";
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public FXSwapTrade() {
+	}
+
+	protected FXSwapTrade(Builder builder) {
+		super(builder);
+		this.currencyOne = builder.currencyOne;
+		this.settlementDateForward = builder.settlementDateForward;
+		this.amountOneForward = builder.amountOneForward;
+		this.amountOneSpot = builder.amountOneSpot;
+		this.amountTwoForward = builder.amountTwoForward;
+	}
 
 	public Currency getCurrencyOne() {
 		return TradistaModelUtil.clone(currencyOne);
@@ -98,6 +113,61 @@ public class FXSwapTrade extends AbstractFXTrade<Product> {
 		FXSwapTrade fxSwapTrade = (FXSwapTrade) super.clone();
 		fxSwapTrade.currencyOne = TradistaModelUtil.clone(currencyOne);
 		return fxSwapTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).currencyOne(this.currencyOne)
+				.settlementDateForward(this.settlementDateForward).amountOneForward(this.amountOneForward)
+				.amountOneSpot(this.amountOneSpot).amountTwoForward(this.amountTwoForward);
+		return builder;
+	}
+
+	public static class Builder extends AbstractFXTrade.Builder<Product, FXSwapTrade, Builder> {
+		protected Currency currencyOne;
+		protected LocalDate settlementDateForward;
+		protected BigDecimal amountOneForward;
+		protected BigDecimal amountOneSpot;
+		protected BigDecimal amountTwoForward;
+
+		public Builder currencyOne(Currency currencyOne) {
+			this.currencyOne = currencyOne;
+			return this;
+		}
+
+		public Builder settlementDateForward(LocalDate settlementDateForward) {
+			this.settlementDateForward = settlementDateForward;
+			return this;
+		}
+
+		public Builder amountOneForward(BigDecimal amountOneForward) {
+			this.amountOneForward = amountOneForward;
+			return this;
+		}
+
+		public Builder amountOneSpot(BigDecimal amountOneSpot) {
+			this.amountOneSpot = amountOneSpot;
+			return this;
+		}
+
+		public Builder amountTwoForward(BigDecimal amountTwoForward) {
+			this.amountTwoForward = amountTwoForward;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public FXSwapTrade build() {
+			return new FXSwapTrade(this);
+		}
 	}
 
 }

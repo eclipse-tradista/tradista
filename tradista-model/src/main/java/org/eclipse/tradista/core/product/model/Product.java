@@ -1,10 +1,11 @@
 package org.eclipse.tradista.core.product.model;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.eclipse.tradista.core.common.model.Id;
+import org.eclipse.tradista.core.common.model.TimestampedObject;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
-import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 
 /********************************************************************************
@@ -23,28 +24,58 @@ import org.eclipse.tradista.core.exchange.model.Exchange;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Product extends TradistaObject {
+public abstract class Product extends TimestampedObject {
 
 	private static final long serialVersionUID = 518407081850145938L;
-	private LocalDate creationDate;
 
 	@Id
 	private Exchange exchange;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	protected Product(Exchange exchange) {
 		this.exchange = exchange;
+	}
+
+	protected Product(Builder<?, ?> builder) {
+		super(builder);
+		this.exchange = builder.exchange;
+	}
+
+	@Override
+	public Builder<?, ?> toBuilder() {
+		return null;
 	}
 
 	public Exchange getExchange() {
 		return TradistaModelUtil.clone(exchange);
 	}
 
-	public LocalDate getCreationDate() {
-		return creationDate;
+	public void setExchange(Exchange exchange) {
+		this.exchange = exchange;
 	}
 
+	/**
+	 * @deprecated use {@link #getCreationTime()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public LocalDate getCreationDate() {
+		if (getCreationTime() == null) {
+			return null;
+		}
+		return LocalDate.ofInstant(getCreationTime(), ZoneId.systemDefault());
+	}
+
+	/**
+	 * @deprecated creation time is automatically managed and immutable. Use
+	 *             {@link Builder#creationTime(java.time.Instant)} if needed during
+	 *             construction.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public void setCreationDate(LocalDate creationDate) {
-		this.creationDate = creationDate;
+		// No-op: creationTime is immutable and managed at construction/builder level.
 	}
 
 	public abstract String getProductType();
@@ -54,6 +85,16 @@ public abstract class Product extends TradistaObject {
 		Product product = (Product) super.clone();
 		product.exchange = TradistaModelUtil.clone(exchange);
 		return product;
+	}
+
+	public abstract static class Builder<T extends Product, B extends Builder<T, B>>
+			extends TimestampedObject.Builder<T, B> {
+		protected Exchange exchange;
+
+		public B exchange(Exchange exchange) {
+			this.exchange = exchange;
+			return self();
+		}
 	}
 
 }

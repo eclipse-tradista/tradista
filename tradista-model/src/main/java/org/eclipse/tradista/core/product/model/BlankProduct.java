@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.product.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.tradista.core.exchange.model.Exchange;
 
 /********************************************************************************
  * Copyright (c) 2021 Olivier Asuncion
@@ -25,11 +26,16 @@ public final class BlankProduct extends Product {
 	private static final BlankProduct instance = new BlankProduct();
 
 	private BlankProduct() {
-		super(null);
+		super((Exchange) null);
 	}
 
 	public static BlankProduct getInstance() {
 		return instance;
+	}
+
+	@Override
+	public Builder<?, ?> toBuilder() {
+		return null;
 	}
 
 	@Override

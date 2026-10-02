@@ -1,17 +1,21 @@
 package org.eclipse.tradista.fx.fxswap.persistence;
 
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 
@@ -33,38 +37,67 @@ import org.eclipse.tradista.fx.fxswap.model.FXSwapTrade;
 
 public class FXSwapTradeSQL {
 
+	public static final Field FXSWAP_TRADE_ID_FIELD = new Field("FXSWAP_TRADE_ID");
+	public static final Field CURRENCY_ONE_ID_FIELD = new Field("CURRENCY_ONE_ID");
+	public static final Field SETTLEMENT_DATE_FORWARD_FIELD = new Field("SETTLEMENT_DATE_FORWARD");
+	public static final Field AMOUNT_ONE_FORWARD_FIELD = new Field("AMOUNT_ONE_FORWARD");
+	public static final Field AMOUNT_ONE_SPOT_FIELD = new Field("AMOUNT_ONE_SPOT");
+	public static final Field AMOUNT_TWO_FORWARD_FIELD = new Field("AMOUNT_TWO_FORWARD");
+
+	private static final Field[] FXSWAP_TRADE_FIELDS = { FXSWAP_TRADE_ID_FIELD, CURRENCY_ONE_ID_FIELD,
+			SETTLEMENT_DATE_FORWARD_FIELD, AMOUNT_ONE_FORWARD_FIELD, AMOUNT_ONE_SPOT_FIELD, AMOUNT_TWO_FORWARD_FIELD };
+
+	private static final Field[] FXSWAP_TRADE_FIELDS_FOR_INSERT = { CURRENCY_ONE_ID_FIELD,
+			SETTLEMENT_DATE_FORWARD_FIELD, AMOUNT_ONE_FORWARD_FIELD, AMOUNT_ONE_SPOT_FIELD, AMOUNT_TWO_FORWARD_FIELD,
+			FXSWAP_TRADE_ID_FIELD };
+
+	private static final Field[] FXSWAP_TRADE_FIELDS_FOR_UPDATE = { CURRENCY_ONE_ID_FIELD,
+			SETTLEMENT_DATE_FORWARD_FIELD, AMOUNT_ONE_FORWARD_FIELD, AMOUNT_ONE_SPOT_FIELD, AMOUNT_TWO_FORWARD_FIELD };
+
+	public static final Table FXSWAP_TRADE_TABLE = new Table("FXSWAP_TRADE", FXSWAP_TRADE_FIELDS);
+
+	public static final Join TRADE_AND_FXSWAP_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
+			FXSWAP_TRADE_ID_FIELD);
+
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(FXSWAP_TRADE_TABLE,
+			TRADE_AND_FXSWAP_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, FXSWAP_TRADE_TABLE, FXSWAP_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, FXSWAP_TRADE_ID_FIELD, FXSWAP_TRADE_TABLE,
+				FXSWAP_TRADE_FIELDS_FOR_UPDATE);
+	}
+
 	public static FXSwapTrade getTradeById(long id) {
 
 		FXSwapTrade fxswapTrade = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, FXSWAP_TRADE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = con.prepareStatement(
-						"SELECT * FROM FXSWAP_TRADE, TRADE WHERE FXSWAP_TRADE_ID = ? AND FXSWAP_TRADE_ID = ID ")) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 
 					if (fxswapTrade == null) {
-						fxswapTrade = new FXSwapTrade();
+						fxswapTrade = new FXSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
-					fxswapTrade.setCurrencyOne(CurrencySQL.getCurrencyById(results.getLong("currency_one_id")));
-					fxswapTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					fxswapTrade.setSettlementDateForward(results.getDate("settlement_date_forward").toLocalDate());
-					fxswapTrade.setAmountOneSpot(results.getBigDecimal("amount_one_spot"));
-					fxswapTrade.setAmountOneForward(results.getBigDecimal("amount_one_forward"));
-					fxswapTrade.setAmount(results.getBigDecimal("amount"));
-					fxswapTrade.setAmountTwoForward(results.getBigDecimal("amount_two_forward"));
-					fxswapTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					fxswapTrade.setBuySell(results.getBoolean("buy_sell"));
-					fxswapTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					fxswapTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					fxswapTrade.setId(id);
-					fxswapTrade.setSettlementDate(results.getDate("settlement_date").toLocalDate());
-					fxswapTrade.setTradeDate(results.getDate("trade_date").toLocalDate());
+					TradeSQL.setTradeCommonFields(fxswapTrade, results);
+					fxswapTrade.setCurrencyOne(
+							CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ONE_ID_FIELD.getName())));
+					fxswapTrade.setSettlementDateForward(
+							results.getDate(SETTLEMENT_DATE_FORWARD_FIELD.getName()).toLocalDate());
+					fxswapTrade.setAmountOneSpot(results.getBigDecimal(AMOUNT_ONE_SPOT_FIELD.getName()));
+					fxswapTrade.setAmountOneForward(results.getBigDecimal(AMOUNT_ONE_FORWARD_FIELD.getName()));
+					fxswapTrade.setAmountTwoForward(results.getBigDecimal(AMOUNT_TWO_FORWARD_FIELD.getName()));
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return fxswapTrade;
 	}
@@ -81,21 +114,13 @@ public class FXSwapTradeSQL {
 				return null;
 			}
 
-			fxswapTrade = new FXSwapTrade();
+			fxswapTrade = new FXSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			TradeSQL.setTradeCommonFields(fxswapTrade, rs);
 			fxswapTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxswap_currency_one_id")));
-			fxswapTrade.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("currency_id")));
 			fxswapTrade.setSettlementDateForward(rs.getDate("settlement_date_forward").toLocalDate());
 			fxswapTrade.setAmountOneSpot(rs.getBigDecimal("amount_one_spot"));
 			fxswapTrade.setAmountOneForward(rs.getBigDecimal("amount_one_forward"));
-			fxswapTrade.setAmount(rs.getBigDecimal("amount"));
 			fxswapTrade.setAmountTwoForward(rs.getBigDecimal("amount_two_forward"));
-			fxswapTrade.setBook(BookSQL.getBookById(rs.getLong("book_id")));
-			fxswapTrade.setBuySell(rs.getBoolean("buy_sell"));
-			fxswapTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(rs.getLong("counterparty_id")));
-			fxswapTrade.setCreationDate(rs.getDate("creation_date").toLocalDate());
-			fxswapTrade.setSettlementDate(rs.getDate("settlement_date").toLocalDate());
-			fxswapTrade.setTradeDate(rs.getDate("trade_date").toLocalDate());
 		} catch (SQLException | TradistaBusinessException e) {
 			throw new TradistaTechnicalException(e);
 		}
@@ -106,29 +131,11 @@ public class FXSwapTradeSQL {
 	public static long saveFXSwapTrade(FXSwapTrade trade) {
 		long tradeId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, SETTLEMENT_DATE, PRODUCT_ID, COUNTERPARTY_ID, CURRENCY_ID, AMOUNT, BOOK_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, SETTLEMENT_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, CURRENCY_ID=?, AMOUNT=?, BOOK_ID=? WHERE ID = ?");
-				PreparedStatement stmtSaveFXSwapTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO FXSWAP_TRADE(CURRENCY_ONE_ID, SETTLEMENT_DATE_FORWARD, AMOUNT_ONE_FORWARD, AMOUNT_ONE_SPOT, AMOUNT_TWO_FORWARD, FXSWAP_TRADE_ID) VALUES (?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE FXSWAP_TRADE SET CURRENCY_ONE_ID=?, SETTLEMENT_DATE_FORWARD=?, AMOUNT_ONE_FORWARD=?, AMOUNT_ONE_SPOT=?, AMOUNT_TWO_FORWARD=? WHERE FXSWAP_TRADE_ID=?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(9, trade.getId());
-			}
-			stmtSaveTrade.setBoolean(1, isBuy);
-			stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			stmtSaveTrade.setDate(3, java.sql.Date.valueOf(trade.getSettlementDate()));
-			stmtSaveTrade.setNull(4, java.sql.Types.BIGINT);
-			stmtSaveTrade.setLong(5, trade.getCounterparty().getId());
-			stmtSaveTrade.setLong(6, trade.getCurrency().getId());
-			stmtSaveTrade.setBigDecimal(7, trade.getAmount());
-			stmtSaveTrade.setLong(8, trade.getBook().getId());
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveFXSwapTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -150,10 +157,8 @@ public class FXSwapTradeSQL {
 			stmtSaveFXSwapTrade.setBigDecimal(5, trade.getAmountTwoForward());
 			stmtSaveFXSwapTrade.setLong(6, tradeId);
 			stmtSaveFXSwapTrade.executeUpdate();
-		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.core.legalentity.model;
 
+import java.time.ZoneId;
+
 import org.eclipse.tradista.core.common.model.Id;
 import org.eclipse.tradista.core.common.model.Segregable;
 import org.eclipse.tradista.core.common.model.TradistaObject;
@@ -65,6 +67,8 @@ public class LegalEntity extends TradistaObject implements Comparable<LegalEntit
 
 	private Role role;
 
+	private ZoneId timeZone;
+
 	public LegalEntity(String shortName) {
 		this.shortName = shortName;
 	}
@@ -95,6 +99,14 @@ public class LegalEntity extends TradistaObject implements Comparable<LegalEntit
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public ZoneId getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(ZoneId timeZone) {
+		this.timeZone = timeZone;
 	}
 
 	@Override

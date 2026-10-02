@@ -411,8 +411,9 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 					private boolean isAvailable(LocalDate date) {
 						if (irCapFloorCollarTrade == null) {
-							irCapFloorCollarTrade = new IRCapFloorCollarTrade();
-							IRForwardTrade<Product> irForwardTrade = new IRForwardTrade<>();
+							irCapFloorCollarTrade = new IRCapFloorCollarTrade.Builder().build();
+							IRForwardTrade<Product> irForwardTrade = new IRForwardTrade.ConcreteBuilder<Product>()
+									.build();
 							irForwardTrade.setCurrency(currency.getValue());
 							irCapFloorCollarTrade.setIrForwardTrade(irForwardTrade);
 						}
@@ -513,13 +514,9 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldIrForwardTradeId = trade.getIrForwardTrade().getId();
-				oldCreationDate = trade.getCreationDate();
-				oldIrForwardCreationDate = trade.getIrForwardTrade().getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				irForwardTrade = trade.getIrForwardTrade();
 				irForwardTrade.setId(0);
-				irForwardTrade.setCreationDate(LocalDate.now());
 				trade.setIrForwardTrade(irForwardTrade);
 				trade.setId(irCapFloorCollarTradeBusinessDelegate.saveIRCapFloorCollarTrade(trade));
 				IRCapFloorCollarTrade existingTrade = irCapFloorCollarTradeBusinessDelegate
@@ -530,9 +527,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				irForwardTrade.setId(oldIrForwardTradeId);
-				irForwardTrade.setCreationDate(oldIrForwardCreationDate);
 				trade.setIrForwardTrade(irForwardTrade);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -622,7 +617,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 	private IRCapFloorCollarTrade buildTrade() {
 		if (this.trade == null) {
-			trade = new IRCapFloorCollarTrade();
+			trade = new IRCapFloorCollarTrade.Builder().build();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -644,7 +639,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 			// Building the ir forward trade
 			IRForwardTrade<Product> irForwardTrade = trade.getIrForwardTrade();
 			if (trade.getIrForwardTrade() == null) {
-				irForwardTrade = new IRForwardTrade<>();
+				irForwardTrade = new IRForwardTrade.ConcreteBuilder<Product>().build();
 			}
 
 			if (!notionalAmount.getText().isEmpty()) {

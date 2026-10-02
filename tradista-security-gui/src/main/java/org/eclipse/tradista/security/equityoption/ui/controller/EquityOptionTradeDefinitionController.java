@@ -391,8 +391,8 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 							return false;
 						}
 						if (equityOptionTrade == null) {
-							equityOptionTrade = new EquityOptionTrade();
-							EquityTrade equityTrade = new EquityTrade();
+							equityOptionTrade = new EquityOptionTrade.Builder().build();
+							EquityTrade equityTrade = new EquityTrade.Builder().build();
 							equityTrade.setProduct(equity.getValue());
 							equityOptionTrade.setUnderlying(equityTrade);
 							if (!equityOption.getValue().equals(BlankEquityOption.getInstance())) {
@@ -770,13 +770,9 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldUnderlyingTradeId = trade.getUnderlying().getId();
-				oldCreationDate = trade.getCreationDate();
-				oldUnderlyingCreationDate = trade.getUnderlying().getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				underlying = trade.getUnderlying();
 				underlying.setId(0);
-				underlying.setCreationDate(LocalDate.now());
 				trade.setUnderlying(underlying);
 				trade.setId(equityOptionTradeBusinessDelegate.saveEquityOptionTrade(trade));
 				EquityOptionTrade existingTrade = equityOptionTradeBusinessDelegate
@@ -787,9 +783,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				underlying.setId(oldUnderlyingTradeId);
-				underlying.setCreationDate(oldUnderlyingCreationDate);
 				trade.setUnderlying(underlying);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -799,7 +793,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new EquityOptionTrade();
+			trade = new EquityOptionTrade.Builder().build();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -835,7 +829,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 			// Building the underlying
 			EquityTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				underlying = new EquityTrade();
+				underlying = new EquityTrade.Builder().build();
 			}
 
 			underlying.setProduct(equity.getValue());

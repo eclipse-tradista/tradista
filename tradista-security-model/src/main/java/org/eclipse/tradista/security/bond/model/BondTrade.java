@@ -30,6 +30,18 @@ public class BondTrade extends Trade<Bond> {
 
 	private static final long serialVersionUID = 198715914648744270L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public BondTrade() {
+	}
+
+	protected BondTrade(Builder builder) {
+		super(builder);
+		this.quantity = builder.quantity;
+	}
+
 	private BigDecimal quantity;
 
 	public BigDecimal getQuantity() {
@@ -46,6 +58,35 @@ public class BondTrade extends Trade<Bond> {
 			return getProduct().getCurrency();
 		}
 		return null;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).quantity(this.quantity);
+		return builder;
+	}
+
+	public static class Builder extends Trade.Builder<Bond, BondTrade, Builder> {
+		protected BigDecimal quantity;
+
+		public Builder quantity(BigDecimal quantity) {
+			this.quantity = quantity;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public BondTrade build() {
+			return new BondTrade(this);
+		}
 	}
 
 }

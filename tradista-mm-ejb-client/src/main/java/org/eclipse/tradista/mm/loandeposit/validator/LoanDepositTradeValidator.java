@@ -34,8 +34,8 @@ public class LoanDepositTradeValidator extends DefaultTradeValidator {
 
 	@Override
 	public void validateTrade(Trade<? extends Product> trade) throws TradistaBusinessException {
-		LoanDepositTrade mmTrade = (LoanDepositTrade) trade;
 		StringBuilder errMsg = validateTradeBasics(trade);
+		LoanDepositTrade mmTrade = (LoanDepositTrade) trade;
 		if (mmTrade.getSettlementDate() == null) {
 			errMsg.append(String.format("The start date is mandatory.%n"));
 		} else {

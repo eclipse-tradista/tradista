@@ -29,6 +29,19 @@ public class FRATrade extends IRForwardTrade<Product> implements Instrument {
 
 	private static final long serialVersionUID = 7130145836929238705L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public FRATrade() {
+	}
+
+	protected FRATrade(Builder builder) {
+		super(builder);
+		this.fixedRate = builder.fixedRate;
+		this.startDate = builder.startDate;
+	}
+
 	private BigDecimal fixedRate;
 
 	private LocalDate startDate;
@@ -99,6 +112,44 @@ public class FRATrade extends IRForwardTrade<Product> implements Instrument {
 
 	public void setPaymentDate(LocalDate paymentDate) {
 		setSettlementDate(paymentDate);
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(getMaturityDate()).frequency(getFrequency())
+				.interestPayment(getInterestPayment()).interestFixing(getInterestFixing())
+				.referenceRateIndex(getReferenceRateIndex()).referenceRateIndexTenor(getReferenceRateIndexTenor())
+				.dayCountConvention(getDayCountConvention()).fixedRate(this.fixedRate).startDate(this.startDate);
+		return builder;
+	}
+
+	public static class Builder extends IRForwardTrade.Builder<Product, FRATrade, Builder> {
+		protected BigDecimal fixedRate;
+		protected LocalDate startDate;
+
+		public Builder fixedRate(BigDecimal fixedRate) {
+			this.fixedRate = fixedRate;
+			return this;
+		}
+
+		public Builder startDate(LocalDate startDate) {
+			this.startDate = startDate;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public FRATrade build() {
+			return new FRATrade(this);
+		}
 	}
 
 }

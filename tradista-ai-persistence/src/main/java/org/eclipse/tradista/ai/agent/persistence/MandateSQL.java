@@ -1,13 +1,22 @@
 package org.eclipse.tradista.ai.agent.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.END_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_TYPE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.START_DATE;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +27,11 @@ import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 
 /********************************************************************************
@@ -38,27 +52,76 @@ import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 
 public class MandateSQL {
 
+	private static final Field ID_FIELD = new Field(ID);
+	private static final Field NAME_FIELD = new Field(NAME);
+	private static final Field ACCEPTED_RISK_LEVEL_FIELD = new Field("ACCEPTED_RISK_LEVEL");
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
+	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME);
+	private static final Field START_DATE_FIELD = new Field(START_DATE);
+	private static final Field END_DATE_FIELD = new Field(END_DATE);
+	private static final Field INITIAL_CASH_AMOUNT_FIELD = new Field("INITIAL_CASH_AMOUNT");
+	private static final Field INITIAL_CASH_CURRENCY_FIELD = new Field("INITIAL_CASH_CURRENCY");
+	private static final Field BOOK_ID_FIELD = new Field(BOOK_ID);
+
+	private static final Field[] MANDATE_FIELDS = { ID_FIELD, NAME_FIELD, ACCEPTED_RISK_LEVEL_FIELD,
+			CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD, START_DATE_FIELD, END_DATE_FIELD, INITIAL_CASH_AMOUNT_FIELD,
+			INITIAL_CASH_CURRENCY_FIELD, BOOK_ID_FIELD };
+
+	public static final Table MANDATE_TABLE = new Table("MANDATE", MANDATE_FIELDS);
+
+	private static final Field[] FIELDS_FOR_INSERT = { NAME_FIELD, ACCEPTED_RISK_LEVEL_FIELD, CREATION_TIME_FIELD,
+			LAST_UPDATE_TIME_FIELD, START_DATE_FIELD, END_DATE_FIELD, INITIAL_CASH_AMOUNT_FIELD,
+			INITIAL_CASH_CURRENCY_FIELD, BOOK_ID_FIELD };
+
+	private static final Field[] FIELDS_FOR_UPDATE = { NAME_FIELD, ACCEPTED_RISK_LEVEL_FIELD, LAST_UPDATE_TIME_FIELD,
+			START_DATE_FIELD, END_DATE_FIELD, INITIAL_CASH_AMOUNT_FIELD, INITIAL_CASH_CURRENCY_FIELD, BOOK_ID_FIELD };
+
+	private static final Field MANDATE_ID_ALLOCATION_FIELD = new Field("MANDATE_ID");
+	private static final Field PRODUCT_TYPE_FIELD = new Field(PRODUCT_TYPE);
+	private static final Field MIN_ALLOCATION_FIELD = new Field("MIN_ALLOCATION");
+	private static final Field MAX_ALLOCATION_FIELD = new Field("MAX_ALLOCATION");
+
+	private static final Field[] PRODUCT_TYPE_ALLOCATION_FIELDS = { MANDATE_ID_ALLOCATION_FIELD, PRODUCT_TYPE_FIELD,
+			MIN_ALLOCATION_FIELD, MAX_ALLOCATION_FIELD };
+
+	public static final Table MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE = new Table("MANDATE_PRODUCT_TYPE_ALLOCATION",
+			PRODUCT_TYPE_ALLOCATION_FIELDS);
+
+	private static final Field CURRENCY_ALLOCATION_MANDATE_ID_FIELD = new Field("MANDATE_ID");
+	private static final Field CURRENCY_ALLOCATION_CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
+	private static final Field CURRENCY_ALLOCATION_MIN_ALLOCATION_FIELD = new Field("MIN_ALLOCATION");
+	private static final Field CURRENCY_ALLOCATION_MAX_ALLOCATION_FIELD = new Field("MAX_ALLOCATION");
+
+	private static final Field[] CURRENCY_ALLOCATION_FIELDS = { CURRENCY_ALLOCATION_MANDATE_ID_FIELD,
+			CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CURRENCY_ALLOCATION_MIN_ALLOCATION_FIELD,
+			CURRENCY_ALLOCATION_MAX_ALLOCATION_FIELD };
+
+	public static final Table MANDATE_CURRENCY_ALLOCATION_TABLE = new Table("MANDATE_CURRENCY_ALLOCATION",
+			CURRENCY_ALLOCATION_FIELDS);
+
 	public static long saveMandate(Mandate mandate) {
 		long mandateId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveMandate = (mandate.getId() != 0) ? con.prepareStatement(
-						"UPDATE MANDATE SET NAME = ?, ACCEPTED_RISK_LEVEL = ?, CREATION_DATETIME = ?,  START_DATE = ?, END_DATE = ?, INITIAL_CASH_AMOUNT = ?, INITIAL_CASH_CURRENCY = ?, BOOK_ID = ? WHERE ID = ? ")
-						: con.prepareStatement(
-								"INSERT INTO MANDATE(NAME, ACCEPTED_RISK_LEVEL, CREATION_DATETIME, START_DATE, END_DATE, INITIAL_CASH_AMOUNT, INITIAL_CASH_CURRENCY, BOOK_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ",
-								Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement stmtSaveMandate = (mandate.getId() != 0)
+						? TradistaDBUtil.buildUpdatePreparedStatement(con, ID_FIELD, MANDATE_TABLE, FIELDS_FOR_UPDATE)
+						: TradistaDBUtil.buildInsertPreparedStatement(con, MANDATE_TABLE, FIELDS_FOR_INSERT);
 				PreparedStatement stmtDeleteProductTypeAllocation = (mandate.getId() != 0)
-						? con.prepareStatement("DELETE FROM MANDATE_PRODUCT_TYPE_ALLOCATION WHERE MANDATE_ID = ?")
+						? TradistaDBUtil.buildDeletePreparedStatement(con, MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE,
+								MANDATE_ID_ALLOCATION_FIELD)
 						: null;
 				PreparedStatement stmtSaveProductTypeAllocation = (mandate.getProductTypeAllocations() != null
-						&& !mandate.getProductTypeAllocations().isEmpty()) ? con.prepareStatement(
-								"INSERT INTO MANDATE_PRODUCT_TYPE_ALLOCATION(MANDATE_ID, PRODUCT_TYPE, MIN_ALLOCATION, MAX_ALLOCATION) VALUES (?, ?, ?, ?)")
+						&& !mandate.getProductTypeAllocations().isEmpty())
+								? TradistaDBUtil.buildInsertPreparedStatement(con,
+										MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE, PRODUCT_TYPE_ALLOCATION_FIELDS)
 								: null;
 				PreparedStatement stmtDeleteCurrencyAllocation = (mandate.getId() != 0)
-						? con.prepareStatement("DELETE FROM MANDATE_CURRENCY_ALLOCATION WHERE MANDATE_ID = ?")
+						? TradistaDBUtil.buildDeletePreparedStatement(con, MANDATE_CURRENCY_ALLOCATION_TABLE,
+								CURRENCY_ALLOCATION_MANDATE_ID_FIELD)
 						: null;
-				PreparedStatement stmtSaveCurrencyAllocation = (mandate.getProductTypeAllocations() != null
-						&& !mandate.getProductTypeAllocations().isEmpty()) ? con.prepareStatement(
-								"INSERT INTO MANDATE_CURRENCY_ALLOCATION(MANDATE_ID, CURRENCY_ID, MIN_ALLOCATION, MAX_ALLOCATION) VALUES (?, ?, ?, ?)")
+				PreparedStatement stmtSaveCurrencyAllocation = (mandate.getCurrencyAllocations() != null
+						&& !mandate.getCurrencyAllocations().isEmpty())
+								? TradistaDBUtil.buildInsertPreparedStatement(con, MANDATE_CURRENCY_ALLOCATION_TABLE,
+										CURRENCY_ALLOCATION_FIELDS)
 								: null;) {
 
 			if (mandate.getId() != 0) {
@@ -70,16 +133,26 @@ public class MandateSQL {
 
 			CurrencyBusinessDelegate currencyBusinessDelegate = new CurrencyBusinessDelegate();
 			if (mandate.getId() != 0) {
+				stmtSaveMandate.setString(1, mandate.getName());
+				stmtSaveMandate.setString(2, mandate.getAcceptedRiskLevel().name());
+				stmtSaveMandate.setTimestamp(3, Timestamp.from(Instant.now()));
+				stmtSaveMandate.setDate(4, Date.valueOf(mandate.getStartDate()));
+				stmtSaveMandate.setDate(5, Date.valueOf(mandate.getEndDate()));
+				stmtSaveMandate.setBigDecimal(6, mandate.getInitialCashAmount());
+				stmtSaveMandate.setString(7, mandate.getInitialCashCurrency().toString());
+				stmtSaveMandate.setLong(8, mandate.getBook().getId());
 				stmtSaveMandate.setLong(9, mandate.getId());
+			} else {
+				stmtSaveMandate.setString(1, mandate.getName());
+				stmtSaveMandate.setString(2, mandate.getAcceptedRiskLevel().name());
+				stmtSaveMandate.setTimestamp(3, Timestamp.from(mandate.getCreationTime()));
+				stmtSaveMandate.setTimestamp(4, Timestamp.from(mandate.getLastUpdateTime()));
+				stmtSaveMandate.setDate(5, Date.valueOf(mandate.getStartDate()));
+				stmtSaveMandate.setDate(6, Date.valueOf(mandate.getEndDate()));
+				stmtSaveMandate.setBigDecimal(7, mandate.getInitialCashAmount());
+				stmtSaveMandate.setString(8, mandate.getInitialCashCurrency().toString());
+				stmtSaveMandate.setLong(9, mandate.getBook().getId());
 			}
-			stmtSaveMandate.setString(1, mandate.getName());
-			stmtSaveMandate.setString(2, mandate.getAcceptedRiskLevel().name());
-			stmtSaveMandate.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-			stmtSaveMandate.setDate(4, Date.valueOf(mandate.getStartDate()));
-			stmtSaveMandate.setDate(5, Date.valueOf(mandate.getEndDate()));
-			stmtSaveMandate.setBigDecimal(6, mandate.getInitialCashAmount());
-			stmtSaveMandate.setString(7, mandate.getInitialCashCurrency().toString());
-			stmtSaveMandate.setLong(8, mandate.getBook().getId());
 			stmtSaveMandate.executeUpdate();
 
 			if (mandate.getId() == 0) {
@@ -114,7 +187,7 @@ public class MandateSQL {
 					try {
 						stmtSaveCurrencyAllocation.setLong(2,
 								currencyBusinessDelegate.getCurrencyByIsoCode(entry.getKey()).getId());
-					} catch (TradistaBusinessException abe) {
+					} catch (TradistaBusinessException _) {
 						// Should not appear here.
 					}
 					stmtSaveCurrencyAllocation.setShort(3, entry.getValue().getMinAllocation());
@@ -125,8 +198,6 @@ public class MandateSQL {
 			}
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		mandate.setId(mandateId);
@@ -135,30 +206,45 @@ public class MandateSQL {
 
 	public static Mandate getMandateById(long id) {
 		Mandate mandate = null;
+		StringBuilder sqlMandate = new StringBuilder(TradistaDBUtil.buildSelectQuery(MANDATE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sqlMandate, ID_FIELD);
+
+		StringBuilder sqlProductAlloc = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sqlProductAlloc, MANDATE_ID_ALLOCATION_FIELD);
+
+		StringBuilder sqlCurrencyAlloc = new StringBuilder(TradistaDBUtil.buildSelectQuery(
+				MANDATE_CURRENCY_ALLOCATION_TABLE,
+				Join.innerEq(CurrencySQL.CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CurrencySQL.ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sqlCurrencyAlloc, CURRENCY_ALLOCATION_MANDATE_ID_FIELD);
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetMandateById = con.prepareStatement("SELECT * FROM MANDATE WHERE ID = ?");
+				PreparedStatement stmtGetMandateById = con.prepareStatement(sqlMandate.toString());
 				PreparedStatement stmtGetProductTypeAllocationsByMandateId = con
-						.prepareStatement("SELECT * FROM MANDATE_PRODUCT_TYPE_ALLOCATION WHERE MANDATE_ID = ?");
-				PreparedStatement stmtGetCurrencyAllocationsByMandateId = con.prepareStatement(
-						"SELECT * FROM MANDATE_CURRENCY_ALLOCATION, CURRENCY WHERE MANDATE_ID = ? AND MANDATE_CURRENCY_ALLOCATION.CURRENCY_ID = CURRENCY.ID")) {
-			Map<String, Allocation> allocations = new HashMap<String, Allocation>();
+						.prepareStatement(sqlProductAlloc.toString());
+				PreparedStatement stmtGetCurrencyAllocationsByMandateId = con
+						.prepareStatement(sqlCurrencyAlloc.toString())) {
+			Map<String, Allocation> allocations = new HashMap<>();
 			stmtGetMandateById.setLong(1, id);
 			try (ResultSet results = stmtGetMandateById.executeQuery()) {
 				while (results.next()) {
-					mandate = new Mandate(results.getString("name"));
-					mandate.setId(results.getLong("id"));
-					mandate.setAcceptedRiskLevel(RiskLevel.valueOf(results.getString("accepted_risk_level")));
-					mandate.setCreationDateTime(results.getTimestamp("creation_datetime").toLocalDateTime());
-					mandate.setStartDate(results.getDate("start_date").toLocalDate());
-					mandate.setEndDate(results.getDate("end_date").toLocalDate());
-					mandate.setInitialCashAmount(results.getBigDecimal("initial_cash_amount"));
+					Mandate.Builder builder = new Mandate.Builder(results.getString(NAME_FIELD.getName()));
+					builder.id(results.getLong(ID_FIELD.getName()));
+					builder.acceptedRiskLevel(
+							RiskLevel.valueOf(results.getString(ACCEPTED_RISK_LEVEL_FIELD.getName())));
+					builder.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant());
+					builder.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
+					builder.startDate(results.getDate(START_DATE_FIELD.getName()).toLocalDate());
+					builder.endDate(results.getDate(END_DATE_FIELD.getName()).toLocalDate());
+					builder.initialCashAmount(results.getBigDecimal(INITIAL_CASH_AMOUNT_FIELD.getName()));
 					try {
-						mandate.setInitialCashCurrency(new CurrencyBusinessDelegate()
-								.getCurrencyByIsoCode(results.getString("initial_cash_currency")));
-						mandate.setBook(new BookBusinessDelegate().getBookById(results.getLong("book_id")));
-					} catch (TradistaBusinessException abe) {
+						builder.initialCashCurrency(new CurrencyBusinessDelegate()
+								.getCurrencyByIsoCode(results.getString(INITIAL_CASH_CURRENCY_FIELD.getName())));
+						builder.book(new BookBusinessDelegate().getBookById(results.getLong(BOOK_ID_FIELD.getName())));
+					} catch (TradistaBusinessException _) {
 						// Should not appear at this stage
 					}
+					mandate = builder.build();
 				}
 
 				if (mandate == null) {
@@ -170,9 +256,9 @@ public class MandateSQL {
 			try (ResultSet results = stmtGetProductTypeAllocationsByMandateId.executeQuery()) {
 				while (results.next()) {
 					Allocation alloc = mandate.new Allocation();
-					alloc.setMinAllocation(results.getShort("min_allocation"));
-					alloc.setMaxAllocation(results.getShort("max_allocation"));
-					allocations.put(results.getString("product_type"), alloc);
+					alloc.setMinAllocation(results.getShort(MIN_ALLOCATION_FIELD.getName()));
+					alloc.setMaxAllocation(results.getShort(MAX_ALLOCATION_FIELD.getName()));
+					allocations.put(results.getString(PRODUCT_TYPE_FIELD.getName()), alloc);
 				}
 
 				mandate.setProductTypeAllocations(allocations);
@@ -181,20 +267,18 @@ public class MandateSQL {
 			stmtGetCurrencyAllocationsByMandateId.setLong(1, id);
 			try (ResultSet results = stmtGetCurrencyAllocationsByMandateId.executeQuery()) {
 
-				allocations = new HashMap<String, Allocation>();
+				allocations = new HashMap<>();
 
 				while (results.next()) {
 					Allocation alloc = mandate.new Allocation();
-					alloc.setMinAllocation(results.getShort("min_allocation"));
-					alloc.setMaxAllocation(results.getShort("max_allocation"));
-					allocations.put(results.getString("iso_code"), alloc);
+					alloc.setMinAllocation(results.getShort(CURRENCY_ALLOCATION_MIN_ALLOCATION_FIELD.getName()));
+					alloc.setMaxAllocation(results.getShort(CURRENCY_ALLOCATION_MAX_ALLOCATION_FIELD.getName()));
+					allocations.put(results.getString(CurrencySQL.ISO_CODE_FIELD.getName()), alloc);
 				}
 
 				mandate.setCurrencyAllocations(allocations);
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return mandate;
@@ -202,30 +286,45 @@ public class MandateSQL {
 
 	public static Mandate getMandateByName(String name) {
 		Mandate mandate = null;
+		StringBuilder sqlMandate = new StringBuilder(TradistaDBUtil.buildSelectQuery(MANDATE_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sqlMandate, NAME_FIELD);
+
+		StringBuilder sqlProductAlloc = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(MANDATE_PRODUCT_TYPE_ALLOCATION_TABLE));
+		TradistaDBUtil.addParameterizedFilter(sqlProductAlloc, MANDATE_ID_ALLOCATION_FIELD);
+
+		StringBuilder sqlCurrencyAlloc = new StringBuilder(TradistaDBUtil.buildSelectQuery(
+				MANDATE_CURRENCY_ALLOCATION_TABLE,
+				Join.innerEq(CurrencySQL.CURRENCY_TABLE, CURRENCY_ALLOCATION_CURRENCY_ID_FIELD, CurrencySQL.ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sqlCurrencyAlloc, CURRENCY_ALLOCATION_MANDATE_ID_FIELD);
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetMandateByName = con.prepareStatement("SELECT * FROM MANDATE WHERE NAME = ?");
+				PreparedStatement stmtGetMandateByName = con.prepareStatement(sqlMandate.toString());
 				PreparedStatement stmtGetProductTypeAllocationsByMandateId = con
-						.prepareStatement("SELECT * FROM MANDATE_PRODUCT_TYPE_ALLOCATION WHERE MANDATE_ID = ?");
-				PreparedStatement stmtGetCurrencyAllocationsByMandateId = con.prepareStatement(
-						"SELECT * FROM MANDATE_CURRENCY_ALLOCATION, CURRENCY WHERE MANDATE_ID = ? AND MANDATE_CURRENCY_ALLOCATION.CURRENCY_ID = CURRENCY.ID")) {
-			Map<String, Allocation> allocations = new HashMap<String, Allocation>();
+						.prepareStatement(sqlProductAlloc.toString());
+				PreparedStatement stmtGetCurrencyAllocationsByMandateId = con
+						.prepareStatement(sqlCurrencyAlloc.toString())) {
+			Map<String, Allocation> allocations = new HashMap<>();
 			stmtGetMandateByName.setString(1, name);
 			try (ResultSet results = stmtGetMandateByName.executeQuery()) {
 				while (results.next()) {
-					mandate = new Mandate(results.getString("name"));
-					mandate.setId(results.getLong("id"));
-					mandate.setAcceptedRiskLevel(RiskLevel.valueOf(results.getString("accepted_risk_level")));
-					mandate.setCreationDateTime(results.getTimestamp("creation_datetime").toLocalDateTime());
-					mandate.setStartDate(results.getDate("start_date").toLocalDate());
-					mandate.setEndDate(results.getDate("end_date").toLocalDate());
-					mandate.setInitialCashAmount(results.getBigDecimal("initial_cash_amount"));
+					Mandate.Builder builder = new Mandate.Builder(results.getString(NAME_FIELD.getName()));
+					builder.id(results.getLong(ID_FIELD.getName()));
+					builder.acceptedRiskLevel(
+							RiskLevel.valueOf(results.getString(ACCEPTED_RISK_LEVEL_FIELD.getName())));
+					builder.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant());
+					builder.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
+					builder.startDate(results.getDate(START_DATE_FIELD.getName()).toLocalDate());
+					builder.endDate(results.getDate(END_DATE_FIELD.getName()).toLocalDate());
+					builder.initialCashAmount(results.getBigDecimal(INITIAL_CASH_AMOUNT_FIELD.getName()));
 					try {
-						mandate.setInitialCashCurrency(new CurrencyBusinessDelegate()
-								.getCurrencyByIsoCode(results.getString("initial_cash_currency")));
-						mandate.setBook(new BookBusinessDelegate().getBookById(results.getLong("book_id")));
-					} catch (TradistaBusinessException abe) {
+						builder.initialCashCurrency(new CurrencyBusinessDelegate()
+								.getCurrencyByIsoCode(results.getString(INITIAL_CASH_CURRENCY_FIELD.getName())));
+						builder.book(new BookBusinessDelegate().getBookById(results.getLong(BOOK_ID_FIELD.getName())));
+					} catch (TradistaBusinessException _) {
 						// Should not appear at this stage
 					}
+					mandate = builder.build();
 				}
 
 				if (mandate == null) {
@@ -237,28 +336,28 @@ public class MandateSQL {
 			try (ResultSet results = stmtGetProductTypeAllocationsByMandateId.executeQuery()) {
 				while (results.next()) {
 					Allocation alloc = mandate.new Allocation();
-					alloc.setMinAllocation(results.getShort("min_allocation"));
-					alloc.setMaxAllocation(results.getShort("max_allocation"));
-					allocations.put(results.getString("product_type"), alloc);
+					alloc.setMinAllocation(results.getShort(MIN_ALLOCATION_FIELD.getName()));
+					alloc.setMaxAllocation(results.getShort(MAX_ALLOCATION_FIELD.getName()));
+					allocations.put(results.getString(PRODUCT_TYPE_FIELD.getName()), alloc);
 				}
+
+				mandate.setProductTypeAllocations(allocations);
 			}
 			stmtGetCurrencyAllocationsByMandateId.setLong(1, mandate.getId());
 			try (ResultSet results = stmtGetCurrencyAllocationsByMandateId.executeQuery()) {
 
-				allocations = new HashMap<String, Allocation>();
+				allocations = new HashMap<>();
 
 				while (results.next()) {
 					Allocation alloc = mandate.new Allocation();
-					alloc.setMinAllocation(results.getShort("min_allocation"));
-					alloc.setMaxAllocation(results.getShort("max_allocation"));
-					allocations.put(results.getString("iso_code"), alloc);
+					alloc.setMinAllocation(results.getShort(CURRENCY_ALLOCATION_MIN_ALLOCATION_FIELD.getName()));
+					alloc.setMaxAllocation(results.getShort(CURRENCY_ALLOCATION_MAX_ALLOCATION_FIELD.getName()));
+					allocations.put(results.getString(CurrencySQL.ISO_CODE_FIELD.getName()), alloc);
 				}
 
 				mandate.setCurrencyAllocations(allocations);
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return mandate;

@@ -61,10 +61,8 @@ public class FutureBootstrapHandler implements BootstrapHandler {
 		String symbol = prop[1];
 		FutureContractSpecificationBusinessDelegate futureContractSpecificationBusinessDelegate = new FutureContractSpecificationBusinessDelegate();
 		FutureBusinessDelegate futureBusinessDelegate = new FutureBusinessDelegate();
-		FutureTrade futureTrade = new FutureTrade();
 		Future future = futureBusinessDelegate.getFutureByContractSpecificationAndSymbol(contractSpecificationName,
 				symbol);
-		futureTrade.setProduct(future);
 		String monthProp = symbol.substring(0, 3);
 		int month = futureBusinessDelegate.getMonth(monthProp).getValue();
 		String yearProp = symbol.substring(2);
@@ -72,10 +70,10 @@ public class FutureBootstrapHandler implements BootstrapHandler {
 
 		// The maturity date of the product is the fixing date for the
 		// calculation of the interest rate.
-		futureTrade.setSettlementDate(
-				futureContractSpecificationBusinessDelegate.getMaturityDate(contractSpecificationName, month, year));
+		LocalDate settlementDate = futureContractSpecificationBusinessDelegate
+				.getMaturityDate(contractSpecificationName, month, year);
 
-		return futureTrade;
+		return new FutureTrade.Builder().product(future).settlementDate(settlementDate).build();
 	}
 
 	@Override

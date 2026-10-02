@@ -125,7 +125,7 @@ public class EquityOptionTradeValidator extends DefaultTradeValidator {
 					}
 				} else {
 					if (equityOptionTrade.getExerciseDate().isAfter(equityOptionTrade.getMaturityDate())) {
-						errMsg.append(String.format("The exercise date cannot be after the trade date.%n"));
+						errMsg.append(String.format("The exercise date cannot be after the maturity date.%n"));
 					}
 				}
 			}

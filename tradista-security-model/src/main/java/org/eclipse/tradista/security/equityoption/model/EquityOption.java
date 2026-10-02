@@ -62,6 +62,10 @@ public class EquityOption extends Product {
 	@Id
 	private EquityOptionContractSpecification equityOptionContractSpecification;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public EquityOption(String code, OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate,
 			EquityOptionContractSpecification equityOptionContractSpecification) {
 		super(equityOptionContractSpecification != null ? equityOptionContractSpecification.getExchange() : null);
@@ -70,6 +74,61 @@ public class EquityOption extends Product {
 		this.strike = strike;
 		this.maturityDate = maturityDate;
 		this.equityOptionContractSpecification = equityOptionContractSpecification;
+	}
+
+	protected EquityOption(Builder builder) {
+		super(builder);
+		this.code = builder.code;
+		this.type = builder.type;
+		this.strike = builder.strike;
+		this.maturityDate = builder.maturityDate;
+		this.equityOptionContractSpecification = builder.equityOptionContractSpecification;
+		this.underlying = builder.underlying;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder(this.code, this.type, this.strike, this.maturityDate,
+				this.equityOptionContractSpecification);
+		builder.id(getId()).exchange(getExchange()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime())
+				.underlying(this.underlying);
+		return builder;
+	}
+
+	public static class Builder extends Product.Builder<EquityOption, Builder> {
+		protected String code;
+		protected OptionTrade.Type type;
+		protected BigDecimal strike;
+		protected LocalDate maturityDate;
+		protected EquityOptionContractSpecification equityOptionContractSpecification;
+		protected Equity underlying;
+
+		public Builder(String code, OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate,
+				EquityOptionContractSpecification equityOptionContractSpecification) {
+			this.code = code;
+			this.type = type;
+			this.strike = strike;
+			this.maturityDate = maturityDate;
+			this.equityOptionContractSpecification = equityOptionContractSpecification;
+			if (equityOptionContractSpecification != null) {
+				this.exchange = equityOptionContractSpecification.getExchange();
+			}
+		}
+
+		public Builder underlying(Equity underlying) {
+			this.underlying = underlying;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public EquityOption build() {
+			return new EquityOption(this);
+		}
 	}
 
 	public EquityOptionContractSpecification getEquityOptionContractSpecification() {

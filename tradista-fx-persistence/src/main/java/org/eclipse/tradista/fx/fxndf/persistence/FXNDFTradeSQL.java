@@ -1,17 +1,21 @@
 package org.eclipse.tradista.fx.fxndf.persistence;
 
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 
@@ -33,37 +37,59 @@ import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
 
 public class FXNDFTradeSQL {
 
+	public static final Field FXNDF_TRADE_ID_FIELD = new Field("FXNDF_TRADE_ID");
+	public static final Field NON_DELIVERABLE_CURRENCY_ID_FIELD = new Field("NON_DELIVERABLE_CURRENCY_ID");
+	public static final Field NDF_RATE_FIELD = new Field("NDF_RATE");
+
+	private static final Field[] FXNDF_TRADE_FIELDS = { FXNDF_TRADE_ID_FIELD, NON_DELIVERABLE_CURRENCY_ID_FIELD,
+			NDF_RATE_FIELD };
+
+	private static final Field[] FXNDF_TRADE_FIELDS_FOR_INSERT = { NON_DELIVERABLE_CURRENCY_ID_FIELD, NDF_RATE_FIELD,
+			FXNDF_TRADE_ID_FIELD };
+
+	private static final Field[] FXNDF_TRADE_FIELDS_FOR_UPDATE = { NON_DELIVERABLE_CURRENCY_ID_FIELD, NDF_RATE_FIELD };
+
+	public static final Table FXNDF_TRADE_TABLE = new Table("FXNDF_TRADE", FXNDF_TRADE_FIELDS);
+
+	public static final Join TRADE_AND_FXNDF_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
+			FXNDF_TRADE_ID_FIELD);
+
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(FXNDF_TRADE_TABLE,
+			TRADE_AND_FXNDF_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, FXNDF_TRADE_TABLE, FXNDF_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, FXNDF_TRADE_ID_FIELD, FXNDF_TRADE_TABLE,
+				FXNDF_TRADE_FIELDS_FOR_UPDATE);
+	}
+
 	public static FXNDFTrade getTradeById(long id) {
 
 		FXNDFTrade fxndfTrade = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, FXNDF_TRADE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = con.prepareStatement(
-						"SELECT * FROM TRADE, FXNDF_TRADE WHERE " + "FXNDF_TRADE_ID = ? AND ID = FXNDF_TRADE_ID")) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 
 				while (results.next()) {
 
 					if (fxndfTrade == null) {
-						fxndfTrade = new FXNDFTrade();
+						fxndfTrade = new FXNDFTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
-					fxndfTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
+					TradeSQL.setTradeCommonFields(fxndfTrade, results);
 					fxndfTrade.setNonDeliverableCurrency(
-							CurrencySQL.getCurrencyById(results.getLong("non_deliverable_currency_id")));
-					fxndfTrade.setNdfRate(results.getBigDecimal("ndf_rate"));
-					fxndfTrade.setAmount(results.getBigDecimal("amount"));
-					fxndfTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					fxndfTrade.setBuySell(results.getBoolean("buy_sell"));
-					fxndfTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					fxndfTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					fxndfTrade.setId(results.getLong("id"));
-					fxndfTrade.setSettlementDate(results.getDate("settlement_date").toLocalDate());
-					fxndfTrade.setTradeDate(results.getDate("trade_date").toLocalDate());
+							CurrencySQL.getCurrencyById(results.getLong(NON_DELIVERABLE_CURRENCY_ID_FIELD.getName())));
+					fxndfTrade.setNdfRate(results.getBigDecimal(NDF_RATE_FIELD.getName()));
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return fxndfTrade;
 	}
@@ -80,7 +106,7 @@ public class FXNDFTradeSQL {
 				return null;
 			}
 
-			fxndfTrade = new FXNDFTrade();
+			fxndfTrade = new FXNDFTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 			fxndfTrade
 					.setNonDeliverableCurrency(CurrencySQL.getCurrencyById(rs.getLong("non_deliverable_currency_id")));
 			fxndfTrade.setNdfRate(rs.getBigDecimal("ndf_rate"));
@@ -88,8 +114,6 @@ public class FXNDFTradeSQL {
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(fxndfTrade, rs);
 		} catch (SQLException | TradistaBusinessException e) {
-			// TODO Manage logs
-			e.printStackTrace();
 			throw new TradistaTechnicalException(e);
 		}
 
@@ -99,38 +123,11 @@ public class FXNDFTradeSQL {
 	public static long saveFXNDFTrade(FXNDFTrade trade) {
 		long tradeId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, SETTLEMENT_DATE, PRODUCT_ID, COUNTERPARTY_ID, CURRENCY_ID, AMOUNT, BOOK_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, SETTLEMENT_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, CURRENCY_ID=?, AMOUNT=?, BOOK_ID=? WHERE ID=?");
-				PreparedStatement stmtSaveFXNDFTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO FXNDF_TRADE(NON_DELIVERABLE_CURRENCY_ID, NDF_RATE, FXNDF_TRADE_ID) VALUES (?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE FXNDF_TRADE SET NON_DELIVERABLE_CURRENCY_ID=?, NDF_RATE=? WHERE FXNDF_TRADE_ID=?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(9, trade.getId());
-			}
-			stmtSaveTrade.setBoolean(1, isBuy);
-
-			if (trade.getTradeDate() == null) {
-				stmtSaveTrade.setNull(2, java.sql.Types.DATE);
-			} else {
-				stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			}
-			if (trade.getSettlementDate() == null) {
-				stmtSaveTrade.setNull(3, java.sql.Types.DATE);
-			} else {
-				stmtSaveTrade.setDate(3, java.sql.Date.valueOf(trade.getSettlementDate()));
-			}
-			stmtSaveTrade.setNull(4, java.sql.Types.BIGINT);
-			stmtSaveTrade.setLong(5, trade.getCounterparty().getId());
-			stmtSaveTrade.setLong(6, trade.getCurrency().getId());
-			stmtSaveTrade.setBigDecimal(7, trade.getAmount());
-			stmtSaveTrade.setLong(8, trade.getBook().getId());
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveFXNDFTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -149,10 +146,8 @@ public class FXNDFTradeSQL {
 			stmtSaveFXNDFTrade.setBigDecimal(2, trade.getNdfRate());
 			stmtSaveFXNDFTrade.setLong(3, tradeId);
 			stmtSaveFXNDFTrade.executeUpdate();
-		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

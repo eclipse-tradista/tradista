@@ -126,7 +126,7 @@ public class SpecificRepoTradeController implements Serializable {
 				.toArray(Tenor[]::new);
 		allSecurities = securityBusinessDelegate.getAllSecurities();
 		workflow = workflowBusinessDelegate.getWorkflowByName(SpecificRepoTrade.SPECIFIC_REPO);
-		trade = new SpecificRepoTrade();
+		trade = new SpecificRepoTrade.Builder().build();
 		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		setDirection(Direction.BUY);
 		setInterestType(FIXED);
@@ -429,7 +429,6 @@ public class SpecificRepoTradeController implements Serializable {
 		Map<Security, Map<Book, BigDecimal>> oldCollateralToAdd = trade.getCollateralToAdd();
 		Map<Security, Map<Book, BigDecimal>> oldCollateralToRemove = trade.getCollateralToRemove();
 		try {
-			trade.setCreationDate(LocalDate.now());
 			trade.setId(0);
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 			if (interestType == null || interestType.equals(FIXED)) {
@@ -468,30 +467,7 @@ public class SpecificRepoTradeController implements Serializable {
 			tradeId = Long.parseLong(idToBeLoaded);
 			SpecificRepoTrade specificRepoTrade = specificRepoTradeBusinessDelegate.getSpecificRepoTradeById(tradeId);
 			if (specificRepoTrade != null) {
-				trade.setCreationDate(specificRepoTrade.getCreationDate());
-				trade.setId(specificRepoTrade.getId());
-				trade.setBuySell(specificRepoTrade.isBuy());
-				trade.setCounterparty(specificRepoTrade.getCounterparty());
-				trade.setCurrency(specificRepoTrade.getCurrency());
-				trade.setProduct(specificRepoTrade.getProduct());
-				trade.setAmount(specificRepoTrade.getAmount());
-				trade.setSettlementDate(specificRepoTrade.getSettlementDate());
-				trade.setTradeDate(specificRepoTrade.getTradeDate());
-				trade.setBook(specificRepoTrade.getBook());
-				trade.setCreationDate(specificRepoTrade.getCreationDate());
-				trade.setCrossCurrencyCollateral(specificRepoTrade.isCrossCurrencyCollateral());
-				trade.setSecurity(specificRepoTrade.getSecurity());
-				trade.setEndDate(specificRepoTrade.getEndDate());
-				trade.setIndex(specificRepoTrade.getIndex());
-				trade.setIndexOffset(specificRepoTrade.getIndexOffset());
-				trade.setMarginRate(specificRepoTrade.getMarginRate());
-				trade.setNoticePeriod(specificRepoTrade.getNoticePeriod());
-				trade.setRepoRate(specificRepoTrade.getRepoRate());
-				trade.setRightOfReuse(specificRepoTrade.isRightOfReuse());
-				trade.setRightOfSubstitution(specificRepoTrade.isRightOfSubstitution());
-				trade.setTerminableOnDemand(specificRepoTrade.isTerminableOnDemand());
-				trade.setStatus(specificRepoTrade.getStatus());
-				trade.setPartialTerminations(specificRepoTrade.getPartialTerminations());
+				this.trade = specificRepoTrade;
 				Set<String> availableActions = workflowBusinessDelegate
 						.getAvailableActionsFromStatus(workflow.getName(), specificRepoTrade.getStatus());
 				if (availableActions != null && !availableActions.isEmpty()) {
@@ -515,7 +491,7 @@ public class SpecificRepoTradeController implements Serializable {
 	}
 
 	public void clear() {
-		trade = new SpecificRepoTrade();
+		trade = new SpecificRepoTrade.Builder().build();
 		try {
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		} catch (TradistaBusinessException tbe) {

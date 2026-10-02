@@ -28,6 +28,18 @@ public class EquityOptionTrade extends VanillaOptionTrade<EquityTrade> {
 
 	private static final long serialVersionUID = -5389991593803505087L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public EquityOptionTrade() {
+	}
+
+	protected EquityOptionTrade(Builder builder) {
+		super(builder);
+		this.quantity = builder.quantity;
+	}
+
 	private BigDecimal quantity;
 
 	public BigDecimal getQuantity() {
@@ -44,6 +56,43 @@ public class EquityOptionTrade extends VanillaOptionTrade<EquityTrade> {
 
 	public void setEquityOption(EquityOption product) {
 		super.setProduct(product);
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).type(getType()).underlying(getUnderlying())
+				.maturityDate(getMaturityDate()).strike(getStrike()).settlementType(getSettlementType())
+				.settlementDateOffset(getSettlementDateOffset()).exerciseDate(getExerciseDate()).style(getStyle())
+				.quantity(this.quantity);
+		return builder;
+	}
+
+	public static class Builder extends VanillaOptionTrade.Builder<EquityTrade, EquityOptionTrade, Builder> {
+		protected BigDecimal quantity;
+
+		public Builder quantity(BigDecimal quantity) {
+			this.quantity = quantity;
+			return this;
+		}
+
+		public Builder equityOption(EquityOption equityOption) {
+			this.product = equityOption;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public EquityOptionTrade build() {
+			return new EquityOptionTrade(this);
+		}
 	}
 
 	@Override

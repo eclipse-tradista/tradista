@@ -1,21 +1,37 @@
 package org.eclipse.tradista.security.bond.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CODE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRINCIPAL;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
+
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.exchange.persistence.ExchangeSQL;
 import org.eclipse.tradista.core.index.persistence.IndexSQL;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.security.bond.model.Bond;
 
@@ -37,27 +53,82 @@ import org.eclipse.tradista.security.bond.model.Bond;
 
 public class BondSQL {
 
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
+
+	private static final Field SECURITY_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
+	private static final Field ISSUER_ID_FIELD = new Field("ISSUER_ID");
+	private static final Field ISIN_FIELD = new Field("ISIN");
+	private static final Field CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
+	private static final Field ISSUE_DATE_FIELD = new Field("ISSUE_DATE");
+	private static final Field ISSUE_PRICE_FIELD = new Field("ISSUE_PRICE");
+
+	private static final Field[] SECURITY_FIELDS = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD, ISSUE_DATE_FIELD,
+			ISSUE_PRICE_FIELD, SECURITY_PRODUCT_ID_FIELD };
+	public static final Table SECURITY_TABLE = new Table("SECURITY", SECURITY_FIELDS);
+
+	private static final Field[] SECURITY_FIELDS_FOR_UPDATE = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD,
+			ISSUE_DATE_FIELD, ISSUE_PRICE_FIELD };
+
+	private static final Field BOND_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
+	private static final Field COUPON_FIELD = new Field("COUPON");
+	private static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
+	private static final Field PRINCIPAL_FIELD = new Field(PRINCIPAL);
+	private static final Field DATED_DATE_FIELD = new Field("DATED_DATE");
+	private static final Field COUPON_TYPE_FIELD = new Field("COUPON_TYPE");
+	private static final Field COUPON_FREQUENCY_FIELD = new Field("COUPON_FREQUENCY");
+	private static final Field REDEMPTION_PRICE_FIELD = new Field("REDEMPTION_PRICE");
+	private static final Field REDEMPTION_CURRENCY_ID_FIELD = new Field("REDEMPTION_CURRENCY_ID");
+	private static final Field REFERENCE_RATE_INDEX_ID_FIELD = new Field("REFERENCE_RATE_INDEX_ID");
+	private static final Field CAP_FIELD = new Field("CAP");
+	private static final Field FLOOR_FIELD = new Field("FLOOR");
+	private static final Field SPREAD_FIELD = new Field("SPREAD");
+	private static final Field LEVERAGE_FACTOR_FIELD = new Field("LEVERAGE_FACTOR");
+
+	private static final Field[] BOND_FIELDS = { COUPON_FIELD, PRINCIPAL_FIELD, MATURITY_DATE_FIELD, DATED_DATE_FIELD,
+			COUPON_TYPE_FIELD, COUPON_FREQUENCY_FIELD, REDEMPTION_PRICE_FIELD, REDEMPTION_CURRENCY_ID_FIELD,
+			REFERENCE_RATE_INDEX_ID_FIELD, CAP_FIELD, FLOOR_FIELD, SPREAD_FIELD, LEVERAGE_FACTOR_FIELD,
+			BOND_PRODUCT_ID_FIELD };
+	public static final Table BOND_TABLE = new Table("BOND", BOND_FIELDS);
+
+	private static final Field[] BOND_FIELDS_FOR_UPDATE = { COUPON_FIELD, PRINCIPAL_FIELD, MATURITY_DATE_FIELD,
+			DATED_DATE_FIELD, COUPON_TYPE_FIELD, COUPON_FREQUENCY_FIELD, REDEMPTION_PRICE_FIELD,
+			REDEMPTION_CURRENCY_ID_FIELD, REFERENCE_RATE_INDEX_ID_FIELD, CAP_FIELD, FLOOR_FIELD, SPREAD_FIELD,
+			LEVERAGE_FACTOR_FIELD };
+
+	private static final Join BOND_PRODUCT_JOIN = Join.innerEq(ProductSQL.PRODUCT_TABLE, BOND_PRODUCT_ID_FIELD,
+			ProductSQL.ID_FIELD);
+	private static final Join BOND_SECURITY_JOIN = Join.innerEq(SECURITY_TABLE, BOND_PRODUCT_ID_FIELD,
+			SECURITY_PRODUCT_ID_FIELD);
+
+	private static final String BASE_SELECT_QUERY = TradistaDBUtil.buildSelectQuery(BOND_TABLE, BOND_PRODUCT_JOIN,
+			BOND_SECURITY_JOIN);
+
 	public static long saveBond(Bond bond) {
 		long productId = 0;
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveProduct = (bond.getId() == 0)
-						? con.prepareStatement("INSERT INTO PRODUCT(CREATION_DATE, EXCHANGE_ID) VALUES (?, ?) ",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement("UPDATE PRODUCT SET CREATION_DATE=?, EXCHANGE_ID=? WHERE ID=? ");
-				PreparedStatement stmtSaveSecurity = (bond.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO SECURITY(ISSUER_ID, ISIN, CURRENCY_ID, ISSUE_DATE, ISSUE_PRICE, PRODUCT_ID) VALUES (?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE SECURITY SET ISSUER_ID=?, ISIN=?, CURRENCY_ID=?, ISSUE_DATE=?, ISSUE_PRICE=? WHERE PRODUCT_ID=?");
-				PreparedStatement stmtSaveBond = (bond.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO BOND(COUPON, PRINCIPAL, MATURITY_DATE, DATED_DATE, COUPON_TYPE, COUPON_FREQUENCY, REDEMPTION_PRICE, REDEMPTION_CURRENCY_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR, PRODUCT_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE BOND SET COUPON=?, PRINCIPAL=?, MATURITY_DATE=?, DATED_DATE=?, COUPON_TYPE=?, COUPON_FREQUENCY=?, REDEMPTION_PRICE=?, REDEMPTION_CURRENCY_ID=?, REFERENCE_RATE_INDEX_ID=?, CAP=?, FLOOR=?, SPREAD=?, LEVERAGE_FACTOR=? WHERE PRODUCT_ID=?")) {
-			if (bond.getId() != 0) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, ProductSQL.PRODUCT_TABLE,
+								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
+								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveSecurity = (bond.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, SECURITY_TABLE, SECURITY_FIELDS)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, SECURITY_PRODUCT_ID_FIELD, SECURITY_TABLE,
+								SECURITY_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveBond = (bond.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, BOND_TABLE, BOND_FIELDS)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, BOND_PRODUCT_ID_FIELD, BOND_TABLE,
+								BOND_FIELDS_FOR_UPDATE)) {
+			if (bond.getId() == 0) {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(bond.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(bond.getLastUpdateTime()));
+				stmtSaveProduct.setLong(3, bond.getExchange().getId());
+			} else {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));
+				stmtSaveProduct.setLong(2, bond.getExchange().getId());
 				stmtSaveProduct.setLong(3, bond.getId());
 			}
-			stmtSaveProduct.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
-			stmtSaveProduct.setLong(2, bond.getExchange().getId());
 			stmtSaveProduct.executeUpdate();
 
 			if (bond.getId() == 0) {
@@ -74,28 +145,28 @@ public class BondSQL {
 			stmtSaveSecurity.setLong(1, bond.getIssuerId());
 			stmtSaveSecurity.setString(2, bond.getIsin());
 			stmtSaveSecurity.setLong(3, bond.getCurrencyId());
-			stmtSaveSecurity.setDate(4, java.sql.Date.valueOf(bond.getIssueDate()));
+			stmtSaveSecurity.setDate(4, Date.valueOf(bond.getIssueDate()));
 			stmtSaveSecurity.setBigDecimal(5, bond.getIssuePrice());
 			stmtSaveSecurity.setLong(6, productId);
 			stmtSaveSecurity.executeUpdate();
 
 			stmtSaveBond.setBigDecimal(1, bond.getCoupon());
 			stmtSaveBond.setBigDecimal(2, bond.getPrincipal());
-			stmtSaveBond.setDate(3, java.sql.Date.valueOf(bond.getMaturityDate()));
-			stmtSaveBond.setDate(4, java.sql.Date.valueOf(bond.getDatedDate()));
+			stmtSaveBond.setDate(3, Date.valueOf(bond.getMaturityDate()));
+			stmtSaveBond.setDate(4, Date.valueOf(bond.getDatedDate()));
 			stmtSaveBond.setString(5, bond.getCouponType());
 			stmtSaveBond.setString(6, bond.getCouponFrequency().name());
 			if (bond.getRedemptionPrice() != null) {
 				stmtSaveBond.setBigDecimal(7, bond.getRedemptionPrice());
 				stmtSaveBond.setLong(8, bond.getRedemptionCurrencyId());
 			} else {
-				stmtSaveBond.setNull(7, java.sql.Types.BIGINT);
-				stmtSaveBond.setNull(8, java.sql.Types.BIGINT);
+				stmtSaveBond.setNull(7, Types.BIGINT);
+				stmtSaveBond.setNull(8, Types.BIGINT);
 			}
 			if (bond.getReferenceRateIndex() != null) {
 				stmtSaveBond.setLong(9, bond.getReferenceRateIndex().getId());
 			} else {
-				stmtSaveBond.setNull(9, java.sql.Types.BIGINT);
+				stmtSaveBond.setNull(9, Types.BIGINT);
 			}
 			stmtSaveBond.setBigDecimal(10, bond.getCap());
 			stmtSaveBond.setBigDecimal(11, bond.getFloor());
@@ -105,7 +176,6 @@ public class BondSQL {
 			stmtSaveBond.executeUpdate();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		bond.setId(productId);
@@ -114,51 +184,23 @@ public class BondSQL {
 
 	public static Set<Bond> getBondsByCreationDate(LocalDate date) {
 		Set<Bond> bonds = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, CREATION_TIME_FIELD, true);
+		TradistaDBUtil.addParameterizedFilter(sql, CREATION_TIME_FIELD, false);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetBondsByCreationDate = con
-						.prepareStatement("SELECT BOND.PRODUCT_ID ID, SECURITY.ISIN, BOND.COUPON COUPON,"
-								+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-								+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-								+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-								+ "FROM BOND, PRODUCT, SECURITY WHERE "
-								+ "SECURITY.PRODUCT_ID = PRODUCT.ID AND BOND.PRODUCT_ID = PRODUCT.ID AND CREATION_DATE = ? ")) {
-			stmtGetBondsByCreationDate.setDate(1, java.sql.Date.valueOf(date));
+				PreparedStatement stmtGetBondsByCreationDate = con.prepareStatement(sql.toString())) {
+			stmtGetBondsByCreationDate.setTimestamp(1, Timestamp.valueOf(date.atStartOfDay()));
+			stmtGetBondsByCreationDate.setTimestamp(2, Timestamp.valueOf(date.atTime(23, 59, 59, 999999999)));
 			try (ResultSet results = stmtGetBondsByCreationDate.executeQuery()) {
 				while (results.next()) {
-					Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					bond.setId(results.getInt("id"));
-					bond.setCoupon(results.getBigDecimal("coupon"));
-					bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					bond.setPrincipal(results.getBigDecimal("principal"));
-					bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-					bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-					bond.setCouponType(results.getString("coupon_type"));
-					bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-					bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-					bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-					bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-					bond.setIssuePrice(results.getBigDecimal("issue_price"));
-					bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					long referenceRateIndexId = results.getLong("reference_rate_index_id");
-					if (referenceRateIndexId > 0) {
-						bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-						bond.setSpread(results.getBigDecimal("spread"));
-						bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-						bond.setCap(results.getBigDecimal("cap"));
-						bond.setFloor(results.getBigDecimal("floor"));
-					}
 					if (bonds == null) {
-						bonds = new HashSet<Bond>();
+						bonds = new HashSet<>();
 					}
-					bonds.add(bond);
+					bonds.add(buildBond(results));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bonds;
@@ -167,72 +209,30 @@ public class BondSQL {
 	public static Set<Bond> getBondsByDates(LocalDate minCreationDate, LocalDate maxCreationDate,
 			LocalDate minMaturityDate, LocalDate maxMaturityDate) {
 		Set<Bond> bonds = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		if (minCreationDate != null) {
+			TradistaDBUtil.addFilter(sql, CREATION_TIME_FIELD, minCreationDate.atStartOfDay(), true);
+		}
+		if (maxCreationDate != null) {
+			TradistaDBUtil.addFilter(sql, CREATION_TIME_FIELD, maxCreationDate.atTime(23, 59, 59), false);
+		}
+		if (minMaturityDate != null) {
+			TradistaDBUtil.addFilter(sql, MATURITY_DATE_FIELD, minMaturityDate, true);
+		}
+		if (maxMaturityDate != null) {
+			TradistaDBUtil.addFilter(sql, MATURITY_DATE_FIELD, maxMaturityDate, false);
+		}
 
-		try (Connection con = TradistaDB.getConnection(); Statement stmt = con.createStatement()) {
-			String query = "SELECT BOND.PRODUCT_ID ID, SECURITY.ISIN, BOND.COUPON COUPON,"
-					+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-					+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-					+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-					+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-					+ "FROM BOND, PRODUCT, SECURITY WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
-					+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID";
-			if (minCreationDate != null || maxCreationDate != null || minMaturityDate != null
-					|| maxMaturityDate != null) {
-				if (minCreationDate != null) {
-					query += " AND CREATION_DATE >= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(minCreationDate) + "'";
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString());
+				ResultSet results = stmt.executeQuery()) {
+			while (results.next()) {
+				if (bonds == null) {
+					bonds = new HashSet<>();
 				}
-				if (maxCreationDate != null) {
-					query += " AND CREATION_DATE <= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(maxCreationDate) + "'";
-				}
-				if (minMaturityDate != null) {
-					query += " AND MATURITY_DATE >= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(minMaturityDate) + "'";
-				}
-				if (maxMaturityDate != null) {
-					query += " AND MATURITY_DATE <= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(maxMaturityDate) + "'";
-				}
-			}
-			try (ResultSet results = stmt.executeQuery(query)) {
-				while (results.next()) {
-					Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					bond.setId(results.getInt("id"));
-					bond.setCoupon(results.getBigDecimal("coupon"));
-					bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					bond.setPrincipal(results.getBigDecimal("principal"));
-					bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-					bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-					bond.setCouponType(results.getString("coupon_type"));
-					bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-					bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-					bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-					bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-					bond.setIssuePrice(results.getBigDecimal("issue_price"));
-					bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					long referenceRateIndexId = results.getLong("reference_rate_index_id");
-					if (referenceRateIndexId > 0) {
-						bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-						bond.setSpread(results.getBigDecimal("spread"));
-						bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-						bond.setCap(results.getBigDecimal("cap"));
-						bond.setFloor(results.getBigDecimal("floor"));
-					}
-					if (bonds == null) {
-						bonds = new HashSet<Bond>();
-					}
-					bonds.add(bond);
-				}
+				bonds.add(buildBond(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bonds;
@@ -242,47 +242,15 @@ public class BondSQL {
 		Set<Bond> bonds = null;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllBonds = con
-						.prepareStatement("SELECT BOND.PRODUCT_ID ID, BOND.COUPON COUPON, SECURITY.ISIN, "
-								+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-								+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-								+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-								+ "FROM BOND, PRODUCT, SECURITY WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID");
+				PreparedStatement stmtGetAllBonds = con.prepareStatement(BASE_SELECT_QUERY);
 				ResultSet results = stmtGetAllBonds.executeQuery()) {
 			while (results.next()) {
 				if (bonds == null) {
-					bonds = new HashSet<Bond>();
+					bonds = new HashSet<>();
 				}
-				Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-						results.getString("isin"));
-				bond.setId(results.getLong("id"));
-				bond.setCoupon(results.getBigDecimal("coupon"));
-				bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-				bond.setPrincipal(results.getBigDecimal("principal"));
-				bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-				bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-				bond.setCouponType(results.getString("coupon_type"));
-				bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-				bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-				bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-				bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-				bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-				bond.setIssuePrice(results.getBigDecimal("issue_price"));
-				bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-				long referenceRateIndexId = results.getLong("reference_rate_index_id");
-				if (referenceRateIndexId > 0) {
-					bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-					bond.setSpread(results.getBigDecimal("spread"));
-					bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-					bond.setCap(results.getBigDecimal("cap"));
-					bond.setFloor(results.getBigDecimal("floor"));
-				}
-				bonds.add(bond);
+				bonds.add(buildBond(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bonds;
@@ -290,47 +258,18 @@ public class BondSQL {
 
 	public static Bond getBondById(long id) {
 		Bond bond = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, ProductSQL.ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetBondById = con
-						.prepareStatement("SELECT BOND.PRODUCT_ID ID, BOND.COUPON COUPON, SECURITY.ISIN ISIN, "
-								+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-								+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-								+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-								+ "FROM BOND, PRODUCT, SECURITY WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID AND PRODUCT.ID = ?")) {
+				PreparedStatement stmtGetBondById = con.prepareStatement(sql.toString())) {
 			stmtGetBondById.setLong(1, id);
 			try (ResultSet results = stmtGetBondById.executeQuery()) {
 				while (results.next()) {
-					bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					bond.setId(results.getLong("id"));
-					bond.setCoupon(results.getBigDecimal("coupon"));
-					bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					bond.setPrincipal(results.getBigDecimal("principal"));
-					bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-					bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-					bond.setCouponType(results.getString("coupon_type"));
-					bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-					bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-					bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-					bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-					bond.setIssuePrice(results.getBigDecimal("issue_price"));
-					bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					long referenceRateIndexId = results.getLong("reference_rate_index_id");
-					if (referenceRateIndexId > 0) {
-						bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-						bond.setSpread(results.getBigDecimal("spread"));
-						bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-						bond.setCap(results.getBigDecimal("cap"));
-						bond.setFloor(results.getBigDecimal("floor"));
-					}
+					bond = buildBond(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bond;
@@ -338,71 +277,24 @@ public class BondSQL {
 
 	public static Set<Bond> getBondsByMaturityDate(LocalDate minDate, LocalDate maxDate) {
 		Set<Bond> bonds = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		if (minDate != null) {
+			TradistaDBUtil.addFilter(sql, MATURITY_DATE_FIELD, minDate, true);
+		}
+		if (maxDate != null) {
+			TradistaDBUtil.addFilter(sql, MATURITY_DATE_FIELD, maxDate, false);
+		}
 
-		try (Connection con = TradistaDB.getConnection(); Statement stmt = con.createStatement()) {
-			String dateQuery = null;
-			String query = "SELECT BOND.PRODUCT_ID ID, SECURITY.ISIN, BOND.COUPON COUPON,"
-					+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-					+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-					+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-					+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-					+ "FROM BOND, PRODUCT, SECURITY WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
-					+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID";
-			if (minDate == null) {
-				dateQuery = " AND MATURITY_DATE <= '" + DateTimeFormatter
-						.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-						.format(maxDate) + "'";
-			} else if (maxDate == null) {
-				dateQuery = " AND MATURITY_DATE >= '" + DateTimeFormatter
-						.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-						.format(minDate) + "'";
-			} else {
-				dateQuery = " AND MATURITY_DATE BETWEEN '"
-						+ DateTimeFormatter.ofPattern(
-								org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-								.format(minDate)
-						+ "' AND '"
-						+ DateTimeFormatter.ofPattern(
-								org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-								.format(maxDate)
-						+ "'";
-			}
-			query += dateQuery;
-
-			try (ResultSet results = stmt.executeQuery(query)) {
-				while (results.next()) {
-					Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					bond.setId(results.getInt("id"));
-					bond.setCoupon(results.getBigDecimal("coupon"));
-					bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					bond.setPrincipal(results.getBigDecimal("principal"));
-					bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-					bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-					bond.setCouponType(results.getString("coupon_type"));
-					bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-					bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-					bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-					bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-					bond.setIssuePrice(results.getBigDecimal("issue_price"));
-					bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					long referenceRateIndexId = results.getLong("reference_rate_index_id");
-					if (referenceRateIndexId > 0) {
-						bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-						bond.setSpread(results.getBigDecimal("spread"));
-						bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-						bond.setCap(results.getBigDecimal("cap"));
-						bond.setFloor(results.getBigDecimal("floor"));
-					}
-					if (bonds == null) {
-						bonds = new HashSet<Bond>();
-					}
-					bonds.add(bond);
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString());
+				ResultSet results = stmt.executeQuery()) {
+			while (results.next()) {
+				if (bonds == null) {
+					bonds = new HashSet<>();
 				}
+				bonds.add(buildBond(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bonds;
@@ -410,51 +302,21 @@ public class BondSQL {
 
 	public static Set<Bond> getBondsByIsin(String isin) {
 		Set<Bond> bonds = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetBondByIsin = con
-						.prepareStatement("SELECT BOND.PRODUCT_ID ID, BOND.COUPON COUPON, SECURITY.ISIN, "
-								+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-								+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-								+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-								+ "FROM BOND, PRODUCT, SECURITY WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID AND SECURITY.ISIN = ?")) {
+				PreparedStatement stmtGetBondByIsin = con.prepareStatement(sql.toString())) {
 			stmtGetBondByIsin.setString(1, isin);
 			try (ResultSet results = stmtGetBondByIsin.executeQuery()) {
 				while (results.next()) {
-					Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					bond.setId(results.getLong("id"));
-					bond.setCoupon(results.getBigDecimal("coupon"));
-					bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					bond.setPrincipal(results.getBigDecimal("principal"));
-					bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-					bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-					bond.setCouponType(results.getString("coupon_type"));
-					bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-					bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-					bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-					bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-					bond.setIssuePrice(results.getBigDecimal("issue_price"));
-					bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					long referenceRateIndexId = results.getLong("reference_rate_index_id");
-					if (referenceRateIndexId > 0) {
-						bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-						bond.setSpread(results.getBigDecimal("spread"));
-						bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-						bond.setCap(results.getBigDecimal("cap"));
-						bond.setFloor(results.getBigDecimal("floor"));
-					}
 					if (bonds == null) {
-						bonds = new HashSet<Bond>();
+						bonds = new HashSet<>();
 					}
-					bonds.add(bond);
+					bonds.add(buildBond(results));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return bonds;
@@ -462,50 +324,55 @@ public class BondSQL {
 
 	public static Bond getBondByIsinAndExchangeCode(String isin, String exchangeCode) {
 		Bond bond = null;
+		StringBuilder sql = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(BOND_TABLE, BOND_PRODUCT_JOIN, BOND_SECURITY_JOIN,
+						Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, ExchangeSQL.CODE_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetBondByIsinAndExchangeCode = con
-						.prepareStatement("SELECT BOND.PRODUCT_ID ID, BOND.COUPON COUPON, SECURITY.ISIN, "
-								+ "BOND.MATURITY_DATE MATURITY_DATE, BOND.PRINCIPAL PRINCIPAL,"
-								+ "BOND.DATED_DATE DATED_DATE, BOND.COUPON_TYPE COUPON_TYPE, BOND.COUPON_FREQUENCY COUPON_FREQUENCY, BOND.REDEMPTION_PRICE REDEMPTION_PRICE, "
-								+ "BOND.REDEMPTION_CURRENCY_ID, PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID, REFERENCE_RATE_INDEX_ID, CAP, FLOOR, SPREAD, LEVERAGE_FACTOR "
-								+ "FROM BOND, PRODUCT, SECURITY, EXCHANGE WHERE BOND.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID AND SECURITY.ISIN = ?"
-								+ " AND PRODUCT.EXCHANGE_ID = EXCHANGE.ID AND EXCHANGE.CODE = ?")) {
+				PreparedStatement stmtGetBondByIsinAndExchangeCode = con.prepareStatement(sql.toString())) {
 			stmtGetBondByIsinAndExchangeCode.setString(1, isin);
 			stmtGetBondByIsinAndExchangeCode.setString(2, exchangeCode);
 			try (ResultSet results = stmtGetBondByIsinAndExchangeCode.executeQuery()) {
 				while (results.next()) {
-					bond = new Bond(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					bond.setId(results.getInt("id"));
-					bond.setCoupon(results.getBigDecimal("coupon"));
-					bond.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					bond.setPrincipal(results.getBigDecimal("principal"));
-					bond.setCreationDate(results.getDate("creation_date").toLocalDate());
-					bond.setDatedDate(results.getDate("dated_date").toLocalDate());
-					bond.setCouponType(results.getString("coupon_type"));
-					bond.setCouponFrequency(Tenor.valueOf(results.getString("coupon_frequency")));
-					bond.setRedemptionPrice(results.getBigDecimal("redemption_price"));
-					bond.setRedemptionCurrency(CurrencySQL.getCurrencyById(results.getLong("redemption_currency_id")));
-					bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					bond.setIssueDate(results.getDate("issue_date").toLocalDate());
-					bond.setIssuePrice(results.getBigDecimal("issue_price"));
-					bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					long referenceRateIndexId = results.getLong("reference_rate_index_id");
-					if (referenceRateIndexId > 0) {
-						bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
-						bond.setSpread(results.getBigDecimal("spread"));
-						bond.setLeverageFactor(results.getBigDecimal("leverage_factor"));
-						bond.setCap(results.getBigDecimal("cap"));
-						bond.setFloor(results.getBigDecimal("floor"));
-					}
+					bond = buildBond(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
+		}
+		return bond;
+	}
+
+	private static Bond buildBond(ResultSet results) throws SQLException {
+		Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
+				results.getString(ISIN_FIELD.getName()));
+		bond.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
+		bond.setCoupon(results.getBigDecimal(COUPON_FIELD.getName()));
+		bond.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
+		bond.setPrincipal(results.getBigDecimal(PRINCIPAL_FIELD.getName()));
+		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+		if (creationTimestamp != null) {
+			bond.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+		}
+		bond.setDatedDate(results.getDate(DATED_DATE_FIELD.getName()).toLocalDate());
+		bond.setCouponType(results.getString(COUPON_TYPE_FIELD.getName()));
+		bond.setCouponFrequency(Tenor.valueOf(results.getString(COUPON_FREQUENCY_FIELD.getName())));
+		bond.setRedemptionPrice(results.getBigDecimal(REDEMPTION_PRICE_FIELD.getName()));
+		bond.setRedemptionCurrency(
+				CurrencySQL.getCurrencyById(results.getLong(REDEMPTION_CURRENCY_ID_FIELD.getName())));
+		bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong(ISSUER_ID_FIELD.getName())));
+		bond.setIssueDate(results.getDate(ISSUE_DATE_FIELD.getName()).toLocalDate());
+		bond.setIssuePrice(results.getBigDecimal(ISSUE_PRICE_FIELD.getName()));
+		bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
+		long referenceRateIndexId = results.getLong(REFERENCE_RATE_INDEX_ID_FIELD.getName());
+		if (referenceRateIndexId > 0) {
+			bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));
+			bond.setSpread(results.getBigDecimal(SPREAD_FIELD.getName()));
+			bond.setLeverageFactor(results.getBigDecimal(LEVERAGE_FACTOR_FIELD.getName()));
+			bond.setCap(results.getBigDecimal(CAP_FIELD.getName()));
+			bond.setFloor(results.getBigDecimal(FLOOR_FIELD.getName()));
 		}
 		return bond;
 	}

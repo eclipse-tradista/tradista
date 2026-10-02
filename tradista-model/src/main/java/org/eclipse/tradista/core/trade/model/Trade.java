@@ -6,8 +6,8 @@ import java.time.ZoneId;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.model.Segregable;
+import org.eclipse.tradista.core.common.model.TimestampedObject;
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
-import org.eclipse.tradista.core.common.model.TradistaObject;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -31,7 +31,7 @@ import org.eclipse.tradista.core.workflow.model.WorkflowObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Trade<P extends Product> extends TradistaObject implements WorkflowObject, Segregable {
+public abstract class Trade<P extends Product> extends TimestampedObject implements WorkflowObject, Segregable {
 
 	private static final long serialVersionUID = 3681323495299195621L;
 
@@ -66,18 +66,41 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 
 	private String workflow;
 
-	private LocalDate creationDate;
-
 	// true : BUY, false : SELL
 	private boolean buySell;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	protected Trade(P product) {
-		this();
 		this.product = product;
 	}
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	protected Trade() {
-		creationDate = LocalDate.now(ZoneId.systemDefault());
+	}
+
+	protected Trade(Builder<P, ?, ?> builder) {
+		super(builder);
+		this.product = builder.product;
+		this.tradeDate = builder.tradeDate;
+		this.settlementDate = builder.settlementDate;
+		this.amount = builder.amount;
+		this.currency = builder.currency;
+		this.counterparty = builder.counterparty;
+		this.book = builder.book;
+		this.status = builder.status;
+		this.workflow = builder.workflow;
+		this.buySell = builder.buySell;
+	}
+
+	@Override
+	public Builder<P, ?, ?> toBuilder() {
+		return null;
 	}
 
 	@Override
@@ -164,12 +187,25 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 		this.tradeDate = tradeDate;
 	}
 
+	/**
+	 * @deprecated use {@link #getCreationTime()} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public LocalDate getCreationDate() {
-		return creationDate;
+		if (getCreationTime() == null) {
+			return null;
+		}
+		return LocalDate.ofInstant(getCreationTime(), ZoneId.systemDefault());
 	}
 
+	/**
+	 * @deprecated creation time is automatically managed and immutable. Use
+	 *             {@link Builder#creationTime(java.time.Instant)} if needed during
+	 *             construction.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public void setCreationDate(LocalDate creationDate) {
-		this.creationDate = creationDate;
+		// No-op: creationTime is immutable and managed at construction/builder level.
 	}
 
 	public P getProduct() {
@@ -210,6 +246,70 @@ public abstract class Trade<P extends Product> extends TradistaObject implements
 		trade.currency = TradistaModelUtil.clone(currency);
 		trade.book = TradistaModelUtil.clone(book);
 		return trade;
+	}
+
+	public abstract static class Builder<P extends Product, T extends Trade<P>, B extends Builder<P, T, B>>
+			extends TimestampedObject.Builder<T, B> {
+		protected P product;
+		protected LocalDate tradeDate;
+		protected LocalDate settlementDate;
+		protected BigDecimal amount;
+		protected Currency currency;
+		protected LegalEntity counterparty;
+		protected Book book;
+		protected Status status;
+		protected String workflow;
+		protected boolean buySell;
+
+		public B product(P product) {
+			this.product = product;
+			return self();
+		}
+
+		public B tradeDate(LocalDate tradeDate) {
+			this.tradeDate = tradeDate;
+			return self();
+		}
+
+		public B settlementDate(LocalDate settlementDate) {
+			this.settlementDate = settlementDate;
+			return self();
+		}
+
+		public B amount(BigDecimal amount) {
+			this.amount = amount;
+			return self();
+		}
+
+		public B currency(Currency currency) {
+			this.currency = currency;
+			return self();
+		}
+
+		public B counterparty(LegalEntity counterparty) {
+			this.counterparty = counterparty;
+			return self();
+		}
+
+		public B book(Book book) {
+			this.book = book;
+			return self();
+		}
+
+		public B status(Status status) {
+			this.status = status;
+			return self();
+		}
+
+		public B workflow(String workflow) {
+			this.workflow = workflow;
+			return self();
+		}
+
+		public B buySell(boolean buySell) {
+			this.buySell = buySell;
+			return self();
+		}
 	}
 
 }

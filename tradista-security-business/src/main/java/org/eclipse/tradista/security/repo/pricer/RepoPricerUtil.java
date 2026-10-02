@@ -732,15 +732,10 @@ public final class RepoPricerUtil {
 				if (pricingDate.isAfter(LocalDate.now(ZoneId.systemDefault()))) {
 					if (security.getProductType().equals(Bond.BOND)) {
 						// Create a dummy bond trade for determination of the bond clean price
-						BondTrade dummyTrade = new BondTrade();
-						dummyTrade.setCounterparty(trade.getCounterparty());
-						dummyTrade.setAmount(BigDecimal.ONE);
-						dummyTrade.setQuantity(BigDecimal.ONE);
-						dummyTrade.setTradeDate(trade.getTradeDate());
-						dummyTrade.setSettlementDate(trade.getSettlementDate());
-						dummyTrade.setBook(trade.getBook());
-						dummyTrade.setBuySell(trade.isBuy());
-						dummyTrade.setProduct((Bond) security);
+						BondTrade dummyTrade = new BondTrade.Builder().counterparty(trade.getCounterparty())
+								.amount(BigDecimal.ONE).quantity(BigDecimal.ONE).tradeDate(trade.getTradeDate())
+								.settlementDate(trade.getSettlementDate()).book(trade.getBook()).buySell(trade.isBuy())
+								.product((Bond) security).build();
 						price = bondPricerBusinessDelegate.cleanPriceDiscountedCashFlow(params, dummyTrade, currency,
 								pricingDate);
 					} else {

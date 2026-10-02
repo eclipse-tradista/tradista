@@ -1,9 +1,10 @@
 package org.eclipse.tradista.core.transfer.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.BOOK_ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATETIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUANTITY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS;
@@ -18,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -83,7 +85,9 @@ public class TransferSQL {
 
 	private static final Field BOOK_ID_FIELD = new Field(BOOK_ID);
 
-	private static final Field CREATION_DATETIME_FIELD = new Field(CREATION_DATETIME);
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
+
+	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME);
 
 	private static final Field FIXING_DATETIME_FIELD = new Field("FIXING_DATETIME");
 
@@ -94,16 +98,16 @@ public class TransferSQL {
 	private static final Field PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
 
 	private static final Field[] TRANSFER_FIELDS = new Field[] { ID_FIELD, TYPE_FIELD, STATUS_FIELD, DIRECTION_FIELD,
-			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, CREATION_DATETIME_FIELD,
+			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
 			FIXING_DATETIME_FIELD, SETTLEMENT_DATE_FIELD, CURRENCY_ID_FIELD, PRODUCT_ID_FIELD };
 
 	private static final Field[] TRANSFER_FIELDS_FOR_INSERT = new Field[] { TYPE_FIELD, STATUS_FIELD, DIRECTION_FIELD,
-			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, CREATION_DATETIME_FIELD,
+			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
 			FIXING_DATETIME_FIELD, SETTLEMENT_DATE_FIELD, CURRENCY_ID_FIELD, PRODUCT_ID_FIELD };
 
 	private static final Field[] TRANSFER_FIELDS_FOR_UPDATE = new Field[] { TYPE_FIELD, STATUS_FIELD, DIRECTION_FIELD,
-			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, CREATION_DATETIME_FIELD,
-			FIXING_DATETIME_FIELD, SETTLEMENT_DATE_FIELD, CURRENCY_ID_FIELD, PRODUCT_ID_FIELD };
+			QUANTITY_FIELD, PURPOSE_FIELD, TRADE_ID_FIELD, BOOK_ID_FIELD, LAST_UPDATE_TIME_FIELD, FIXING_DATETIME_FIELD,
+			SETTLEMENT_DATE_FIELD, CURRENCY_ID_FIELD, PRODUCT_ID_FIELD };
 
 	public static final Table TRANSFER_TABLE = new Table("TRANSFER", TRANSFER_FIELDS);
 
@@ -146,7 +150,6 @@ public class TransferSQL {
 			ProductBusinessDelegate productBusinessDelegate, TradeBusinessDelegate tradeBusinessDelegate,
 			BookBusinessDelegate bookBusinessDelegate, ResultSet results)
 			throws SQLException, TradistaBusinessException {
-		Transfer transfer;
 		Transfer.Type type = Transfer.Type.valueOf(results.getString(TYPE_FIELD.getName()));
 		Book book = bookBusinessDelegate.getBookById(results.getLong(BOOK_ID_FIELD.getName()));
 		Product product = null;
@@ -159,30 +162,37 @@ public class TransferSQL {
 		if (tradeId > 0) {
 			trade = tradeBusinessDelegate.getTradeById(tradeId, true);
 		}
+
+		Transfer.Builder<? extends Transfer, ?> builder;
 		if (type.equals(Transfer.Type.CASH)) {
 			Currency currency = currencyBusinessDelegate.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName()));
-			transfer = new CashTransfer(book, product,
+			CashTransfer.Builder cashBuilder = new CashTransfer.Builder(book, product,
 					TransferPurpose.valueOf(results.getString(PURPOSE_FIELD.getName())),
-					results.getDate(SETTLEMENT_DATE_FIELD.getName()).toLocalDate(), trade, currency);
-			((CashTransfer) transfer).setAmount(results.getBigDecimal(QUANTITY_FIELD.getName()));
+					results.getDate(SETTLEMENT_DATE_FIELD.getName()).toLocalDate(), currency);
+			cashBuilder.quantityOrAmount(results.getBigDecimal(QUANTITY_FIELD.getName()));
+			builder = cashBuilder;
 		} else {
-			transfer = new ProductTransfer(book, product,
+			ProductTransfer.Builder productBuilder = new ProductTransfer.Builder(book, product,
 					TransferPurpose.valueOf(results.getString(PURPOSE_FIELD.getName())),
-					results.getDate(SETTLEMENT_DATE_FIELD.getName()).toLocalDate(), trade);
-			((ProductTransfer) transfer).setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
+					results.getDate(SETTLEMENT_DATE_FIELD.getName()).toLocalDate());
+			productBuilder.quantityOrAmount(results.getBigDecimal(QUANTITY_FIELD.getName()));
+			builder = productBuilder;
 		}
-		transfer.setId(results.getLong(ID_FIELD.getName()));
-		transfer.setStatus(Transfer.Status.valueOf(results.getString(STATUS_FIELD.getName())));
+
+		builder.id(results.getLong(ID_FIELD.getName()));
+		builder.trade(trade);
+		builder.status(Transfer.Status.valueOf(results.getString(STATUS_FIELD.getName())));
 		String direction = results.getString(DIRECTION_FIELD.getName());
 		if (direction != null) {
-			transfer.setDirection(Transfer.Direction.valueOf(direction));
+			builder.direction(Transfer.Direction.valueOf(direction));
 		}
-		transfer.setCreationDateTime(results.getTimestamp(CREATION_DATETIME_FIELD.getName()).toLocalDateTime());
+		builder.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant());
+		builder.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
 		Timestamp fixingTimestamp = results.getTimestamp(FIXING_DATETIME_FIELD.getName());
 		if (fixingTimestamp != null) {
-			transfer.setFixingDateTime(fixingTimestamp.toLocalDateTime());
+			builder.fixingDateTime(fixingTimestamp.toLocalDateTime());
 		}
-		return transfer;
+		return builder.build();
 	}
 
 	public static long saveTransfer(Transfer transfer) {
@@ -217,49 +227,94 @@ public class TransferSQL {
 			PreparedStatement stmtSaveTransfer) throws SQLException {
 		if (transfer.getId() != 0) {
 			stmtSaveTransfer.setLong(13, transfer.getId());
-		}
-		stmtSaveTransfer.setString(1, transfer.getType().name());
-		stmtSaveTransfer.setString(2, transfer.getStatus().name());
-		Transfer.Direction direction = transfer.getDirection();
-		if (direction != null) {
-			stmtSaveTransfer.setString(3, direction.name());
-		} else {
-			stmtSaveTransfer.setNull(3, java.sql.Types.VARCHAR);
-		}
-		stmtSaveTransfer.setBigDecimal(4,
-				transfer.getType().equals(Transfer.Type.CASH)
-						? (((CashTransfer) transfer).getAmount() == null ? null
-								: ((CashTransfer) transfer).getAmount().setScale(scale, roundingMode))
-						: (((ProductTransfer) transfer).getQuantity() == null ? null
-								: ((ProductTransfer) transfer).getQuantity().setScale(scale, roundingMode)));
-		stmtSaveTransfer.setString(5, transfer.getPurpose().name());
-		Trade<?> trade = transfer.getTrade();
-		if (trade != null) {
-			stmtSaveTransfer.setLong(6, trade.getId());
-		} else {
-			stmtSaveTransfer.setNull(6, java.sql.Types.BIGINT);
-		}
-		stmtSaveTransfer.setLong(7, transfer.getBook().getId());
-		stmtSaveTransfer.setTimestamp(8, Timestamp.valueOf(transfer.getCreationDateTime()));
-		LocalDateTime fixingDateTime = transfer.getFixingDateTime();
-		if (fixingDateTime != null) {
-			stmtSaveTransfer.setTimestamp(9, Timestamp.valueOf(fixingDateTime));
-		} else {
-			stmtSaveTransfer.setNull(9, java.sql.Types.TIMESTAMP);
-		}
-		stmtSaveTransfer.setDate(10, Date.valueOf(transfer.getSettlementDate()));
-
-		if (transfer.getType().equals(Transfer.Type.CASH)) {
-			stmtSaveTransfer.setLong(11, ((CashTransfer) transfer).getCurrency().getId());
-			Product product = transfer.getProduct();
-			if (product != null) {
-				stmtSaveTransfer.setLong(12, product.getId());
+			stmtSaveTransfer.setString(1, transfer.getType().name());
+			stmtSaveTransfer.setString(2, transfer.getStatus().name());
+			Transfer.Direction direction = transfer.getDirection();
+			if (direction != null) {
+				stmtSaveTransfer.setString(3, direction.name());
 			} else {
-				stmtSaveTransfer.setNull(12, java.sql.Types.BIGINT);
+				stmtSaveTransfer.setNull(3, java.sql.Types.VARCHAR);
+			}
+			stmtSaveTransfer.setBigDecimal(4,
+					transfer.getType().equals(Transfer.Type.CASH)
+							? (((CashTransfer) transfer).getAmount() == null ? null
+									: ((CashTransfer) transfer).getAmount().setScale(scale, roundingMode))
+							: (((ProductTransfer) transfer).getQuantity() == null ? null
+									: ((ProductTransfer) transfer).getQuantity().setScale(scale, roundingMode)));
+			stmtSaveTransfer.setString(5, transfer.getPurpose().name());
+			Trade<?> trade = transfer.getTrade();
+			if (trade != null) {
+				stmtSaveTransfer.setLong(6, trade.getId());
+			} else {
+				stmtSaveTransfer.setNull(6, java.sql.Types.BIGINT);
+			}
+			stmtSaveTransfer.setLong(7, transfer.getBook().getId());
+			stmtSaveTransfer.setTimestamp(8, Timestamp.from(Instant.now()));
+			LocalDateTime fixingDateTime = transfer.getFixingDateTime();
+			if (fixingDateTime != null) {
+				stmtSaveTransfer.setTimestamp(9, Timestamp.valueOf(fixingDateTime));
+			} else {
+				stmtSaveTransfer.setNull(9, java.sql.Types.TIMESTAMP);
+			}
+			stmtSaveTransfer.setDate(10, Date.valueOf(transfer.getSettlementDate()));
+
+			if (transfer.getType().equals(Transfer.Type.CASH)) {
+				stmtSaveTransfer.setLong(11, ((CashTransfer) transfer).getCurrency().getId());
+				Product product = transfer.getProduct();
+				if (product != null) {
+					stmtSaveTransfer.setLong(12, product.getId());
+				} else {
+					stmtSaveTransfer.setNull(12, java.sql.Types.BIGINT);
+				}
+			} else {
+				stmtSaveTransfer.setNull(11, java.sql.Types.BIGINT);
+				stmtSaveTransfer.setLong(12, transfer.getProduct().getId());
 			}
 		} else {
-			stmtSaveTransfer.setNull(11, java.sql.Types.BIGINT);
-			stmtSaveTransfer.setLong(12, transfer.getProduct().getId());
+			stmtSaveTransfer.setString(1, transfer.getType().name());
+			stmtSaveTransfer.setString(2, transfer.getStatus().name());
+			Transfer.Direction direction = transfer.getDirection();
+			if (direction != null) {
+				stmtSaveTransfer.setString(3, direction.name());
+			} else {
+				stmtSaveTransfer.setNull(3, java.sql.Types.VARCHAR);
+			}
+			stmtSaveTransfer.setBigDecimal(4,
+					transfer.getType().equals(Transfer.Type.CASH)
+							? (((CashTransfer) transfer).getAmount() == null ? null
+									: ((CashTransfer) transfer).getAmount().setScale(scale, roundingMode))
+							: (((ProductTransfer) transfer).getQuantity() == null ? null
+									: ((ProductTransfer) transfer).getQuantity().setScale(scale, roundingMode)));
+			stmtSaveTransfer.setString(5, transfer.getPurpose().name());
+			Trade<?> trade = transfer.getTrade();
+			if (trade != null) {
+				stmtSaveTransfer.setLong(6, trade.getId());
+			} else {
+				stmtSaveTransfer.setNull(6, java.sql.Types.BIGINT);
+			}
+			stmtSaveTransfer.setLong(7, transfer.getBook().getId());
+			stmtSaveTransfer.setTimestamp(8, Timestamp.from(transfer.getCreationTime()));
+			stmtSaveTransfer.setTimestamp(9, Timestamp.from(transfer.getLastUpdateTime()));
+			LocalDateTime fixingDateTime = transfer.getFixingDateTime();
+			if (fixingDateTime != null) {
+				stmtSaveTransfer.setTimestamp(10, Timestamp.valueOf(fixingDateTime));
+			} else {
+				stmtSaveTransfer.setNull(10, java.sql.Types.TIMESTAMP);
+			}
+			stmtSaveTransfer.setDate(11, Date.valueOf(transfer.getSettlementDate()));
+
+			if (transfer.getType().equals(Transfer.Type.CASH)) {
+				stmtSaveTransfer.setLong(12, ((CashTransfer) transfer).getCurrency().getId());
+				Product product = transfer.getProduct();
+				if (product != null) {
+					stmtSaveTransfer.setLong(13, product.getId());
+				} else {
+					stmtSaveTransfer.setNull(13, java.sql.Types.BIGINT);
+				}
+			} else {
+				stmtSaveTransfer.setNull(12, java.sql.Types.BIGINT);
+				stmtSaveTransfer.setLong(13, transfer.getProduct().getId());
+			}
 		}
 	}
 
@@ -451,10 +506,10 @@ public class TransferSQL {
 		}
 
 		if (startCreationDate != null) {
-			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATETIME_FIELD, startCreationDate.atStartOfDay(), true);
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_TIME_FIELD, startCreationDate.atStartOfDay(), true);
 		}
 		if (endCreationDate != null) {
-			TradistaDBUtil.addFilter(sqlQuery, CREATION_DATETIME_FIELD, endCreationDate.atTime(23, 59, 59, 999999999),
+			TradistaDBUtil.addFilter(sqlQuery, CREATION_TIME_FIELD, endCreationDate.atTime(23, 59, 59, 999999999),
 					false);
 		}
 

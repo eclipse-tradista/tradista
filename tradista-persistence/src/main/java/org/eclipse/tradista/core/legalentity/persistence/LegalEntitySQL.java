@@ -28,23 +28,31 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+import java.sql.Types;
+import java.time.ZoneId;
+
 public class LegalEntitySQL {
 
 	public static long saveLegalEntity(LegalEntity legalEntity) {
 		long legalEntityId = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveLegalEntity = (legalEntity.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO LEGAL_ENTITY(SHORT_NAME, LONG_NAME, ROLE, DESCRIPTION) VALUES (?, ?, ?, ?) ",
+						"INSERT INTO LEGAL_ENTITY(SHORT_NAME, LONG_NAME, ROLE, TIME_ZONE, DESCRIPTION) VALUES (?, ?, ?, ?, ?) ",
 						Statement.RETURN_GENERATED_KEYS)
 						: con.prepareStatement(
-								"UPDATE LEGAL_ENTITY SET SHORT_NAME=?, LONG_NAME=?, ROLE=?, DESCRIPTION=? WHERE ID=?")) {
+								"UPDATE LEGAL_ENTITY SET SHORT_NAME=?, LONG_NAME=?, ROLE=?, TIME_ZONE=?, DESCRIPTION=? WHERE ID=?")) {
 			if (legalEntity.getId() != 0) {
-				stmtSaveLegalEntity.setLong(5, legalEntity.getId());
+				stmtSaveLegalEntity.setLong(6, legalEntity.getId());
 			}
 			stmtSaveLegalEntity.setString(1, legalEntity.getShortName());
 			stmtSaveLegalEntity.setString(2, legalEntity.getLongName());
 			stmtSaveLegalEntity.setString(3, legalEntity.getRole().name());
-			stmtSaveLegalEntity.setString(4, legalEntity.getDescription());
+			if (legalEntity.getTimeZone() != null) {
+				stmtSaveLegalEntity.setString(4, legalEntity.getTimeZone().getId());
+			} else {
+				stmtSaveLegalEntity.setNull(4, Types.VARCHAR);
+			}
+			stmtSaveLegalEntity.setString(5, legalEntity.getDescription());
 			stmtSaveLegalEntity.executeUpdate();
 
 			if (legalEntity.getId() == 0) {
@@ -74,11 +82,7 @@ public class LegalEntitySQL {
 			stmtGetLegalEntityById.setLong(1, id);
 			try (ResultSet results = stmtGetLegalEntityById.executeQuery()) {
 				while (results.next()) {
-					legalEntity = new LegalEntity(results.getString("short_name"));
-					legalEntity.setId(results.getLong("id"));
-					legalEntity.setLongName(results.getString("long_name"));
-					legalEntity.setDescription(results.getString("description"));
-					legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
+					legalEntity = buildLegalEntity(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -97,12 +101,7 @@ public class LegalEntitySQL {
 				if (legalEntities == null) {
 					legalEntities = new HashSet<LegalEntity>();
 				}
-				LegalEntity legalEntity = new LegalEntity(results.getString("short_name"));
-				legalEntity.setId(results.getInt("id"));
-				legalEntity.setLongName(results.getString("long_name"));
-				legalEntity.setDescription(results.getString("description"));
-				legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
-				legalEntities.add(legalEntity);
+				legalEntities.add(buildLegalEntity(results));
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
@@ -121,12 +120,7 @@ public class LegalEntitySQL {
 				if (pos == null) {
 					pos = new HashSet<LegalEntity>();
 				}
-				LegalEntity legalEntity = new LegalEntity(results.getString("short_name"));
-				legalEntity.setId(results.getInt("id"));
-				legalEntity.setLongName(results.getString("long_name"));
-				legalEntity.setDescription(results.getString("description"));
-				legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
-				pos.add(legalEntity);
+				pos.add(buildLegalEntity(results));
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
@@ -145,12 +139,7 @@ public class LegalEntitySQL {
 				if (pos == null) {
 					pos = new HashSet<LegalEntity>();
 				}
-				LegalEntity legalEntity = new LegalEntity(results.getString("short_name"));
-				legalEntity.setId(results.getInt("id"));
-				legalEntity.setLongName(results.getString("long_name"));
-				legalEntity.setDescription(results.getString("description"));
-				legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
-				pos.add(legalEntity);
+				pos.add(buildLegalEntity(results));
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
@@ -173,15 +162,10 @@ public class LegalEntitySQL {
 			}
 			try (ResultSet results = stmt.executeQuery(query)) {
 				while (results.next()) {
-					LegalEntity legalEntity = new LegalEntity(results.getString("short_name"));
-					legalEntity.setId(results.getInt("id"));
-					legalEntity.setLongName(results.getString("long_name"));
-					legalEntity.setDescription(results.getString("description"));
-					legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
 					if (legalEntities == null) {
 						legalEntities = new HashSet<LegalEntity>();
 					}
-					legalEntities.add(legalEntity);
+					legalEntities.add(buildLegalEntity(results));
 				}
 			}
 		} catch (SQLException sqle) {
@@ -198,11 +182,7 @@ public class LegalEntitySQL {
 			query += " = '" + shortName + "'";
 			try (ResultSet results = stmt.executeQuery(query)) {
 				while (results.next()) {
-					legalEntity = new LegalEntity(results.getString("short_name"));
-					legalEntity.setId(results.getInt("id"));
-					legalEntity.setLongName(results.getString("long_name"));
-					legalEntity.setDescription(results.getString("description"));
-					legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
+					legalEntity = buildLegalEntity(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -219,16 +199,25 @@ public class LegalEntitySQL {
 			query += " = '" + longName + "'";
 			try (ResultSet results = stmt.executeQuery(query)) {
 				while (results.next()) {
-					legalEntity = new LegalEntity(results.getString("short_name"));
-					legalEntity.setId(results.getInt("id"));
-					legalEntity.setLongName(results.getString("long_name"));
-					legalEntity.setDescription(results.getString("description"));
-					legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
+					legalEntity = buildLegalEntity(results);
 				}
 			}
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
+		}
+		return legalEntity;
+	}
+
+	private static LegalEntity buildLegalEntity(ResultSet results) throws SQLException {
+		LegalEntity legalEntity = new LegalEntity(results.getString("short_name"));
+		legalEntity.setId(results.getLong("id"));
+		legalEntity.setLongName(results.getString("long_name"));
+		legalEntity.setDescription(results.getString("description"));
+		legalEntity.setRole(LegalEntity.Role.valueOf(results.getString("role")));
+		String tz = results.getString("time_zone");
+		if (tz != null && !tz.isBlank()) {
+			legalEntity.setTimeZone(ZoneId.of(tz));
 		}
 		return legalEntity;
 	}

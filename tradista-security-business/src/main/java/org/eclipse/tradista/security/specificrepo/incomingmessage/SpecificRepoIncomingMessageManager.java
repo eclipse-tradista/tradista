@@ -40,8 +40,7 @@ public interface SpecificRepoIncomingMessageManager<X> extends RepoIncomingMessa
 
 	@Override
 	public default SpecificRepoTrade createObject(X externalMessage) {
-		SpecificRepoTrade trade = new SpecificRepoTrade();
-		trade.setProduct(getSecurity(externalMessage));
+		SpecificRepoTrade trade = new SpecificRepoTrade.Builder().security(getSecurity(externalMessage)).build();
 		fillObject(externalMessage, trade);
 		return trade;
 	}

@@ -1,17 +1,25 @@
 package org.eclipse.tradista.fx.fxoption.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
@@ -39,68 +47,86 @@ import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 
 public class FXOptionTradeSQL {
 
+	public static final Field VANILLA_OPTION_TRADE_ID_FIELD = new Field("VANILLA_OPTION_TRADE_ID");
+	public static final Field STYLE_FIELD = new Field("STYLE");
+	public static final Field TYPE_FIELD = new Field(TradistaDBConstants.TYPE);
+	public static final Field STRIKE_FIELD = new Field("STRIKE");
+	public static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
+	public static final Field EXERCISE_DATE_FIELD = new Field("EXERCISE_DATE");
+	public static final Field UNDERLYING_TRADE_ID_FIELD = new Field("UNDERLYING_TRADE_ID");
+	public static final Field SETTLEMENT_TYPE_FIELD = new Field("SETTLEMENT_TYPE");
+	public static final Field SETTLEMENT_DATE_OFFSET_FIELD = new Field("SETTLEMENT_DATE_OFFSET");
+	public static final Field QUANTITY_FIELD = new Field(TradistaDBConstants.QUANTITY);
+
+	private static final Field[] VANILLA_OPTION_TRADE_FIELDS = { VANILLA_OPTION_TRADE_ID_FIELD, STYLE_FIELD, TYPE_FIELD,
+			STRIKE_FIELD, MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
+			SETTLEMENT_DATE_OFFSET_FIELD, QUANTITY_FIELD };
+
+	private static final Field[] VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT = { STYLE_FIELD, TYPE_FIELD,
+			MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
+			SETTLEMENT_DATE_OFFSET_FIELD, STRIKE_FIELD, VANILLA_OPTION_TRADE_ID_FIELD };
+
+	private static final Field[] VANILLA_OPTION_TRADE_FIELDS_FOR_UPDATE = { STYLE_FIELD, TYPE_FIELD,
+			MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
+			SETTLEMENT_DATE_OFFSET_FIELD, STRIKE_FIELD };
+
+	public static final Table VANILLA_OPTION_TRADE_TABLE = new Table("VANILLA_OPTION_TRADE",
+			VANILLA_OPTION_TRADE_FIELDS);
+
+	public static final Join TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
+			VANILLA_OPTION_TRADE_ID_FIELD);
+
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(VANILLA_OPTION_TRADE_TABLE,
+			TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, VANILLA_OPTION_TRADE_TABLE,
+				VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, VANILLA_OPTION_TRADE_ID_FIELD,
+				VANILLA_OPTION_TRADE_TABLE, VANILLA_OPTION_TRADE_FIELDS_FOR_UPDATE);
+	}
+
 	public static FXOptionTrade getTradeById(long id) {
 
 		FXOptionTrade fxOptionTrade = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, VANILLA_OPTION_TRADE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = con.prepareStatement(
-						"SELECT TRADE.*, VANILLA_OPTION_TRADE.*, FXSPOT_TRADE.*, UND_TRADE.AMOUNT UND_AMOUNT, UND_TRADE.CURRENCY_ID UND_CURRENCY_ID, UND_TRADE.SETTLEMENT_DATE UND_SETTLEMENT_DATE, UND_TRADE.TRADE_DATE UND_TRADE_DATE FROM TRADE, VANILLA_OPTION_TRADE, FXSPOT_TRADE, TRADE UND_TRADE WHERE "
-								+ "TRADE.ID = VANILLA_OPTION_TRADE_ID AND VANILLA_OPTION_TRADE_ID = ? AND UNDERLYING_TRADE_ID = FXSPOT_TRADE_ID AND FXSPOT_TRADE_ID = UND_TRADE.ID")) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 
 				while (results.next()) {
 
 					if (fxOptionTrade == null) {
-						fxOptionTrade = new FXOptionTrade();
+						fxOptionTrade = new FXOptionTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
+								.build();
 					}
 
-					fxOptionTrade.setStyle(getStyle(results.getString("style")));
-					fxOptionTrade.setType(OptionTrade.Type.valueOf(results.getString("type")));
-					fxOptionTrade.setAmount(results.getBigDecimal("amount"));
-					fxOptionTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
+					TradeSQL.setTradeCommonFields(fxOptionTrade, results);
+					fxOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf(results.getString(STYLE_FIELD.getName())));
+					fxOptionTrade.setType(OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())));
 					fxOptionTrade.setSettlementType(
-							OptionTrade.SettlementType.valueOf(results.getString("settlement_type")));
-					fxOptionTrade.setSettlementDateOffset(results.getInt("settlement_date_offset"));
-					fxOptionTrade.setStrike(results.getBigDecimal("strike"));
-					fxOptionTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					fxOptionTrade.setBuySell(results.getBoolean("buy_sell"));
-					fxOptionTrade
-							.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					fxOptionTrade.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-					fxOptionTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
-					fxOptionTrade.setId(results.getLong("VANILLA_OPTION_TRADE_ID"));
-					fxOptionTrade.setTradeDate(results.getDate("trade_date").toLocalDate());
-					fxOptionTrade.setSettlementDate(results.getDate("settlement_date").toLocalDate());
-					Date exerciseDate = results.getDate("exercise_date");
+							OptionTrade.SettlementType.valueOf(results.getString(SETTLEMENT_TYPE_FIELD.getName())));
+					fxOptionTrade.setSettlementDateOffset(results.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
+					fxOptionTrade.setStrike(results.getBigDecimal(STRIKE_FIELD.getName()));
+					fxOptionTrade.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
+					Date exerciseDate = results.getDate(EXERCISE_DATE_FIELD.getName());
 					if (exerciseDate != null) {
 						fxOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
 					}
 
 					// Building the underlying
-					FXTrade underlying = new FXTrade();
-					underlying.setId(results.getLong("UNDERLYING_TRADE_ID"));
-					underlying.setCurrencyOne(CurrencySQL.getCurrencyById(results.getLong("currency_one_id")));
-					underlying.setCurrency(CurrencySQL.getCurrencyById(results.getLong("und_currency_id")));
-					underlying.setAmountOne(results.getBigDecimal("amount_one"));
-					underlying.setAmount(results.getBigDecimal("und_amount"));
-					underlying.setBuySell(results.getBoolean("buy_sell"));
-					underlying.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					java.sql.Date undSettlementDate = results.getDate("und_settlement_date");
-					if (undSettlementDate != null) {
-						underlying.setSettlementDate(undSettlementDate.toLocalDate());
-					}
-					Date undTradeDate = results.getDate("und_trade_date");
-					if (undTradeDate != null) {
-						underlying.setTradeDate(undTradeDate.toLocalDate());
-					}
-					underlying.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-
+					FXTrade underlying = FXTradeSQL.getTradeById(results.getLong(UNDERLYING_TRADE_ID_FIELD.getName()),
+							true);
 					fxOptionTrade.setUnderlying(underlying);
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return fxOptionTrade;
 	}
@@ -114,18 +140,20 @@ public class FXOptionTradeSQL {
 		FXOptionTrade fxOptionTrade = null;
 
 		try {
-			if ((rs.getLong("vanilla_option_trade_id") == 0) || (rs.getLong("underlying_fxspot_trade_id") == 0)) {
+			if ((rs.getLong(VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
+					|| (rs.getLong("underlying_fxspot_trade_id") == 0)) {
 				return null;
 			}
 
-			fxOptionTrade = new FXOptionTrade();
-			fxOptionTrade.setStyle(getStyle(rs.getString("style")));
-			fxOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString("type")));
-			fxOptionTrade.setSettlementType(OptionTrade.SettlementType.valueOf(rs.getString("settlement_type")));
-			fxOptionTrade.setSettlementDateOffset(rs.getInt("settlement_date_offset"));
-			fxOptionTrade.setStrike(rs.getBigDecimal("strike"));
+			fxOptionTrade = new FXOptionTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			fxOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf(rs.getString(STYLE_FIELD.getName())));
+			fxOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString(TYPE_FIELD.getName())));
+			fxOptionTrade.setSettlementType(
+					OptionTrade.SettlementType.valueOf(rs.getString(SETTLEMENT_TYPE_FIELD.getName())));
+			fxOptionTrade.setSettlementDateOffset(rs.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
+			fxOptionTrade.setStrike(rs.getBigDecimal(STRIKE_FIELD.getName()));
 			fxOptionTrade.setMaturityDate(rs.getDate("option_maturity_date").toLocalDate());
-			Date exerciseDate = rs.getDate("exercise_date");
+			Date exerciseDate = rs.getDate(EXERCISE_DATE_FIELD.getName());
 			if (exerciseDate != null) {
 				fxOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
 			}
@@ -133,7 +161,12 @@ public class FXOptionTradeSQL {
 			TradeSQL.setTradeCommonFields(fxOptionTrade, rs);
 
 			// Building the underlying
-			FXTrade underlying = new FXTrade();
+			java.sql.Timestamp undCreationTime = rs.getTimestamp("und_fxspot_creation_time");
+			FXTrade.Builder undBuilder = new FXTrade.Builder();
+			if (undCreationTime != null) {
+				undBuilder.creationTime(undCreationTime.toInstant());
+			}
+			FXTrade underlying = undBuilder.build();
 			underlying.setId(rs.getLong("UNDERLYING_FXSPOT_TRADE_ID"));
 			underlying.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("UNDERLYING_FXSPOT_currency_one_id")));
 			underlying.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("und_fxspot_currency_id")));
@@ -142,7 +175,6 @@ public class FXOptionTradeSQL {
 			underlying.setBuySell(rs.getBoolean("und_fxspot_buy_sell"));
 			underlying.setBook(BookSQL.getBookById(rs.getLong("und_fxspot_book_id")));
 			java.sql.Date undSettlementDate = rs.getDate("und_fxspot_settlement_date");
-			underlying.setCreationDate(rs.getDate("und_fxspot_creation_date").toLocalDate());
 			if (undSettlementDate != null) {
 				underlying.setSettlementDate(undSettlementDate.toLocalDate());
 			}
@@ -160,39 +192,14 @@ public class FXOptionTradeSQL {
 		return fxOptionTrade;
 	}
 
-	private static VanillaOptionTrade.Style getStyle(String name) {
-		if (name.equals("EUROPEAN")) {
-			return VanillaOptionTrade.Style.EUROPEAN;
-		} else
-			return VanillaOptionTrade.Style.AMERICAN;
-	}
-
 	public static long saveFXOptionTrade(FXOptionTrade trade) {
 		long tradeId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, SETTLEMENT_DATE, PRODUCT_ID, COUNTERPARTY_ID, AMOUNT, CURRENCY_ID, BOOK_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, SETTLEMENT_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, AMOUNT=?, CURRENCY_ID=?, BOOK_ID=? WHERE ID=?");
-				PreparedStatement stmtSaveFXOptionTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO VANILLA_OPTION_TRADE(STYLE, TYPE, MATURITY_DATE, EXERCISE_DATE, UNDERLYING_TRADE_ID, SETTLEMENT_TYPE, SETTLEMENT_DATE_OFFSET, STRIKE, VANILLA_OPTION_TRADE_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE VANILLA_OPTION_TRADE SET STYLE=?, TYPE=?, MATURITY_DATE=?, EXERCISE_DATE=?, UNDERLYING_TRADE_ID=?, SETTLEMENT_TYPE=?, SETTLEMENT_DATE_OFFSET=?, STRIKE=? WHERE VANILLA_OPTION_TRADE_ID=?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(9, trade.getId());
-			}
-			stmtSaveTrade.setBoolean(1, isBuy);
-			stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			stmtSaveTrade.setDate(3, java.sql.Date.valueOf(trade.getSettlementDate()));
-			stmtSaveTrade.setNull(4, java.sql.Types.BIGINT);
-			stmtSaveTrade.setLong(5, trade.getCounterparty().getId());
-			stmtSaveTrade.setBigDecimal(6, trade.getAmount());
-			stmtSaveTrade.setLong(7, trade.getCurrency().getId());
-			stmtSaveTrade.setLong(8, trade.getBook().getId());
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveFXOptionTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -225,8 +232,8 @@ public class FXOptionTradeSQL {
 			stmtSaveFXOptionTrade.setBigDecimal(8, trade.getStrike());
 			stmtSaveFXOptionTrade.setLong(9, tradeId);
 			stmtSaveFXOptionTrade.executeUpdate();
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

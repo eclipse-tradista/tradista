@@ -38,9 +38,22 @@ public abstract class Security extends Product implements Ratable {
 	private BigDecimal issuePrice;
 	private Currency currency;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public Security(Exchange exchange, String isin) {
 		super(exchange);
 		this.isin = isin;
+	}
+
+	protected Security(Builder<?, ?> builder) {
+		super(builder);
+		this.isin = builder.isin;
+		this.issuer = builder.issuer;
+		this.issueDate = builder.issueDate;
+		this.issuePrice = builder.issuePrice;
+		this.currency = builder.currency;
 	}
 
 	public String getIsin() {
@@ -105,5 +118,38 @@ public abstract class Security extends Product implements Ratable {
 		security.issuer = TradistaModelUtil.clone(issuer);
 		security.currency = TradistaModelUtil.clone(currency);
 		return security;
+	}
+
+	public abstract static class Builder<T extends Security, B extends Builder<T, B>> extends Product.Builder<T, B> {
+		protected String isin;
+		protected LegalEntity issuer;
+		protected LocalDate issueDate;
+		protected BigDecimal issuePrice;
+		protected Currency currency;
+
+		public Builder(Exchange exchange, String isin) {
+			this.exchange = exchange;
+			this.isin = isin;
+		}
+
+		public B issuer(LegalEntity issuer) {
+			this.issuer = issuer;
+			return self();
+		}
+
+		public B issueDate(LocalDate issueDate) {
+			this.issueDate = issueDate;
+			return self();
+		}
+
+		public B issuePrice(BigDecimal issuePrice) {
+			this.issuePrice = issuePrice;
+			return self();
+		}
+
+		public B currency(Currency currency) {
+			this.currency = currency;
+			return self();
+		}
 	}
 }

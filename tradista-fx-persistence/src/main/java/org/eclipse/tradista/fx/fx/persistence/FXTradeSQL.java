@@ -1,18 +1,22 @@
 package org.eclipse.tradista.fx.fx.persistence;
 
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_DATE_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
@@ -35,14 +39,44 @@ import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
 
 public class FXTradeSQL {
 
+	public static final Field FXSPOT_TRADE_ID_FIELD = new Field("FXSPOT_TRADE_ID");
+	public static final Field CURRENCY_ONE_ID_FIELD = new Field("CURRENCY_ONE_ID");
+	public static final Field AMOUNT_ONE_FIELD = new Field("AMOUNT_ONE");
+
+	private static final Field[] FXSPOT_TRADE_FIELDS = { FXSPOT_TRADE_ID_FIELD, CURRENCY_ONE_ID_FIELD,
+			AMOUNT_ONE_FIELD };
+
+	private static final Field[] FXSPOT_TRADE_FIELDS_FOR_INSERT = { CURRENCY_ONE_ID_FIELD, AMOUNT_ONE_FIELD,
+			FXSPOT_TRADE_ID_FIELD };
+
+	private static final Field[] FXSPOT_TRADE_FIELDS_FOR_UPDATE = { CURRENCY_ONE_ID_FIELD, AMOUNT_ONE_FIELD };
+
+	public static final Table FXSPOT_TRADE_TABLE = new Table("FXSPOT_TRADE", FXSPOT_TRADE_FIELDS);
+
+	public static final Join TRADE_AND_FXSPOT_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
+			FXSPOT_TRADE_ID_FIELD);
+
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(FXSPOT_TRADE_TABLE,
+			TRADE_AND_FXSPOT_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, FXSPOT_TRADE_TABLE, FXSPOT_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, FXSPOT_TRADE_ID_FIELD, FXSPOT_TRADE_TABLE,
+				FXSPOT_TRADE_FIELDS_FOR_UPDATE);
+	}
+
 	public static FXTrade getTradeById(long id, boolean includeUnderlying) {
 		FXTrade fxspotTrade = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, FXSPOT_TRADE_ID_FIELD);
+		if (!includeUnderlying) {
+			TradistaDBUtil.addIsNotNullFilter(query, TRADE_DATE_FIELD);
+		}
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = (includeUnderlying)
-						? con.prepareStatement(
-								"SELECT * FROM FXSPOT_TRADE, TRADE WHERE FXSPOT_TRADE_ID = ? AND FXSPOT_TRADE_ID = ID")
-						: con.prepareStatement(
-								"SELECT * FROM FXSPOT_TRADE, TRADE WHERE FXSPOT_TRADE_ID = ? AND FXSPOT_TRADE_ID = ID AND TRADE.TRADE_DATE IS NOT NULL")) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			FXTradeBusinessDelegate fxTradeBusinessDelegate = new FXTradeBusinessDelegate();
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
@@ -50,39 +84,20 @@ public class FXTradeSQL {
 				while (results.next()) {
 
 					if (fxspotTrade == null) {
-						fxspotTrade = new FXTrade();
+						fxspotTrade = new FXTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
 					}
 
-					fxspotTrade.setCurrencyOne(CurrencySQL.getCurrencyById(results.getLong("currency_one_id")));
-					fxspotTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					fxspotTrade.setAmountOne(results.getBigDecimal("amount_one"));
-					fxspotTrade.setId(results.getLong("id"));
-					fxspotTrade.setAmount(results.getBigDecimal("amount"));
-					fxspotTrade.setBuySell(results.getBoolean("buy_sell"));
-					fxspotTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					fxspotTrade.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-					Date settlementDate = results.getDate("settlement_date");
-					if (settlementDate != null) {
-						fxspotTrade.setSettlementDate(settlementDate.toLocalDate());
-					}
-					Date tradeDate = results.getDate("trade_date");
-					if (tradeDate != null) {
-						fxspotTrade.setTradeDate(tradeDate.toLocalDate());
-					}
-					fxspotTrade.setCreationDate(results.getDate("creation_date").toLocalDate());
+					TradeSQL.setTradeCommonFields(fxspotTrade, results);
+					fxspotTrade.setCurrencyOne(
+							CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ONE_ID_FIELD.getName())));
+					fxspotTrade.setAmountOne(results.getBigDecimal(AMOUNT_ONE_FIELD.getName()));
 				}
 			}
 			if (fxspotTrade != null) {
-				try {
-					fxTradeBusinessDelegate.determinateType(fxspotTrade);
-				} catch (TradistaBusinessException _) {
-					// Should not appear here.
-				}
+				fxTradeBusinessDelegate.determinateType(fxspotTrade);
 			}
-		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 
 		return fxspotTrade;
@@ -99,7 +114,7 @@ public class FXTradeSQL {
 				return null;
 			}
 
-			fxspotTrade = new FXTrade();
+			fxspotTrade = new FXTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
 
 			fxspotTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxspot_currency_one_id")));
 			fxspotTrade.setAmountOne(rs.getBigDecimal("amount_one"));
@@ -118,37 +133,11 @@ public class FXTradeSQL {
 	public static long saveFXTrade(FXTrade trade) {
 		long tradeId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, SETTLEMENT_DATE, PRODUCT_ID, COUNTERPARTY_ID, CURRENCY_ID, AMOUNT, BOOK_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, SETTLEMENT_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, CURRENCY_ID=?, AMOUNT=?, BOOK_ID=? WHERE ID = ?");
-				PreparedStatement stmtSaveFXSpotTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO FXSPOT_TRADE(CURRENCY_ONE_ID, AMOUNT_ONE, FXSPOT_TRADE_ID) VALUES (?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE FXSPOT_TRADE SET CURRENCY_ONE_ID=?, AMOUNT_ONE=? WHERE FXSPOT_TRADE_ID=?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(9, trade.getId());
-			}
-			stmtSaveTrade.setBoolean(1, isBuy);
-			if (trade.getTradeDate() == null) {
-				stmtSaveTrade.setNull(2, java.sql.Types.DATE);
-			} else {
-				stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			}
-			if (trade.getSettlementDate() == null) {
-				stmtSaveTrade.setNull(3, java.sql.Types.DATE);
-			} else {
-				stmtSaveTrade.setDate(3, java.sql.Date.valueOf(trade.getSettlementDate()));
-			}
-			stmtSaveTrade.setNull(4, java.sql.Types.BIGINT);
-			stmtSaveTrade.setLong(5, trade.getCounterparty().getId());
-			stmtSaveTrade.setLong(6, trade.getCurrency().getId());
-			stmtSaveTrade.setBigDecimal(7, trade.getAmount());
-			stmtSaveTrade.setLong(8, trade.getBook().getId());
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveFXSpotTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -156,7 +145,7 @@ public class FXTradeSQL {
 					if (generatedKeys.next()) {
 						tradeId = generatedKeys.getLong(1);
 					} else {
-						throw new SQLException("Creating user failed, no generated key obtained.");
+						throw new SQLException("Creating trade failed, no generated key obtained.");
 					}
 				}
 			} else {
@@ -167,8 +156,8 @@ public class FXTradeSQL {
 			stmtSaveFXSpotTrade.setBigDecimal(2, trade.getAmountOne());
 			stmtSaveFXSpotTrade.setLong(3, tradeId);
 			stmtSaveFXSpotTrade.executeUpdate();
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

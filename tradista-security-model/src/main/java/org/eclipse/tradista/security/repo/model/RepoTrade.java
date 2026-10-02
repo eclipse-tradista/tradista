@@ -36,6 +36,31 @@ public abstract class RepoTrade extends Trade<Security> {
 
 	private static final long serialVersionUID = -1883330290840134887L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public RepoTrade() {
+	}
+
+	protected RepoTrade(Builder<?, ?> builder) {
+		super(builder);
+		this.repoRate = builder.repoRate;
+		this.marginRate = builder.marginRate;
+		this.index = builder.index;
+		this.indexTenor = builder.indexTenor;
+		this.indexOffset = builder.indexOffset;
+		this.endDate = builder.endDate;
+		this.rightOfSubstitution = builder.rightOfSubstitution;
+		this.rightOfReuse = builder.rightOfReuse;
+		this.crossCurrencyCollateral = builder.crossCurrencyCollateral;
+		this.terminableOnDemand = builder.terminableOnDemand;
+		this.noticePeriod = builder.noticePeriod;
+		this.collateralToAdd = builder.collateralToAdd;
+		this.collateralToRemove = builder.collateralToRemove;
+		this.partialTerminations = builder.partialTerminations;
+	}
+
 	private BigDecimal repoRate;
 
 	private BigDecimal marginRate;
@@ -194,6 +219,94 @@ public abstract class RepoTrade extends Trade<Security> {
 		}
 		partialTerminations.putIfAbsent(date, BigDecimal.ZERO);
 		partialTerminations.put(date, partialTerminations.get(date).add(reduction));
+	}
+
+	public abstract static class Builder<T extends RepoTrade, B extends Builder<T, B>>
+			extends Trade.Builder<Security, T, B> {
+		protected BigDecimal repoRate;
+		protected BigDecimal marginRate;
+		protected Index index;
+		protected Tenor indexTenor;
+		protected BigDecimal indexOffset;
+		protected LocalDate endDate;
+		protected boolean rightOfSubstitution;
+		protected boolean rightOfReuse;
+		protected boolean crossCurrencyCollateral;
+		protected boolean terminableOnDemand;
+		protected short noticePeriod;
+		protected Map<Security, Map<Book, BigDecimal>> collateralToAdd;
+		protected Map<Security, Map<Book, BigDecimal>> collateralToRemove;
+		protected Map<LocalDate, BigDecimal> partialTerminations;
+
+		public B repoRate(BigDecimal repoRate) {
+			this.repoRate = repoRate;
+			return self();
+		}
+
+		public B marginRate(BigDecimal marginRate) {
+			this.marginRate = marginRate;
+			return self();
+		}
+
+		public B index(Index index) {
+			this.index = index;
+			return self();
+		}
+
+		public B indexTenor(Tenor indexTenor) {
+			this.indexTenor = indexTenor;
+			return self();
+		}
+
+		public B indexOffset(BigDecimal indexOffset) {
+			this.indexOffset = indexOffset;
+			return self();
+		}
+
+		public B endDate(LocalDate endDate) {
+			this.endDate = endDate;
+			return self();
+		}
+
+		public B rightOfSubstitution(boolean rightOfSubstitution) {
+			this.rightOfSubstitution = rightOfSubstitution;
+			return self();
+		}
+
+		public B rightOfReuse(boolean rightOfReuse) {
+			this.rightOfReuse = rightOfReuse;
+			return self();
+		}
+
+		public B crossCurrencyCollateral(boolean crossCurrencyCollateral) {
+			this.crossCurrencyCollateral = crossCurrencyCollateral;
+			return self();
+		}
+
+		public B terminableOnDemand(boolean terminableOnDemand) {
+			this.terminableOnDemand = terminableOnDemand;
+			return self();
+		}
+
+		public B noticePeriod(short noticePeriod) {
+			this.noticePeriod = noticePeriod;
+			return self();
+		}
+
+		public B collateralToAdd(Map<Security, Map<Book, BigDecimal>> collateralToAdd) {
+			this.collateralToAdd = collateralToAdd;
+			return self();
+		}
+
+		public B collateralToRemove(Map<Security, Map<Book, BigDecimal>> collateralToRemove) {
+			this.collateralToRemove = collateralToRemove;
+			return self();
+		}
+
+		public B partialTerminations(Map<LocalDate, BigDecimal> partialTerminations) {
+			this.partialTerminations = partialTerminations;
+			return self();
+		}
 	}
 
 }

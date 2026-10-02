@@ -1,21 +1,35 @@
 package org.eclipse.tradista.security.equity.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CODE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
+
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.exchange.persistence.ExchangeSQL;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.security.equity.model.Equity;
 
@@ -37,27 +51,74 @@ import org.eclipse.tradista.security.equity.model.Equity;
 
 public class EquitySQL {
 
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
+
+	private static final Field SECURITY_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
+	private static final Field ISSUER_ID_FIELD = new Field("ISSUER_ID");
+	private static final Field ISIN_FIELD = new Field("ISIN");
+	private static final Field CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
+	private static final Field ISSUE_DATE_FIELD = new Field("ISSUE_DATE");
+	private static final Field ISSUE_PRICE_FIELD = new Field("ISSUE_PRICE");
+
+	private static final Field[] SECURITY_FIELDS = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD, ISSUE_DATE_FIELD,
+			ISSUE_PRICE_FIELD, SECURITY_PRODUCT_ID_FIELD };
+	public static final Table SECURITY_TABLE = new Table("SECURITY", SECURITY_FIELDS);
+
+	private static final Field[] SECURITY_FIELDS_FOR_UPDATE = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD,
+			ISSUE_DATE_FIELD, ISSUE_PRICE_FIELD };
+
+	private static final Field EQUITY_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
+	private static final Field TRADING_SIZE_FIELD = new Field("TRADING_SIZE");
+	private static final Field TOTAL_ISSUED_FIELD = new Field("TOTAL_ISSUED");
+	private static final Field PAY_DIVIDEND_FIELD = new Field("PAY_DIVIDEND");
+	private static final Field DIVIDEND_CURRENCY_ID_FIELD = new Field("DIVIDEND_CURRENCY_ID");
+	private static final Field DIVIDEND_FREQUENCY_FIELD = new Field("DIVIDEND_FREQUENCY");
+	private static final Field ACTIVE_FROM_FIELD = new Field("ACTIVE_FROM");
+	private static final Field ACTIVE_TO_FIELD = new Field("ACTIVE_TO");
+
+	private static final Field[] EQUITY_FIELDS = { TRADING_SIZE_FIELD, TOTAL_ISSUED_FIELD, PAY_DIVIDEND_FIELD,
+			DIVIDEND_CURRENCY_ID_FIELD, DIVIDEND_FREQUENCY_FIELD, ACTIVE_FROM_FIELD, ACTIVE_TO_FIELD,
+			EQUITY_PRODUCT_ID_FIELD };
+	public static final Table EQUITY_TABLE = new Table("EQUITY", EQUITY_FIELDS);
+
+	private static final Field[] EQUITY_FIELDS_FOR_UPDATE = { TRADING_SIZE_FIELD, TOTAL_ISSUED_FIELD,
+			PAY_DIVIDEND_FIELD, DIVIDEND_CURRENCY_ID_FIELD, DIVIDEND_FREQUENCY_FIELD, ACTIVE_FROM_FIELD,
+			ACTIVE_TO_FIELD };
+
+	private static final Join EQUITY_PRODUCT_JOIN = Join.innerEq(ProductSQL.PRODUCT_TABLE, EQUITY_PRODUCT_ID_FIELD,
+			ProductSQL.ID_FIELD);
+	private static final Join EQUITY_SECURITY_JOIN = Join.innerEq(SECURITY_TABLE, EQUITY_PRODUCT_ID_FIELD,
+			SECURITY_PRODUCT_ID_FIELD);
+
+	private static final String BASE_SELECT_QUERY = TradistaDBUtil.buildSelectQuery(EQUITY_TABLE, EQUITY_PRODUCT_JOIN,
+			EQUITY_SECURITY_JOIN);
+
 	public static long saveEquity(Equity equity) {
 		long productId = 0;
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveProduct = (equity.getId() == 0)
-						? con.prepareStatement("INSERT INTO PRODUCT(CREATION_DATE, EXCHANGE_ID) VALUES (?, ?) ",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement("UPDATE PRODUCT SET CREATION_DATE=?, EXCHANGE_ID=? WHERE ID=?");
-				PreparedStatement stmtSaveSecurity = (equity.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO SECURITY(ISSUER_ID, ISIN, CURRENCY_ID, ISSUE_DATE, ISSUE_PRICE, PRODUCT_ID) VALUES (?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE SECURITY SET ISSUER_ID=?, ISIN=?, CURRENCY_ID=?, ISSUE_DATE=?, ISSUE_PRICE=? WHERE PRODUCT_ID=?");
-				PreparedStatement stmtSaveEquity = (equity.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO EQUITY(TRADING_SIZE, TOTAL_ISSUED, PAY_DIVIDEND, DIVIDEND_CURRENCY_ID, DIVIDEND_FREQUENCY, ACTIVE_FROM, ACTIVE_TO, PRODUCT_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE EQUITY SET TRADING_SIZE=?, TOTAL_ISSUED=?, PAY_DIVIDEND=?, DIVIDEND_CURRENCY_ID=?, DIVIDEND_FREQUENCY=?, ACTIVE_FROM=?, ACTIVE_TO=? WHERE PRODUCT_ID=?")) {
-			if (equity.getId() != 0) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, ProductSQL.PRODUCT_TABLE,
+								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
+								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveSecurity = (equity.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, SECURITY_TABLE, SECURITY_FIELDS)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, SECURITY_PRODUCT_ID_FIELD, SECURITY_TABLE,
+								SECURITY_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveEquity = (equity.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, EQUITY_TABLE, EQUITY_FIELDS)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_PRODUCT_ID_FIELD, EQUITY_TABLE,
+								EQUITY_FIELDS_FOR_UPDATE)) {
+			if (equity.getId() == 0) {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(equity.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(equity.getLastUpdateTime()));
+				stmtSaveProduct.setLong(3, equity.getExchange().getId());
+			} else {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));
+				stmtSaveProduct.setLong(2, equity.getExchange().getId());
 				stmtSaveProduct.setLong(3, equity.getId());
 			}
-			stmtSaveProduct.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
-			stmtSaveProduct.setLong(2, equity.getExchange().getId());
 			stmtSaveProduct.executeUpdate();
 
 			if (equity.getId() == 0) {
@@ -75,7 +136,7 @@ public class EquitySQL {
 			stmtSaveSecurity.setLong(1, equity.getIssuerId());
 			stmtSaveSecurity.setString(2, equity.getIsin());
 			stmtSaveSecurity.setLong(3, equity.getCurrencyId());
-			stmtSaveSecurity.setDate(4, java.sql.Date.valueOf(equity.getIssueDate()));
+			stmtSaveSecurity.setDate(4, Date.valueOf(equity.getIssueDate()));
 			stmtSaveSecurity.setBigDecimal(5, equity.getIssuePrice());
 			stmtSaveSecurity.setLong(6, productId);
 			stmtSaveSecurity.executeUpdate();
@@ -90,13 +151,12 @@ public class EquitySQL {
 				stmtSaveEquity.setNull(4, Types.BIGINT);
 				stmtSaveEquity.setNull(5, Types.VARCHAR);
 			}
-			stmtSaveEquity.setDate(6, java.sql.Date.valueOf(equity.getActiveFrom()));
-			stmtSaveEquity.setDate(7, java.sql.Date.valueOf(equity.getActiveTo()));
+			stmtSaveEquity.setDate(6, Date.valueOf(equity.getActiveFrom()));
+			stmtSaveEquity.setDate(7, Date.valueOf(equity.getActiveTo()));
 			stmtSaveEquity.setLong(8, productId);
 			stmtSaveEquity.executeUpdate();
 
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		equity.setId(productId);
@@ -105,45 +165,23 @@ public class EquitySQL {
 
 	public static Set<Equity> getEquitiesByCreationDate(LocalDate date) {
 		Set<Equity> equities = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, CREATION_TIME_FIELD, true);
+		TradistaDBUtil.addParameterizedFilter(sql, CREATION_TIME_FIELD, false);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquitiesByCreationDate = con.prepareStatement(
-						"SELECT EQUITY.PRODUCT_ID ID, SECURITY.ISIN, EQUITY.TRADING_SIZE TRADING_SIZE,"
-								+ "EQUITY.TOTAL_ISSUED TOTAL_ISSUED, EQUITY.PAY_DIVIDEND PAY_DIVIDEND,"
-								+ "EQUITY.DIVIDEND_CURRENCY_ID DIVIDEND_CURRENCY_ID, EQUITY.DIVIDEND_FREQUENCY DIVIDEND_FREQUENCY, EQUITY.ACTIVE_FROM ACTIVE_FROM, EQUITY.ACTIVE_TO ACTIVE_TO, "
-								+ "PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID "
-								+ "FROM EQUITY, PRODUCT, SECURITY WHERE "
-								+ "SECURITY.PRODUCT_ID = PRODUCT.ID AND EQUITY.PRODUCT_ID = PRODUCT.ID AND CREATION_DATE = ? ")) {
-			stmtGetEquitiesByCreationDate.setDate(1, java.sql.Date.valueOf(date));
+				PreparedStatement stmtGetEquitiesByCreationDate = con.prepareStatement(sql.toString())) {
+			stmtGetEquitiesByCreationDate.setTimestamp(1, Timestamp.valueOf(date.atStartOfDay()));
+			stmtGetEquitiesByCreationDate.setTimestamp(2, Timestamp.valueOf(date.atTime(23, 59, 59, 999999999)));
 			try (ResultSet results = stmtGetEquitiesByCreationDate.executeQuery()) {
 				while (results.next()) {
 					if (equities == null) {
-						equities = new HashSet<Equity>();
+						equities = new HashSet<>();
 					}
-					Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					equity.setId(results.getLong("id"));
-					equity.setActiveFrom(results.getDate("active_from").toLocalDate());
-					equity.setActiveTo(results.getDate("active_to").toLocalDate());
-					equity.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equity.setPayDividend(results.getBoolean("pay_dividend"));
-					if (equity.isPayDividend()) {
-						equity.setDividendCurrency(
-								CurrencySQL.getCurrencyById(results.getLong("dividend_currency_id")));
-						equity.setDividendFrequency(Tenor.valueOf(results.getString("dividend_frequency")));
-					}
-					equity.setTotalIssued(results.getLong("total_issued"));
-					equity.setTradingSize(results.getLong("trading_size"));
-					equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					equity.setIssueDate(results.getDate("issue_date").toLocalDate());
-					equity.setIssuePrice(results.getBigDecimal("issue_price"));
-					equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					equities.add(equity);
+					equities.add(buildEquity(results));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equities;
@@ -152,65 +190,30 @@ public class EquitySQL {
 	public static Set<Equity> getEquitiesByDates(LocalDate minCreationDate, LocalDate maxCreationDate,
 			LocalDate minActiveDate, LocalDate maxActiveDate) {
 		Set<Equity> equities = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		if (minCreationDate != null) {
+			TradistaDBUtil.addFilter(sql, CREATION_TIME_FIELD, minCreationDate.atStartOfDay(), true);
+		}
+		if (maxCreationDate != null) {
+			TradistaDBUtil.addFilter(sql, CREATION_TIME_FIELD, maxCreationDate.atTime(23, 59, 59), false);
+		}
+		if (minActiveDate != null) {
+			TradistaDBUtil.addFilter(sql, ACTIVE_FROM_FIELD, minActiveDate, true);
+		}
+		if (maxActiveDate != null) {
+			TradistaDBUtil.addFilter(sql, ACTIVE_TO_FIELD, maxActiveDate, false);
+		}
 
-		try (Connection con = TradistaDB.getConnection(); Statement stmt = con.createStatement()) {
-			String query = "SELECT EQUITY.PRODUCT_ID ID, SECURITY.ISIN, EQUITY.TRADING_SIZE TRADING_SIZE,"
-					+ "EQUITY.TOTAL_ISSUED TOTAL_ISSUED, EQUITY.PAY_DIVIDEND PAY_DIVIDEND,"
-					+ "EQUITY.DIVIDEND_CURRENCY_ID DIVIDEND_CURRENCY_ID, EQUITY.DIVIDEND_FREQUENCY DIVIDEND_FREQUENCY, EQUITY.ACTIVE_FROM ACTIVE_FROM, EQUITY.ACTIVE_TO ACTIVE_TO, "
-					+ "PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-					+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID "
-					+ "FROM EQUITY, PRODUCT, SECURITY WHERE "
-					+ "EQUITY.PRODUCT_ID = SECURITY.PRODUCT_ID AND SECURITY.PRODUCT_ID = PRODUCT.ID";
-			if (minCreationDate != null || maxCreationDate != null || minActiveDate != null || maxActiveDate != null) {
-				if (minCreationDate != null) {
-					query += " AND CREATION_DATE >= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(minCreationDate) + "'";
+		try (Connection con = TradistaDB.getConnection();
+				PreparedStatement stmt = con.prepareStatement(sql.toString());
+				ResultSet results = stmt.executeQuery()) {
+			while (results.next()) {
+				if (equities == null) {
+					equities = new HashSet<>();
 				}
-				if (maxCreationDate != null) {
-					query += " AND CREATION_DATE <= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(maxCreationDate) + "'";
-				}
-				if (minActiveDate != null) {
-					query += " AND ACTIVE_FROM >= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(minActiveDate) + "'";
-				}
-				if (maxActiveDate != null) {
-					query += " AND ACTIVE_TO <= '" + DateTimeFormatter
-							.ofPattern(org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD)
-							.format(maxActiveDate) + "'";
-				}
-			}
-			try (ResultSet results = stmt.executeQuery(query)) {
-				while (results.next()) {
-					if (equities == null) {
-						equities = new HashSet<Equity>();
-					}
-					Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					equity.setId(results.getLong("id"));
-					equity.setActiveFrom(results.getDate("active_from").toLocalDate());
-					equity.setActiveTo(results.getDate("active_to").toLocalDate());
-					equity.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equity.setPayDividend(results.getBoolean("pay_dividend"));
-					if (equity.isPayDividend()) {
-						equity.setDividendCurrency(
-								CurrencySQL.getCurrencyById(results.getLong("dividend_currency_id")));
-						equity.setDividendFrequency(Tenor.valueOf(results.getString("dividend_frequency")));
-					}
-					equity.setTotalIssued(results.getLong("total_issued"));
-					equity.setTradingSize(results.getLong("trading_size"));
-					equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					equity.setIssueDate(results.getDate("issue_date").toLocalDate());
-					equity.setIssuePrice(results.getBigDecimal("issue_price"));
-					equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					equities.add(equity);
-				}
+				equities.add(buildEquity(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equities;
@@ -220,40 +223,15 @@ public class EquitySQL {
 		Set<Equity> equities = null;
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllEquities = con.prepareStatement(
-						"SELECT EQUITY.PRODUCT_ID ID, SECURITY.ISIN, EQUITY.TRADING_SIZE TRADING_SIZE,"
-								+ "EQUITY.TOTAL_ISSUED TOTAL_ISSUED, EQUITY.PAY_DIVIDEND PAY_DIVIDEND,"
-								+ "EQUITY.DIVIDEND_CURRENCY_ID DIVIDEND_CURRENCY_ID, EQUITY.DIVIDEND_FREQUENCY DIVIDEND_FREQUENCY, EQUITY.ACTIVE_FROM ACTIVE_FROM, EQUITY.ACTIVE_TO ACTIVE_TO, "
-								+ "PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID "
-								+ "FROM EQUITY, PRODUCT, SECURITY WHERE EQUITY.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID");
+				PreparedStatement stmtGetAllEquities = con.prepareStatement(BASE_SELECT_QUERY);
 				ResultSet results = stmtGetAllEquities.executeQuery()) {
 			while (results.next()) {
 				if (equities == null) {
-					equities = new HashSet<Equity>();
+					equities = new HashSet<>();
 				}
-				Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-						results.getString("isin"));
-				equity.setId(results.getLong("id"));
-				equity.setActiveFrom(results.getDate("active_from").toLocalDate());
-				equity.setActiveTo(results.getDate("active_to").toLocalDate());
-				equity.setCreationDate(results.getDate("creation_date").toLocalDate());
-				equity.setPayDividend(results.getBoolean("pay_dividend"));
-				if (equity.isPayDividend()) {
-					equity.setDividendCurrency(CurrencySQL.getCurrencyById(results.getLong("dividend_currency_id")));
-					equity.setDividendFrequency(Tenor.valueOf(results.getString("dividend_frequency")));
-				}
-				equity.setTotalIssued(results.getLong("total_issued"));
-				equity.setTradingSize(results.getLong("trading_size"));
-				equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-				equity.setIssueDate(results.getDate("issue_date").toLocalDate());
-				equity.setIssuePrice(results.getBigDecimal("issue_price"));
-				equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-				equities.add(equity);
+				equities.add(buildEquity(results));
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equities;
@@ -261,43 +239,18 @@ public class EquitySQL {
 
 	public static Equity getEquityById(long id) {
 		Equity equity = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, ProductSQL.ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityById = con.prepareStatement(
-						"SELECT EQUITY.PRODUCT_ID ID, SECURITY.ISIN ISIN, EQUITY.TRADING_SIZE TRADING_SIZE,"
-								+ "EQUITY.TOTAL_ISSUED TOTAL_ISSUED, EQUITY.PAY_DIVIDEND PAY_DIVIDEND,"
-								+ "EQUITY.DIVIDEND_CURRENCY_ID DIVIDEND_CURRENCY_ID, EQUITY.DIVIDEND_FREQUENCY DIVIDEND_FREQUENCY, EQUITY.ACTIVE_FROM ACTIVE_FROM, EQUITY.ACTIVE_TO ACTIVE_TO, "
-								+ "PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID "
-								+ "FROM EQUITY, PRODUCT, SECURITY WHERE "
-								+ "EQUITY.PRODUCT_ID = SECURITY.PRODUCT_ID AND SECURITY.PRODUCT_ID = PRODUCT.ID AND EQUITY.PRODUCT_ID = ? ")) {
+				PreparedStatement stmtGetEquityById = con.prepareStatement(sql.toString())) {
 			stmtGetEquityById.setLong(1, id);
 			try (ResultSet results = stmtGetEquityById.executeQuery()) {
 				while (results.next()) {
-					if (equity == null) {
-						equity = new Equity(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-								results.getString("isin"));
-					}
-					equity.setId(results.getLong("id"));
-					equity.setActiveFrom(results.getDate("active_from").toLocalDate());
-					equity.setActiveTo(results.getDate("active_to").toLocalDate());
-					equity.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equity.setPayDividend(results.getBoolean("pay_dividend"));
-					if (equity.isPayDividend()) {
-						equity.setDividendCurrency(
-								CurrencySQL.getCurrencyById(results.getLong("dividend_currency_id")));
-						equity.setDividendFrequency(Tenor.valueOf(results.getString("dividend_frequency")));
-					}
-					equity.setTotalIssued(results.getLong("total_issued"));
-					equity.setTradingSize(results.getLong("trading_size"));
-					equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					equity.setIssueDate(results.getDate("issue_date").toLocalDate());
-					equity.setIssuePrice(results.getBigDecimal("issue_price"));
-					equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
+					equity = buildEquity(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equity;
@@ -305,45 +258,21 @@ public class EquitySQL {
 
 	public static Set<Equity> getEquitiesByIsin(String isin) {
 		Set<Equity> equities = null;
+		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
+		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquitiesByIsin = con.prepareStatement(
-						"SELECT EQUITY.PRODUCT_ID ID, SECURITY.ISIN, EQUITY.TRADING_SIZE TRADING_SIZE,"
-								+ "EQUITY.TOTAL_ISSUED TOTAL_ISSUED, EQUITY.PAY_DIVIDEND PAY_DIVIDEND,"
-								+ "EQUITY.DIVIDEND_CURRENCY_ID DIVIDEND_CURRENCY_ID, EQUITY.DIVIDEND_FREQUENCY DIVIDEND_FREQUENCY, EQUITY.ACTIVE_FROM ACTIVE_FROM, EQUITY.ACTIVE_TO ACTIVE_TO, "
-								+ "PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID "
-								+ "FROM EQUITY, PRODUCT, SECURITY WHERE EQUITY.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID AND SECURITY.ISIN = ?")) {
+				PreparedStatement stmtGetEquitiesByIsin = con.prepareStatement(sql.toString())) {
 			stmtGetEquitiesByIsin.setString(1, isin);
 			try (ResultSet results = stmtGetEquitiesByIsin.executeQuery()) {
 				while (results.next()) {
 					if (equities == null) {
-						equities = new HashSet<Equity>();
+						equities = new HashSet<>();
 					}
-					Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					equity.setId(results.getLong("id"));
-					equity.setActiveFrom(results.getDate("active_from").toLocalDate());
-					equity.setActiveTo(results.getDate("active_to").toLocalDate());
-					equity.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equity.setPayDividend(results.getBoolean("pay_dividend"));
-					if (equity.isPayDividend()) {
-						equity.setDividendCurrency(
-								CurrencySQL.getCurrencyById(results.getLong("dividend_currency_id")));
-						equity.setDividendFrequency(Tenor.valueOf(results.getString("dividend_frequency")));
-					}
-					equity.setTotalIssued(results.getLong("total_issued"));
-					equity.setTradingSize(results.getLong("trading_size"));
-					equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					equity.setIssueDate(results.getDate("issue_date").toLocalDate());
-					equity.setIssuePrice(results.getBigDecimal("issue_price"));
-					equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					equities.add(equity);
+					equities.add(buildEquity(results));
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return equities;
@@ -351,46 +280,49 @@ public class EquitySQL {
 
 	public static Equity getEquityByIsinAndExchangeCode(String isin, String exchangeCode) {
 		Equity equity = null;
+		StringBuilder sql = new StringBuilder(
+				TradistaDBUtil.buildSelectQuery(EQUITY_TABLE, EQUITY_PRODUCT_JOIN, EQUITY_SECURITY_JOIN,
+						Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, ExchangeSQL.CODE_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetEquityByIsinAndExchangeCode = con.prepareStatement(
-						"SELECT EQUITY.PRODUCT_ID ID, SECURITY.ISIN, EQUITY.TRADING_SIZE TRADING_SIZE,"
-								+ "EQUITY.TOTAL_ISSUED TOTAL_ISSUED, EQUITY.PAY_DIVIDEND PAY_DIVIDEND,"
-								+ "EQUITY.DIVIDEND_CURRENCY_ID DIVIDEND_CURRENCY_ID, EQUITY.DIVIDEND_FREQUENCY DIVIDEND_FREQUENCY, EQUITY.ACTIVE_FROM ACTIVE_FROM, EQUITY.ACTIVE_TO ACTIVE_TO, "
-								+ "PRODUCT.CREATION_DATE CREATION_DATE, SECURITY.CURRENCY_ID CURRENCY_ID, "
-								+ "SECURITY.ISSUER_ID ISSUER_ID, SECURITY.ISSUE_DATE ISSUE_DATE, SECURITY.ISSUE_PRICE, PRODUCT.EXCHANGE_ID "
-								+ "FROM EQUITY, PRODUCT, SECURITY, EXCHANGE WHERE "
-								+ "EQUITY.PRODUCT_ID = SECURITY.PRODUCT_ID"
-								+ " AND SECURITY.PRODUCT_ID = PRODUCT.ID AND SECURITY.ISIN = ?"
-								+ " AND PRODUCT.EXCHANGE_ID = EXCHANGE.ID AND EXCHANGE.CODE = ?")) {
+				PreparedStatement stmtGetEquityByIsinAndExchangeCode = con.prepareStatement(sql.toString())) {
 			stmtGetEquityByIsinAndExchangeCode.setString(1, isin);
 			stmtGetEquityByIsinAndExchangeCode.setString(2, exchangeCode);
 			try (ResultSet results = stmtGetEquityByIsinAndExchangeCode.executeQuery()) {
 				while (results.next()) {
-					equity = new Equity(ExchangeSQL.getExchangeById(results.getLong("exchange_id")),
-							results.getString("isin"));
-					equity.setId(results.getLong("id"));
-					equity.setActiveFrom(results.getDate("active_from").toLocalDate());
-					equity.setActiveTo(results.getDate("active_to").toLocalDate());
-					equity.setCreationDate(results.getDate("creation_date").toLocalDate());
-					equity.setPayDividend(results.getBoolean("pay_dividend"));
-					if (equity.isPayDividend()) {
-						equity.setDividendFrequency(Tenor.valueOf(results.getString("dividend_frequency")));
-						equity.setDividendCurrency(
-								CurrencySQL.getCurrencyById(results.getLong("dividend_currency_id")));
-					}
-					equity.setTotalIssued(results.getLong("total_issued"));
-					equity.setTradingSize(results.getLong("trading_size"));
-					equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong("issuer_id")));
-					equity.setIssueDate(results.getDate("issue_date").toLocalDate());
-					equity.setIssuePrice(results.getBigDecimal("issue_price"));
-					equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
+					equity = buildEquity(results);
 				}
 			}
 		} catch (SQLException sqle) {
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
+		return equity;
+	}
+
+	private static Equity buildEquity(ResultSet results) throws SQLException {
+		Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
+				results.getString(ISIN_FIELD.getName()));
+		equity.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
+		equity.setActiveFrom(results.getDate(ACTIVE_FROM_FIELD.getName()).toLocalDate());
+		equity.setActiveTo(results.getDate(ACTIVE_TO_FIELD.getName()).toLocalDate());
+		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+		if (creationTimestamp != null) {
+			equity.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+		}
+		equity.setPayDividend(results.getBoolean(PAY_DIVIDEND_FIELD.getName()));
+		if (equity.isPayDividend()) {
+			equity.setDividendCurrency(
+					CurrencySQL.getCurrencyById(results.getLong(DIVIDEND_CURRENCY_ID_FIELD.getName())));
+			equity.setDividendFrequency(Tenor.valueOf(results.getString(DIVIDEND_FREQUENCY_FIELD.getName())));
+		}
+		equity.setTotalIssued(results.getLong(TOTAL_ISSUED_FIELD.getName()));
+		equity.setTradingSize(results.getLong(TRADING_SIZE_FIELD.getName()));
+		equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong(ISSUER_ID_FIELD.getName())));
+		equity.setIssueDate(results.getDate(ISSUE_DATE_FIELD.getName()).toLocalDate());
+		equity.setIssuePrice(results.getBigDecimal(ISSUE_PRICE_FIELD.getName()));
+		equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
 		return equity;
 	}
 
