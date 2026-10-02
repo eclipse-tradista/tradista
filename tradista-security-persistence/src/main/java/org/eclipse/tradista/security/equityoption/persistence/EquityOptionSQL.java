@@ -94,10 +94,8 @@ public class EquityOptionSQL {
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_OPTION_PRODUCT_ID_FIELD,
 								EQUITY_OPTION_TABLE, EQUITY_OPTION_FIELDS_FOR_UPDATE)) {
 			if (equityOption.getId() == 0) {
-				stmtSaveProduct.setTimestamp(1, Timestamp
-						.from(equityOption.getCreationTime() != null ? equityOption.getCreationTime() : Instant.now()));
-				stmtSaveProduct.setTimestamp(2, Timestamp.from(
-						equityOption.getLastUpdateTime() != null ? equityOption.getLastUpdateTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(equityOption.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(equityOption.getLastUpdateTime()));
 				stmtSaveProduct.setLong(3, equityOption.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));

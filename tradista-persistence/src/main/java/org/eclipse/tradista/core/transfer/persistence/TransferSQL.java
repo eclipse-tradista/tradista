@@ -186,14 +186,8 @@ public class TransferSQL {
 		if (direction != null) {
 			builder.direction(Transfer.Direction.valueOf(direction));
 		}
-		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-		if (creationTimestamp != null) {
-			builder.creationTime(creationTimestamp.toInstant());
-		}
-		Timestamp lastUpdateTimestamp = results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
-		if (lastUpdateTimestamp != null) {
-			builder.lastUpdateTime(lastUpdateTimestamp.toInstant());
-		}
+		builder.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant());
+		builder.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
 		Timestamp fixingTimestamp = results.getTimestamp(FIXING_DATETIME_FIELD.getName());
 		if (fixingTimestamp != null) {
 			builder.fixingDateTime(fixingTimestamp.toLocalDateTime());
@@ -299,10 +293,8 @@ public class TransferSQL {
 				stmtSaveTransfer.setNull(6, java.sql.Types.BIGINT);
 			}
 			stmtSaveTransfer.setLong(7, transfer.getBook().getId());
-			stmtSaveTransfer.setTimestamp(8,
-					Timestamp.from((transfer.getCreationTime() != null) ? transfer.getCreationTime() : Instant.now()));
-			stmtSaveTransfer.setTimestamp(9, Timestamp
-					.from((transfer.getLastUpdateTime() != null) ? transfer.getLastUpdateTime() : Instant.now()));
+			stmtSaveTransfer.setTimestamp(8, Timestamp.from(transfer.getCreationTime()));
+			stmtSaveTransfer.setTimestamp(9, Timestamp.from(transfer.getLastUpdateTime()));
 			LocalDateTime fixingDateTime = transfer.getFixingDateTime();
 			if (fixingDateTime != null) {
 				stmtSaveTransfer.setTimestamp(10, Timestamp.valueOf(fixingDateTime));

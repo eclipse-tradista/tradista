@@ -121,10 +121,8 @@ public class BondSQL {
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, BOND_PRODUCT_ID_FIELD, BOND_TABLE,
 								BOND_FIELDS_FOR_UPDATE)) {
 			if (bond.getId() == 0) {
-				stmtSaveProduct.setTimestamp(1,
-						Timestamp.from(bond.getCreationTime() != null ? bond.getCreationTime() : Instant.now()));
-				stmtSaveProduct.setTimestamp(2,
-						Timestamp.from(bond.getLastUpdateTime() != null ? bond.getLastUpdateTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(bond.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(bond.getLastUpdateTime()));
 				stmtSaveProduct.setLong(3, bond.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));

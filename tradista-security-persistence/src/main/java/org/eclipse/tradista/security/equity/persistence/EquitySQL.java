@@ -111,10 +111,8 @@ public class EquitySQL {
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_PRODUCT_ID_FIELD, EQUITY_TABLE,
 								EQUITY_FIELDS_FOR_UPDATE)) {
 			if (equity.getId() == 0) {
-				stmtSaveProduct.setTimestamp(1,
-						Timestamp.from(equity.getCreationTime() != null ? equity.getCreationTime() : Instant.now()));
-				stmtSaveProduct.setTimestamp(2, Timestamp
-						.from(equity.getLastUpdateTime() != null ? equity.getLastUpdateTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(equity.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(equity.getLastUpdateTime()));
 				stmtSaveProduct.setLong(3, equity.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));

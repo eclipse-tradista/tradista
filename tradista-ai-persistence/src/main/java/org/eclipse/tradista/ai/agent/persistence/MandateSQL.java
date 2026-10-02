@@ -8,6 +8,7 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_TYPE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.START_DATE;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -56,7 +57,7 @@ public class MandateSQL {
 	private static final Field ACCEPTED_RISK_LEVEL_FIELD = new Field("ACCEPTED_RISK_LEVEL");
 	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
 	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME);
-	private static final Field START_DATE_FIELD = new Field("START_DATE");
+	private static final Field START_DATE_FIELD = new Field(START_DATE);
 	private static final Field END_DATE_FIELD = new Field(END_DATE);
 	private static final Field INITIAL_CASH_AMOUNT_FIELD = new Field("INITIAL_CASH_AMOUNT");
 	private static final Field INITIAL_CASH_CURRENCY_FIELD = new Field("INITIAL_CASH_CURRENCY");
@@ -144,10 +145,8 @@ public class MandateSQL {
 			} else {
 				stmtSaveMandate.setString(1, mandate.getName());
 				stmtSaveMandate.setString(2, mandate.getAcceptedRiskLevel().name());
-				stmtSaveMandate.setTimestamp(3, Timestamp
-						.from((mandate.getCreationTime() != null) ? mandate.getCreationTime() : Instant.now()));
-				stmtSaveMandate.setTimestamp(4, Timestamp
-						.from((mandate.getLastUpdateTime() != null) ? mandate.getLastUpdateTime() : Instant.now()));
+				stmtSaveMandate.setTimestamp(3, Timestamp.from(mandate.getCreationTime()));
+				stmtSaveMandate.setTimestamp(4, Timestamp.from(mandate.getLastUpdateTime()));
 				stmtSaveMandate.setDate(5, Date.valueOf(mandate.getStartDate()));
 				stmtSaveMandate.setDate(6, Date.valueOf(mandate.getEndDate()));
 				stmtSaveMandate.setBigDecimal(7, mandate.getInitialCashAmount());
@@ -233,14 +232,8 @@ public class MandateSQL {
 					builder.id(results.getLong(ID_FIELD.getName()));
 					builder.acceptedRiskLevel(
 							RiskLevel.valueOf(results.getString(ACCEPTED_RISK_LEVEL_FIELD.getName())));
-					Timestamp creationTime = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTime != null) {
-						builder.creationTime(creationTime.toInstant());
-					}
-					Timestamp lastUpdateTime = results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
-					if (lastUpdateTime != null) {
-						builder.lastUpdateTime(lastUpdateTime.toInstant());
-					}
+					builder.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant());
+					builder.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
 					builder.startDate(results.getDate(START_DATE_FIELD.getName()).toLocalDate());
 					builder.endDate(results.getDate(END_DATE_FIELD.getName()).toLocalDate());
 					builder.initialCashAmount(results.getBigDecimal(INITIAL_CASH_AMOUNT_FIELD.getName()));
@@ -319,14 +312,8 @@ public class MandateSQL {
 					builder.id(results.getLong(ID_FIELD.getName()));
 					builder.acceptedRiskLevel(
 							RiskLevel.valueOf(results.getString(ACCEPTED_RISK_LEVEL_FIELD.getName())));
-					Timestamp creationTime = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTime != null) {
-						builder.creationTime(creationTime.toInstant());
-					}
-					Timestamp lastUpdateTime = results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName());
-					if (lastUpdateTime != null) {
-						builder.lastUpdateTime(lastUpdateTime.toInstant());
-					}
+					builder.creationTime(results.getTimestamp(CREATION_TIME_FIELD.getName()).toInstant());
+					builder.lastUpdateTime(results.getTimestamp(LAST_UPDATE_TIME_FIELD.getName()).toInstant());
 					builder.startDate(results.getDate(START_DATE_FIELD.getName()).toLocalDate());
 					builder.endDate(results.getDate(END_DATE_FIELD.getName()).toLocalDate());
 					builder.initialCashAmount(results.getBigDecimal(INITIAL_CASH_AMOUNT_FIELD.getName()));

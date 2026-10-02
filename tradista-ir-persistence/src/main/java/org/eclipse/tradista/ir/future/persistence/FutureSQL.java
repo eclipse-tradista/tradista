@@ -171,10 +171,8 @@ public class FutureSQL {
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, FUTURE_ID_FIELD, FUTURE_TABLE,
 								FUTURE_CONTRACT_SPECIFICATION_ID_FIELD, SYMBOL_FIELD, MATURITY_DATE_FIELD)) {
 			if (future.getId() == 0) {
-				stmtSaveProduct.setTimestamp(1,
-						Timestamp.from(future.getCreationTime() != null ? future.getCreationTime() : Instant.now()));
-				stmtSaveProduct.setTimestamp(2, Timestamp
-						.from(future.getLastUpdateTime() != null ? future.getLastUpdateTime() : Instant.now()));
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(future.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(future.getLastUpdateTime()));
 				stmtSaveProduct.setLong(3, future.getExchange().getId());
 			} else {
 				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));

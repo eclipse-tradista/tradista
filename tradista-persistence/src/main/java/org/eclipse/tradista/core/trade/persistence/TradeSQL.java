@@ -273,10 +273,8 @@ public class TradeSQL {
 			int i = 1;
 			stmt.setBoolean(i++, trade.isBuy());
 			if (trade.getId() == 0) {
-				stmt.setTimestamp(i++,
-						Timestamp.from(trade.getCreationTime() != null ? trade.getCreationTime() : Instant.now()));
-				stmt.setTimestamp(i++,
-						Timestamp.from(trade.getLastUpdateTime() != null ? trade.getLastUpdateTime() : Instant.now()));
+				stmt.setTimestamp(i++, Timestamp.from(trade.getCreationTime()));
+				stmt.setTimestamp(i++, Timestamp.from(trade.getLastUpdateTime()));
 			} else {
 				stmt.setTimestamp(i++, Timestamp.from(Instant.now()));
 			}
