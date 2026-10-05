@@ -61,9 +61,10 @@ public class EquityTrade extends Trade<Equity> {
 		this.quantity = quantity;
 	}
 
+	@Override
 	public Currency getCurrency() {
 		if (getProduct() != null) {
-			return ((Equity) getProduct()).getCurrency();
+			return getProduct().getCurrency();
 		}
 		return null;
 	}

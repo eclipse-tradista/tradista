@@ -35,6 +35,7 @@ public class LoanTrade extends LoanDepositTrade {
 		super(builder);
 	}
 
+	@Override
 	public String getProductType() {
 		return LOAN;
 	}

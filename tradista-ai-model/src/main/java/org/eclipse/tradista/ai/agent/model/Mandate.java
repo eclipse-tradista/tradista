@@ -33,7 +33,7 @@ public class Mandate extends TimestampedObject {
 
 	private static final long serialVersionUID = -3997175280523902567L;
 
-	public static enum RiskLevel {
+	public enum RiskLevel {
 		VERY_LOW, LOW, AVERAGE, HIGH, VERY_HIGH;
 
 		public String toString() {

@@ -157,6 +157,7 @@ public class Future extends Product {
 		return null;
 	}
 
+	@Override
 	public Exchange getExchange() {
 		if (contractSpecification != null) {
 			return contractSpecification.getExchange();
