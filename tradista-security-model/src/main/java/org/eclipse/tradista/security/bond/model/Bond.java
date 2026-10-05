@@ -81,8 +81,151 @@ public class Bond extends Security implements Instrument {
 
 	private List<Coupon> coupons;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public Bond(Exchange exchange, String isin) {
 		super(exchange, isin);
+	}
+
+	protected Bond(Builder builder) {
+		super(builder);
+		this.coupon = builder.coupon;
+		this.maturityDate = builder.maturityDate;
+		this.principal = builder.principal;
+		this.redemptionPrice = builder.redemptionPrice;
+		this.redemptionCurrency = builder.redemptionCurrency;
+		this.datedDate = builder.datedDate;
+		this.couponType = builder.couponType;
+		this.couponFrequency = builder.couponFrequency;
+		this.referenceRateindex = builder.referenceRateindex;
+		this.cap = builder.cap;
+		this.floor = builder.floor;
+		this.spread = builder.spread;
+		this.leverageFactor = builder.leverageFactor;
+		this.coupons = builder.coupons;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder(getExchange(), getIsin());
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).issuer(getIssuer())
+				.issueDate(getIssueDate()).issuePrice(getIssuePrice()).currency(getCurrency()).coupon(this.coupon)
+				.maturityDate(this.maturityDate).principal(this.principal).redemptionPrice(this.redemptionPrice)
+				.redemptionCurrency(this.redemptionCurrency).datedDate(this.datedDate).couponType(this.couponType)
+				.couponFrequency(this.couponFrequency).referenceRateIndex(this.referenceRateindex).cap(this.cap)
+				.floor(this.floor).spread(this.spread).leverageFactor(this.leverageFactor).coupons(this.coupons);
+		return builder;
+	}
+
+	public static Builder builder(Exchange exchange, String isin) {
+		return new Builder(exchange, isin);
+	}
+
+	public static Bond of(Exchange exchange, String isin) {
+		return builder(exchange, isin).build();
+	}
+
+	public static class Builder extends Security.Builder<Bond, Builder> {
+		protected BigDecimal coupon;
+		protected LocalDate maturityDate;
+		protected BigDecimal principal;
+		protected BigDecimal redemptionPrice;
+		protected Currency redemptionCurrency;
+		protected LocalDate datedDate;
+		protected String couponType;
+		protected Tenor couponFrequency;
+		protected Index referenceRateindex;
+		protected BigDecimal cap;
+		protected BigDecimal floor;
+		protected BigDecimal spread;
+		protected BigDecimal leverageFactor;
+		protected List<Coupon> coupons;
+
+		private Builder(Exchange exchange, String isin) {
+			super(exchange, isin);
+		}
+
+		public Builder coupon(BigDecimal coupon) {
+			this.coupon = coupon;
+			return this;
+		}
+
+		public Builder maturityDate(LocalDate maturityDate) {
+			this.maturityDate = maturityDate;
+			return this;
+		}
+
+		public Builder principal(BigDecimal principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder redemptionPrice(BigDecimal redemptionPrice) {
+			this.redemptionPrice = redemptionPrice;
+			return this;
+		}
+
+		public Builder redemptionCurrency(Currency redemptionCurrency) {
+			this.redemptionCurrency = redemptionCurrency;
+			return this;
+		}
+
+		public Builder datedDate(LocalDate datedDate) {
+			this.datedDate = datedDate;
+			return this;
+		}
+
+		public Builder couponType(String couponType) {
+			this.couponType = couponType;
+			return this;
+		}
+
+		public Builder couponFrequency(Tenor couponFrequency) {
+			this.couponFrequency = couponFrequency;
+			return this;
+		}
+
+		public Builder referenceRateIndex(Index referenceRateindex) {
+			this.referenceRateindex = referenceRateindex;
+			return this;
+		}
+
+		public Builder cap(BigDecimal cap) {
+			this.cap = cap;
+			return this;
+		}
+
+		public Builder floor(BigDecimal floor) {
+			this.floor = floor;
+			return this;
+		}
+
+		public Builder spread(BigDecimal spread) {
+			this.spread = spread;
+			return this;
+		}
+
+		public Builder leverageFactor(BigDecimal leverageFactor) {
+			this.leverageFactor = leverageFactor;
+			return this;
+		}
+
+		public Builder coupons(List<Coupon> coupons) {
+			this.coupons = coupons;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public Bond build() {
+			return new Bond(this);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

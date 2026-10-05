@@ -521,9 +521,9 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 					private boolean isAvailable(LocalDate date) {
 						if (mmTrade == null) {
 							if (direction.getValue().equals(Direction.LOAN)) {
-								mmTrade = new LoanTrade();
+								mmTrade = LoanTrade.create();
 							} else {
-								mmTrade = new DepositTrade();
+								mmTrade = DepositTrade.create();
 							}
 							mmTrade.setCurrency(currency.getValue());
 						}
@@ -613,14 +613,11 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 
 				buildTrade();
 				oldTradeId = trade.getId();
-				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				trade.setId(loanDepositTradeBusinessDelegate.saveLoanDepositTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -722,9 +719,9 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 	private LoanDepositTrade buildTrade() {
 		if (this.trade == null) {
 			if (direction.getValue().equals(LoanDepositTrade.Direction.LOAN)) {
-				trade = new LoanTrade();
+				trade = LoanTrade.create();
 			} else {
-				trade = new DepositTrade();
+				trade = DepositTrade.create();
 			}
 		}
 		try {

@@ -2,7 +2,7 @@ package org.eclipse.tradista.core.message.model;
 
 import java.time.Instant;
 
-import org.eclipse.tradista.core.common.model.TradistaObject;
+import org.eclipse.tradista.core.common.model.TimestampedObject;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.WorkflowObject;
 
@@ -22,7 +22,7 @@ import org.eclipse.tradista.core.workflow.model.WorkflowObject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public abstract class Message extends TradistaObject implements WorkflowObject {
+public abstract class Message extends TimestampedObject implements WorkflowObject {
 
 	private static final long serialVersionUID = -625696923557029488L;
 
@@ -34,10 +34,6 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	private String type;
 
-	private Instant creationTime;
-
-	private Instant lastUpdateTime;
-
 	private String content;
 
 	private Status status;
@@ -45,15 +41,13 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 	private String interfaceName;
 
 	protected Message(Builder<?, ?> builder) {
-		setId(builder.id);
+		super(builder);
 		this.objectId = builder.objectId;
 		this.objectType = builder.objectType;
 		this.type = builder.type;
 		this.content = builder.content;
 		this.status = builder.status;
 		this.interfaceName = builder.interfaceName;
-		this.creationTime = (builder.creationTime != null) ? builder.creationTime : Instant.now();
-		this.lastUpdateTime = (builder.lastUpdateTime != null) ? builder.lastUpdateTime : Instant.now();
 	}
 
 	public abstract Builder<?, ?> toBuilder();
@@ -68,14 +62,6 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 	public String getType() {
 		return type;
-	}
-
-	public Instant getCreationTime() {
-		return creationTime;
-	}
-
-	public Instant getLastUpdateTime() {
-		return lastUpdateTime;
 	}
 
 	public String getContent() {
@@ -106,25 +92,14 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 		return status;
 	}
 
-	public abstract static class Builder<T extends Message, B extends Builder<T, B>> {
-		protected long id;
+	public abstract static class Builder<T extends Message, B extends Builder<T, B>>
+			extends TimestampedObject.Builder<T, B> {
 		protected long objectId;
 		protected String objectType;
 		protected String type;
 		protected String content;
 		protected Status status;
-		protected Instant creationTime;
-		protected Instant lastUpdateTime;
 		protected String interfaceName;
-
-		protected abstract B self();
-
-		public abstract T build();
-
-		public B id(long id) {
-			this.id = id;
-			return self();
-		}
 
 		public B objectId(long objectId) {
 			this.objectId = objectId;
@@ -153,16 +128,6 @@ public abstract class Message extends TradistaObject implements WorkflowObject {
 
 		public B interfaceName(String name) {
 			this.interfaceName = name;
-			return self();
-		}
-
-		public B creationTime(Instant ct) {
-			this.creationTime = ct;
-			return self();
-		}
-
-		public B lastUpdateTime(Instant lut) {
-			this.lastUpdateTime = lut;
 			return self();
 		}
 	}

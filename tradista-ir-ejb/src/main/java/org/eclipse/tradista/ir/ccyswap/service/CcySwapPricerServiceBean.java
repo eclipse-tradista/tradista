@@ -169,14 +169,11 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 					params.getName(), trade.getCurrencyTwo()));
 		}
 
-		CcySwapTrade swap = new CcySwapTrade();
-		swap.setNotionalAmountTwo(BigDecimal.ONE);
-		swap.setCurrencyTwo(trade.getCurrencyTwo());
-		swap.setPaymentFrequency(trade.getPaymentFrequency());
-		swap.setPaymentFixedInterestRate(trade.getPaymentFixedInterestRate());
-		swap.setPaymentDayCountConvention(trade.getPaymentDayCountConvention());
-		swap.setMaturityDate(trade.getMaturityDate());
-		swap.setSettlementDate(trade.getSettlementDate());
+		CcySwapTrade swap = CcySwapTrade.builder().notionalAmountTwo(BigDecimal.ONE).currencyTwo(trade.getCurrencyTwo())
+				.paymentFrequency(trade.getPaymentFrequency())
+				.paymentFixedInterestRate(trade.getPaymentFixedInterestRate())
+				.paymentDayCountConvention(trade.getPaymentDayCountConvention()).maturityDate(trade.getMaturityDate())
+				.settlementDate(trade.getSettlementDate()).build();
 		InterestRateCurve indexCurve = params.getIndexCurves().get(trade.getPaymentReferenceRateIndex());
 		if (indexCurve == null) {
 			throw new TradistaBusinessException(String.format(

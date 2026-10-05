@@ -88,7 +88,7 @@ public class TradeReportController extends TradistaControllerAdapter {
 		tradeDate.setCellValueFactory(cellData -> cellData.getValue().getTradeDate());
 		productId.setCellValueFactory(cellData -> cellData.getValue().getProductId());
 		productType.setCellValueFactory(cellData -> cellData.getValue().getProductType());
-		creationDate.setCellValueFactory(cellData -> cellData.getValue().getTradeDate());
+		creationDate.setCellValueFactory(cellData -> cellData.getValue().getCreationDate());
 		counterparty.setCellValueFactory(cellData -> cellData.getValue().getCounterparty());
 	}
 

@@ -1,7 +1,9 @@
 package org.eclipse.tradista.security.equityoption.transfer;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,43 +171,32 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 	}
 
 	private CashTransfer createNewCashSettlementTransfer(EquityOptionTrade trade) {
-		CashTransfer cashSettlementTransfer = new CashTransfer(trade.getBook(), TransferPurpose.CASH_SETTLEMENT,
-				trade.getExerciseDate(), trade, trade.getUnderlying().getCurrency());
-		cashSettlementTransfer.setCreationDateTime(LocalDateTime.now());
-		cashSettlementTransfer.setFixingDateTime(trade.getExerciseDate().atStartOfDay());
-		cashSettlementTransfer.setStatus(Transfer.Status.UNKNOWN);
+		CashTransfer cashSettlementTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getExerciseDate(),
+						trade.getUnderlying().getCurrency())
+				.trade(trade).fixingDateTime(trade.getExerciseDate().atStartOfDay()).status(Transfer.Status.UNKNOWN)
+				.build();
 
 		return cashSettlementTransfer;
 	}
 
 	private CashTransfer createNewPremiumTransfer(EquityOptionTrade trade) {
-		CashTransfer premiumTransfer = new CashTransfer(trade.getBook(), TransferPurpose.PREMIUM,
-				trade.getSettlementDate(), trade, trade.getCurrency());
-		premiumTransfer.setCreationDateTime(LocalDateTime.now());
-		premiumTransfer.setFixingDateTime(LocalDateTime.now());
-		premiumTransfer.setStatus(Transfer.Status.KNOWN);
-		premiumTransfer.setAmount(trade.getAmount());
-		if (trade.isBuy()) {
-			premiumTransfer.setDirection(Transfer.Direction.PAY);
-		} else {
-			premiumTransfer.setDirection(Transfer.Direction.RECEIVE);
-		}
+		CashTransfer premiumTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
+				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
+				.quantityOrAmount(trade.getAmount())
+				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 
 		return premiumTransfer;
 	}
 
 	private ProductTransfer createNewEquityOptionSettlementTransfer(EquityOptionTrade trade) {
-		ProductTransfer eqOptionSettlementTransfer = new ProductTransfer(trade.getBook(),
-				TransferPurpose.EQUITY_OPTION_SETTLEMENT, trade.getSettlementDate(), trade);
-		eqOptionSettlementTransfer.setCreationDateTime(LocalDateTime.now());
-		eqOptionSettlementTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		eqOptionSettlementTransfer.setStatus(Transfer.Status.KNOWN);
-		eqOptionSettlementTransfer.setQuantity(trade.getQuantity());
-		if (trade.isBuy()) {
-			eqOptionSettlementTransfer.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			eqOptionSettlementTransfer.setDirection(Transfer.Direction.PAY);
-		}
+		ProductTransfer eqOptionSettlementTransfer = ProductTransfer
+				.builder(trade.getBook(), TransferPurpose.EQUITY_OPTION_SETTLEMENT, trade.getSettlementDate())
+				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+				.quantityOrAmount(trade.getQuantity())
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).build();
 
 		return eqOptionSettlementTransfer;
 	}

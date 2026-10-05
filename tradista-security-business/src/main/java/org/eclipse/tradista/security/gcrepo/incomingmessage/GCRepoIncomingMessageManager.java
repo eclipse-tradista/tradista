@@ -35,8 +35,7 @@ public interface GCRepoIncomingMessageManager<X> extends RepoIncomingMessageMana
 
 	@Override
 	public default GCRepoTrade createObject(X externalMessage) {
-		GCRepoTrade trade = new GCRepoTrade();
-		trade.setGcBasket(getBasket(externalMessage));
+		GCRepoTrade trade = GCRepoTrade.builder().gcBasket(getBasket(externalMessage)).build();
 		fillObject(externalMessage, trade);
 		return trade;
 	}

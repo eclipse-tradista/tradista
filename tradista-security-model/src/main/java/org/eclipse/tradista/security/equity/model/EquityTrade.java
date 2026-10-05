@@ -1,6 +1,7 @@
 package org.eclipse.tradista.security.equity.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.trade.model.Trade;
@@ -32,13 +33,24 @@ public class EquityTrade extends Trade<Equity> {
 
 	private BigDecimal quantity;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public EquityTrade(Equity product) {
 		super(product);
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public EquityTrade() {
-		super();
+	}
+
+	protected EquityTrade(Builder builder) {
+		super(builder);
+		this.quantity = builder.quantity;
 	}
 
 	public BigDecimal getQuantity() {
@@ -49,11 +61,60 @@ public class EquityTrade extends Trade<Equity> {
 		this.quantity = quantity;
 	}
 
+	@Override
 	public Currency getCurrency() {
 		if (getProduct() != null) {
-			return ((Equity) getProduct()).getCurrency();
+			return getProduct().getCurrency();
 		}
 		return null;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).quantity(this.quantity);
+		return builder;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static EquityTrade create() {
+		return builder().build();
+	}
+
+	public static EquityTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static EquityTrade of(Equity equity) {
+		return builder().product(equity).build();
+	}
+
+	public static class Builder extends Trade.Builder<Equity, EquityTrade, Builder> {
+		private Builder() {
+		}
+
+		protected BigDecimal quantity;
+
+		public Builder quantity(BigDecimal quantity) {
+			this.quantity = quantity;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public EquityTrade build() {
+			return new EquityTrade(this);
+		}
 	}
 
 }

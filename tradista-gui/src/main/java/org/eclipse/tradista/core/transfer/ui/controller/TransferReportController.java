@@ -159,7 +159,8 @@ public class TransferReportController extends TradistaControllerAdapter {
 
 		id.setCellValueFactory(new PropertyValueFactory<>("id"));
 
-		creationDate.setCellValueFactory(new PropertyValueFactory<>("creationDateTime"));
+		creationDate.setCellValueFactory(
+				t -> new ReadOnlyObjectWrapper<>(TradistaGUIUtil.formatInstant(t.getValue().getCreationTime())));
 
 		settlementDate.setCellValueFactory(new PropertyValueFactory<>("settlementDate"));
 

@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.future.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -11,26 +12,22 @@ import org.eclipse.tradista.core.marketdata.model.Instrument;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.ir.irforward.model.IRForwardTrade;
 
-/*
- * Copyright 2015 Olivier Asuncion
+/********************************************************************************
+ * Copyright (c) 2015 Olivier Asuncion
  * 
- * Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.    */
-/**
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ * 
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+/*
  * Class representing futures trades.
  * 
  * Amount : trade price = 100 * (1 - negotiated rate)
@@ -39,10 +36,19 @@ under the License.    */
  */
 public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7130145836929238705L;
+
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public FutureTrade() {
+	}
+
+	protected FutureTrade(Builder builder) {
+		super(builder);
+		this.quantity = builder.quantity;
+	}
 
 	private BigDecimal quantity;
 
@@ -142,4 +148,61 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 		// the
 		// product (it is the future maturity date).
 	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).maturityDate(getMaturityDate()).frequency(getFrequency())
+				.interestPayment(getInterestPayment()).interestFixing(getInterestFixing())
+				.referenceRateIndex(getReferenceRateIndex()).referenceRateIndexTenor(getReferenceRateIndexTenor())
+				.dayCountConvention(getDayCountConvention()).quantity(this.quantity);
+		return builder;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FutureTrade create() {
+		return builder().build();
+	}
+
+	public static FutureTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static FutureTrade of(Future future) {
+		return builder().future(future).build();
+	}
+
+	public static class Builder extends IRForwardTrade.Builder<Future, FutureTrade, Builder> {
+		private Builder() {
+		}
+
+		protected BigDecimal quantity;
+
+		public Builder quantity(BigDecimal quantity) {
+			this.quantity = quantity;
+			return this;
+		}
+
+		public Builder future(Future future) {
+			this.product = future;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public FutureTrade build() {
+			return new FutureTrade(this);
+		}
+	}
+
 }

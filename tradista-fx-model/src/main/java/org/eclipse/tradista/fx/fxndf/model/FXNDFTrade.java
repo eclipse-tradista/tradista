@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxndf.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -26,6 +27,19 @@ import org.eclipse.tradista.fx.common.model.AbstractFXTrade;
 public class FXNDFTrade extends AbstractFXTrade<Product> {
 
 	private static final long serialVersionUID = -4927177189578884165L;
+
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public FXNDFTrade() {
+	}
+
+	protected FXNDFTrade(Builder builder) {
+		super(builder);
+		this.nonDeliverableCurrency = builder.nonDeliverableCurrency;
+		this.ndfRate = builder.ndfRate;
+	}
 
 	public static final String FX_NDF = "FXNDF";
 
@@ -59,6 +73,57 @@ public class FXNDFTrade extends AbstractFXTrade<Product> {
 		FXNDFTrade fxNdfTrade = (FXNDFTrade) super.clone();
 		fxNdfTrade.nonDeliverableCurrency = TradistaModelUtil.clone(nonDeliverableCurrency);
 		return fxNdfTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).nonDeliverableCurrency(this.nonDeliverableCurrency)
+				.ndfRate(this.ndfRate);
+		return builder;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FXNDFTrade create() {
+		return builder().build();
+	}
+
+	public static FXNDFTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static class Builder extends AbstractFXTrade.Builder<Product, FXNDFTrade, Builder> {
+		private Builder() {
+		}
+
+		protected Currency nonDeliverableCurrency;
+		protected BigDecimal ndfRate;
+
+		public Builder nonDeliverableCurrency(Currency nonDeliverableCurrency) {
+			this.nonDeliverableCurrency = nonDeliverableCurrency;
+			return this;
+		}
+
+		public Builder ndfRate(BigDecimal ndfRate) {
+			this.ndfRate = ndfRate;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public FXNDFTrade build() {
+			return new FXNDFTrade(this);
+		}
 	}
 
 }

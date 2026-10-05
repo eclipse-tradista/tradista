@@ -23,4 +23,19 @@ public abstract class AbstractFXTrade<P extends Product> extends Trade<Product> 
 
 	private static final long serialVersionUID = 7992237300387339457L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public AbstractFXTrade() {
+	}
+
+	protected AbstractFXTrade(Builder<P, ?, ?> builder) {
+		super(builder);
+	}
+
+	public abstract static class Builder<P extends Product, T extends AbstractFXTrade<P>, B extends Builder<P, T, B>>
+			extends Trade.Builder<Product, T, B> {
+	}
+
 }

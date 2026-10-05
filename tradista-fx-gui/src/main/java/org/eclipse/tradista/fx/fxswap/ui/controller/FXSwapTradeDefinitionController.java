@@ -465,7 +465,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 					private boolean isAvailable(LocalDate date) {
 						boolean isAvailable = true;
 						if (fxSwapTrade == null) {
-							fxSwapTrade = new FXSwapTrade();
+							fxSwapTrade = FXSwapTrade.create();
 							fxSwapTrade.setCurrency(currencyTwo.getValue());
 							fxSwapTrade.setCurrencyOne(currencyOne.getValue());
 						}
@@ -496,7 +496,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxSwapTrade == null) {
-							fxSwapTrade = new FXSwapTrade();
+							fxSwapTrade = FXSwapTrade.create();
 							fxSwapTrade.setCurrency(currencyTwo.getValue());
 							fxSwapTrade.setCurrencyOne(currencyOne.getValue());
 						}
@@ -588,21 +588,17 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 				buildTrade();
 				oldTradeId = trade.getId();
-				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				trade.setId(fxSwapTradeBusinessDelegate.saveFXSwapTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -689,7 +685,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXSwapTrade();
+			trade = FXSwapTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

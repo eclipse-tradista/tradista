@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.fra.validator;
 
+import java.util.Arrays;
+
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.index.service.IndexBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.validator.DefaultQuoteValidator;
@@ -42,15 +44,19 @@ public class FRAQuoteValidator extends DefaultQuoteValidator {
 		if (new IndexBusinessDelegate().getIndexByName(data[1]) == null) {
 			errMsg.append(String.format("The Index (%s) must exist in the system.%n.", data[1]));
 		}
-		if (Tenor.valueOf(data[2]) == null) {
-			errMsg.append(
-					String.format("The waiting period (%s) must be a valid Tenor: %s%n.", data[2], Tenor.values()));
+		try {
+			Tenor.valueOf(data[2]);
+		} catch (IllegalArgumentException _) {
+			errMsg.append(String.format("The waiting period (%s) must be a valid Tenor: %s%n.", data[2],
+					Arrays.toString(Tenor.values())));
 		}
-		if (Tenor.valueOf(data[3]) == null) {
-			errMsg.append(
-					String.format("The contract period (%s) must be a valid Tenor: %s%n.", data[2], Tenor.values()));
+		try {
+			Tenor.valueOf(data[3]);
+		} catch (IllegalArgumentException _) {
+			errMsg.append(String.format("The contract period (%s) must be a valid Tenor: %s%n.", data[3],
+					Arrays.toString(Tenor.values())));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

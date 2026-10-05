@@ -37,13 +37,69 @@ public class Future extends Product {
 	@Id
 	private FutureContractSpecification contractSpecification;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public Future(String symbol, FutureContractSpecification futureContractSpecification) {
 		super(futureContractSpecification != null ? futureContractSpecification.getExchange() : null);
 		this.symbol = symbol;
 		this.contractSpecification = futureContractSpecification;
 	}
 
+	protected Future(Builder builder) {
+		super(builder);
+		this.symbol = builder.symbol;
+		this.contractSpecification = builder.contractSpecification;
+		this.maturityDate = builder.maturityDate;
+	}
+
 	private LocalDate maturityDate;
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder(this.symbol, this.contractSpecification);
+		builder.id(this.getId()).exchange(this.getExchange()).creationTime(this.getCreationTime())
+				.lastUpdateTime(this.getLastUpdateTime()).maturityDate(this.maturityDate);
+		return builder;
+	}
+
+	public static Builder builder(String symbol, FutureContractSpecification contractSpecification) {
+		return new Builder(symbol, contractSpecification);
+	}
+
+	public static Future of(String symbol, FutureContractSpecification contractSpecification) {
+		return builder(symbol, contractSpecification).build();
+	}
+
+	public static class Builder extends Product.Builder<Future, Builder> {
+		protected String symbol;
+		protected FutureContractSpecification contractSpecification;
+		protected LocalDate maturityDate;
+
+		private Builder(String symbol, FutureContractSpecification contractSpecification) {
+			this.symbol = symbol;
+			this.contractSpecification = contractSpecification;
+			if (contractSpecification != null) {
+				this.exchange = contractSpecification.getExchange();
+			}
+		}
+
+		public Builder maturityDate(LocalDate maturityDate) {
+			this.maturityDate = maturityDate;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public Future build() {
+			return new Future(this);
+		}
+	}
 
 	public String getSymbol() {
 		return symbol;
@@ -101,6 +157,7 @@ public class Future extends Product {
 		return null;
 	}
 
+	@Override
 	public Exchange getExchange() {
 		if (contractSpecification != null) {
 			return contractSpecification.getExchange();

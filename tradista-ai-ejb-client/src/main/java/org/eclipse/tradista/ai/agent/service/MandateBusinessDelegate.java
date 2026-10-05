@@ -73,7 +73,7 @@ public class MandateBusinessDelegate {
 			checkAllocation(mandate.getProductTypeAllocations(), errMsg, "product type allocation");
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

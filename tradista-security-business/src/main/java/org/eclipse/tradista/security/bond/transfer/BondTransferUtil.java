@@ -55,50 +55,44 @@ public final class BondTransferUtil {
 		LocalDate datedDate = bond.getDatedDate();
 		LocalDate couponDate = trade.getSettlementDate();
 
-		CashTransfer notionalPaid = new CashTransfer(trade.getBook(), TransferPurpose.BOND_PAYMENT,
-				trade.getSettlementDate(), trade, bond.getCurrency());
-		notionalPaid.setCreationDateTime(LocalDateTime.now(ZoneId.systemDefault()));
-		if (trade.isBuy()) {
-			notionalPaid.setDirection(Transfer.Direction.PAY);
-		} else {
-			notionalPaid.setDirection(Transfer.Direction.RECEIVE);
-		}
-		notionalPaid.setAmount(trade.getAmount().multiply(trade.getQuantity()));
-		notionalPaid.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		notionalPaid.setStatus(Transfer.Status.KNOWN);
+		CashTransfer notionalPaid = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.BOND_PAYMENT, trade.getSettlementDate(), bond.getCurrency())
+				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+				.quantityOrAmount(trade.getAmount().multiply(trade.getQuantity()))
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).build();
 		cts.add(notionalPaid);
 
 		// We try to calculate the coupons only if the bond is not a ZC
 		if (!bond.getCouponFrequency().equals(Tenor.NO_TENOR)) {
 			while (!couponDate.isAfter(bond.getMaturityDate())) {
 				if (couponDate.isAfter(datedDate)) {
-					CashTransfer coupon = new CashTransfer(trade.getBook(), bond, TransferPurpose.COUPON, couponDate,
-							bond.getCurrency());
-					coupon.setCreationDateTime(LocalDateTime.now(ZoneId.systemDefault()));
+					CashTransfer.Builder couponBuilder = CashTransfer
+							.builder(trade.getBook(), bond, TransferPurpose.COUPON, couponDate, bond.getCurrency())
+							.trade(trade);
 					if (bond.getCouponType().equals(FIXED)) {
-						coupon.setDirection(Transfer.Direction.RECEIVE);
-						coupon.setAmount(trade.getQuantity().multiply(
+						couponBuilder.direction(Transfer.Direction.RECEIVE);
+						couponBuilder.quantityOrAmount(trade.getQuantity().multiply(
 								bond.getPrincipal().multiply(bond.getCoupon().divide(BigDecimal.valueOf(100)))));
-						coupon.setFixingDateTime(bond.getIssueDate().atStartOfDay());
-						coupon.setStatus(Transfer.Status.KNOWN);
+						couponBuilder.fixingDateTime(bond.getIssueDate().atStartOfDay());
+						couponBuilder.status(Transfer.Status.KNOWN);
 					} else {
-						coupon.setFixingDateTime(couponDate.atStartOfDay());
-						coupon.setStatus(Transfer.Status.UNKNOWN);
+						couponBuilder.fixingDateTime(couponDate.atStartOfDay());
+						couponBuilder.status(Transfer.Status.UNKNOWN);
 					}
-					cts.add(coupon);
+					cts.add(couponBuilder.build());
 				}
 
 				couponDate = DateUtil.addTenor(couponDate, frequency);
 			}
 		}
 
-		CashTransfer notionalPaidBack = new CashTransfer(trade.getBook(), TransferPurpose.NOTIONAL_REPAYMENT,
-				bond.getMaturityDate(), trade, bond.getCurrency());
-		notionalPaidBack.setCreationDateTime(LocalDateTime.now(ZoneId.systemDefault()));
-		notionalPaidBack.setDirection(Transfer.Direction.RECEIVE);
-		notionalPaidBack.setAmount(bond.getPrincipal().multiply(trade.getQuantity()));
-		notionalPaidBack.setFixingDateTime(bond.getIssueDate().atStartOfDay());
-		notionalPaidBack.setStatus(Transfer.Status.KNOWN);
+		CashTransfer notionalPaidBack = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.NOTIONAL_REPAYMENT, bond.getMaturityDate(),
+						bond.getCurrency())
+				.trade(trade).direction(Transfer.Direction.RECEIVE)
+				.quantityOrAmount(bond.getPrincipal().multiply(trade.getQuantity()))
+				.fixingDateTime(bond.getIssueDate().atStartOfDay()).status(Transfer.Status.KNOWN).build();
 		cts.add(notionalPaidBack);
 
 		return cts;

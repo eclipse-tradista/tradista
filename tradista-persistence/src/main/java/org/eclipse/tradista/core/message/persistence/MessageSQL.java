@@ -125,9 +125,9 @@ public class MessageSQL {
 					Message.Builder<? extends Message, ?> builder;
 					boolean incoming = results.getBoolean(INCOMING_FIELD.getName());
 					if (incoming) {
-						builder = new IncomingMessage.Builder();
+						builder = IncomingMessage.builder();
 					} else {
-						builder = new OutgoingMessage.Builder();
+						builder = OutgoingMessage.builder();
 					}
 					builder.id(results.getLong(ID)).objectId(results.getLong(OBJECT_ID_FIELD.getName()))
 							.objectType(results.getString(OBJECT_TYPE_FIELD.getName()))
@@ -182,9 +182,9 @@ public class MessageSQL {
 					Message.Builder<? extends Message, ?> builder;
 					boolean incoming = results.getBoolean(INCOMING_FIELD.getName());
 					if (incoming) {
-						builder = new IncomingMessage.Builder();
+						builder = IncomingMessage.builder();
 					} else {
-						builder = new OutgoingMessage.Builder();
+						builder = OutgoingMessage.builder();
 					}
 					builder.id(results.getLong(ID_FIELD.getName())).objectId(results.getLong(OBJECT_ID_FIELD.getName()))
 							.objectType(results.getString(OBJECT_TYPE_FIELD.getName()))

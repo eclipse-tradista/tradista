@@ -57,7 +57,7 @@ public class IRSwapTradeBootstrapHandler implements BootstrapHandler {
 		String maturity = prop[2];
 		LocalDate maturityDate = null;
 
-		SingleCurrencyIRSwapTrade irSwap = new SingleCurrencyIRSwapTrade();
+		SingleCurrencyIRSwapTrade irSwap = SingleCurrencyIRSwapTrade.create();
 		try {
 			irSwap.setReceptionReferenceRateIndex(new IndexBusinessDelegate().getIndexByName(indexName));
 		} catch (TradistaBusinessException e) {

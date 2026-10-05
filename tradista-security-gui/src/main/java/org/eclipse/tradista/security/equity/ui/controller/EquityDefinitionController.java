@@ -1,7 +1,5 @@
 package org.eclipse.tradista.security.equity.ui.controller;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -264,8 +262,7 @@ public class EquityDefinitionController implements TradistaController {
 				checkAmounts();
 
 				if (isin.isVisible()) {
-					equity = new Equity(exchange.getValue(), isin.getText());
-					equity.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
+					equity = Equity.of(exchange.getValue(), isin.getText());
 				}
 
 				buildProduct(equity);
@@ -295,7 +292,7 @@ public class EquityDefinitionController implements TradistaController {
 			try {
 				Equity copyEquity = null;
 				checkAmounts();
-				copyEquity = new Equity(result.get().getExchange(), result.get().getIsin());
+				copyEquity = Equity.of(result.get().getExchange(), result.get().getIsin());
 				buildProduct(copyEquity);
 				copyEquity.setId(equityBusinessDelegate.saveEquity(copyEquity));
 				equity = copyEquity;

@@ -595,7 +595,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 			private boolean isAvailable(LocalDate date) {
 				if (irSwapTrade == null) {
-					irSwapTrade = new SingleCurrencyIRSwapTrade();
+					irSwapTrade = SingleCurrencyIRSwapTrade.create();
 					irSwapTrade.setCurrency(currency.getValue());
 				}
 
@@ -667,22 +667,18 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
 				buildTrade();
-				oldCreationDate = trade.getCreationDate();
 				oldTradeId = trade.getId();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				trade.setId(irSwapTradeBusinessDelegate.saveIRSwapTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
@@ -789,7 +785,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new SingleCurrencyIRSwapTrade();
+			trade = SingleCurrencyIRSwapTrade.create();
 		}
 		try {
 			if (!notionalAmount.getText().isEmpty()) {

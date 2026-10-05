@@ -1,7 +1,9 @@
 package org.eclipse.tradista.security.equity.transfer;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,17 +148,12 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 	}
 
 	private ProductTransfer createNewEquitySettlement(EquityTrade trade) {
-		ProductTransfer productTransfer = new ProductTransfer(trade.getBook(), TransferPurpose.EQUITY_SETTLEMENT,
-				trade.getSettlementDate(), trade);
-		productTransfer.setCreationDateTime(LocalDateTime.now());
-		if (trade.isBuy()) {
-			productTransfer.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			productTransfer.setDirection(Transfer.Direction.PAY);
-		}
-		productTransfer.setQuantity(trade.getQuantity());
-		productTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		productTransfer.setStatus(Transfer.Status.KNOWN);
+		ProductTransfer productTransfer = ProductTransfer
+				.builder(trade.getBook(), TransferPurpose.EQUITY_SETTLEMENT, trade.getSettlementDate()).trade(trade)
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+				.quantityOrAmount(trade.getQuantity())
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).build();
 
 		return productTransfer;
 	}
@@ -190,17 +187,13 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 
 	private CashTransfer createNewEquityPayment(EquityTrade trade) {
 
-		CashTransfer payment = new CashTransfer(trade.getBook(), TransferPurpose.EQUITY_PAYMENT,
-				trade.getSettlementDate(), trade, trade.getCurrency());
-		payment.setCreationDateTime(LocalDateTime.now());
-		if (trade.isBuy()) {
-			payment.setDirection(Transfer.Direction.PAY);
-		} else {
-			payment.setDirection(Transfer.Direction.RECEIVE);
-		}
-		payment.setAmount(trade.getAmount().multiply(trade.getQuantity()));
-		payment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		payment.setStatus(Transfer.Status.KNOWN);
+		CashTransfer payment = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.EQUITY_PAYMENT, trade.getSettlementDate(),
+						trade.getCurrency())
+				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+				.quantityOrAmount(trade.getAmount().multiply(trade.getQuantity()))
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).build();
 
 		return payment;
 	}

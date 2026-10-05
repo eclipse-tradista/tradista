@@ -63,7 +63,7 @@ public class FRABootstrapHandler implements BootstrapHandler {
 		LocalDate maturityDate = null;
 		LocalDate settlementDate = null;
 
-		FRATrade fra = new FRATrade();
+		FRATrade fra = FRATrade.create();
 		try {
 			fra.setReferenceRateIndex(new IndexBusinessDelegate().getIndexByName(indexName));
 		} catch (TradistaBusinessException e) {

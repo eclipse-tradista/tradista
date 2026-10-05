@@ -3,6 +3,7 @@ package org.eclipse.tradista.mm.loandeposit.transfer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,36 +98,39 @@ public final class LoanDepositTransferUtil {
 
 	private static CashTransfer createInterestPayment(LoanDepositTrade mmTrade, LocalDate settlementDate,
 			LocalDate fixingDate, LocalDate endOfPeriod) {
+		CashTransfer.Builder builder = CashTransfer
+				.builder(mmTrade.getBook(), TransferPurpose.INTEREST_PAYMENT, settlementDate, mmTrade.getCurrency())
+				.trade(mmTrade);
 		BigDecimal paymentAmount = null;
-		CashTransfer ct = new CashTransfer(mmTrade.getBook(), TransferPurpose.INTEREST_PAYMENT, settlementDate, mmTrade,
-				mmTrade.getCurrency());
-		ct.setCreationDateTime(LocalDateTime.now());
 		if (mmTrade.isFixed()) {
 			try {
 				paymentAmount = loanDepositBusinessDelegate.getPaymentAmount(mmTrade, fixingDate, endOfPeriod, 0, 0);
 			} catch (TradistaBusinessException pe) {
 				// Should not happen here.
 			}
-			ct.setAmount(paymentAmount);
-			ct.setFixingDateTime(mmTrade.getCreationDate().atStartOfDay());
+			builder.quantityOrAmount(paymentAmount);
+			builder.fixingDateTime(
+					LocalDate.ofInstant(mmTrade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay());
 			if (mmTrade.getProductType().equals(LoanTrade.LOAN)) {
 				if (mmTrade.isBuy()) {
-					ct.setDirection(Transfer.Direction.PAY);
+					builder.direction(Transfer.Direction.PAY);
 				} else {
-					ct.setDirection(Transfer.Direction.RECEIVE);
+					builder.direction(Transfer.Direction.RECEIVE);
 				}
 			} else {
 				if (mmTrade.isSell()) {
-					ct.setDirection(Transfer.Direction.PAY);
+					builder.direction(Transfer.Direction.PAY);
 				} else {
-					ct.setDirection(Transfer.Direction.RECEIVE);
+					builder.direction(Transfer.Direction.RECEIVE);
 				}
 			}
-			ct.setStatus(Transfer.Status.KNOWN);
+			builder.status(Transfer.Status.KNOWN);
 		} else {
-			ct.setFixingDateTime(fixingDate.atStartOfDay());
-			ct.setStatus(Transfer.Status.UNKNOWN);
+			builder.fixingDateTime(fixingDate.atStartOfDay());
+			builder.status(Transfer.Status.UNKNOWN);
 		}
+
+		CashTransfer ct = builder.build();
 
 		return ct;
 	}

@@ -71,7 +71,7 @@ public class GCRepoTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (gcRepoTrade == null) {
-						gcRepoTrade = new GCRepoTrade();
+						gcRepoTrade = GCRepoTrade.of(TradeSQL.getCreationTime(results));
 					}
 					TradeSQL.setTradeCommonFields(gcRepoTrade, results);
 					RepoTradeSQL.setRepoTradeCommonFields(gcRepoTrade, results);
@@ -130,7 +130,8 @@ public class GCRepoTradeSQL {
 
 		GCRepoTrade gcRepoTrade = null;
 		try {
-			gcRepoTrade = RepoTradeSQL.fillTrade(rs, new GCRepoTrade(), rs.getLong(GCREPO_TRADE_ID_FIELD.getName()));
+			gcRepoTrade = RepoTradeSQL.fillTrade(rs, GCRepoTrade.of(TradeSQL.getCreationTime(rs)),
+					rs.getLong(GCREPO_TRADE_ID_FIELD.getName()));
 			if (gcRepoTrade != null) {
 				gcRepoTrade.setGcBasket(GCBasketSQL.getGCBasketById(rs.getLong(GCBASKET_ID_FIELD.getName())));
 			}

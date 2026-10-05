@@ -130,27 +130,21 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 	}
 
 	private CashTransfer createNewCashSettlementTransfer(FXOptionTrade trade) throws TradistaBusinessException {
-		CashTransfer cashSettlementTransfer = new CashTransfer(trade.getBook(), TransferPurpose.CASH_SETTLEMENT,
-				trade.getUnderlyingSettlementDate(), trade, trade.getUnderlying().getCurrencyOne());
-		cashSettlementTransfer.setCreationDateTime(LocalDateTime.now());
-		cashSettlementTransfer.setFixingDateTime(trade.getExerciseDate().atStartOfDay());
-		cashSettlementTransfer.setStatus(Transfer.Status.UNKNOWN);
+		CashTransfer cashSettlementTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getUnderlyingSettlementDate(),
+						trade.getUnderlying().getCurrencyOne())
+				.trade(trade).fixingDateTime(trade.getExerciseDate().atStartOfDay()).status(Transfer.Status.UNKNOWN)
+				.build();
 
 		return cashSettlementTransfer;
 	}
 
 	private CashTransfer createNewPremiumTransfer(FXOptionTrade trade) throws TradistaBusinessException {
-		CashTransfer premiumTransfer = new CashTransfer(trade.getBook(), TransferPurpose.PREMIUM,
-				trade.getSettlementDate(), trade, trade.getCurrency());
-		premiumTransfer.setCreationDateTime(LocalDateTime.now());
-		premiumTransfer.setFixingDateTime(LocalDateTime.now());
-		premiumTransfer.setStatus(Transfer.Status.KNOWN);
-		premiumTransfer.setAmount(trade.getAmount());
-		if (trade.isBuy()) {
-			premiumTransfer.setDirection(Transfer.Direction.PAY);
-		} else {
-			premiumTransfer.setDirection(Transfer.Direction.RECEIVE);
-		}
+		CashTransfer premiumTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
+				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
+				.quantityOrAmount(trade.getAmount())
+				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 
 		return premiumTransfer;
 	}

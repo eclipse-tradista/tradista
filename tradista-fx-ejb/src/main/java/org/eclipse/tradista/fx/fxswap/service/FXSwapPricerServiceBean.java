@@ -73,7 +73,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 		}
 
 		// 1. Construct a FX trade from the forward leg
-		FXTrade fwdLegFX = new FXTrade();
+		FXTrade fwdLegFX = FXTrade.create();
 		fwdLegFX.setAmountOne(trade.getAmountOneForward());
 		fwdLegFX.setAmount(trade.getAmountTwoForward());
 		fwdLegFX.setBuySell(!trade.isBuy());
@@ -128,7 +128,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 		}
 
 		// 1. Construct a FX trade from the spot leg
-		FXTrade spotLegFX = new FXTrade();
+		FXTrade spotLegFX = FXTrade.create();
 		spotLegFX.setAmountOne(trade.getAmountOneSpot());
 		spotLegFX.setAmount(trade.getAmount());
 		spotLegFX.setBuySell(trade.isBuy());
@@ -151,7 +151,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 		if (pricingDate.isAfter(trade.getSettlementDate()) || pricingDate.equals(trade.getSettlementDate())) {
 			// We calculate the MTM of each leg
 			// 1. Construct a FX trade from the spot leg
-			FXTrade spotLegFX = new FXTrade();
+			FXTrade spotLegFX = FXTrade.create();
 			spotLegFX.setAmountOne(trade.getAmountOneSpot());
 			spotLegFX.setAmount(trade.getAmount());
 			spotLegFX.setBuySell(trade.isBuy());
@@ -170,7 +170,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 			if (!pricingDate.isBefore(trade.getSettlementDateForward())) {
 
 				// 3. Construct a FX trade from the forward leg
-				FXTrade fwdLegFX = new FXTrade();
+				FXTrade fwdLegFX = FXTrade.create();
 				fwdLegFX.setAmountOne(trade.getAmountOneForward());
 				fwdLegFX.setAmount(trade.getAmountTwoForward());
 				fwdLegFX.setBuySell(!trade.isBuy());
@@ -220,7 +220,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 		}
 
 		// 1. Construct a FX trade from the spot leg
-		FXTrade spotLegFX = new FXTrade();
+		FXTrade spotLegFX = FXTrade.create();
 		spotLegFX.setAmountOne(trade.getAmountOneSpot());
 		spotLegFX.setAmount(trade.getAmount());
 		spotLegFX.setBuySell(trade.isBuy());
@@ -235,7 +235,7 @@ public class FXSwapPricerServiceBean implements FXSwapPricerService {
 		BigDecimal spotLegMTM = fxPricerService.unrealizedPnlMarkToMarket(params, spotLegFX, currency, pricingDate);
 
 		// 3. Construct a FX trade from the forward leg
-		FXTrade fwdLegFX = new FXTrade();
+		FXTrade fwdLegFX = FXTrade.create();
 		fwdLegFX.setAmountOne(trade.getAmountOneForward());
 		fwdLegFX.setAmount(trade.getAmountTwoForward());
 		fwdLegFX.setBuySell(!trade.isBuy());

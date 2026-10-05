@@ -32,6 +32,11 @@ public class BlankEquityOption extends EquityOption {
 		return instance;
 	}
 
+	@Override
+	public Builder toBuilder() {
+		return null;
+	}
+
 	public String toString() {
 		return StringUtils.EMPTY;
 	}

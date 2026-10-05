@@ -1,7 +1,9 @@
 package org.eclipse.tradista.security.bond.transfer;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -160,17 +162,11 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 	}
 
 	private ProductTransfer createNewBondSettlement(BondTrade trade) {
-		ProductTransfer productTransfer = new ProductTransfer(trade.getBook(), TransferPurpose.BOND_SETTLEMENT,
-				trade.getSettlementDate(), trade);
-		productTransfer.setCreationDateTime(LocalDateTime.now());
-		if (trade.isBuy()) {
-			productTransfer.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			productTransfer.setDirection(Transfer.Direction.PAY);
-		}
-		productTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		productTransfer.setQuantity(trade.getQuantity());
-		productTransfer.setStatus(Transfer.Status.KNOWN);
+		ProductTransfer productTransfer = ProductTransfer
+				.builder(trade.getBook(), TransferPurpose.BOND_SETTLEMENT, trade.getSettlementDate()).trade(trade)
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.quantityOrAmount(trade.getQuantity()).status(Transfer.Status.KNOWN).build();
 
 		return productTransfer;
 	}

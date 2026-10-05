@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fx.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -26,6 +27,20 @@ import org.eclipse.tradista.fx.common.model.AbstractFXTrade;
 public class FXTrade extends AbstractFXTrade<Product> {
 
 	private static final long serialVersionUID = 8313585047177367366L;
+
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public FXTrade() {
+	}
+
+	protected FXTrade(Builder builder) {
+		super(builder);
+		this.currencyOne = builder.currencyOne;
+		this.amountOne = builder.amountOne;
+		this.type = builder.type;
+	}
 
 	public static final String FX = "FX";
 
@@ -99,6 +114,63 @@ public class FXTrade extends AbstractFXTrade<Product> {
 		FXTrade fxTrade = (FXTrade) super.clone();
 		fxTrade.currencyOne = TradistaModelUtil.clone(currencyOne);
 		return fxTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).currencyOne(this.currencyOne).amountOne(this.amountOne)
+				.type(this.type);
+		return builder;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FXTrade create() {
+		return builder().build();
+	}
+
+	public static FXTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static class Builder extends AbstractFXTrade.Builder<Product, FXTrade, Builder> {
+		private Builder() {
+		}
+
+		protected Currency currencyOne;
+		protected BigDecimal amountOne;
+		protected Type type;
+
+		public Builder currencyOne(Currency currencyOne) {
+			this.currencyOne = currencyOne;
+			return this;
+		}
+
+		public Builder amountOne(BigDecimal amountOne) {
+			this.amountOne = amountOne;
+			return this;
+		}
+
+		public Builder type(Type type) {
+			this.type = type;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public FXTrade build() {
+			return new FXTrade(this);
+		}
 	}
 
 }

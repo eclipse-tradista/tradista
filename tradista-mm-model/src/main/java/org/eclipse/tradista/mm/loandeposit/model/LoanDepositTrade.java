@@ -42,6 +42,30 @@ public abstract class LoanDepositTrade extends Trade<Product> {
 	 */
 	private static final long serialVersionUID = 3579586407106122139L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public LoanDepositTrade() {
+	}
+
+	protected LoanDepositTrade(Builder<?, ?> builder) {
+		super(builder);
+		this.fixedRate = builder.fixedRate;
+		this.floatingRateIndex = builder.floatingRateIndex;
+		this.floatingRateIndexTenor = builder.floatingRateIndexTenor;
+		this.dayCountConvention = builder.dayCountConvention;
+		this.paymentFrequency = builder.paymentFrequency;
+		this.endDate = builder.endDate;
+		this.fixingPeriod = builder.fixingPeriod;
+		this.spread = builder.spread;
+		this.interestType = builder.interestType;
+		this.compoundPeriod = builder.compoundPeriod;
+		this.maturity = builder.maturity;
+		this.interestPayment = builder.interestPayment;
+		this.interestFixing = builder.interestFixing;
+	}
+
 	public enum Direction {
 		LOAN, DEPOSIT;
 
@@ -207,6 +231,88 @@ public abstract class LoanDepositTrade extends Trade<Product> {
 		LoanDepositTrade loanDepositTrade = (LoanDepositTrade) super.clone();
 		loanDepositTrade.floatingRateIndex = TradistaModelUtil.clone(floatingRateIndex);
 		return loanDepositTrade;
+	}
+
+	public abstract static class Builder<T extends LoanDepositTrade, B extends Builder<T, B>>
+			extends Trade.Builder<Product, T, B> {
+		protected BigDecimal fixedRate;
+		protected Index floatingRateIndex;
+		protected Tenor floatingRateIndexTenor;
+		protected DayCountConvention dayCountConvention;
+		protected Tenor paymentFrequency;
+		protected LocalDate endDate;
+		protected Tenor fixingPeriod;
+		protected BigDecimal spread;
+		protected InterestType interestType;
+		protected Tenor compoundPeriod;
+		protected Tenor maturity;
+		protected InterestPayment interestPayment;
+		protected InterestPayment interestFixing;
+
+		public B fixedRate(BigDecimal fixedRate) {
+			this.fixedRate = fixedRate;
+			return self();
+		}
+
+		public B floatingRateIndex(Index floatingRateIndex) {
+			this.floatingRateIndex = floatingRateIndex;
+			return self();
+		}
+
+		public B floatingRateIndexTenor(Tenor floatingRateIndexTenor) {
+			this.floatingRateIndexTenor = floatingRateIndexTenor;
+			return self();
+		}
+
+		public B dayCountConvention(DayCountConvention dayCountConvention) {
+			this.dayCountConvention = dayCountConvention;
+			return self();
+		}
+
+		public B paymentFrequency(Tenor paymentFrequency) {
+			this.paymentFrequency = paymentFrequency;
+			return self();
+		}
+
+		public B endDate(LocalDate endDate) {
+			this.endDate = endDate;
+			return self();
+		}
+
+		public B fixingPeriod(Tenor fixingPeriod) {
+			this.fixingPeriod = fixingPeriod;
+			return self();
+		}
+
+		public B spread(BigDecimal spread) {
+			this.spread = spread;
+			return self();
+		}
+
+		public B interestType(InterestType interestType) {
+			this.interestType = interestType;
+			return self();
+		}
+
+		public B compoundPeriod(Tenor compoundPeriod) {
+			this.compoundPeriod = compoundPeriod;
+			return self();
+		}
+
+		public B maturity(Tenor maturity) {
+			this.maturity = maturity;
+			return self();
+		}
+
+		public B interestPayment(InterestPayment interestPayment) {
+			this.interestPayment = interestPayment;
+			return self();
+		}
+
+		public B interestFixing(InterestPayment interestFixing) {
+			this.interestFixing = interestFixing;
+			return self();
+		}
 	}
 
 }

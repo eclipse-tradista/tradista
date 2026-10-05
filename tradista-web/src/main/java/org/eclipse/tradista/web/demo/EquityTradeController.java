@@ -83,7 +83,7 @@ public class EquityTradeController implements Serializable {
 		allCurrencies = currencyBusinessDelegate.getAllCurrencies();
 		allCounterparties = legalEntityBusinessDelegate.getAllCounterparties();
 		allDirections = Trade.Direction.values();
-		equityTrade = new EquityTrade();
+		equityTrade = EquityTrade.create();
 		equityTrade.setTradeDate(LocalDate.now());
 		equityTrade.setSettlementDate(LocalDate.now());
 		equityTrade.setBook(bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2));

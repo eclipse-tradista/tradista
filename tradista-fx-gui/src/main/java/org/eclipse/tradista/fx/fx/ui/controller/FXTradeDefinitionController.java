@@ -747,7 +747,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (settlementDate.getValue() != null) {
-					FXTrade fxTrade = new FXTrade();
+					FXTrade fxTrade = FXTrade.create();
 					fxTrade.setCurrency(currencyTwo.getValue());
 					fxTrade.setCurrencyOne(currencyOne.getValue());
 					fxTrade.setTradeDate(newDate);
@@ -770,7 +770,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null && tradeDate.getValue() != null) {
-					FXTrade fxTrade = new FXTrade();
+					FXTrade fxTrade = FXTrade.create();
 					fxTrade.setCurrency(currencyTwo.getValue());
 					fxTrade.setCurrencyOne(currencyOne.getValue());
 					fxTrade.setTradeDate(tradeDate.getValue());
@@ -797,7 +797,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxTrade == null) {
-							fxTrade = new FXTrade();
+							fxTrade = FXTrade.create();
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxTrade.setCurrency(currencyTwo.getValue());
 						}
@@ -829,7 +829,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 					private boolean isAvailable(LocalDate date) {
 						boolean isAvailable = true;
 						if (fxTrade == null) {
-							fxTrade = new FXTrade();
+							fxTrade = FXTrade.create();
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxTrade.setCurrency(currencyTwo.getValue());
 						}
@@ -934,7 +934,6 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -942,14 +941,11 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 				buildTrade();
 				oldTradeId = trade.getId();
-				oldCreationDate = trade.getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				trade.setId(fxTradeBusinessDelegate.saveFXTrade(trade));
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
@@ -1041,7 +1037,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXTrade();
+			trade = FXTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

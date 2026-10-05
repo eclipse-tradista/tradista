@@ -88,12 +88,11 @@ public class FRATransferManager implements TransferManager<FRATradeEvent> {
 	}
 
 	private CashTransfer createNewCashSettlementTransfer(FRATrade trade) throws TradistaBusinessException {
-		CashTransfer cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.CASH_SETTLEMENT,
-				trade.getPaymentDate(), trade, trade.getCurrency());
-		cashTransfer.setCreationDateTime(LocalDateTime.now());
-		cashTransfer.setFixingDateTime(
-				DateUtil.addBusinessDay(trade.getPaymentDate(), trade.getCurrency().getCalendar(), -2).atStartOfDay());
-		cashTransfer.setStatus(Transfer.Status.UNKNOWN);
+		CashTransfer cashTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getPaymentDate(), trade.getCurrency())
+				.trade(trade).fixingDateTime(DateUtil
+						.addBusinessDay(trade.getPaymentDate(), trade.getCurrency().getCalendar(), -2).atStartOfDay())
+				.status(Transfer.Status.UNKNOWN).build();
 
 		return cashTransfer;
 	}

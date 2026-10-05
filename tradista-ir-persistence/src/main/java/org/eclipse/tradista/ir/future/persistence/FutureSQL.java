@@ -1,16 +1,28 @@
 package org.eclipse.tradista.ir.future.persistence;
 
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.NAME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SYMBOL;
+
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.LocalDate;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
+import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.ir.future.model.Future;
 
 /********************************************************************************
@@ -31,23 +43,35 @@ import org.eclipse.tradista.ir.future.model.Future;
 
 public class FutureSQL {
 
-	public static Future getFutureById(long id) {
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
 
+	private static final Field FUTURE_ID_FIELD = new Field("FUTURE_ID");
+	private static final Field FUTURE_CONTRACT_SPECIFICATION_ID_FIELD = new Field("FUTURE_CONTRACT_SPECIFICATION_ID");
+	private static final Field SYMBOL_FIELD = new Field(SYMBOL);
+	private static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
+
+	private static final Field[] FUTURE_FIELDS = { FUTURE_ID_FIELD, FUTURE_CONTRACT_SPECIFICATION_ID_FIELD,
+			SYMBOL_FIELD, MATURITY_DATE_FIELD };
+	public static final Table FUTURE_TABLE = new Table("FUTURE", FUTURE_FIELDS);
+
+	private static final Field FCS_ID_FIELD = new Field(ID);
+	private static final Field FCS_NAME_FIELD = new Field(NAME);
+	private static final Field[] FCS_FIELDS = { FCS_ID_FIELD, FCS_NAME_FIELD };
+	public static final Table FUTURE_CONTRACT_SPECIFICATION_TABLE = new Table("FUTURE_CONTRACT_SPECIFICATION",
+			FCS_FIELDS);
+
+	public static Future getFutureById(long id) {
 		Future future = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(FUTURE_TABLE,
+				Join.innerEq(ProductSQL.PRODUCT_TABLE, FUTURE_ID_FIELD, ProductSQL.ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sql, FUTURE_ID_FIELD);
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFutureById = con.prepareStatement(
-						"SELECT * FROM FUTURE, PRODUCT WHERE FUTURE_ID = ? AND FUTURE.FUTURE_ID = PRODUCT.ID")) {
+				PreparedStatement stmtGetFutureById = con.prepareStatement(sql.toString())) {
 			stmtGetFutureById.setLong(1, id);
 			try (ResultSet results = stmtGetFutureById.executeQuery()) {
 				while (results.next()) {
-					if (future == null) {
-						future = new Future(results.getString("symbol"),
-								FutureContractSpecificationSQL.getFutureContractSpecificationById(
-										results.getLong("future_contract_specification_id")));
-					}
-					future.setId(results.getLong("future_id"));
-					future.setCreationDate(results.getDate("creation_date").toLocalDate());
-					future.setMaturityDate(results.getDate("maturity_date").toLocalDate());
+					future = buildFuture(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -57,23 +81,21 @@ public class FutureSQL {
 	}
 
 	public static Future getFutureByContractSpecificationAndSymbol(String contractSpecification, String symbol) {
-
 		Future future = null;
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(FUTURE_TABLE,
+				Join.innerEq(ProductSQL.PRODUCT_TABLE, FUTURE_ID_FIELD, ProductSQL.ID_FIELD), Join.innerEq(
+						FUTURE_CONTRACT_SPECIFICATION_TABLE, FUTURE_CONTRACT_SPECIFICATION_ID_FIELD, FCS_ID_FIELD)));
+		TradistaDBUtil.addParameterizedFilter(sql, FCS_NAME_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, SYMBOL_FIELD);
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetFutureByContractSpecificationAndSymbol = con.prepareStatement(
-						"SELECT * FROM FUTURE, PRODUCT, FUTURE_CONTRACT_SPECIFICATION WHERE NAME = ? AND SYMBOL = ? AND FUTURE.FUTURE_ID = PRODUCT.ID AND FUTURE.FUTURE_CONTRACT_SPECIFICATION_ID = FUTURE_CONTRACT_SPECIFICATION.ID")) {
+				PreparedStatement stmtGetFutureByContractSpecificationAndSymbol = con
+						.prepareStatement(sql.toString())) {
 			stmtGetFutureByContractSpecificationAndSymbol.setString(1, contractSpecification);
 			stmtGetFutureByContractSpecificationAndSymbol.setString(2, symbol);
 			try (ResultSet results = stmtGetFutureByContractSpecificationAndSymbol.executeQuery()) {
 				while (results.next()) {
-					if (future == null) {
-						future = new Future(results.getString("symbol"),
-								FutureContractSpecificationSQL.getFutureContractSpecificationById(
-										results.getLong("future_contract_specification_id")));
-					}
-					future.setId(results.getLong("future_id"));
-					future.setCreationDate(results.getDate("creation_date").toLocalDate());
-					future.setMaturityDate(results.getDate("maturity_date").toLocalDate());
+					future = buildFuture(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -83,22 +105,18 @@ public class FutureSQL {
 	}
 
 	public static Set<Future> getAllFutures() {
-
 		Set<Future> futures = null;
+		String sql = TradistaDBUtil.buildSelectQuery(FUTURE_TABLE,
+				Join.innerEq(ProductSQL.PRODUCT_TABLE, FUTURE_ID_FIELD, ProductSQL.ID_FIELD));
+
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetAllFutures = con
-						.prepareStatement("SELECT * FROM FUTURE, PRODUCT WHERE FUTURE.FUTURE_ID = PRODUCT.ID");
+				PreparedStatement stmtGetAllFutures = con.prepareStatement(sql);
 				ResultSet results = stmtGetAllFutures.executeQuery()) {
 			while (results.next()) {
 				if (futures == null) {
 					futures = new HashSet<>();
 				}
-				Future future = new Future(results.getString("symbol"), FutureContractSpecificationSQL
-						.getFutureContractSpecificationById(results.getLong("future_contract_specification_id")));
-				future.setId(results.getLong("future_id"));
-				future.setCreationDate(results.getDate("creation_date").toLocalDate());
-				future.setMaturityDate(results.getDate("maturity_date").toLocalDate());
-				futures.add(future);
+				futures.add(buildFuture(results));
 			}
 		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
@@ -106,22 +124,46 @@ public class FutureSQL {
 		return futures;
 	}
 
+	private static Future buildFuture(ResultSet results) throws SQLException {
+		Future.Builder builder = Future
+				.builder(results.getString(SYMBOL_FIELD.getName()),
+						FutureContractSpecificationSQL.getFutureContractSpecificationById(
+								results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())))
+				.id(results.getLong(FUTURE_ID_FIELD.getName()));
+		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+		if (creationTimestamp != null) {
+			builder.creationTime(creationTimestamp.toInstant());
+		}
+		Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());
+		if (maturityDate != null) {
+			builder.maturityDate(maturityDate.toLocalDate());
+		}
+		return builder.build();
+	}
+
 	public static long saveFuture(Future future) {
 		long productId = 0;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtSaveProduct = (future.getId() == 0)
-						? con.prepareStatement("INSERT INTO PRODUCT(CREATION_DATE, EXCHANGE_ID) VALUES (?, ?) ",
-								Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement("UPDATE PRODUCT SET CREATION_DATE=?, EXCHANGE_ID=? WHERE ID=? ");
-				PreparedStatement stmtSaveFuture = (future.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO FUTURE(FUTURE_CONTRACT_SPECIFICATION_ID, SYMBOL, MATURITY_DATE, FUTURE_ID) VALUES (?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE FUTURE SET FUTURE_CONTRACT_SPECIFICATION_ID=?, SYMBOL=?, MATURITY_DATE=? WHERE FUTURE_ID=?")) {
-			if (future.getId() != 0) {
+						? TradistaDBUtil.buildInsertPreparedStatement(con, ProductSQL.PRODUCT_TABLE,
+								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
+								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveFuture = (future.getId() == 0)
+						? TradistaDBUtil.buildInsertPreparedStatement(con, FUTURE_TABLE,
+								FUTURE_CONTRACT_SPECIFICATION_ID_FIELD, SYMBOL_FIELD, MATURITY_DATE_FIELD,
+								FUTURE_ID_FIELD)
+						: TradistaDBUtil.buildUpdatePreparedStatement(con, FUTURE_ID_FIELD, FUTURE_TABLE,
+								FUTURE_CONTRACT_SPECIFICATION_ID_FIELD, SYMBOL_FIELD, MATURITY_DATE_FIELD)) {
+			if (future.getId() == 0) {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(future.getCreationTime()));
+				stmtSaveProduct.setTimestamp(2, Timestamp.from(future.getLastUpdateTime()));
+				stmtSaveProduct.setLong(3, future.getExchange().getId());
+			} else {
+				stmtSaveProduct.setTimestamp(1, Timestamp.from(Instant.now()));
+				stmtSaveProduct.setLong(2, future.getExchange().getId());
 				stmtSaveProduct.setLong(3, future.getId());
 			}
-			stmtSaveProduct.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
-			stmtSaveProduct.setLong(2, future.getExchange().getId());
 			stmtSaveProduct.executeUpdate();
 
 			if (future.getId() == 0) {
@@ -138,7 +180,7 @@ public class FutureSQL {
 
 			stmtSaveFuture.setLong(1, future.getContractSpecification().getId());
 			stmtSaveFuture.setString(2, future.getSymbol());
-			stmtSaveFuture.setDate(3, java.sql.Date.valueOf(future.getMaturityDate()));
+			stmtSaveFuture.setDate(3, Date.valueOf(future.getMaturityDate()));
 			stmtSaveFuture.setLong(4, productId);
 			stmtSaveFuture.executeUpdate();
 
@@ -148,7 +190,6 @@ public class FutureSQL {
 
 		future.setId(productId);
 		return productId;
-
 	}
 
 }

@@ -22,6 +22,18 @@ public abstract class VanillaOptionTrade<T extends Trade<? extends Product>> ext
 
 	private static final long serialVersionUID = -9194967197051172928L;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	protected VanillaOptionTrade() {
+	}
+
+	protected VanillaOptionTrade(Builder<T, ?, ?> builder) {
+		super(builder);
+		this.style = builder.style;
+	}
+
 	public enum Style {
 		EUROPEAN, AMERICAN;
 
@@ -44,5 +56,15 @@ public abstract class VanillaOptionTrade<T extends Trade<? extends Product>> ext
 
 	public void setStyle(Style style) {
 		this.style = style;
+	}
+
+	public abstract static class Builder<T extends Trade<? extends Product>, VOT extends VanillaOptionTrade<T>, B extends Builder<T, VOT, B>>
+			extends OptionTrade.Builder<T, VOT, B> {
+		protected Style style;
+
+		public B style(Style style) {
+			this.style = style;
+			return self();
+		}
 	}
 }

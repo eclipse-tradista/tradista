@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.product.model.Product;
@@ -35,6 +36,20 @@ import org.eclipse.tradista.ir.irforward.model.IRForwardTrade;
 public class IRCapFloorCollarTrade extends Trade<Product> {
 
 	private static final long serialVersionUID = 2669121671559387940L;
+
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
+	public IRCapFloorCollarTrade() {
+	}
+
+	protected IRCapFloorCollarTrade(Builder builder) {
+		super(builder);
+		this.capStrike = builder.capStrike;
+		this.floorStrike = builder.floorStrike;
+		this.irForwardTrade = builder.irForwardTrade;
+	}
 
 	private BigDecimal capStrike;
 
@@ -113,6 +128,63 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 		IRCapFloorCollarTrade irCapFloorCollarTrade = (IRCapFloorCollarTrade) super.clone();
 		irCapFloorCollarTrade.irForwardTrade = TradistaModelUtil.clone(irForwardTrade);
 		return irCapFloorCollarTrade;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder();
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).product(getProduct())
+				.tradeDate(getTradeDate()).settlementDate(getSettlementDate()).amount(getAmount())
+				.currency(getCurrency()).counterparty(getCounterparty()).book(getBook()).status(getStatus())
+				.workflow(getWorkflow()).buySell(isBuy()).capStrike(this.capStrike).floorStrike(this.floorStrike)
+				.irForwardTrade(this.irForwardTrade);
+		return builder;
+	}
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static IRCapFloorCollarTrade create() {
+		return builder().build();
+	}
+
+	public static IRCapFloorCollarTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static class Builder extends Trade.Builder<Product, IRCapFloorCollarTrade, Builder> {
+		private Builder() {
+		}
+
+		protected BigDecimal capStrike;
+		protected BigDecimal floorStrike;
+		protected IRForwardTrade<Product> irForwardTrade;
+
+		public Builder capStrike(BigDecimal capStrike) {
+			this.capStrike = capStrike;
+			return this;
+		}
+
+		public Builder floorStrike(BigDecimal floorStrike) {
+			this.floorStrike = floorStrike;
+			return this;
+		}
+
+		public Builder irForwardTrade(IRForwardTrade<Product> irForwardTrade) {
+			this.irForwardTrade = irForwardTrade;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public IRCapFloorCollarTrade build() {
+			return new IRCapFloorCollarTrade(this);
+		}
 	}
 
 }

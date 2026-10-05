@@ -44,8 +44,101 @@ public class Equity extends Security {
 
 	private LocalDate activeTo;
 
+	/**
+	 * @deprecated use {@link Builder} instead.
+	 */
+	@Deprecated(forRemoval = true, since = "3.3.0")
 	public Equity(Exchange exchange, String isin) {
 		super(exchange, isin);
+	}
+
+	protected Equity(Builder builder) {
+		super(builder);
+		this.tradingSize = builder.tradingSize;
+		this.totalIssued = builder.totalIssued;
+		this.payDividend = builder.payDividend;
+		this.dividendCurrency = builder.dividendCurrency;
+		this.dividendFrequency = builder.dividendFrequency;
+		this.activeFrom = builder.activeFrom;
+		this.activeTo = builder.activeTo;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		Builder builder = new Builder(getExchange(), getIsin());
+		builder.id(getId()).creationTime(getCreationTime()).lastUpdateTime(getLastUpdateTime()).issuer(getIssuer())
+				.issueDate(getIssueDate()).issuePrice(getIssuePrice()).currency(getCurrency())
+				.tradingSize(this.tradingSize).totalIssued(this.totalIssued).payDividend(this.payDividend)
+				.dividendCurrency(this.dividendCurrency).dividendFrequency(this.dividendFrequency)
+				.activeFrom(this.activeFrom).activeTo(this.activeTo);
+		return builder;
+	}
+
+	public static Builder builder(Exchange exchange, String isin) {
+		return new Builder(exchange, isin);
+	}
+
+	public static Equity of(Exchange exchange, String isin) {
+		return builder(exchange, isin).build();
+	}
+
+	public static class Builder extends Security.Builder<Equity, Builder> {
+		protected long tradingSize;
+		protected long totalIssued;
+		protected boolean payDividend;
+		protected Currency dividendCurrency;
+		protected Tenor dividendFrequency;
+		protected LocalDate activeFrom;
+		protected LocalDate activeTo;
+
+		private Builder(Exchange exchange, String isin) {
+			super(exchange, isin);
+		}
+
+		public Builder tradingSize(long tradingSize) {
+			this.tradingSize = tradingSize;
+			return this;
+		}
+
+		public Builder totalIssued(long totalIssued) {
+			this.totalIssued = totalIssued;
+			return this;
+		}
+
+		public Builder payDividend(boolean payDividend) {
+			this.payDividend = payDividend;
+			return this;
+		}
+
+		public Builder dividendCurrency(Currency dividendCurrency) {
+			this.dividendCurrency = dividendCurrency;
+			return this;
+		}
+
+		public Builder dividendFrequency(Tenor dividendFrequency) {
+			this.dividendFrequency = dividendFrequency;
+			return this;
+		}
+
+		public Builder activeFrom(LocalDate activeFrom) {
+			this.activeFrom = activeFrom;
+			return this;
+		}
+
+		public Builder activeTo(LocalDate activeTo) {
+			this.activeTo = activeTo;
+			return this;
+		}
+
+		@Override
+		protected Builder self() {
+			return this;
+		}
+
+		@Override
+		public Equity build() {
+			return new Equity(this);
+		}
 	}
 
 	public long getTradingSize() {

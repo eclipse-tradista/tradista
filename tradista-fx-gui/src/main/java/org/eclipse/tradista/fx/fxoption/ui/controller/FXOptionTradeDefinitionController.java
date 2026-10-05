@@ -364,8 +364,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 						boolean isAvailable = true;
 
 						if (fxOptionTrade == null) {
-							fxOptionTrade = new FXOptionTrade();
-							FXTrade fxTrade = new FXTrade();
+							fxOptionTrade = FXOptionTrade.create();
+							FXTrade fxTrade = FXTrade.create();
 							fxTrade.setCurrency(currencyTwo.getValue());
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxOptionTrade.setUnderlying(fxTrade);
@@ -400,8 +400,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxOptionTrade == null) {
-							fxOptionTrade = new FXOptionTrade();
-							FXTrade fxTrade = new FXTrade();
+							fxOptionTrade = FXOptionTrade.create();
+							FXTrade fxTrade = FXTrade.create();
 							fxTrade.setCurrency(currencyTwo.getValue());
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxOptionTrade.setUnderlying(fxTrade);
@@ -494,13 +494,9 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				buildTrade();
 				oldTradeId = trade.getId();
 				oldUnderlyingTradeId = trade.getUnderlying().getId();
-				oldCreationDate = trade.getCreationDate();
-				oldUnderlyingCreationDate = trade.getUnderlying().getCreationDate();
 				trade.setId(0);
-				trade.setCreationDate(LocalDate.now());
 				underlying = trade.getUnderlying();
 				underlying.setId(0);
-				underlying.setCreationDate(LocalDate.now());
 				trade.setUnderlying(underlying);
 				trade.setId(fxOptionTradeBusinessDelegate.saveFXOptionTrade(trade));
 				FXOptionTrade existingTrade = fxOptionTradeBusinessDelegate.getFXOptionTradeById(trade.getId());
@@ -510,9 +506,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				tradeId.setText(String.valueOf(trade.getId()));
 			} catch (TradistaBusinessException tbe) {
 				trade.setId(oldTradeId);
-				trade.setCreationDate(oldCreationDate);
 				underlying.setId(oldUnderlyingTradeId);
-				underlying.setCreationDate(oldUnderlyingCreationDate);
 				trade.setUnderlying(underlying);
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -586,7 +580,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXOptionTrade();
+			trade = FXOptionTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -613,7 +607,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			// Building the underlying
 			FXTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				underlying = new FXTrade();
+				underlying = FXTrade.create();
 			}
 			if (!amountOne.getText().isEmpty()) {
 				underlying.setAmountOne(TradistaGUIUtil.parseAmount(amountOne.getText(), "Underlying's Amount One"));

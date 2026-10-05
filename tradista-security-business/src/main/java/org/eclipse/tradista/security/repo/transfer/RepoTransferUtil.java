@@ -5,6 +5,7 @@ import static org.eclipse.tradista.core.pricing.util.PricerUtil.ONE_HUNDRED;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,13 +70,14 @@ public final class RepoTransferUtil {
 		}
 
 		// New cash settlement (opening leg)
-		CashTransfer newCashPayment = new CashTransfer(trade.getBook(), TransferPurpose.CASH_SETTLEMENT,
-				trade.getSettlementDate(), trade, trade.getCurrency());
-		newCashPayment.setAmount(trade.getAmount());
-		newCashPayment.setCreationDateTime(LocalDateTime.now());
-		newCashPayment.setDirection(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY);
-		newCashPayment.setStatus(Transfer.Status.KNOWN);
-		newCashPayment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
+		CashTransfer newCashPayment = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getSettlementDate(),
+						trade.getCurrency())
+				.trade(trade).quantityOrAmount(trade.getAmount())
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+				.status(Transfer.Status.KNOWN)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.build();
 		cashPayments.add(newCashPayment);
 
 		return cashPayments;
@@ -98,48 +100,48 @@ public final class RepoTransferUtil {
 			// transfer is generated yet for the closing leg payment.
 			if (trade.getEndDate() != null) {
 				// Returned cash settlement (closing leg)
-				CashTransfer newCashPayment = new CashTransfer(trade.getBook(),
-						TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(), trade, trade.getCurrency());
+				CashTransfer.Builder builder = CashTransfer
+						.builder(trade.getBook(), TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(),
+								trade.getCurrency())
+						.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
 				if (trade.isFixedRepoRate()) {
 					BigDecimal interestAmount = PricerUtil.getAccruedInterest(trade.getAmount(),
 							PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED), trade.getSettlementDate(),
 							trade.getEndDate(), new DayCountConvention(DayCountConvention.ACT_360));
-					newCashPayment.setAmount(trade.getAmount().add(interestAmount));
-					newCashPayment.setStatus(Transfer.Status.KNOWN);
-					newCashPayment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
+					builder.quantityOrAmount(trade.getAmount().add(interestAmount));
+					builder.status(Transfer.Status.KNOWN);
+					builder.fixingDateTime(
+							LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay());
 				} else {
-					newCashPayment.setStatus(Transfer.Status.UNKNOWN);
+					builder.status(Transfer.Status.UNKNOWN);
 				}
-				newCashPayment.setCreationDateTime(LocalDateTime.now());
-				newCashPayment.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
 
-				cashPayments.add(newCashPayment);
+				cashPayments.add(builder.build());
 			}
 		} else {
 			// Partial termination
 
 			// 1. Return of the fraction of the cash amount + interest as of partial
 			// termination date
-			CashTransfer cashPartialPayment = new CashTransfer(trade.getBook(),
-					TransferPurpose.RETURNED_CASH_PLUS_INTEREST, LocalDate.now(), trade, trade.getCurrency());
+			CashTransfer.Builder partialBuilder = CashTransfer
+					.builder(trade.getBook(), TransferPurpose.RETURNED_CASH_PLUS_INTEREST, LocalDate.now(),
+							trade.getCurrency())
+					.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
 
 			BigDecimal interestAmount = null;
 			if (trade.isFixedRepoRate()) {
 				interestAmount = PricerUtil.getAccruedInterest(notionalReduction,
 						PricerUtil.divide(trade.getRepoRate(), ONE_HUNDRED), trade.getSettlementDate(), LocalDate.now(),
 						new DayCountConvention(DayCountConvention.ACT_360));
-				cashPartialPayment.setStatus(Transfer.Status.KNOWN);
-				cashPartialPayment.setAmount(notionalReduction.add(interestAmount));
-				cashPartialPayment.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-				cashPartialPayment.setCreationDateTime(LocalDateTime.now());
-				cashPartialPayment.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
-				cashPayments.add(cashPartialPayment);
+				partialBuilder.status(Transfer.Status.KNOWN);
+				partialBuilder.quantityOrAmount(notionalReduction.add(interestAmount));
+				partialBuilder.fixingDateTime(
+						LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay());
+				cashPayments.add(partialBuilder.build());
 			} else {
+				partialBuilder.status(Transfer.Status.UNKNOWN);
+				CashTransfer cashPartialPayment = partialBuilder.build();
 				if (!existingCashTransfers.contains(cashPartialPayment)) {
-					cashPartialPayment.setStatus(Transfer.Status.UNKNOWN);
-					cashPartialPayment.setCreationDateTime(LocalDateTime.now());
-					cashPartialPayment
-							.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
 					cashPayments.add(cashPartialPayment);
 				}
 			}
@@ -149,8 +151,8 @@ public final class RepoTransferUtil {
 			// In case of terminable on demand repos without confirmed end date, no
 			// transfer is generated yet for the closing leg payment.
 			if (trade.getEndDate() != null) {
-				CashTransfer reducedCashPayment = new CashTransfer(trade.getBook(),
-						TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(), trade, trade.getCurrency());
+				CashTransfer reducedCashPayment = CashTransfer.of(trade.getBook(),
+						TransferPurpose.RETURNED_CASH_PLUS_INTEREST, trade.getEndDate(), trade.getCurrency());
 				if (trade.isFixedRepoRate()) {
 					Map<Transfer, Transfer> existingReturnedCashTransfersMap = existingCashTransfers.stream()
 							.collect(Collectors.toMap(Function.identity(), Function.identity()));
@@ -241,14 +243,13 @@ public final class RepoTransferUtil {
 			if (trade.getCollateralToAdd() != null) {
 				for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToAdd().entrySet()) {
 					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
-						ProductTransfer newCollateralPayment = new ProductTransfer(bookEntry.getKey(), entry.getKey(),
-								TransferPurpose.COLLATERAL_SETTLEMENT, LocalDate.now(), trade);
-						newCollateralPayment.setCreationDateTime(LocalDateTime.now());
-						newCollateralPayment
-								.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
-						newCollateralPayment.setQuantity(bookEntry.getValue());
-						newCollateralPayment.setFixingDateTime(LocalDateTime.now());
-						newCollateralPayment.setStatus(Transfer.Status.KNOWN);
+						ProductTransfer newCollateralPayment = ProductTransfer
+								.builder(bookEntry.getKey(), entry.getKey(), TransferPurpose.COLLATERAL_SETTLEMENT,
+										LocalDate.now())
+								.trade(trade)
+								.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+								.quantityOrAmount(bookEntry.getValue()).fixingDateTime(LocalDateTime.now())
+								.status(Transfer.Status.KNOWN).build();
 						if (existingCollateralTransfers != null
 								&& existingCollateralTransfers.contains(newCollateralPayment)) {
 							ProductTransfer existingTransfer = (ProductTransfer) existingCollateralTransfersMap
@@ -265,14 +266,13 @@ public final class RepoTransferUtil {
 			if (trade.getCollateralToRemove() != null) {
 				for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToRemove().entrySet()) {
 					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
-						ProductTransfer newCollateralPayment = new ProductTransfer(bookEntry.getKey(), entry.getKey(),
-								TransferPurpose.COLLATERAL_SETTLEMENT, LocalDate.now(), trade);
-						newCollateralPayment.setCreationDateTime(LocalDateTime.now());
-						newCollateralPayment
-								.setDirection(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE);
-						newCollateralPayment.setQuantity(bookEntry.getValue());
-						newCollateralPayment.setFixingDateTime(LocalDateTime.now());
-						newCollateralPayment.setStatus(Transfer.Status.KNOWN);
+						ProductTransfer newCollateralPayment = ProductTransfer
+								.builder(bookEntry.getKey(), entry.getKey(), TransferPurpose.COLLATERAL_SETTLEMENT,
+										LocalDate.now())
+								.trade(trade)
+								.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+								.quantityOrAmount(bookEntry.getValue()).fixingDateTime(LocalDateTime.now())
+								.status(Transfer.Status.KNOWN).build();
 						// If existingCollateralTransfers contains newCollateralPayment, it means that
 						// the settlement of the substituted collateral was planned today.
 						if (existingCollateralTransfers.contains(newCollateralPayment)) {
@@ -369,14 +369,13 @@ public final class RepoTransferUtil {
 				if (trade.getCollateralToAdd() != null) {
 					for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToAdd().entrySet()) {
 						for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
-							ProductTransfer newCollateralPayment = new ProductTransfer(bookEntry.getKey(),
-									entry.getKey(), TransferPurpose.RETURNED_COLLATERAL, trade.getEndDate(), trade);
-							newCollateralPayment.setCreationDateTime(LocalDateTime.now());
-							newCollateralPayment
-									.setDirection(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY);
-							newCollateralPayment.setQuantity(bookEntry.getValue());
-							newCollateralPayment.setFixingDateTime(LocalDateTime.now());
-							newCollateralPayment.setStatus(Transfer.Status.KNOWN);
+							ProductTransfer newCollateralPayment = ProductTransfer
+									.builder(bookEntry.getKey(), entry.getKey(), TransferPurpose.RETURNED_COLLATERAL,
+											trade.getEndDate())
+									.trade(trade)
+									.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+									.quantityOrAmount(bookEntry.getValue()).fixingDateTime(LocalDateTime.now())
+									.status(Transfer.Status.KNOWN).build();
 							if (existingCollateralTransfers != null
 									&& existingCollateralTransfers.contains(newCollateralPayment)) {
 								ProductTransfer existingTransfer = (ProductTransfer) existingCollateralTransfersMap
@@ -396,14 +395,13 @@ public final class RepoTransferUtil {
 				// and generate new return on today's date
 				for (Map.Entry<Security, Map<Book, BigDecimal>> entry : trade.getCollateralToRemove().entrySet()) {
 					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
-						ProductTransfer newCollateralPayment = new ProductTransfer(bookEntry.getKey(), entry.getKey(),
-								TransferPurpose.RETURNED_COLLATERAL, LocalDate.now(), trade);
-						newCollateralPayment.setCreationDateTime(LocalDateTime.now());
-						newCollateralPayment
-								.setDirection(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY);
-						newCollateralPayment.setQuantity(bookEntry.getValue());
-						newCollateralPayment.setFixingDateTime(LocalDateTime.now());
-						newCollateralPayment.setStatus(Transfer.Status.KNOWN);
+						ProductTransfer newCollateralPayment = ProductTransfer
+								.builder(bookEntry.getKey(), entry.getKey(), TransferPurpose.RETURNED_COLLATERAL,
+										LocalDate.now())
+								.trade(trade)
+								.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+								.quantityOrAmount(bookEntry.getValue()).fixingDateTime(LocalDateTime.now())
+								.status(Transfer.Status.KNOWN).build();
 						// If the transfer is not in existingCollateralTransfers, it means that the
 						// substitution date is not the trade end date
 						if (!existingCollateralTransfers.contains(newCollateralPayment)) {
@@ -445,10 +443,8 @@ public final class RepoTransferUtil {
 			purpose = TransferPurpose.RETURNED_COLLATERAL;
 			direction = trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY;
 		}
-		ProductTransfer newCollateralPayment = new ProductTransfer(trade.getBook(), sec, purpose, date, trade);
-		newCollateralPayment.setCreationDateTime(LocalDateTime.now());
-		newCollateralPayment.setDirection(direction);
-		newCollateralPayment.setStatus(Status.POTENTIAL);
+		ProductTransfer newCollateralPayment = ProductTransfer.builder(trade.getBook(), sec, purpose, date).trade(trade)
+				.direction(direction).status(Status.POTENTIAL).build();
 		if (existingPotentialCollateralTransfers == null
 				|| !existingPotentialCollateralTransfers.contains(newCollateralPayment)) {
 			collateralPaymentsToBeSaved.add(newCollateralPayment);

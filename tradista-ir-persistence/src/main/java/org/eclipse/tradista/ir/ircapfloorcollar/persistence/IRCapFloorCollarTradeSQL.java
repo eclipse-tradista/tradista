@@ -1,22 +1,27 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.persistence;
 
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.common.persistence.util.Field;
+import org.eclipse.tradista.core.common.persistence.util.Join;
+import org.eclipse.tradista.core.common.persistence.util.Table;
+import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.daycountconvention.persistence.DayCountConventionSQL;
 import org.eclipse.tradista.core.index.persistence.IndexSQL;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.product.model.Product;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
@@ -42,77 +47,65 @@ import org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL;
 
 public class IRCapFloorCollarTradeSQL {
 
+	public static final Field IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD = new Field("IRCAP_FLOOR_COLLAR_TRADE_ID");
+	public static final Field CAP_STRIKE_FIELD = new Field("CAP_STRIKE");
+	public static final Field FLOOR_STRIKE_FIELD = new Field("FLOOR_STRIKE");
+	public static final Field IRFORWARD_TRADE_ID_FIELD = new Field("IRFORWARD_TRADE_ID");
+
+	private static final Field[] IRCAP_FLOOR_COLLAR_TRADE_FIELDS = { IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD,
+			CAP_STRIKE_FIELD, FLOOR_STRIKE_FIELD, IRFORWARD_TRADE_ID_FIELD };
+
+	private static final Field[] IRCAP_FLOOR_COLLAR_TRADE_FIELDS_FOR_INSERT = { CAP_STRIKE_FIELD, FLOOR_STRIKE_FIELD,
+			IRFORWARD_TRADE_ID_FIELD, IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD };
+
+	private static final Field[] IRCAP_FLOOR_COLLAR_TRADE_FIELDS_FOR_UPDATE = { CAP_STRIKE_FIELD, FLOOR_STRIKE_FIELD,
+			IRFORWARD_TRADE_ID_FIELD };
+
+	public static final Table IRCAP_FLOOR_COLLAR_TRADE_TABLE = new Table("IRCAP_FLOOR_COLLAR_TRADE",
+			IRCAP_FLOOR_COLLAR_TRADE_FIELDS);
+
+	public static final Join TRADE_AND_IRCAP_FLOOR_COLLAR_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
+			IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD);
+
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(IRCAP_FLOOR_COLLAR_TRADE_TABLE,
+			TRADE_AND_IRCAP_FLOOR_COLLAR_TRADE_INNER_JOIN);
+
+	public static PreparedStatement getInsertStatement(Connection con) {
+		return TradistaDBUtil.buildInsertPreparedStatement(con, IRCAP_FLOOR_COLLAR_TRADE_TABLE,
+				IRCAP_FLOOR_COLLAR_TRADE_FIELDS_FOR_INSERT);
+	}
+
+	public static PreparedStatement getUpdateStatement(Connection con) {
+		return TradistaDBUtil.buildUpdatePreparedStatement(con, IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD,
+				IRCAP_FLOOR_COLLAR_TRADE_TABLE, IRCAP_FLOOR_COLLAR_TRADE_FIELDS_FOR_UPDATE);
+	}
+
 	public static IRCapFloorCollarTrade getTradeById(long id) {
 		IRCapFloorCollarTrade irCapFloorCollarTrade = null;
+		StringBuilder query = new StringBuilder(SQL_QUERY);
+		TradistaDBUtil.addParameterizedFilter(query, IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtGetTradeById = con.prepareStatement("SELECT TRADE.*, "
-						+ "IRCAP_FLOOR_COLLAR_TRADE.*," + " FWD_TRADE.AMOUNT FWD_AMOUNT," + " IRFORWARD_TRADE.*"
-						+ "  FROM TRADE, IRCAP_FLOOR_COLLAR_TRADE, IRFORWARD_TRADE, TRADE FWD_TRADE WHERE "
-						+ "TRADE.ID = IRCAP_FLOOR_COLLAR_TRADE_ID " + "AND IRCAP_FLOOR_COLLAR_TRADE_ID = ?"
-						+ " AND IRCAP_FLOOR_COLLAR_TRADE.IRFORWARD_TRADE_ID = IRFORWARD_TRADE.IRFORWARD_TRADE_ID"
-						+ " AND IRFORWARD_TRADE.IRFORWARD_TRADE_ID = FWD_TRADE.ID")) {
+				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
 			stmtGetTradeById.setLong(1, id);
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irCapFloorCollarTrade == null) {
-						irCapFloorCollarTrade = new IRCapFloorCollarTrade();
+						irCapFloorCollarTrade = IRCapFloorCollarTrade.of(TradeSQL.getCreationTime(results));
 					}
 
-					irCapFloorCollarTrade.setId(id);
-					irCapFloorCollarTrade.setAmount(results.getBigDecimal("amount"));
-					irCapFloorCollarTrade.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					irCapFloorCollarTrade.setCurrency(CurrencySQL.getCurrencyById(results.getLong("currency_id")));
-					irCapFloorCollarTrade.setBuySell(results.getBoolean("BUY_SELL"));
-					irCapFloorCollarTrade.setCapStrike(results.getBigDecimal("CAP_STRIKE"));
-					irCapFloorCollarTrade.setFloorStrike(results.getBigDecimal("FLOOR_STRIKE"));
-					irCapFloorCollarTrade.setCreationDate(results.getDate("CREATION_DATE").toLocalDate());
-					java.sql.Date tradeDate = results.getDate("trade_date");
-					if (tradeDate != null) {
-						irCapFloorCollarTrade.setTradeDate(tradeDate.toLocalDate());
-					}
-					java.sql.Date settlementDate = results.getDate("settlement_date");
-					if (settlementDate != null) {
-						irCapFloorCollarTrade.setSettlementDate(settlementDate.toLocalDate());
-					}
-					irCapFloorCollarTrade
-							.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
+					TradeSQL.setTradeCommonFields(irCapFloorCollarTrade, results);
+					irCapFloorCollarTrade.setCapStrike(results.getBigDecimal(CAP_STRIKE_FIELD.getName()));
+					irCapFloorCollarTrade.setFloorStrike(results.getBigDecimal(FLOOR_STRIKE_FIELD.getName()));
 
 					// Building the IRForward
-					IRForwardTrade<Product> irForward = new IRForwardTrade<>();
-					irForward.setId(results.getLong("IRFORWARD_TRADE_ID"));
-					irForward.setBook(BookSQL.getBookById(results.getLong("book_id")));
-					irForward.setAmount(results.getBigDecimal("FWD_AMOUNT"));
-					irForward.setBuySell(results.getBoolean("BUY_SELL"));
-					irForward.setCreationDate(results.getDate("CREATION_DATE").toLocalDate());
-					irForward.setCurrency(CurrencySQL.getCurrencyById(results.getLong("CURRENCY_ID")));
-					irForward.setFrequency(Tenor.valueOf(results.getString("frequency")));
-					java.sql.Date maturityDate = results.getDate("maturity_date");
-					if (maturityDate != null) {
-						irForward.setMaturityDate(maturityDate.toLocalDate());
-					}
-					irForward.setDayCountConvention(DayCountConventionSQL
-							.getDayCountConventionById(results.getLong("day_count_convention_id")));
-					irForward.setReferenceRateIndex(IndexSQL.getIndexById(results.getLong("reference_rate_index_id")));
-					irForward
-							.setReferenceRateIndexTenor(Tenor.valueOf(results.getString("reference_rate_index_tenor")));
-					irForward.setInterestPayment(InterestPayment.valueOf(results.getString("interest_payment")));
-					irForward.setInterestFixing(InterestPayment.valueOf(results.getString("interest_fixing")));
-					tradeDate = results.getDate("trade_date");
-					if (tradeDate != null) {
-						irForward.setTradeDate(tradeDate.toLocalDate());
-					}
-					settlementDate = results.getDate("settlement_date");
-					if (settlementDate != null) {
-						irForward.setSettlementDate(settlementDate.toLocalDate());
-					}
-					irForward.setCounterparty(LegalEntitySQL.getLegalEntityById(results.getLong("counterparty_id")));
-
+					IRForwardTrade<Product> irForward = IRForwardTradeSQL
+							.getTradeById(results.getLong(IRFORWARD_TRADE_ID_FIELD.getName()));
 					irCapFloorCollarTrade.setIrForwardTrade(irForward);
 
 				}
 			}
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		return irCapFloorCollarTrade;
 	}
@@ -125,23 +118,27 @@ public class IRCapFloorCollarTradeSQL {
 
 		IRCapFloorCollarTrade irCapFloorCollarTrade = null;
 		try {
-			if (rs.getLong("ircap_floor_collar_trade_id") == 0) {
+			if (rs.getLong(IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD.getName()) == 0) {
 				return null;
 			}
-			irCapFloorCollarTrade = new IRCapFloorCollarTrade();
-			irCapFloorCollarTrade.setCapStrike(rs.getBigDecimal("CAP_STRIKE"));
-			irCapFloorCollarTrade.setFloorStrike(rs.getBigDecimal("FLOOR_STRIKE"));
+			irCapFloorCollarTrade = IRCapFloorCollarTrade.of(TradeSQL.getCreationTime(rs));
+			irCapFloorCollarTrade.setCapStrike(rs.getBigDecimal(CAP_STRIKE_FIELD.getName()));
+			irCapFloorCollarTrade.setFloorStrike(rs.getBigDecimal(FLOOR_STRIKE_FIELD.getName()));
 
 			// Commmon fields
 			TradeSQL.setTradeCommonFields(irCapFloorCollarTrade, rs);
 
 			// Building the IRForward
-			IRForwardTrade<Product> irForward = new IRForwardTrade<>();
+			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_IRFORWARD_CREATION_TIME");
+			IRForwardTrade.ConcreteBuilder<Product> undBuilder = new IRForwardTrade.ConcreteBuilder<>();
+			if (undCreationTime != null) {
+				undBuilder.creationTime(undCreationTime.toInstant());
+			}
+			IRForwardTrade<Product> irForward = undBuilder.build();
 			irForward.setId(rs.getLong("UND_IRFORWARD_ID"));
 			irForward.setAmount(rs.getBigDecimal("UND_IRFORWARD_AMOUNT"));
 			irForward.setBook(BookSQL.getBookById(rs.getLong("UND_IRFORWARD_BOOK_ID")));
 			irForward.setBuySell(rs.getBoolean("UND_IRFORWARD_BUY_SELL"));
-			irForward.setCreationDate(rs.getDate("UND_IRFORWARD_CREATION_DATE").toLocalDate());
 			irForward.setCurrency(CurrencySQL.getCurrencyById(rs.getLong("UND_IRFORWARD_CURRENCY_ID")));
 			irForward.setFrequency(Tenor.valueOf(rs.getString("fwd_frequency")));
 			java.sql.Date maturityDate = rs.getDate("fwd_maturity_date");
@@ -175,29 +172,11 @@ public class IRCapFloorCollarTradeSQL {
 	public static long saveIRCapFloorCollarTrade(IRCapFloorCollarTrade trade) {
 		long tradeId = 0;
 		try (Connection con = TradistaDB.getConnection();
-				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO TRADE(BUY_SELL, TRADE_DATE, SETTLEMENT_DATE, PRODUCT_ID, COUNTERPARTY_ID, AMOUNT, CURRENCY_ID, BOOK_ID, CREATION_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-						Statement.RETURN_GENERATED_KEYS)
-						: con.prepareStatement(
-								"UPDATE TRADE SET BUY_SELL=?, TRADE_DATE=?, SETTLEMENT_DATE=?, PRODUCT_ID=?, COUNTERPARTY_ID=?, AMOUNT=?, CURRENCY_ID=?, BOOK_ID=? WHERE ID = ?");
-				PreparedStatement stmtSaveIRCapFloorCollarTrade = (trade.getId() == 0) ? con.prepareStatement(
-						"INSERT INTO IRCAP_FLOOR_COLLAR_TRADE(CAP_STRIKE, FLOOR_STRIKE, IRFORWARD_TRADE_ID, IRCAP_FLOOR_COLLAR_TRADE_ID) VALUES (?, ?, ?, ?) ")
-						: con.prepareStatement(
-								"UPDATE IRCAP_FLOOR_COLLAR_TRADE SET CAP_STRIKE=?, FLOOR_STRIKE=?, IRFORWARD_TRADE_ID=? WHERE IRCAP_FLOOR_COLLAR_TRADE_ID = ?")) {
-			boolean isBuy = trade.isBuy();
-			if (trade.getId() == 0) {
-				stmtSaveTrade.setDate(9, java.sql.Date.valueOf(trade.getCreationDate()));
-			} else {
-				stmtSaveTrade.setLong(9, trade.getId());
-			}
-			stmtSaveTrade.setBoolean(1, isBuy);
-			stmtSaveTrade.setDate(2, java.sql.Date.valueOf(trade.getTradeDate()));
-			stmtSaveTrade.setDate(3, java.sql.Date.valueOf(trade.getSettlementDate()));
-			stmtSaveTrade.setLong(5, trade.getCounterparty().getId());
-			stmtSaveTrade.setNull(4, java.sql.Types.BIGINT);
-			stmtSaveTrade.setBigDecimal(6, trade.getAmount());
-			stmtSaveTrade.setLong(7, trade.getCurrency().getId());
-			stmtSaveTrade.setLong(8, trade.getBook().getId());
+				PreparedStatement stmtSaveTrade = (trade.getId() == 0) ? TradeSQL.getInsertStatement(con)
+						: TradeSQL.getUpdateStatement(con);
+				PreparedStatement stmtSaveIRCapFloorCollarTrade = (trade.getId() == 0) ? getInsertStatement(con)
+						: getUpdateStatement(con)) {
+			TradeSQL.setPreparedStatementCommonFields(trade, stmtSaveTrade);
 			stmtSaveTrade.executeUpdate();
 
 			if (trade.getId() == 0) {
@@ -229,8 +208,8 @@ public class IRCapFloorCollarTradeSQL {
 			stmtSaveIRCapFloorCollarTrade.setLong(4, tradeId);
 			stmtSaveIRCapFloorCollarTrade.executeUpdate();
 
-		} catch (SQLException sqle) {
-			throw new TradistaTechnicalException(sqle);
+		} catch (SQLException | TradistaBusinessException e) {
+			throw new TradistaTechnicalException(e);
 		}
 		trade.setId(tradeId);
 		return tradeId;

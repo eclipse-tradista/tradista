@@ -63,7 +63,7 @@ public class SpecificRepoTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (specificRepoTrade == null) {
-						specificRepoTrade = new SpecificRepoTrade();
+						specificRepoTrade = SpecificRepoTrade.of(TradeSQL.getCreationTime(results));
 					}
 					TradeSQL.setTradeCommonFields(specificRepoTrade, results);
 					RepoTradeSQL.setRepoTradeCommonFields(specificRepoTrade, results);
@@ -115,7 +115,7 @@ public class SpecificRepoTradeSQL {
 
 		SpecificRepoTrade specificRepoTrade = null;
 		try {
-			specificRepoTrade = RepoTradeSQL.fillTrade(rs, new SpecificRepoTrade(),
+			specificRepoTrade = RepoTradeSQL.fillTrade(rs, SpecificRepoTrade.of(TradeSQL.getCreationTime(rs)),
 					rs.getLong(REPO_TRADE_ID_FIELD.getName()));
 			if (specificRepoTrade != null) {
 				long securityId = rs.getLong(PRODUCT_ID_FIELD.getName());

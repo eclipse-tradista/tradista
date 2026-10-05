@@ -136,7 +136,7 @@ public class EquityOptionCreatorDialog extends TradistaDialog<EquityOption> {
 						error.showAndWait();
 						return null;
 					}
-					return new EquityOption(codeTextField.getText(), typeComboBox.getValue(), strike,
+					return EquityOption.of(codeTextField.getText(), typeComboBox.getValue(), strike,
 							maturityDateDatePicker.getValue(), contractSpecificationComboBox.getValue());
 				}
 				return null;

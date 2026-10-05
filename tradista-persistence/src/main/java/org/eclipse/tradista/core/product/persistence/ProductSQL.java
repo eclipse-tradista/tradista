@@ -1,7 +1,9 @@
 package org.eclipse.tradista.core.product.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.EXCHANGE_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,15 +39,21 @@ import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 
 public class ProductSQL {
 
-	private static final Field ID_FIELD = new Field(ID);
-	private static final Field CREATION_DATE_FIELD = new Field(CREATION_DATE);
-	private static final Field[] FIELDS = { ID_FIELD, CREATION_DATE_FIELD };
-	private static final Table TABLE = new Table("PRODUCT", FIELDS);
+	public static final Field ID_FIELD = new Field(ID);
+	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
+	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME);
+	public static final Field EXCHANGE_ID_FIELD = new Field(EXCHANGE_ID);
+	private static final Field[] FIELDS = { ID_FIELD, CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD, EXCHANGE_ID_FIELD };
+	public static final Table PRODUCT_TABLE = new Table("PRODUCT", FIELDS);
+
+	public static final Field[] PRODUCT_FIELDS_FOR_INSERT = { CREATION_TIME_FIELD, LAST_UPDATE_TIME_FIELD,
+			EXCHANGE_ID_FIELD };
+	public static final Field[] PRODUCT_FIELDS_FOR_UPDATE = { LAST_UPDATE_TIME_FIELD, EXCHANGE_ID_FIELD };
 
 	public static Product getProductById(long id) {
 		Product product = null;
 
-		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(TABLE));
+		StringBuilder sql = new StringBuilder(TradistaDBUtil.buildSelectQuery(PRODUCT_TABLE));
 		TradistaDBUtil.addParameterizedFilter(sql, ID_FIELD);
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetProductById = con.prepareStatement(sql.toString())) {
@@ -59,8 +67,6 @@ public class ProductSQL {
 							return null;
 						}
 					}
-					product.setId(results.getLong(ID_FIELD.getName()));
-					product.setCreationDate(results.getDate(CREATION_DATE_FIELD.getName()).toLocalDate());
 				}
 			}
 		} catch (SQLException sqle) {
