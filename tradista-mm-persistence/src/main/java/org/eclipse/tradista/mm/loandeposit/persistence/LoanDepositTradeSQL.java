@@ -10,6 +10,7 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PAYMENT_FREQUENCY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SPREAD;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FIXED_RATE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
@@ -55,7 +56,7 @@ import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 public class LoanDepositTradeSQL {
 
 	public static final Field LOAN_DEPOSIT_TRADE_ID_FIELD = new Field("LOAN_DEPOSIT_TRADE_ID");
-	public static final Field FIXED_RATE_FIELD = new Field("FIXED_RATE");
+	public static final Field FIXED_RATE_FIELD = new Field(FIXED_RATE);
 	public static final Field FLOATING_RATE_INDEX_ID_FIELD = new Field("FLOATING_RATE_INDEX_ID");
 	public static final Field FLOATING_RATE_INDEX_TENOR_FIELD = new Field("FLOATING_RATE_INDEX_TENOR");
 	public static final Field DAY_COUNT_CONVENTION_ID_FIELD = new Field("DAY_COUNT_CONVENTION_ID");
@@ -116,10 +117,9 @@ public class LoanDepositTradeSQL {
 					if (mmTrade == null) {
 						if (results.getString(DIRECTION_FIELD.getName())
 								.equals(LoanDepositTrade.Direction.LOAN.name())) {
-							mmTrade = new LoanTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+							mmTrade = LoanTrade.of(TradeSQL.getCreationTime(results));
 						} else {
-							mmTrade = new DepositTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
-									.build();
+							mmTrade = DepositTrade.of(TradeSQL.getCreationTime(results));
 						}
 					}
 					TradeSQL.setTradeCommonFields(mmTrade, results);
@@ -246,9 +246,9 @@ public class LoanDepositTradeSQL {
 			}
 
 			if (rs.getString(DIRECTION_FIELD.getName()).equals(LoanDepositTrade.Direction.LOAN.name())) {
-				mmTrade = new LoanTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+				mmTrade = LoanTrade.of(TradeSQL.getCreationTime(rs));
 			} else {
-				mmTrade = new DepositTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+				mmTrade = DepositTrade.of(TradeSQL.getCreationTime(rs));
 			}
 
 			mmTrade.setDayCountConvention(DayCountConventionSQL

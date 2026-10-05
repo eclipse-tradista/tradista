@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.ccyswap.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -102,7 +103,22 @@ public class CcySwapTrade extends IRSwapTrade {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static CcySwapTrade create() {
+		return builder().build();
+	}
+
+	public static CcySwapTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends IRSwapTrade.Builder<CcySwapTrade, Builder> {
+		private Builder() {
+		}
+
 		protected Currency currencyTwo;
 		protected BigDecimal notionalAmountTwo;
 

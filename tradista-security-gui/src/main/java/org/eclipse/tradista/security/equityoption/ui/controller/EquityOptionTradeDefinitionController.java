@@ -391,8 +391,8 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 							return false;
 						}
 						if (equityOptionTrade == null) {
-							equityOptionTrade = new EquityOptionTrade.Builder().build();
-							EquityTrade equityTrade = new EquityTrade.Builder().build();
+							equityOptionTrade = EquityOptionTrade.create();
+							EquityTrade equityTrade = EquityTrade.create();
 							equityTrade.setProduct(equity.getValue());
 							equityOptionTrade.setUnderlying(equityTrade);
 							if (!equityOption.getValue().equals(BlankEquityOption.getInstance())) {
@@ -793,7 +793,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new EquityOptionTrade.Builder().build();
+			trade = EquityOptionTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -829,7 +829,7 @@ public class EquityOptionTradeDefinitionController extends TradistaTradeBookingC
 			// Building the underlying
 			EquityTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				underlying = new EquityTrade.Builder().build();
+				underlying = EquityTrade.create();
 			}
 
 			underlying.setProduct(equity.getValue());

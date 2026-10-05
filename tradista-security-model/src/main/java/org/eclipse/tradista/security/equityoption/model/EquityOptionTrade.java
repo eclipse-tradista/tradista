@@ -1,6 +1,7 @@
 package org.eclipse.tradista.security.equityoption.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.product.model.Product;
@@ -71,7 +72,26 @@ public class EquityOptionTrade extends VanillaOptionTrade<EquityTrade> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static EquityOptionTrade create() {
+		return builder().build();
+	}
+
+	public static EquityOptionTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static EquityOptionTrade of(EquityOption equityOption) {
+		return builder().equityOption(equityOption).build();
+	}
+
 	public static class Builder extends VanillaOptionTrade.Builder<EquityTrade, EquityOptionTrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal quantity;
 
 		public Builder quantity(BigDecimal quantity) {

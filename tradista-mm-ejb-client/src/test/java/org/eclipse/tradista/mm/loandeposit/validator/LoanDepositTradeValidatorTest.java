@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
@@ -17,7 +18,6 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -38,28 +38,15 @@ import org.junit.jupiter.api.Test;
 
 public class LoanDepositTradeValidatorTest {
 
-	private static LoanDepositTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static DayCountConvention dcc;
-	private static Index index;
-
-	@BeforeAll
-	public static void setUp() {
-		validator = new LoanDepositTradeValidator();
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		dcc = new DayCountConvention(DayCountConvention.ACT_360);
-		index = new Index("EURIBOR");
-	}
+	private static final LoanDepositTradeValidator validator = new LoanDepositTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final DayCountConvention dcc = new DayCountConvention(DayCountConvention.ACT_360);
+	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	private LoanTrade.Builder createValidLoanTradeBuilder() {
-		return new LoanTrade.Builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency)
+		return LoanTrade.builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.ONE_YEAR).dayCountConvention(dcc)
@@ -67,7 +54,7 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	private DepositTrade.Builder createValidDepositTradeBuilder() {
-		return new DepositTrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).currency(currency)
+		return DepositTrade.builder().fixedRate(BigDecimal.valueOf(2.5)).currency(currency)
 				.amount(BigDecimal.valueOf(500_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.ONE_YEAR).dayCountConvention(dcc)
@@ -88,7 +75,7 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testValidFloatingLoanTrade() {
-		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.fixingPeriod(Tenor.THREE_MONTHS).interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
 				.spread(BigDecimal.valueOf(0.25)).currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
@@ -234,7 +221,7 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testFloatingRateMissingFixingPeriod() {
-		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
@@ -245,7 +232,7 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testFloatingRateMissingInterestFixing() {
-		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.fixingPeriod(Tenor.THREE_MONTHS).currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.THREE_MONTHS).dayCountConvention(dcc)
@@ -255,7 +242,7 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testFloatingRateMissingTenor() {
-		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).fixingPeriod(Tenor.THREE_MONTHS)
+		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).fixingPeriod(Tenor.THREE_MONTHS)
 				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
@@ -266,7 +253,7 @@ public class LoanDepositTradeValidatorTest {
 
 	@Test
 	public void testInterestPaymentBeforeInterestFixing() {
-		LoanTrade trade = new LoanTrade.Builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
+		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.fixingPeriod(Tenor.THREE_MONTHS).interestFixing(InterestPayment.END_OF_PERIOD).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))

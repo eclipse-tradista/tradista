@@ -31,7 +31,7 @@ public class MandateAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewMandate() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		Mandate mandate = new Mandate.Builder("TestMandate").build();
+		Mandate mandate = Mandate.of("TestMandate");
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(mandate.getCreationTime());
@@ -47,7 +47,7 @@ public class MandateAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		Mandate mandate = new Mandate.Builder("TestMandate").creationTime(historicalCreation)
+		Mandate mandate = Mandate.builder("TestMandate").creationTime(historicalCreation)
 				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, mandate.getCreationTime());
@@ -57,7 +57,7 @@ public class MandateAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateTimeIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		Mandate mandate = new Mandate.Builder("TestMandate").creationTime(originalCreation).build();
+		Mandate mandate = Mandate.builder("TestMandate").creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, mandate.getCreationTime());
 
@@ -69,7 +69,7 @@ public class MandateAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		Mandate mandate = new Mandate.Builder("TestMandate").build();
+		Mandate mandate = Mandate.of("TestMandate");
 
 		assertNotNull(mandate.getLastUpdateTime());
 
@@ -84,7 +84,7 @@ public class MandateAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		Mandate original = new Mandate.Builder("TestMandate").acceptedRiskLevel(Mandate.RiskLevel.AVERAGE)
+		Mandate original = Mandate.builder("TestMandate").acceptedRiskLevel(Mandate.RiskLevel.AVERAGE)
 				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		Mandate copy = original.toBuilder().build();

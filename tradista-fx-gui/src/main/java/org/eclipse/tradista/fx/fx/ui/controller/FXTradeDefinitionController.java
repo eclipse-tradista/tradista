@@ -747,7 +747,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (settlementDate.getValue() != null) {
-					FXTrade fxTrade = new FXTrade.Builder().build();
+					FXTrade fxTrade = FXTrade.create();
 					fxTrade.setCurrency(currencyTwo.getValue());
 					fxTrade.setCurrencyOne(currencyOne.getValue());
 					fxTrade.setTradeDate(newDate);
@@ -770,7 +770,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null && tradeDate.getValue() != null) {
-					FXTrade fxTrade = new FXTrade.Builder().build();
+					FXTrade fxTrade = FXTrade.create();
 					fxTrade.setCurrency(currencyTwo.getValue());
 					fxTrade.setCurrencyOne(currencyOne.getValue());
 					fxTrade.setTradeDate(tradeDate.getValue());
@@ -797,7 +797,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxTrade == null) {
-							fxTrade = new FXTrade.Builder().build();
+							fxTrade = FXTrade.create();
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxTrade.setCurrency(currencyTwo.getValue());
 						}
@@ -829,7 +829,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 					private boolean isAvailable(LocalDate date) {
 						boolean isAvailable = true;
 						if (fxTrade == null) {
-							fxTrade = new FXTrade.Builder().build();
+							fxTrade = FXTrade.create();
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxTrade.setCurrency(currencyTwo.getValue());
 						}
@@ -1037,7 +1037,7 @@ public class FXTradeDefinitionController extends TradistaTradeBookingController 
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXTrade.Builder().build();
+			trade = FXTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

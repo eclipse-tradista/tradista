@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.fx.fxndf.model.FXNDFTrade;
@@ -33,29 +34,19 @@ import org.junit.jupiter.api.Test;
 
 public class FXNDFTradeValidatorTest {
 
-	private static FXNDFTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency usd;
-	private static Currency brl;
+	private static final FXNDFTradeValidator validator = new FXNDFTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency usd = TradistaTestUtil.USD;
+	private static final Currency brl = TradistaTestUtil.BRL;
 
 	@BeforeAll
 	public static void setUp() {
 		FXTestUtil.setupFXExchange();
-		validator = new FXNDFTradeValidator();
-
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		usd = new Currency("USD");
-		brl = new Currency("BRL");
 	}
 
 	private FXNDFTrade.Builder createValidTradeBuilder() {
-		return new FXNDFTrade.Builder().nonDeliverableCurrency(brl).currency(usd).ndfRate(BigDecimal.valueOf(5.25))
+		return FXNDFTrade.builder().nonDeliverableCurrency(brl).currency(usd).ndfRate(BigDecimal.valueOf(5.25))
 				.amount(BigDecimal.valueOf(100_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3));
 	}

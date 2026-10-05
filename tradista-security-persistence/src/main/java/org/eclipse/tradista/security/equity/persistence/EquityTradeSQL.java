@@ -82,7 +82,7 @@ public class EquityTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (equityTrade == null) {
-						equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						equityTrade = EquityTrade.of(TradeSQL.getCreationTime(results));
 					}
 					TradeSQL.setTradeCommonFields(equityTrade, results);
 					equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
@@ -140,7 +140,7 @@ public class EquityTradeSQL {
 			if (rs.getLong("equity_trade_id") == 0) {
 				return null;
 			}
-			equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			equityTrade = EquityTrade.of(TradeSQL.getCreationTime(rs));
 			equityTrade.setProduct(EquitySQL.getEquityById(rs.getLong(PRODUCT_ID_FIELD.getName())));
 			equityTrade.setQuantity(rs.getBigDecimal("equity_quantity"));
 
@@ -177,8 +177,7 @@ public class EquityTradeSQL {
 				if (equityTrades == null) {
 					equityTrades = new ArrayList<>();
 				}
-				EquityTrade equityTrade = new EquityTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
-						.build();
+				EquityTrade equityTrade = EquityTrade.of(TradeSQL.getCreationTime(results));
 				TradeSQL.setTradeCommonFields(equityTrade, results);
 				equityTrade.setProduct(EquitySQL.getEquityById(results.getLong(PRODUCT_ID_FIELD.getName())));
 				equityTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));

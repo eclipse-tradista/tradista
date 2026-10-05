@@ -70,16 +70,32 @@ public class ProductTransfer extends Transfer {
 		return builder;
 	}
 
+	public static Builder builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate) {
+		return new Builder(book, product, purpose, settlementDate);
+	}
+
+	public static Builder builder(Book book, TransferPurpose purpose, LocalDate settlementDate) {
+		return new Builder(book, purpose, settlementDate);
+	}
+
+	public static ProductTransfer of(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate) {
+		return builder(book, product, purpose, settlementDate).build();
+	}
+
+	public static ProductTransfer of(Book book, TransferPurpose purpose, LocalDate settlementDate) {
+		return builder(book, purpose, settlementDate).build();
+	}
+
 	public static class Builder extends Transfer.Builder<ProductTransfer, Builder> {
 
-		public Builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate) {
+		private Builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate) {
 			this.book = book;
 			this.product = product;
 			this.purpose = purpose;
 			this.settlementDate = settlementDate;
 		}
 
-		public Builder(Book book, TransferPurpose purpose, LocalDate settlementDate) {
+		private Builder(Book book, TransferPurpose purpose, LocalDate settlementDate) {
 			this.book = book;
 			this.purpose = purpose;
 			this.settlementDate = settlementDate;

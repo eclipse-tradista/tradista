@@ -119,6 +119,14 @@ public class Bond extends Security implements Instrument {
 		return builder;
 	}
 
+	public static Builder builder(Exchange exchange, String isin) {
+		return new Builder(exchange, isin);
+	}
+
+	public static Bond of(Exchange exchange, String isin) {
+		return builder(exchange, isin).build();
+	}
+
 	public static class Builder extends Security.Builder<Bond, Builder> {
 		protected BigDecimal coupon;
 		protected LocalDate maturityDate;
@@ -135,7 +143,7 @@ public class Bond extends Security implements Instrument {
 		protected BigDecimal leverageFactor;
 		protected List<Coupon> coupons;
 
-		public Builder(Exchange exchange, String isin) {
+		private Builder(Exchange exchange, String isin) {
 			super(exchange, isin);
 		}
 

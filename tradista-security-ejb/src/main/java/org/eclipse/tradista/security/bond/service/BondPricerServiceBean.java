@@ -526,7 +526,7 @@ public class BondPricerServiceBean implements BondPricerService {
 				.getOpenPositionsFromInventoryByProductAndBookIds(bond.getId(), bookId);
 		BigDecimal unrealizedPnl = BigDecimal.ZERO;
 		if (inventories != null && !inventories.isEmpty()) {
-			BondTrade trade = new BondTrade.Builder().buySell(true).product(bond)
+			BondTrade trade = BondTrade.builder().buySell(true).product(bond)
 					.settlementDate(inventories.toArray(new ProductInventory[0])[0].getFrom())
 					.quantity(inventories.toArray(new ProductInventory[0])[0].getQuantity()).build();
 			return pvDiscountedCashFlow(params, trade, currency, pricingDate);

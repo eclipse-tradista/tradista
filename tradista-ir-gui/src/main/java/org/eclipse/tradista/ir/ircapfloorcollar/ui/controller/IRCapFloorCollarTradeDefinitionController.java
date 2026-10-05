@@ -411,7 +411,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 					private boolean isAvailable(LocalDate date) {
 						if (irCapFloorCollarTrade == null) {
-							irCapFloorCollarTrade = new IRCapFloorCollarTrade.Builder().build();
+							irCapFloorCollarTrade = IRCapFloorCollarTrade.create();
 							IRForwardTrade<Product> irForwardTrade = new IRForwardTrade.ConcreteBuilder<Product>()
 									.build();
 							irForwardTrade.setCurrency(currency.getValue());
@@ -617,7 +617,7 @@ public class IRCapFloorCollarTradeDefinitionController extends TradistaTradeBook
 
 	private IRCapFloorCollarTrade buildTrade() {
 		if (this.trade == null) {
-			trade = new IRCapFloorCollarTrade.Builder().build();
+			trade = IRCapFloorCollarTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

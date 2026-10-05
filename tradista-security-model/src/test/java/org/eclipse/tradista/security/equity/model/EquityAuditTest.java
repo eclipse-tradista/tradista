@@ -8,9 +8,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.exchange.model.Exchange;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -31,19 +30,13 @@ import org.junit.jupiter.api.Test;
 
 public class EquityAuditTest {
 
-	private static Exchange exchange;
-	private static Currency currency;
-
-	@BeforeAll
-	public static void setUp() {
-		exchange = new Exchange("EPA");
-		currency = new Currency("EUR");
-	}
+	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
 
 	@Test
 	public void testDefaultCreationTimeOnNewEquity() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).totalIssued(1_000_000L).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(TradistaTestUtil.EUR).totalIssued(1_000_000L)
+				.build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(equity.getCreationTime());
@@ -59,7 +52,7 @@ public class EquityAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").creationTime(historicalCreation)
+		Equity equity = Equity.builder(exchange, "FR0000120271").creationTime(historicalCreation)
 				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, equity.getCreationTime());
@@ -69,7 +62,7 @@ public class EquityAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").creationTime(originalCreation).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, equity.getCreationTime());
 
@@ -81,7 +74,7 @@ public class EquityAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").build();
+		Equity equity = Equity.of(exchange, "FR0000120271");
 
 		assertNotNull(equity.getLastUpdateTime());
 
@@ -96,7 +89,7 @@ public class EquityAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		Equity original = new Equity.Builder(exchange, "FR0000120271").currency(currency).totalIssued(500_000L)
+		Equity original = Equity.builder(exchange, "FR0000120271").currency(TradistaTestUtil.EUR).totalIssued(500_000L)
 				.tradingSize(100L).creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		Equity copy = original.toBuilder().build();

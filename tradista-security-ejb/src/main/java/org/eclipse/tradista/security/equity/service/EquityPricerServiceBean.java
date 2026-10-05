@@ -323,7 +323,7 @@ public class EquityPricerServiceBean implements EquityPricerService {
 				.getOpenPositionsFromInventoryByProductAndBookIds(equity.getId(), bookId);
 		BigDecimal unrealizedPnl = BigDecimal.ZERO;
 		if (inventories != null && !inventories.isEmpty()) {
-			EquityTrade trade = new EquityTrade.Builder().buySell(true).product(equity)
+			EquityTrade trade = EquityTrade.builder().buySell(true).product(equity)
 					.quantity(inventories.toArray(new ProductInventory[0])[0].getQuantity()).build();
 			return pvMonteCarloSimulation(params, trade, currency, pricingDate);
 		}

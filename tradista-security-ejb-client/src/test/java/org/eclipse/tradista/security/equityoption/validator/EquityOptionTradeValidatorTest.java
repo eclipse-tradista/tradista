@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
@@ -17,7 +18,6 @@ import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -38,35 +38,25 @@ import org.junit.jupiter.api.Test;
 
 public class EquityOptionTradeValidatorTest {
 
-	private static EquityOptionTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static EquityTrade underlyingTrade;
+	private static final EquityOptionTradeValidator validator = new EquityOptionTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final EquityTrade underlyingTrade;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new EquityOptionTradeValidator();
-
-		currency = new Currency("EUR");
-		Exchange exchange = new Exchange("EPA");
+	static {
+		Exchange exchange = TradistaTestUtil.createExchange("EPA");
 		Calendar calendar = new Calendar("EPA_CAL");
 		exchange.setCalendar(calendar);
 
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).build();
-		underlyingTrade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
-				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(currency).build();
+		underlyingTrade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty).currency(currency)
+				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).build();
 	}
 
 	private EquityOptionTrade.Builder createValidTradeBuilder() {
-		return new EquityOptionTrade.Builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
+		return EquityOptionTrade.builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
 				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.maturityDate(LocalDate.of(2025, 9, 1)).strike(BigDecimal.valueOf(100))
 				.style(VanillaOptionTrade.Style.EUROPEAN).type(OptionTrade.Type.CALL)

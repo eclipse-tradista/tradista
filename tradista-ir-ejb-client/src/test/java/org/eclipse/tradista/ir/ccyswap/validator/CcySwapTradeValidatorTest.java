@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
@@ -15,7 +16,6 @@ import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.ir.ccyswap.model.CcySwapTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -36,29 +36,15 @@ import org.junit.jupiter.api.Test;
 
 public class CcySwapTradeValidatorTest {
 
-	private static CcySwapTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency eur;
-	private static Currency usd;
-	private static Index index;
-
-	@BeforeAll
-	public static void setUp() {
-		validator = new CcySwapTradeValidator();
-
-		eur = new Currency("EUR");
-		usd = new Currency("USD");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		index = new Index("EURIBOR");
-	}
+	private static final CcySwapTradeValidator validator = new CcySwapTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency eur = TradistaTestUtil.EUR;
+	private static final Currency usd = TradistaTestUtil.USD;
+	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	private CcySwapTrade.Builder createValidTradeBuilder() {
-		return new CcySwapTrade.Builder().currency(eur).currencyTwo(usd).amount(BigDecimal.valueOf(1_000_000))
+		return CcySwapTrade.builder().currency(eur).currencyTwo(usd).amount(BigDecimal.valueOf(1_000_000))
 				.notionalAmountTwo(BigDecimal.valueOf(1_100_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.maturityDate(LocalDate.of(2030, 6, 3)).paymentFrequency(Tenor.SIX_MONTHS)

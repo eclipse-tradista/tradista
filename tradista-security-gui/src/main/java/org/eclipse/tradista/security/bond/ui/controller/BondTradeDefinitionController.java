@@ -388,7 +388,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 
 			private boolean isAvailable(LocalDate date) {
 				if (bondTrade == null) {
-					bondTrade = new BondTrade.Builder().build();
+					bondTrade = BondTrade.create();
 					bondTrade.setProduct(bond.getValue());
 				}
 				if (bondTrade.getProduct() != null) {
@@ -714,7 +714,7 @@ public class BondTradeDefinitionController extends TradistaTradeBookingControlle
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new BondTrade.Builder().build();
+			trade = BondTrade.create();
 		}
 		try {
 			if (!tradePrice.getText().isEmpty()) {

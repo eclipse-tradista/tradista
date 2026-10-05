@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
@@ -36,36 +37,26 @@ import org.junit.jupiter.api.Test;
 
 public class FXOptionTradeValidatorTest {
 
-	private static FXOptionTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency eur;
-	private static Currency usd;
+	private static final FXOptionTradeValidator validator = new FXOptionTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency eur = TradistaTestUtil.EUR;
+	private static final Currency usd = TradistaTestUtil.USD;
 
 	@BeforeAll
 	public static void setUp() {
 		FXTestUtil.setupFXExchange();
-		validator = new FXOptionTradeValidator();
-
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		eur = new Currency("EUR");
-		usd = new Currency("USD");
 	}
 
 	private FXTrade createValidUnderlying() {
-		return new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+		return FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
 				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
 				.type(FXTrade.Type.FX_SPOT).build();
 	}
 
 	private FXOptionTrade.Builder createValidTradeBuilder() {
-		return new FXOptionTrade.Builder().underlying(createValidUnderlying()).book(book).counterparty(counterparty)
+		return FXOptionTrade.builder().underlying(createValidUnderlying()).book(book).counterparty(counterparty)
 				.currency(usd).amount(BigDecimal.valueOf(5000)).style(VanillaOptionTrade.Style.EUROPEAN)
 				.type(OptionTrade.Type.CALL).settlementType(OptionTrade.SettlementType.CASH).settlementDateOffset(2)
 				.tradeDate(LocalDate.of(2025, 6, 1)).maturityDate(LocalDate.of(2025, 12, 1))
@@ -91,7 +82,7 @@ public class FXOptionTradeValidatorTest {
 
 	@Test
 	public void testUnderlyingMissingAmountOne() {
-		FXTrade underlying = new FXTrade.Builder().currencyOne(eur).currency(usd).amount(BigDecimal.valueOf(110_000))
+		FXTrade underlying = FXTrade.builder().currencyOne(eur).currency(usd).amount(BigDecimal.valueOf(110_000))
 				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
 				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
 		FXOptionTrade trade = createValidTradeBuilder().underlying(underlying).build();
@@ -100,14 +91,14 @@ public class FXOptionTradeValidatorTest {
 
 	@Test
 	public void testUnderlyingZeroOrNegativeAmountOne() {
-		FXTrade underlyingZero = new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.ZERO)
+		FXTrade underlyingZero = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.ZERO)
 				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
 				.type(FXTrade.Type.FX_SPOT).build();
 		FXOptionTrade tradeZero = createValidTradeBuilder().underlying(underlyingZero).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 
-		FXTrade underlyingNeg = new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(-100))
+		FXTrade underlyingNeg = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(-100))
 				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
 				.type(FXTrade.Type.FX_SPOT).build();
@@ -117,7 +108,7 @@ public class FXOptionTradeValidatorTest {
 
 	@Test
 	public void testUnderlyingMissingAmountTwo() {
-		FXTrade underlying = new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+		FXTrade underlying = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
 				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
 				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
 		FXOptionTrade trade = createValidTradeBuilder().underlying(underlying).build();
@@ -126,17 +117,16 @@ public class FXOptionTradeValidatorTest {
 
 	@Test
 	public void testUnderlyingZeroOrNegativeAmountTwo() {
-		FXTrade underlyingZero = new FXTrade.Builder().currencyOne(eur).currency(usd)
-				.amountOne(BigDecimal.valueOf(100_000)).amount(BigDecimal.ZERO).book(book).counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
-				.type(FXTrade.Type.FX_SPOT).build();
+		FXTrade underlyingZero = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+				.amount(BigDecimal.ZERO).book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
+				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
 		FXOptionTrade tradeZero = createValidTradeBuilder().underlying(underlyingZero).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 
-		FXTrade underlyingNeg = new FXTrade.Builder().currencyOne(eur).currency(usd)
-				.amountOne(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(-100)).book(book)
-				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
-				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
+		FXTrade underlyingNeg = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+				.amount(BigDecimal.valueOf(-100)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
+				.type(FXTrade.Type.FX_SPOT).build();
 		FXOptionTrade tradeNeg = createValidTradeBuilder().underlying(underlyingNeg).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeNeg));
 	}

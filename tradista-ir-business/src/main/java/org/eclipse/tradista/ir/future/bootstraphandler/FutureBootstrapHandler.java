@@ -73,7 +73,7 @@ public class FutureBootstrapHandler implements BootstrapHandler {
 		LocalDate settlementDate = futureContractSpecificationBusinessDelegate
 				.getMaturityDate(contractSpecificationName, month, year);
 
-		return new FutureTrade.Builder().product(future).settlementDate(settlementDate).build();
+		return FutureTrade.builder().product(future).settlementDate(settlementDate).build();
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.irswap.model;
 
+import java.time.Instant;
+
 import org.eclipse.tradista.core.marketdata.model.Instrument;
 
 /********************************************************************************
@@ -65,7 +67,22 @@ public class SingleCurrencyIRSwapTrade extends IRSwapTrade implements Instrument
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static SingleCurrencyIRSwapTrade create() {
+		return builder().build();
+	}
+
+	public static SingleCurrencyIRSwapTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends IRSwapTrade.Builder<SingleCurrencyIRSwapTrade, Builder> {
+		private Builder() {
+		}
+
 		@Override
 		protected Builder self() {
 			return this;

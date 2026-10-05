@@ -8,13 +8,13 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.ir.fra.model.FRATrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -35,27 +35,14 @@ import org.junit.jupiter.api.Test;
 
 public class FRATradeValidatorTest {
 
-	private static FRATradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static Index index;
-
-	@BeforeAll
-	public static void setUp() {
-		validator = new FRATradeValidator();
-
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		index = new Index("EURIBOR");
-	}
+	private static final FRATradeValidator validator = new FRATradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	private FRATrade.Builder createValidTradeBuilder() {
-		return new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 5, 30))
+		return FRATrade.builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 5, 30))
 				.maturityDate(LocalDate.of(2025, 8, 30)).referenceRateIndex(index)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
 				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)

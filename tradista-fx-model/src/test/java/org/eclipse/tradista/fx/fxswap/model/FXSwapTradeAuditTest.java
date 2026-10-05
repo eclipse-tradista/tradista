@@ -12,7 +12,7 @@ import java.time.temporal.ChronoUnit;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -33,26 +33,15 @@ import org.junit.jupiter.api.Test;
 
 public class FXSwapTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency eur;
-	private static Currency usd;
-
-	@BeforeAll
-	public static void setUp() {
-		eur = new Currency("EUR");
-		usd = new Currency("USD");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-	}
+	private static final Currency eur = TradistaTestUtil.EUR;
+	private static final Currency usd = TradistaTestUtil.USD;
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Book book = TradistaTestUtil.createTradingBook();
 
 	@Test
 	public void testDefaultCreationTimeOnNewFXSwapTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FXSwapTrade trade = new FXSwapTrade.Builder().currencyOne(eur).currency(usd)
+		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd)
 				.amountOneSpot(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(110_000))
 				.amountOneForward(BigDecimal.valueOf(100_000)).amountTwoForward(BigDecimal.valueOf(112_000)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
@@ -72,8 +61,8 @@ public class FXSwapTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FXSwapTrade trade = new FXSwapTrade.Builder().currencyOne(eur).currency(usd).book(book)
-				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
+		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -82,8 +71,8 @@ public class FXSwapTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FXSwapTrade trade = new FXSwapTrade.Builder().currencyOne(eur).currency(usd).book(book)
-				.counterparty(counterparty).creationTime(originalCreation).build();
+		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -95,8 +84,8 @@ public class FXSwapTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FXSwapTrade trade = new FXSwapTrade.Builder().currencyOne(eur).currency(usd).book(book)
-				.counterparty(counterparty).build();
+		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
+				.build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -111,7 +100,7 @@ public class FXSwapTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FXSwapTrade original = new FXSwapTrade.Builder().currencyOne(eur).currency(usd)
+		FXSwapTrade original = FXSwapTrade.builder().currencyOne(eur).currency(usd)
 				.amountOneSpot(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(110_000))
 				.amountOneForward(BigDecimal.valueOf(100_000)).amountTwoForward(BigDecimal.valueOf(112_000)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))

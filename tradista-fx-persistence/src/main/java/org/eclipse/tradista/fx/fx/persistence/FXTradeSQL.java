@@ -84,7 +84,7 @@ public class FXTradeSQL {
 				while (results.next()) {
 
 					if (fxspotTrade == null) {
-						fxspotTrade = new FXTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						fxspotTrade = FXTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(fxspotTrade, results);
@@ -114,7 +114,7 @@ public class FXTradeSQL {
 				return null;
 			}
 
-			fxspotTrade = new FXTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			fxspotTrade = FXTrade.of(TradeSQL.getCreationTime(rs));
 
 			fxspotTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxspot_currency_one_id")));
 			fxspotTrade.setAmountOne(rs.getBigDecimal("amount_one"));

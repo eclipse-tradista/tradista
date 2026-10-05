@@ -169,8 +169,8 @@ public class CcySwapPricerServiceBean implements CcySwapPricerService {
 					params.getName(), trade.getCurrencyTwo()));
 		}
 
-		CcySwapTrade swap = new CcySwapTrade.Builder().notionalAmountTwo(BigDecimal.ONE)
-				.currencyTwo(trade.getCurrencyTwo()).paymentFrequency(trade.getPaymentFrequency())
+		CcySwapTrade swap = CcySwapTrade.builder().notionalAmountTwo(BigDecimal.ONE).currencyTwo(trade.getCurrencyTwo())
+				.paymentFrequency(trade.getPaymentFrequency())
 				.paymentFixedInterestRate(trade.getPaymentFixedInterestRate())
 				.paymentDayCountConvention(trade.getPaymentDayCountConvention()).maturityDate(trade.getMaturityDate())
 				.settlementDate(trade.getSettlementDate()).build();

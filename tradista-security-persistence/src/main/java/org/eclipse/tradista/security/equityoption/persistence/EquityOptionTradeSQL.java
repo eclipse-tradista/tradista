@@ -1,9 +1,6 @@
 package org.eclipse.tradista.security.equityoption.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -11,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +16,10 @@ import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
-import org.eclipse.tradista.core.common.persistence.util.Field;
-import org.eclipse.tradista.core.common.persistence.util.Join;
-import org.eclipse.tradista.core.common.persistence.util.Table;
-import org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
-import org.eclipse.tradista.core.trade.model.OptionTrade;
-import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.core.trade.persistence.VanillaOptionTradeSQL;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 import org.eclipse.tradista.security.equity.persistence.EquitySQL;
 import org.eclipse.tradista.security.equity.persistence.EquityTradeSQL;
@@ -52,54 +43,23 @@ import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
 
 public class EquityOptionTradeSQL {
 
-	// VANILLA_OPTION_TRADE table and fields
-	public static final Field VANILLA_OPTION_TRADE_ID_FIELD = new Field("VANILLA_OPTION_TRADE_ID");
-	public static final Field STYLE_FIELD = new Field("STYLE");
-	public static final Field TYPE_FIELD = new Field(TradistaDBConstants.TYPE);
-	public static final Field STRIKE_FIELD = new Field("STRIKE");
-	public static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
-	public static final Field EXERCISE_DATE_FIELD = new Field("EXERCISE_DATE");
-	public static final Field UNDERLYING_TRADE_ID_FIELD = new Field("UNDERLYING_TRADE_ID");
-	public static final Field SETTLEMENT_TYPE_FIELD = new Field("SETTLEMENT_TYPE");
-	public static final Field SETTLEMENT_DATE_OFFSET_FIELD = new Field("SETTLEMENT_DATE_OFFSET");
-	public static final Field QUANTITY_FIELD = new Field(TradistaDBConstants.QUANTITY);
-
-	private static final Field[] VANILLA_OPTION_TRADE_FIELDS = { VANILLA_OPTION_TRADE_ID_FIELD, STYLE_FIELD, TYPE_FIELD,
-			STRIKE_FIELD, MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
-			SETTLEMENT_DATE_OFFSET_FIELD, QUANTITY_FIELD };
-
-	private static final Field[] VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT = { STYLE_FIELD, TYPE_FIELD, STRIKE_FIELD,
-			MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
-			SETTLEMENT_DATE_OFFSET_FIELD, QUANTITY_FIELD, VANILLA_OPTION_TRADE_ID_FIELD };
-
-	private static final Field[] VANILLA_OPTION_TRADE_FIELDS_FOR_UPDATE = { STYLE_FIELD, TYPE_FIELD, STRIKE_FIELD,
-			MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
-			SETTLEMENT_DATE_OFFSET_FIELD, QUANTITY_FIELD };
-
-	public static final Table VANILLA_OPTION_TRADE_TABLE = new Table("VANILLA_OPTION_TRADE",
-			VANILLA_OPTION_TRADE_FIELDS);
-
-	public static final Join TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
-			VANILLA_OPTION_TRADE_ID_FIELD);
-
-	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(VANILLA_OPTION_TRADE_TABLE,
-			TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN);
+	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(
+			VanillaOptionTradeSQL.VANILLA_OPTION_TRADE_TABLE,
+			VanillaOptionTradeSQL.TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN);
 
 	public static PreparedStatement getInsertStatement(Connection con) {
-		return TradistaDBUtil.buildInsertPreparedStatement(con, VANILLA_OPTION_TRADE_TABLE,
-				VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT);
+		return VanillaOptionTradeSQL.getInsertStatement(con);
 	}
 
 	public static PreparedStatement getUpdateStatement(Connection con) {
-		return TradistaDBUtil.buildUpdatePreparedStatement(con, VANILLA_OPTION_TRADE_ID_FIELD,
-				VANILLA_OPTION_TRADE_TABLE, VANILLA_OPTION_TRADE_FIELDS_FOR_UPDATE);
+		return VanillaOptionTradeSQL.getUpdateStatement(con);
 	}
 
 	public static EquityOptionTrade getTradeById(long id) {
 		EquityOptionTrade equityOptionTrade = null;
 
 		StringBuilder query = new StringBuilder(SQL_QUERY);
-		TradistaDBUtil.addParameterizedFilter(query, VANILLA_OPTION_TRADE_ID_FIELD);
+		TradistaDBUtil.addParameterizedFilter(query, VanillaOptionTradeSQL.VANILLA_OPTION_TRADE_ID_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetTradeById = con.prepareStatement(query.toString())) {
@@ -107,32 +67,21 @@ public class EquityOptionTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (equityOptionTrade == null) {
-						equityOptionTrade = new EquityOptionTrade.Builder()
-								.creationTime(TradeSQL.getCreationTime(results)).build();
+						equityOptionTrade = EquityOptionTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(equityOptionTrade, results);
-					equityOptionTrade
-							.setStyle(VanillaOptionTrade.Style.valueOf(results.getString(STYLE_FIELD.getName())));
-					equityOptionTrade.setType(OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())));
-					equityOptionTrade.setStrike(results.getBigDecimal(STRIKE_FIELD.getName()));
+					VanillaOptionTradeSQL.setVanillaOptionTradeCommonFields(equityOptionTrade, results);
 					long productId = results.getLong(PRODUCT_ID_FIELD.getName());
 					if (productId != 0) {
 						equityOptionTrade.setEquityOption(EquityOptionSQL.getEquityOptionById(productId));
 					}
-					equityOptionTrade.setSettlementType(
-							OptionTrade.SettlementType.valueOf(results.getString(SETTLEMENT_TYPE_FIELD.getName())));
-					equityOptionTrade.setSettlementDateOffset(results.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
-					equityOptionTrade.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
-					Date exerciseDate = results.getDate(EXERCISE_DATE_FIELD.getName());
-					if (exerciseDate != null) {
-						equityOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
-					}
-					equityOptionTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
+					equityOptionTrade
+							.setQuantity(results.getBigDecimal(VanillaOptionTradeSQL.QUANTITY_FIELD.getName()));
 
 					// Building the underlying
-					EquityTrade underlying = EquityTradeSQL
-							.getTradeById(results.getLong(UNDERLYING_TRADE_ID_FIELD.getName()), true);
+					EquityTrade underlying = EquityTradeSQL.getTradeById(
+							results.getLong(VanillaOptionTradeSQL.UNDERLYING_TRADE_ID_FIELD.getName()), true);
 					equityOptionTrade.setUnderlying(underlying);
 				}
 			}
@@ -168,23 +117,8 @@ public class EquityOptionTradeSQL {
 			// Underlying saving
 			long underlyingId = EquityTradeSQL.saveEquityTrade(trade.getUnderlying());
 
-			// Parameters follow VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT order:
-			// STYLE, TYPE, STRIKE, MATURITY_DATE, EXERCISE_DATE, UNDERLYING_TRADE_ID,
-			// SETTLEMENT_TYPE, SETTLEMENT_DATE_OFFSET, QUANTITY, VANILLA_OPTION_TRADE_ID
-			stmtSaveEquityOptionTrade.setString(1, trade.getStyle().name());
-			stmtSaveEquityOptionTrade.setString(2, trade.getType().name());
-			stmtSaveEquityOptionTrade.setBigDecimal(3, trade.getStrike());
-			stmtSaveEquityOptionTrade.setDate(4, java.sql.Date.valueOf(trade.getMaturityDate()));
-			if (trade.getExerciseDate() != null) {
-				stmtSaveEquityOptionTrade.setDate(5, java.sql.Date.valueOf(trade.getExerciseDate()));
-			} else {
-				stmtSaveEquityOptionTrade.setNull(5, Types.DATE);
-			}
-			stmtSaveEquityOptionTrade.setLong(6, underlyingId);
-			stmtSaveEquityOptionTrade.setString(7, trade.getSettlementType().name());
-			stmtSaveEquityOptionTrade.setInt(8, trade.getSettlementDateOffset());
-			stmtSaveEquityOptionTrade.setBigDecimal(9, trade.getQuantity());
-			stmtSaveEquityOptionTrade.setLong(10, tradeId);
+			VanillaOptionTradeSQL.setPreparedStatementVanillaOptionFields(trade, stmtSaveEquityOptionTrade,
+					underlyingId, tradeId, trade.getQuantity());
 			stmtSaveEquityOptionTrade.executeUpdate();
 		} catch (SQLException | TradistaBusinessException e) {
 			throw new TradistaTechnicalException(e);
@@ -201,25 +135,15 @@ public class EquityOptionTradeSQL {
 
 		EquityOptionTrade equityOptionTrade = null;
 		try {
-			if ((rs.getLong(VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
+			if ((rs.getLong(VanillaOptionTradeSQL.VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
 					|| (rs.getLong("underlying_equity_trade_id") == 0)) {
 				return null;
 			}
-			equityOptionTrade = new EquityOptionTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
-			equityOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf((rs.getString(STYLE_FIELD.getName()))));
-			equityOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString(TYPE_FIELD.getName())));
-			equityOptionTrade.setStrike(rs.getBigDecimal(STRIKE_FIELD.getName()));
+			equityOptionTrade = EquityOptionTrade.of(TradeSQL.getCreationTime(rs));
+			VanillaOptionTradeSQL.setVanillaOptionTradeCommonFields(equityOptionTrade, rs);
 			long productId = rs.getLong(PRODUCT_ID_FIELD.getName());
 			if (productId != 0) {
 				equityOptionTrade.setEquityOption(EquityOptionSQL.getEquityOptionById(productId));
-			}
-			equityOptionTrade.setSettlementType(
-					OptionTrade.SettlementType.valueOf(rs.getString(SETTLEMENT_TYPE_FIELD.getName())));
-			equityOptionTrade.setSettlementDateOffset(rs.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
-			equityOptionTrade.setMaturityDate(rs.getDate("option_maturity_date").toLocalDate());
-			Date exerciseDate = rs.getDate(EXERCISE_DATE_FIELD.getName());
-			if (exerciseDate != null) {
-				equityOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
 			}
 			equityOptionTrade.setQuantity(rs.getBigDecimal("option_quantity"));
 
@@ -228,7 +152,7 @@ public class EquityOptionTradeSQL {
 
 			// Building the underlying
 			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_EQUITY_creation_time");
-			EquityTrade.Builder undBuilder = new EquityTrade.Builder();
+			EquityTrade.Builder undBuilder = EquityTrade.builder();
 			if (undCreationTime != null) {
 				undBuilder.creationTime(undCreationTime.toInstant());
 			}
@@ -281,29 +205,18 @@ public class EquityOptionTradeSQL {
 					equityOptionTrades = new ArrayList<>();
 				}
 
-				EquityOptionTrade equityOptionTrade = new EquityOptionTrade.Builder()
-						.creationTime(TradeSQL.getCreationTime(results)).build();
+				EquityOptionTrade equityOptionTrade = EquityOptionTrade.of(TradeSQL.getCreationTime(results));
 				TradeSQL.setTradeCommonFields(equityOptionTrade, results);
-				equityOptionTrade.setStyle(VanillaOptionTrade.Style.valueOf(results.getString(STYLE_FIELD.getName())));
-				equityOptionTrade.setType(OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())));
-				equityOptionTrade.setStrike(results.getBigDecimal(STRIKE_FIELD.getName()));
+				VanillaOptionTradeSQL.setVanillaOptionTradeCommonFields(equityOptionTrade, results);
 				long productId = results.getLong(PRODUCT_ID_FIELD.getName());
 				if (productId != 0) {
 					equityOptionTrade.setEquityOption(EquityOptionSQL.getEquityOptionById(productId));
 				}
-				equityOptionTrade.setSettlementType(
-						OptionTrade.SettlementType.valueOf(results.getString(SETTLEMENT_TYPE_FIELD.getName())));
-				equityOptionTrade.setSettlementDateOffset(results.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
-				equityOptionTrade.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
-				Date exerciseDate = results.getDate(EXERCISE_DATE_FIELD.getName());
-				if (exerciseDate != null) {
-					equityOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
-				}
-				equityOptionTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));
+				equityOptionTrade.setQuantity(results.getBigDecimal(VanillaOptionTradeSQL.QUANTITY_FIELD.getName()));
 
 				// Building the underlying
 				EquityTrade underlying = EquityTradeSQL
-						.getTradeById(results.getLong(UNDERLYING_TRADE_ID_FIELD.getName()), true);
+						.getTradeById(results.getLong(VanillaOptionTradeSQL.UNDERLYING_TRADE_ID_FIELD.getName()), true);
 				equityOptionTrade.setUnderlying(underlying);
 
 				equityOptionTrades.add(equityOptionTrade);

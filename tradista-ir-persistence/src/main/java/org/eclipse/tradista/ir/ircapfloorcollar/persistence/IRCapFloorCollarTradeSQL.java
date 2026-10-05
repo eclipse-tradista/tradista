@@ -90,8 +90,7 @@ public class IRCapFloorCollarTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irCapFloorCollarTrade == null) {
-						irCapFloorCollarTrade = new IRCapFloorCollarTrade.Builder()
-								.creationTime(TradeSQL.getCreationTime(results)).build();
+						irCapFloorCollarTrade = IRCapFloorCollarTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(irCapFloorCollarTrade, results);
@@ -122,8 +121,7 @@ public class IRCapFloorCollarTradeSQL {
 			if (rs.getLong(IRCAP_FLOOR_COLLAR_TRADE_ID_FIELD.getName()) == 0) {
 				return null;
 			}
-			irCapFloorCollarTrade = new IRCapFloorCollarTrade.Builder().creationTime(TradeSQL.getCreationTime(rs))
-					.build();
+			irCapFloorCollarTrade = IRCapFloorCollarTrade.of(TradeSQL.getCreationTime(rs));
 			irCapFloorCollarTrade.setCapStrike(rs.getBigDecimal(CAP_STRIKE_FIELD.getName()));
 			irCapFloorCollarTrade.setFloorStrike(rs.getBigDecimal(FLOOR_STRIKE_FIELD.getName()));
 

@@ -101,7 +101,7 @@ public class FutureTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (futureTrade == null) {
-						futureTrade = new FutureTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						futureTrade = FutureTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(futureTrade, results);
@@ -131,7 +131,7 @@ public class FutureTradeSQL {
 				return null;
 			}
 
-			futureTrade = new FutureTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			futureTrade = FutureTrade.of(TradeSQL.getCreationTime(rs));
 			java.sql.Date maturityDate = rs.getDate("irforward_maturity_date");
 			if (maturityDate != null) {
 				futureTrade.setMaturityDate(maturityDate.toLocalDate());
@@ -212,8 +212,7 @@ public class FutureTradeSQL {
 					if (futureTrades == null) {
 						futureTrades = new ArrayList<>();
 					}
-					FutureTrade futureTrade = new FutureTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
-							.build();
+					FutureTrade futureTrade = FutureTrade.of(TradeSQL.getCreationTime(results));
 
 					TradeSQL.setTradeCommonFields(futureTrade, results);
 					java.sql.Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());

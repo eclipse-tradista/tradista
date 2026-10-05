@@ -1,16 +1,10 @@
 package org.eclipse.tradista.ir.irswapoption.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
-
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -26,9 +20,8 @@ import org.eclipse.tradista.core.index.persistence.IndexSQL;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.eclipse.tradista.core.trade.model.OptionTrade;
-import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
+import org.eclipse.tradista.core.trade.persistence.VanillaOptionTradeSQL;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
 import org.eclipse.tradista.ir.irswap.persistence.IRSwapTradeSQL;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
@@ -50,33 +43,6 @@ import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
  ********************************************************************************/
 
 public class IRSwapOptionTradeSQL {
-
-	// VANILLA_OPTION_TRADE table and fields
-	public static final Field VANILLA_OPTION_TRADE_ID_FIELD = new Field("VANILLA_OPTION_TRADE_ID");
-	public static final Field STYLE_FIELD = new Field("STYLE");
-	public static final Field TYPE_FIELD = new Field("TYPE");
-	public static final Field STRIKE_FIELD = new Field("STRIKE");
-	public static final Field MATURITY_DATE_FIELD = new Field(MATURITY_DATE);
-	public static final Field EXERCISE_DATE_FIELD = new Field("EXERCISE_DATE");
-	public static final Field UNDERLYING_TRADE_ID_FIELD = new Field("UNDERLYING_TRADE_ID");
-	public static final Field SETTLEMENT_TYPE_FIELD = new Field("SETTLEMENT_TYPE");
-	public static final Field SETTLEMENT_DATE_OFFSET_FIELD = new Field("SETTLEMENT_DATE_OFFSET");
-	public static final Field QUANTITY_FIELD = new Field("QUANTITY");
-
-	private static final Field[] VANILLA_OPTION_TRADE_FIELDS = { VANILLA_OPTION_TRADE_ID_FIELD, STYLE_FIELD, TYPE_FIELD,
-			STRIKE_FIELD, MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
-			SETTLEMENT_DATE_OFFSET_FIELD, QUANTITY_FIELD };
-
-	private static final Field[] VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT = { STYLE_FIELD, TYPE_FIELD,
-			MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
-			SETTLEMENT_DATE_OFFSET_FIELD, STRIKE_FIELD, VANILLA_OPTION_TRADE_ID_FIELD };
-
-	private static final Field[] VANILLA_OPTION_TRADE_FIELDS_FOR_UPDATE = { STYLE_FIELD, TYPE_FIELD,
-			MATURITY_DATE_FIELD, EXERCISE_DATE_FIELD, UNDERLYING_TRADE_ID_FIELD, SETTLEMENT_TYPE_FIELD,
-			SETTLEMENT_DATE_OFFSET_FIELD, STRIKE_FIELD };
-
-	public static final Table VANILLA_OPTION_TRADE_TABLE = new Table("VANILLA_OPTION_TRADE",
-			VANILLA_OPTION_TRADE_FIELDS);
 
 	// IRSWAP_OPTION_TRADE table and fields
 	public static final Field IRSWAP_OPTION_TRADE_ID_FIELD = new Field("IRSWAP_OPTION_TRADE_ID");
@@ -100,23 +66,20 @@ public class IRSwapOptionTradeSQL {
 
 	public static final Table IRSWAP_OPTION_TRADE_TABLE = new Table("IRSWAP_OPTION_TRADE", IRSWAP_OPTION_TRADE_FIELDS);
 
-	public static final Join TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN = Join.innerEq(TRADE_TABLE, ID_FIELD,
-			VANILLA_OPTION_TRADE_ID_FIELD);
-
-	public static final Join VANILLA_OPTION_TRADE_AND_IRSWAP_OPTION_TRADE_INNER_JOIN = Join
-			.innerEq(VANILLA_OPTION_TRADE_TABLE, VANILLA_OPTION_TRADE_ID_FIELD, IRSWAP_OPTION_TRADE_ID_FIELD);
+	public static final Join VANILLA_OPTION_TRADE_AND_IRSWAP_OPTION_TRADE_INNER_JOIN = Join.innerEq(
+			VanillaOptionTradeSQL.VANILLA_OPTION_TRADE_TABLE, VanillaOptionTradeSQL.VANILLA_OPTION_TRADE_ID_FIELD,
+			IRSWAP_OPTION_TRADE_ID_FIELD);
 
 	public static final String SQL_QUERY = TradistaDBUtil.buildSelectQuery(IRSWAP_OPTION_TRADE_TABLE,
-			VANILLA_OPTION_TRADE_AND_IRSWAP_OPTION_TRADE_INNER_JOIN, TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN);
+			VANILLA_OPTION_TRADE_AND_IRSWAP_OPTION_TRADE_INNER_JOIN,
+			VanillaOptionTradeSQL.TRADE_AND_VANILLA_OPTION_TRADE_INNER_JOIN);
 
 	public static PreparedStatement getVanillaOptionInsertStatement(Connection con) {
-		return TradistaDBUtil.buildInsertPreparedStatement(con, VANILLA_OPTION_TRADE_TABLE,
-				VANILLA_OPTION_TRADE_FIELDS_FOR_INSERT);
+		return VanillaOptionTradeSQL.getInsertStatement(con);
 	}
 
 	public static PreparedStatement getVanillaOptionUpdateStatement(Connection con) {
-		return TradistaDBUtil.buildUpdatePreparedStatement(con, VANILLA_OPTION_TRADE_ID_FIELD,
-				VANILLA_OPTION_TRADE_TABLE, VANILLA_OPTION_TRADE_FIELDS_FOR_UPDATE);
+		return VanillaOptionTradeSQL.getUpdateStatement(con);
 	}
 
 	public static PreparedStatement getInsertStatement(Connection con) {
@@ -140,22 +103,11 @@ public class IRSwapOptionTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (irSwapOptionTrade == null) {
-						irSwapOptionTrade = new IRSwapOptionTrade.Builder()
-								.creationTime(TradeSQL.getCreationTime(results)).build();
+						irSwapOptionTrade = IRSwapOptionTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(irSwapOptionTrade, results);
-					irSwapOptionTrade.setStyle(getStyle(results.getString(STYLE_FIELD.getName())));
-					irSwapOptionTrade.setType(OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())));
-					irSwapOptionTrade.setSettlementType(
-							OptionTrade.SettlementType.valueOf(results.getString(SETTLEMENT_TYPE_FIELD.getName())));
-					irSwapOptionTrade.setSettlementDateOffset(results.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
-					irSwapOptionTrade.setStrike(results.getBigDecimal(STRIKE_FIELD.getName()));
-					irSwapOptionTrade.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
-					Date exerciseDate = results.getDate(EXERCISE_DATE_FIELD.getName());
-					if (exerciseDate != null) {
-						irSwapOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
-					}
+					VanillaOptionTradeSQL.setVanillaOptionTradeCommonFields(irSwapOptionTrade, results);
 					long alternativeCashSettlementReferenceRateIndexId = results
 							.getLong(ALTERNATIVE_CASH_SETTLEMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName());
 					if (alternativeCashSettlementReferenceRateIndexId > 0) {
@@ -172,8 +124,8 @@ public class IRSwapOptionTradeSQL {
 							.setCashSettlementAmount(results.getBigDecimal(CASH_SETTLEMENT_AMOUNT_FIELD.getName()));
 
 					// Building the underlying
-					SingleCurrencyIRSwapTrade underlying = IRSwapTradeSQL
-							.getTradeById(results.getLong(UNDERLYING_TRADE_ID_FIELD.getName()), true);
+					SingleCurrencyIRSwapTrade underlying = IRSwapTradeSQL.getTradeById(
+							results.getLong(VanillaOptionTradeSQL.UNDERLYING_TRADE_ID_FIELD.getName()), true);
 					irSwapOptionTrade.setUnderlying(underlying);
 				}
 			}
@@ -181,13 +133,6 @@ public class IRSwapOptionTradeSQL {
 			throw new TradistaTechnicalException(e);
 		}
 		return irSwapOptionTrade;
-	}
-
-	private static VanillaOptionTrade.Style getStyle(String name) {
-		if (name.equals("EUROPEAN")) {
-			return VanillaOptionTrade.Style.EUROPEAN;
-		} else
-			return VanillaOptionTrade.Style.AMERICAN;
 	}
 
 	public static long saveIRSwapOptionTrade(IRSwapOptionTrade trade) {
@@ -218,20 +163,8 @@ public class IRSwapOptionTradeSQL {
 			// Underlying saving
 			long underlyingId = IRSwapTradeSQL.saveIRSwapTrade(trade.getUnderlying());
 
-			stmtSaveVanillaOptionTrade.setString(1, trade.getStyle().name());
-			stmtSaveVanillaOptionTrade.setString(2, trade.getType().name());
-			stmtSaveVanillaOptionTrade.setDate(3, java.sql.Date.valueOf(trade.getMaturityDate()));
-			LocalDate exerciseDate = trade.getExerciseDate();
-			if (exerciseDate != null) {
-				stmtSaveVanillaOptionTrade.setDate(4, java.sql.Date.valueOf(exerciseDate));
-			} else {
-				stmtSaveVanillaOptionTrade.setNull(4, java.sql.Types.DATE);
-			}
-			stmtSaveVanillaOptionTrade.setLong(5, underlyingId);
-			stmtSaveVanillaOptionTrade.setString(6, trade.getSettlementType().name());
-			stmtSaveVanillaOptionTrade.setInt(7, trade.getSettlementDateOffset());
-			stmtSaveVanillaOptionTrade.setBigDecimal(8, trade.getStrike());
-			stmtSaveVanillaOptionTrade.setLong(9, tradeId);
+			VanillaOptionTradeSQL.setPreparedStatementVanillaOptionFields(trade, stmtSaveVanillaOptionTrade,
+					underlyingId, tradeId);
 			stmtSaveVanillaOptionTrade.executeUpdate();
 
 			if (trade.getCashSettlementAmount() != null) {
@@ -267,23 +200,13 @@ public class IRSwapOptionTradeSQL {
 
 		IRSwapOptionTrade irSwapOptionTrade = null;
 		try {
-			if ((rs.getLong(VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
+			if ((rs.getLong(VanillaOptionTradeSQL.VANILLA_OPTION_TRADE_ID_FIELD.getName()) == 0)
 					|| (rs.getLong("underlying_irswap_trade_id") == 0)) {
 				return null;
 			}
 
-			irSwapOptionTrade = new IRSwapOptionTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
-			irSwapOptionTrade.setStyle(getStyle(rs.getString(STYLE_FIELD.getName())));
-			irSwapOptionTrade.setType(OptionTrade.Type.valueOf(rs.getString(TYPE_FIELD.getName())));
-			irSwapOptionTrade.setSettlementType(
-					OptionTrade.SettlementType.valueOf(rs.getString(SETTLEMENT_TYPE_FIELD.getName())));
-			irSwapOptionTrade.setSettlementDateOffset(rs.getInt(SETTLEMENT_DATE_OFFSET_FIELD.getName()));
-			irSwapOptionTrade.setStrike(rs.getBigDecimal(STRIKE_FIELD.getName()));
-			irSwapOptionTrade.setMaturityDate(rs.getDate("option_maturity_date").toLocalDate());
-			Date exerciseDate = rs.getDate(EXERCISE_DATE_FIELD.getName());
-			if (exerciseDate != null) {
-				irSwapOptionTrade.setExerciseDate(exerciseDate.toLocalDate());
-			}
+			irSwapOptionTrade = IRSwapOptionTrade.of(TradeSQL.getCreationTime(rs));
+			VanillaOptionTradeSQL.setVanillaOptionTradeCommonFields(irSwapOptionTrade, rs);
 			long alternativeCashSettlementReferenceRateIndexId = rs
 					.getLong(ALTERNATIVE_CASH_SETTLEMENT_REFERENCE_RATE_INDEX_ID_FIELD.getName());
 			if (alternativeCashSettlementReferenceRateIndexId > 0) {
@@ -303,7 +226,7 @@ public class IRSwapOptionTradeSQL {
 
 			// Building the underlying
 			java.sql.Timestamp undCreationTime = rs.getTimestamp("UND_IRSWAP_CREATION_TIME");
-			SingleCurrencyIRSwapTrade.Builder undBuilder = new SingleCurrencyIRSwapTrade.Builder();
+			SingleCurrencyIRSwapTrade.Builder undBuilder = SingleCurrencyIRSwapTrade.builder();
 			if (undCreationTime != null) {
 				undBuilder.creationTime(undCreationTime.toInstant());
 			}

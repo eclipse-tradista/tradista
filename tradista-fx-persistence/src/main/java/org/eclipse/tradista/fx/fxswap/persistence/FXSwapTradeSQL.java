@@ -83,7 +83,7 @@ public class FXSwapTradeSQL {
 				while (results.next()) {
 
 					if (fxswapTrade == null) {
-						fxswapTrade = new FXSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						fxswapTrade = FXSwapTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(fxswapTrade, results);
@@ -114,7 +114,7 @@ public class FXSwapTradeSQL {
 				return null;
 			}
 
-			fxswapTrade = new FXSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			fxswapTrade = FXSwapTrade.of(TradeSQL.getCreationTime(rs));
 			TradeSQL.setTradeCommonFields(fxswapTrade, rs);
 			fxswapTrade.setCurrencyOne(CurrencySQL.getCurrencyById(rs.getLong("fxswap_currency_one_id")));
 			fxswapTrade.setSettlementDateForward(rs.getDate("settlement_date_forward").toLocalDate());

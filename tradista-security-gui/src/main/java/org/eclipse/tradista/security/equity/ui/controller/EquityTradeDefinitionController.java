@@ -397,7 +397,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 				return new DateCell() {
 
 					private boolean isAvailable(LocalDate date) {
-						EquityTrade equityTrade = new EquityTrade.Builder().build();
+						EquityTrade equityTrade = EquityTrade.create();
 						equityTrade.setProduct(equity.getValue());
 						if (equityTrade.getProduct() != null) {
 							try {
@@ -623,7 +623,7 @@ public class EquityTradeDefinitionController extends TradistaTradeBookingControl
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new EquityTrade.Builder().build();
+			trade = EquityTrade.create();
 		}
 		try {
 			if (!tradePrice.getText().isEmpty()) {

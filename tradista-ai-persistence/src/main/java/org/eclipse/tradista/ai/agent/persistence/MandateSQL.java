@@ -228,7 +228,7 @@ public class MandateSQL {
 			stmtGetMandateById.setLong(1, id);
 			try (ResultSet results = stmtGetMandateById.executeQuery()) {
 				while (results.next()) {
-					Mandate.Builder builder = new Mandate.Builder(results.getString(NAME_FIELD.getName()));
+					Mandate.Builder builder = Mandate.builder(results.getString(NAME_FIELD.getName()));
 					builder.id(results.getLong(ID_FIELD.getName()));
 					builder.acceptedRiskLevel(
 							RiskLevel.valueOf(results.getString(ACCEPTED_RISK_LEVEL_FIELD.getName())));
@@ -308,7 +308,7 @@ public class MandateSQL {
 			stmtGetMandateByName.setString(1, name);
 			try (ResultSet results = stmtGetMandateByName.executeQuery()) {
 				while (results.next()) {
-					Mandate.Builder builder = new Mandate.Builder(results.getString(NAME_FIELD.getName()));
+					Mandate.Builder builder = Mandate.builder(results.getString(NAME_FIELD.getName()));
 					builder.id(results.getLong(ID_FIELD.getName()));
 					builder.acceptedRiskLevel(
 							RiskLevel.valueOf(results.getString(ACCEPTED_RISK_LEVEL_FIELD.getName())));

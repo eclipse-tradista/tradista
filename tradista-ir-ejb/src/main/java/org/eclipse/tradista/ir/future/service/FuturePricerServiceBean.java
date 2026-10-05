@@ -174,7 +174,7 @@ public class FuturePricerServiceBean implements FuturePricerService {
 		BigDecimal unrealizedPnl = BigDecimal.ZERO;
 		if (inventories != null && !inventories.isEmpty()) {
 			// Create a virtual trade to use the pv measure
-			FutureTrade trade = new FutureTrade.Builder().buySell(true).product(future)
+			FutureTrade trade = FutureTrade.builder().buySell(true).product(future)
 					.quantity(inventories.toArray(new ProductInventory[0])[0].getQuantity()).build();
 			unrealizedPnl.add(pvValuation(params, trade, currency, pricingDate));
 

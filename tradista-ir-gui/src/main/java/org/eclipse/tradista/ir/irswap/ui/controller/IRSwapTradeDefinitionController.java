@@ -595,7 +595,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 			private boolean isAvailable(LocalDate date) {
 				if (irSwapTrade == null) {
-					irSwapTrade = new SingleCurrencyIRSwapTrade.Builder().build();
+					irSwapTrade = SingleCurrencyIRSwapTrade.create();
 					irSwapTrade.setCurrency(currency.getValue());
 				}
 
@@ -785,7 +785,7 @@ public class IRSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new SingleCurrencyIRSwapTrade.Builder().build();
+			trade = SingleCurrencyIRSwapTrade.create();
 		}
 		try {
 			if (!notionalAmount.getText().isEmpty()) {

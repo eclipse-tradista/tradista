@@ -364,8 +364,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 						boolean isAvailable = true;
 
 						if (fxOptionTrade == null) {
-							fxOptionTrade = new FXOptionTrade.Builder().build();
-							FXTrade fxTrade = new FXTrade.Builder().build();
+							fxOptionTrade = FXOptionTrade.create();
+							FXTrade fxTrade = FXTrade.create();
 							fxTrade.setCurrency(currencyTwo.getValue());
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxOptionTrade.setUnderlying(fxTrade);
@@ -400,8 +400,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxOptionTrade == null) {
-							fxOptionTrade = new FXOptionTrade.Builder().build();
-							FXTrade fxTrade = new FXTrade.Builder().build();
+							fxOptionTrade = FXOptionTrade.create();
+							FXTrade fxTrade = FXTrade.create();
 							fxTrade.setCurrency(currencyTwo.getValue());
 							fxTrade.setCurrencyOne(currencyOne.getValue());
 							fxOptionTrade.setUnderlying(fxTrade);
@@ -580,7 +580,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXOptionTrade.Builder().build();
+			trade = FXOptionTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());
@@ -607,7 +607,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			// Building the underlying
 			FXTrade underlying = trade.getUnderlying();
 			if (trade.getUnderlying() == null) {
-				underlying = new FXTrade.Builder().build();
+				underlying = FXTrade.create();
 			}
 			if (!amountOne.getText().isEmpty()) {
 				underlying.setAmountOne(TradistaGUIUtil.parseAmount(amountOne.getText(), "Underlying's Amount One"));

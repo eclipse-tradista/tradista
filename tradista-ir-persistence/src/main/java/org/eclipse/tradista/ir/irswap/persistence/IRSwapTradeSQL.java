@@ -124,8 +124,7 @@ public class IRSwapTradeSQL {
 
 				while (results.next()) {
 					if (irswapTrade == null) {
-						irswapTrade = new SingleCurrencyIRSwapTrade.Builder()
-								.creationTime(TradeSQL.getCreationTime(results)).build();
+						irswapTrade = SingleCurrencyIRSwapTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(irswapTrade, results);
@@ -275,7 +274,7 @@ public class IRSwapTradeSQL {
 				return null;
 			}
 
-			irswapTrade = new SingleCurrencyIRSwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			irswapTrade = SingleCurrencyIRSwapTrade.of(TradeSQL.getCreationTime(rs));
 			java.sql.Date maturityDate = rs.getDate("irswap_maturity_date");
 			if (maturityDate != null) {
 				irswapTrade.setMaturityDate(maturityDate.toLocalDate());

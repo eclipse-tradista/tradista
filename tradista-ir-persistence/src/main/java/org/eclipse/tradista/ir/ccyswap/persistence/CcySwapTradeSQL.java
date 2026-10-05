@@ -100,8 +100,7 @@ public class CcySwapTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (ccyswapTrade == null) {
-						ccyswapTrade = new CcySwapTrade.Builder().creationTime(TradeSQL.getCreationTime(results))
-								.build();
+						ccyswapTrade = CcySwapTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(ccyswapTrade, results);
@@ -168,7 +167,7 @@ public class CcySwapTradeSQL {
 				return null;
 			}
 
-			ccyswapTrade = new CcySwapTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			ccyswapTrade = CcySwapTrade.of(TradeSQL.getCreationTime(rs));
 			java.sql.Date maturityDate = rs.getDate("irswap_maturity_date");
 			if (maturityDate != null) {
 				ccyswapTrade.setMaturityDate(maturityDate.toLocalDate());

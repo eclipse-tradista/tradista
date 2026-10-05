@@ -166,13 +166,13 @@ public class TransferSQL {
 		Transfer.Builder<? extends Transfer, ?> builder;
 		if (type.equals(Transfer.Type.CASH)) {
 			Currency currency = currencyBusinessDelegate.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName()));
-			CashTransfer.Builder cashBuilder = new CashTransfer.Builder(book, product,
+			CashTransfer.Builder cashBuilder = CashTransfer.builder(book, product,
 					TransferPurpose.valueOf(results.getString(PURPOSE_FIELD.getName())),
 					results.getDate(SETTLEMENT_DATE_FIELD.getName()).toLocalDate(), currency);
 			cashBuilder.quantityOrAmount(results.getBigDecimal(QUANTITY_FIELD.getName()));
 			builder = cashBuilder;
 		} else {
-			ProductTransfer.Builder productBuilder = new ProductTransfer.Builder(book, product,
+			ProductTransfer.Builder productBuilder = ProductTransfer.builder(book, product,
 					TransferPurpose.valueOf(results.getString(PURPOSE_FIELD.getName())),
 					results.getDate(SETTLEMENT_DATE_FIELD.getName()).toLocalDate());
 			productBuilder.quantityOrAmount(results.getBigDecimal(QUANTITY_FIELD.getName()));

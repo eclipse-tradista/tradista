@@ -26,7 +26,17 @@ public class OutgoingMessage extends Message {
 		super(builder);
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static OutgoingMessage create() {
+		return builder().build();
+	}
+
 	public static class Builder extends Message.Builder<OutgoingMessage, Builder> {
+		private Builder() {
+		}
 
 		@Override
 		protected Builder self() {

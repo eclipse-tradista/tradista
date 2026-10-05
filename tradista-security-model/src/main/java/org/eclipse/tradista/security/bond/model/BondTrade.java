@@ -1,6 +1,7 @@
 package org.eclipse.tradista.security.bond.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.trade.model.Trade;
@@ -70,7 +71,26 @@ public class BondTrade extends Trade<Bond> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static BondTrade create() {
+		return builder().build();
+	}
+
+	public static BondTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static BondTrade of(Bond bond) {
+		return builder().product(bond).build();
+	}
+
 	public static class Builder extends Trade.Builder<Bond, BondTrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal quantity;
 
 		public Builder quantity(BigDecimal quantity) {

@@ -1,9 +1,6 @@
 package org.eclipse.tradista.security.equity.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CODE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
 
@@ -28,9 +25,9 @@ import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.exchange.persistence.ExchangeSQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.security.common.persistence.SecuritySQL;
 import org.eclipse.tradista.security.equity.model.Equity;
 
 /********************************************************************************
@@ -53,20 +50,6 @@ public class EquitySQL {
 
 	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
 
-	private static final Field SECURITY_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
-	private static final Field ISSUER_ID_FIELD = new Field("ISSUER_ID");
-	private static final Field ISIN_FIELD = new Field("ISIN");
-	private static final Field CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
-	private static final Field ISSUE_DATE_FIELD = new Field("ISSUE_DATE");
-	private static final Field ISSUE_PRICE_FIELD = new Field("ISSUE_PRICE");
-
-	private static final Field[] SECURITY_FIELDS = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD, ISSUE_DATE_FIELD,
-			ISSUE_PRICE_FIELD, SECURITY_PRODUCT_ID_FIELD };
-	public static final Table SECURITY_TABLE = new Table("SECURITY", SECURITY_FIELDS);
-
-	private static final Field[] SECURITY_FIELDS_FOR_UPDATE = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD,
-			ISSUE_DATE_FIELD, ISSUE_PRICE_FIELD };
-
 	private static final Field EQUITY_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
 	private static final Field TRADING_SIZE_FIELD = new Field("TRADING_SIZE");
 	private static final Field TOTAL_ISSUED_FIELD = new Field("TOTAL_ISSUED");
@@ -87,8 +70,8 @@ public class EquitySQL {
 
 	private static final Join EQUITY_PRODUCT_JOIN = Join.innerEq(ProductSQL.PRODUCT_TABLE, EQUITY_PRODUCT_ID_FIELD,
 			ProductSQL.ID_FIELD);
-	private static final Join EQUITY_SECURITY_JOIN = Join.innerEq(SECURITY_TABLE, EQUITY_PRODUCT_ID_FIELD,
-			SECURITY_PRODUCT_ID_FIELD);
+	private static final Join EQUITY_SECURITY_JOIN = Join.innerEq(SecuritySQL.SECURITY_TABLE, EQUITY_PRODUCT_ID_FIELD,
+			SecuritySQL.SECURITY_PRODUCT_ID_FIELD);
 
 	private static final String BASE_SELECT_QUERY = TradistaDBUtil.buildSelectQuery(EQUITY_TABLE, EQUITY_PRODUCT_JOIN,
 			EQUITY_SECURITY_JOIN);
@@ -102,10 +85,8 @@ public class EquitySQL {
 								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
 								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
-				PreparedStatement stmtSaveSecurity = (equity.getId() == 0)
-						? TradistaDBUtil.buildInsertPreparedStatement(con, SECURITY_TABLE, SECURITY_FIELDS)
-						: TradistaDBUtil.buildUpdatePreparedStatement(con, SECURITY_PRODUCT_ID_FIELD, SECURITY_TABLE,
-								SECURITY_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveSecurity = (equity.getId() == 0) ? SecuritySQL.getInsertStatement(con)
+						: SecuritySQL.getUpdateStatement(con);
 				PreparedStatement stmtSaveEquity = (equity.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, EQUITY_TABLE, EQUITY_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, EQUITY_PRODUCT_ID_FIELD, EQUITY_TABLE,
@@ -133,12 +114,7 @@ public class EquitySQL {
 				productId = equity.getId();
 			}
 
-			stmtSaveSecurity.setLong(1, equity.getIssuerId());
-			stmtSaveSecurity.setString(2, equity.getIsin());
-			stmtSaveSecurity.setLong(3, equity.getCurrencyId());
-			stmtSaveSecurity.setDate(4, Date.valueOf(equity.getIssueDate()));
-			stmtSaveSecurity.setBigDecimal(5, equity.getIssuePrice());
-			stmtSaveSecurity.setLong(6, productId);
+			SecuritySQL.setPreparedStatementSecurityFields(equity, stmtSaveSecurity, productId);
 			stmtSaveSecurity.executeUpdate();
 
 			stmtSaveEquity.setLong(1, equity.getTradingSize());
@@ -259,7 +235,7 @@ public class EquitySQL {
 	public static Set<Equity> getEquitiesByIsin(String isin) {
 		Set<Equity> equities = null;
 		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
-		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, SecuritySQL.ISIN_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetEquitiesByIsin = con.prepareStatement(sql.toString())) {
@@ -283,7 +259,7 @@ public class EquitySQL {
 		StringBuilder sql = new StringBuilder(
 				TradistaDBUtil.buildSelectQuery(EQUITY_TABLE, EQUITY_PRODUCT_JOIN, EQUITY_SECURITY_JOIN,
 						Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
-		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, SecuritySQL.ISIN_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, ExchangeSQL.CODE_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
@@ -303,7 +279,7 @@ public class EquitySQL {
 
 	private static Equity buildEquity(ResultSet results) throws SQLException {
 		Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
-				results.getString(ISIN_FIELD.getName()));
+				results.getString(SecuritySQL.ISIN_FIELD.getName()));
 		equity.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
 		equity.setActiveFrom(results.getDate(ACTIVE_FROM_FIELD.getName()).toLocalDate());
 		equity.setActiveTo(results.getDate(ACTIVE_TO_FIELD.getName()).toLocalDate());
@@ -319,10 +295,7 @@ public class EquitySQL {
 		}
 		equity.setTotalIssued(results.getLong(TOTAL_ISSUED_FIELD.getName()));
 		equity.setTradingSize(results.getLong(TRADING_SIZE_FIELD.getName()));
-		equity.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong(ISSUER_ID_FIELD.getName())));
-		equity.setIssueDate(results.getDate(ISSUE_DATE_FIELD.getName()).toLocalDate());
-		equity.setIssuePrice(results.getBigDecimal(ISSUE_PRICE_FIELD.getName()));
-		equity.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
+		SecuritySQL.setSecurityCommonFields(equity, results);
 		return equity;
 	}
 

@@ -17,5 +17,10 @@
 			<artifactId>core-model</artifactId>
 			<version>${core-model.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.core</groupId>
+			<artifactId>tradista-test-util</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

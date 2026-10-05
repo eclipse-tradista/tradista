@@ -127,7 +127,7 @@ public abstract class Security extends Product implements Ratable {
 		protected BigDecimal issuePrice;
 		protected Currency currency;
 
-		public Builder(Exchange exchange, String isin) {
+		protected Builder(Exchange exchange, String isin) {
 			this.exchange = exchange;
 			this.isin = isin;
 		}

@@ -729,7 +729,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 
 			private boolean isAvailable(LocalDate date) {
 				if (irSwapTrade == null) {
-					irSwapTrade = new CcySwapTrade.Builder().build();
+					irSwapTrade = CcySwapTrade.create();
 					irSwapTrade.setCurrency(currencyOne.getValue());
 					irSwapTrade.setCurrencyTwo(currencyTwo.getValue());
 				}
@@ -898,7 +898,7 @@ public class CcySwapTradeDefinitionController extends TradistaTradeBookingContro
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new CcySwapTrade.Builder().build();
+			trade = CcySwapTrade.create();
 		}
 		try {
 			if (!notionalAmountOne.getText().isEmpty()) {

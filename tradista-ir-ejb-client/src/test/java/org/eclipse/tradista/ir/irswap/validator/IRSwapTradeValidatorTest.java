@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
@@ -15,7 +16,6 @@ import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -36,31 +36,17 @@ import org.junit.jupiter.api.Test;
 
 public class IRSwapTradeValidatorTest {
 
-	private static IRSwapTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static Index index;
-
-	@BeforeAll
-	public static void setUp() {
-		validator = new IRSwapTradeValidator();
-
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		index = new Index("EURIBOR");
-	}
+	private static final IRSwapTradeValidator validator = new IRSwapTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	private SingleCurrencyIRSwapTrade.Builder createValidTradeBuilder() {
-		return new SingleCurrencyIRSwapTrade.Builder().currency(currency).amount(BigDecimal.valueOf(1_000_000))
-				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3)).maturityDate(LocalDate.of(2030, 6, 3))
-				.paymentFrequency(Tenor.SIX_MONTHS).receptionFrequency(Tenor.THREE_MONTHS)
-				.paymentInterestPayment(InterestPayment.END_OF_PERIOD)
+		return SingleCurrencyIRSwapTrade.builder().currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
+				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+				.maturityDate(LocalDate.of(2030, 6, 3)).paymentFrequency(Tenor.SIX_MONTHS)
+				.receptionFrequency(Tenor.THREE_MONTHS).paymentInterestPayment(InterestPayment.END_OF_PERIOD)
 				.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
 				.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
 				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)

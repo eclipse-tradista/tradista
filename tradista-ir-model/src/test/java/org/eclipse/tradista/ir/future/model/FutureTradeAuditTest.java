@@ -16,7 +16,7 @@ import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -37,33 +37,25 @@ import org.junit.jupiter.api.Test;
 
 public class FutureTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Future future;
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Future future;
 
-	@BeforeAll
-	public static void setUp() {
-		Currency currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
+	static {
 		FutureContractSpecification spec = new FutureContractSpecification("EURIBOR_3M");
-		spec.setExchange(new Exchange("EPA"));
-		spec.setCurrency(currency);
+		spec.setExchange(TradistaTestUtil.createExchange("EPA"));
+		spec.setCurrency(TradistaTestUtil.EUR);
 		spec.setDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360));
-		spec.setReferenceRateIndex(new Index("EURIBOR"));
+		spec.setReferenceRateIndex(TradistaTestUtil.EURIBOR);
 		spec.setReferenceRateIndexTenor(Tenor.THREE_MONTHS);
 
-		future = new Future.Builder("MAR26", spec).maturityDate(LocalDate.of(2026, 3, 20)).build();
+		future = Future.builder("MAR26", spec).maturityDate(LocalDate.of(2026, 3, 20)).build();
 	}
 
 	@Test
 	public void testDefaultCreationTimeOnNewFutureTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FutureTrade trade = new FutureTrade.Builder().future(future).quantity(BigDecimal.valueOf(10))
+		FutureTrade trade = FutureTrade.builder().future(future).quantity(BigDecimal.valueOf(10))
 				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
@@ -81,7 +73,7 @@ public class FutureTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FutureTrade trade = new FutureTrade.Builder().future(future).book(book).counterparty(counterparty)
+		FutureTrade trade = FutureTrade.builder().future(future).book(book).counterparty(counterparty)
 				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -91,7 +83,7 @@ public class FutureTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FutureTrade trade = new FutureTrade.Builder().future(future).book(book).counterparty(counterparty)
+		FutureTrade trade = FutureTrade.builder().future(future).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
@@ -104,7 +96,7 @@ public class FutureTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FutureTrade trade = new FutureTrade.Builder().future(future).book(book).counterparty(counterparty).build();
+		FutureTrade trade = FutureTrade.builder().future(future).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -119,7 +111,7 @@ public class FutureTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FutureTrade original = new FutureTrade.Builder().future(future).quantity(BigDecimal.valueOf(10))
+		FutureTrade original = FutureTrade.builder().future(future).quantity(BigDecimal.valueOf(10))
 				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).creationTime(creationTime)
 				.lastUpdateTime(lastUpdateTime).build();

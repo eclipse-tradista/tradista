@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.fra.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
@@ -127,7 +128,22 @@ public class FRATrade extends IRForwardTrade<Product> implements Instrument {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FRATrade create() {
+		return builder().build();
+	}
+
+	public static FRATrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends IRForwardTrade.Builder<Product, FRATrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal fixedRate;
 		protected LocalDate startDate;
 

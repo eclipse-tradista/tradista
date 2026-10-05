@@ -116,7 +116,7 @@ public abstract class TradistaExporter<X extends TradistaObject, Y> implements E
 
 	public OutgoingMessage createMessage(X object) throws TradistaBusinessException {
 
-		OutgoingMessage message = new OutgoingMessage.Builder().type(getType()).objectId(object.getId())
+		OutgoingMessage message = OutgoingMessage.builder().type(getType()).objectId(object.getId())
 				.objectType(MessageUtil.getObjectType(object)).interfaceName(getName()).build();
 
 		String workflowName = workflowBusinessDelegate.resolveWorkflow(message);

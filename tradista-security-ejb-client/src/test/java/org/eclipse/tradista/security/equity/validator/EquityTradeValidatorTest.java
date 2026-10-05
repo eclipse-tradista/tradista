@@ -8,12 +8,11 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,29 +33,15 @@ import org.junit.jupiter.api.Test;
 
 public class EquityTradeValidatorTest {
 
-	private static EquityTradeValidator validator;
-	private static Equity equity;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-
-	@BeforeAll
-	public static void setUp() {
-		validator = new EquityTradeValidator();
-
-		currency = new Currency("EUR");
-		Exchange exchange = new Exchange("EPA");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).build();
-	}
+	private static final EquityTradeValidator validator = new EquityTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final Equity equity = Equity.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+			.currency(currency).build();
 
 	private EquityTrade.Builder createValidTradeBuilder() {
-		return new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty).currency(currency)
+		return EquityTrade.builder().product(equity).book(book).counterparty(counterparty).currency(currency)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0));
 	}

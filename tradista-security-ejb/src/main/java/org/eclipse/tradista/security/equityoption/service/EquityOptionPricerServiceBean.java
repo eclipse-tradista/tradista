@@ -141,7 +141,7 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 
 			if (underlying == null) {
 				// the equity option trade is using a listed equityOption
-				underlying = new EquityTrade.Builder().currency(trade.getCurrency())
+				underlying = EquityTrade.builder().currency(trade.getCurrency())
 						.product(trade.getEquityOption().getUnderlying())
 						.quantity(trade.getEquityOption().getQuantity()).build();
 			}
@@ -387,7 +387,7 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 
 		if (underlying == null) {
 			// the equity option trade is using a listed equityOption
-			underlying = new EquityTrade.Builder().currency(trade.getCurrency())
+			underlying = EquityTrade.builder().currency(trade.getCurrency())
 					.product(trade.getEquityOption().getUnderlying()).quantity(trade.getEquityOption().getQuantity())
 					.build();
 		}
@@ -464,7 +464,7 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 
 			if (underlying == null) {
 				// the equity option trade is using a listed equityOption
-				underlying = new EquityTrade.Builder().currency(trade.getCurrency())
+				underlying = EquityTrade.builder().currency(trade.getCurrency())
 						.product(trade.getEquityOption().getUnderlying())
 						.quantity(trade.getEquityOption().getQuantity()).build();
 			}
@@ -597,7 +597,7 @@ public class EquityOptionPricerServiceBean implements EquityOptionPricerService 
 				.getOpenPositionsFromInventoryByProductAndBookIds(equityOption.getId(), bookId);
 		BigDecimal unrealizedPnl = BigDecimal.ZERO;
 		if (inventories != null && inventories.isEmpty()) {
-			EquityOptionTrade trade = new EquityOptionTrade.Builder().buySell(true).equityOption(equityOption)
+			EquityOptionTrade trade = EquityOptionTrade.builder().buySell(true).equityOption(equityOption)
 					.type(equityOption.getType()).maturityDate(equityOption.getMaturityDate())
 					.quantity(inventories.toArray(new ProductInventory[0])[0].getQuantity()).build();
 			return pvBlackAndScholes(params, trade, currency, pricingDate);

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.specificrepo.model;
 
+import java.time.Instant;
+
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.repo.model.RepoTrade;
 
@@ -73,7 +75,26 @@ public class SpecificRepoTrade extends RepoTrade {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static SpecificRepoTrade create() {
+		return builder().build();
+	}
+
+	public static SpecificRepoTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static SpecificRepoTrade of(Security security) {
+		return builder().security(security).build();
+	}
+
 	public static class Builder extends RepoTrade.Builder<SpecificRepoTrade, Builder> {
+		private Builder() {
+		}
+
 		public Builder security(Security security) {
 			this.product = security;
 			return this;

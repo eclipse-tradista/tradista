@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.product.model.Product;
@@ -140,7 +141,22 @@ public class IRCapFloorCollarTrade extends Trade<Product> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static IRCapFloorCollarTrade create() {
+		return builder().build();
+	}
+
+	public static IRCapFloorCollarTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends Trade.Builder<Product, IRCapFloorCollarTrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal capStrike;
 		protected BigDecimal floorStrike;
 		protected IRForwardTrade<Product> irForwardTrade;

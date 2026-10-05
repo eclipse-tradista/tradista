@@ -10,12 +10,11 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -36,24 +35,13 @@ import org.junit.jupiter.api.Test;
 
 public class DepositTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-
-	@BeforeAll
-	public static void setUp() {
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-	}
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 
 	@Test
 	public void testDefaultCreationTimeOnNewDepositTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		DepositTrade trade = new DepositTrade.Builder().fixedRate(BigDecimal.valueOf(3.0)).currency(currency)
+		DepositTrade trade = DepositTrade.builder().fixedRate(BigDecimal.valueOf(3.0)).currency(TradistaTestUtil.EUR)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2026, 6, 3)).paymentFrequency(Tenor.ONE_YEAR)
@@ -74,7 +62,7 @@ public class DepositTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		DepositTrade trade = new DepositTrade.Builder().currency(currency).book(book).counterparty(counterparty)
+		DepositTrade trade = DepositTrade.builder().currency(TradistaTestUtil.EUR).book(book).counterparty(counterparty)
 				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -84,7 +72,7 @@ public class DepositTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		DepositTrade trade = new DepositTrade.Builder().currency(currency).book(book).counterparty(counterparty)
+		DepositTrade trade = DepositTrade.builder().currency(TradistaTestUtil.EUR).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
@@ -97,7 +85,7 @@ public class DepositTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		DepositTrade trade = new DepositTrade.Builder().currency(currency).book(book).counterparty(counterparty)
+		DepositTrade trade = DepositTrade.builder().currency(TradistaTestUtil.EUR).book(book).counterparty(counterparty)
 				.build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -113,7 +101,7 @@ public class DepositTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		DepositTrade original = new DepositTrade.Builder().fixedRate(BigDecimal.valueOf(3.0)).currency(currency)
+		DepositTrade original = DepositTrade.builder().fixedRate(BigDecimal.valueOf(3.0)).currency(TradistaTestUtil.EUR)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2026, 6, 3)).creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();

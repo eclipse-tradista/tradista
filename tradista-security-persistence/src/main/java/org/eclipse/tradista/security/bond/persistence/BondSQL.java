@@ -1,9 +1,6 @@
 package org.eclipse.tradista.security.bond.persistence;
 
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CODE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CURRENCY_ID;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY_DATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRINCIPAL;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
@@ -30,10 +27,10 @@ import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
 import org.eclipse.tradista.core.currency.persistence.CurrencySQL;
 import org.eclipse.tradista.core.exchange.persistence.ExchangeSQL;
 import org.eclipse.tradista.core.index.persistence.IndexSQL;
-import org.eclipse.tradista.core.legalentity.persistence.LegalEntitySQL;
 import org.eclipse.tradista.core.product.persistence.ProductSQL;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.security.bond.model.Bond;
+import org.eclipse.tradista.security.common.persistence.SecuritySQL;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -54,20 +51,6 @@ import org.eclipse.tradista.security.bond.model.Bond;
 public class BondSQL {
 
 	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME);
-
-	private static final Field SECURITY_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
-	private static final Field ISSUER_ID_FIELD = new Field("ISSUER_ID");
-	private static final Field ISIN_FIELD = new Field("ISIN");
-	private static final Field CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
-	private static final Field ISSUE_DATE_FIELD = new Field("ISSUE_DATE");
-	private static final Field ISSUE_PRICE_FIELD = new Field("ISSUE_PRICE");
-
-	private static final Field[] SECURITY_FIELDS = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD, ISSUE_DATE_FIELD,
-			ISSUE_PRICE_FIELD, SECURITY_PRODUCT_ID_FIELD };
-	public static final Table SECURITY_TABLE = new Table("SECURITY", SECURITY_FIELDS);
-
-	private static final Field[] SECURITY_FIELDS_FOR_UPDATE = { ISSUER_ID_FIELD, ISIN_FIELD, CURRENCY_ID_FIELD,
-			ISSUE_DATE_FIELD, ISSUE_PRICE_FIELD };
 
 	private static final Field BOND_PRODUCT_ID_FIELD = new Field(PRODUCT_ID);
 	private static final Field COUPON_FIELD = new Field("COUPON");
@@ -97,8 +80,8 @@ public class BondSQL {
 
 	private static final Join BOND_PRODUCT_JOIN = Join.innerEq(ProductSQL.PRODUCT_TABLE, BOND_PRODUCT_ID_FIELD,
 			ProductSQL.ID_FIELD);
-	private static final Join BOND_SECURITY_JOIN = Join.innerEq(SECURITY_TABLE, BOND_PRODUCT_ID_FIELD,
-			SECURITY_PRODUCT_ID_FIELD);
+	private static final Join BOND_SECURITY_JOIN = Join.innerEq(SecuritySQL.SECURITY_TABLE, BOND_PRODUCT_ID_FIELD,
+			SecuritySQL.SECURITY_PRODUCT_ID_FIELD);
 
 	private static final String BASE_SELECT_QUERY = TradistaDBUtil.buildSelectQuery(BOND_TABLE, BOND_PRODUCT_JOIN,
 			BOND_SECURITY_JOIN);
@@ -112,10 +95,8 @@ public class BondSQL {
 								ProductSQL.PRODUCT_FIELDS_FOR_INSERT)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, ProductSQL.ID_FIELD,
 								ProductSQL.PRODUCT_TABLE, ProductSQL.PRODUCT_FIELDS_FOR_UPDATE);
-				PreparedStatement stmtSaveSecurity = (bond.getId() == 0)
-						? TradistaDBUtil.buildInsertPreparedStatement(con, SECURITY_TABLE, SECURITY_FIELDS)
-						: TradistaDBUtil.buildUpdatePreparedStatement(con, SECURITY_PRODUCT_ID_FIELD, SECURITY_TABLE,
-								SECURITY_FIELDS_FOR_UPDATE);
+				PreparedStatement stmtSaveSecurity = (bond.getId() == 0) ? SecuritySQL.getInsertStatement(con)
+						: SecuritySQL.getUpdateStatement(con);
 				PreparedStatement stmtSaveBond = (bond.getId() == 0)
 						? TradistaDBUtil.buildInsertPreparedStatement(con, BOND_TABLE, BOND_FIELDS)
 						: TradistaDBUtil.buildUpdatePreparedStatement(con, BOND_PRODUCT_ID_FIELD, BOND_TABLE,
@@ -142,12 +123,7 @@ public class BondSQL {
 			} else {
 				productId = bond.getId();
 			}
-			stmtSaveSecurity.setLong(1, bond.getIssuerId());
-			stmtSaveSecurity.setString(2, bond.getIsin());
-			stmtSaveSecurity.setLong(3, bond.getCurrencyId());
-			stmtSaveSecurity.setDate(4, Date.valueOf(bond.getIssueDate()));
-			stmtSaveSecurity.setBigDecimal(5, bond.getIssuePrice());
-			stmtSaveSecurity.setLong(6, productId);
+			SecuritySQL.setPreparedStatementSecurityFields(bond, stmtSaveSecurity, productId);
 			stmtSaveSecurity.executeUpdate();
 
 			stmtSaveBond.setBigDecimal(1, bond.getCoupon());
@@ -303,7 +279,7 @@ public class BondSQL {
 	public static Set<Bond> getBondsByIsin(String isin) {
 		Set<Bond> bonds = null;
 		StringBuilder sql = new StringBuilder(BASE_SELECT_QUERY);
-		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, SecuritySQL.ISIN_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetBondByIsin = con.prepareStatement(sql.toString())) {
@@ -327,7 +303,7 @@ public class BondSQL {
 		StringBuilder sql = new StringBuilder(
 				TradistaDBUtil.buildSelectQuery(BOND_TABLE, BOND_PRODUCT_JOIN, BOND_SECURITY_JOIN,
 						Join.innerEq(ExchangeSQL.EXCHANGE_TABLE, ProductSQL.EXCHANGE_ID_FIELD, ExchangeSQL.ID_FIELD)));
-		TradistaDBUtil.addParameterizedFilter(sql, ISIN_FIELD);
+		TradistaDBUtil.addParameterizedFilter(sql, SecuritySQL.ISIN_FIELD);
 		TradistaDBUtil.addParameterizedFilter(sql, ExchangeSQL.CODE_FIELD);
 
 		try (Connection con = TradistaDB.getConnection();
@@ -347,7 +323,7 @@ public class BondSQL {
 
 	private static Bond buildBond(ResultSet results) throws SQLException {
 		Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
-				results.getString(ISIN_FIELD.getName()));
+				results.getString(SecuritySQL.ISIN_FIELD.getName()));
 		bond.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
 		bond.setCoupon(results.getBigDecimal(COUPON_FIELD.getName()));
 		bond.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
@@ -362,10 +338,7 @@ public class BondSQL {
 		bond.setRedemptionPrice(results.getBigDecimal(REDEMPTION_PRICE_FIELD.getName()));
 		bond.setRedemptionCurrency(
 				CurrencySQL.getCurrencyById(results.getLong(REDEMPTION_CURRENCY_ID_FIELD.getName())));
-		bond.setIssuer(LegalEntitySQL.getLegalEntityById(results.getLong(ISSUER_ID_FIELD.getName())));
-		bond.setIssueDate(results.getDate(ISSUE_DATE_FIELD.getName()).toLocalDate());
-		bond.setIssuePrice(results.getBigDecimal(ISSUE_PRICE_FIELD.getName()));
-		bond.setCurrency(CurrencySQL.getCurrencyById(results.getLong(CURRENCY_ID_FIELD.getName())));
+		SecuritySQL.setSecurityCommonFields(bond, results);
 		long referenceRateIndexId = results.getLong(REFERENCE_RATE_INDEX_ID_FIELD.getName());
 		if (referenceRateIndexId > 0) {
 			bond.setReferenceRateIndex(IndexSQL.getIndexById(referenceRateIndexId));

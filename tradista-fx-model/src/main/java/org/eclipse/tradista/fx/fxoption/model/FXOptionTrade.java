@@ -2,6 +2,7 @@ package org.eclipse.tradista.fx.fxoption.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
@@ -58,7 +59,7 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 	@Override
 	public Exchange getExchange() {
 		// Exchange is the one of FX
-		return new FXTrade.Builder().build().getExchange();
+		return FXTrade.create().getExchange();
 	}
 
 	@Override
@@ -78,7 +79,22 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FXOptionTrade create() {
+		return builder().build();
+	}
+
+	public static FXOptionTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends VanillaOptionTrade.Builder<FXTrade, FXOptionTrade, Builder> {
+		private Builder() {
+		}
+
 		@Override
 		protected Builder self() {
 			return this;

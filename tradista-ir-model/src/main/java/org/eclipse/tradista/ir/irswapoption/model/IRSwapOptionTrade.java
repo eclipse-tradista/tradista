@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.irswapoption.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.index.model.Index;
@@ -104,8 +105,23 @@ public class IRSwapOptionTrade extends VanillaOptionTrade<SingleCurrencyIRSwapTr
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static IRSwapOptionTrade create() {
+		return builder().build();
+	}
+
+	public static IRSwapOptionTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder
 			extends VanillaOptionTrade.Builder<SingleCurrencyIRSwapTrade, IRSwapOptionTrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal cashSettlementAmount;
 		protected Index alternativeCashSettlementReferenceRateIndex;
 		protected Tenor alternativeCashSettlementReferenceRateIndexTenor;

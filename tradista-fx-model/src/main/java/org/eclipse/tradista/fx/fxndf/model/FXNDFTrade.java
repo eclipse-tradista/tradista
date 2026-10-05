@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxndf.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -85,7 +86,22 @@ public class FXNDFTrade extends AbstractFXTrade<Product> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FXNDFTrade create() {
+		return builder().build();
+	}
+
+	public static FXNDFTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends AbstractFXTrade.Builder<Product, FXNDFTrade, Builder> {
+		private Builder() {
+		}
+
 		protected Currency nonDeliverableCurrency;
 		protected BigDecimal ndfRate;
 

@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.future.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -168,7 +169,26 @@ public class FutureTrade extends IRForwardTrade<Future> implements Instrument {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FutureTrade create() {
+		return builder().build();
+	}
+
+	public static FutureTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static FutureTrade of(Future future) {
+		return builder().future(future).build();
+	}
+
 	public static class Builder extends IRForwardTrade.Builder<Future, FutureTrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal quantity;
 
 		public Builder quantity(BigDecimal quantity) {

@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fx.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -126,7 +127,22 @@ public class FXTrade extends AbstractFXTrade<Product> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FXTrade create() {
+		return builder().build();
+	}
+
+	public static FXTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends AbstractFXTrade.Builder<Product, FXTrade, Builder> {
+		private Builder() {
+		}
+
 		protected Currency currencyOne;
 		protected BigDecimal amountOne;
 		protected Type type;

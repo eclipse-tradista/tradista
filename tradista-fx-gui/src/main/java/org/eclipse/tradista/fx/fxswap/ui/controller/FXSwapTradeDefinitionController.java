@@ -465,7 +465,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 					private boolean isAvailable(LocalDate date) {
 						boolean isAvailable = true;
 						if (fxSwapTrade == null) {
-							fxSwapTrade = new FXSwapTrade.Builder().build();
+							fxSwapTrade = FXSwapTrade.create();
 							fxSwapTrade.setCurrency(currencyTwo.getValue());
 							fxSwapTrade.setCurrencyOne(currencyOne.getValue());
 						}
@@ -496,7 +496,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxSwapTrade == null) {
-							fxSwapTrade = new FXSwapTrade.Builder().build();
+							fxSwapTrade = FXSwapTrade.create();
 							fxSwapTrade.setCurrency(currencyTwo.getValue());
 							fxSwapTrade.setCurrencyOne(currencyOne.getValue());
 						}
@@ -685,7 +685,7 @@ public class FXSwapTradeDefinitionController extends TradistaTradeBookingControl
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXSwapTrade.Builder().build();
+			trade = FXSwapTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

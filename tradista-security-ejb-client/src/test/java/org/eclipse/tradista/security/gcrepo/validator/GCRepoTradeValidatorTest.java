@@ -8,12 +8,12 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
 import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,23 +34,14 @@ import org.junit.jupiter.api.Test;
 
 public class GCRepoTradeValidatorTest {
 
-	private static GCRepoTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static GCBasket basket;
-	private static Status status;
+	private static final GCRepoTradeValidator validator = new GCRepoTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final GCBasket basket;
+	private static final Status status;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new GCRepoTradeValidator();
-
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
+	static {
 		basket = new GCBasket();
 		basket.setName("EUR_GOVT");
 		status = new Status();
@@ -58,7 +49,7 @@ public class GCRepoTradeValidatorTest {
 	}
 
 	private GCRepoTrade.Builder createValidTradeBuilder() {
-		return new GCRepoTrade.Builder().gcBasket(basket).book(book).counterparty(counterparty).currency(currency)
+		return GCRepoTrade.builder().gcBasket(basket).book(book).counterparty(counterparty).currency(currency)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
 				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status);

@@ -11,10 +11,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -35,29 +33,16 @@ import org.junit.jupiter.api.Test;
 
 public class BondTradeAuditTest {
 
-	private static Bond bond;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-
-	@BeforeAll
-	public static void setUp() {
-		currency = new Currency("EUR");
-		Exchange exchange = new Exchange("EPA");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		bond = new Bond.Builder(exchange, "FR0000120271").issueDate(LocalDate.of(2025, 1, 1))
-				.maturityDate(LocalDate.of(2035, 1, 1)).currency(currency).build();
-	}
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Bond bond = Bond.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+			.issueDate(LocalDate.of(2025, 1, 1)).maturityDate(LocalDate.of(2035, 1, 1)).currency(TradistaTestUtil.EUR)
+			.build();
 
 	@Test
 	public void testDefaultCreationTimeOnNewTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		BondTrade trade = new BondTrade.Builder().product(bond).book(book).counterparty(counterparty)
+		BondTrade trade = BondTrade.builder().product(bond).book(book).counterparty(counterparty)
 				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(99.5)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
@@ -74,7 +59,7 @@ public class BondTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		BondTrade trade = new BondTrade.Builder().product(bond).book(book).counterparty(counterparty)
+		BondTrade trade = BondTrade.builder().product(bond).book(book).counterparty(counterparty)
 				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -84,7 +69,7 @@ public class BondTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		BondTrade trade = new BondTrade.Builder().product(bond).creationTime(originalCreation).build();
+		BondTrade trade = BondTrade.builder().product(bond).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -96,7 +81,7 @@ public class BondTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		BondTrade trade = new BondTrade.Builder().product(bond).build();
+		BondTrade trade = BondTrade.of(bond);
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -111,7 +96,7 @@ public class BondTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		BondTrade original = new BondTrade.Builder().product(bond).book(book).counterparty(counterparty)
+		BondTrade original = BondTrade.builder().product(bond).book(book).counterparty(counterparty)
 				.quantity(BigDecimal.valueOf(50)).amount(BigDecimal.valueOf(102.0)).creationTime(creationTime)
 				.lastUpdateTime(lastUpdateTime).build();
 

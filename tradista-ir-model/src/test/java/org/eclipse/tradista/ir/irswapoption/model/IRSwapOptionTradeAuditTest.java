@@ -19,7 +19,7 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -40,39 +40,27 @@ import org.junit.jupiter.api.Test;
 
 public class IRSwapOptionTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static SingleCurrencyIRSwapTrade underlying;
-
-	@BeforeAll
-	public static void setUp() {
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		Index index = new Index("EURIBOR");
-
-		underlying = new SingleCurrencyIRSwapTrade.Builder().currency(currency).amount(BigDecimal.valueOf(1_000_000))
-				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3)).maturityDate(LocalDate.of(2030, 6, 3))
-				.paymentFrequency(Tenor.SIX_MONTHS).receptionFrequency(Tenor.THREE_MONTHS)
-				.paymentInterestPayment(InterestPayment.END_OF_PERIOD)
-				.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
-				.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
-				.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)
-				.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS).interestsToPayFixed(true)
-				.paymentFixedInterestRate(BigDecimal.valueOf(2.5))
-				.paymentDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
-				.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).build();
-	}
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Index index = TradistaTestUtil.EURIBOR;
+	private static final SingleCurrencyIRSwapTrade underlying = SingleCurrencyIRSwapTrade.builder().currency(currency)
+			.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+			.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+			.maturityDate(LocalDate.of(2030, 6, 3)).paymentFrequency(Tenor.SIX_MONTHS)
+			.receptionFrequency(Tenor.THREE_MONTHS).paymentInterestPayment(InterestPayment.END_OF_PERIOD)
+			.receptionInterestPayment(InterestPayment.END_OF_PERIOD)
+			.paymentInterestFixing(InterestPayment.BEGINNING_OF_PERIOD)
+			.receptionInterestFixing(InterestPayment.BEGINNING_OF_PERIOD).receptionReferenceRateIndex(index)
+			.receptionReferenceRateIndexTenor(Tenor.THREE_MONTHS).interestsToPayFixed(true)
+			.paymentFixedInterestRate(BigDecimal.valueOf(2.5))
+			.paymentDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
+			.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).build();
 
 	@Test
 	public void testDefaultCreationTimeOnNewIRSwapOptionTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		IRSwapOptionTrade trade = new IRSwapOptionTrade.Builder().underlying(underlying).book(book)
+		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().underlying(underlying).book(book)
 				.counterparty(counterparty).currency(currency).amount(BigDecimal.valueOf(5000))
 				.strike(BigDecimal.valueOf(2.5)).style(VanillaOptionTrade.Style.EUROPEAN).type(OptionTrade.Type.CALL)
 				.settlementType(OptionTrade.SettlementType.CASH).settlementDateOffset(2)
@@ -93,8 +81,8 @@ public class IRSwapOptionTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		IRSwapOptionTrade trade = new IRSwapOptionTrade.Builder().currency(currency).book(book)
-				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
+		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().currency(currency).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -103,8 +91,8 @@ public class IRSwapOptionTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		IRSwapOptionTrade trade = new IRSwapOptionTrade.Builder().currency(currency).book(book)
-				.counterparty(counterparty).creationTime(originalCreation).build();
+		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().currency(currency).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -116,8 +104,8 @@ public class IRSwapOptionTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		IRSwapOptionTrade trade = new IRSwapOptionTrade.Builder().currency(currency).book(book)
-				.counterparty(counterparty).build();
+		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().currency(currency).book(book).counterparty(counterparty)
+				.build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -132,7 +120,7 @@ public class IRSwapOptionTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		IRSwapOptionTrade original = new IRSwapOptionTrade.Builder().underlying(underlying).book(book)
+		IRSwapOptionTrade original = IRSwapOptionTrade.builder().underlying(underlying).book(book)
 				.counterparty(counterparty).currency(currency).amount(BigDecimal.valueOf(5000))
 				.strike(BigDecimal.valueOf(2.5)).style(VanillaOptionTrade.Style.EUROPEAN).type(OptionTrade.Type.CALL)
 				.settlementType(OptionTrade.SettlementType.CASH).settlementDateOffset(2)

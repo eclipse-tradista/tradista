@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.security.equity.model.Equity;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -29,16 +29,9 @@ import org.junit.jupiter.api.Test;
 
 public class EquityValidatorTest {
 
-	private static EquityValidator validator;
-	private static Exchange exchange;
-	private static Currency currency;
-
-	@BeforeAll
-	public static void setUp() {
-		validator = new EquityValidator();
-		exchange = new Exchange("EPA");
-		currency = new Currency("EUR");
-	}
+	private static final EquityValidator validator = new EquityValidator();
+	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
+	private static final Currency currency = TradistaTestUtil.EUR;
 
 	@Test
 	public void testNullProduct() {
@@ -47,60 +40,60 @@ public class EquityValidatorTest {
 
 	@Test
 	public void testMissingExchange() {
-		Equity equity = new Equity.Builder(null, "FR0000120271").currency(currency).build();
+		Equity equity = Equity.builder(null, "FR0000120271").currency(currency).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testMissingIsin() {
-		Equity equity = new Equity.Builder(exchange, null).currency(currency).build();
+		Equity equity = Equity.builder(exchange, null).currency(currency).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testMissingCurrency() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(null).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testMissingActiveFrom() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).activeFrom(null).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(currency).activeFrom(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testMissingActiveTo() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency)
-				.activeFrom(LocalDate.of(2020, 1, 1)).activeTo(null).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(currency).activeFrom(LocalDate.of(2020, 1, 1))
+				.activeTo(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testActiveFromAfterActiveTo() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency)
-				.activeFrom(LocalDate.of(2025, 1, 1)).activeTo(LocalDate.of(2020, 1, 1)).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(currency).activeFrom(LocalDate.of(2025, 1, 1))
+				.activeTo(LocalDate.of(2020, 1, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testZeroOrNegativeTotalIssued() {
-		Equity equityZero = new Equity.Builder(exchange, "FR0000120271").currency(currency).totalIssued(0).build();
+		Equity equityZero = Equity.builder(exchange, "FR0000120271").currency(currency).totalIssued(0).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equityZero));
 
-		Equity equityNeg = new Equity.Builder(exchange, "FR0000120271").currency(currency).totalIssued(-100).build();
+		Equity equityNeg = Equity.builder(exchange, "FR0000120271").currency(currency).totalIssued(-100).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equityNeg));
 	}
 
 	@Test
 	public void testNegativeTradingSize() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).tradingSize(-1).build();
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(currency).tradingSize(-1).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}
 
 	@Test
 	public void testPayDividendWithoutDividendCurrency() {
-		Equity equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).payDividend(true)
+		Equity equity = Equity.builder(exchange, "FR0000120271").currency(currency).payDividend(true)
 				.dividendCurrency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(equity));
 	}

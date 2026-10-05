@@ -79,7 +79,7 @@ public class FXNDFTradeSQL {
 				while (results.next()) {
 
 					if (fxndfTrade == null) {
-						fxndfTrade = new FXNDFTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						fxndfTrade = FXNDFTrade.of(TradeSQL.getCreationTime(results));
 					}
 
 					TradeSQL.setTradeCommonFields(fxndfTrade, results);
@@ -106,7 +106,7 @@ public class FXNDFTradeSQL {
 				return null;
 			}
 
-			fxndfTrade = new FXNDFTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			fxndfTrade = FXNDFTrade.of(TradeSQL.getCreationTime(rs));
 			fxndfTrade
 					.setNonDeliverableCurrency(CurrencySQL.getCurrencyById(rs.getLong("non_deliverable_currency_id")));
 			fxndfTrade.setNdfRate(rs.getBigDecimal("ndf_rate"));

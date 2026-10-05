@@ -44,12 +44,10 @@ public class FutureTradeValidator extends DefaultTradeValidator {
 			errMsg.append(String.format("The future is mandatory.%n"));
 		} else {
 			errMsg.append(validateTradeBasics(trade));
+
+			// Other business controls
 			if (futureTrade.getMaturityDate() == null) {
 				errMsg.append(String.format("The maturity date is mandatory.%n"));
-			}
-
-			if (trade.getSettlementDate() == null) {
-				errMsg.append(String.format("The settlement date is mandatory.%n"));
 			}
 
 			if (futureTrade.getMaturityDate() != null && trade.getSettlementDate() != null) {
@@ -62,7 +60,10 @@ public class FutureTradeValidator extends DefaultTradeValidator {
 			futureValidator.validateProduct(trade.getProduct());
 		}
 
-		// Other business controls
+		if (trade.getSettlementDate() == null) {
+			errMsg.append(String.format("The settlement date is mandatory.%n"));
+		}
+
 		if (trade.getAmount() != null && trade.getAmount().doubleValue() <= 0) {
 			errMsg.append(String.format("The price (%s) must be positive.%n", trade.getAmount().doubleValue()));
 		}
@@ -74,7 +75,7 @@ public class FutureTradeValidator extends DefaultTradeValidator {
 					String.format("The quantity (%s) must be positive.%n", futureTrade.getQuantity().doubleValue()));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 

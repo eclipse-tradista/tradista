@@ -80,7 +80,7 @@ public class BondTradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (bondTrade == null) {
-						bondTrade = new BondTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						bondTrade = BondTrade.of(TradeSQL.getCreationTime(results));
 					}
 					TradeSQL.setTradeCommonFields(bondTrade, results);
 					bondTrade.setProduct(BondSQL.getBondById(results.getLong(PRODUCT_ID_FIELD.getName())));
@@ -136,7 +136,7 @@ public class BondTradeSQL {
 			if (rs.getLong("bond_trade_id") == 0) {
 				return null;
 			}
-			bondTrade = new BondTrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			bondTrade = BondTrade.of(TradeSQL.getCreationTime(rs));
 			bondTrade.setProduct(BondSQL.getBondById(rs.getLong(PRODUCT_ID_FIELD.getName())));
 			bondTrade.setQuantity(rs.getBigDecimal("bond_quantity"));
 
@@ -170,7 +170,7 @@ public class BondTradeSQL {
 				if (bondTrades == null) {
 					bondTrades = new ArrayList<>();
 				}
-				BondTrade bondTrade = new BondTrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+				BondTrade bondTrade = BondTrade.of(TradeSQL.getCreationTime(results));
 				TradeSQL.setTradeCommonFields(bondTrade, results);
 				bondTrade.setProduct(BondSQL.getBondById(results.getLong(PRODUCT_ID_FIELD.getName())));
 				bondTrade.setQuantity(results.getBigDecimal(QUANTITY_FIELD.getName()));

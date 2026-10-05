@@ -424,7 +424,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			@Override
 			public void changed(ObservableValue<? extends Currency> arg0, Currency arg1, Currency newValue) {
 				if (settlementDate.getValue() != null) {
-					FXNDFTrade fxNdfTrade = new FXNDFTrade.Builder().build();
+					FXNDFTrade fxNdfTrade = FXNDFTrade.create();
 					fxNdfTrade.setCurrency(settlementCurrency.getValue());
 					fxNdfTrade.setNonDeliverableCurrency(newValue);
 					fxNdfTrade.setSettlementDate(settlementDate.getValue());
@@ -442,7 +442,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 			@Override
 			public void changed(ObservableValue<? extends LocalDate> arg0, LocalDate arg1, LocalDate newDate) {
 				if (newDate != null) {
-					FXNDFTrade fxNdfTrade = new FXNDFTrade.Builder().build();
+					FXNDFTrade fxNdfTrade = FXNDFTrade.create();
 					fxNdfTrade.setCurrency(settlementCurrency.getValue());
 					fxNdfTrade.setNonDeliverableCurrency(nonDeliverableCurrency.getValue());
 					fxNdfTrade.setSettlementDate(newDate);
@@ -466,7 +466,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 						boolean isAvailable = true;
 
 						if (fxNdfTrade == null) {
-							fxNdfTrade = new FXNDFTrade.Builder().build();
+							fxNdfTrade = FXNDFTrade.create();
 							fxNdfTrade.setCurrency(settlementCurrency.getValue());
 							fxNdfTrade.setNonDeliverableCurrency(nonDeliverableCurrency.getValue());
 						}
@@ -499,7 +499,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 
 					private boolean isAvailable(LocalDate date) {
 						if (fxNdfTrade == null) {
-							fxNdfTrade = new FXNDFTrade.Builder().build();
+							fxNdfTrade = FXNDFTrade.create();
 							fxNdfTrade.setCurrency(settlementCurrency.getValue());
 							fxNdfTrade.setNonDeliverableCurrency(nonDeliverableCurrency.getValue());
 						}
@@ -655,7 +655,7 @@ public class FXNDFTradeDefinitionController extends TradistaTradeBookingControll
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FXNDFTrade.Builder().build();
+			trade = FXNDFTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

@@ -521,9 +521,9 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 					private boolean isAvailable(LocalDate date) {
 						if (mmTrade == null) {
 							if (direction.getValue().equals(Direction.LOAN)) {
-								mmTrade = new LoanTrade.Builder().build();
+								mmTrade = LoanTrade.create();
 							} else {
-								mmTrade = new DepositTrade.Builder().build();
+								mmTrade = DepositTrade.create();
 							}
 							mmTrade.setCurrency(currency.getValue());
 						}
@@ -719,9 +719,9 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 	private LoanDepositTrade buildTrade() {
 		if (this.trade == null) {
 			if (direction.getValue().equals(LoanDepositTrade.Direction.LOAN)) {
-				trade = new LoanTrade.Builder().build();
+				trade = LoanTrade.create();
 			} else {
-				trade = new DepositTrade.Builder().build();
+				trade = DepositTrade.create();
 			}
 		}
 		try {

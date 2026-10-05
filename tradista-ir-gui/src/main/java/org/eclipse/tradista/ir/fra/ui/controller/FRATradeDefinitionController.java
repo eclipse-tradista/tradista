@@ -508,7 +508,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 
 					private boolean isAvailable(LocalDate date) {
 						if (fraTrade == null) {
-							fraTrade = new FRATrade.Builder().build();
+							fraTrade = FRATrade.create();
 							fraTrade.setCurrency(currency.getValue());
 						}
 
@@ -670,7 +670,7 @@ public class FRATradeDefinitionController extends TradistaTradeBookingController
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FRATrade.Builder().build();
+			trade = FRATrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

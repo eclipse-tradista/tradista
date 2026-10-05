@@ -8,15 +8,14 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
-import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.ir.fra.model.FRATrade;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -37,26 +36,15 @@ import org.junit.jupiter.api.Test;
 
 public class IRCapFloorCollarTradeValidatorTest {
 
-	private static IRCapFloorCollarTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static FRATrade forwardTrade;
+	private static final IRCapFloorCollarTradeValidator validator = new IRCapFloorCollarTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final FRATrade forwardTrade;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new IRCapFloorCollarTradeValidator();
-
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		Index index = new Index("EURIBOR");
-
-		forwardTrade = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 5, 30))
-				.maturityDate(LocalDate.of(2025, 8, 30)).referenceRateIndex(index)
+	static {
+		forwardTrade = FRATrade.builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 5, 30))
+				.maturityDate(LocalDate.of(2025, 8, 30)).referenceRateIndex(TradistaTestUtil.EURIBOR)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
 				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360))
 				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
@@ -65,7 +53,7 @@ public class IRCapFloorCollarTradeValidatorTest {
 	}
 
 	private IRCapFloorCollarTrade.Builder createValidTradeBuilder() {
-		return new IRCapFloorCollarTrade.Builder().capStrike(BigDecimal.valueOf(3.0)).irForwardTrade(forwardTrade)
+		return IRCapFloorCollarTrade.builder().capStrike(BigDecimal.valueOf(3.0)).irForwardTrade(forwardTrade)
 				.currency(currency).amount(BigDecimal.valueOf(10_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1));
 	}

@@ -129,7 +129,7 @@ public class GCRepoTradeController implements Serializable {
 				.toArray(Tenor[]::new);
 		allBaskets = gcBasketBusinessDelegate.getAllGCBaskets();
 		workflow = workflowBusinessDelegate.getWorkflowByName(GCRepoTrade.GC_REPO);
-		trade = new GCRepoTrade.Builder().build();
+		trade = GCRepoTrade.create();
 		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		setDirection(Direction.BUY);
 		setInterestType(FIXED);
@@ -494,7 +494,7 @@ public class GCRepoTradeController implements Serializable {
 	}
 
 	public void clear() {
-		trade = new GCRepoTrade.Builder().build();
+		trade = GCRepoTrade.create();
 		try {
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		} catch (TradistaBusinessException tbe) {

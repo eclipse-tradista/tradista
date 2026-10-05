@@ -10,10 +10,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,27 +32,15 @@ import org.junit.jupiter.api.Test;
 
 public class EquityTradeAuditTest {
 
-	private static Equity equity;
-	private static Book book;
-	private static LegalEntity counterparty;
-
-	@BeforeAll
-	public static void setUp() {
-		Exchange exchange = new Exchange("EPA");
-		Currency currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		equity = new Equity.Builder(exchange, "FR0000120271").currency(currency).build();
-	}
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Equity equity = Equity.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+			.currency(TradistaTestUtil.EUR).build();
 
 	@Test
 	public void testDefaultCreationTimeOnNewEquityTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
@@ -72,7 +58,7 @@ public class EquityTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty)
 				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -82,7 +68,7 @@ public class EquityTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
@@ -95,7 +81,7 @@ public class EquityTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		EquityTrade trade = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty).build();
+		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -110,7 +96,7 @@ public class EquityTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		EquityTrade original = new EquityTrade.Builder().product(equity).book(book).counterparty(counterparty)
+		EquityTrade original = EquityTrade.builder().product(equity).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0)).creationTime(creationTime)
 				.lastUpdateTime(lastUpdateTime).build();

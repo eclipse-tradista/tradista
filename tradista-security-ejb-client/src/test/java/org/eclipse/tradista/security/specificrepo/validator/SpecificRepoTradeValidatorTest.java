@@ -8,13 +8,12 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -35,31 +34,21 @@ import org.junit.jupiter.api.Test;
 
 public class SpecificRepoTradeValidatorTest {
 
-	private static SpecificRepoTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static Bond bond;
-	private static Status status;
+	private static final SpecificRepoTradeValidator validator = new SpecificRepoTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final Bond bond = Bond.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+			.currency(currency).build();
+	private static final Status status;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new SpecificRepoTradeValidator();
-
-		currency = new Currency("EUR");
-		Exchange exchange = new Exchange("EPA");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).build();
+	static {
 		status = new Status();
 		status.setName("NEW");
 	}
 
 	private SpecificRepoTrade.Builder createValidTradeBuilder() {
-		return new SpecificRepoTrade.Builder().security(bond).book(book).counterparty(counterparty).currency(currency)
+		return SpecificRepoTrade.builder().security(bond).book(book).counterparty(counterparty).currency(currency)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
 				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status);

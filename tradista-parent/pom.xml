@@ -235,6 +235,9 @@
 		<security-fix-exporter.version>
 			3.3.0-SNAPSHOT
 		</security-fix-exporter.version>
+		<tradista-test-util.version>
+			3.3.0-SNAPSHOT
+		</tradista-test-util.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -244,8 +247,19 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.eclipse.tradista.core</groupId>
+				<artifactId>tradista-test-util</artifactId>
+				<version>${tradista-test-util.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<modules>
 		<module>../tradista-model</module>
+		<module>../tradista-test-util</module>
 		<module>../tradista-model-mapping</module>
 		<module>../tradista-ejb-interface</module>
 		<module>../tradista-ir-model</module>

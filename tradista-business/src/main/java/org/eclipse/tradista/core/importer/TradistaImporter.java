@@ -130,7 +130,7 @@ public abstract class TradistaImporter<X> implements Importer<X> {
 	}
 
 	public IncomingMessage createMessage(X externalMessage) throws TradistaBusinessException {
-		IncomingMessage message = new IncomingMessage.Builder().content(externalMessage.toString()).type(getType())
+		IncomingMessage message = IncomingMessage.builder().content(externalMessage.toString()).type(getType())
 				.interfaceName(getName()).build();
 
 		String workflowName = workflowBusinessDelegate.resolveWorkflow(message);

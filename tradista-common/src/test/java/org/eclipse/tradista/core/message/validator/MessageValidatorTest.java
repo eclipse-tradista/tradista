@@ -7,7 +7,6 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.status.constants.StatusConstants;
 import org.eclipse.tradista.core.workflow.model.Status;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -28,18 +27,16 @@ import org.junit.jupiter.api.Test;
 
 public class MessageValidatorTest {
 
-	private static MessageValidator validator;
-	private static Status status;
+	private static final MessageValidator validator = new MessageValidator();
+	private static final Status status;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new MessageValidator();
+	static {
 		status = new Status();
 		status.setName(StatusConstants.CREATED);
 	}
 
 	private IncomingMessage.Builder createValidMessageBuilder() {
-		return new IncomingMessage.Builder().type("CONFIRMATION").objectType("Trade").objectId(12345L)
+		return IncomingMessage.builder().type("CONFIRMATION").objectType("Trade").objectId(12345L)
 				.content("Sample confirmation message").status(status);
 	}
 
@@ -51,7 +48,7 @@ public class MessageValidatorTest {
 
 	@Test
 	public void testValidMessageWithoutObjectReference() {
-		IncomingMessage message = new IncomingMessage.Builder().type("SYSTEM").status(status).build();
+		IncomingMessage message = IncomingMessage.builder().type("SYSTEM").status(status).build();
 		assertDoesNotThrow(() -> validator.validateMessage(message));
 	}
 

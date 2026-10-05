@@ -1,5 +1,7 @@
 package org.eclipse.tradista.mm.loandeposit.model;
 
+import java.time.Instant;
+
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
  * 
@@ -51,7 +53,22 @@ public class DepositTrade extends LoanDepositTrade {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static DepositTrade create() {
+		return builder().build();
+	}
+
+	public static DepositTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends LoanDepositTrade.Builder<DepositTrade, Builder> {
+		private Builder() {
+		}
+
 		@Override
 		protected Builder self() {
 			return this;

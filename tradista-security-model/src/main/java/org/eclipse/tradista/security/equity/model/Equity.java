@@ -74,6 +74,14 @@ public class Equity extends Security {
 		return builder;
 	}
 
+	public static Builder builder(Exchange exchange, String isin) {
+		return new Builder(exchange, isin);
+	}
+
+	public static Equity of(Exchange exchange, String isin) {
+		return builder(exchange, isin).build();
+	}
+
 	public static class Builder extends Security.Builder<Equity, Builder> {
 		protected long tradingSize;
 		protected long totalIssued;
@@ -83,7 +91,7 @@ public class Equity extends Security {
 		protected LocalDate activeFrom;
 		protected LocalDate activeTo;
 
-		public Builder(Exchange exchange, String isin) {
+		private Builder(Exchange exchange, String isin) {
 			super(exchange, isin);
 		}
 

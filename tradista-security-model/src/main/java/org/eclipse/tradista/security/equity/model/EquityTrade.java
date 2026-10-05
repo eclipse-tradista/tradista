@@ -1,6 +1,7 @@
 package org.eclipse.tradista.security.equity.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.trade.model.Trade;
@@ -77,7 +78,26 @@ public class EquityTrade extends Trade<Equity> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static EquityTrade create() {
+		return builder().build();
+	}
+
+	public static EquityTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static EquityTrade of(Equity equity) {
+		return builder().product(equity).build();
+	}
+
 	public static class Builder extends Trade.Builder<Equity, EquityTrade, Builder> {
+		private Builder() {
+		}
+
 		protected BigDecimal quantity;
 
 		public Builder quantity(BigDecimal quantity) {

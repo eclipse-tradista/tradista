@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxswap.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;
@@ -127,7 +128,22 @@ public class FXSwapTrade extends AbstractFXTrade<Product> {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static FXSwapTrade create() {
+		return builder().build();
+	}
+
+	public static FXSwapTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
 	public static class Builder extends AbstractFXTrade.Builder<Product, FXSwapTrade, Builder> {
+		private Builder() {
+		}
+
 		protected Currency currencyOne;
 		protected LocalDate settlementDateForward;
 		protected BigDecimal amountOneForward;

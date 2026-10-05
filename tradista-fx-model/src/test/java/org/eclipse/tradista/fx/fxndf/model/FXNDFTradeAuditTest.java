@@ -12,7 +12,7 @@ import java.time.temporal.ChronoUnit;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -33,26 +33,15 @@ import org.junit.jupiter.api.Test;
 
 public class FXNDFTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency usd;
-	private static Currency brl;
-
-	@BeforeAll
-	public static void setUp() {
-		usd = new Currency("USD");
-		brl = new Currency("BRL");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-	}
+	private static final Currency usd = TradistaTestUtil.USD;
+	private static final Currency brl = TradistaTestUtil.BRL;
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Book book = TradistaTestUtil.createTradingBook();
 
 	@Test
 	public void testDefaultCreationTimeOnNewFXNDFTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FXNDFTrade trade = new FXNDFTrade.Builder().currency(usd).nonDeliverableCurrency(brl)
+		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl)
 				.amount(BigDecimal.valueOf(100_000)).ndfRate(BigDecimal.valueOf(5.2)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.build();
@@ -71,7 +60,7 @@ public class FXNDFTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FXNDFTrade trade = new FXNDFTrade.Builder().currency(usd).nonDeliverableCurrency(brl).book(book)
+		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl).book(book)
 				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -81,7 +70,7 @@ public class FXNDFTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FXNDFTrade trade = new FXNDFTrade.Builder().currency(usd).nonDeliverableCurrency(brl).book(book)
+		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl).book(book)
 				.counterparty(counterparty).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
@@ -94,7 +83,7 @@ public class FXNDFTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FXNDFTrade trade = new FXNDFTrade.Builder().currency(usd).nonDeliverableCurrency(brl).book(book)
+		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl).book(book)
 				.counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -110,7 +99,7 @@ public class FXNDFTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FXNDFTrade original = new FXNDFTrade.Builder().currency(usd).nonDeliverableCurrency(brl)
+		FXNDFTrade original = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl)
 				.amount(BigDecimal.valueOf(100_000)).ndfRate(BigDecimal.valueOf(5.2)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();

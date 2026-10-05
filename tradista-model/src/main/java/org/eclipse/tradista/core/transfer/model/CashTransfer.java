@@ -94,17 +94,35 @@ public class CashTransfer extends Transfer {
 		return builder;
 	}
 
+	public static Builder builder(Book book, TransferPurpose purpose, LocalDate settlementDate, Currency currency) {
+		return new Builder(book, purpose, settlementDate, currency);
+	}
+
+	public static Builder builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate,
+			Currency currency) {
+		return new Builder(book, product, purpose, settlementDate, currency);
+	}
+
+	public static CashTransfer of(Book book, TransferPurpose purpose, LocalDate settlementDate, Currency currency) {
+		return builder(book, purpose, settlementDate, currency).build();
+	}
+
+	public static CashTransfer of(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate,
+			Currency currency) {
+		return builder(book, product, purpose, settlementDate, currency).build();
+	}
+
 	public static class Builder extends Transfer.Builder<CashTransfer, Builder> {
 		protected Currency currency;
 
-		public Builder(Book book, TransferPurpose purpose, LocalDate settlementDate, Currency currency) {
+		private Builder(Book book, TransferPurpose purpose, LocalDate settlementDate, Currency currency) {
 			this.book = book;
 			this.purpose = purpose;
 			this.settlementDate = settlementDate;
 			this.currency = currency;
 		}
 
-		public Builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate,
+		private Builder(Book book, Product product, TransferPurpose purpose, LocalDate settlementDate,
 				Currency currency) {
 			this.book = book;
 			this.product = product;

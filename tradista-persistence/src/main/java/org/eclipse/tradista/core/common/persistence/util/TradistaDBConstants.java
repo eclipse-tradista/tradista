@@ -88,6 +88,7 @@ public final class TradistaDBConstants {
 	public static final String INTEREST_PAYMENT = "INTEREST_PAYMENT";
 	public static final String INTEREST_FIXING = "INTEREST_FIXING";
 	public static final String START_DATE = "START_DATE";
+	public static final String FIXED_RATE = "FIXED_RATE";
 
 	private TradistaDBConstants() {
 	}

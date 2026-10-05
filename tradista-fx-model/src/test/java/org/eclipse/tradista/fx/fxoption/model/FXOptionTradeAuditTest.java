@@ -15,7 +15,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -36,31 +36,19 @@ import org.junit.jupiter.api.Test;
 
 public class FXOptionTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency eur;
-	private static Currency usd;
-	private static FXTrade underlyingTrade;
-
-	@BeforeAll
-	public static void setUp() {
-		eur = new Currency("EUR");
-		usd = new Currency("USD");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		underlyingTrade = new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
-				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3)).build();
-	}
+	private static final Currency eur = TradistaTestUtil.EUR;
+	private static final Currency usd = TradistaTestUtil.USD;
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final FXTrade underlyingTrade = FXTrade.builder().currencyOne(eur).currency(usd)
+			.amountOne(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(110_000)).book(book)
+			.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
+			.build();
 
 	@Test
 	public void testDefaultCreationTimeOnNewFXOptionTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FXOptionTrade trade = new FXOptionTrade.Builder().underlying(underlyingTrade).currency(usd)
+		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).currency(usd)
 				.amount(BigDecimal.valueOf(2000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.maturityDate(LocalDate.of(2025, 9, 1)).style(VanillaOptionTrade.Style.EUROPEAN)
@@ -80,8 +68,8 @@ public class FXOptionTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FXOptionTrade trade = new FXOptionTrade.Builder().underlying(underlyingTrade).book(book)
-				.counterparty(counterparty).creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
+		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
 		assertEquals(historicalUpdate, trade.getLastUpdateTime());
@@ -90,8 +78,8 @@ public class FXOptionTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FXOptionTrade trade = new FXOptionTrade.Builder().underlying(underlyingTrade).book(book)
-				.counterparty(counterparty).creationTime(originalCreation).build();
+		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
 
@@ -103,8 +91,8 @@ public class FXOptionTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FXOptionTrade trade = new FXOptionTrade.Builder().underlying(underlyingTrade).book(book)
-				.counterparty(counterparty).build();
+		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
+				.build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -119,7 +107,7 @@ public class FXOptionTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FXOptionTrade original = new FXOptionTrade.Builder().underlying(underlyingTrade).currency(usd)
+		FXOptionTrade original = FXOptionTrade.builder().underlying(underlyingTrade).currency(usd)
 				.amount(BigDecimal.valueOf(2000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.maturityDate(LocalDate.of(2025, 9, 1)).style(VanillaOptionTrade.Style.EUROPEAN)

@@ -8,8 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import org.eclipse.tradista.core.exchange.model.Exchange;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -30,19 +29,17 @@ import org.junit.jupiter.api.Test;
 
 public class FutureAuditTest {
 
-	private static FutureContractSpecification contractSpecification;
+	private static final FutureContractSpecification contractSpecification;
 
-	@BeforeAll
-	public static void setUp() {
+	static {
 		contractSpecification = new FutureContractSpecification("EURIBOR_3M");
-		contractSpecification.setExchange(new Exchange("EPA"));
+		contractSpecification.setExchange(TradistaTestUtil.createExchange("EPA"));
 	}
 
 	@Test
 	public void testDefaultCreationTimeOnNewFuture() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		Future future = new Future.Builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20))
-				.build();
+		Future future = Future.builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(future.getCreationTime());
@@ -58,7 +55,7 @@ public class FutureAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		Future future = new Future.Builder("MAR26", contractSpecification).creationTime(historicalCreation)
+		Future future = Future.builder("MAR26", contractSpecification).creationTime(historicalCreation)
 				.lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, future.getCreationTime());
@@ -68,7 +65,7 @@ public class FutureAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		Future future = new Future.Builder("MAR26", contractSpecification).creationTime(originalCreation).build();
+		Future future = Future.builder("MAR26", contractSpecification).creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, future.getCreationTime());
 
@@ -80,7 +77,7 @@ public class FutureAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		Future future = new Future.Builder("MAR26", contractSpecification).build();
+		Future future = Future.of("MAR26", contractSpecification);
 
 		assertNotNull(future.getLastUpdateTime());
 
@@ -95,7 +92,7 @@ public class FutureAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		Future original = new Future.Builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20))
+		Future original = Future.builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20))
 				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
 
 		Future copy = original.toBuilder().build();

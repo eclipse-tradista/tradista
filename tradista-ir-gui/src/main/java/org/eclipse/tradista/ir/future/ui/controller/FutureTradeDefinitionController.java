@@ -885,7 +885,7 @@ public class FutureTradeDefinitionController extends TradistaTradeBookingControl
 
 	private void buildTrade() {
 		if (this.trade == null) {
-			trade = new FutureTrade.Builder().build();
+			trade = FutureTrade.create();
 		}
 		try {
 			trade.setTradeDate(tradeDate.getValue());

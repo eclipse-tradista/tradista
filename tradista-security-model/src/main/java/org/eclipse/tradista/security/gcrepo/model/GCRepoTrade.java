@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.gcrepo.model;
 
+import java.time.Instant;
+
 import org.eclipse.tradista.security.repo.model.RepoTrade;
 
 /********************************************************************************
@@ -76,7 +78,26 @@ public class GCRepoTrade extends RepoTrade {
 		return builder;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static GCRepoTrade create() {
+		return builder().build();
+	}
+
+	public static GCRepoTrade of(Instant creationTime) {
+		return builder().creationTime(creationTime).build();
+	}
+
+	public static GCRepoTrade of(GCBasket gcBasket) {
+		return builder().gcBasket(gcBasket).build();
+	}
+
 	public static class Builder extends RepoTrade.Builder<GCRepoTrade, Builder> {
+		private Builder() {
+		}
+
 		protected GCBasket gcBasket;
 
 		public Builder gcBasket(GCBasket gcBasket) {

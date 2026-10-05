@@ -13,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,12 +33,10 @@ import org.junit.jupiter.api.Test;
 
 public class TransferAuditTest {
 
-	private static Book book;
-	private static Currency currency;
+	private static final Currency currency = new Currency("EUR");
+	private static final Book book;
 
-	@BeforeAll
-	public static void setUp() {
-		currency = new Currency("EUR");
+	static {
 		LegalEntity po = new LegalEntity("PO");
 		po.setRole(LegalEntity.Role.PROCESSING_ORG);
 		book = new Book("TradingBook", po);
@@ -48,8 +45,9 @@ public class TransferAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewTransfer() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		CashTransfer transfer = new CashTransfer.Builder(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.of(2025, 6, 1), currency).quantityOrAmount(BigDecimal.valueOf(1000)).build();
+		CashTransfer transfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency)
+				.quantityOrAmount(BigDecimal.valueOf(1000)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(transfer.getCreationTime());
@@ -65,9 +63,9 @@ public class TransferAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		CashTransfer transfer = new CashTransfer.Builder(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.of(2025, 6, 1), currency).creationTime(historicalCreation).lastUpdateTime(historicalUpdate)
-				.build();
+		CashTransfer transfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency)
+				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, transfer.getCreationTime());
 		assertEquals(historicalUpdate, transfer.getLastUpdateTime());
@@ -76,8 +74,9 @@ public class TransferAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateTimeIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		CashTransfer transfer = new CashTransfer.Builder(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.of(2025, 6, 1), currency).creationTime(originalCreation).build();
+		CashTransfer transfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency)
+				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, transfer.getCreationTime());
 
@@ -89,8 +88,8 @@ public class TransferAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		CashTransfer transfer = new CashTransfer.Builder(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.of(2025, 6, 1), currency).build();
+		CashTransfer transfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency).build();
 
 		assertNotNull(transfer.getLastUpdateTime());
 
@@ -105,9 +104,10 @@ public class TransferAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		CashTransfer original = new CashTransfer.Builder(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.of(2025, 6, 1), currency).quantityOrAmount(BigDecimal.valueOf(5000))
-				.creationTime(creationTime).lastUpdateTime(lastUpdateTime).build();
+		CashTransfer original = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency)
+				.quantityOrAmount(BigDecimal.valueOf(5000)).creationTime(creationTime).lastUpdateTime(lastUpdateTime)
+				.build();
 
 		CashTransfer copy = original.toBuilder().build();
 

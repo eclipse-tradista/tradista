@@ -10,12 +10,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.exchange.model.Exchange;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.security.bond.model.Bond;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -36,22 +34,13 @@ import org.junit.jupiter.api.Test;
 
 public class SpecificRepoTradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static Bond bond;
-	private static Status status;
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Bond bond = Bond.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+			.currency(TradistaTestUtil.EUR).build();
+	private static final Status status;
 
-	@BeforeAll
-	public static void setUp() {
-		Exchange exchange = new Exchange("EPA");
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		bond = new Bond.Builder(exchange, "FR0000120271").currency(currency).build();
+	static {
 		status = new Status();
 		status.setName("NEW");
 	}
@@ -59,10 +48,11 @@ public class SpecificRepoTradeAuditTest {
 	@Test
 	public void testDefaultCreationTimeOnNewSpecificRepoTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		SpecificRepoTrade trade = new SpecificRepoTrade.Builder().security(bond).book(book).counterparty(counterparty)
-				.currency(currency).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
-				.endDate(LocalDate.of(2025, 6, 10)).repoRate(BigDecimal.valueOf(2.5))
-				.marginRate(BigDecimal.valueOf(102.0)).amount(BigDecimal.valueOf(1_000_000)).status(status).build();
+		SpecificRepoTrade trade = SpecificRepoTrade.builder().security(bond).book(book).counterparty(counterparty)
+				.currency(TradistaTestUtil.EUR).tradeDate(LocalDate.of(2025, 6, 1))
+				.settlementDate(LocalDate.of(2025, 6, 3)).endDate(LocalDate.of(2025, 6, 10))
+				.repoRate(BigDecimal.valueOf(2.5)).marginRate(BigDecimal.valueOf(102.0))
+				.amount(BigDecimal.valueOf(1_000_000)).status(status).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
 
 		assertNotNull(trade.getCreationTime());
@@ -78,7 +68,7 @@ public class SpecificRepoTradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		SpecificRepoTrade trade = new SpecificRepoTrade.Builder().security(bond).book(book).counterparty(counterparty)
+		SpecificRepoTrade trade = SpecificRepoTrade.builder().security(bond).book(book).counterparty(counterparty)
 				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -88,7 +78,7 @@ public class SpecificRepoTradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		SpecificRepoTrade trade = new SpecificRepoTrade.Builder().security(bond).book(book).counterparty(counterparty)
+		SpecificRepoTrade trade = SpecificRepoTrade.builder().security(bond).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
@@ -101,7 +91,7 @@ public class SpecificRepoTradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		SpecificRepoTrade trade = new SpecificRepoTrade.Builder().security(bond).book(book).counterparty(counterparty)
+		SpecificRepoTrade trade = SpecificRepoTrade.builder().security(bond).book(book).counterparty(counterparty)
 				.build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -117,8 +107,8 @@ public class SpecificRepoTradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		SpecificRepoTrade original = new SpecificRepoTrade.Builder().security(bond).book(book)
-				.counterparty(counterparty).currency(currency).tradeDate(LocalDate.of(2025, 6, 1))
+		SpecificRepoTrade original = SpecificRepoTrade.builder().security(bond).book(book).counterparty(counterparty)
+				.currency(TradistaTestUtil.EUR).tradeDate(LocalDate.of(2025, 6, 1))
 				.settlementDate(LocalDate.of(2025, 6, 3)).endDate(LocalDate.of(2025, 6, 10))
 				.repoRate(BigDecimal.valueOf(2.5)).marginRate(BigDecimal.valueOf(102.0))
 				.amount(BigDecimal.valueOf(1_000_000)).status(status).creationTime(creationTime)

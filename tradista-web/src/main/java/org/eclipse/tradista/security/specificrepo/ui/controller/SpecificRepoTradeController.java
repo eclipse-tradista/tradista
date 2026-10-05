@@ -126,7 +126,7 @@ public class SpecificRepoTradeController implements Serializable {
 				.toArray(Tenor[]::new);
 		allSecurities = securityBusinessDelegate.getAllSecurities();
 		workflow = workflowBusinessDelegate.getWorkflowByName(SpecificRepoTrade.SPECIFIC_REPO);
-		trade = new SpecificRepoTrade.Builder().build();
+		trade = SpecificRepoTrade.create();
 		trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		setDirection(Direction.BUY);
 		setInterestType(FIXED);
@@ -491,7 +491,7 @@ public class SpecificRepoTradeController implements Serializable {
 	}
 
 	public void clear() {
-		trade = new SpecificRepoTrade.Builder().build();
+		trade = SpecificRepoTrade.create();
 		try {
 			trade.setStatus(workflowBusinessDelegate.getInitialStatus(workflow.getName()));
 		} catch (TradistaBusinessException tbe) {

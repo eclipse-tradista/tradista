@@ -8,16 +8,13 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
-import org.eclipse.tradista.core.exchange.model.Exchange;
-import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.ir.future.model.Future;
 import org.eclipse.tradista.ir.future.model.FutureContractSpecification;
 import org.eclipse.tradista.ir.future.model.FutureTrade;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -38,36 +35,26 @@ import org.junit.jupiter.api.Test;
 
 public class FutureTradeValidatorTest {
 
-	private static FutureTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Future future;
+	private static final FutureTradeValidator validator = new FutureTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Future future;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new FutureTradeValidator();
-
-		Currency currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
+	static {
 		FutureContractSpecification spec = new FutureContractSpecification("EURIBOR_3M");
-		spec.setExchange(new Exchange("EPA"));
-		spec.setCurrency(currency);
+		spec.setExchange(TradistaTestUtil.createExchange("EPA"));
+		spec.setCurrency(TradistaTestUtil.EUR);
 		spec.setDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360));
-		spec.setReferenceRateIndex(new Index("EURIBOR"));
+		spec.setReferenceRateIndex(TradistaTestUtil.EURIBOR);
 		spec.setReferenceRateIndexTenor(Tenor.THREE_MONTHS);
 
-		future = new Future.Builder("MAR26", spec).maturityDate(LocalDate.of(2026, 3, 20)).build();
+		future = Future.builder("MAR26", spec).maturityDate(LocalDate.of(2026, 3, 20)).build();
 	}
 
 	private FutureTrade.Builder createValidTradeBuilder() {
-		return new FutureTrade.Builder().future(future).quantity(BigDecimal.valueOf(10))
-				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
-				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3));
+		return FutureTrade.builder().future(future).quantity(BigDecimal.valueOf(10)).amount(BigDecimal.valueOf(98.5))
+				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1))
+				.settlementDate(LocalDate.of(2025, 6, 3));
 	}
 
 	@Test

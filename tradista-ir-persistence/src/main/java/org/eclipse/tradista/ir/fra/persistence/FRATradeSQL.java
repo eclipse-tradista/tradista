@@ -100,7 +100,7 @@ public class FRATradeSQL {
 			try (ResultSet results = stmtGetTradeById.executeQuery()) {
 				while (results.next()) {
 					if (fraTrade == null) {
-						fraTrade = new FRATrade.Builder().creationTime(TradeSQL.getCreationTime(results)).build();
+						fraTrade = FRATrade.of(TradeSQL.getCreationTime(results));
 					}
 					TradeSQL.setTradeCommonFields(fraTrade, results);
 					java.sql.Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());
@@ -141,7 +141,7 @@ public class FRATradeSQL {
 				return null;
 			}
 
-			fraTrade = new FRATrade.Builder().creationTime(TradeSQL.getCreationTime(rs)).build();
+			fraTrade = FRATrade.of(TradeSQL.getCreationTime(rs));
 
 			java.sql.Date maturityDate = rs.getDate("irforward_maturity_date");
 			if (maturityDate != null) {

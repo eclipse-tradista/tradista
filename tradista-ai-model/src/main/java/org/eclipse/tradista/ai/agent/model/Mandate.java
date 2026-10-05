@@ -218,6 +218,14 @@ public class Mandate extends TimestampedObject {
 				.lastUpdateTime(this.getLastUpdateTime());
 	}
 
+	public static Builder builder(String name) {
+		return new Builder(name);
+	}
+
+	public static Mandate of(String name) {
+		return builder(name).build();
+	}
+
 	public static class Builder extends TimestampedObject.Builder<Mandate, Builder> {
 		protected String name;
 		protected RiskLevel acceptedRiskLevel;
@@ -229,7 +237,7 @@ public class Mandate extends TimestampedObject {
 		protected Currency initialCashCurrency;
 		protected Book book;
 
-		public Builder(String name) {
+		private Builder(String name) {
 			this.name = name;
 		}
 

@@ -1,5 +1,6 @@
 package org.eclipse.tradista.ir.irforward.model;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.model.TradistaModelUtil;

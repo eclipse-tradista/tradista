@@ -95,6 +95,16 @@ public class EquityOption extends Product {
 		return builder;
 	}
 
+	public static Builder builder(String code, OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate,
+			EquityOptionContractSpecification equityOptionContractSpecification) {
+		return new Builder(code, type, strike, maturityDate, equityOptionContractSpecification);
+	}
+
+	public static EquityOption of(String code, OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate,
+			EquityOptionContractSpecification equityOptionContractSpecification) {
+		return builder(code, type, strike, maturityDate, equityOptionContractSpecification).build();
+	}
+
 	public static class Builder extends Product.Builder<EquityOption, Builder> {
 		protected String code;
 		protected OptionTrade.Type type;
@@ -103,7 +113,7 @@ public class EquityOption extends Product {
 		protected EquityOptionContractSpecification equityOptionContractSpecification;
 		protected Equity underlying;
 
-		public Builder(String code, OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate,
+		private Builder(String code, OptionTrade.Type type, BigDecimal strike, LocalDate maturityDate,
 				EquityOptionContractSpecification equityOptionContractSpecification) {
 			this.code = code;
 			this.type = type;

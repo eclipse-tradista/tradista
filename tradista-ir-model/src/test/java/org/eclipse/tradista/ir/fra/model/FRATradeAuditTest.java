@@ -15,7 +15,7 @@ import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.junit.jupiter.api.BeforeAll;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -36,26 +36,15 @@ import org.junit.jupiter.api.Test;
 
 public class FRATradeAuditTest {
 
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency currency;
-	private static Index index;
-
-	@BeforeAll
-	public static void setUp() {
-		currency = new Currency("EUR");
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-		index = new Index("EURIBOR");
-	}
+	private static final Currency currency = TradistaTestUtil.EUR;
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	@Test
 	public void testDefaultCreationTimeOnNewFRATrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
-		FRATrade trade = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 6, 1))
+		FRATrade trade = FRATrade.builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 6, 1))
 				.maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
 				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)
@@ -76,7 +65,7 @@ public class FRATradeAuditTest {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
-		FRATrade trade = new FRATrade.Builder().book(book).counterparty(counterparty).currency(currency)
+		FRATrade trade = FRATrade.builder().book(book).counterparty(counterparty).currency(currency)
 				.creationTime(historicalCreation).lastUpdateTime(historicalUpdate).build();
 
 		assertEquals(historicalCreation, trade.getCreationTime());
@@ -86,7 +75,7 @@ public class FRATradeAuditTest {
 	@Test
 	public void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
-		FRATrade trade = new FRATrade.Builder().book(book).counterparty(counterparty).currency(currency)
+		FRATrade trade = FRATrade.builder().book(book).counterparty(counterparty).currency(currency)
 				.creationTime(originalCreation).build();
 
 		assertEquals(originalCreation, trade.getCreationTime());
@@ -99,7 +88,7 @@ public class FRATradeAuditTest {
 
 	@Test
 	public void testLastUpdateTimeModification() {
-		FRATrade trade = new FRATrade.Builder().book(book).counterparty(counterparty).currency(currency).build();
+		FRATrade trade = FRATrade.builder().book(book).counterparty(counterparty).currency(currency).build();
 
 		assertNotNull(trade.getLastUpdateTime());
 
@@ -114,8 +103,8 @@ public class FRATradeAuditTest {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
-		FRATrade original = new FRATrade.Builder().fixedRate(BigDecimal.valueOf(2.5))
-				.startDate(LocalDate.of(2025, 6, 1)).maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
+		FRATrade original = FRATrade.builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 6, 1))
+				.maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
 				.referenceRateIndexTenor(Tenor.THREE_MONTHS)
 				.dayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)

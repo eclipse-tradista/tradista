@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
@@ -33,29 +34,19 @@ import org.junit.jupiter.api.Test;
 
 public class FXTradeValidatorTest {
 
-	private static FXTradeValidator validator;
-	private static Book book;
-	private static LegalEntity counterparty;
-	private static Currency eur;
-	private static Currency usd;
+	private static final FXTradeValidator validator = new FXTradeValidator();
+	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
+	private static final Currency eur = TradistaTestUtil.EUR;
+	private static final Currency usd = TradistaTestUtil.USD;
 
 	@BeforeAll
 	public static void setUp() {
 		FXTestUtil.setupFXExchange();
-		validator = new FXTradeValidator();
-
-		LegalEntity po = new LegalEntity("PO");
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		counterparty = new LegalEntity("CP");
-		counterparty.setRole(LegalEntity.Role.COUNTERPARTY);
-		book = new Book("TradingBook", po);
-
-		eur = new Currency("EUR");
-		usd = new Currency("USD");
 	}
 
 	private FXTrade.Builder createValidTradeBuilder() {
-		return new FXTrade.Builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
+		return FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
 				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
 				.type(FXTrade.Type.FX_SPOT);

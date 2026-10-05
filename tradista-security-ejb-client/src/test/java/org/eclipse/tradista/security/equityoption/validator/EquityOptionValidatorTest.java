@@ -7,13 +7,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equityoption.model.EquityOption;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,22 +34,20 @@ import org.junit.jupiter.api.Test;
 
 public class EquityOptionValidatorTest {
 
-	private static EquityOptionValidator validator;
-	private static EquityOptionContractSpecification contractSpecification;
-	private static Equity underlying;
+	private static final EquityOptionValidator validator = new EquityOptionValidator();
+	private static final EquityOptionContractSpecification contractSpecification;
+	private static final Equity underlying;
 
-	@BeforeAll
-	public static void setUp() {
-		validator = new EquityOptionValidator();
-		Exchange exchange = new Exchange("EPA");
+	static {
+		Exchange exchange = TradistaTestUtil.createExchange("EPA");
 		contractSpecification = new EquityOptionContractSpecification("SAN_OPTION");
 		contractSpecification.setExchange(exchange);
 		contractSpecification.setStyle(VanillaOptionTrade.Style.AMERICAN);
-		underlying = new Equity.Builder(exchange, "FR0000120271").build();
+		underlying = Equity.of(exchange, "FR0000120271");
 	}
 
 	private EquityOption.Builder createValidEquityOptionBuilder() {
-		return new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
+		return EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying);
 	}
 
@@ -61,7 +59,7 @@ public class EquityOptionValidatorTest {
 
 	@Test
 	public void testMissingUnderlying() {
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
+		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(null).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
@@ -70,7 +68,7 @@ public class EquityOptionValidatorTest {
 	@Test
 	public void testMissingStyle() {
 		EquityOptionContractSpecification specWithoutStyle = new EquityOptionContractSpecification("SAN_NO_STYLE");
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
+		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), specWithoutStyle).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
@@ -78,7 +76,7 @@ public class EquityOptionValidatorTest {
 
 	@Test
 	public void testMissingCode() {
-		EquityOption option = new EquityOption.Builder(null, OptionTrade.Type.CALL, BigDecimal.valueOf(100),
+		EquityOption option = EquityOption.builder(null, OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
@@ -86,31 +84,34 @@ public class EquityOptionValidatorTest {
 
 	@Test
 	public void testMissingMaturityDate() {
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				null, contractSpecification).underlying(underlying).build();
+		EquityOption option = EquityOption
+				.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100), null, contractSpecification)
+				.underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
 
 	@Test
 	public void testMissingContractSpecification() {
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
-				LocalDate.of(2026, 6, 19), null).underlying(underlying).build();
+		EquityOption option = EquityOption
+				.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100), LocalDate.of(2026, 6, 19), null)
+				.underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
 
 	@Test
 	public void testMissingStrike() {
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, null,
-				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
+		EquityOption option = EquityOption
+				.builder("SAN_C_100", OptionTrade.Type.CALL, null, LocalDate.of(2026, 6, 19), contractSpecification)
+				.underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
 	}
 
 	@Test
 	public void testZeroStrike() {
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.ZERO,
+		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.ZERO,
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));
@@ -118,7 +119,7 @@ public class EquityOptionValidatorTest {
 
 	@Test
 	public void testNegativeStrike() {
-		EquityOption option = new EquityOption.Builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(-10),
+		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(-10),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(option));

@@ -64,12 +64,20 @@ public class Future extends Product {
 		return builder;
 	}
 
+	public static Builder builder(String symbol, FutureContractSpecification contractSpecification) {
+		return new Builder(symbol, contractSpecification);
+	}
+
+	public static Future of(String symbol, FutureContractSpecification contractSpecification) {
+		return builder(symbol, contractSpecification).build();
+	}
+
 	public static class Builder extends Product.Builder<Future, Builder> {
 		protected String symbol;
 		protected FutureContractSpecification contractSpecification;
 		protected LocalDate maturityDate;
 
-		public Builder(String symbol, FutureContractSpecification contractSpecification) {
+		private Builder(String symbol, FutureContractSpecification contractSpecification) {
 			this.symbol = symbol;
 			this.contractSpecification = contractSpecification;
 			if (contractSpecification != null) {
