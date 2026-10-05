@@ -143,10 +143,6 @@ public abstract class LoanDepositTransferManager implements TransferManager<Loan
 	}
 
 	private CashTransfer createNewNotionalPayment(LoanDepositTrade trade) throws TradistaBusinessException {
-		CashTransfer transfer = new CashTransfer(trade.getBook(), TransferPurpose.NOTIONAL_PAYMENT,
-				trade.getSettlementDate(), trade, trade.getCurrency());
-		transfer.setAmount(trade.getAmount());
-		transfer.setCreationDateTime(LocalDateTime.now());
 		Direction direction;
 		if (trade.getProductType().equals(LoanTrade.LOAN)) {
 			if (trade.isBuy()) {
@@ -161,17 +157,15 @@ public abstract class LoanDepositTransferManager implements TransferManager<Loan
 				direction = Direction.RECEIVE;
 			}
 		}
-		transfer.setDirection(direction);
-		transfer.setFixingDateTime(LocalDateTime.now());
-		transfer.setStatus(Transfer.Status.KNOWN);
+		CashTransfer transfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.NOTIONAL_PAYMENT, trade.getSettlementDate(),
+						trade.getCurrency())
+				.trade(trade).quantityOrAmount(trade.getAmount()).direction(direction)
+				.fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN).build();
 		return transfer;
 	}
 
 	private CashTransfer createNewNotionalRepayment(LoanDepositTrade trade) throws TradistaBusinessException {
-		CashTransfer transfer = new CashTransfer(trade.getBook(), TransferPurpose.NOTIONAL_REPAYMENT,
-				trade.getEndDate(), trade, trade.getCurrency());
-		transfer.setAmount(trade.getAmount());
-		transfer.setCreationDateTime(LocalDateTime.now());
 		Direction direction;
 		if (trade.getProductType().equals(LoanTrade.LOAN)) {
 			if (trade.isBuy()) {
@@ -186,11 +180,11 @@ public abstract class LoanDepositTransferManager implements TransferManager<Loan
 				direction = Direction.PAY;
 			}
 		}
-		transfer.setDirection(direction);
-		transfer.setFixingDateTime(LocalDateTime.now());
-		transfer.setStatus(Transfer.Status.KNOWN);
+		CashTransfer transfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.NOTIONAL_REPAYMENT, trade.getEndDate(), trade.getCurrency())
+				.trade(trade).quantityOrAmount(trade.getAmount()).direction(direction)
+				.fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN).build();
 		return transfer;
-
 	}
 
 }

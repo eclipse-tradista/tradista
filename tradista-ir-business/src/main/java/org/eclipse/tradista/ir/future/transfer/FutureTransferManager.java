@@ -3,6 +3,7 @@ package org.eclipse.tradista.ir.future.transfer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,28 +114,22 @@ public class FutureTransferManager implements TransferManager<FutureTradeEvent> 
 
 	private ProductTransfer createNewFutureSettlement(FutureTrade trade) {
 
-		ProductTransfer futureSettlement = new ProductTransfer(trade.getBook(), TransferPurpose.FUTURE_SETTLEMENT,
-				trade.getSettlementDate(), trade);
-		futureSettlement.setCreationDateTime(LocalDateTime.now());
-		if (trade.isBuy()) {
-			futureSettlement.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			futureSettlement.setDirection(Transfer.Direction.PAY);
-		}
-		futureSettlement.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		futureSettlement.setQuantity(trade.getQuantity());
-		futureSettlement.setStatus(Transfer.Status.KNOWN);
+		ProductTransfer futureSettlement = ProductTransfer
+				.builder(trade.getBook(), TransferPurpose.FUTURE_SETTLEMENT, trade.getSettlementDate()).trade(trade)
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.quantityOrAmount(trade.getQuantity()).status(Transfer.Status.KNOWN).build();
 
 		return futureSettlement;
 	}
 
 	private CashTransfer createCashSettlement(List<CashTransfer> existingTransfers, FutureTrade trade) {
 
-		CashTransfer cashSettlement = new CashTransfer(trade.getBook(), trade.getProduct(),
-				TransferPurpose.CASH_SETTLEMENT, trade.getSettlementDate(), trade.getCurrency());
-		cashSettlement.setCreationDateTime(LocalDateTime.now());
-		cashSettlement.setFixingDateTime(trade.getMaturityDate().atStartOfDay());
-		cashSettlement.setStatus(Transfer.Status.UNKNOWN);
+		CashTransfer cashSettlement = CashTransfer
+				.builder(trade.getBook(), trade.getProduct(), TransferPurpose.CASH_SETTLEMENT,
+						trade.getSettlementDate(), trade.getCurrency())
+				.trade(trade).fixingDateTime(trade.getMaturityDate().atStartOfDay()).status(Transfer.Status.UNKNOWN)
+				.build();
 		boolean exists = false;
 		if (existingTransfers != null) {
 			for (CashTransfer existingTransfer : existingTransfers) {

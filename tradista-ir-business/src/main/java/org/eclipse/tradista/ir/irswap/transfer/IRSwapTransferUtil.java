@@ -3,6 +3,7 @@ package org.eclipse.tradista.ir.irswap.transfer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,33 +114,23 @@ public final class IRSwapTransferUtil {
 		// pays it back
 		// at maturity date
 		if (trade instanceof CcySwapTrade) {
-			CashTransfer cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.FIXED_LEG_NOTIONAL_PAYMENT,
-					trade.getSettlementDate(), trade, currency);
-			if (trade.isBuy()) {
-				cashTransfer.setDirection(Transfer.Direction.PAY);
-			} else {
-				cashTransfer.setDirection(Transfer.Direction.RECEIVE);
-			}
+			CashTransfer cashTransfer = CashTransfer
+					.builder(trade.getBook(), TransferPurpose.FIXED_LEG_NOTIONAL_PAYMENT, trade.getSettlementDate(),
+							currency)
+					.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+					.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+					.quantityOrAmount(notional).status(Transfer.Status.KNOWN).build();
 			if (cashTransfers == null) {
 				cashTransfers = new ArrayList<CashTransfer>();
 			}
-			cashTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-			cashTransfer.setAmount(notional);
-			cashTransfer.setStatus(Transfer.Status.KNOWN);
-			cashTransfer.setCreationDateTime(LocalDateTime.now());
 			cashTransfers.add(cashTransfer);
 
-			cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.FIXED_LEG_NOTIONAL_REPAYMENT,
-					trade.getMaturityDate(), trade, currency);
-			if (trade.isSell()) {
-				cashTransfer.setDirection(Transfer.Direction.PAY);
-			} else {
-				cashTransfer.setDirection(Transfer.Direction.RECEIVE);
-			}
-			cashTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-			cashTransfer.setAmount(notional);
-			cashTransfer.setStatus(Transfer.Status.KNOWN);
-			cashTransfer.setCreationDateTime(LocalDateTime.now());
+			cashTransfer = CashTransfer
+					.builder(trade.getBook(), TransferPurpose.FIXED_LEG_NOTIONAL_REPAYMENT, trade.getMaturityDate(),
+							currency)
+					.trade(trade).direction(trade.isSell() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+					.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+					.quantityOrAmount(notional).status(Transfer.Status.KNOWN).build();
 			cashTransfers.add(cashTransfer);
 		}
 
@@ -197,32 +188,23 @@ public final class IRSwapTransferUtil {
 		// he pays it back
 		// at maturity date
 		if (trade instanceof CcySwapTrade) {
-			CashTransfer cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.FLOATING_LEG_NOTIONAL_PAYMENT,
-					trade.getSettlementDate(), trade, trade.getCurrency());
-			if (trade.isBuy()) {
-				cashTransfer.setDirection(Transfer.Direction.PAY);
-			} else {
-				cashTransfer.setDirection(Transfer.Direction.RECEIVE);
-			}
+			CashTransfer cashTransfer = CashTransfer
+					.builder(trade.getBook(), TransferPurpose.FLOATING_LEG_NOTIONAL_PAYMENT, trade.getSettlementDate(),
+							trade.getCurrency())
+					.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+					.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+					.quantityOrAmount(trade.getAmount()).status(Transfer.Status.KNOWN).build();
 			if (cashTransfers == null) {
 				cashTransfers = new ArrayList<CashTransfer>();
 			}
-			cashTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-			cashTransfer.setAmount(trade.getAmount());
-			cashTransfer.setStatus(Transfer.Status.KNOWN);
-			cashTransfer.setCreationDateTime(LocalDateTime.now());
 			cashTransfers.add(cashTransfer);
-			cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.FLOATING_LEG_NOTIONAL_REPAYMENT,
-					trade.getMaturityDate(), trade, trade.getCurrency());
-			if (trade.isSell()) {
-				cashTransfer.setDirection(Transfer.Direction.PAY);
-			} else {
-				cashTransfer.setDirection(Transfer.Direction.RECEIVE);
-			}
-			cashTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-			cashTransfer.setAmount(trade.getAmount());
-			cashTransfer.setStatus(Transfer.Status.KNOWN);
-			cashTransfer.setCreationDateTime(LocalDateTime.now());
+
+			cashTransfer = CashTransfer
+					.builder(trade.getBook(), TransferPurpose.FLOATING_LEG_NOTIONAL_REPAYMENT, trade.getMaturityDate(),
+							trade.getCurrency())
+					.trade(trade).direction(trade.isSell() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
+					.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+					.quantityOrAmount(trade.getAmount()).status(Transfer.Status.KNOWN).build();
 			cashTransfers.add(cashTransfer);
 		}
 
@@ -231,32 +213,29 @@ public final class IRSwapTransferUtil {
 
 	private static CashTransfer createReceptionCashTransfer(IRSwapTrade trade, LocalDate fixingDate,
 			LocalDate settlementDate) throws TradistaBusinessException {
-		CashTransfer cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.FLOATING_LEG_INTEREST_PAYMENT,
-				settlementDate, trade, trade.getCurrency());
-		cashTransfer.setFixingDateTime(fixingDate.atStartOfDay());
-		if (trade.isBuy()) {
-			cashTransfer.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			cashTransfer.setDirection(Transfer.Direction.PAY);
-		}
-		cashTransfer.setStatus(Transfer.Status.UNKNOWN);
-		cashTransfer.setCreationDateTime(LocalDateTime.now());
+		CashTransfer cashTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.FLOATING_LEG_INTEREST_PAYMENT, settlementDate,
+						trade.getCurrency())
+				.trade(trade).fixingDateTime(fixingDate.atStartOfDay())
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+				.status(Transfer.Status.UNKNOWN).build();
 		return cashTransfer;
 	}
 
 	private static CashTransfer createPaymentCashTransfer(IRSwapTrade trade, LocalDate fixingDate,
 			LocalDate settlementDate, LocalDate beginningOfPeriod, LocalDate endOfPeriod, Currency currency,
 			BigDecimal notional) {
-		CashTransfer cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.FIXED_LEG_INTEREST_PAYMENT,
-				settlementDate, trade, currency);
+		CashTransfer.Builder builder = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.FIXED_LEG_INTEREST_PAYMENT, settlementDate, currency)
+				.trade(trade);
 		BigDecimal ir = null;
 		if (trade.isInterestsToPayFixed()) {
 			ir = trade.getPaymentFixedInterestRate();
 		}
 		if (!trade.isInterestsToPayFixed()) {
-			cashTransfer.setFixingDateTime(fixingDate.atStartOfDay());
+			builder.fixingDateTime(fixingDate.atStartOfDay());
 		} else {
-			cashTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
+			builder.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay());
 		}
 
 		// the fractioned notional is the notional of the reception leg
@@ -271,28 +250,27 @@ public final class IRSwapTransferUtil {
 					.multiply(ir.divide(BigDecimal.valueOf(100), cbs.getScale(), cbs.getRoundingMode()));
 			if (trade.isBuy()) {
 				if (payment.signum() > 0) {
-					cashTransfer.setAmount(payment);
-					cashTransfer.setDirection(Transfer.Direction.PAY);
+					builder.quantityOrAmount(payment);
+					builder.direction(Transfer.Direction.PAY);
 				} else {
-					cashTransfer.setDirection(Transfer.Direction.RECEIVE);
-					cashTransfer.setAmount(payment.negate());
+					builder.direction(Transfer.Direction.RECEIVE);
+					builder.quantityOrAmount(payment.negate());
 				}
 			} else {
 				if (payment.signum() > 0) {
-					cashTransfer.setAmount(payment);
-					cashTransfer.setDirection(Transfer.Direction.RECEIVE);
+					builder.quantityOrAmount(payment);
+					builder.direction(Transfer.Direction.RECEIVE);
 				} else {
-					cashTransfer.setDirection(Transfer.Direction.PAY);
-					cashTransfer.setAmount(payment.negate());
+					builder.direction(Transfer.Direction.PAY);
+					builder.quantityOrAmount(payment.negate());
 				}
 			}
-			cashTransfer.setStatus(Transfer.Status.KNOWN);
+			builder.status(Transfer.Status.KNOWN);
 		} else {
-			cashTransfer.setStatus(Transfer.Status.UNKNOWN);
+			builder.status(Transfer.Status.UNKNOWN);
 		}
-		cashTransfer.setCreationDateTime(LocalDateTime.now());
 
-		return cashTransfer;
+		return builder.build();
 	}
 
 }

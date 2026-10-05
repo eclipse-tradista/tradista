@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -72,18 +71,7 @@ public class FutureSQL {
 			stmtGetFutureById.setLong(1, id);
 			try (ResultSet results = stmtGetFutureById.executeQuery()) {
 				while (results.next()) {
-					if (future == null) {
-						future = new Future(results.getString(SYMBOL_FIELD.getName()),
-								FutureContractSpecificationSQL.getFutureContractSpecificationById(
-										results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
-					}
-					future.setId(results.getLong(FUTURE_ID_FIELD.getName()));
-					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTimestamp != null) {
-						future.setCreationDate(
-								creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-					}
-					future.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
+					future = buildFuture(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -107,18 +95,7 @@ public class FutureSQL {
 			stmtGetFutureByContractSpecificationAndSymbol.setString(2, symbol);
 			try (ResultSet results = stmtGetFutureByContractSpecificationAndSymbol.executeQuery()) {
 				while (results.next()) {
-					if (future == null) {
-						future = new Future(results.getString(SYMBOL_FIELD.getName()),
-								FutureContractSpecificationSQL.getFutureContractSpecificationById(
-										results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
-					}
-					future.setId(results.getLong(FUTURE_ID_FIELD.getName()));
-					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTimestamp != null) {
-						future.setCreationDate(
-								creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-					}
-					future.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
+					future = buildFuture(results);
 				}
 			}
 		} catch (SQLException sqle) {
@@ -139,21 +116,29 @@ public class FutureSQL {
 				if (futures == null) {
 					futures = new HashSet<>();
 				}
-				Future future = new Future(results.getString(SYMBOL_FIELD.getName()),
-						FutureContractSpecificationSQL.getFutureContractSpecificationById(
-								results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
-				future.setId(results.getLong(FUTURE_ID_FIELD.getName()));
-				Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-				if (creationTimestamp != null) {
-					future.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-				}
-				future.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
-				futures.add(future);
+				futures.add(buildFuture(results));
 			}
 		} catch (SQLException sqle) {
 			throw new TradistaTechnicalException(sqle);
 		}
 		return futures;
+	}
+
+	private static Future buildFuture(ResultSet results) throws SQLException {
+		Future.Builder builder = Future
+				.builder(results.getString(SYMBOL_FIELD.getName()),
+						FutureContractSpecificationSQL.getFutureContractSpecificationById(
+								results.getLong(FUTURE_CONTRACT_SPECIFICATION_ID_FIELD.getName())))
+				.id(results.getLong(FUTURE_ID_FIELD.getName()));
+		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+		if (creationTimestamp != null) {
+			builder.creationTime(creationTimestamp.toInstant());
+		}
+		Date maturityDate = results.getDate(MATURITY_DATE_FIELD.getName());
+		if (maturityDate != null) {
+			builder.maturityDate(maturityDate.toLocalDate());
+		}
+		return builder.build();
 	}
 
 	public static long saveFuture(Future future) {

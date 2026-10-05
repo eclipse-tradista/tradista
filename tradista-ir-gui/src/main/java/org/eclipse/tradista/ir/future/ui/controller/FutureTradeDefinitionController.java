@@ -908,9 +908,8 @@ public class FutureTradeDefinitionController extends TradistaTradeBookingControl
 			Future future = futureBusinessDelegate.getFutureByContractSpecificationAndSymbol(name.getValue().getName(),
 					symbol.getValue());
 			if (future == null) {
-				future = new Future(symbol.getValue(), name.getValue());
-				future.setCreationDate(LocalDate.now());
-				future.setMaturityDate(maturityDate.getValue());
+				future = Future.builder(symbol.getValue(), name.getValue()).maturityDate(maturityDate.getValue())
+						.build();
 			}
 			trade.setProduct(future);
 		} catch (TradistaBusinessException tbe) {

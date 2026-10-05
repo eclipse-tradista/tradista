@@ -1,6 +1,8 @@
 package org.eclipse.tradista.fx.fxswap.transfer;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,69 +128,49 @@ public class FXSwapTransferManager implements TransferManager<FXSwapTradeEvent> 
 	}
 
 	private CashTransfer createNewPrimaryCurrencySpotTransfer(FXSwapTrade trade) throws TradistaBusinessException {
-		CashTransfer primaryTransfer = new CashTransfer(trade.getBook(), TransferPurpose.PRIMARY_CURRENCY_SPOT,
-				trade.getSettlementDate(), trade, trade.getCurrencyOne());
-		primaryTransfer.setCreationDateTime(LocalDateTime.now());
-		primaryTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		primaryTransfer.setStatus(Transfer.Status.KNOWN);
-		primaryTransfer.setAmount(trade.getAmountOneSpot());
-
-		if (trade.isBuy()) {
-			primaryTransfer.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			primaryTransfer.setDirection(Transfer.Direction.PAY);
-		}
+		CashTransfer primaryTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.PRIMARY_CURRENCY_SPOT, trade.getSettlementDate(),
+						trade.getCurrencyOne())
+				.trade(trade)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).quantityOrAmount(trade.getAmountOneSpot())
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY).build();
 
 		return primaryTransfer;
 	}
 
 	private CashTransfer createNewQuoteCurrencySpotTransfer(FXSwapTrade trade) throws TradistaBusinessException {
-		CashTransfer quoteTransfer = new CashTransfer(trade.getBook(), TransferPurpose.QUOTE_CURRENCY_SPOT,
-				trade.getSettlementDate(), trade, trade.getCurrency());
-		quoteTransfer.setCreationDateTime(LocalDateTime.now());
-		quoteTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		quoteTransfer.setStatus(Transfer.Status.KNOWN);
-		quoteTransfer.setAmount(trade.getAmount());
-
-		if (trade.isBuy()) {
-			quoteTransfer.setDirection(Transfer.Direction.PAY);
-		} else {
-			quoteTransfer.setDirection(Transfer.Direction.RECEIVE);
-		}
+		CashTransfer quoteTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.QUOTE_CURRENCY_SPOT, trade.getSettlementDate(),
+						trade.getCurrency())
+				.trade(trade)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).quantityOrAmount(trade.getAmount())
+				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 
 		return quoteTransfer;
 	}
 
 	private CashTransfer createNewPrimaryCurrencyForwardTransfer(FXSwapTrade trade) throws TradistaBusinessException {
-		CashTransfer primaryTransfer = new CashTransfer(trade.getBook(), TransferPurpose.PRIMARY_CURRENCY_FORWARD,
-				trade.getSettlementDateForward(), trade, trade.getCurrencyOne());
-		primaryTransfer.setCreationDateTime(LocalDateTime.now());
-		primaryTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		primaryTransfer.setStatus(Transfer.Status.KNOWN);
-		primaryTransfer.setAmount(trade.getAmountOneForward());
-
-		if (trade.isBuy()) {
-			primaryTransfer.setDirection(Transfer.Direction.PAY);
-		} else {
-			primaryTransfer.setDirection(Transfer.Direction.RECEIVE);
-		}
+		CashTransfer primaryTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.PRIMARY_CURRENCY_FORWARD, trade.getSettlementDateForward(),
+						trade.getCurrencyOne())
+				.trade(trade)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).quantityOrAmount(trade.getAmountOneForward())
+				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 
 		return primaryTransfer;
 	}
 
 	private CashTransfer createNewQuoteCurrencyForwardTransfer(FXSwapTrade trade) throws TradistaBusinessException {
-		CashTransfer quoteTransfer = new CashTransfer(trade.getBook(), TransferPurpose.QUOTE_CURRENCY_FORWARD,
-				trade.getSettlementDateForward(), trade, trade.getCurrency());
-		quoteTransfer.setCreationDateTime(LocalDateTime.now());
-		quoteTransfer.setFixingDateTime(trade.getCreationDate().atStartOfDay());
-		quoteTransfer.setStatus(Transfer.Status.KNOWN);
-		quoteTransfer.setAmount(trade.getAmountTwoForward());
-
-		if (trade.isBuy()) {
-			quoteTransfer.setDirection(Transfer.Direction.RECEIVE);
-		} else {
-			quoteTransfer.setDirection(Transfer.Direction.PAY);
-		}
+		CashTransfer quoteTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.QUOTE_CURRENCY_FORWARD, trade.getSettlementDateForward(),
+						trade.getCurrency())
+				.trade(trade)
+				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
+				.status(Transfer.Status.KNOWN).quantityOrAmount(trade.getAmountTwoForward())
+				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY).build();
 
 		return quoteTransfer;
 	}

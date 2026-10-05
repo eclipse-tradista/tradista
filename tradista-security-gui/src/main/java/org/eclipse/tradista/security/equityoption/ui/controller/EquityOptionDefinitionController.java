@@ -185,9 +185,8 @@ public class EquityOptionDefinitionController implements TradistaController {
 							// Should not appear here.
 						}
 					}
-					equityOption = new EquityOption(code.getText(), type.getValue(), strikeBigDecimal,
+					equityOption = EquityOption.of(code.getText(), type.getValue(), strikeBigDecimal,
 							maturityDate.getValue(), contractSpecification.getValue());
-					equityOption.setCreationDate(LocalDate.now());
 				}
 
 				buildProduct(equityOption);
@@ -224,7 +223,7 @@ public class EquityOptionDefinitionController implements TradistaController {
 
 		if (result.isPresent()) {
 			try {
-				EquityOption copyEquityOption = new EquityOption(result.get().getCode(), result.get().getType(),
+				EquityOption copyEquityOption = EquityOption.of(result.get().getCode(), result.get().getType(),
 						result.get().getStrike(), result.get().getMaturityDate(),
 						result.get().getEquityOptionContractSpecification());
 				buildProduct(copyEquityOption);

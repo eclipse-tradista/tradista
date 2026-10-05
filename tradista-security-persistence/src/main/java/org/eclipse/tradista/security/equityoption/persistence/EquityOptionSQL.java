@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -276,19 +275,20 @@ public class EquityOptionSQL {
 	}
 
 	private static EquityOption buildEquityOption(ResultSet results) throws SQLException {
-		EquityOption equityOption = new EquityOption(results.getString(CODE_FIELD.getName()),
-				OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())),
-				results.getBigDecimal(STRIKE_FIELD.getName()),
-				results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate(),
-				EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
-						results.getLong(EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD.getName())));
-		equityOption.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
-		equityOption.setUnderlying(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())));
+		EquityOption.Builder builder = EquityOption
+				.builder(results.getString(CODE_FIELD.getName()),
+						OptionTrade.Type.valueOf(results.getString(TYPE_FIELD.getName())),
+						results.getBigDecimal(STRIKE_FIELD.getName()),
+						results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate(),
+						EquityOptionContractSpecificationSQL.getEquityOptionContractSpecificationById(
+								results.getLong(EQUITY_OPTION_CONTRACT_SPECIFICATION_ID_FIELD.getName())))
+				.id(results.getLong(ProductSQL.ID_FIELD.getName()))
+				.underlying(EquitySQL.getEquityById(results.getLong(EQUITY_ID_FIELD.getName())));
 		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
 		if (creationTimestamp != null) {
-			equityOption.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+			builder.creationTime(creationTimestamp.toInstant());
 		}
-		return equityOption;
+		return builder.build();
 	}
 
 }

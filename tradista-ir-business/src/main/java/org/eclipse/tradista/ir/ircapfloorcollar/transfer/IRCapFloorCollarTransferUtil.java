@@ -82,11 +82,9 @@ public final class IRCapFloorCollarTransferUtil {
 
 	private static CashTransfer createCashTransfer(IRCapFloorCollarTrade trade, LocalDate fixingDate,
 			LocalDate settlementDate) {
-		CashTransfer cashTransfer = new CashTransfer(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, settlementDate,
-				trade, trade.getCurrency());
-		cashTransfer.setFixingDateTime(fixingDate.atStartOfDay());
-		cashTransfer.setCreationDateTime(LocalDateTime.now());
-		cashTransfer.setStatus(Transfer.Status.UNKNOWN);
+		CashTransfer cashTransfer = CashTransfer
+				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, settlementDate, trade.getCurrency())
+				.trade(trade).fixingDateTime(fixingDate.atStartOfDay()).status(Transfer.Status.UNKNOWN).build();
 		return cashTransfer;
 	}
 

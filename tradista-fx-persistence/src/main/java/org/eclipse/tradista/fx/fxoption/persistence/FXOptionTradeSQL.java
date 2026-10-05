@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Date;
 
 import org.eclipse.tradista.core.book.persistence.BookSQL;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -99,7 +101,7 @@ public class FXOptionTradeSQL {
 			TradeSQL.setTradeCommonFields(fxOptionTrade, rs);
 
 			// Building the underlying
-			java.sql.Timestamp undCreationTime = rs.getTimestamp("und_fxspot_creation_time");
+			Timestamp undCreationTime = rs.getTimestamp("und_fxspot_creation_time");
 			FXTrade.Builder undBuilder = FXTrade.builder();
 			if (undCreationTime != null) {
 				undBuilder.creationTime(undCreationTime.toInstant());
@@ -112,11 +114,11 @@ public class FXOptionTradeSQL {
 			underlying.setAmount(rs.getBigDecimal("und_fxspot_amount"));
 			underlying.setBuySell(rs.getBoolean("und_fxspot_buy_sell"));
 			underlying.setBook(BookSQL.getBookById(rs.getLong("und_fxspot_book_id")));
-			java.sql.Date undSettlementDate = rs.getDate("und_fxspot_settlement_date");
+			Date undSettlementDate = rs.getDate("und_fxspot_settlement_date");
 			if (undSettlementDate != null) {
 				underlying.setSettlementDate(undSettlementDate.toLocalDate());
 			}
-			java.sql.Date undTradeDate = rs.getDate("und_fxspot_trade_date");
+			Date undTradeDate = rs.getDate("und_fxspot_trade_date");
 			if (undTradeDate != null) {
 				underlying.setTradeDate(undTradeDate.toLocalDate());
 			}

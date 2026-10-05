@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -322,16 +321,18 @@ public class BondSQL {
 	}
 
 	private static Bond buildBond(ResultSet results) throws SQLException {
-		Bond bond = new Bond(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
-				results.getString(SecuritySQL.ISIN_FIELD.getName()));
-		bond.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
+		Bond.Builder builder = Bond
+				.builder(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
+						results.getString(SecuritySQL.ISIN_FIELD.getName()))
+				.id(results.getLong(ProductSQL.ID_FIELD.getName()));
+		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
+		if (creationTimestamp != null) {
+			builder.creationTime(creationTimestamp.toInstant());
+		}
+		Bond bond = builder.build();
 		bond.setCoupon(results.getBigDecimal(COUPON_FIELD.getName()));
 		bond.setMaturityDate(results.getDate(MATURITY_DATE_FIELD.getName()).toLocalDate());
 		bond.setPrincipal(results.getBigDecimal(PRINCIPAL_FIELD.getName()));
-		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-		if (creationTimestamp != null) {
-			bond.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-		}
 		bond.setDatedDate(results.getDate(DATED_DATE_FIELD.getName()).toLocalDate());
 		bond.setCouponType(results.getString(COUPON_TYPE_FIELD.getName()));
 		bond.setCouponFrequency(Tenor.valueOf(results.getString(COUPON_FREQUENCY_FIELD.getName())));

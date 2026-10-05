@@ -1,8 +1,6 @@
 package org.eclipse.tradista.security.bond.ui.controller;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -384,8 +382,7 @@ public class BondDefinitionController implements TradistaController {
 				checkAmounts();
 
 				if (isin.isVisible()) {
-					bond = new Bond(exchange.getValue(), isin.getText());
-					bond.setCreationDate(LocalDate.now(ZoneId.systemDefault()));
+					bond = Bond.of(exchange.getValue(), isin.getText());
 				}
 
 				buildProduct(bond);
@@ -414,7 +411,7 @@ public class BondDefinitionController implements TradistaController {
 			try {
 				Bond copyBond;
 				checkAmounts();
-				copyBond = new Bond(result.get().getExchange(), result.get().getIsin());
+				copyBond = Bond.of(result.get().getExchange(), result.get().getIsin());
 				buildProduct(copyBond);
 				copyBond.setId(bondBusinessDelegate.saveBond(copyBond));
 				bond = copyBond;

@@ -44,7 +44,7 @@ public class BondProperty {
 		this.coupon.set(bond.getCoupon() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(bond.getCoupon()));
 		this.maturityDate.set(bond.getMaturityDate().format(dtf));
 		this.principal.set(TradistaGUIUtil.formatAmount(bond.getPrincipal()));
-		this.creationDate.set(bond.getCreationDate().format(dtf));
+		this.creationDate.set(TradistaGUIUtil.formatInstant(bond.getCreationTime()));
 		this.datedDate.set(bond.getDatedDate().format(dtf));
 		this.isin.set(bond.getIsin());
 		this.issuer.set(bond.getIssuer().toString());

@@ -9,8 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -68,12 +66,6 @@ public class ProductSQL {
 							// The product was not found
 							return null;
 						}
-					}
-					product.setId(results.getLong(ID_FIELD.getName()));
-					Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
-					if (creationTimestamp != null) {
-						product.setCreationDate(
-								creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 					}
 				}
 			}

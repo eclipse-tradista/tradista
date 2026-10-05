@@ -13,7 +13,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -278,15 +277,17 @@ public class EquitySQL {
 	}
 
 	private static Equity buildEquity(ResultSet results) throws SQLException {
-		Equity equity = new Equity(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
-				results.getString(SecuritySQL.ISIN_FIELD.getName()));
-		equity.setId(results.getLong(ProductSQL.ID_FIELD.getName()));
-		equity.setActiveFrom(results.getDate(ACTIVE_FROM_FIELD.getName()).toLocalDate());
-		equity.setActiveTo(results.getDate(ACTIVE_TO_FIELD.getName()).toLocalDate());
+		Equity.Builder builder = Equity
+				.builder(ExchangeSQL.getExchangeById(results.getLong(ProductSQL.EXCHANGE_ID_FIELD.getName())),
+						results.getString(SecuritySQL.ISIN_FIELD.getName()))
+				.id(results.getLong(ProductSQL.ID_FIELD.getName()));
 		Timestamp creationTimestamp = results.getTimestamp(CREATION_TIME_FIELD.getName());
 		if (creationTimestamp != null) {
-			equity.setCreationDate(creationTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+			builder.creationTime(creationTimestamp.toInstant());
 		}
+		Equity equity = builder.build();
+		equity.setActiveFrom(results.getDate(ACTIVE_FROM_FIELD.getName()).toLocalDate());
+		equity.setActiveTo(results.getDate(ACTIVE_TO_FIELD.getName()).toLocalDate());
 		equity.setPayDividend(results.getBoolean(PAY_DIVIDEND_FIELD.getName()));
 		if (equity.isPayDividend()) {
 			equity.setDividendCurrency(
