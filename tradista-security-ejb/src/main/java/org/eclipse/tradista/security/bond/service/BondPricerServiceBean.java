@@ -1,8 +1,7 @@
 package org.eclipse.tradista.security.bond.service;
 
-import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
-
 import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
+import static org.eclipse.tradista.core.pricing.util.PricerConstants.FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

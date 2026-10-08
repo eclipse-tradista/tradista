@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fx.service;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
 import org.eclipse.tradista.core.trade.service.ProductScopeMode;
@@ -14,7 +15,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
-import org.eclipse.tradista.core.common.messaging.service.LocalCoreMessagingService;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion

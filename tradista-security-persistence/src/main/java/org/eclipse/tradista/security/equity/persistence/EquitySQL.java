@@ -1,7 +1,6 @@
 package org.eclipse.tradista.security.equity.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.CREATION_TIME;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
 
 import java.sql.Connection;

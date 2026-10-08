@@ -16,6 +16,7 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
+import org.eclipse.tradista.core.common.ui.view.TradistaEditingCell;
 import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
@@ -23,6 +24,7 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.core.marketdata.ui.controller.TradistaVolatilitySurfaceController;
+import org.eclipse.tradista.core.marketdata.ui.view.SurfacePointProperty;
 import org.eclipse.tradista.fx.common.ui.util.TradistaFXGUIUtil;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
@@ -32,8 +34,6 @@ import org.eclipse.tradista.fx.fxoption.ui.view.FXVolatilitySurfaceCreatorDialog
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -48,13 +48,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2016 Olivier Asuncion
@@ -153,13 +150,13 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		deleteButton.setDisable(true);
 		fxVolatilitySurfaceBusinessDelegate = new FXVolatilitySurfaceBusinessDelegate();
 
-		Callback<TableColumn<SurfacePointProperty, String>, TableCell<SurfacePointProperty, String>> stringCellFactory = _ -> new StringEditingCell();
+		pointsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-		pointOptionExpiry.setCellValueFactory(new PropertyValueFactory<>("optionExpiry"));
+		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().optionExpiryProperty());
 
-		pointDelta.setCellValueFactory(new PropertyValueFactory<>("delta"));
+		pointDelta.setCellValueFactory(cellData -> cellData.getValue().deltaProperty());
 
-		pointVolatility.setCellFactory(stringCellFactory);
+		pointVolatility.setCellFactory(_ -> new TradistaEditingCell<>());
 
 		pointVolatility.setOnEditCommit(t -> {
 			try {
@@ -172,7 +169,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			pointsTable.refresh();
 		});
 
-		pointVolatility.setCellValueFactory(new PropertyValueFactory<>("volatility"));
+		pointVolatility.setCellValueFactory(cellData -> cellData.getValue().volatilityProperty());
 
 		VBox optionExpiryGraphic = new VBox();
 		Label optionExpiryLabel = new Label("Option Expiry");
@@ -424,13 +421,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 	@FXML
 	protected void delete() {
 		try {
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Delete FX Volatility Surface");
-			confirmation.setHeaderText("Delete FX Volatility Surface");
-			confirmation.setContentText("Do you want to delete this FX Volatility Surface?");
-
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (TradistaAlert.showConfirmationDialog("Delete FX Volatility Surface",
+					"Do you want to delete this FX Volatility Surface?")) {
 				fxVolatilitySurfaceBusinessDelegate.deleteFXVolatilitySurface(surface.getId());
 				surface = null;
 				TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(volatilitySurface);
@@ -599,139 +591,6 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		return deltaList;
 	}
 
-	class StringEditingCell extends TableCell<SurfacePointProperty, String> {
-
-		private TextField textField;
-
-		public StringEditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (textField != null && textField.getText() != null && !textField.getText().equals("")) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
-			createTextField();
-			setText(textField.getText());
-			setGraphic(textField);
-			textField.selectAll();
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			setText(getItem());
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (textField != null) {
-						textField.setText(getString());
-					}
-					setText(null);
-					setGraphic(textField);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createTextField() {
-			textField = new TextField(getString());
-			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (arg2 != null && !arg2) {
-						commitEdit(textField.getText());
-					}
-				}
-			});
-
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem();
-		}
-	}
-
-	class EditingCell extends TableCell<SurfacePointProperty, String> {
-
-		private TextField textField;
-
-		public EditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
-			createTextField();
-			setText(textField.getText());
-			setGraphic(textField);
-			textField.selectAll();
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			setText(getItem());
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (textField != null) {
-						textField.setText(getString());
-					}
-					setText(null);
-					setGraphic(textField);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createTextField() {
-			textField = new TextField(getString());
-			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (arg2 != null && !arg2) {
-						commitEdit(textField.getText());
-					}
-				}
-			});
-
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem();
-		}
-	}
-
 	private List<SurfacePointProperty> buildTableContent(List<SurfacePoint<Integer, BigDecimal, BigDecimal>> data)
 			throws TradistaBusinessException {
 		if (data != null) {
@@ -840,44 +699,6 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		}
 
 		return nameList;
-	}
-
-	public static class SurfacePointProperty {
-
-		private final SimpleStringProperty optionExpiry;
-		private final SimpleStringProperty delta;
-		private final SimpleStringProperty volatility;
-
-		private SurfacePointProperty(String optionExpiry, String delta, String volatility) {
-			this.optionExpiry = new SimpleStringProperty(optionExpiry);
-			this.delta = new SimpleStringProperty(delta);
-			this.volatility = new SimpleStringProperty(volatility);
-		}
-
-		public String getOptionExpiry() {
-			return optionExpiry.get();
-		}
-
-		public void setOptionExpiry(String optionExpiry) {
-			this.optionExpiry.set(optionExpiry);
-		}
-
-		public String getVolatility() {
-			return volatility.get();
-		}
-
-		public void setVolatility(String volatility) {
-			this.volatility.set(volatility);
-		}
-
-		public String getDelta() {
-			return delta.get();
-		}
-
-		public void getDelta(String delta) {
-			this.delta.set(delta);
-		}
-
 	}
 
 	public static class QuoteProperty {

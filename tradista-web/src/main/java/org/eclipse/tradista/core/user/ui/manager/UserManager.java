@@ -2,7 +2,6 @@ package org.eclipse.tradista.core.user.ui.manager;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.apache.commons.lang3.StringUtils;

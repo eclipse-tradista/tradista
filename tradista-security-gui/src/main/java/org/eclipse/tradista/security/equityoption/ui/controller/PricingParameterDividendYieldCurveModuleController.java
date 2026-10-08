@@ -12,6 +12,7 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaComboBoxTableCell;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
@@ -34,7 +35,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -80,14 +80,17 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	public void initialize() {
 
 		Callback<TableColumn<DividendYieldCurveProperty, Equity>, TableCell<DividendYieldCurveProperty, Equity>> dividendYieldCurveEquityCellFactory = _ -> new DividendYieldCurveEquityEditingCell();
-		Callback<TableColumn<DividendYieldCurveProperty, InterestRateCurve>, TableCell<DividendYieldCurveProperty, InterestRateCurve>> dividendYieldCurveCellFactory = _ -> new DividendYieldCurveEditingCell();
+		Callback<TableColumn<DividendYieldCurveProperty, InterestRateCurve>, TableCell<DividendYieldCurveProperty, InterestRateCurve>> dividendYieldCurveCellFactory = _ -> new TradistaComboBoxTableCell<>(
+				() -> new TradistaInterestRateCurveComboBox());
 
-		equity.setCellValueFactory(new PropertyValueFactory<>("equity"));
+		dividendYieldCurveTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		equity.setCellValueFactory(cellData -> cellData.getValue().getEquityProperty());
 		equity.setCellFactory(dividendYieldCurveEquityCellFactory);
 		equity.setOnEditCommit(
 				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setEquity(t.getNewValue()));
 
-		dividendYieldCurve.setCellValueFactory(new PropertyValueFactory<>("curve"));
+		dividendYieldCurve.setCellValueFactory(cellData -> cellData.getValue().getCurveProperty());
 		dividendYieldCurve.setCellFactory(dividendYieldCurveCellFactory);
 		dividendYieldCurve.setOnEditCommit(
 				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setCurve(t.getNewValue()));
@@ -241,69 +244,6 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 		}
 	}
 
-	private class DividendYieldCurveEditingCell extends TableCell<DividendYieldCurveProperty, InterestRateCurve> {
-
-		private TradistaInterestRateCurveComboBox interestRateCurveComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createInterestRateCurveComboBox();
-			InterestRateCurve curve = interestRateCurveComboBox.getValue();
-			if (curve != null) {
-				setText(curve.toString());
-			}
-			setGraphic(interestRateCurveComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(InterestRateCurve item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (interestRateCurveComboBox != null) {
-						interestRateCurveComboBox.setValue(getItem());
-					}
-					setGraphic(interestRateCurveComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createInterestRateCurveComboBox() {
-			interestRateCurveComboBox = new TradistaInterestRateCurveComboBox();
-			if (getItem() != null) {
-				interestRateCurveComboBox.setValue(getItem());
-			}
-			interestRateCurveComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			interestRateCurveComboBox.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					commitEdit(interestRateCurveComboBox.getValue());
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
-		}
-	}
-
 	public void load(PricingParameter pricingParam) {
 
 		PricingParameterDividendYieldCurveModule module = null;
@@ -352,12 +292,20 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 			return equity.get();
 		}
 
+		public SimpleObjectProperty<Equity> getEquityProperty() {
+			return (SimpleObjectProperty) equity;
+		}
+
 		public void setEquity(Object equity) {
 			this.equity.set(equity);
 		}
 
 		public Object getCurve() {
 			return curve.get();
+		}
+
+		public SimpleObjectProperty<InterestRateCurve> getCurveProperty() {
+			return (SimpleObjectProperty) curve;
 		}
 
 		public void setCurve(Object curve) {

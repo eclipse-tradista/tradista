@@ -5,12 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
-import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -30,6 +24,12 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 import java.sql.Types;
 import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
+import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 
 public class LegalEntitySQL {
 

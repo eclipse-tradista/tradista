@@ -12,10 +12,10 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaComboBoxTableCell;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
 import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox;
-import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaVolatilitySurfaceComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
@@ -36,7 +36,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -91,23 +90,28 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, Currency>, TableCell<FXVolatilitySurfaceProperty, Currency>> fxVolatilitySurfaceQuoteCurrencyCellFactory = _ -> new FXVolatilitySurfaceQuoteCurrencyEditingCell();
 
-		Callback<TableColumn<FXVolatilitySurfaceProperty, FXVolatilitySurface>, TableCell<FXVolatilitySurfaceProperty, FXVolatilitySurface>> fxVolatilitySurfaceCellFactory = _ -> new FXVolatilitySurfaceEditingCell();
+		Callback<TableColumn<FXVolatilitySurfaceProperty, FXVolatilitySurface>, TableCell<FXVolatilitySurfaceProperty, FXVolatilitySurface>> fxVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
+				() -> (ComboBox) new TradistaVolatilitySurfaceComboBox("FX"));
 
-		fxVolatilitySurfacePrimaryCurrency.setCellValueFactory(new PropertyValueFactory<>("primaryCurrency"));
+		fxVolatilitySurfaceTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		fxVolatilitySurfacePrimaryCurrency
+				.setCellValueFactory(cellData -> cellData.getValue().getPrimaryCurrencyProperty());
 
 		fxVolatilitySurfacePrimaryCurrency.setCellFactory(fxVolatilitySurfacePrimaryCurrencyCellFactory);
 
 		fxVolatilitySurfacePrimaryCurrency.setOnEditCommit(t -> t.getTableView().getItems()
 				.get(t.getTablePosition().getRow()).setPrimaryCurrency(t.getNewValue()));
 
-		fxVolatilitySurfaceQuoteCurrency.setCellValueFactory(new PropertyValueFactory<>("quoteCurrency"));
+		fxVolatilitySurfaceQuoteCurrency
+				.setCellValueFactory(cellData -> cellData.getValue().getQuoteCurrencyProperty());
 
 		fxVolatilitySurfaceQuoteCurrency.setCellFactory(fxVolatilitySurfaceQuoteCurrencyCellFactory);
 
 		fxVolatilitySurfaceQuoteCurrency.setOnEditCommit(
 				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setQuoteCurrency(t.getNewValue()));
 
-		fxVolatilitySurface.setCellValueFactory(new PropertyValueFactory<>("volatilitySurface"));
+		fxVolatilitySurface.setCellValueFactory(cellData -> cellData.getValue().getVolatilitySurfaceProperty());
 
 		fxVolatilitySurface.setCellFactory(fxVolatilitySurfaceCellFactory);
 
@@ -377,69 +381,6 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 		}
 	}
 
-	private class FXVolatilitySurfaceEditingCell extends TableCell<FXVolatilitySurfaceProperty, FXVolatilitySurface> {
-
-		private TradistaVolatilitySurfaceComboBox volatilitySurfaceComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createVolatilitySurfaceComboBox();
-			VolatilitySurface<?, ?, ?> surface = volatilitySurfaceComboBox.getValue();
-			if (surface != null) {
-				setText(surface.toString());
-			}
-			setGraphic(volatilitySurfaceComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(FXVolatilitySurface item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (volatilitySurfaceComboBox != null) {
-						volatilitySurfaceComboBox.setValue(getItem());
-					}
-					setGraphic(volatilitySurfaceComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createVolatilitySurfaceComboBox() {
-			volatilitySurfaceComboBox = new TradistaVolatilitySurfaceComboBox("FX");
-			if (getItem() != null) {
-				volatilitySurfaceComboBox.setValue(getItem());
-			}
-			volatilitySurfaceComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			volatilitySurfaceComboBox.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					commitEdit((FXVolatilitySurface) volatilitySurfaceComboBox.getValue());
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
-		}
-	}
-
 	public void load(PricingParameter pricingParam) {
 
 		PricingParameterVolatilitySurfaceModule module = null;
@@ -493,6 +434,10 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 			return primaryCurrency.get();
 		}
 
+		public SimpleObjectProperty<Currency> getPrimaryCurrencyProperty() {
+			return (SimpleObjectProperty) primaryCurrency;
+		}
+
 		public void setPrimaryCurrency(Object primaryCurrency) {
 			this.primaryCurrency.set(primaryCurrency);
 		}
@@ -501,12 +446,20 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 			return quoteCurrency.get();
 		}
 
+		public SimpleObjectProperty<Currency> getQuoteCurrencyProperty() {
+			return (SimpleObjectProperty) quoteCurrency;
+		}
+
 		public void setQuoteCurrency(Object quoteCurrency) {
 			this.quoteCurrency.set(quoteCurrency);
 		}
 
 		public Object getVolatilitySurface() {
 			return volatilitySurface.get();
+		}
+
+		public SimpleObjectProperty<FXVolatilitySurface> getVolatilitySurfaceProperty() {
+			return (SimpleObjectProperty) volatilitySurface;
 		}
 
 		public void setVolatilitySurface(Object volatilitySurface) {

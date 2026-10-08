@@ -87,6 +87,8 @@ public class FixingErrorReportController extends TradistaControllerAdapter {
 
 		fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
 
+		report.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
 		errorDate.setCellValueFactory(
 				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getErrorDate().toString()));
 

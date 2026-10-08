@@ -25,18 +25,17 @@ import org.eclipse.tradista.core.daterollconvention.model.DateRollingConvention;
 import org.eclipse.tradista.core.daterule.model.DateRule;
 import org.eclipse.tradista.core.daterule.service.DateRuleBusinessDelegate;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
@@ -47,10 +46,8 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2017 Olivier Asuncion
@@ -155,16 +152,11 @@ public class DateRulesController extends TradistaControllerAdapter {
 		dateRuleName.setCellValueFactory(cellData -> cellData.getValue().getDateRuleName());
 		dateRuleDuration.setCellValueFactory(cellData -> cellData.getValue().getDateRuleDuration());
 
-		dateRuleMove.setCellValueFactory(new PropertyValueFactory<DateRuleDurationProperty, List<Button>>("moves"));
+		dateRuleMove.setCellValueFactory(cellData -> cellData.getValue().getMoves());
 
-		dateRuleMove.setCellFactory(
-				new Callback<TableColumn<DateRuleDurationProperty, List<Button>>, TableCell<DateRuleDurationProperty, List<Button>>>() {
-					@Override
-					public TableCell<DateRuleDurationProperty, List<Button>> call(
-							TableColumn<DateRuleDurationProperty, List<Button>> dateRuleDurationTableColumn) {
-						return new DateRuleDurationMovesCellFactory(dateRulesDurations);
-					}
-				});
+		dateRuleMove.setCellFactory(_ -> new DateRuleDurationMovesCellFactory());
+
+		dateRulesDurations.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		dateRulesDurations.getSelectionModel().selectedItemProperty()
 				.addListener(new ChangeListener<DateRuleDurationProperty>() {
@@ -204,10 +196,6 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	private class DateRuleDurationMovesCellFactory extends TableCell<DateRuleDurationProperty, List<Button>> {
 
-		DateRuleDurationMovesCellFactory(final TableView<DateRuleDurationProperty> table) {
-			super();
-		}
-
 		@Override
 		protected void updateItem(List<Button> item, boolean empty) {
 			super.updateItem(item, empty);
@@ -224,13 +212,7 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void save() {
-		TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-		confirmation.setTitle("Save Date Rule");
-		confirmation.setHeaderText("Save Date Rule");
-		confirmation.setContentText("Do you want to save this Date Rule?");
-
-		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (TradistaAlert.showConfirmationDialog("Save Date Rule", "Do you want to save this Date Rule?")) {
 			try {
 				if (name.isVisible()) {
 					dateRule = new DateRule(name.getText());
@@ -621,29 +603,20 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 		private final StringProperty dateRuleName;
 		private final StringProperty dateRuleDuration;
-		private List<Button> moves;
+		private final ObjectProperty<List<Button>> moves;
 
 		private DateRuleDurationProperty(String dateRuleName, String dateRuleDuration) {
 			this.dateRuleName = new SimpleStringProperty(dateRuleName);
 			this.dateRuleDuration = new SimpleStringProperty(dateRuleDuration);
-			moves = new ArrayList<Button>(2);
+			List<Button> buttons = new ArrayList<>(2);
 			Button up = new Button("Up");
 			Button down = new Button("Down");
 
-			up.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent actionEvent) {
-					DateRulesController.this.move(true, dateRuleName);
-				}
-			});
-			down.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent actionEvent) {
-					DateRulesController.this.move(false, dateRuleName);
-				}
-			});
-			moves.add(up);
-			moves.add(down);
+			up.setOnAction(ae -> DateRulesController.this.move(true, dateRuleName));
+			down.setOnAction(ae -> DateRulesController.this.move(false, dateRuleName));
+			buttons.add(up);
+			buttons.add(down);
+			moves = new SimpleObjectProperty<>(buttons);
 		}
 
 		public StringProperty getDateRuleName() {
@@ -662,12 +635,12 @@ public class DateRulesController extends TradistaControllerAdapter {
 			this.dateRuleDuration.set(dateRuleDuration);
 		}
 
-		public List<Button> getMoves() {
+		public ObjectProperty<List<Button>> getMoves() {
 			return moves;
 		}
 
 		public void setMoves(List<Button> moves) {
-			this.moves = moves;
+			this.moves.set(moves);
 		}
 
 		@Override
