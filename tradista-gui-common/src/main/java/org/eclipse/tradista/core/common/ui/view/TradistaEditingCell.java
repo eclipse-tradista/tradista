@@ -3,6 +3,10 @@ package org.eclipse.tradista.core.common.ui.view;
 import org.apache.commons.lang3.StringUtils;
 
 import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 /********************************************************************************
@@ -44,6 +48,23 @@ public class TradistaEditingCell<S> extends TableCell<S, String> {
 	public void cancelEdit() {
 		super.cancelEdit();
 		setText(getString());
+		setGraphic(null);
+	}
+
+	@Override
+	public void commitEdit(String newValue) {
+		if (!isEditing()) {
+			TableView<S> table = getTableView();
+			if (table != null) {
+				TableColumn<S, String> column = getTableColumn();
+				TablePosition<S, String> pos = new TablePosition<>(table, getIndex(), column);
+				CellEditEvent<S, String> event = new CellEditEvent<>(table, pos, TableColumn.editCommitEvent(),
+						newValue);
+				javafx.event.Event.fireEvent(column, event);
+			}
+		}
+		super.commitEdit(newValue);
+		setText(newValue == null ? StringUtils.EMPTY : newValue);
 		setGraphic(null);
 	}
 

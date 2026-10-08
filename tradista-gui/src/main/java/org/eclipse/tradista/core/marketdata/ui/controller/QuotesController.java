@@ -196,7 +196,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Bid");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setBid(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -209,7 +208,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Ask");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setAsk(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -222,7 +220,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Open");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setOpen(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -235,7 +232,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Close");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setClose(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -248,7 +244,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "High");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setHigh(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -261,7 +256,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Low");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setLow(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -274,7 +268,6 @@ public class QuotesController extends TradistaControllerAdapter {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Last");
 				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 				qp.setLast(t.getNewValue());
-				qp.setEnteredDate(LocalDate.now().toString());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -285,7 +278,6 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteSourceName.setOnEditCommit(t -> {
 			QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
 			qp.setSourceName(t.getNewValue());
-			qp.setEnteredDate(LocalDate.now().toString());
 			quotesTable.refresh();
 		});
 
@@ -344,7 +336,7 @@ public class QuotesController extends TradistaControllerAdapter {
 			}
 			ObservableList<QuoteProperty> data = QuoteProperty.buildTableContent(quoteValues,
 					month.getSelectionModel().getSelectedItem(), year.getSelectionModel().getSelectedItem(),
-					currentQuoteName, currentQuoteType);
+					currentQuoteName, currentQuoteType, currentQuoteSet);
 
 			quotesTable.setItems(data);
 			quotesTable.refresh();
@@ -446,6 +438,7 @@ public class QuotesController extends TradistaControllerAdapter {
 						this.typeComboBox.getValue(), quoteValues, year.getSelectionModel().getSelectedItem(),
 						month.getSelectionModel().getSelectedItem());
 				canSaveQuoteValue = true;
+				load();
 			} catch (TradistaTechnicalException tte) {
 				canSaveQuoteValue = false;
 				throw tte;
