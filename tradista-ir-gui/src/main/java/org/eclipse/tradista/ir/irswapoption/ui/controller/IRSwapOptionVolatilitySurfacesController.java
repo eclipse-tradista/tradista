@@ -143,16 +143,16 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 
 		pointsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().optionExpiryProperty());
+		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().xAxisProperty());
 
-		pointSwapLength.setCellValueFactory(cellData -> cellData.getValue().swapLengthProperty());
+		pointSwapLength.setCellValueFactory(cellData -> cellData.getValue().yAxisProperty());
 
 		pointVolatility.setCellFactory(_ -> new TradistaEditingCell<>());
 
 		pointVolatility.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
+				t.getTableView().getItems().get(t.getTablePosition().getRow()).setZAxis(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -160,7 +160,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			pointsTable.refresh();
 		});
 
-		pointVolatility.setCellValueFactory(cellData -> cellData.getValue().volatilityProperty());
+		pointVolatility.setCellValueFactory(cellData -> cellData.getValue().zAxisProperty());
 
 		VBox optionExpiryGraphic = new VBox();
 		Label optionExpiryLabel = new Label("Option Expiry");
@@ -231,7 +231,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 							if (newValue == null || newValue.isEmpty()) {
 								return true;
 							}
-							return point.getOptionExpiry().toUpperCase().contains(newValue.toUpperCase());
+							return point.getXAxis().toUpperCase().contains(newValue.toUpperCase());
 						}));
 
 				swapLengthTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
@@ -241,7 +241,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 					if (newValue == null || newValue.isEmpty()) {
 						return true;
 					}
-					return point.getSwapLength().toUpperCase().contains(newValue.toUpperCase());
+					return point.getYAxis().toUpperCase().contains(newValue.toUpperCase());
 				}));
 
 				volatilityTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
@@ -250,7 +250,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 					if (newValue == null || newValue.isEmpty()) {
 						return true;
 					}
-					return point.getVolatility().contains(newValue);
+					return point.getZAxis().contains(newValue);
 				}));
 
 				pointsTable.setItems(sortedData);
@@ -506,12 +506,12 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 		List<SurfacePoint<Integer, Integer, BigDecimal>> surfacePointList = new ArrayList<>();
 		for (SurfacePointProperty point : data) {
 			try {
-				String optionExpiry = point.getOptionExpiry();
-				String swapLength = point.getSwapLength();
+				String optionExpiry = point.getXAxis();
+				String swapLength = point.getYAxis();
 				if (!optionExpiry.isEmpty() && !swapLength.isEmpty()) {
-					surfacePointList.add(new SurfacePoint<>(toPeriodInteger(point.getOptionExpiry()),
-							toPeriodInteger(point.getSwapLength()), point.getVolatility().isEmpty() ? null
-									: TradistaGUIUtil.parseAmount(point.getVolatility(), VOLATILITY)));
+					surfacePointList.add(new SurfacePoint<>(toPeriodInteger(optionExpiry), toPeriodInteger(swapLength),
+							point.getZAxis().isEmpty() ? null
+									: TradistaGUIUtil.parseAmount(point.getZAxis(), VOLATILITY)));
 				}
 			} catch (DateTimeParseException dtpe) {
 				// TODO Auto-generated catch block

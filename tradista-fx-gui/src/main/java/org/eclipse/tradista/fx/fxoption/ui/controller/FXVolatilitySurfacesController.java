@@ -152,16 +152,16 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 
 		pointsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().optionExpiryProperty());
+		pointOptionExpiry.setCellValueFactory(cellData -> cellData.getValue().xAxisProperty());
 
-		pointDelta.setCellValueFactory(cellData -> cellData.getValue().deltaProperty());
+		pointDelta.setCellValueFactory(cellData -> cellData.getValue().yAxisProperty());
 
 		pointVolatility.setCellFactory(_ -> new TradistaEditingCell<>());
 
 		pointVolatility.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), VOLATILITY);
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setVolatility(t.getNewValue());
+				t.getTableView().getItems().get(t.getTablePosition().getRow()).setZAxis(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -169,7 +169,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			pointsTable.refresh();
 		});
 
-		pointVolatility.setCellValueFactory(cellData -> cellData.getValue().volatilityProperty());
+		pointVolatility.setCellValueFactory(cellData -> cellData.getValue().zAxisProperty());
 
 		VBox optionExpiryGraphic = new VBox();
 		Label optionExpiryLabel = new Label("Option Expiry");
@@ -242,7 +242,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 							if (newValue == null || newValue.isEmpty()) {
 								return true;
 							}
-							return point.getOptionExpiry().toUpperCase().contains(newValue.toUpperCase());
+							return point.getXAxis().toUpperCase().contains(newValue.toUpperCase());
 						}));
 
 				deltaTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
@@ -253,7 +253,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 					if (newValue == null || newValue.isEmpty()) {
 						return true;
 					}
-					return point.getDelta().toUpperCase().contains(newValue.toUpperCase());
+					return point.getYAxis().toUpperCase().contains(newValue.toUpperCase());
 				}));
 
 				volatilityTextField.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(point -> {
@@ -263,7 +263,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 					if (newValue == null || newValue.isEmpty()) {
 						return true;
 					}
-					return point.getVolatility().contains(newValue);
+					return point.getZAxis().contains(newValue);
 				}));
 
 				pointsTable.setItems(sortedData);
@@ -493,9 +493,9 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		try {
 			if (pointsTable.getItems() != null && !pointsTable.getItems().isEmpty()) {
 				for (SurfacePointProperty prop : pointsTable.getItems()) {
-					if (TradistaGUIUtil.parseAmount(prop.getDelta(), DELTA)
+					if (TradistaGUIUtil.parseAmount(prop.getYAxis(), DELTA)
 							.compareTo(TradistaGUIUtil.parseAmount(deltaToBeRemoved, DELTA)) == 0) {
-						if (!StringUtils.isEmpty(prop.getVolatility())) {
+						if (!StringUtils.isEmpty(prop.getZAxis())) {
 							TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
 							confirmation.setTitle("Remove Delta");
 							confirmation.setHeaderText("Remove Delta");
@@ -636,14 +636,14 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 		if (data != null && !data.isEmpty()) {
 			for (SurfacePointProperty point : data) {
 				try {
-					String optionExpiry = point.getOptionExpiry();
+					String optionExpiry = point.getXAxis();
 					if (!optionExpiry.isEmpty()) {
-						String volatility = point.getVolatility();
+						String volatility = point.getZAxis();
 						if (volatility != null && !volatility.isEmpty()) {
 							surfacePointList.add(new SurfacePoint<>(
 									fxVolatilitySurfaceBusinessDelegate.getOptionExpiryValue(optionExpiry),
-									TradistaGUIUtil.parseAmount(point.getDelta(), DELTA),
-									TradistaGUIUtil.parseAmount(point.getVolatility(), VOLATILITY)));
+									TradistaGUIUtil.parseAmount(point.getYAxis(), DELTA),
+									TradistaGUIUtil.parseAmount(point.getZAxis(), VOLATILITY)));
 						}
 					}
 				} catch (DateTimeParseException dtpe) {
