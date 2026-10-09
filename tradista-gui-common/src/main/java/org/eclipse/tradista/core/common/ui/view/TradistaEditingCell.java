@@ -29,9 +29,6 @@ public class TradistaEditingCell<S> extends TableCell<S, String> {
 
 	private TextField textField;
 
-	public TradistaEditingCell() {
-	}
-
 	@Override
 	public void startEdit() {
 		if (textField != null && !StringUtils.isEmpty(textField.getText())) {

@@ -4,17 +4,16 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.daterule.model.DateRule;
+import org.eclipse.tradista.core.daterule.validator.DateRuleValidator;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -36,8 +35,11 @@ public class DateRuleBusinessDelegate {
 
 	private DateRuleService dateRuleService;
 
+	private DateRuleValidator validator;
+
 	public DateRuleBusinessDelegate() {
 		dateRuleService = TradistaServiceLocator.getInstance().getDateRuleService();
+		validator = new DateRuleValidator();
 	}
 
 	public Set<DateRule> getAllDateRules() {
@@ -53,58 +55,8 @@ public class DateRuleBusinessDelegate {
 	}
 
 	public long saveDateRule(DateRule dateRule) throws TradistaBusinessException {
-		validateDateRule(dateRule);
+		validator.validateDateRule(dateRule);
 		return SecurityUtil.runEx(() -> dateRuleService.saveDateRule(dateRule));
-	}
-
-	private void validateDateRule(DateRule dateRule) throws TradistaBusinessException {
-		if (dateRule == null) {
-			throw new TradistaBusinessException("The date rule cannot be null.");
-		}
-		StringBuilder errorMsg = new StringBuilder();
-		if (StringUtils.isBlank(dateRule.getName())) {
-			errorMsg.append("The name cannot be empty.\n");
-		}
-
-		if (dateRule.isSequence()) {
-			if (dateRule.getDateRulesPeriods() == null || dateRule.getDateRulesPeriods().isEmpty()) {
-				errorMsg.append("The date rule is a sequence but there is no sub date rules.\n");
-			} else {
-				for (Map.Entry<DateRule, Period> entry : dateRule.getDateRulesPeriods().entrySet()) {
-					if (entry.getKey().equals(dateRule)) {
-						errorMsg.append("The date rule cannot contain itself as a sub date rule.\n");
-					} else {
-						if (entry.getKey().isSequence()) {
-							errorMsg.append("The sub date rule %s cannot be a sequence.\n");
-						} else {
-							if (entry.getValue().equals(Period.ZERO)) {
-								errorMsg.append("The sub date rule %s cannot run for a duration of 0.\n");
-							}
-							try {
-								validateDateRule(entry.getKey());
-							} catch (TradistaBusinessException abe) {
-								errorMsg.append(abe.getMessage());
-							}
-						}
-					}
-				}
-			}
-		} else {
-			if (dateRule.getDateRollingConvention() == null) {
-				errorMsg.append("The date rolling convention cannot be null.\n");
-			}
-			if (dateRule.getMonths() == null || dateRule.getMonths().isEmpty()) {
-				errorMsg.append("There should be at least one month.\n");
-			}
-			if (StringUtils.isBlank(dateRule.getPosition())) {
-				errorMsg.append("The position cannot be empty.\n");
-			}
-		}
-
-		if (errorMsg.length() > 0) {
-			throw new TradistaBusinessException(errorMsg.toString());
-		}
-
 	}
 
 	public Set<LocalDate> generateDates(DateRule dateRule, LocalDate startDate, Period period) {
@@ -196,20 +148,20 @@ public class DateRuleBusinessDelegate {
 					}
 					startDate = startDate.plusDays(1);
 				}
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException _) {
 				// Should never happen here.
 			}
 		} else {
 			while (!startDate.isAfter(endDate)) {
-				for (Map.Entry<DateRule, Period> entry : dateRule.getDateRulesPeriods().entrySet()) {
-					LocalDate drEndDate = startDate.plus(entry.getValue());
+				for (DateRule.Step step : dateRule.getSteps()) {
+					LocalDate drEndDate = startDate.plus(step.getDuration());
 					Period p;
 					if (!drEndDate.isAfter(endDate)) {
-						p = entry.getValue();
+						p = step.getDuration();
 					} else {
 						p = Period.between(startDate, endDate.plusDays(1));
 					}
-					dates.addAll(generateDates(entry.getKey(), startDate, p));
+					dates.addAll(generateDates(step.getDateRule(), startDate, p));
 					startDate = startDate.plus(p);
 				}
 			}

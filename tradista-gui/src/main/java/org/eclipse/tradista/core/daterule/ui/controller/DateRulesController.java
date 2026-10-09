@@ -5,15 +5,15 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.calendar.service.CalendarBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
@@ -29,8 +29,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -128,25 +126,20 @@ public class DateRulesController extends TradistaControllerAdapter {
 	public void initialize() {
 		dateRuleBusinessDelegate = new DateRuleBusinessDelegate();
 		calendarBusinessDelegate = new CalendarBusinessDelegate();
-		day.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> arg0, String arg1, String newValue) {
-				if (newValue != null) {
-					if (newValue.equals("Any")) {
-						TradistaGUIUtil.fillComboBox(Arrays.asList(DateRule.DAY_POSITIONS), position);
-					} else {
-						TradistaGUIUtil.fillComboBox(Arrays.asList(DateRule.WEEK_DAY_POSITIONS), position);
-					}
+		day.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				if (newValue.equals("Any")) {
+					TradistaGUIUtil.fillComboBox(Arrays.asList(DateRule.DAY_POSITIONS), position);
+				} else {
+					TradistaGUIUtil.fillComboBox(Arrays.asList(DateRule.WEEK_DAY_POSITIONS), position);
 				}
+
 			}
 		});
-		isSequence.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean newValue) {
-				if (newValue != null) {
-					singleGrid.setVisible(!isSequence.isSelected());
-					sequenceGrid.setVisible(isSequence.isSelected());
-				}
+		isSequence.selectedProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				singleGrid.setVisible(!isSequence.isSelected());
+				sequenceGrid.setVisible(isSequence.isSelected());
 			}
 		});
 		dateRuleName.setCellValueFactory(cellData -> cellData.getValue().getDateRuleName());
@@ -158,27 +151,20 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 		dateRulesDurations.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-		dateRulesDurations.getSelectionModel().selectedItemProperty()
-				.addListener(new ChangeListener<DateRuleDurationProperty>() {
+		dateRulesDurations.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				Period period = toPeriod(newValue.getDateRuleDuration().getValue());
+				subDateRuleDay.setValue(period.getDays());
+				subDateRuleMonth.setValue(period.getMonths());
+				subDateRuleYear.setValue(period.getYears());
+				subDateRuleName.getSelectionModel().select(new DateRule(newValue.getDateRuleName().getValue()));
+			}
 
-					@Override
-					public void changed(ObservableValue<? extends DateRuleDurationProperty> observable,
-							DateRuleDurationProperty oldValue, DateRuleDurationProperty newValue) {
-						if (newValue != null) {
-							Period period = toPeriod(newValue.getDateRuleDuration().getValue());
-							subDateRuleDay.setValue(period.getDays());
-							subDateRuleMonth.setValue(period.getMonths());
-							subDateRuleYear.setValue(period.getYears());
-							subDateRuleName.getSelectionModel()
-									.select(new DateRule(newValue.getDateRuleName().getValue()));
-						}
+		});
 
-					}
-				});
+		startDate.setValue(LocalDate.now(ZoneId.systemDefault()));
 
-		startDate.setValue(LocalDate.now());
-
-		Set<Integer> ints = new HashSet<Integer>(100);
+		Set<Integer> ints = HashSet.newHashSet(100);
 		for (int i = 0; i <= 100; i++) {
 			ints.add(i);
 		}
@@ -220,8 +206,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 				}
 				dateRule.setSequence(isSequence.isSelected());
 				if (isSequence.isSelected()) {
-					Map<DateRule, Period> dateRulesPeriods = toDateRulesPeriods(dateRulesDurations.getItems());
-					dateRule.setDateRulesPeriods(dateRulesPeriods);
+					List<DateRule.Step> steps = toDateRuleSteps(dateRulesDurations.getItems());
+					dateRule.setSteps(steps);
 				} else {
 					Set<Month> months = new HashSet<Month>();
 					if (january.isSelected()) {
@@ -296,8 +282,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 				DateRule copyDateRule = new DateRule(result.get());
 				copyDateRule.setSequence(isSequence.isSelected());
 				if (isSequence.isSelected()) {
-					Map<DateRule, Period> dateRulesPeriods = toDateRulesPeriods(dateRulesDurations.getItems());
-					copyDateRule.setDateRulesPeriods(dateRulesPeriods);
+					List<DateRule.Step> steps = toDateRuleSteps(dateRulesDurations.getItems());
+					copyDateRule.setSteps(steps);
 				} else {
 					Set<Month> months = new HashSet<Month>();
 					if (january.isSelected()) {
@@ -422,8 +408,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 			dateOffset.setText(Integer.toString(dateRule.getDateOffset()));
 			dateRulesDurations.getItems().clear();
 		} else {
-			dateRulesDurations.setItems(
-					FXCollections.observableList(toDateRuleDurationProperties(dateRule.getDateRulesPeriods())));
+			dateRulesDurations
+					.setItems(FXCollections.observableList(toDateRuleDurationProperties(dateRule.getSteps())));
 		}
 		name.setVisible(false);
 		nameLabel.setText(dateRule.getName());
@@ -577,7 +563,7 @@ public class DateRulesController extends TradistaControllerAdapter {
 		dateRulesDurations.getItems().clear();
 		dateOffset.clear();
 		calendarsList.getItems().clear();
-		startDate.setValue(LocalDate.now());
+		startDate.setValue(LocalDate.now(ZoneId.systemDefault()));
 		isSequence.setSelected(false);
 		drc.getSelectionModel().selectFirst();
 		position.getSelectionModel().selectFirst();
@@ -587,7 +573,7 @@ public class DateRulesController extends TradistaControllerAdapter {
 		subDateRuleMonth.getSelectionModel().selectFirst();
 		subDateRuleYear.getSelectionModel().selectFirst();
 		subDateRuleDay.getSelectionModel().selectFirst();
-		nameLabel.setText("");
+		nameLabel.setText(StringUtils.EMPTY);
 		name.setVisible(true);
 		nameLabel.setVisible(false);
 	}
@@ -612,8 +598,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 			Button up = new Button("Up");
 			Button down = new Button("Down");
 
-			up.setOnAction(ae -> DateRulesController.this.move(true, dateRuleName));
-			down.setOnAction(ae -> DateRulesController.this.move(false, dateRuleName));
+			up.setOnAction(_ -> DateRulesController.this.move(true, DateRuleDurationProperty.this));
+			down.setOnAction(_ -> DateRulesController.this.move(false, DateRuleDurationProperty.this));
 			buttons.add(up);
 			buttons.add(down);
 			moves = new SimpleObjectProperty<>(buttons);
@@ -670,16 +656,16 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	}
 
-	public Map<DateRule, Period> toDateRulesPeriods(ObservableList<DateRuleDurationProperty> items) {
+	public List<DateRule.Step> toDateRuleSteps(ObservableList<DateRuleDurationProperty> items) {
 		if (items != null && !items.isEmpty()) {
-			Map<DateRule, Period> dateRulesPeriods = new LinkedHashMap<DateRule, Period>(items.size());
-			DateRuleBusinessDelegate dateRuleBusinessDelegate = new DateRuleBusinessDelegate();
+			List<DateRule.Step> steps = new ArrayList<>(items.size());
+			int pos = 1;
 			for (DateRuleDurationProperty prop : items) {
 				DateRule dateRule = dateRuleBusinessDelegate.getDateRuleByName(prop.getDateRuleName().getValue());
 				Period period = toPeriod(prop.getDateRuleDuration().getValue());
-				dateRulesPeriods.put(dateRule, period);
+				steps.add(new DateRule.Step(pos++, dateRule, period));
 			}
-			return dateRulesPeriods;
+			return steps;
 		}
 		return null;
 	}
@@ -699,36 +685,34 @@ public class DateRulesController extends TradistaControllerAdapter {
 		return period.getYears() + "Y - " + period.getMonths() + "M - " + period.getDays() + "D";
 	}
 
-	protected void move(boolean up, String dateRuleName) {
-
-		int pos = dateRulesDurations.getItems().indexOf(new DateRuleDurationProperty(dateRuleName, null));
+	protected void move(boolean up, DateRuleDurationProperty prop) {
+		ObservableList<DateRuleDurationProperty> items = dateRulesDurations.getItems();
+		int pos = items.indexOf(prop);
+		if (pos < 0) {
+			return;
+		}
 
 		if (up) {
 			if (pos > 0) {
-				ObservableList<DateRuleDurationProperty> items = dateRulesDurations.getItems();
-				DateRuleDurationProperty dr = items.get(pos);
-				items.remove(pos);
+				DateRuleDurationProperty dr = items.remove(pos);
 				items.add(pos - 1, dr);
-				dateRulesDurations.setItems(items);
+				dateRulesDurations.getSelectionModel().select(dr);
 			}
 		} else {
-			if (pos < dateRulesDurations.getItems().size() - 1) {
-				ObservableList<DateRuleDurationProperty> items = dateRulesDurations.getItems();
-				DateRuleDurationProperty dr = items.get(pos);
-				items.remove(pos);
+			if (pos < items.size() - 1) {
+				DateRuleDurationProperty dr = items.remove(pos);
 				items.add(pos + 1, dr);
-				dateRulesDurations.setItems(items);
+				dateRulesDurations.getSelectionModel().select(dr);
 			}
 		}
 	}
 
-	public List<DateRuleDurationProperty> toDateRuleDurationProperties(Map<DateRule, Period> dateRulesPeriods) {
-		if (dateRulesPeriods != null && !dateRulesPeriods.isEmpty()) {
-			List<DateRuleDurationProperty> properties = new ArrayList<DateRuleDurationProperty>(
-					dateRulesPeriods.size());
-			for (Map.Entry<DateRule, Period> entry : dateRulesPeriods.entrySet()) {
-				DateRuleDurationProperty prop = new DateRuleDurationProperty(entry.getKey().getName(),
-						toDateRuleDuration(entry.getValue()));
+	public List<DateRuleDurationProperty> toDateRuleDurationProperties(List<DateRule.Step> steps) {
+		if (steps != null && !steps.isEmpty()) {
+			List<DateRuleDurationProperty> properties = new ArrayList<>(steps.size());
+			for (DateRule.Step step : steps) {
+				DateRuleDurationProperty prop = new DateRuleDurationProperty(step.getDateRule().getName(),
+						toDateRuleDuration(step.getDuration()));
 				properties.add(prop);
 			}
 			return properties;
@@ -743,10 +727,10 @@ public class DateRulesController extends TradistaControllerAdapter {
 			if (!dateOffset.getText().isEmpty()) {
 				new BigDecimal(dateOffset.getText());
 			}
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			errMsg.append(String.format("The trade price is incorrect: %s.%n", dateOffset.getText()));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

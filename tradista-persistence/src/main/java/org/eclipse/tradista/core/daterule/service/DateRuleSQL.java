@@ -10,8 +10,6 @@ import java.time.DayOfWeek;
 import java.time.Month;
 import java.time.Period;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -53,7 +51,7 @@ public class DateRuleSQL {
 					dateRule.setId(results.getLong("id"));
 					dateRule.setSequence(results.getBoolean("is_sequence"));
 					if (dateRule.isSequence()) {
-						dateRule.setDateRulesPeriods(getDateRulesPeriodsByDateRuleId(dateRule.getId()));
+						dateRule.setSteps(getDateRuleStepsByDateRuleId(dateRule.getId()));
 					} else {
 						dateRule.setDateRollingConvention(
 								DateRollingConvention.valueOf(results.getString("date_rolling_convention")));
@@ -98,23 +96,23 @@ public class DateRuleSQL {
 		return calendars;
 	}
 
-	private static Map<DateRule, Period> getDateRulesPeriodsByDateRuleId(long id) {
-		Map<DateRule, Period> dateRulesPeriods = null;
+	private static java.util.List<DateRule.Step> getDateRuleStepsByDateRuleId(long id) {
+		java.util.List<DateRule.Step> steps = null;
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetDateRulesPeriodsByDateRuleId = con.prepareStatement(
 						"SELECT * FROM DATE_RULE_SUB_DATE_RULE WHERE DATE_RULE_ID = ? ORDER BY POSITION")) {
 			stmtGetDateRulesPeriodsByDateRuleId.setLong(1, id);
 			try (ResultSet results = stmtGetDateRulesPeriodsByDateRuleId.executeQuery()) {
 				while (results.next()) {
-					if (dateRulesPeriods == null) {
-						dateRulesPeriods = new LinkedHashMap<DateRule, Period>();
+					if (steps == null) {
+						steps = new java.util.ArrayList<DateRule.Step>();
 					}
-					DateRule dateRule = getDateRuleById(results.getLong("sub_date_rule_id"));
+					DateRule subDateRule = getDateRuleById(results.getLong("sub_date_rule_id"));
 
 					Period period = Period.of(results.getInt("duration_year"), results.getInt("duration_month"),
 							results.getInt("duration_day"));
 
-					dateRulesPeriods.put(dateRule, period);
+					steps.add(new DateRule.Step(results.getInt("position"), subDateRule, period));
 				}
 			}
 		} catch (SQLException sqle) {
@@ -122,7 +120,7 @@ public class DateRuleSQL {
 			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
-		return dateRulesPeriods;
+		return steps;
 	}
 
 	private static Set<Month> getDateRuleMonths(long id) {
@@ -162,7 +160,7 @@ public class DateRuleSQL {
 				dateRule.setId(results.getLong("id"));
 				dateRule.setSequence(results.getBoolean("is_sequence"));
 				if (dateRule.isSequence()) {
-					dateRule.setDateRulesPeriods(getDateRulesPeriodsByDateRuleId(dateRule.getId()));
+					dateRule.setSteps(getDateRuleStepsByDateRuleId(dateRule.getId()));
 				} else {
 					dateRule.setDateRollingConvention(
 							DateRollingConvention.valueOf(results.getString("date_rolling_convention")));
@@ -197,7 +195,7 @@ public class DateRuleSQL {
 					dateRule.setId(results.getLong("id"));
 					dateRule.setSequence(results.getBoolean("is_sequence"));
 					if (dateRule.isSequence()) {
-						dateRule.setDateRulesPeriods(getDateRulesPeriodsByDateRuleId(dateRule.getId()));
+						dateRule.setSteps(getDateRuleStepsByDateRuleId(dateRule.getId()));
 					} else {
 						dateRule.setDateRollingConvention(
 								DateRollingConvention.valueOf(results.getString("date_rolling_convention")));
@@ -231,9 +229,8 @@ public class DateRuleSQL {
 				PreparedStatement stmtSaveMonthByDateRuleId = (dateRule.getMonths() != null)
 						? con.prepareStatement("INSERT INTO MONTH(MONTH, DATE_RULE_ID) VALUES (?, ?) ")
 						: null;
-				PreparedStatement stmtSaveDateRuleByDateRuleId = (dateRule.getDateRulesPeriods() != null)
-						? con.prepareStatement(
-								"INSERT INTO DATE_RULE_SUB_DATE_RULE(DURATION_YEAR, DURATION_MONTH, DURATION_DAY, POSITION, DATE_RULE_ID, SUB_DATE_RULE_ID) VALUES (?, ?, ?, ?, ?, ?) ")
+				PreparedStatement stmtSaveDateRuleByDateRuleId = (dateRule.getSteps() != null) ? con.prepareStatement(
+						"INSERT INTO DATE_RULE_SUB_DATE_RULE(DURATION_YEAR, DURATION_MONTH, DURATION_DAY, POSITION, DATE_RULE_ID, SUB_DATE_RULE_ID) VALUES (?, ?, ?, ?, ?, ?) ")
 						: null;
 				PreparedStatement stmtSaveCalendarByDateRuleId = (dateRule.getCalendars() != null) ? con
 						.prepareStatement("INSERT INTO DATE_RULE_CALENDAR(DATE_RULE_ID, CALENDAR_ID) VALUES (?, ?) ")
@@ -329,16 +326,16 @@ public class DateRuleSQL {
 				stmtSaveMonthByDateRuleId.executeBatch();
 			}
 
-			if (dateRule.getDateRulesPeriods() != null) {
+			if (dateRule.getSteps() != null) {
 				int pos = 1;
-				for (Map.Entry<DateRule, Period> dateRulePeriod : dateRule.getDateRulesPeriods().entrySet()) {
+				for (DateRule.Step step : dateRule.getSteps()) {
 					stmtSaveDateRuleByDateRuleId.clearParameters();
-					stmtSaveDateRuleByDateRuleId.setInt(1, dateRulePeriod.getValue().getYears());
-					stmtSaveDateRuleByDateRuleId.setInt(2, dateRulePeriod.getValue().getMonths());
-					stmtSaveDateRuleByDateRuleId.setInt(3, dateRulePeriod.getValue().getDays());
+					stmtSaveDateRuleByDateRuleId.setInt(1, step.getDuration().getYears());
+					stmtSaveDateRuleByDateRuleId.setInt(2, step.getDuration().getMonths());
+					stmtSaveDateRuleByDateRuleId.setInt(3, step.getDuration().getDays());
 					stmtSaveDateRuleByDateRuleId.setInt(4, pos);
 					stmtSaveDateRuleByDateRuleId.setLong(5, dateRuleId);
-					stmtSaveDateRuleByDateRuleId.setLong(6, dateRulePeriod.getKey().getId());
+					stmtSaveDateRuleByDateRuleId.setLong(6, step.getDateRule().getId());
 					stmtSaveDateRuleByDateRuleId.addBatch();
 					pos++;
 				}

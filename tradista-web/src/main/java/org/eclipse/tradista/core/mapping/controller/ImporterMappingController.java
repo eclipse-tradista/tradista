@@ -146,7 +146,8 @@ public class ImporterMappingController implements Serializable {
 		try {
 			Set<Mapping> mappingsToSave = new HashSet<>();
 			for (MappingDTO dto : displayedMappings) {
-				mappingsToSave.add(interfaceMappingSet.new Mapping(dto.getValue(), dto.getMappedValue()));
+				mappingsToSave.add(
+						new InterfaceMappingSet.Mapping(interfaceMappingSet, dto.getValue(), dto.getMappedValue()));
 			}
 			interfaceMappingSet.setMappings(mappingsToSave);
 			interfaceMappingSet.setId(mappingBusinessDelegate.saveInterfaceMappingSet(interfaceMappingSet));
