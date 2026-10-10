@@ -21,7 +21,6 @@ import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalcula
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.UnrealizedPnlCalculation;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -33,7 +32,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -83,18 +81,20 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 		Callback<TableColumn<UnrealizedPnlCalculationProperty, Book>, TableCell<UnrealizedPnlCalculationProperty, Book>> unrealizedPnlCalculationBookCellFactory = _ -> new UnrealizedPnlCalculationBookEditingCell();
 		Callback<TableColumn<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>, TableCell<UnrealizedPnlCalculationProperty, UnrealizedPnlCalculation>> unrealizedPnlCalculationCellFactory = _ -> new UnrealizedPnlCalculationEditingCell();
 
-		fxProductType
-				.setCellValueFactory(productType -> new ReadOnlyStringWrapper(productType.getValue().getProductType()));
+		unrealizedPnlCalculationTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		fxProductType.setCellValueFactory(cellData -> cellData.getValue().getProductTypeProperty());
 		fxProductType.setCellFactory(unrealizedPnlCalculationProductTypeCellFactory);
 		fxProductType.setOnEditCommit(
 				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setProductType(t.getNewValue()));
 
-		book.setCellValueFactory(new PropertyValueFactory<>("book"));
+		book.setCellValueFactory(cellData -> cellData.getValue().getBookProperty());
 		book.setCellFactory(unrealizedPnlCalculationBookCellFactory);
 		book.setOnEditCommit(
 				t -> t.getTableView().getItems().get(t.getTablePosition().getRow()).setBook(t.getNewValue()));
 
-		unrealizedPnlCalculation.setCellValueFactory(new PropertyValueFactory<>("unrealizedPnlCalculation"));
+		unrealizedPnlCalculation
+				.setCellValueFactory(cellData -> cellData.getValue().getUnrealizedPnlCalculationProperty());
 		unrealizedPnlCalculation.setCellFactory(unrealizedPnlCalculationCellFactory);
 		unrealizedPnlCalculation.setOnEditCommit(t -> t.getTableView().getItems().get(t.getTablePosition().getRow())
 				.setUnrealizedPnlCalculation(t.getNewValue()));
@@ -459,6 +459,10 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 			return book.get();
 		}
 
+		public SimpleObjectProperty<Book> getBookProperty() {
+			return (SimpleObjectProperty) book;
+		}
+
 		public void setBook(Object book) {
 			this.book.set(book);
 		}
@@ -467,12 +471,20 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 			return productType.get();
 		}
 
+		public SimpleStringProperty getProductTypeProperty() {
+			return productType;
+		}
+
 		public void setProductType(String productType) {
 			this.productType.set(productType);
 		}
 
 		public Object getUnrealizedPnlCalculation() {
 			return unrealizedPnlCalculation.get();
+		}
+
+		public SimpleObjectProperty<UnrealizedPnlCalculation> getUnrealizedPnlCalculationProperty() {
+			return (SimpleObjectProperty) unrealizedPnlCalculation;
 		}
 
 		public void setUnrealizedPnlCalculation(Object curve) {

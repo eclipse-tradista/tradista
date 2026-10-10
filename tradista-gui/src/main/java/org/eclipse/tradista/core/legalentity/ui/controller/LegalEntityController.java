@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.legalentity.ui.controller;
 
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

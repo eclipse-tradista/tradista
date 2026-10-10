@@ -3,9 +3,9 @@ package org.eclipse.tradista.core.daterule.model;
 import java.time.DayOfWeek;
 import java.time.Month;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -36,11 +36,75 @@ public class DateRule extends TradistaObject implements Comparable<DateRule> {
 
 	private static final long serialVersionUID = -6578402702449743205L;
 
-	public static String[] DAY_POSITIONS = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th",
-			"11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd", "23th",
-			"24th", "25th", "26th", "27th", "28th", "29th", "30th", "31st", "Last" };
+	public static final String[] DAY_POSITIONS = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th",
+			"10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd",
+			"23th", "24th", "25th", "26th", "27th", "28th", "29th", "30th", "31st", "Last" };
 
-	public static String[] WEEK_DAY_POSITIONS = { "1st", "2nd", "3rd", "4th", "5th", "Last" };
+	public static final String[] WEEK_DAY_POSITIONS = { "1st", "2nd", "3rd", "4th", "5th", "Last" };
+
+	public static class Step extends TradistaObject {
+
+		private static final long serialVersionUID = 1L;
+
+		@Id
+		private DateRule parentRule;
+
+		@Id
+		private int position;
+
+		private DateRule dateRule;
+
+		private Period duration;
+
+		public Step(DateRule parentRule, int position, DateRule dateRule, Period duration) {
+			this.parentRule = parentRule;
+			this.position = position;
+			this.dateRule = dateRule;
+			this.duration = duration;
+		}
+
+		public Step(int position, DateRule dateRule, Period duration) {
+			this(null, position, dateRule, duration);
+		}
+
+		public DateRule getParentRule() {
+			return parentRule;
+		}
+
+		public void setParentRule(DateRule parentRule) {
+			this.parentRule = parentRule;
+		}
+
+		public int getPosition() {
+			return position;
+		}
+
+		public void setPosition(int position) {
+			this.position = position;
+		}
+
+		public DateRule getDateRule() {
+			return dateRule;
+		}
+
+		public void setDateRule(DateRule dateRule) {
+			this.dateRule = dateRule;
+		}
+
+		public Period getDuration() {
+			return duration;
+		}
+
+		public void setDuration(Period duration) {
+			this.duration = duration;
+		}
+
+		@Override
+		public Step clone() {
+			return (Step) super.clone();
+		}
+
+	}
 
 	@Id
 	private String name;
@@ -55,7 +119,7 @@ public class DateRule extends TradistaObject implements Comparable<DateRule> {
 
 	private boolean isSequence;
 
-	private Map<DateRule, Period> dateRulesPeriods;
+	private List<Step> steps;
 
 	private Set<Calendar> calendars;
 
@@ -65,7 +129,7 @@ public class DateRule extends TradistaObject implements Comparable<DateRule> {
 		super();
 		this.name = name;
 		months = new HashSet<Month>();
-		dateRulesPeriods = new LinkedHashMap<DateRule, Period>();
+		steps = new java.util.ArrayList<Step>();
 	}
 
 	public String getName() {
@@ -123,12 +187,27 @@ public class DateRule extends TradistaObject implements Comparable<DateRule> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Map<DateRule, Period> getDateRulesPeriods() {
-		return (Map<DateRule, Period>) TradistaModelUtil.deepCopy(dateRulesPeriods);
+	public List<Step> getSteps() {
+		return (List<Step>) TradistaModelUtil.deepCopy(steps);
 	}
 
-	public void setDateRulesPeriods(Map<DateRule, Period> rulesPeriods) {
-		this.dateRulesPeriods = rulesPeriods;
+	public void setSteps(List<Step> steps) {
+		this.steps = steps;
+		if (this.steps != null) {
+			for (Step step : this.steps) {
+				step.setParentRule(this);
+			}
+		}
+	}
+
+	public void addStep(Step step) {
+		if (steps == null) {
+			steps = new ArrayList<>();
+		}
+		if (step != null) {
+			step.setParentRule(this);
+			steps.add(step);
+		}
 	}
 
 	public DayOfWeek getDay() {
@@ -170,7 +249,7 @@ public class DateRule extends TradistaObject implements Comparable<DateRule> {
 	@Override
 	public DateRule clone() {
 		DateRule dateRule = (DateRule) super.clone();
-		dateRule.dateRulesPeriods = (Map<DateRule, Period>) TradistaModelUtil.deepCopy(dateRulesPeriods);
+		dateRule.steps = (List<Step>) TradistaModelUtil.deepCopy(steps);
 		dateRule.calendars = (Set<Calendar>) TradistaModelUtil.deepCopy(calendars);
 		return dateRule;
 	}

@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaEditingCell;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
@@ -33,14 +33,10 @@ import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2015 Olivier Asuncion
@@ -171,8 +167,6 @@ public class QuotesController extends TradistaControllerAdapter {
 
 		quoteBusinessDelegate = new QuoteBusinessDelegate();
 
-		Callback<TableColumn<QuoteProperty, String>, TableCell<QuoteProperty, String>> cellFactory = _ -> new EditingCell();
-
 		quoteName.setCellValueFactory(cellData -> cellData.getValue().getName());
 		quoteDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
 		quoteType.setCellValueFactory(cellData -> cellData.getValue().getType());
@@ -186,19 +180,22 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteEnteredDate.setCellValueFactory(cellData -> cellData.getValue().getEnteredDate());
 		quoteSourceName.setCellValueFactory(cellData -> cellData.getValue().getSourceName());
 
-		quoteBid.setCellFactory(cellFactory);
-		quoteAsk.setCellFactory(cellFactory);
-		quoteOpen.setCellFactory(cellFactory);
-		quoteClose.setCellFactory(cellFactory);
-		quoteHigh.setCellFactory(cellFactory);
-		quoteLow.setCellFactory(cellFactory);
-		quoteLast.setCellFactory(cellFactory);
-		quoteSourceName.setCellFactory(cellFactory);
+		quoteBid.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteAsk.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteOpen.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteClose.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteHigh.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteLow.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteLast.setCellFactory(_ -> new TradistaEditingCell<>());
+		quoteSourceName.setCellFactory(_ -> new TradistaEditingCell<>());
+
+		quotesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		quoteBid.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Bid");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setBid(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setBid(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -209,7 +206,8 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteAsk.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Ask");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setAsk(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setAsk(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -220,7 +218,8 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteOpen.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Open");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setOpen(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setOpen(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -231,7 +230,8 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteClose.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Close");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setClose(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setClose(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -242,7 +242,8 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteHigh.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "High");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setHigh(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setHigh(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -253,7 +254,8 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteLow.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Low");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setLow(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setLow(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -264,7 +266,8 @@ public class QuotesController extends TradistaControllerAdapter {
 		quoteLast.setOnEditCommit(t -> {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Last");
-				t.getTableView().getItems().get(t.getTablePosition().getRow()).setLast(t.getNewValue());
+				QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+				qp.setLast(t.getNewValue());
 			} catch (TradistaBusinessException tbe) {
 				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
@@ -273,8 +276,9 @@ public class QuotesController extends TradistaControllerAdapter {
 		});
 
 		quoteSourceName.setOnEditCommit(t -> {
-
-			t.getTableView().getItems().get(t.getTablePosition().getRow()).setSourceName(t.getNewValue());
+			QuoteProperty qp = t.getTableView().getItems().get(t.getTablePosition().getRow());
+			qp.setSourceName(t.getNewValue());
+			quotesTable.refresh();
 		});
 
 		List<Year> years = new ArrayList<>();
@@ -332,7 +336,7 @@ public class QuotesController extends TradistaControllerAdapter {
 			}
 			ObservableList<QuoteProperty> data = QuoteProperty.buildTableContent(quoteValues,
 					month.getSelectionModel().getSelectedItem(), year.getSelectionModel().getSelectedItem(),
-					currentQuoteName, currentQuoteType);
+					currentQuoteName, currentQuoteType, currentQuoteSet);
 
 			quotesTable.setItems(data);
 			quotesTable.refresh();
@@ -434,6 +438,7 @@ public class QuotesController extends TradistaControllerAdapter {
 						this.typeComboBox.getValue(), quoteValues, year.getSelectionModel().getSelectedItem(),
 						month.getSelectionModel().getSelectedItem());
 				canSaveQuoteValue = true;
+				load();
 			} catch (TradistaTechnicalException tte) {
 				canSaveQuoteValue = false;
 				throw tte;
@@ -539,14 +544,8 @@ public class QuotesController extends TradistaControllerAdapter {
 				throw new TradistaBusinessException("Please select a quote type.");
 			}
 
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Delete Quote");
-			confirmation.setHeaderText("Delete Quote");
-			confirmation.setContentText(String.format("Do you want to delete this Quote %s of type %s ?",
-					quote.getValue(), typeComboBox.getValue()));
-
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (TradistaAlert.showConfirmationDialog("Delete Quote", String.format(
+					"Do you want to delete this Quote %s of type %s ?", quote.getValue(), typeComboBox.getValue()))) {
 				String quoteName = quote.getValue();
 				QuoteType quoteType = typeComboBox.getValue();
 				try {
@@ -591,14 +590,8 @@ public class QuotesController extends TradistaControllerAdapter {
 				alert.showAndWait();
 			}
 
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Delete Quote Set");
-			confirmation.setHeaderText("Delete Quote Set");
-			confirmation
-					.setContentText(String.format("Do you want to delete this Quote Set %s ?", quoteSet.getValue()));
-
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (TradistaAlert.showConfirmationDialog("Delete Quote Set",
+					String.format("Do you want to delete this Quote Set %s ?", quoteSet.getValue()))) {
 				QuoteSet qs = quoteSet.getValue();
 				try {
 					quoteBusinessDelegate.deleteQuoteSet(qs.getId());
@@ -633,76 +626,20 @@ public class QuotesController extends TradistaControllerAdapter {
 		}
 	}
 
-	class EditingCell extends TableCell<QuoteProperty, String> {
-
-		private TextField textField;
-
-		public EditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
-			createTextField();
-			setText(textField.getText());
-			setGraphic(textField);
-			textField.selectAll();
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			setText(getItem().toString());
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (textField != null) {
-						textField.setText(getString());
-					}
-					setText(null);
-					setGraphic(textField);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createTextField() {
-			textField = new TextField(getString());
-			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					commitEdit(textField.getText());
-				}
-			});
-
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
-		}
-	}
-
 	private List<QuoteValue> toQuoteValueList(List<QuoteProperty> data) throws TradistaBusinessException {
 		List<QuoteValue> quoteValueList = new ArrayList<>();
 		for (QuoteProperty quoteValue : data) {
 
 			if (valueExists(quoteValue)) {
 				try {
+					LocalDate enteredDate = null;
+					if (quoteValue.getEnteredDate() != null && quoteValue.getEnteredDate().getValue() != null
+							&& !quoteValue.getEnteredDate().getValue().isEmpty()) {
+						enteredDate = LocalDate.parse(quoteValue.getEnteredDate().getValue());
+					} else {
+						enteredDate = LocalDate.now();
+					}
+
 					QuoteValue qv = new QuoteValue(
 							LocalDate.from(
 									DateTimeFormatter.ofPattern("yyyy-MM-dd").parse(quoteValue.getDate().getValue())),
@@ -724,7 +661,7 @@ public class QuotesController extends TradistaControllerAdapter {
 									: quoteValue.getSourceName().getValue(),
 							quoteBusinessDelegate.getQuoteByNameAndType(quoteValue.getName().getValue(),
 									QuoteType.getQuoteType(quoteValue.getType().getValue())),
-							LocalDate.now(), quoteSet.getValue());
+							enteredDate, quoteSet.getValue());
 
 					quoteValueList.add(qv);
 

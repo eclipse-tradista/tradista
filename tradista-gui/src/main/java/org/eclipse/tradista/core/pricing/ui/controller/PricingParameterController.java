@@ -59,7 +59,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 
 /********************************************************************************
@@ -364,7 +363,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		nameTextField.setPromptText("Parameter name");
 		valueTextField.setPromptText("Parameter value");
 
-		currency.setCellValueFactory(new PropertyValueFactory<>("currency"));
+		currency.setCellValueFactory(cellData -> cellData.getValue().getCurrencyProperty());
 
 		currency.setCellFactory(_ -> new DiscountCurveCurrencyEditingCell());
 
@@ -378,11 +377,13 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		discountCurve.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		discountCurve.setCellValueFactory(new PropertyValueFactory<>(CURVE));
+		discountCurve.setCellValueFactory(cellData -> cellData.getValue().getCurveProperty());
 
 		discountCurveComboBox.setPromptText("Discount Curve");
 
-		index.setCellValueFactory(new PropertyValueFactory<>("index"));
+		discountCurveTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		index.setCellValueFactory(cellData -> cellData.getValue().getIndexProperty());
 
 		index.setCellFactory(_ -> new IndexCurveIndexEditingCell());
 
@@ -394,13 +395,15 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		indexCurve.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		indexCurve.setCellValueFactory(new PropertyValueFactory<>(CURVE));
+		indexCurve.setCellValueFactory(cellData -> cellData.getValue().getCurveProperty());
 
 		indexComboBox.setPromptText("Index");
 
 		indexCurveComboBox.setPromptText("Index Curve");
 
-		primaryCurrency.setCellValueFactory(new PropertyValueFactory<>("primaryCurrency"));
+		indexCurveTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		primaryCurrency.setCellValueFactory(cellData -> cellData.getValue().getPrimaryCurrencyProperty());
 
 		primaryCurrency.setCellFactory(_ -> new FXCurvePrimaryCurrencyEditingCell());
 
@@ -411,7 +414,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 		fxCurveComboBox.setPromptText("FX Curve");
 
-		quoteCurrency.setCellValueFactory(new PropertyValueFactory<>("quoteCurrency"));
+		quoteCurrency.setCellValueFactory(cellData -> cellData.getValue().getQuoteCurrencyProperty());
 
 		quoteCurrency.setCellFactory(_ -> new FXCurveQuoteCurrencyEditingCell());
 
@@ -425,7 +428,9 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		fxCurve.setOnEditCommit(
 				cee -> cee.getTableView().getItems().get(cee.getTablePosition().getRow()).setCurve(cee.getNewValue()));
 
-		fxCurve.setCellValueFactory(new PropertyValueFactory<>(CURVE));
+		fxCurve.setCellValueFactory(cellData -> cellData.getValue().getCurveProperty());
+
+		fxCurveTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		productType.setCellValueFactory(cellData -> cellData.getValue().getProductType());
 
@@ -1870,12 +1875,20 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			return currency.get();
 		}
 
+		public SimpleObjectProperty<Currency> getCurrencyProperty() {
+			return currency;
+		}
+
 		public void setCurrency(Currency currency) {
 			this.currency.set(currency);
 		}
 
 		public InterestRateCurve getCurve() {
 			return curve.get();
+		}
+
+		public SimpleObjectProperty<InterestRateCurve> getCurveProperty() {
+			return curve;
 		}
 
 		public void setCurve(InterestRateCurve curve) {
@@ -1928,12 +1941,20 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			return index.get();
 		}
 
+		public SimpleObjectProperty<Index> getIndexProperty() {
+			return index;
+		}
+
 		public void setIndex(Index index) {
 			this.index.set(index);
 		}
 
 		public InterestRateCurve getCurve() {
 			return curve.get();
+		}
+
+		public SimpleObjectProperty<InterestRateCurve> getCurveProperty() {
+			return curve;
 		}
 
 		public void setCurve(InterestRateCurve curve) {
@@ -1988,6 +2009,10 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			return primaryCurrency.get();
 		}
 
+		public SimpleObjectProperty<Currency> getPrimaryCurrencyProperty() {
+			return primaryCurrency;
+		}
+
 		public void setPrimaryCurrency(Currency primaryCurrency) {
 			this.primaryCurrency.set(primaryCurrency);
 		}
@@ -1996,12 +2021,20 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			return quoteCurrency.get();
 		}
 
+		public SimpleObjectProperty<Currency> getQuoteCurrencyProperty() {
+			return quoteCurrency;
+		}
+
 		public void setQuoteCurrency(Currency quoteCurrency) {
 			this.quoteCurrency.set(quoteCurrency);
 		}
 
 		public FXCurve getCurve() {
 			return curve.get();
+		}
+
+		public SimpleObjectProperty<FXCurve> getCurveProperty() {
+			return curve;
 		}
 
 		public void setCurve(FXCurve curve) {

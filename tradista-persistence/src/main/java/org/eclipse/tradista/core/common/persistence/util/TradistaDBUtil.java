@@ -3,9 +3,9 @@ package org.eclipse.tradista.core.common.persistence.util;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.AND;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FROM;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.IN;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD_HH_MM_SS;
 
 import java.sql.Connection;

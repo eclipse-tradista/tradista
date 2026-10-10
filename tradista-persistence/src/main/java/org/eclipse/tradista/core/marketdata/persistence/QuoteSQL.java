@@ -560,7 +560,9 @@ public class QuoteSQL {
 					setBigDecimalOrNull(stmtSave, 8, quoteValue.getLow());
 					setBigDecimalOrNull(stmtSave, 9, quoteValue.getLast());
 					stmtSave.setString(10, quoteValue.getSourceName());
-					stmtSave.setDate(11, java.sql.Date.valueOf(LocalDate.now(ZoneId.systemDefault())));
+					stmtSave.setDate(11,
+							java.sql.Date.valueOf(quoteValue.getEnteredDate() != null ? quoteValue.getEnteredDate()
+									: LocalDate.now(ZoneId.systemDefault())));
 					stmtSave.setLong(12, quoteSetId);
 					stmtSave.addBatch();
 				}

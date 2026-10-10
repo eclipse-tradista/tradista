@@ -58,4 +58,13 @@ public class TradistaAlert extends Alert {
 		init(style);
 	}
 
+	public static boolean showConfirmationDialog(String title, String contentText) {
+		TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
+		confirmation.setTitle(title);
+		confirmation.setHeaderText(title);
+		confirmation.setContentText(contentText);
+		java.util.Optional<ButtonType> result = confirmation.showAndWait();
+		return result.isPresent() && result.get() == ButtonType.OK;
+	}
+
 }

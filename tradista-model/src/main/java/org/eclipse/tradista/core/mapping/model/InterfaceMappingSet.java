@@ -33,22 +33,34 @@ public class InterfaceMappingSet extends TradistaObject implements Segregable {
 		INCOMING, OUTGOING;
 	}
 
-	public class Mapping extends TradistaObject {
+	public static class Mapping extends TradistaObject {
 
 		private static final long serialVersionUID = 3025216935232998072L;
 
 		@Id
-		private InterfaceMappingSet enclosingInstance;
+		private InterfaceMappingSet interfaceMappingSet;
 
 		@Id
 		private String value;
 
 		private String mappedValue;
 
-		public Mapping(String value, String mappedValue) {
+		public Mapping(InterfaceMappingSet interfaceMappingSet, String value, String mappedValue) {
+			this.interfaceMappingSet = interfaceMappingSet;
 			this.value = value;
 			this.mappedValue = mappedValue;
-			enclosingInstance = InterfaceMappingSet.this;
+		}
+
+		public Mapping(String value, String mappedValue) {
+			this(null, value, mappedValue);
+		}
+
+		public InterfaceMappingSet getInterfaceMappingSet() {
+			return interfaceMappingSet;
+		}
+
+		public void setInterfaceMappingSet(InterfaceMappingSet interfaceMappingSet) {
+			this.interfaceMappingSet = interfaceMappingSet;
 		}
 
 		public String getValue() {
@@ -109,7 +121,7 @@ public class InterfaceMappingSet extends TradistaObject implements Segregable {
 	}
 
 	public void addMapping(String value, String mappedValue) {
-		mappings.add(new Mapping(value, mappedValue));
+		mappings.add(new Mapping(this, value, mappedValue));
 	}
 
 	public void removeMapping(Mapping mapping) {
