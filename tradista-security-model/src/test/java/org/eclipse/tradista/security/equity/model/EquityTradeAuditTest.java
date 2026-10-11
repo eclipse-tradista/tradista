@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityTradeAuditTest {
+class EquityTradeAuditTest {
 
 	private static final Book book = TradistaTestUtil.createTradingBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
@@ -38,7 +38,7 @@ public class EquityTradeAuditTest {
 			.currency(TradistaTestUtil.EUR).build();
 
 	@Test
-	public void testDefaultCreationTimeOnNewEquityTrade() {
+	void testDefaultCreationTimeOnNewEquityTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
@@ -54,7 +54,7 @@ public class EquityTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -66,7 +66,7 @@ public class EquityTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -80,7 +80,7 @@ public class EquityTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		EquityTrade trade = EquityTrade.builder().product(equity).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -92,7 +92,7 @@ public class EquityTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

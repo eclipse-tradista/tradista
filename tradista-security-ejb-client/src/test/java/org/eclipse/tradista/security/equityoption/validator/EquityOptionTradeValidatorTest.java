@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityOptionTradeValidatorTest {
+class EquityOptionTradeValidatorTest {
 
 	private static final EquityOptionTradeValidator validator = new EquityOptionTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -64,98 +64,98 @@ public class EquityOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidTrade() {
+	void testValidTrade() {
 		EquityOptionTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testMissingUnderlying() {
+	void testMissingUnderlying() {
 		EquityOptionTrade trade = createValidTradeBuilder().underlying(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingBook() {
+	void testMissingBook() {
 		EquityOptionTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingCounterparty() {
+	void testMissingCounterparty() {
 		EquityOptionTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingStyle() {
+	void testMissingStyle() {
 		EquityOptionTrade trade = createValidTradeBuilder().style(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingSettlementType() {
+	void testMissingSettlementType() {
 		EquityOptionTrade trade = createValidTradeBuilder().settlementType(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingStrike() {
+	void testMissingStrike() {
 		EquityOptionTrade trade = createValidTradeBuilder().strike(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroStrike() {
+	void testZeroStrike() {
 		EquityOptionTrade trade = createValidTradeBuilder().strike(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeStrike() {
+	void testNegativeStrike() {
 		EquityOptionTrade trade = createValidTradeBuilder().strike(BigDecimal.valueOf(-10)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingMaturityDate() {
+	void testMissingMaturityDate() {
 		EquityOptionTrade trade = createValidTradeBuilder().maturityDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMaturityDateBeforeTradeDate() {
+	void testMaturityDateBeforeTradeDate() {
 		EquityOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.maturityDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateAfterMaturityDate() {
+	void testSettlementDateAfterMaturityDate() {
 		EquityOptionTrade trade = createValidTradeBuilder().maturityDate(LocalDate.of(2025, 6, 1))
 				.settlementDate(LocalDate.of(2025, 6, 5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingSettlementDate() {
+	void testMissingSettlementDate() {
 		EquityOptionTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroAmount() {
+	void testZeroAmount() {
 		EquityOptionTrade trade = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeAmount() {
+	void testNegativeAmount() {
 		EquityOptionTrade trade = createValidTradeBuilder().amount(BigDecimal.valueOf(-5.0)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}

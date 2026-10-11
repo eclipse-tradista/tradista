@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRCapFloorCollarTradeAuditTest {
+class IRCapFloorCollarTradeAuditTest {
 
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -47,7 +47,7 @@ public class IRCapFloorCollarTradeAuditTest {
 			.tradeDate(LocalDate.of(2025, 5, 28)).settlementDate(LocalDate.of(2025, 6, 1)).build();
 
 	@Test
-	public void testDefaultCreationTimeOnNewIRCapFloorCollarTrade() {
+	void testDefaultCreationTimeOnNewIRCapFloorCollarTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		IRCapFloorCollarTrade trade = IRCapFloorCollarTrade.builder().capStrike(BigDecimal.valueOf(3.0))
 				.irForwardTrade(forwardTrade).currency(currency).amount(BigDecimal.valueOf(10_000)).book(book)
@@ -64,7 +64,7 @@ public class IRCapFloorCollarTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -76,7 +76,7 @@ public class IRCapFloorCollarTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		IRCapFloorCollarTrade trade = IRCapFloorCollarTrade.builder().currency(currency).book(book)
 				.counterparty(counterparty).creationTime(originalCreation).build();
@@ -90,7 +90,7 @@ public class IRCapFloorCollarTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		IRCapFloorCollarTrade trade = IRCapFloorCollarTrade.builder().currency(currency).book(book)
 				.counterparty(counterparty).build();
 
@@ -103,7 +103,7 @@ public class IRCapFloorCollarTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

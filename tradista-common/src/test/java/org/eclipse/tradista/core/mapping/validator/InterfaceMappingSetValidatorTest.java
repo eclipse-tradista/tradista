@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class InterfaceMappingSetValidatorTest {
+class InterfaceMappingSetValidatorTest {
 
 	private static final InterfaceMappingSetValidator validator = new InterfaceMappingSetValidator();
 
@@ -47,18 +47,18 @@ public class InterfaceMappingSetValidatorTest {
 	}
 
 	@Test
-	public void testValidInterfaceMappingSet() {
+	void testValidInterfaceMappingSet() {
 		InterfaceMappingSet ims = createValidInterfaceMappingSet();
 		assertDoesNotThrow(() -> validator.validateInterfaceMappingSet(ims));
 	}
 
 	@Test
-	public void testNullInterfaceMappingSet() {
+	void testNullInterfaceMappingSet() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateInterfaceMappingSet(null));
 	}
 
 	@Test
-	public void testNullDirection() {
+	void testNullDirection() {
 		InterfaceMappingSet ims = new InterfaceMappingSet("TEST_INTERFACE", MappingType.Book, null,
 				createProcessingOrg());
 		ims.addMapping("EXT_1", "INT_1");
@@ -66,7 +66,7 @@ public class InterfaceMappingSetValidatorTest {
 	}
 
 	@Test
-	public void testNullProcessingOrg() {
+	void testNullProcessingOrg() {
 		InterfaceMappingSet ims = new InterfaceMappingSet("TEST_INTERFACE", MappingType.Book,
 				InterfaceMappingSet.Direction.INCOMING, null);
 		ims.addMapping("EXT_1", "INT_1");
@@ -74,7 +74,7 @@ public class InterfaceMappingSetValidatorTest {
 	}
 
 	@Test
-	public void testEmptyMappings() {
+	void testEmptyMappings() {
 		InterfaceMappingSet ims = new InterfaceMappingSet("TEST_INTERFACE", MappingType.Book,
 				InterfaceMappingSet.Direction.INCOMING, createProcessingOrg());
 		// No mappings added
@@ -88,7 +88,7 @@ public class InterfaceMappingSetValidatorTest {
 	}
 
 	@Test
-	public void testBlankMappingValue() {
+	void testBlankMappingValue() {
 		InterfaceMappingSet ims = createValidInterfaceMappingSet();
 		Set<InterfaceMappingSet.Mapping> mappings = new HashSet<>();
 		mappings.add(new InterfaceMappingSet.Mapping(ims, null, "INT_VAL"));
@@ -102,7 +102,7 @@ public class InterfaceMappingSetValidatorTest {
 	}
 
 	@Test
-	public void testBlankMappedValue() {
+	void testBlankMappedValue() {
 		InterfaceMappingSet ims = createValidInterfaceMappingSet();
 		Set<InterfaceMappingSet.Mapping> mappings = new HashSet<>();
 		mappings.add(new InterfaceMappingSet.Mapping(ims, "EXT_VAL", null));

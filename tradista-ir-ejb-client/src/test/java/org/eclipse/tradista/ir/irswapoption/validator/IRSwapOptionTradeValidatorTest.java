@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRSwapOptionTradeValidatorTest {
+class IRSwapOptionTradeValidatorTest {
 
 	private static final IRSwapOptionTradeValidator validator = new IRSwapOptionTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -70,126 +70,126 @@ public class IRSwapOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidIRSwapOptionTrade() {
+	void testValidIRSwapOptionTrade() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullUnderlying() {
+	void testNullUnderlying() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().underlying(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullBook() {
+	void testNullBook() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCounterparty() {
+	void testNullCounterparty() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCurrency() {
+	void testNullCurrency() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTradeDate() {
+	void testNullTradeDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullStyle() {
+	void testNullStyle() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().style(null).exerciseDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementType() {
+	void testNullSettlementType() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().settlementType(null).exerciseDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeSettlementDateOffset() {
+	void testNegativeSettlementDateOffset() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().settlementDateOffset(-1).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullMaturityDate() {
+	void testNullMaturityDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().maturityDate(null).exerciseDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMaturityDateBeforeTradeDate() {
+	void testMaturityDateBeforeTradeDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.maturityDate(LocalDate.of(2025, 5, 1)).exerciseDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateAfterMaturityDate() {
+	void testSettlementDateAfterMaturityDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().maturityDate(LocalDate.of(2025, 12, 1))
 				.exerciseDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testExerciseDateBeforeTradeDate() {
+	void testExerciseDateBeforeTradeDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.exerciseDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEuropeanExerciseDateNotEqualToMaturityDate() {
+	void testEuropeanExerciseDateNotEqualToMaturityDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().style(VanillaOptionTrade.Style.EUROPEAN)
 				.maturityDate(LocalDate.of(2025, 12, 1)).exerciseDate(LocalDate.of(2025, 11, 28)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testAmericanExerciseDateAfterMaturityDate() {
+	void testAmericanExerciseDateAfterMaturityDate() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().style(VanillaOptionTrade.Style.AMERICAN)
 				.maturityDate(LocalDate.of(2025, 12, 1)).exerciseDate(LocalDate.of(2025, 12, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullStrike() {
+	void testNullStrike() {
 		IRSwapOptionTrade trade = createValidTradeBuilder().strike(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroOrNegativePremium() {
+	void testZeroOrNegativePremium() {
 		IRSwapOptionTrade tradeZero = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 

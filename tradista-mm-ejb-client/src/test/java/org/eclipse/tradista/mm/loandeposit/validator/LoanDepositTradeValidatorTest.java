@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class LoanDepositTradeValidatorTest {
+class LoanDepositTradeValidatorTest {
 
 	private static final LoanDepositTradeValidator validator = new LoanDepositTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -62,19 +62,19 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidLoanTrade() {
+	void testValidLoanTrade() {
 		LoanTrade trade = createValidLoanTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testValidDepositTrade() {
+	void testValidDepositTrade() {
 		DepositTrade trade = createValidDepositTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testValidFloatingLoanTrade() {
+	void testValidFloatingLoanTrade() {
 		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.fixingPeriod(Tenor.THREE_MONTHS).interestFixing(InterestPayment.BEGINNING_OF_PERIOD)
 				.spread(BigDecimal.valueOf(0.25)).currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
@@ -85,142 +85,142 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullBook() {
+	void testNullBook() {
 		LoanTrade trade = createValidLoanTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCounterparty() {
+	void testNullCounterparty() {
 		LoanTrade trade = createValidLoanTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCurrency() {
+	void testNullCurrency() {
 		LoanTrade trade = createValidLoanTradeBuilder().currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullAmount() {
+	void testNullAmount() {
 		LoanTrade trade = createValidLoanTradeBuilder().amount(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroAmount() {
+	void testZeroAmount() {
 		LoanTrade trade = createValidLoanTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeAmount() {
+	void testNegativeAmount() {
 		LoanTrade trade = createValidLoanTradeBuilder().amount(BigDecimal.valueOf(-1000)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTradeDate() {
+	void testNullTradeDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateEqualsTradeDate() {
+	void testSettlementDateEqualsTradeDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().tradeDate(LocalDate.of(2025, 6, 3))
 				.settlementDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullEndDate() {
+	void testNullEndDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().endDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEndDateBeforeTradeDate() {
+	void testEndDateBeforeTradeDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().endDate(LocalDate.of(2025, 5, 30)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEndDateBeforeSettlementDate() {
+	void testEndDateBeforeSettlementDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().settlementDate(LocalDate.of(2025, 6, 10))
 				.endDate(LocalDate.of(2025, 6, 5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEndDateEqualsSettlementDate() {
+	void testEndDateEqualsSettlementDate() {
 		LoanTrade trade = createValidLoanTradeBuilder().settlementDate(LocalDate.of(2025, 6, 3))
 				.endDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullPaymentFrequency() {
+	void testNullPaymentFrequency() {
 		LoanTrade trade = createValidLoanTradeBuilder().paymentFrequency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullDayCountConvention() {
+	void testNullDayCountConvention() {
 		LoanTrade trade = createValidLoanTradeBuilder().dayCountConvention(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullInterestPayment() {
+	void testNullInterestPayment() {
 		LoanTrade trade = createValidLoanTradeBuilder().interestPayment(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testBothFixedAndFloatingPresent() {
+	void testBothFixedAndFloatingPresent() {
 		LoanTrade trade = createValidLoanTradeBuilder().floatingRateIndex(index).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testBothFixedAndFloatingNull() {
+	void testBothFixedAndFloatingNull() {
 		LoanTrade trade = createValidLoanTradeBuilder().fixedRate(null).floatingRateIndex(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroFixedRate() {
+	void testZeroFixedRate() {
 		LoanTrade trade = createValidLoanTradeBuilder().fixedRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeFixedRate() {
+	void testNegativeFixedRate() {
 		LoanTrade trade = createValidLoanTradeBuilder().fixedRate(BigDecimal.valueOf(-1.5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testFloatingRateMissingFixingPeriod() {
+	void testFloatingRateMissingFixingPeriod() {
 		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
@@ -231,7 +231,7 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	@Test
-	public void testFloatingRateMissingInterestFixing() {
+	void testFloatingRateMissingInterestFixing() {
 		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.fixingPeriod(Tenor.THREE_MONTHS).currency(currency).amount(BigDecimal.valueOf(1_000_000)).book(book)
 				.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))
@@ -241,7 +241,7 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	@Test
-	public void testFloatingRateMissingTenor() {
+	void testFloatingRateMissingTenor() {
 		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).fixingPeriod(Tenor.THREE_MONTHS)
 				.interestFixing(InterestPayment.BEGINNING_OF_PERIOD).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
@@ -252,7 +252,7 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	@Test
-	public void testInterestPaymentBeforeInterestFixing() {
+	void testInterestPaymentBeforeInterestFixing() {
 		LoanTrade trade = LoanTrade.builder().floatingRateIndex(index).floatingRateIndexTenor(Tenor.THREE_MONTHS)
 				.fixingPeriod(Tenor.THREE_MONTHS).interestFixing(InterestPayment.END_OF_PERIOD).currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
@@ -263,14 +263,14 @@ public class LoanDepositTradeValidatorTest {
 	}
 
 	@Test
-	public void testCompoundInterestMissingCompoundPeriod() {
+	void testCompoundInterestMissingCompoundPeriod() {
 		LoanTrade trade = createValidLoanTradeBuilder().interestType(InterestType.COMPOUND).compoundPeriod(null)
 				.build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMaturityAndEndDateMismatch() {
+	void testMaturityAndEndDateMismatch() {
 		LoanTrade trade = createValidLoanTradeBuilder().maturity(Tenor.ONE_YEAR)
 				.settlementDate(LocalDate.of(2025, 6, 3)).endDate(LocalDate.of(2025, 12, 31)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));

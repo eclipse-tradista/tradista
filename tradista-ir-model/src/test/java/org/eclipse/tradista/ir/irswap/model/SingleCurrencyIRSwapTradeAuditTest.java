@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class SingleCurrencyIRSwapTradeAuditTest {
+class SingleCurrencyIRSwapTradeAuditTest {
 
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
@@ -43,7 +43,7 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	@Test
-	public void testDefaultCreationTimeOnNewSingleCurrencyIRSwapTrade() {
+	void testDefaultCreationTimeOnNewSingleCurrencyIRSwapTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		SingleCurrencyIRSwapTrade trade = SingleCurrencyIRSwapTrade.builder().currency(currency)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
@@ -68,7 +68,7 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -80,7 +80,7 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		SingleCurrencyIRSwapTrade trade = SingleCurrencyIRSwapTrade.builder().currency(currency).book(book)
 				.counterparty(counterparty).creationTime(originalCreation).build();
@@ -94,7 +94,7 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		SingleCurrencyIRSwapTrade trade = SingleCurrencyIRSwapTrade.builder().currency(currency).book(book)
 				.counterparty(counterparty).build();
 
@@ -107,7 +107,7 @@ public class SingleCurrencyIRSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

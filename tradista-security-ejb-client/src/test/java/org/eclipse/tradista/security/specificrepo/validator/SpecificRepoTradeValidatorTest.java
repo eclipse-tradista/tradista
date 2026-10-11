@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class SpecificRepoTradeValidatorTest {
+class SpecificRepoTradeValidatorTest {
 
 	private static final SpecificRepoTradeValidator validator = new SpecificRepoTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -55,85 +55,85 @@ public class SpecificRepoTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidTrade() {
+	void testValidTrade() {
 		SpecificRepoTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testMissingSecurity() {
+	void testMissingSecurity() {
 		SpecificRepoTrade trade = createValidTradeBuilder().security(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingBook() {
+	void testMissingBook() {
 		SpecificRepoTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingCounterparty() {
+	void testMissingCounterparty() {
 		SpecificRepoTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingStartDate() {
+	void testMissingStartDate() {
 		SpecificRepoTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEndDateBeforeStartDate() {
+	void testEndDateBeforeStartDate() {
 		SpecificRepoTrade trade = createValidTradeBuilder().settlementDate(LocalDate.of(2025, 6, 10))
 				.endDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingMarginRate() {
+	void testMissingMarginRate() {
 		SpecificRepoTrade trade = createValidTradeBuilder().marginRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroMarginRate() {
+	void testZeroMarginRate() {
 		SpecificRepoTrade trade = createValidTradeBuilder().marginRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingRepoRateWhenFixedRate() {
+	void testMissingRepoRateWhenFixedRate() {
 		SpecificRepoTrade trade = createValidTradeBuilder().repoRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroRepoRateWhenFixedRate() {
+	void testZeroRepoRateWhenFixedRate() {
 		SpecificRepoTrade trade = createValidTradeBuilder().repoRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingStatus() {
+	void testMissingStatus() {
 		SpecificRepoTrade trade = createValidTradeBuilder().status(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingEndDateWhenNotTerminableOnDemand() {
+	void testMissingEndDateWhenNotTerminableOnDemand() {
 		SpecificRepoTrade trade = createValidTradeBuilder().endDate(null).terminableOnDemand(false).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeNoticePeriodWhenTerminableOnDemand() {
+	void testNegativeNoticePeriodWhenTerminableOnDemand() {
 		SpecificRepoTrade trade = createValidTradeBuilder().terminableOnDemand(true).noticePeriod((short) -1).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}

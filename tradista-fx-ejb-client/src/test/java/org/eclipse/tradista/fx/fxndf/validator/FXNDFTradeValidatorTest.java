@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXNDFTradeValidatorTest {
+class FXNDFTradeValidatorTest {
 
 	private static final FXNDFTradeValidator validator = new FXNDFTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -41,7 +41,7 @@ public class FXNDFTradeValidatorTest {
 	private static final Currency brl = TradistaTestUtil.BRL;
 
 	@BeforeAll
-	public static void setUp() {
+	static void setUp() {
 		FXTestUtil.setupFXExchange();
 	}
 
@@ -52,73 +52,73 @@ public class FXNDFTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidFXNDFTrade() {
+	void testValidFXNDFTrade() {
 		FXNDFTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullBook() {
+	void testNullBook() {
 		FXNDFTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCounterparty() {
+	void testNullCounterparty() {
 		FXNDFTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTradeDate() {
+	void testNullTradeDate() {
 		FXNDFTrade trade = createValidTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		FXNDFTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		FXNDFTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullNonDeliverableCurrency() {
+	void testNullNonDeliverableCurrency() {
 		FXNDFTrade trade = createValidTradeBuilder().nonDeliverableCurrency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementCurrency() {
+	void testNullSettlementCurrency() {
 		FXNDFTrade trade = createValidTradeBuilder().currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSameCurrencies() {
+	void testSameCurrencies() {
 		FXNDFTrade trade = createValidTradeBuilder().nonDeliverableCurrency(usd).currency(usd).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullNdfRate() {
+	void testNullNdfRate() {
 		FXNDFTrade trade = createValidTradeBuilder().ndfRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroOrNegativeNdfRate() {
+	void testZeroOrNegativeNdfRate() {
 		FXNDFTrade tradeZero = createValidTradeBuilder().ndfRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 
@@ -127,7 +127,7 @@ public class FXNDFTradeValidatorTest {
 	}
 
 	@Test
-	public void testZeroOrNegativeNotionalAmount() {
+	void testZeroOrNegativeNotionalAmount() {
 		FXNDFTrade tradeZero = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 

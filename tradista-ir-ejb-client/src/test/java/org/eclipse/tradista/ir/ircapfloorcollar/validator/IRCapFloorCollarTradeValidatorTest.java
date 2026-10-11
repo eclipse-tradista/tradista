@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRCapFloorCollarTradeValidatorTest {
+class IRCapFloorCollarTradeValidatorTest {
 
 	private static final IRCapFloorCollarTradeValidator validator = new IRCapFloorCollarTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -59,61 +59,61 @@ public class IRCapFloorCollarTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidIRCapFloorCollarTrade() {
+	void testValidIRCapFloorCollarTrade() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullBook() {
+	void testNullBook() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCounterparty() {
+	void testNullCounterparty() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCurrency() {
+	void testNullCurrency() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTradeDate() {
+	void testNullTradeDate() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullUnderlyingIRForwardTrade() {
+	void testNullUnderlyingIRForwardTrade() {
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().irForwardTrade(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testUnderlyingMaturityDateBeforeSettlementDate() {
+	void testUnderlyingMaturityDateBeforeSettlementDate() {
 		FRATrade badForward = forwardTrade.toBuilder().settlementDate(LocalDate.of(2025, 9, 1))
 				.maturityDate(LocalDate.of(2025, 8, 1)).build();
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().irForwardTrade(badForward).build();
@@ -121,14 +121,14 @@ public class IRCapFloorCollarTradeValidatorTest {
 	}
 
 	@Test
-	public void testUnderlyingNullAmount() {
+	void testUnderlyingNullAmount() {
 		FRATrade badForward = forwardTrade.toBuilder().amount(null).build();
 		IRCapFloorCollarTrade trade = createValidTradeBuilder().irForwardTrade(badForward).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testUnderlyingZeroOrNegativeAmount() {
+	void testUnderlyingZeroOrNegativeAmount() {
 		FRATrade badForwardZero = forwardTrade.toBuilder().amount(BigDecimal.ZERO).build();
 		IRCapFloorCollarTrade tradeZero = createValidTradeBuilder().irForwardTrade(badForwardZero).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
@@ -139,7 +139,7 @@ public class IRCapFloorCollarTradeValidatorTest {
 	}
 
 	@Test
-	public void testZeroOrNegativePremium() {
+	void testZeroOrNegativePremium() {
 		IRCapFloorCollarTrade tradeZero = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 

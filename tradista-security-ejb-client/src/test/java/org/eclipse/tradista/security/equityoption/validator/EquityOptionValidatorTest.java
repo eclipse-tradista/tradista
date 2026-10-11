@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityOptionValidatorTest {
+class EquityOptionValidatorTest {
 
 	private static final EquityOptionValidator validator = new EquityOptionValidator();
 	private static final EquityOptionContractSpecification contractSpecification;
@@ -52,13 +52,13 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testValidEquityOption() {
+	void testValidEquityOption() {
 		EquityOption option = createValidEquityOptionBuilder().build();
 		assertDoesNotThrow(() -> validator.validateProduct(option));
 	}
 
 	@Test
-	public void testMissingUnderlying() {
+	void testMissingUnderlying() {
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(null).build();
 
@@ -66,7 +66,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testMissingStyle() {
+	void testMissingStyle() {
 		EquityOptionContractSpecification specWithoutStyle = new EquityOptionContractSpecification("SAN_NO_STYLE");
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), specWithoutStyle).underlying(underlying).build();
@@ -75,7 +75,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testMissingCode() {
+	void testMissingCode() {
 		EquityOption option = EquityOption.builder(null, OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
@@ -83,7 +83,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testMissingMaturityDate() {
+	void testMissingMaturityDate() {
 		EquityOption option = EquityOption
 				.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100), null, contractSpecification)
 				.underlying(underlying).build();
@@ -92,7 +92,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testMissingContractSpecification() {
+	void testMissingContractSpecification() {
 		EquityOption option = EquityOption
 				.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100), LocalDate.of(2026, 6, 19), null)
 				.underlying(underlying).build();
@@ -101,7 +101,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testMissingStrike() {
+	void testMissingStrike() {
 		EquityOption option = EquityOption
 				.builder("SAN_C_100", OptionTrade.Type.CALL, null, LocalDate.of(2026, 6, 19), contractSpecification)
 				.underlying(underlying).build();
@@ -110,7 +110,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testZeroStrike() {
+	void testZeroStrike() {
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.ZERO,
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 
@@ -118,7 +118,7 @@ public class EquityOptionValidatorTest {
 	}
 
 	@Test
-	public void testNegativeStrike() {
+	void testNegativeStrike() {
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(-10),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
 

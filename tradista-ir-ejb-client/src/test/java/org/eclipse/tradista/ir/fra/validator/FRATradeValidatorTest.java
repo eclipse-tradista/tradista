@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FRATradeValidatorTest {
+class FRATradeValidatorTest {
 
 	private static final FRATradeValidator validator = new FRATradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -51,48 +51,48 @@ public class FRATradeValidatorTest {
 	}
 
 	@Test
-	public void testValidFRATrade() {
+	void testValidFRATrade() {
 		FRATrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullBook() {
+	void testNullBook() {
 		FRATrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCounterparty() {
+	void testNullCounterparty() {
 		FRATrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCurrency() {
+	void testNullCurrency() {
 		FRATrade trade = createValidTradeBuilder().currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTradeDate() {
+	void testNullTradeDate() {
 		FRATrade trade = createValidTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		FRATrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		FRATrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 2)).startDate(LocalDate.of(2025, 6, 2))
 				.maturityDate(LocalDate.of(2025, 9, 2)).build();
@@ -100,50 +100,50 @@ public class FRATradeValidatorTest {
 	}
 
 	@Test
-	public void testNullFixedRate() {
+	void testNullFixedRate() {
 		FRATrade trade = createValidTradeBuilder().fixedRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullReferenceRateIndex() {
+	void testNullReferenceRateIndex() {
 		FRATrade trade = createValidTradeBuilder().referenceRateIndex(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullReferenceRateIndexTenor() {
+	void testNullReferenceRateIndexTenor() {
 		FRATrade trade = createValidTradeBuilder().referenceRateIndexTenor(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullDayCountConvention() {
+	void testNullDayCountConvention() {
 		FRATrade trade = createValidTradeBuilder().dayCountConvention(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullStartDate() {
+	void testNullStartDate() {
 		FRATrade trade = createValidTradeBuilder().startDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullEndDate() {
+	void testNullEndDate() {
 		FRATrade trade = createValidTradeBuilder().maturityDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testInconsistentEndDate() {
+	void testInconsistentEndDate() {
 		// startDate 2025-06-01 + 3M => expected 2025-09-01, set to 2025-10-01
 		FRATrade trade = createValidTradeBuilder().maturityDate(LocalDate.of(2025, 10, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroOrNegativeNotionalAmount() {
+	void testZeroOrNegativeNotionalAmount() {
 		FRATrade tradeZero = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 

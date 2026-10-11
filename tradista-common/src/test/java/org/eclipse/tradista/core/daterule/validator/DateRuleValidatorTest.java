@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class DateRuleValidatorTest {
+class DateRuleValidatorTest {
 
 	private static final DateRuleValidator validator = new DateRuleValidator();
 
@@ -51,13 +51,13 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testValidStandardDateRule() throws TradistaBusinessException {
+	void testValidStandardDateRule() throws TradistaBusinessException {
 		DateRule dateRule = createValidStandardDateRule("IMM_QUARTERLY");
 		assertDoesNotThrow(() -> validator.validateDateRule(dateRule));
 	}
 
 	@Test
-	public void testValidSequenceDateRule() throws TradistaBusinessException {
+	void testValidSequenceDateRule() throws TradistaBusinessException {
 		DateRule sequenceRule = new DateRule("SEQUENCE_RULE");
 		sequenceRule.setSequence(true);
 
@@ -73,13 +73,12 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testNullDateRule() {
+	void testNullDateRule() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateDateRule(null));
 	}
 
 	@Test
-	public void testBlankName() throws TradistaBusinessException {
-		DateRule nullName = createValidStandardDateRule("VALID");
+	void testBlankName() throws TradistaBusinessException {
 		// DateRule only sets name via constructor; instantiate with null/blank
 		DateRule dateRuleNull = new DateRule(null);
 		dateRuleNull.setDateRollingConvention(DateRollingConvention.MODIFIED_FOLLOWING_BUSINESS_DAY);
@@ -95,14 +94,14 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testStandardDateRuleNullRollingConvention() throws TradistaBusinessException {
+	void testStandardDateRuleNullRollingConvention() throws TradistaBusinessException {
 		DateRule dateRule = createValidStandardDateRule("TEST_RULE");
 		dateRule.setDateRollingConvention(null);
 		assertThrows(TradistaBusinessException.class, () -> validator.validateDateRule(dateRule));
 	}
 
 	@Test
-	public void testStandardDateRuleEmptyMonths() throws TradistaBusinessException {
+	void testStandardDateRuleEmptyMonths() throws TradistaBusinessException {
 		DateRule dateRule = createValidStandardDateRule("TEST_RULE");
 		dateRule.setMonths(null);
 		assertThrows(TradistaBusinessException.class, () -> validator.validateDateRule(dateRule));
@@ -112,7 +111,7 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testSequenceWithoutSteps() {
+	void testSequenceWithoutSteps() {
 		DateRule sequenceRule = new DateRule("EMPTY_SEQUENCE");
 		sequenceRule.setSequence(true);
 		sequenceRule.setSteps(null);
@@ -123,7 +122,7 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testSequenceContainingItself() throws TradistaBusinessException {
+	void testSequenceContainingItself() {
 		DateRule sequenceRule = new DateRule("SELF_CONTAINING_SEQUENCE");
 		sequenceRule.setSequence(true);
 
@@ -135,7 +134,7 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testSequenceContainingSequenceSubRule() throws TradistaBusinessException {
+	void testSequenceContainingSequenceSubRule() {
 		DateRule parentSequence = new DateRule("PARENT_SEQUENCE");
 		parentSequence.setSequence(true);
 
@@ -150,7 +149,7 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testSequenceWithZeroDurationStep() throws TradistaBusinessException {
+	void testSequenceWithZeroDurationStep() throws TradistaBusinessException {
 		DateRule sequenceRule = new DateRule("ZERO_DURATION_SEQUENCE");
 		sequenceRule.setSequence(true);
 
@@ -164,7 +163,7 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testSequenceWithNullDurationStep() throws TradistaBusinessException {
+	void testSequenceWithNullDurationStep() throws TradistaBusinessException {
 		DateRule sequenceRule = new DateRule("NULL_DURATION_SEQUENCE");
 		sequenceRule.setSequence(true);
 
@@ -178,7 +177,7 @@ public class DateRuleValidatorTest {
 	}
 
 	@Test
-	public void testSequenceWithNullSubRule() {
+	void testSequenceWithNullSubRule() {
 		DateRule sequenceRule = new DateRule("NULL_SUBRULE_SEQUENCE");
 		sequenceRule.setSequence(true);
 

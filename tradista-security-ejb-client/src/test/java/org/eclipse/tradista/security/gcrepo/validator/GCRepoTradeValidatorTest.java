@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class GCRepoTradeValidatorTest {
+class GCRepoTradeValidatorTest {
 
 	private static final GCRepoTradeValidator validator = new GCRepoTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -56,85 +56,85 @@ public class GCRepoTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidTrade() {
+	void testValidTrade() {
 		GCRepoTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testMissingGCBasket() {
+	void testMissingGCBasket() {
 		GCRepoTrade trade = createValidTradeBuilder().gcBasket(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingBook() {
+	void testMissingBook() {
 		GCRepoTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingCounterparty() {
+	void testMissingCounterparty() {
 		GCRepoTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingStartDate() {
+	void testMissingStartDate() {
 		GCRepoTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEndDateBeforeStartDate() {
+	void testEndDateBeforeStartDate() {
 		GCRepoTrade trade = createValidTradeBuilder().settlementDate(LocalDate.of(2025, 6, 10))
 				.endDate(LocalDate.of(2025, 6, 3)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingMarginRate() {
+	void testMissingMarginRate() {
 		GCRepoTrade trade = createValidTradeBuilder().marginRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroMarginRate() {
+	void testZeroMarginRate() {
 		GCRepoTrade trade = createValidTradeBuilder().marginRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingRepoRateWhenFixedRate() {
+	void testMissingRepoRateWhenFixedRate() {
 		GCRepoTrade trade = createValidTradeBuilder().repoRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroRepoRateWhenFixedRate() {
+	void testZeroRepoRateWhenFixedRate() {
 		GCRepoTrade trade = createValidTradeBuilder().repoRate(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingStatus() {
+	void testMissingStatus() {
 		GCRepoTrade trade = createValidTradeBuilder().status(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingEndDateWhenNotTerminableOnDemand() {
+	void testMissingEndDateWhenNotTerminableOnDemand() {
 		GCRepoTrade trade = createValidTradeBuilder().endDate(null).terminableOnDemand(false).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeNoticePeriodWhenTerminableOnDemand() {
+	void testNegativeNoticePeriodWhenTerminableOnDemand() {
 		GCRepoTrade trade = createValidTradeBuilder().terminableOnDemand(true).noticePeriod((short) -1).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}

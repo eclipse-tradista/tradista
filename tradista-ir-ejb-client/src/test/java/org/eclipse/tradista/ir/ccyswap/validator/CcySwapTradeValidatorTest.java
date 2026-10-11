@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class CcySwapTradeValidatorTest {
+class CcySwapTradeValidatorTest {
 
 	private static final CcySwapTradeValidator validator = new CcySwapTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -59,135 +59,135 @@ public class CcySwapTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidCcySwapTrade() {
+	void testValidCcySwapTrade() {
 		CcySwapTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullBook() {
+	void testNullBook() {
 		CcySwapTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCounterparty() {
+	void testNullCounterparty() {
 		CcySwapTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCurrencyOne() {
+	void testNullCurrencyOne() {
 		CcySwapTrade trade = createValidTradeBuilder().currency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullCurrencyTwo() {
+	void testNullCurrencyTwo() {
 		CcySwapTrade trade = createValidTradeBuilder().currencyTwo(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSameCurrencies() {
+	void testSameCurrencies() {
 		CcySwapTrade trade = createValidTradeBuilder().currency(eur).currencyTwo(eur).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTradeDate() {
+	void testNullTradeDate() {
 		CcySwapTrade trade = createValidTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		CcySwapTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		CcySwapTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullMaturityDate() {
+	void testNullMaturityDate() {
 		CcySwapTrade trade = createValidTradeBuilder().maturityDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMaturityDateBeforeTradeDate() {
+	void testMaturityDateBeforeTradeDate() {
 		CcySwapTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.settlementDate(LocalDate.of(2025, 6, 3)).maturityDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMaturityDateBeforeSettlementDate() {
+	void testMaturityDateBeforeSettlementDate() {
 		CcySwapTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.settlementDate(LocalDate.of(2025, 6, 10)).maturityDate(LocalDate.of(2025, 6, 5)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullPaymentFrequency() {
+	void testNullPaymentFrequency() {
 		CcySwapTrade trade = createValidTradeBuilder().paymentFrequency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullReceptionFrequency() {
+	void testNullReceptionFrequency() {
 		CcySwapTrade trade = createValidTradeBuilder().receptionFrequency(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullReceptionReferenceRateIndex() {
+	void testNullReceptionReferenceRateIndex() {
 		CcySwapTrade trade = createValidTradeBuilder().receptionReferenceRateIndex(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullReceptionReferenceRateIndexTenor() {
+	void testNullReceptionReferenceRateIndexTenor() {
 		CcySwapTrade trade = createValidTradeBuilder().receptionReferenceRateIndexTenor(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testReceptionReferenceRateIndexTenorNoTenor() {
+	void testReceptionReferenceRateIndexTenorNoTenor() {
 		CcySwapTrade trade = createValidTradeBuilder().receptionReferenceRateIndexTenor(Tenor.NO_TENOR).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullReceptionDayCountConvention() {
+	void testNullReceptionDayCountConvention() {
 		CcySwapTrade trade = createValidTradeBuilder().receptionDayCountConvention(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullPaymentDayCountConvention() {
+	void testNullPaymentDayCountConvention() {
 		CcySwapTrade trade = createValidTradeBuilder().paymentDayCountConvention(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testFixedInterestsMissingFixedRate() {
+	void testFixedInterestsMissingFixedRate() {
 		CcySwapTrade trade = createValidTradeBuilder().interestsToPayFixed(true).paymentFixedInterestRate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroOrNegativeNotionalAmountOne() {
+	void testZeroOrNegativeNotionalAmountOne() {
 		CcySwapTrade tradeZero = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 
@@ -196,7 +196,7 @@ public class CcySwapTradeValidatorTest {
 	}
 
 	@Test
-	public void testZeroOrNegativeNotionalAmountTwo() {
+	void testZeroOrNegativeNotionalAmountTwo() {
 		CcySwapTrade tradeZero = createValidTradeBuilder().notionalAmountTwo(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 
@@ -205,7 +205,7 @@ public class CcySwapTradeValidatorTest {
 	}
 
 	@Test
-	public void testPaymentInterestPaymentBeforePaymentInterestFixing() {
+	void testPaymentInterestPaymentBeforePaymentInterestFixing() {
 		CcySwapTrade trade = createValidTradeBuilder().paymentInterestPayment(InterestPayment.BEGINNING_OF_PERIOD)
 				.paymentInterestFixing(InterestPayment.END_OF_PERIOD).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));

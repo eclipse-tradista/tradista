@@ -29,12 +29,12 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class BondAuditTest {
+class BondAuditTest {
 
 	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
 
 	@Test
-	public void testDefaultCreationTimeOnNewBond() {
+	void testDefaultCreationTimeOnNewBond() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		Bond bond = Bond.builder(exchange, "FR0000120271").currency(TradistaTestUtil.EUR)
 				.principal(BigDecimal.valueOf(1000)).build();
@@ -49,7 +49,7 @@ public class BondAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -61,7 +61,7 @@ public class BondAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		Bond bond = Bond.builder(exchange, "FR0000120271").creationTime(originalCreation).build();
 
@@ -74,7 +74,7 @@ public class BondAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		Bond bond = Bond.of(exchange, "FR0000120271");
 
 		assertNotNull(bond.getLastUpdateTime());
@@ -86,7 +86,7 @@ public class BondAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXSwapTradeAuditTest {
+class FXSwapTradeAuditTest {
 
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;
@@ -39,7 +39,7 @@ public class FXSwapTradeAuditTest {
 	private static final Book book = TradistaTestUtil.createTradingBook();
 
 	@Test
-	public void testDefaultCreationTimeOnNewFXSwapTrade() {
+	void testDefaultCreationTimeOnNewFXSwapTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd)
 				.amountOneSpot(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(110_000))
@@ -57,7 +57,7 @@ public class FXSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -69,7 +69,7 @@ public class FXSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -83,7 +83,7 @@ public class FXSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		FXSwapTrade trade = FXSwapTrade.builder().currencyOne(eur).currency(usd).book(book).counterparty(counterparty)
 				.build();
 
@@ -96,7 +96,7 @@ public class FXSwapTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

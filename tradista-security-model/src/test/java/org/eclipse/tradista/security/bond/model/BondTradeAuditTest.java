@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class BondTradeAuditTest {
+class BondTradeAuditTest {
 
 	private static final Book book = TradistaTestUtil.createTradingBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
@@ -39,7 +39,7 @@ public class BondTradeAuditTest {
 			.build();
 
 	@Test
-	public void testDefaultCreationTimeOnNewTrade() {
+	void testDefaultCreationTimeOnNewTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		BondTrade trade = BondTrade.builder().product(bond).book(book).counterparty(counterparty)
 				.quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(99.5)).build();
@@ -54,7 +54,7 @@ public class BondTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -66,7 +66,7 @@ public class BondTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		BondTrade trade = BondTrade.builder().product(bond).creationTime(originalCreation).build();
 
@@ -79,7 +79,7 @@ public class BondTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		BondTrade trade = BondTrade.of(bond);
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -91,7 +91,7 @@ public class BondTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 
