@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
@@ -23,10 +22,7 @@ import org.eclipse.tradista.ir.common.ui.util.TradistaIRGUIUtil;
 import org.eclipse.tradista.ir.irswapoption.model.PricingParameterVolatilitySurfaceModule;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -79,7 +75,14 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index>, TableCell<IRSwapOptionVolatilitySurfaceProperty, Index>> irSwapOptionVolatilitySurfaceIndexCellFactory = _ -> new SwaptionVolatilitySurfaceIndexEditingCell();
+		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index>, TableCell<IRSwapOptionVolatilitySurfaceProperty, Index>> irSwapOptionVolatilitySurfaceIndexCellFactory = _ -> new TradistaComboBoxTableCell<IRSwapOptionVolatilitySurfaceProperty, Index>(
+				TradistaIndexComboBox::new, (row, newIndex) -> {
+					if (newIndex != null && !newIndex.equals(row.getIndex()) && irSwapOptionVolatilitySurfaceTable
+							.getItems().contains(new IRSwapOptionVolatilitySurfaceProperty(newIndex, null))) {
+						return String.format("The Index %s is already in the list.%n", newIndex);
+					}
+					return null;
+				});
 
 		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>, TableCell<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>> irSwapOptionVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
 				() -> (ComboBox) new TradistaVolatilitySurfaceComboBox("IR"));
@@ -160,100 +163,6 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
-		}
-	}
-
-	private class SwaptionVolatilitySurfaceIndexEditingCell
-			extends TableCell<IRSwapOptionVolatilitySurfaceProperty, Index> {
-
-		private TradistaIndexComboBox indexComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createIndexComboBox();
-			Index index = indexComboBox.getValue();
-			if (index != null) {
-				setText(index.toString());
-			}
-			setGraphic(indexComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(Index item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (indexComboBox != null) {
-						indexComboBox.setValue(getItem());
-					}
-					setGraphic(indexComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createIndexComboBox() {
-			indexComboBox = new TradistaIndexComboBox();
-			indexComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Index>() {
-
-				private boolean changing;
-
-				@Override
-				public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
-					if (!changing && newIndex != null && oldIndex != null && !oldIndex.equals(newIndex)) {
-						StringBuilder errMsg = new StringBuilder();
-						if (irSwapOptionVolatilitySurfaceTable.getItems()
-								.contains(new IRSwapOptionVolatilitySurfaceProperty(newIndex, null))) {
-							errMsg.append(String.format("The Index %s is already in the list.%n", newIndex));
-						}
-						if (!errMsg.isEmpty()) {
-							changing = true;
-							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
-							alert.showAndWait();
-							Platform.runLater(() -> {
-								indexComboBox.setValue(oldIndex);
-								changing = false;
-							});
-						}
-					}
-
-				}
-			});
-			if (getItem() != null) {
-				indexComboBox.setValue(getItem());
-			}
-			indexComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			indexComboBox.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					boolean alreadyExists = irSwapOptionVolatilitySurfaceTable.getItems()
-							.contains(new IRSwapOptionVolatilitySurfaceProperty(indexComboBox.getValue(), null));
-
-					if (!alreadyExists) {
-						commitEdit(indexComboBox.getValue());
-					}
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 

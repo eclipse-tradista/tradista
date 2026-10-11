@@ -496,14 +496,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 					if (TradistaGUIUtil.parseAmount(prop.getYAxis(), DELTA)
 							.compareTo(TradistaGUIUtil.parseAmount(deltaToBeRemoved, DELTA)) == 0) {
 						if (!StringUtils.isEmpty(prop.getZAxis())) {
-							TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-							confirmation.setTitle("Remove Delta");
-							confirmation.setHeaderText("Remove Delta");
-							confirmation.setContentText(
-									"Some volatilities exist for this delta. Do you really want to remove it?");
-
-							Optional<ButtonType> result = confirmation.showAndWait();
-							if (result.get() == ButtonType.OK) {
+							if (TradistaAlert.showConfirmationDialog("Remove Delta",
+									"Some volatilities exist for this delta. Do you really want to remove it?")) {
 								selectedDeltas.getItems().remove(deltaToBeRemoved);
 								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(
 										pointsTable.getItems());

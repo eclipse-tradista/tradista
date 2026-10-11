@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
@@ -22,10 +21,7 @@ import org.eclipse.tradista.security.equity.ui.view.TradistaEquityComboBox;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 import org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -78,7 +74,14 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, Equity>, TableCell<EquityOptionVolatilitySurfaceProperty, Equity>> equityOptionVolatilitySurfaceEquityCellFactory = _ -> new EquityOptionVolatilitySurfaceEquityEditingCell();
+		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, Equity>, TableCell<EquityOptionVolatilitySurfaceProperty, Equity>> equityOptionVolatilitySurfaceEquityCellFactory = _ -> new TradistaComboBoxTableCell<EquityOptionVolatilitySurfaceProperty, Equity>(
+				TradistaEquityComboBox::new, (row, newEquity) -> {
+					if (newEquity != null && !newEquity.equals(row.getEquity()) && equityOptionVolatilitySurfaceTable
+							.getItems().contains(new EquityOptionVolatilitySurfaceProperty(newEquity, null))) {
+						return String.format("The Equity %s is already in the list.%n", newEquity);
+					}
+					return null;
+				});
 		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>, TableCell<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>> equityOptionVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
 				() -> (ComboBox) new TradistaVolatilitySurfaceComboBox("EquityOption"));
 
@@ -154,99 +157,6 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 			alert.showAndWait();
-		}
-	}
-
-	private class EquityOptionVolatilitySurfaceEquityEditingCell
-			extends TableCell<EquityOptionVolatilitySurfaceProperty, Equity> {
-
-		private TradistaEquityComboBox equityComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createEquityComboBox();
-			Equity equity = equityComboBox.getValue();
-			if (equity != null) {
-				setText(equity.toString());
-			}
-			setGraphic(equityComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(Equity item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (equityComboBox != null) {
-						equityComboBox.setValue(getItem());
-					}
-					setGraphic(equityComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createEquityComboBox() {
-			equityComboBox = new TradistaEquityComboBox();
-			equityComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Equity>() {
-
-				private boolean changing;
-
-				@Override
-				public void changed(ObservableValue<? extends Equity> observableValue, Equity oldEquity,
-						Equity newEquity) {
-					if (!changing && newEquity != null && oldEquity != null && !oldEquity.equals(newEquity)) {
-						StringBuilder errMsg = new StringBuilder();
-						if (equityOptionVolatilitySurfaceTable.getItems()
-								.contains(new EquityOptionVolatilitySurfaceProperty(newEquity, null))) {
-							errMsg.append(String.format("The Equity %s is already in the list.%n", newEquity));
-						}
-						if (!errMsg.isEmpty()) {
-							changing = true;
-							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
-							alert.showAndWait();
-							Platform.runLater(() -> {
-								equityComboBox.setValue(oldEquity);
-								changing = false;
-							});
-						}
-					}
-
-				}
-			});
-			if (getItem() != null) {
-				equityComboBox.setValue(getItem());
-			}
-			equityComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			equityComboBox.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					if (!equityOptionVolatilitySurfaceTable.getItems()
-							.contains(new EquityOptionVolatilitySurfaceProperty(equityComboBox.getValue(), null))) {
-						commitEdit(equityComboBox.getValue());
-					}
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 

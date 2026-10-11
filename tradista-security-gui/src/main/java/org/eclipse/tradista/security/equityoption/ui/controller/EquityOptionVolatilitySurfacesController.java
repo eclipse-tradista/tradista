@@ -515,14 +515,8 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 					if (TradistaGUIUtil.parseAmount(prop.getYAxis(), STRIKE_PRICE_RATIO).compareTo(
 							TradistaGUIUtil.parseAmount(strikePriceRatioToBeRemoved, STRIKE_PRICE_RATIO)) == 0) {
 						if (!StringUtils.isEmpty(prop.getZAxis())) {
-							TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-							confirmation.setTitle("Remove Strike/Price Ratio");
-							confirmation.setHeaderText("Remove Strike/Price Ratio");
-							confirmation.setContentText(
-									"Some volatilities exist for this Strike/Price Ratio. Do you really want to remove it?");
-
-							Optional<ButtonType> result = confirmation.showAndWait();
-							if (result.get() == ButtonType.OK) {
+							if (TradistaAlert.showConfirmationDialog("Remove Strike/Price Ratio",
+									"Some volatilities exist for this Strike/Price Ratio. Do you really want to remove it?")) {
 								selectedStrikes.getItems().remove(strikePriceRatioToBeRemoved);
 								List<SurfacePoint<Integer, BigDecimal, BigDecimal>> points = toSurfacePointList(
 										pointsTable.getItems());
