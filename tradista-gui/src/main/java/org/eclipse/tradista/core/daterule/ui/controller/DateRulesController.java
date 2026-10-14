@@ -333,7 +333,7 @@ public class DateRulesController extends TradistaControllerAdapter {
 					if (!calendars.isEmpty()) {
 						copyDateRule.setCalendars(new HashSet<Calendar>(calendars));
 					}
-					if (dateOffset.getText() != null) {
+					if (!dateOffset.getText().isEmpty()) {
 						copyDateRule.setDateOffset(Short.parseShort(dateOffset.getText()));
 					}
 				}

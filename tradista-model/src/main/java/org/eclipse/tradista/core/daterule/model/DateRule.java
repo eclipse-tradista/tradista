@@ -128,8 +128,8 @@ public class DateRule extends TradistaObject implements Comparable<DateRule> {
 	public DateRule(String name) {
 		super();
 		this.name = name;
-		months = new HashSet<Month>();
-		steps = new java.util.ArrayList<Step>();
+		months = new HashSet<>();
+		steps = new ArrayList<>();
 	}
 
 	public String getName() {
