@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.book.ui.view.TradistaBookComboBox;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
@@ -15,7 +14,6 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
-import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.BookProductTypePair;
 import org.eclipse.tradista.fx.common.model.PricingParameterUnrealizedPnlCalculationModule.UnrealizedPnlCalculation;
@@ -66,10 +64,10 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 	private TableColumn<UnrealizedPnlCalculationProperty, Book> book;
 
 	@FXML
-	private TradistaProductTypeComboBox fxProductTypeComboBox;
+	private ComboBox<String> fxProductTypeComboBox;
 
 	@FXML
-	private TradistaBookComboBox bookComboBox;
+	private ComboBox<Book> bookComboBox;
 
 	@FXML
 	private ComboBox<UnrealizedPnlCalculation> unrealizedPnlCalculationComboBox;
@@ -102,6 +100,8 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 		bookComboBox.setPromptText("Book");
 		unrealizedPnlCalculationComboBox.setPromptText("Unrealized PNL calculation");
 		unrealizedPnlCalculationComboBox.setItems(FXCollections.observableArrayList(UnrealizedPnlCalculation.values()));
+		TradistaGUIUtil.fillBookComboBox(bookComboBox);
+		TradistaGUIUtil.fillProductTypeComboBox("fx", fxProductTypeComboBox);
 	}
 
 	@FXML
@@ -152,7 +152,7 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 	private class UnrealizedPnlCalculationProductTypeEditingCell
 			extends TableCell<UnrealizedPnlCalculationProperty, String> {
 
-		private TradistaProductTypeComboBox productTypeComboBox;
+		private ComboBox<String> productTypeComboBox;
 
 		@Override
 		public void startEdit() {
@@ -196,7 +196,8 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 		}
 
 		private void createProductTypeComboBox() {
-			productTypeComboBox = new TradistaProductTypeComboBox();
+			productTypeComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillProductTypeComboBox("fx", productTypeComboBox);
 			productTypeComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 				private boolean changing;
@@ -250,7 +251,7 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 
 	private class UnrealizedPnlCalculationBookEditingCell extends TableCell<UnrealizedPnlCalculationProperty, Book> {
 
-		private TradistaBookComboBox bookComboBox;
+		private ComboBox<Book> bookComboBox;
 
 		@Override
 		public void startEdit() {
@@ -294,7 +295,8 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 		}
 
 		private void createBookComboBox() {
-			bookComboBox = new TradistaBookComboBox();
+			bookComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillBookComboBox(bookComboBox);
 			bookComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Book>() {
 
 				private boolean changing;
@@ -539,6 +541,7 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 	@FXML
 	public void refresh() {
 		TradistaGUIUtil.fillBookComboBox(bookComboBox);
+		TradistaGUIUtil.fillProductTypeComboBox("fx", fxProductTypeComboBox);
 	}
 
 }

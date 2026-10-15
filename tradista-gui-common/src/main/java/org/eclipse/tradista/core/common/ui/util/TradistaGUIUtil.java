@@ -32,6 +32,8 @@ import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
+import org.eclipse.tradista.core.calendar.model.Calendar;
+import org.eclipse.tradista.core.calendar.service.CalendarBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.ClientUtil;
@@ -72,6 +74,7 @@ import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.position.service.PositionDefinitionBusinessDelegate;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.Trade;
@@ -197,6 +200,10 @@ public final class TradistaGUIUtil {
 	private static FXCurveBusinessDelegate fxCurveBusinessDelegate = new FXCurveBusinessDelegate();
 
 	private static UserBusinessDelegate userBusinessDelegate = new UserBusinessDelegate();
+
+	private static CalendarBusinessDelegate calendarBusinessDelegate = new CalendarBusinessDelegate();
+
+	private static ProductBusinessDelegate productBusinessDelegate = new ProductBusinessDelegate();
 
 	private TradistaGUIUtil() {
 	}
@@ -1403,10 +1410,19 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillSurfaceComboBox(String surfaceType, ComboBox<VolatilitySurface<?, ?, ?>>... comboBoxes) {
 		List<VolatilitySurface<?, ?, ?>> surfaces = null;
-		try {
-			surfaces = surfaceBusinessDelegate.getSurfaces(surfaceType);
-		} catch (TradistaBusinessException _) {
-			// Not expected here
+		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			try {
+				surfaces = surfaceBusinessDelegate.getSurfacesByTypeAndPoId(surfaceType,
+						ClientUtil.getCurrentProcessingOrg().getId());
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
+		} else {
+			try {
+				surfaces = surfaceBusinessDelegate.getSurfaces(surfaceType);
+			} catch (TradistaBusinessException _) {
+				// Not expected here
+			}
 		}
 		ObservableList<VolatilitySurface<?, ?, ?>> data = null;
 		if (surfaces != null && !surfaces.isEmpty()) {
@@ -1414,9 +1430,28 @@ public final class TradistaGUIUtil {
 		} else {
 			data = FXCollections.emptyObservableList();
 		}
+
+		Callback<ListView<VolatilitySurface<?, ?, ?>>, ListCell<VolatilitySurface<?, ?, ?>>> cellFactory = _ -> new ListCell<>() {
+			@Override
+			protected void updateItem(VolatilitySurface<?, ?, ?> surface, boolean empty) {
+				super.updateItem(surface, empty);
+				if (empty || surface == null) {
+					setText(null);
+				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+					String poSuffix = surface.getProcessingOrg() == null ? "Global"
+							: surface.getProcessingOrg().getShortName();
+					setText(surface.getName() + " [" + poSuffix + "]");
+				} else {
+					setText(surface.getName());
+				}
+			}
+		};
+
 		if (comboBoxes.length > 0) {
 			for (ComboBox<VolatilitySurface<?, ?, ?>> cb : comboBoxes) {
 				VolatilitySurface<?, ?, ?> element = cb.getValue();
+				cb.setCellFactory(cellFactory);
+				cb.setButtonCell(cellFactory.call(null));
 				cb.setItems(data);
 				if (element != null && data.contains(element)) {
 					cb.getSelectionModel().select(element);
@@ -1425,6 +1460,39 @@ public final class TradistaGUIUtil {
 				}
 			}
 		}
+	}
+
+	@SafeVarargs
+	public static void fillCalendarComboBox(ComboBox<Calendar>... comboBoxes) {
+		Set<Calendar> allCalendars = calendarBusinessDelegate.getAllCalendars();
+		fillComboBox(allCalendars, comboBoxes);
+	}
+
+	@SafeVarargs
+	public static void fillProductTypeComboBox(ComboBox<String>... comboBoxes) {
+		fillProductTypeComboBox(null, comboBoxes);
+	}
+
+	@SafeVarargs
+	public static void fillProductTypeComboBox(String productFamily, ComboBox<String>... comboBoxes) {
+		Set<String> allProductTypes = null;
+		if (productFamily == null) {
+			allProductTypes = productBusinessDelegate.getAvailableProductTypes();
+		} else if (productFamily.equals("fx")) {
+			allProductTypes = productBusinessDelegate.getAvailableFXProductTypes();
+		}
+		fillComboBox(allProductTypes, comboBoxes);
+	}
+
+	@SafeVarargs
+	public static void fillErrorTypeComboBox(ComboBox<String>... comboBoxes) {
+		List<String> allErrors = new ArrayList<>();
+		allErrors.add(StringUtils.EMPTY);
+		Set<String> errorTypes = TradistaUtil.getAllErrorTypes();
+		if (errorTypes != null) {
+			allErrors.addAll(errorTypes);
+		}
+		fillComboBox(allErrors, comboBoxes);
 	}
 
 	@SafeVarargs

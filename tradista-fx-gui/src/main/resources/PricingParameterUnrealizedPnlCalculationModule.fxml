@@ -11,8 +11,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
-<?import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox?>
-<?import org.eclipse.tradista.core.book.ui.view.TradistaBookComboBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.141"
 	xmlns:fx="http://javafx.com/fxml/1"
@@ -31,19 +29,19 @@
 			<HBox maxHeight="-Infinity" maxWidth="-Infinity"
 				minHeight="-Infinity" minWidth="-Infinity" GridPane.rowIndex="1">
 				<children>
-					<TradistaBookComboBox fx:id="bookComboBox"
+					<ComboBox fx:id="bookComboBox"
 						maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>
 							<Insets right="10.0" />
 						</HBox.margin>
-					</TradistaBookComboBox>
-					<TradistaProductTypeComboBox
+					</ComboBox>
+					<ComboBox
 						fx:id="fxProductTypeComboBox" maxWidth="-Infinity"
-						minHeight="-Infinity" minWidth="-Infinity" productFamily="fx">
+						minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>
 							<Insets right="10.0" />
 						</HBox.margin>
-					</TradistaProductTypeComboBox>
+					</ComboBox>
 					<ComboBox fx:id="unrealizedPnlCalculationComboBox"
 						maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>

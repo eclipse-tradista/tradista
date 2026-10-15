@@ -13,13 +13,11 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaComboBoxTableCell;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
 import org.eclipse.tradista.security.common.ui.util.TradistaSecurityGUIUtil;
 import org.eclipse.tradista.security.equity.model.Equity;
-import org.eclipse.tradista.security.equity.ui.view.TradistaEquityComboBox;
 import org.eclipse.tradista.security.equityoption.model.PricingParameterDividendYieldCurveModule;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -62,7 +60,7 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	private TableColumn<DividendYieldCurveProperty, InterestRateCurve> dividendYieldCurve;
 
 	@FXML
-	private TradistaEquityComboBox equityComboBox;
+	private ComboBox<Equity> equityComboBox;
 
 	@FXML
 	private ComboBox<InterestRateCurve> dividendYieldCurveComboBox;
@@ -76,7 +74,11 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	public void initialize() {
 
 		Callback<TableColumn<DividendYieldCurveProperty, Equity>, TableCell<DividendYieldCurveProperty, Equity>> dividendYieldCurveEquityCellFactory = _ -> new TradistaComboBoxTableCell<DividendYieldCurveProperty, Equity>(
-				TradistaEquityComboBox::new, (row, newEquity) -> {
+				() -> {
+					ComboBox<Equity> cb = new ComboBox<>();
+					TradistaSecurityGUIUtil.fillEquityComboBox(cb);
+					return cb;
+				}, (row, newEquity) -> {
 					if (newEquity != null && !newEquity.equals(row.getEquity()) && dividendYieldCurveTable.getItems()
 							.contains(new DividendYieldCurveProperty(newEquity, null))) {
 						return String.format("The Equity %s is already in the list.%n", newEquity);
@@ -84,7 +86,11 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 					return null;
 				});
 		Callback<TableColumn<DividendYieldCurveProperty, InterestRateCurve>, TableCell<DividendYieldCurveProperty, InterestRateCurve>> dividendYieldCurveCellFactory = _ -> new TradistaComboBoxTableCell<>(
-				() -> new TradistaInterestRateCurveComboBox());
+				() -> {
+					ComboBox<InterestRateCurve> cb = new ComboBox<>();
+					TradistaGUIUtil.fillInterestRateCurveComboBox(cb);
+					return cb;
+				});
 
 		dividendYieldCurveTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
