@@ -11,7 +11,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
-<?import org.eclipse.tradista.security.equity.ui.view.TradistaEquityComboBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.141"
 	xmlns:fx="http://javafx.com/fxml/1"
@@ -30,13 +29,13 @@
 			<HBox maxHeight="-Infinity" maxWidth="-Infinity"
 				minHeight="-Infinity" minWidth="-Infinity" GridPane.rowIndex="1">
 				<children>
-					<TradistaEquityComboBox
+					<ComboBox
 						fx:id="equityComboBox" maxWidth="-Infinity" minHeight="-Infinity"
 						minWidth="-Infinity">
 						<HBox.margin>
 							<Insets right="10.0" />
 						</HBox.margin>
-					</TradistaEquityComboBox>
+					</ComboBox>
 					<ComboBox fx:id="dividendYieldCurveComboBox"
 						maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>

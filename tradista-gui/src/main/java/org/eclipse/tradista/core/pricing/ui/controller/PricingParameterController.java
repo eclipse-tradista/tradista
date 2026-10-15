@@ -24,19 +24,14 @@ import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
-import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox;
 import org.eclipse.tradista.core.index.model.Index;
-import org.eclipse.tradista.core.index.ui.view.TradistaIndexComboBox;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.FXCurve;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaFXCurveComboBox;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaInterestRateCurveComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import org.eclipse.tradista.core.pricing.ui.view.PricingParameterCreatorDialog;
-import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -154,25 +149,25 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	private TextField valueTextField;
 
 	@FXML
-	private TradistaCurrencyComboBox currencyComboBox;
+	private ComboBox<Currency> currencyComboBox;
 
 	@FXML
 	private ComboBox<InterestRateCurve> discountCurveComboBox;
 
 	@FXML
-	private TradistaIndexComboBox indexComboBox;
+	private ComboBox<Index> indexComboBox;
 
 	@FXML
 	private ComboBox<InterestRateCurve> indexCurveComboBox;
 
 	@FXML
-	private TradistaCurrencyComboBox primaryCurrencyComboBox;
+	private ComboBox<Currency> primaryCurrencyComboBox;
 
 	@FXML
-	private TradistaCurrencyComboBox quoteCurrencyComboBox;
+	private ComboBox<Currency> quoteCurrencyComboBox;
 
 	@FXML
-	private TradistaProductTypeComboBox productTypeComboBox;
+	private ComboBox<String> productTypeComboBox;
 
 	@FXML
 	private TextField customPricerTextField;
@@ -468,6 +463,10 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		} catch (TradistaTechnicalException _) {
 			canGetFXCurve = false;
 		}
+
+		TradistaGUIUtil.fillCurrencyComboBox(currencyComboBox, primaryCurrencyComboBox, quoteCurrencyComboBox);
+		TradistaGUIUtil.fillIndexComboBox(indexComboBox);
+		TradistaGUIUtil.fillProductTypeComboBox(productTypeComboBox);
 
 		updateWindow();
 	}
@@ -1067,7 +1066,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private class DiscountCurveCurrencyEditingCell extends TableCell<DiscountCurveProperty, Currency> {
 
-		private TradistaCurrencyComboBox currencyComboBox;
+		private ComboBox<Currency> currencyComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1110,7 +1109,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createCurrencyComboBox() {
-			currencyComboBox = new TradistaCurrencyComboBox();
+			currencyComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillCurrencyComboBox(currencyComboBox);
 			currencyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
 
 				private boolean changing;
@@ -1155,7 +1155,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 	private class DiscountCurveInterestRateCurveEditingCell
 			extends TableCell<DiscountCurveProperty, InterestRateCurve> {
 
-		private TradistaInterestRateCurveComboBox interestRateCurveComboBox;
+		private ComboBox<InterestRateCurve> interestRateCurveComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1199,7 +1199,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createInterestRateCurveComboBox() {
-			interestRateCurveComboBox = new TradistaInterestRateCurveComboBox();
+			interestRateCurveComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillInterestRateCurveComboBox(interestRateCurveComboBox);
 			if (getItem() != null) {
 				interestRateCurveComboBox.setValue(getItem());
 			}
@@ -1227,7 +1228,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private class IndexCurveIndexEditingCell extends TableCell<IndexCurveProperty, Index> {
 
-		private TradistaIndexComboBox indexComboBox;
+		private ComboBox<Index> indexComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1270,7 +1271,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createIndexComboBox() {
-			indexComboBox = new TradistaIndexComboBox();
+			indexComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillIndexComboBox(indexComboBox);
 			indexComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
 
 				private boolean changing;
@@ -1312,7 +1314,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private class IndexCurveInterestRateCurveEditingCell extends TableCell<IndexCurveProperty, InterestRateCurve> {
 
-		private TradistaInterestRateCurveComboBox interestRateCurveComboBox;
+		private ComboBox<InterestRateCurve> interestRateCurveComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1356,7 +1358,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createInterestRateCurveComboBox() {
-			interestRateCurveComboBox = new TradistaInterestRateCurveComboBox();
+			interestRateCurveComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillInterestRateCurveComboBox(interestRateCurveComboBox);
 			if (getItem() != null) {
 				interestRateCurveComboBox.setValue(getItem());
 			}
@@ -1384,7 +1387,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private class FXCurvePrimaryCurrencyEditingCell extends TableCell<FXCurveProperty, Currency> {
 
-		private TradistaCurrencyComboBox currencyComboBox;
+		private ComboBox<Currency> currencyComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1427,7 +1430,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createCurrencyComboBox() {
-			currencyComboBox = new TradistaCurrencyComboBox();
+			currencyComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillCurrencyComboBox(currencyComboBox);
 			currencyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
 
 				private boolean changing;
@@ -1482,7 +1486,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private class FXCurveQuoteCurrencyEditingCell extends TableCell<FXCurveProperty, Currency> {
 
-		private TradistaCurrencyComboBox currencyComboBox;
+		private ComboBox<Currency> currencyComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1525,7 +1529,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createCurrencyComboBox() {
-			currencyComboBox = new TradistaCurrencyComboBox();
+			currencyComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillCurrencyComboBox(currencyComboBox);
 			currencyComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Currency>() {
 
 				private boolean changing;
@@ -1582,7 +1587,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 	private class FXCurveFXCurveEditingCell extends TableCell<FXCurveProperty, FXCurve> {
 
-		private TradistaFXCurveComboBox fxCurveComboBox;
+		private ComboBox<FXCurve> fxCurveComboBox;
 
 		@Override
 		public void startEdit() {
@@ -1626,7 +1631,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		}
 
 		private void createFXCurveComboBox() {
-			fxCurveComboBox = new TradistaFXCurveComboBox();
+			fxCurveComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillFXCurveComboBox(fxCurveComboBox);
 			if (getItem() != null) {
 				fxCurveComboBox.setValue(getItem());
 			}
@@ -2164,6 +2170,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		} catch (TradistaTechnicalException _) {
 			canGetFXCurve = false;
 		}
+		TradistaGUIUtil.fillIndexComboBox(indexComboBox);
+		TradistaGUIUtil.fillProductTypeComboBox(productTypeComboBox);
 		PricingParameter pp = pricingParam.getValue();
 		TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
 		if (modulesErrors != null) {

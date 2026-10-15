@@ -13,8 +13,6 @@ import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaComboBoxTableCell;
 import org.eclipse.tradista.core.index.model.Index;
-import org.eclipse.tradista.core.index.ui.view.TradistaIndexComboBox;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaVolatilitySurfaceComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
@@ -62,7 +60,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	private TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface> irSwapOptionVolatilitySurface;
 
 	@FXML
-	private TradistaIndexComboBox irSwapOptionVolatilitySurfaceIndexComboBox;
+	private ComboBox<Index> irSwapOptionVolatilitySurfaceIndexComboBox;
 
 	@FXML
 	private ComboBox<SwaptionVolatilitySurface> irSwapOptionVolatilitySurfaceComboBox;
@@ -76,7 +74,11 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public void initialize() {
 
 		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, Index>, TableCell<IRSwapOptionVolatilitySurfaceProperty, Index>> irSwapOptionVolatilitySurfaceIndexCellFactory = _ -> new TradistaComboBoxTableCell<IRSwapOptionVolatilitySurfaceProperty, Index>(
-				TradistaIndexComboBox::new, (row, newIndex) -> {
+				() -> {
+					ComboBox<Index> cb = new ComboBox<>();
+					TradistaGUIUtil.fillIndexComboBox(cb);
+					return cb;
+				}, (row, newIndex) -> {
 					if (newIndex != null && !newIndex.equals(row.getIndex()) && irSwapOptionVolatilitySurfaceTable
 							.getItems().contains(new IRSwapOptionVolatilitySurfaceProperty(newIndex, null))) {
 						return String.format("The Index %s is already in the list.%n", newIndex);
@@ -85,7 +87,11 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				});
 
 		Callback<TableColumn<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>, TableCell<IRSwapOptionVolatilitySurfaceProperty, SwaptionVolatilitySurface>> irSwapOptionVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
-				() -> (ComboBox) new TradistaVolatilitySurfaceComboBox("IR"));
+				() -> {
+					ComboBox<SwaptionVolatilitySurface> cb = new ComboBox<>();
+					TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(cb);
+					return cb;
+				});
 
 		irSwapOptionVolatilitySurfaceTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 

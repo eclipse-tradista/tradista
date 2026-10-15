@@ -14,8 +14,6 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaComboBoxTableCell;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.model.CurrencyPair;
-import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaVolatilitySurfaceComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
 import org.eclipse.tradista.core.pricing.ui.controller.PricingParameterModuleController;
@@ -66,10 +64,10 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	private TableColumn<FXVolatilitySurfaceProperty, FXVolatilitySurface> fxVolatilitySurface;
 
 	@FXML
-	private TradistaCurrencyComboBox fxVolatilitySurfacePrimaryCurrencyComboBox;
+	private ComboBox<Currency> fxVolatilitySurfacePrimaryCurrencyComboBox;
 
 	@FXML
-	private TradistaCurrencyComboBox fxVolatilitySurfaceQuoteCurrencyComboBox;
+	private ComboBox<Currency> fxVolatilitySurfaceQuoteCurrencyComboBox;
 
 	@FXML
 	private ComboBox<FXVolatilitySurface> fxVolatilitySurfaceComboBox;
@@ -83,7 +81,11 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public void initialize() {
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, Currency>, TableCell<FXVolatilitySurfaceProperty, Currency>> fxVolatilitySurfacePrimaryCurrencyCellFactory = _ -> new TradistaComboBoxTableCell<FXVolatilitySurfaceProperty, Currency>(
-				TradistaCurrencyComboBox::new, (row, newCurrency) -> {
+				() -> {
+					ComboBox<Currency> cb = new ComboBox<>();
+					TradistaGUIUtil.fillCurrencyComboBox(cb);
+					return cb;
+				}, (row, newCurrency) -> {
 					if (newCurrency != null && !newCurrency.equals(row.getPrimaryCurrency())
 							&& fxVolatilitySurfaceTable.getItems().contains(
 									new FXVolatilitySurfaceProperty(newCurrency, row.getQuoteCurrency(), null))) {
@@ -94,7 +96,11 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				});
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, Currency>, TableCell<FXVolatilitySurfaceProperty, Currency>> fxVolatilitySurfaceQuoteCurrencyCellFactory = _ -> new TradistaComboBoxTableCell<FXVolatilitySurfaceProperty, Currency>(
-				TradistaCurrencyComboBox::new, (row, newCurrency) -> {
+				() -> {
+					ComboBox<Currency> cb = new ComboBox<>();
+					TradistaGUIUtil.fillCurrencyComboBox(cb);
+					return cb;
+				}, (row, newCurrency) -> {
 					if (newCurrency != null && !newCurrency.equals(row.getQuoteCurrency())
 							&& fxVolatilitySurfaceTable.getItems().contains(
 									new FXVolatilitySurfaceProperty(row.getPrimaryCurrency(), newCurrency, null))) {
@@ -105,7 +111,11 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				});
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, FXVolatilitySurface>, TableCell<FXVolatilitySurfaceProperty, FXVolatilitySurface>> fxVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
-				() -> (ComboBox) new TradistaVolatilitySurfaceComboBox("FX"));
+				() -> {
+					ComboBox<FXVolatilitySurface> cb = new ComboBox<>();
+					TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(cb);
+					return cb;
+				});
 
 		fxVolatilitySurfaceTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
