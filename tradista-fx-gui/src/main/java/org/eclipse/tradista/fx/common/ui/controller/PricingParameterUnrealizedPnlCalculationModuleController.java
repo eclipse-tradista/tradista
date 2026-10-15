@@ -437,33 +437,34 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 	public PricingParameterModule buildModule() {
 		PricingParameterUnrealizedPnlCalculationModule param = new PricingParameterUnrealizedPnlCalculationModule();
 		for (UnrealizedPnlCalculationProperty prop : unrealizedPnlCalculationTable.getItems()) {
-			param.addUnrealizedPnlCalculation(new BookProductTypePair((Book) prop.getBook(), prop.getProductType()),
-					(UnrealizedPnlCalculation) prop.getUnrealizedPnlCalculation());
+			param.addUnrealizedPnlCalculation(new BookProductTypePair(prop.getBook(), prop.getProductType()),
+					prop.getUnrealizedPnlCalculation());
 		}
 		return param;
 	}
 
 	protected class UnrealizedPnlCalculationProperty implements Comparable<UnrealizedPnlCalculationProperty> {
 
-		private final SimpleObjectProperty<Object> book;
+		private final SimpleObjectProperty<Book> book;
 		private final SimpleStringProperty productType;
-		private final SimpleObjectProperty<Object> unrealizedPnlCalculation;
+		private final SimpleObjectProperty<UnrealizedPnlCalculation> unrealizedPnlCalculation;
 
-		private UnrealizedPnlCalculationProperty(Object book, String productType, Object unrealizedPnlCalculation) {
+		private UnrealizedPnlCalculationProperty(Book book, String productType,
+				UnrealizedPnlCalculation unrealizedPnlCalculation) {
 			this.book = new SimpleObjectProperty<>(book);
 			this.productType = new SimpleStringProperty(productType);
 			this.unrealizedPnlCalculation = new SimpleObjectProperty<>(unrealizedPnlCalculation);
 		}
 
-		public Object getBook() {
+		public Book getBook() {
 			return book.get();
 		}
 
 		public SimpleObjectProperty<Book> getBookProperty() {
-			return (SimpleObjectProperty) book;
+			return book;
 		}
 
-		public void setBook(Object book) {
+		public void setBook(Book book) {
 			this.book.set(book);
 		}
 
@@ -479,16 +480,16 @@ public class PricingParameterUnrealizedPnlCalculationModuleController extends Tr
 			this.productType.set(productType);
 		}
 
-		public Object getUnrealizedPnlCalculation() {
+		public UnrealizedPnlCalculation getUnrealizedPnlCalculation() {
 			return unrealizedPnlCalculation.get();
 		}
 
 		public SimpleObjectProperty<UnrealizedPnlCalculation> getUnrealizedPnlCalculationProperty() {
-			return (SimpleObjectProperty) unrealizedPnlCalculation;
+			return unrealizedPnlCalculation;
 		}
 
-		public void setUnrealizedPnlCalculation(Object curve) {
-			this.unrealizedPnlCalculation.set(curve);
+		public void setUnrealizedPnlCalculation(UnrealizedPnlCalculation unrealizedPnlCalculation) {
+			this.unrealizedPnlCalculation.set(unrealizedPnlCalculation);
 		}
 
 		@Override

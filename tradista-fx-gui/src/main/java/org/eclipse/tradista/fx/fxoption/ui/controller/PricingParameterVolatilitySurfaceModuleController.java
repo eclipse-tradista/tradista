@@ -236,58 +236,58 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public PricingParameterModule buildModule() {
 		PricingParameterVolatilitySurfaceModule param = new PricingParameterVolatilitySurfaceModule();
 		for (FXVolatilitySurfaceProperty prop : fxVolatilitySurfaceTable.getItems()) {
-			param.addVolatilitySurface(
-					new CurrencyPair((Currency) prop.getPrimaryCurrency(), (Currency) prop.getQuoteCurrency()),
-					(FXVolatilitySurface) prop.getVolatilitySurface());
+			param.addVolatilitySurface(new CurrencyPair(prop.getPrimaryCurrency(), prop.getQuoteCurrency()),
+					prop.getVolatilitySurface());
 		}
 		return param;
 	}
 
 	protected class FXVolatilitySurfaceProperty implements Comparable<FXVolatilitySurfaceProperty> {
 
-		private final SimpleObjectProperty<Object> primaryCurrency;
-		private final SimpleObjectProperty<Object> quoteCurrency;
-		private final SimpleObjectProperty<Object> volatilitySurface;
+		private final SimpleObjectProperty<Currency> primaryCurrency;
+		private final SimpleObjectProperty<Currency> quoteCurrency;
+		private final SimpleObjectProperty<FXVolatilitySurface> volatilitySurface;
 
-		private FXVolatilitySurfaceProperty(Object primaryCurrency, Object quoteCurrency, Object volatilitySurface) {
+		private FXVolatilitySurfaceProperty(Currency primaryCurrency, Currency quoteCurrency,
+				FXVolatilitySurface volatilitySurface) {
 			this.primaryCurrency = new SimpleObjectProperty<>(primaryCurrency);
 			this.quoteCurrency = new SimpleObjectProperty<>(quoteCurrency);
 			this.volatilitySurface = new SimpleObjectProperty<>(volatilitySurface);
 		}
 
-		public Object getPrimaryCurrency() {
+		public Currency getPrimaryCurrency() {
 			return primaryCurrency.get();
 		}
 
 		public SimpleObjectProperty<Currency> getPrimaryCurrencyProperty() {
-			return (SimpleObjectProperty) primaryCurrency;
+			return primaryCurrency;
 		}
 
-		public void setPrimaryCurrency(Object primaryCurrency) {
+		public void setPrimaryCurrency(Currency primaryCurrency) {
 			this.primaryCurrency.set(primaryCurrency);
 		}
 
-		public Object getQuoteCurrency() {
+		public Currency getQuoteCurrency() {
 			return quoteCurrency.get();
 		}
 
 		public SimpleObjectProperty<Currency> getQuoteCurrencyProperty() {
-			return (SimpleObjectProperty) quoteCurrency;
+			return quoteCurrency;
 		}
 
-		public void setQuoteCurrency(Object quoteCurrency) {
+		public void setQuoteCurrency(Currency quoteCurrency) {
 			this.quoteCurrency.set(quoteCurrency);
 		}
 
-		public Object getVolatilitySurface() {
+		public FXVolatilitySurface getVolatilitySurface() {
 			return volatilitySurface.get();
 		}
 
 		public SimpleObjectProperty<FXVolatilitySurface> getVolatilitySurfaceProperty() {
-			return (SimpleObjectProperty) volatilitySurface;
+			return volatilitySurface;
 		}
 
-		public void setVolatilitySurface(Object volatilitySurface) {
+		public void setVolatilitySurface(FXVolatilitySurface volatilitySurface) {
 			this.volatilitySurface.set(volatilitySurface);
 		}
 

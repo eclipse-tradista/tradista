@@ -67,7 +67,7 @@ public class SwaptionVolatilitySurfaceServiceBean implements SwaptionVolatilityS
 	}
 
 	@Override
-	public SwaptionVolatilitySurface getSwaptionVolatilitySurfaceById(@CheckVolatilitySurfaceAccess long id) {
+	public SwaptionVolatilitySurface getSwaptionVolatilitySurfaceById(long id) {
 		return SwaptionVolatilitySurfaceSQL.getSwaptionVolatilitySurfaceById(id);
 	}
 

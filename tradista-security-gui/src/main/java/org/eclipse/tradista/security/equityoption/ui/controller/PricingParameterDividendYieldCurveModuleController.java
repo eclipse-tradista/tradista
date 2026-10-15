@@ -184,42 +184,42 @@ public class PricingParameterDividendYieldCurveModuleController extends Tradista
 	public PricingParameterModule buildModule() {
 		PricingParameterDividendYieldCurveModule param = new PricingParameterDividendYieldCurveModule();
 		for (DividendYieldCurveProperty prop : dividendYieldCurveTable.getItems()) {
-			param.addDividendYieldCurve((Equity) prop.getEquity(), (InterestRateCurve) prop.getCurve());
+			param.addDividendYieldCurve(prop.getEquity(), prop.getCurve());
 		}
 		return param;
 	}
 
 	protected class DividendYieldCurveProperty implements Comparable<DividendYieldCurveProperty> {
 
-		private final SimpleObjectProperty<Object> equity;
-		private final SimpleObjectProperty<Object> curve;
+		private final SimpleObjectProperty<Equity> equity;
+		private final SimpleObjectProperty<InterestRateCurve> curve;
 
-		private DividendYieldCurveProperty(Object equity, Object curve) {
+		private DividendYieldCurveProperty(Equity equity, InterestRateCurve curve) {
 			this.equity = new SimpleObjectProperty<>(equity);
 			this.curve = new SimpleObjectProperty<>(curve);
 		}
 
-		public Object getEquity() {
+		public Equity getEquity() {
 			return equity.get();
 		}
 
 		public SimpleObjectProperty<Equity> getEquityProperty() {
-			return (SimpleObjectProperty) equity;
+			return equity;
 		}
 
-		public void setEquity(Object equity) {
+		public void setEquity(Equity equity) {
 			this.equity.set(equity);
 		}
 
-		public Object getCurve() {
+		public InterestRateCurve getCurve() {
 			return curve.get();
 		}
 
 		public SimpleObjectProperty<InterestRateCurve> getCurveProperty() {
-			return (SimpleObjectProperty) curve;
+			return curve;
 		}
 
-		public void setCurve(Object curve) {
+		public void setCurve(InterestRateCurve curve) {
 			this.curve.set(curve);
 		}
 

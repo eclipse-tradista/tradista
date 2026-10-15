@@ -197,43 +197,42 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public PricingParameterModule buildModule() {
 		PricingParameterVolatilitySurfaceModule param = new PricingParameterVolatilitySurfaceModule();
 		for (IRSwapOptionVolatilitySurfaceProperty prop : irSwapOptionVolatilitySurfaceTable.getItems()) {
-			param.addVolatilitySurface((Index) prop.getIndex(),
-					(SwaptionVolatilitySurface) prop.getVolatilitySurface());
+			param.addVolatilitySurface(prop.getIndex(), prop.getVolatilitySurface());
 		}
 		return param;
 	}
 
 	protected class IRSwapOptionVolatilitySurfaceProperty implements Comparable<IRSwapOptionVolatilitySurfaceProperty> {
 
-		private final SimpleObjectProperty<Object> index;
-		private final SimpleObjectProperty<Object> volatilitySurface;
+		private final SimpleObjectProperty<Index> index;
+		private final SimpleObjectProperty<SwaptionVolatilitySurface> volatilitySurface;
 
-		private IRSwapOptionVolatilitySurfaceProperty(Object index, Object volatilitySurface) {
+		private IRSwapOptionVolatilitySurfaceProperty(Index index, SwaptionVolatilitySurface volatilitySurface) {
 			this.index = new SimpleObjectProperty<>(index);
 			this.volatilitySurface = new SimpleObjectProperty<>(volatilitySurface);
 		}
 
-		public Object getIndex() {
+		public Index getIndex() {
 			return index.get();
 		}
 
 		public SimpleObjectProperty<Index> getIndexProperty() {
-			return (SimpleObjectProperty) index;
+			return index;
 		}
 
-		public void setIndex(Object index) {
+		public void setIndex(Index index) {
 			this.index.set(index);
 		}
 
-		public Object getVolatilitySurface() {
+		public SwaptionVolatilitySurface getVolatilitySurface() {
 			return volatilitySurface.get();
 		}
 
 		public SimpleObjectProperty<SwaptionVolatilitySurface> getVolatilitySurfaceProperty() {
-			return (SimpleObjectProperty) volatilitySurface;
+			return volatilitySurface;
 		}
 
-		public void setVolatilitySurface(Object volatilitySurface) {
+		public void setVolatilitySurface(SwaptionVolatilitySurface volatilitySurface) {
 			this.volatilitySurface.set(volatilitySurface);
 		}
 
