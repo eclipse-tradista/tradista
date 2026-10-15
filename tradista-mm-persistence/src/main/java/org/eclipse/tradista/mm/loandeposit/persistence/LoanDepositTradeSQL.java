@@ -3,6 +3,7 @@ package org.eclipse.tradista.mm.loandeposit.persistence;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.COMPOUND_PERIOD;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.DIRECTION;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.END_DATE;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FIXED_RATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FIXING_PERIOD;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_FIXING;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.INTEREST_PAYMENT;
@@ -10,7 +11,6 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.MATURITY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PAYMENT_FREQUENCY;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SPREAD;
-import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.FIXED_RATE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 

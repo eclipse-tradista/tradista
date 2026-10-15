@@ -10,12 +10,12 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FRATradeAuditTest {
+class FRATradeAuditTest {
 
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
@@ -42,7 +42,7 @@ public class FRATradeAuditTest {
 	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	@Test
-	public void testDefaultCreationTimeOnNewFRATrade() {
+	void testDefaultCreationTimeOnNewFRATrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		FRATrade trade = FRATrade.builder().fixedRate(BigDecimal.valueOf(2.5)).startDate(LocalDate.of(2025, 6, 1))
 				.maturityDate(LocalDate.of(2025, 9, 1)).referenceRateIndex(index)
@@ -61,7 +61,7 @@ public class FRATradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -73,7 +73,7 @@ public class FRATradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		FRATrade trade = FRATrade.builder().book(book).counterparty(counterparty).currency(currency)
 				.creationTime(originalCreation).build();
@@ -87,7 +87,7 @@ public class FRATradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		FRATrade trade = FRATrade.builder().book(book).counterparty(counterparty).currency(currency).build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -99,7 +99,7 @@ public class FRATradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

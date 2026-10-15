@@ -30,7 +30,6 @@ public class SurfacePoint<X extends Number, Y extends Number, Z extends Number> 
 	@Id
 	private Y yAxis;
 
-	@Id
 	private Z zAxis;
 
 	public SurfacePoint(X x, Y y, Z z) {
@@ -57,11 +56,7 @@ public class SurfacePoint<X extends Number, Y extends Number, Z extends Number> 
 		if (res != 0) {
 			return res;
 		}
-		res = compare(yAxis, o.yAxis);
-		if (res != 0) {
-			return res;
-		}
-		return compare(zAxis, o.zAxis);
+		return compare(yAxis, o.yAxis);
 	}
 
 	private int compare(Number n1, Number n2) {

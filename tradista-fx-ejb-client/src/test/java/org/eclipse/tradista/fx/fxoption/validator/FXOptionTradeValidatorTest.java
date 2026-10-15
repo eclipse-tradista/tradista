@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXOptionTradeValidatorTest {
+class FXOptionTradeValidatorTest {
 
 	private static final FXOptionTradeValidator validator = new FXOptionTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -44,7 +44,7 @@ public class FXOptionTradeValidatorTest {
 	private static final Currency usd = TradistaTestUtil.USD;
 
 	@BeforeAll
-	public static void setUp() {
+	static void setUp() {
 		FXTestUtil.setupFXExchange();
 	}
 
@@ -64,24 +64,24 @@ public class FXOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidFXOptionTrade() {
+	void testValidFXOptionTrade() {
 		FXOptionTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testNullUnderlying() {
+	void testNullUnderlying() {
 		FXOptionTrade trade = createValidTradeBuilder().underlying(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testUnderlyingMissingAmountOne() {
+	void testUnderlyingMissingAmountOne() {
 		FXTrade underlying = FXTrade.builder().currencyOne(eur).currency(usd).amount(BigDecimal.valueOf(110_000))
 				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
 				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
@@ -90,7 +90,7 @@ public class FXOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testUnderlyingZeroOrNegativeAmountOne() {
+	void testUnderlyingZeroOrNegativeAmountOne() {
 		FXTrade underlyingZero = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.ZERO)
 				.amount(BigDecimal.valueOf(110_000)).book(book).counterparty(counterparty)
 				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
@@ -107,7 +107,7 @@ public class FXOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testUnderlyingMissingAmountTwo() {
+	void testUnderlyingMissingAmountTwo() {
 		FXTrade underlying = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
 				.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
 				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
@@ -116,7 +116,7 @@ public class FXOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testUnderlyingZeroOrNegativeAmountTwo() {
+	void testUnderlyingZeroOrNegativeAmountTwo() {
 		FXTrade underlyingZero = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(100_000))
 				.amount(BigDecimal.ZERO).book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 12, 1))
 				.settlementDate(LocalDate.of(2025, 12, 3)).type(FXTrade.Type.FX_SPOT).build();
@@ -132,72 +132,72 @@ public class FXOptionTradeValidatorTest {
 	}
 
 	@Test
-	public void testNullStyle() {
+	void testNullStyle() {
 		FXOptionTrade trade = createValidTradeBuilder().style(null).exerciseDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementType() {
+	void testNullSettlementType() {
 		FXOptionTrade trade = createValidTradeBuilder().settlementType(null).exerciseDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeSettlementDateOffset() {
+	void testNegativeSettlementDateOffset() {
 		FXOptionTrade trade = createValidTradeBuilder().settlementDateOffset(-1).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullMaturityDate() {
+	void testNullMaturityDate() {
 		FXOptionTrade trade = createValidTradeBuilder().maturityDate(null).exerciseDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMaturityDateBeforeTradeDate() {
+	void testMaturityDateBeforeTradeDate() {
 		FXOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.maturityDate(LocalDate.of(2025, 5, 1)).exerciseDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullSettlementDate() {
+	void testNullSettlementDate() {
 		FXOptionTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateAfterMaturityDate() {
+	void testSettlementDateAfterMaturityDate() {
 		FXOptionTrade trade = createValidTradeBuilder().maturityDate(LocalDate.of(2025, 12, 1))
 				.exerciseDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testExerciseDateBeforeTradeDate() {
+	void testExerciseDateBeforeTradeDate() {
 		FXOptionTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 1))
 				.exerciseDate(LocalDate.of(2025, 5, 1)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testEuropeanExerciseDateNotEqualToMaturityDate() {
+	void testEuropeanExerciseDateNotEqualToMaturityDate() {
 		FXOptionTrade trade = createValidTradeBuilder().style(VanillaOptionTrade.Style.EUROPEAN)
 				.maturityDate(LocalDate.of(2025, 12, 1)).exerciseDate(LocalDate.of(2025, 11, 28)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testAmericanExerciseDateAfterMaturityDate() {
+	void testAmericanExerciseDateAfterMaturityDate() {
 		FXOptionTrade trade = createValidTradeBuilder().style(VanillaOptionTrade.Style.AMERICAN)
 				.maturityDate(LocalDate.of(2025, 12, 1)).exerciseDate(LocalDate.of(2025, 12, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroOrNegativePremium() {
+	void testZeroOrNegativePremium() {
 		FXOptionTrade tradeZero = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeZero));
 

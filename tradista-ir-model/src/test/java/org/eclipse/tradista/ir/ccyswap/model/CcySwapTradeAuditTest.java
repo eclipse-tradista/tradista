@@ -10,13 +10,13 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class CcySwapTradeAuditTest {
+class CcySwapTradeAuditTest {
 
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;
@@ -44,7 +44,7 @@ public class CcySwapTradeAuditTest {
 	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	@Test
-	public void testDefaultCreationTimeOnNewCcySwapTrade() {
+	void testDefaultCreationTimeOnNewCcySwapTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		CcySwapTrade trade = CcySwapTrade.builder().currency(eur).currencyTwo(usd).amount(BigDecimal.valueOf(1_000_000))
 				.notionalAmountTwo(BigDecimal.valueOf(1_100_000)).book(book).counterparty(counterparty)
@@ -69,7 +69,7 @@ public class CcySwapTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -81,7 +81,7 @@ public class CcySwapTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		CcySwapTrade trade = CcySwapTrade.builder().currency(eur).currencyTwo(usd).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -95,7 +95,7 @@ public class CcySwapTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		CcySwapTrade trade = CcySwapTrade.builder().currency(eur).currencyTwo(usd).book(book).counterparty(counterparty)
 				.build();
 
@@ -108,7 +108,7 @@ public class CcySwapTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

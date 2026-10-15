@@ -35,12 +35,9 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -157,18 +154,25 @@ public class TransferReportController extends TradistaControllerAdapter {
 
 		transferBusinessDelegate = new TransferBusinessDelegate();
 
-		id.setCellValueFactory(new PropertyValueFactory<>("id"));
+		report.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		id.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(String.valueOf(cellData.getValue().getId())));
 
 		creationDate.setCellValueFactory(
 				t -> new ReadOnlyObjectWrapper<>(TradistaGUIUtil.formatInstant(t.getValue().getCreationTime())));
 
-		settlementDate.setCellValueFactory(new PropertyValueFactory<>("settlementDate"));
+		settlementDate.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
+				cellData.getValue().getSettlementDate() == null ? StringUtils.EMPTY
+						: cellData.getValue().getSettlementDate().toString()));
 
-		fixingDate.setCellValueFactory(new PropertyValueFactory<>("fixingDateTime"));
+		fixingDate.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
+				cellData.getValue().getFixingDateTime() == null ? StringUtils.EMPTY
+						: cellData.getValue().getFixingDateTime().toString()));
 
-		type.setCellValueFactory(new PropertyValueFactory<>("type"));
+		type.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
+				cellData.getValue().getType() == null ? StringUtils.EMPTY : cellData.getValue().getType().toString()));
 
-		status.setCellValueFactory(new PropertyValueFactory<>("status"));
+		status.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getStatus()));
 
 		status.setCellFactory(column -> {
 			return new TableCell<Transfer, Status>() {
@@ -205,58 +209,55 @@ public class TransferReportController extends TradistaControllerAdapter {
 			};
 		});
 
-		direction.setCellValueFactory(new PropertyValueFactory<>("direction"));
+		direction.setCellValueFactory(
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getDirection() == null ? StringUtils.EMPTY
+						: cellData.getValue().getDirection().toString()));
 
-		purpose.setCellValueFactory(new PropertyValueFactory<>("purpose"));
+		purpose.setCellValueFactory(
+				cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getPurpose() == null ? StringUtils.EMPTY
+						: cellData.getValue().getPurpose().toString()));
 
-		book.setCellValueFactory(new PropertyValueFactory<>("book"));
+		book.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
+				cellData.getValue().getBook() == null ? StringUtils.EMPTY : cellData.getValue().getBook().toString()));
 
-		currency.setCellValueFactory(new Callback<CellDataFeatures<Transfer, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<Transfer, String> t) {
-				String currency = StringUtils.EMPTY;
-				if (t.getValue().getType().equals(Transfer.Type.CASH)) {
-					currency = ((CashTransfer) t.getValue()).getCurrency().toString();
-				}
-				return new ReadOnlyObjectWrapper<String>(currency);
+		currency.setCellValueFactory(t -> {
+			String currencyStr = StringUtils.EMPTY;
+			if (t.getValue().getType().equals(Transfer.Type.CASH)) {
+				currencyStr = ((CashTransfer) t.getValue()).getCurrency().toString();
 			}
+			return new ReadOnlyObjectWrapper<>(currencyStr);
 		});
 
-		tradeId.setCellValueFactory(new Callback<CellDataFeatures<Transfer, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<Transfer, String> t) {
-				String tradeId = StringUtils.EMPTY;
-				if (t.getValue().getTrade() != null) {
-					tradeId = Long.toString(t.getValue().getTrade().getId());
-				}
-				return new ReadOnlyObjectWrapper<String>(tradeId);
+		tradeId.setCellValueFactory(t -> {
+			String tradeIdStr = StringUtils.EMPTY;
+			if (t.getValue().getTrade() != null) {
+				tradeIdStr = Long.toString(t.getValue().getTrade().getId());
 			}
+			return new ReadOnlyObjectWrapper<>(tradeIdStr);
 		});
 
-		productId.setCellValueFactory(new Callback<CellDataFeatures<Transfer, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<Transfer, String> t) {
-				String productId = StringUtils.EMPTY;
-				if (t.getValue().getProduct() != null) {
-					productId = Long.toString(t.getValue().getProduct().getId());
-				}
-				return new ReadOnlyObjectWrapper<String>(productId);
+		productId.setCellValueFactory(t -> {
+			String productIdStr = StringUtils.EMPTY;
+			if (t.getValue().getProduct() != null) {
+				productIdStr = Long.toString(t.getValue().getProduct().getId());
 			}
+			return new ReadOnlyObjectWrapper<>(productIdStr);
 		});
 
-		quantity.setCellValueFactory(new Callback<CellDataFeatures<Transfer, String>, ObservableValue<String>>() {
-			public ObservableValue<String> call(CellDataFeatures<Transfer, String> t) {
-				String quantity = StringUtils.EMPTY;
-				BigDecimal amountOrQuantity;
-				if (t.getValue().getType().equals(Transfer.Type.CASH)) {
-					amountOrQuantity = ((CashTransfer) t.getValue()).getAmount();
-				} else {
-					amountOrQuantity = ((ProductTransfer) t.getValue()).getQuantity();
-				}
-				if (amountOrQuantity == null) {
-					quantity = StringUtils.EMPTY;
-				} else {
-					quantity = TradistaGUIUtil.formatAmount(amountOrQuantity);
-				}
-				return new ReadOnlyObjectWrapper<String>(quantity);
+		quantity.setCellValueFactory(t -> {
+			String quantityStr = StringUtils.EMPTY;
+			BigDecimal amountOrQuantity;
+			if (t.getValue().getType().equals(Transfer.Type.CASH)) {
+				amountOrQuantity = ((CashTransfer) t.getValue()).getAmount();
+			} else {
+				amountOrQuantity = ((ProductTransfer) t.getValue()).getQuantity();
 			}
+			if (amountOrQuantity == null) {
+				quantityStr = StringUtils.EMPTY;
+			} else {
+				quantityStr = TradistaGUIUtil.formatAmount(amountOrQuantity);
+			}
+			return new ReadOnlyObjectWrapper<>(quantityStr);
 		});
 
 		TradistaGUIUtil.fillComboBox(Arrays.asList(Transfer.Type.values()).stream().map(Object::toString).toList(),

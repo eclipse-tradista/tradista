@@ -18,6 +18,8 @@ import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDele
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -74,6 +76,32 @@ import javafx.util.Callback;
  ********************************************************************************/
 
 public class MainEntry extends Application {
+
+	private static final String VERSION = "Version";
+
+	private static final String CURVES = "Curves";
+
+	private static final String QUOTES = "Quotes";
+
+	private static final String INDEXES = "Indexes";
+
+	private static final String USERS = "Users";
+
+	private static final String BOOKS = "Books";
+
+	private static final String EXCHANGES = "Exchanges";
+
+	private static final String CALENDARS = "Calendars";
+
+	private static final String CURRENCIES = "Currencies";
+
+	private static final String GC_REPO = "GCRepo";
+
+	private static final String LEGAL_ENTITIES = "Legal Entities";
+
+	private static final String STYLE_CSS = "Style.css";
+
+	private static final Logger logger = LoggerFactory.getLogger(MainEntry.class);
 
 	private Menu menuProduct;
 
@@ -151,6 +179,12 @@ public class MainEntry extends Application {
 
 	private MenuItem allocationConfiguration;
 
+	private MenuItem importerMapping;
+
+	private MenuItem exporterMapping;
+
+	private MenuItem messagingConfiguration;
+
 	private static Pane currentWindow;
 
 	public static Pane getCurrentWindow() {
@@ -207,14 +241,14 @@ public class MainEntry extends Application {
 		try {
 			pane = FXMLLoader.load(getClass().getResource("/Login.fxml"));
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage());
 		}
 		TradistaGUIUtil.setTradistaIcons(stage);
 		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 		stage.setTitle("Login");
 		Group root = new Group();
 		root.getChildren().add(pane);
-		root.getStylesheets().add("/" + new ConfigurationBusinessDelegate().getDefaultStyle() + "Style.css");
+		root.getStylesheets().add("/" + new ConfigurationBusinessDelegate().getDefaultStyle() + STYLE_CSS);
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		TradistaGUIUtil.resizeComponentHeights(primScreenBounds, stage, 0);
@@ -271,7 +305,7 @@ public class MainEntry extends Application {
 		tradeReport = new MenuItem("Trades");
 		transferReport = new MenuItem("Transfers");
 		cashFlowReport = new MenuItem("Cash Flows");
-		legalEntityReport = new MenuItem("Legal Entities");
+		legalEntityReport = new MenuItem(LEGAL_ENTITIES);
 		positionReport = new MenuItem("Positions");
 		positionCalculationErrorReport = new MenuItem("Position Calculation Errors");
 		fixingErrorReport = new MenuItem("Fixing Errors");
@@ -280,27 +314,30 @@ public class MainEntry extends Application {
 		dailyPnlReport = new MenuItem("Daily Pnls");
 		menuMarketData = new Menu("Market Data");
 		positionDefinitions = new MenuItem("Position Definitions");
-		legalEntities = new MenuItem("Legal Entities");
+		legalEntities = new MenuItem(LEGAL_ENTITIES);
 		dateRules = new MenuItem("Date Rules");
-		currencies = new MenuItem("Currencies");
-		calendars = new MenuItem("Calendars");
-		exchanges = new MenuItem("Exchanges");
-		books = new MenuItem("Books");
-		users = new MenuItem("Users");
-		indexes = new MenuItem("Indexes");
+		currencies = new MenuItem(CURRENCIES);
+		calendars = new MenuItem(CALENDARS);
+		exchanges = new MenuItem(EXCHANGES);
+		books = new MenuItem(BOOKS);
+		users = new MenuItem(USERS);
+		indexes = new MenuItem(INDEXES);
 		fxCurves = new MenuItem("FX Curves");
 		zeroCouponCurves = new MenuItem("Zero Coupon Curves");
-		quotes = new MenuItem("Quotes");
-		curves = new MenuItem("Curves");
+		quotes = new MenuItem(QUOTES);
+		curves = new MenuItem(CURVES);
 		feedConfigs = new MenuItem("Feed Configurations");
 		jobs = new MenuItem("Jobs Management");
 		about = new MenuItem("About");
-		version = new MenuItem("Version");
+		version = new MenuItem(VERSION);
 
 		menuConfiguration = new Menu("Configuration");
 		uiConfiguration = new MenuItem("UI Configuration");
 		processingOrgDefaults = new MenuItem("Processing Org Defaults");
 		allocationConfiguration = new MenuItem("Allocation Configuration");
+		importerMapping = new MenuItem("Importer Mapping");
+		exporterMapping = new MenuItem("Exporter Mapping");
+		messagingConfiguration = new MenuItem("Messaging Configuration");
 
 		setupWindows();
 
@@ -333,7 +370,8 @@ public class MainEntry extends Application {
 
 		menuReferential.getItems().addAll(legalEntities, currencies, calendars, exchanges, books, users, indexes);
 
-		menuConfiguration.getItems().addAll(uiConfiguration, dateRules, processingOrgDefaults);
+		menuConfiguration.getItems().addAll(uiConfiguration, dateRules, processingOrgDefaults, importerMapping,
+				exporterMapping, messagingConfiguration);
 
 		menuBar.getMenus().addAll(menuTrade, menuProduct, menuPosition, menuPricing, menuMarketData, menuReports,
 				menuReferential, menuConfiguration, menuBatch, menuMore);
@@ -385,7 +423,7 @@ public class MainEntry extends Application {
 		try {
 			root.getStylesheets().add(
 					"/" + new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
-							+ "Style.css");
+							+ STYLE_CSS);
 		} catch (TradistaBusinessException _) {
 			// Cannot appear here.
 		}
@@ -420,63 +458,67 @@ public class MainEntry extends Application {
 
 		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 
-		setupMenuItem(legalEntities, "Legal Entities", "LegalEntities", primScreenBounds);
-		setupMenuItem(currencies, "Currencies", "Currencies", primScreenBounds);
-		setupMenuItem(calendars, "Calendars", "Calendars", primScreenBounds);
-		setupMenuItem(exchanges, "Exchanges", "Exchanges", primScreenBounds);
-		setupMenuItem(books, "Books", "Books", primScreenBounds);
-		setupMenuItem(users, "Users", "Users", primScreenBounds);
-		setupMenuItem(indexes, "Indexes", "Indexes", primScreenBounds);
-		setupMenuItem(dateRules, "Date Rules", "DateRules", primScreenBounds);
-		setupMenuItem(fxCurves, "FX Curves", "FXCurves", primScreenBounds);
-		setupMenuItem(zeroCouponCurves, "Zero Coupon Curves", "ZeroCouponCurves", primScreenBounds);
-		setupMenuItem(quotes, "Quotes", "Quotes", primScreenBounds);
-		setupMenuItem(curves, "Curves", "Curves", primScreenBounds);
-		setupMenuItem(feedConfigs, "Feed Configurations", "FeedConfig", primScreenBounds);
-		setupMenuItem(tradeReport, "Trade Report", "TradeReport", primScreenBounds);
-		setupMenuItem(transferReport, "Transfer Report", "TransferReport", primScreenBounds);
-		setupMenuItem(cashFlowReport, "Cash Flow Report", "CashFlowReport", primScreenBounds);
-		setupMenuItem(legalEntityReport, "Legal Entity Report", "LegalEntityReport", primScreenBounds);
-		setupMenuItem(positionReport, "Position Report", "PositionReport", primScreenBounds);
+		setupMenuItem(legalEntities, LEGAL_ENTITIES, "LegalEntities", primScreenBounds, false);
+		setupMenuItem(currencies, CURRENCIES, CURRENCIES, primScreenBounds, false);
+		setupMenuItem(calendars, CALENDARS, CALENDARS, primScreenBounds, false);
+		setupMenuItem(exchanges, EXCHANGES, EXCHANGES, primScreenBounds, false);
+		setupMenuItem(books, BOOKS, BOOKS, primScreenBounds, false);
+		setupMenuItem(users, USERS, USERS, primScreenBounds, false);
+		setupMenuItem(indexes, INDEXES, INDEXES, primScreenBounds, false);
+		setupMenuItem(dateRules, "Date Rules", "DateRules", primScreenBounds, false);
+		setupMenuItem(fxCurves, "FX Curves", "FXCurves", primScreenBounds, false);
+		setupMenuItem(zeroCouponCurves, "Zero Coupon Curves", "ZeroCouponCurves", primScreenBounds, false);
+		setupMenuItem(quotes, QUOTES, QUOTES, primScreenBounds, false);
+		setupMenuItem(curves, CURVES, CURVES, primScreenBounds, false);
+		setupMenuItem(feedConfigs, "Feed Configurations", "FeedConfig", primScreenBounds, false);
+		setupMenuItem(tradeReport, "Trade Report", "TradeReport", primScreenBounds, false);
+		setupMenuItem(transferReport, "Transfer Report", "TransferReport", primScreenBounds, false);
+		setupMenuItem(cashFlowReport, "Cash Flow Report", "CashFlowReport", primScreenBounds, false);
+		setupMenuItem(legalEntityReport, "Legal Entity Report", "LegalEntityReport", primScreenBounds, false);
+		setupMenuItem(positionReport, "Position Report", "PositionReport", primScreenBounds, false);
 		setupMenuItem(positionCalculationErrorReport, "Position Calculation Error Report",
-				"PositionCalculationErrorReport", primScreenBounds);
-		setupMenuItem(fixingErrorReport, "Fixing Error Report", "FixingErrorReport", primScreenBounds);
-		setupMenuItem(productInventoryReport, "Product Inventory Report", "ProductInventoryReport", primScreenBounds);
-		setupMenuItem(cashInventoryReport, "Cash Inventory Report", "CashInventoryReport", primScreenBounds);
-		setupMenuItem(dailyPnlReport, "Daily Pnl Report", "DailyPnlReport", primScreenBounds);
-		setupMenuItem(pricingParameters, "Pricing Parameters Set", "PricingParameters", primScreenBounds);
-		setupMenuItem(positionDefinitions, "Position Definitions", "PositionDefinitions", primScreenBounds);
-		setupMenuItem(jobs, "Jobs", "Jobs", primScreenBounds);
-		setupMenuItem(uiConfiguration, "UI Configuration", "UIConfiguration", primScreenBounds);
-		setupMenuItem(processingOrgDefaults, "Processing Org Defaults", "ProcessingOrgDefaults", primScreenBounds);
+				"PositionCalculationErrorReport", primScreenBounds, false);
+		setupMenuItem(fixingErrorReport, "Fixing Error Report", "FixingErrorReport", primScreenBounds, false);
+		setupMenuItem(productInventoryReport, "Product Inventory Report", "ProductInventoryReport", primScreenBounds,
+				false);
+		setupMenuItem(cashInventoryReport, "Cash Inventory Report", "CashInventoryReport", primScreenBounds, false);
+		setupMenuItem(dailyPnlReport, "Daily Pnl Report", "DailyPnlReport", primScreenBounds, false);
+		setupMenuItem(pricingParameters, "Pricing Parameters Set", "PricingParameters", primScreenBounds, false);
+		setupMenuItem(positionDefinitions, "Position Definitions", "PositionDefinitions", primScreenBounds, false);
+		setupMenuItem(jobs, "Jobs", "Jobs", primScreenBounds, false);
+		setupMenuItem(uiConfiguration, "UI Configuration", "UIConfiguration", primScreenBounds, false);
+		setupMenuItem(processingOrgDefaults, null, "ProcessingOrgDefaults", primScreenBounds, true);
+		setupMenuItem(importerMapping, null, "ImporterMapping", primScreenBounds, true);
+		setupMenuItem(exporterMapping, null, "ExporterMapping", primScreenBounds, true);
+		setupMenuItem(messagingConfiguration, null, "MessagingConfiguration", primScreenBounds, true);
 
 		for (String product : products) {
+			boolean tradeUIIsWeb = product.contains("Repo");
 			// How to manage exceptions like FX trades ?
 			if (!product.equals("FX") && !product.equals("FXSwap") && !product.equals("FXOption")
 					&& !product.equals("FXNDF") && !product.equals("IRSwap") && !product.equals("CcySwap")
 					&& !product.equals("IRSwapOption") && !product.equals("LoanDeposit")
 					&& !product.equals("IRCapFloorCollar") && !product.equals("FRA") && !product.equals("Future")
-					&& !product.equals("SpecificRepo") && !product.equals("GCRepo")) {
+					&& !product.equals("SpecificRepo") && !product.equals(GC_REPO)) {
 				MenuItem productMenuItem = new MenuItem(product);
 				menuProduct.getItems().add(productMenuItem);
-				setupMenuItem(productMenuItem, product, product + "Product", primScreenBounds);
+				setupMenuItem(productMenuItem, product, product + "Product", primScreenBounds, false);
 
 				MenuItem report = new MenuItem(product);
 				menuReports.getItems().add(report);
-				setupMenuItem(report, product + " Report", product + "Report", primScreenBounds);
+				setupMenuItem(report, product + " Report", product + "Report", primScreenBounds, false);
 			}
 
-			if (product.equals("GCRepo")) {
+			if (product.equals(GC_REPO)) {
 				MenuItem gcBasket = new MenuItem("GCBasket");
 				menuProduct.getItems().add(gcBasket);
-				setupMenuItem(gcBasket, product, product + "Product", primScreenBounds);
+				setupMenuItem(gcBasket, null, "GCBasket", primScreenBounds, true);
 			}
 
-			if ((product.equals("GCRepo")) || (product.equals("SpecificRepo"))) {
+			if ((product.equals(GC_REPO)) || (product.equals("SpecificRepo"))) {
 				if (!menuConfiguration.getItems().contains(allocationConfiguration)) {
 					menuConfiguration.getItems().add(allocationConfiguration);
-					setupMenuItem(allocationConfiguration, "Allocation Configuration", "AllocationConfiguration",
-							primScreenBounds);
+					setupMenuItem(allocationConfiguration, null, "AllocationConfiguration", primScreenBounds, true);
 				}
 			}
 
@@ -484,40 +526,35 @@ public class MainEntry extends Application {
 				MenuItem surfaceGeneration = new MenuItem(product + " Volatility Surfaces Generation");
 				menuMarketData.getItems().add(surfaceGeneration);
 				setupMenuItem(surfaceGeneration, product + " Volatility Surface Generator",
-						product + "VolatilitySurfacesGenerator", primScreenBounds);
+						product + "VolatilitySurfacesGenerator", primScreenBounds, false);
 			}
 
 			if (product.equals("Future") || product.equals("EquityOption")) {
 				MenuItem contractSpecification = new MenuItem(product + " Contract Specification");
 				menuProduct.getItems().add(contractSpecification);
 				setupMenuItem(contractSpecification, product + " Contract Specification",
-						product + "ContractSpecification", primScreenBounds);
+						product + "ContractSpecification", primScreenBounds, false);
 			}
 
 			MenuItem trade = new MenuItem(product);
 			menuTrade.getItems().add(trade);
 
-			setupMenuItem(trade, product + " Trade", product + "Trade", primScreenBounds);
+			setupMenuItem(trade, product + " Trade", product + "Trade", primScreenBounds, tradeUIIsWeb);
 		}
 	}
 
-	private void setupMenuItem(MenuItem menuItem, String title, String templateName, Rectangle2D primScreenBounds) {
+	private void setupMenuItem(MenuItem menuItem, String title, String templateName, Rectangle2D primScreenBounds,
+			boolean isWeb) {
 		menuItem.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent t) {
-				// Repo trade, Allocation Configuration, GC Baskets, Processing Org Defaults
-				// windows are web based.
-				if (templateName.equals("GCRepoTrade") || templateName.equals("SpecificRepoTrade")
-						|| templateName.equals("ProcessingOrgDefaults")
-						|| templateName.equals("AllocationConfiguration")) {
+				if (isWeb) {
 					TradistaGUIUtil.browse(templateName.toLowerCase());
-				} else if (templateName.equals("GCRepoProduct")) {
-					TradistaGUIUtil.browse("gcbasket");
 				} else {
 					Pane pane = null;
 					try {
 						pane = FXMLLoader.load(getClass().getResource("/" + templateName + ".fxml"));
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
+						logger.error(ioe.getMessage());
 					}
 					ScrollPane sPane = new ScrollPane(pane);
 					sPane.setVbarPolicy(ScrollBarPolicy.NEVER);
@@ -531,7 +568,7 @@ public class MainEntry extends Application {
 					root.getChildren().add(sPane);
 					try {
 						root.getStylesheets().add("/" + new ConfigurationBusinessDelegate()
-								.getUIConfiguration(ClientUtil.getCurrentUser()).getStyle() + "Style.css");
+								.getUIConfiguration(ClientUtil.getCurrentUser()).getStyle() + STYLE_CSS);
 					} catch (TradistaBusinessException _) {
 						// Cannot appear here.
 					}
@@ -586,7 +623,7 @@ public class MainEntry extends Application {
 			try {
 				root.getStylesheets().add("/"
 						+ new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
-						+ "Style.css");
+						+ STYLE_CSS);
 			} catch (TradistaBusinessException _) {
 				// Should not appear here.
 			}
@@ -617,7 +654,7 @@ public class MainEntry extends Application {
 				Label moduleLabel = new Label("Module");
 				moduleLabel.setStyle("-fx-font-weight: bold;");
 				pane.add(moduleLabel, 0, i);
-				Label versionLabel = new Label("Version");
+				Label versionLabel = new Label(VERSION);
 				versionLabel.setStyle("-fx-font-weight: bold;");
 				pane.add(versionLabel, 1, i);
 				i++;
@@ -630,13 +667,13 @@ public class MainEntry extends Application {
 			Stage stage = new Stage();
 			TradistaGUIUtil.setTradistaIcons(stage);
 			Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-			stage.setTitle("Version");
+			stage.setTitle(VERSION);
 			Group root = new Group();
 			root.getChildren().add(pane);
 			try {
 				root.getStylesheets().add("/"
 						+ new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
-						+ "Style.css");
+						+ STYLE_CSS);
 			} catch (TradistaBusinessException _) {
 				// Cannot appear here.
 			}

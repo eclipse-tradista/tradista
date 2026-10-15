@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.index.model.Index;
@@ -19,7 +20,6 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.ir.irswap.model.SingleCurrencyIRSwapTrade;
-import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRSwapOptionTradeAuditTest {
+class IRSwapOptionTradeAuditTest {
 
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -58,7 +58,7 @@ public class IRSwapOptionTradeAuditTest {
 			.receptionDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360)).build();
 
 	@Test
-	public void testDefaultCreationTimeOnNewIRSwapOptionTrade() {
+	void testDefaultCreationTimeOnNewIRSwapOptionTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().underlying(underlying).book(book)
 				.counterparty(counterparty).currency(currency).amount(BigDecimal.valueOf(5000))
@@ -77,7 +77,7 @@ public class IRSwapOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -89,7 +89,7 @@ public class IRSwapOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().currency(currency).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -103,7 +103,7 @@ public class IRSwapOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		IRSwapOptionTrade trade = IRSwapOptionTrade.builder().currency(currency).book(book).counterparty(counterparty)
 				.build();
 
@@ -116,7 +116,7 @@ public class IRSwapOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

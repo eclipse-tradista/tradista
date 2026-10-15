@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MessageAuditTest {
+class MessageAuditTest {
 
 	@Test
-	public void testDefaultCreationTimeOnNewMessage() {
+	void testDefaultCreationTimeOnNewMessage() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		IncomingMessage message = IncomingMessage.builder().type("CONFIRMATION").build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
@@ -42,7 +42,7 @@ public class MessageAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -54,7 +54,7 @@ public class MessageAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		IncomingMessage message = IncomingMessage.builder().type("CONFIRMATION").build();
 
 		assertNotNull(message.getLastUpdateTime());
@@ -66,7 +66,7 @@ public class MessageAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

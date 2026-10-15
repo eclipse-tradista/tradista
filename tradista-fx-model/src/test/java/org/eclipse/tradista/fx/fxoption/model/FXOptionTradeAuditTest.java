@@ -10,12 +10,12 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
-import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXOptionTradeAuditTest {
+class FXOptionTradeAuditTest {
 
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;
@@ -46,7 +46,7 @@ public class FXOptionTradeAuditTest {
 			.build();
 
 	@Test
-	public void testDefaultCreationTimeOnNewFXOptionTrade() {
+	void testDefaultCreationTimeOnNewFXOptionTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).currency(usd)
 				.amount(BigDecimal.valueOf(2000)).book(book).counterparty(counterparty)
@@ -64,7 +64,7 @@ public class FXOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -76,7 +76,7 @@ public class FXOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -90,7 +90,7 @@ public class FXOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		FXOptionTrade trade = FXOptionTrade.builder().underlying(underlyingTrade).book(book).counterparty(counterparty)
 				.build();
 
@@ -103,7 +103,7 @@ public class FXOptionTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

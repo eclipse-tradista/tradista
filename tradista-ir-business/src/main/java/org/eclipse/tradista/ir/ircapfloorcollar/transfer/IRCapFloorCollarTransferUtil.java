@@ -1,7 +1,6 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.transfer;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

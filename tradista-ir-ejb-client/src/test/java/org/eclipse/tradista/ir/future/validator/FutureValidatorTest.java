@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FutureValidatorTest {
+class FutureValidatorTest {
 
 	private static final FutureValidator validator = new FutureValidator();
 	private static final FutureContractSpecification contractSpecification;
@@ -40,19 +40,19 @@ public class FutureValidatorTest {
 	}
 
 	@Test
-	public void testValidFuture() {
+	void testValidFuture() {
 		Future future = Future.builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 
 		assertDoesNotThrow(() -> validator.validateProduct(future));
 	}
 
 	@Test
-	public void testNullFuture() {
+	void testNullFuture() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(null));
 	}
 
 	@Test
-	public void testMissingExchange() {
+	void testMissingExchange() {
 		FutureContractSpecification specWithoutExchange = new FutureContractSpecification("EURIBOR_3M");
 		Future future = Future.builder("MAR26", specWithoutExchange).maturityDate(LocalDate.of(2026, 3, 20)).build();
 
@@ -60,7 +60,7 @@ public class FutureValidatorTest {
 	}
 
 	@Test
-	public void testMissingContractSpecification() {
+	void testMissingContractSpecification() {
 		Future future = Future.builder("MAR26", null).exchange(exchange).maturityDate(LocalDate.of(2026, 3, 20))
 				.build();
 
@@ -68,28 +68,28 @@ public class FutureValidatorTest {
 	}
 
 	@Test
-	public void testMissingMaturityDate() {
+	void testMissingMaturityDate() {
 		Future future = Future.builder("MAR26", contractSpecification).maturityDate(null).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(future));
 	}
 
 	@Test
-	public void testNullSymbol() {
+	void testNullSymbol() {
 		Future future = Future.builder(null, contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(future));
 	}
 
 	@Test
-	public void testEmptySymbol() {
+	void testEmptySymbol() {
 		Future future = Future.builder("", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(future));
 	}
 
 	@Test
-	public void testInvalidSymbolLength() {
+	void testInvalidSymbolLength() {
 		Future future = Future.builder("MAR2026", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20))
 				.build();
 
@@ -97,14 +97,14 @@ public class FutureValidatorTest {
 	}
 
 	@Test
-	public void testInvalidSymbolMonth() {
+	void testInvalidSymbolMonth() {
 		Future future = Future.builder("XYZ26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(future));
 	}
 
 	@Test
-	public void testInvalidSymbolYear() {
+	void testInvalidSymbolYear() {
 		Future future = Future.builder("MARXX", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validateProduct(future));

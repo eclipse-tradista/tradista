@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FutureAuditTest {
+class FutureAuditTest {
 
 	private static final FutureContractSpecification contractSpecification;
 
@@ -37,7 +37,7 @@ public class FutureAuditTest {
 	}
 
 	@Test
-	public void testDefaultCreationTimeOnNewFuture() {
+	void testDefaultCreationTimeOnNewFuture() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		Future future = Future.builder("MAR26", contractSpecification).maturityDate(LocalDate.of(2026, 3, 20)).build();
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
@@ -51,7 +51,7 @@ public class FutureAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -63,7 +63,7 @@ public class FutureAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		Future future = Future.builder("MAR26", contractSpecification).creationTime(originalCreation).build();
 
@@ -76,7 +76,7 @@ public class FutureAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		Future future = Future.of("MAR26", contractSpecification);
 
 		assertNotNull(future.getLastUpdateTime());
@@ -88,7 +88,7 @@ public class FutureAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

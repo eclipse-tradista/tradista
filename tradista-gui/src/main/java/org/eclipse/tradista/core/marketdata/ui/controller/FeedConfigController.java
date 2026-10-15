@@ -39,7 +39,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -175,6 +174,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 		mappingHigh.setCellValueFactory(cellData -> cellData.getValue().getHigh());
 		mappingLow.setCellValueFactory(cellData -> cellData.getValue().getLow());
 		mappingLast.setCellValueFactory(cellData -> cellData.getValue().getLast());
+
+		feedMappingTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		try {
 			TradistaGUIUtil.fillFeedConfigComboBox(feedConfig);
@@ -381,14 +382,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 	@FXML
 	protected void delete() {
 		try {
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Delete Feed Configuration");
-			confirmation.setHeaderText("Delete Feed Configuration");
-			confirmation.setContentText(
-					String.format("Do you want to delete this Feed Configuration %s ?", currentFeedConfig.getName()));
-
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (TradistaAlert.showConfirmationDialog("Delete Feed Configuration",
+					String.format("Do you want to delete this Feed Configuration %s ?", currentFeedConfig.getName()))) {
 				long id = currentFeedConfig.getId();
 				feedBusinessDelegate.deleteFeedConfig(id);
 				FeedConfig config = this.feedConfig.getValue();
@@ -406,70 +401,6 @@ public class FeedConfigController extends TradistaControllerAdapter {
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
-		}
-	}
-
-	class EditingCell extends TableCell<FeedMappingProperty, String> {
-
-		private TextField textField;
-
-		public EditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
-			createTextField();
-			setText(textField.getText());
-			setGraphic(textField);
-			textField.selectAll();
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			setText(getItem().toString());
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (textField != null) {
-						textField.setText(getString());
-					}
-					setText(null);
-					setGraphic(textField);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createTextField() {
-			textField = new TextField(getString());
-			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					commitEdit(textField.getText());
-				}
-			});
-
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 

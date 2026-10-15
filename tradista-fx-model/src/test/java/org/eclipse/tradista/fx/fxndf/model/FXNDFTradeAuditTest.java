@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXNDFTradeAuditTest {
+class FXNDFTradeAuditTest {
 
 	private static final Currency usd = TradistaTestUtil.USD;
 	private static final Currency brl = TradistaTestUtil.BRL;
@@ -39,7 +39,7 @@ public class FXNDFTradeAuditTest {
 	private static final Book book = TradistaTestUtil.createTradingBook();
 
 	@Test
-	public void testDefaultCreationTimeOnNewFXNDFTrade() {
+	void testDefaultCreationTimeOnNewFXNDFTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl)
 				.amount(BigDecimal.valueOf(100_000)).ndfRate(BigDecimal.valueOf(5.2)).book(book)
@@ -56,7 +56,7 @@ public class FXNDFTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -68,7 +68,7 @@ public class FXNDFTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl).book(book)
 				.counterparty(counterparty).creationTime(originalCreation).build();
@@ -82,7 +82,7 @@ public class FXNDFTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		FXNDFTrade trade = FXNDFTrade.builder().currency(usd).nonDeliverableCurrency(brl).book(book)
 				.counterparty(counterparty).build();
 
@@ -95,7 +95,7 @@ public class FXNDFTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

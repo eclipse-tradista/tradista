@@ -17,6 +17,7 @@ import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
+import org.eclipse.tradista.core.common.ui.view.TradistaEditingCell;
 import org.eclipse.tradista.core.marketdata.model.Curve;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.service.CurveBusinessDelegate;
@@ -33,14 +34,10 @@ import javafx.scene.chart.ValueAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 /********************************************************************************
  * Copyright (c) 2014 Olivier Asuncion
@@ -115,11 +112,9 @@ public class CurvesController extends TradistaControllerAdapter {
 
 		curveBusinessDelegate = new CurveBusinessDelegate();
 
-		Callback<TableColumn<RatePointProperty, String>, TableCell<RatePointProperty, String>> cellFactory = _ -> new EditingCell();
-
 		pointDate.setCellValueFactory(cellData -> cellData.getValue().getDate());
 
-		pointRate.setCellFactory(cellFactory);
+		pointRate.setCellFactory(_ -> new TradistaEditingCell<>());
 
 		pointRate.setOnEditCommit(t -> {
 			try {
@@ -133,6 +128,8 @@ public class CurvesController extends TradistaControllerAdapter {
 		});
 
 		pointRate.setCellValueFactory(cellData -> cellData.getValue().getRate());
+
+		pointsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
 		List<Year> years = new ArrayList<>();
 
@@ -237,14 +234,8 @@ public class CurvesController extends TradistaControllerAdapter {
 				throw new TradistaBusinessException("Please select a curve name.");
 			}
 
-			TradistaAlert confirmation = new TradistaAlert(AlertType.CONFIRMATION);
-			confirmation.setTitle("Delete Curve");
-			confirmation.setHeaderText("Delete Curve");
-			confirmation
-					.setContentText(String.format("Do you want to delete this Curve %s ?", curve.getValue().getName()));
-
-			Optional<ButtonType> result = confirmation.showAndWait();
-			if (result.get() == ButtonType.OK) {
+			if (TradistaAlert.showConfirmationDialog("Delete Curve",
+					String.format("Do you want to delete this Curve %s ?", curve.getValue().getName()))) {
 				curveBusinessDelegate.deleteCurve(curve.getValue());
 				Curve<? extends LocalDate, ? extends BigDecimal> selectedCurve = curve.getValue();
 				TradistaGUIUtil.fillCurveComboBox(curve);
@@ -257,69 +248,6 @@ public class CurvesController extends TradistaControllerAdapter {
 		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
-		}
-	}
-
-	class EditingCell extends TableCell<RatePointProperty, String> {
-
-		private TextField textField;
-
-		public EditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (textField != null && !StringUtils.isEmpty(textField.getText())) {
-				setItem(textField.getText());
-			}
-			super.startEdit();
-			createTextField();
-			setText(textField.getText());
-			setGraphic(textField);
-			textField.selectAll();
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			setText(getItem().toString());
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (textField != null) {
-						textField.setText(getString());
-					}
-					setText(null);
-					setGraphic(textField);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createTextField() {
-			textField = new TextField(getString());
-			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					commitEdit(textField.getText());
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
 		}
 	}
 

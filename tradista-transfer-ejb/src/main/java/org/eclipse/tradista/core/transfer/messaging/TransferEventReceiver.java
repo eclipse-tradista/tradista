@@ -5,7 +5,6 @@ import org.eclipse.tradista.core.trade.messaging.TradeEvent;
 import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.springframework.integration.annotation.Poller;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityTradeValidatorTest {
+class EquityTradeValidatorTest {
 
 	private static final EquityTradeValidator validator = new EquityTradeValidator();
 	private static final Book book = TradistaTestUtil.createTradingBook();
@@ -47,79 +47,79 @@ public class EquityTradeValidatorTest {
 	}
 
 	@Test
-	public void testValidTrade() {
+	void testValidTrade() {
 		EquityTrade trade = createValidTradeBuilder().build();
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNullTrade() {
+	void testNullTrade() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(null));
 	}
 
 	@Test
-	public void testMissingProduct() {
+	void testMissingProduct() {
 		EquityTrade trade = createValidTradeBuilder().product(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingBook() {
+	void testMissingBook() {
 		EquityTrade trade = createValidTradeBuilder().book(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingCounterparty() {
+	void testMissingCounterparty() {
 		EquityTrade trade = createValidTradeBuilder().counterparty(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingTradeDate() {
+	void testMissingTradeDate() {
 		EquityTrade trade = createValidTradeBuilder().tradeDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingSettlementDate() {
+	void testMissingSettlementDate() {
 		EquityTrade trade = createValidTradeBuilder().settlementDate(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testSettlementDateBeforeTradeDate() {
+	void testSettlementDateBeforeTradeDate() {
 		EquityTrade trade = createValidTradeBuilder().tradeDate(LocalDate.of(2025, 6, 5))
 				.settlementDate(LocalDate.of(2025, 6, 2)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testMissingQuantity() {
+	void testMissingQuantity() {
 		EquityTrade trade = createValidTradeBuilder().quantity(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroQuantity() {
+	void testZeroQuantity() {
 		EquityTrade trade = createValidTradeBuilder().quantity(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeQuantity() {
+	void testNegativeQuantity() {
 		EquityTrade trade = createValidTradeBuilder().quantity(BigDecimal.valueOf(-10)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testZeroAmount() {
+	void testZeroAmount() {
 		EquityTrade trade = createValidTradeBuilder().amount(BigDecimal.ZERO).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}
 
 	@Test
-	public void testNegativeAmount() {
+	void testNegativeAmount() {
 		EquityTrade trade = createValidTradeBuilder().amount(BigDecimal.valueOf(-5.0)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(trade));
 	}

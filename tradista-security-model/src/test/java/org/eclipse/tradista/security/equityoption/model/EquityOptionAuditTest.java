@@ -30,14 +30,14 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityOptionAuditTest {
+class EquityOptionAuditTest {
 
 	private static final EquityOptionContractSpecification contractSpecification = new EquityOptionContractSpecification(
 			"SAN_OPTION");
 	private static final Equity underlying = Equity.of(TradistaTestUtil.createExchange("EPA"), "FR0000120271");
 
 	@Test
-	public void testDefaultCreationTimeOnNewEquityOption() {
+	void testDefaultCreationTimeOnNewEquityOption() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).underlying(underlying).build();
@@ -52,7 +52,7 @@ public class EquityOptionAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -66,7 +66,7 @@ public class EquityOptionAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).creationTime(originalCreation).build();
@@ -80,7 +80,7 @@ public class EquityOptionAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		EquityOption option = EquityOption.builder("SAN_C_100", OptionTrade.Type.CALL, BigDecimal.valueOf(100),
 				LocalDate.of(2026, 6, 19), contractSpecification).build();
 
@@ -93,7 +93,7 @@ public class EquityOptionAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

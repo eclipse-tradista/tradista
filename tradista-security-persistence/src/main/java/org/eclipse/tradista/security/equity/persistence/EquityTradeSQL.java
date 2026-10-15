@@ -1,8 +1,8 @@
 package org.eclipse.tradista.security.equity.persistence;
 
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
+import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

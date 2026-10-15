@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MessageValidatorTest {
+class MessageValidatorTest {
 
 	private static final MessageValidator validator = new MessageValidator();
 	private static final Status status;
@@ -41,24 +41,24 @@ public class MessageValidatorTest {
 	}
 
 	@Test
-	public void testValidMessage() {
+	void testValidMessage() {
 		IncomingMessage message = createValidMessageBuilder().build();
 		assertDoesNotThrow(() -> validator.validateMessage(message));
 	}
 
 	@Test
-	public void testValidMessageWithoutObjectReference() {
+	void testValidMessageWithoutObjectReference() {
 		IncomingMessage message = IncomingMessage.builder().type("SYSTEM").status(status).build();
 		assertDoesNotThrow(() -> validator.validateMessage(message));
 	}
 
 	@Test
-	public void testNullMessage() {
+	void testNullMessage() {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(null));
 	}
 
 	@Test
-	public void testBlankType() {
+	void testBlankType() {
 		IncomingMessage messageNullType = createValidMessageBuilder().type(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(messageNullType));
 
@@ -67,7 +67,7 @@ public class MessageValidatorTest {
 	}
 
 	@Test
-	public void testBlankObjectTypeWhenObjectIdIsPositive() {
+	void testBlankObjectTypeWhenObjectIdIsPositive() {
 		IncomingMessage message = createValidMessageBuilder().objectType(null).objectId(100L).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(message));
 
@@ -76,7 +76,7 @@ public class MessageValidatorTest {
 	}
 
 	@Test
-	public void testObjectTypePresentWhenObjectIdIsNotPositive() {
+	void testObjectTypePresentWhenObjectIdIsNotPositive() {
 		IncomingMessage messageZero = createValidMessageBuilder().objectType("Trade").objectId(0L).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(messageZero));
 
@@ -85,7 +85,7 @@ public class MessageValidatorTest {
 	}
 
 	@Test
-	public void testNullStatus() {
+	void testNullStatus() {
 		IncomingMessage message = createValidMessageBuilder().status(null).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateMessage(message));
 	}

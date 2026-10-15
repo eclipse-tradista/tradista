@@ -6,12 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
-import org.eclipse.tradista.core.marketdata.model.VolatilitySurface;
+import org.eclipse.tradista.core.common.ui.view.TradistaComboBoxTableCell;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaVolatilitySurfaceComboBox;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameterModule;
@@ -22,10 +21,7 @@ import org.eclipse.tradista.security.equity.ui.view.TradistaEquityComboBox;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 import org.eclipse.tradista.security.equityoption.model.PricingParameterVolatilitySurfaceModule;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -34,7 +30,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
 /********************************************************************************
@@ -79,18 +74,30 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	// This method is called by the FXMLLoader when initialization is complete
 	public void initialize() {
 
-		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, Equity>, TableCell<EquityOptionVolatilitySurfaceProperty, Equity>> equityOptionVolatilitySurfaceEquityCellFactory = _ -> new EquityOptionVolatilitySurfaceEquityEditingCell();
-		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>, TableCell<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>> equityOptionVolatilitySurfaceCellFactory = _ -> new EquityOptionVolatilitySurfaceEditingCell();
+		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, Equity>, TableCell<EquityOptionVolatilitySurfaceProperty, Equity>> equityOptionVolatilitySurfaceEquityCellFactory = _ -> new TradistaComboBoxTableCell<EquityOptionVolatilitySurfaceProperty, Equity>(
+				TradistaEquityComboBox::new, (row, newEquity) -> {
+					if (newEquity != null && !newEquity.equals(row.getEquity()) && equityOptionVolatilitySurfaceTable
+							.getItems().contains(new EquityOptionVolatilitySurfaceProperty(newEquity, null))) {
+						return String.format("The Equity %s is already in the list.%n", newEquity);
+					}
+					return null;
+				});
+		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>, TableCell<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>> equityOptionVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
+				() -> (ComboBox) new TradistaVolatilitySurfaceComboBox("EquityOption"));
 
-		equityOptionVolatilitySurfaceEquity.setCellValueFactory(new PropertyValueFactory<>("equity"));
+		equityOptionVolatilitySurfaceTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
+		equityOptionVolatilitySurfaceEquity.setCellValueFactory(cellData -> cellData.getValue().getEquityProperty());
 		equityOptionVolatilitySurfaceEquity.setCellFactory(equityOptionVolatilitySurfaceEquityCellFactory);
-		equityOptionVolatilitySurfaceEquity.setOnEditCommit(t -> ((EquityOptionVolatilitySurfaceProperty) t
-				.getTableView().getItems().get(t.getTablePosition().getRow())).setEquity(t.getNewValue()));
+		equityOptionVolatilitySurfaceEquity.setOnEditCommit(
+				t -> (t.getTableView().getItems().get(t.getTablePosition().getRow())).setEquity(t.getNewValue()));
 
-		equityOptionVolatilitySurface.setCellValueFactory(new PropertyValueFactory<>("volatilitySurface"));
+		equityOptionVolatilitySurface
+				.setCellValueFactory(cellData -> cellData.getValue().getVolatilitySurfaceProperty());
 		equityOptionVolatilitySurface.setCellFactory(equityOptionVolatilitySurfaceCellFactory);
-		equityOptionVolatilitySurface.setOnEditCommit(t -> ((EquityOptionVolatilitySurfaceProperty) t.getTableView()
-				.getItems().get(t.getTablePosition().getRow())).setVolatilitySurface(t.getNewValue()));
+		equityOptionVolatilitySurface
+				.setOnEditCommit(t -> (t.getTableView().getItems().get(t.getTablePosition().getRow()))
+						.setVolatilitySurface(t.getNewValue()));
 
 		equityOptionVolatilitySurfaceEquityComboBox.setPromptText("Equity");
 		equityOptionVolatilitySurfaceComboBox.setPromptText("Equity Option Volatility Surface");
@@ -154,163 +161,6 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 		}
 	}
 
-	private class EquityOptionVolatilitySurfaceEquityEditingCell
-			extends TableCell<EquityOptionVolatilitySurfaceProperty, Equity> {
-
-		private TradistaEquityComboBox equityComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createEquityComboBox();
-			Equity equity = equityComboBox.getValue();
-			if (equity != null) {
-				setText(equity.toString());
-			}
-			setGraphic(equityComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(Equity item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (equityComboBox != null) {
-						equityComboBox.setValue(getItem());
-					}
-					setGraphic(equityComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createEquityComboBox() {
-			equityComboBox = new TradistaEquityComboBox();
-			equityComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Equity>() {
-
-				private boolean changing;
-
-				@Override
-				public void changed(ObservableValue<? extends Equity> observableValue, Equity oldEquity,
-						Equity newEquity) {
-					if (!changing && newEquity != null && oldEquity != null && !oldEquity.equals(newEquity)) {
-						StringBuilder errMsg = new StringBuilder();
-						if (equityOptionVolatilitySurfaceTable.getItems()
-								.contains(new EquityOptionVolatilitySurfaceProperty(newEquity, null))) {
-							errMsg.append(String.format("The Equity %s is already in the list.%n", newEquity));
-						}
-						if (!errMsg.isEmpty()) {
-							changing = true;
-							TradistaAlert alert = new TradistaAlert(AlertType.ERROR, errMsg.toString());
-							alert.showAndWait();
-							Platform.runLater(() -> {
-								equityComboBox.setValue(oldEquity);
-								changing = false;
-							});
-						}
-					}
-
-				}
-			});
-			if (getItem() != null) {
-				equityComboBox.setValue(getItem());
-			}
-			equityComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			equityComboBox.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					if (!equityOptionVolatilitySurfaceTable.getItems()
-							.contains(new EquityOptionVolatilitySurfaceProperty(equityComboBox.getValue(), null))) {
-						commitEdit(equityComboBox.getValue());
-					}
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
-		}
-	}
-
-	private class EquityOptionVolatilitySurfaceEditingCell
-			extends TableCell<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface> {
-
-		private TradistaVolatilitySurfaceComboBox volatilitySurfaceComboBox;
-
-		@Override
-		public void startEdit() {
-			super.startEdit();
-			createVolatilitySurfaceComboBox();
-			VolatilitySurface<?, ?, ?> surface = volatilitySurfaceComboBox.getValue();
-			if (surface != null) {
-				setText(surface.toString());
-			}
-			setGraphic(volatilitySurfaceComboBox);
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-			if (getItem() != null) {
-				setText(getItem().toString());
-			}
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(EquityOptionVolatilitySurface item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (volatilitySurfaceComboBox != null) {
-						volatilitySurfaceComboBox.setValue(getItem());
-					}
-					setGraphic(volatilitySurfaceComboBox);
-
-					setText(null);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createVolatilitySurfaceComboBox() {
-			volatilitySurfaceComboBox = new TradistaVolatilitySurfaceComboBox("EquityOption");
-			if (getItem() != null) {
-				volatilitySurfaceComboBox.setValue(getItem());
-			}
-			volatilitySurfaceComboBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			volatilitySurfaceComboBox.focusedProperty().addListener((_, _, isFocused) -> {
-				if (Boolean.FALSE.equals(isFocused)) {
-					commitEdit((EquityOptionVolatilitySurface) volatilitySurfaceComboBox.getValue());
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? StringUtils.EMPTY : getItem().toString();
-		}
-	}
-
 	public void load(PricingParameter pricingParam) {
 
 		PricingParameterVolatilitySurfaceModule module = null;
@@ -323,17 +173,17 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 
 		if (module != null) {
 
-			List<EquityOptionVolatilitySurfaceProperty> EquityOptionVolatilitySurfacePropertyList = new ArrayList<>();
+			List<EquityOptionVolatilitySurfaceProperty> equityOptionVolatilitySurfacePropertyList = new ArrayList<>();
 
 			for (Map.Entry<Equity, EquityOptionVolatilitySurface> entry : module.getVolatilitySurfaces().entrySet()) {
-				EquityOptionVolatilitySurfacePropertyList
+				equityOptionVolatilitySurfacePropertyList
 						.add(new EquityOptionVolatilitySurfaceProperty(entry.getKey(), entry.getValue()));
 			}
 
-			Collections.sort(EquityOptionVolatilitySurfacePropertyList);
+			Collections.sort(equityOptionVolatilitySurfacePropertyList);
 
 			equityOptionVolatilitySurfaceTable
-					.setItems(FXCollections.observableArrayList(EquityOptionVolatilitySurfacePropertyList));
+					.setItems(FXCollections.observableArrayList(equityOptionVolatilitySurfacePropertyList));
 		} else {
 			equityOptionVolatilitySurfaceTable.getItems().clear();
 		}
@@ -342,35 +192,42 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public PricingParameterModule buildModule() {
 		PricingParameterVolatilitySurfaceModule param = new PricingParameterVolatilitySurfaceModule();
 		for (EquityOptionVolatilitySurfaceProperty prop : equityOptionVolatilitySurfaceTable.getItems()) {
-			param.addVolatilitySurface((Equity) prop.getEquity(),
-					(EquityOptionVolatilitySurface) prop.getVolatilitySurface());
+			param.addVolatilitySurface(prop.getEquity(), prop.getVolatilitySurface());
 		}
 		return param;
 	}
 
 	protected class EquityOptionVolatilitySurfaceProperty implements Comparable<EquityOptionVolatilitySurfaceProperty> {
 
-		private final SimpleObjectProperty<Object> equity;
-		private final SimpleObjectProperty<Object> volatilitySurface;
+		private final SimpleObjectProperty<Equity> equity;
+		private final SimpleObjectProperty<EquityOptionVolatilitySurface> volatilitySurface;
 
-		private EquityOptionVolatilitySurfaceProperty(Object equity, Object volatilitySurface) {
+		private EquityOptionVolatilitySurfaceProperty(Equity equity, EquityOptionVolatilitySurface volatilitySurface) {
 			this.equity = new SimpleObjectProperty<>(equity);
 			this.volatilitySurface = new SimpleObjectProperty<>(volatilitySurface);
 		}
 
-		public Object getEquity() {
+		public Equity getEquity() {
 			return equity.get();
 		}
 
-		public void setEquity(Object equity) {
+		public SimpleObjectProperty<Equity> getEquityProperty() {
+			return equity;
+		}
+
+		public void setEquity(Equity equity) {
 			this.equity.set(equity);
 		}
 
-		public Object getVolatilitySurface() {
+		public EquityOptionVolatilitySurface getVolatilitySurface() {
 			return volatilitySurface.get();
 		}
 
-		public void setVolatilitySurface(Object volatilitySurface) {
+		public SimpleObjectProperty<EquityOptionVolatilitySurface> getVolatilitySurfaceProperty() {
+			return volatilitySurface;
+		}
+
+		public void setVolatilitySurface(EquityOptionVolatilitySurface volatilitySurface) {
 			this.volatilitySurface.set(volatilitySurface);
 		}
 

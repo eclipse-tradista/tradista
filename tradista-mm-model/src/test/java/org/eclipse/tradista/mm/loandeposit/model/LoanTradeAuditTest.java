@@ -33,13 +33,13 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class LoanTradeAuditTest {
+class LoanTradeAuditTest {
 
 	private static final Book book = TradistaTestUtil.createTradingBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 
 	@Test
-	public void testDefaultCreationTimeOnNewLoanTrade() {
+	void testDefaultCreationTimeOnNewLoanTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		LoanTrade trade = LoanTrade.builder().fixedRate(BigDecimal.valueOf(3.5)).currency(TradistaTestUtil.EUR)
 				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
@@ -58,7 +58,7 @@ public class LoanTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -70,7 +70,7 @@ public class LoanTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		LoanTrade trade = LoanTrade.builder().currency(TradistaTestUtil.EUR).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -84,7 +84,7 @@ public class LoanTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		LoanTrade trade = LoanTrade.builder().currency(TradistaTestUtil.EUR).book(book).counterparty(counterparty)
 				.build();
 
@@ -97,7 +97,7 @@ public class LoanTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

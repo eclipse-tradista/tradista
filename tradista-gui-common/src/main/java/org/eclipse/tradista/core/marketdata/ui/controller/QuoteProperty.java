@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.marketdata.model.Quote;
+import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
@@ -69,7 +70,7 @@ public class QuoteProperty {
 	}
 
 	public static ObservableList<QuoteProperty> buildTableContent(List<QuoteValue> data, Month month, Year year,
-			String quoteName, QuoteType quoteType) {
+			String quoteName, QuoteType quoteType, QuoteSet quoteSet) {
 
 		if (data == null) {
 			data = new ArrayList<>();
@@ -86,7 +87,7 @@ public class QuoteProperty {
 				List<QuoteType> quoteTypes = new QuoteBusinessDelegate().getQuoteTypesByQuoteName(quoteName);
 				for (QuoteType type : quoteTypes) {
 					QuoteValue quoteValue = new QuoteValue(cal,
-							new QuoteBusinessDelegate().getQuoteByNameAndType(quoteName, type));
+							new QuoteBusinessDelegate().getQuoteByNameAndType(quoteName, type), quoteSet);
 					if (!data.contains(quoteValue)) {
 						data.add(quoteValue);
 					}
@@ -94,7 +95,7 @@ public class QuoteProperty {
 			} else {
 				Quote quote = new QuoteBusinessDelegate().getQuoteByNameAndType(quoteName, quoteType);
 				if (quote != null) {
-					QuoteValue quoteValue = new QuoteValue(cal, quote);
+					QuoteValue quoteValue = new QuoteValue(cal, quote, quoteSet);
 					if (!data.contains(quoteValue)) {
 						data.add(quoteValue);
 					}
@@ -107,6 +108,11 @@ public class QuoteProperty {
 
 		return FXCollections.observableArrayList(toQuotePropertyList(data));
 
+	}
+
+	public static ObservableList<QuoteProperty> buildTableContent(List<QuoteValue> data, Month month, Year year,
+			String quoteName, QuoteType quoteType) {
+		return buildTableContent(data, month, year, quoteName, quoteType, null);
 	}
 
 	public static List<QuoteProperty> toQuotePropertyList(Collection<QuoteValue> data) {

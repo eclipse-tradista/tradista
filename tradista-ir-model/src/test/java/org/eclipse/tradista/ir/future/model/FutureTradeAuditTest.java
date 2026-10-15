@@ -10,13 +10,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.eclipse.tradista.core.book.model.Book;
-import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
-import org.eclipse.tradista.core.exchange.model.Exchange;
-import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
-import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -35,7 +32,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FutureTradeAuditTest {
+class FutureTradeAuditTest {
 
 	private static final Book book = TradistaTestUtil.createTradingBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
@@ -53,7 +50,7 @@ public class FutureTradeAuditTest {
 	}
 
 	@Test
-	public void testDefaultCreationTimeOnNewFutureTrade() {
+	void testDefaultCreationTimeOnNewFutureTrade() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		FutureTrade trade = FutureTrade.builder().future(future).quantity(BigDecimal.valueOf(10))
 				.amount(BigDecimal.valueOf(98.5)).book(book).counterparty(counterparty)
@@ -69,7 +66,7 @@ public class FutureTradeAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -81,7 +78,7 @@ public class FutureTradeAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateIsNoOp() {
+	void testDeprecatedSetCreationDateIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		FutureTrade trade = FutureTrade.builder().future(future).book(book).counterparty(counterparty)
 				.creationTime(originalCreation).build();
@@ -95,7 +92,7 @@ public class FutureTradeAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		FutureTrade trade = FutureTrade.builder().future(future).book(book).counterparty(counterparty).build();
 
 		assertNotNull(trade.getLastUpdateTime());
@@ -107,7 +104,7 @@ public class FutureTradeAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

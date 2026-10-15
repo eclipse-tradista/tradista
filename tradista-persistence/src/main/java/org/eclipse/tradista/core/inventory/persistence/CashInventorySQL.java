@@ -1,7 +1,8 @@
 package org.eclipse.tradista.core.inventory.persistence;
 
-import java.math.BigDecimal;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.YYYY_MM_DD;
+
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;

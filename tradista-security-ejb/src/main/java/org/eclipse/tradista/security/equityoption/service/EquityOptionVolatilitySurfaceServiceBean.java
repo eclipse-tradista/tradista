@@ -58,7 +58,7 @@ public class EquityOptionVolatilitySurfaceServiceBean implements EquityOptionVol
 	}
 
 	@Override
-	public EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(@CheckVolatilitySurfaceAccess long id) {
+	public EquityOptionVolatilitySurface getEquityOptionVolatilitySurfaceById(long id) {
 		return EquityOptionVolatilitySurfaceSQL.getEquityOptionVolatilitySurfaceById(id);
 	}
 

@@ -1,9 +1,8 @@
 package org.eclipse.tradista.core.configuration.service;
 
-import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-
 import java.math.RoundingMode;
 
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.configuration.model.UIConfiguration;
 import org.eclipse.tradista.core.user.model.User;
 

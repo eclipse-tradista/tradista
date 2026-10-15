@@ -1,7 +1,6 @@
 package org.eclipse.tradista.core.importer.service;
 
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.eclipse.tradista.core.importer.model.Importer;
 

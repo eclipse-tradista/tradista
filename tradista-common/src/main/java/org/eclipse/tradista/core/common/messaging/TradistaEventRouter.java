@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
-import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
 import org.eclipse.tradista.core.transfer.messaging.CashTransferEvent;
+import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
 import org.springframework.integration.annotation.Router;
 import org.springframework.stereotype.Component;
 

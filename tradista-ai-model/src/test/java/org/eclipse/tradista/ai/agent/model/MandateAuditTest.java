@@ -26,10 +26,10 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class MandateAuditTest {
+class MandateAuditTest {
 
 	@Test
-	public void testDefaultCreationTimeOnNewMandate() {
+	void testDefaultCreationTimeOnNewMandate() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		Mandate mandate = Mandate.of("TestMandate");
 		Instant after = Instant.now().plus(1, ChronoUnit.SECONDS);
@@ -43,7 +43,7 @@ public class MandateAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -55,7 +55,7 @@ public class MandateAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateTimeIsNoOp() {
+	void testDeprecatedSetCreationDateTimeIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		Mandate mandate = Mandate.builder("TestMandate").creationTime(originalCreation).build();
 
@@ -68,7 +68,7 @@ public class MandateAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		Mandate mandate = Mandate.of("TestMandate");
 
 		assertNotNull(mandate.getLastUpdateTime());
@@ -80,7 +80,7 @@ public class MandateAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

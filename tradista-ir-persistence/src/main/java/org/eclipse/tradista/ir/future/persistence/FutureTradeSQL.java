@@ -2,10 +2,8 @@ package org.eclipse.tradista.ir.future.persistence;
 
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUANTITY;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.BOOK_ID_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.PRODUCT_ID_FIELD;
 import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_DATE_FIELD;
-import static org.eclipse.tradista.core.trade.persistence.TradeSQL.TRADE_TABLE;
 import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.IRFORWARD_TRADE_ID_FIELD;
 import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.IRFORWARD_TRADE_TABLE;
 import static org.eclipse.tradista.ir.irforward.persistence.IRForwardTradeSQL.MATURITY_DATE_FIELD;

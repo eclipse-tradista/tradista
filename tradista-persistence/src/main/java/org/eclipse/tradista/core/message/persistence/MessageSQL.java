@@ -16,12 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.persistence.db.TradistaDB;
 import org.eclipse.tradista.core.common.persistence.util.Field;
 import org.eclipse.tradista.core.common.persistence.util.Table;
 import org.eclipse.tradista.core.common.persistence.util.TradistaDBUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.message.model.IncomingMessage;
 import org.eclipse.tradista.core.message.model.Message;
 import org.eclipse.tradista.core.message.model.OutgoingMessage;

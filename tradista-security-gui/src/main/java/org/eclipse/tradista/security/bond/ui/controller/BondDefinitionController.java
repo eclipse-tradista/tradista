@@ -1,5 +1,8 @@
 package org.eclipse.tradista.security.bond.ui.controller;
 
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
+import static org.eclipse.tradista.core.common.util.TradistaConstants.FLOAT;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,9 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.eclipse.tradista.core.common.util.TradistaConstants.FLOAT;
-import static org.eclipse.tradista.core.common.util.TradistaConstants.FIXED;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;

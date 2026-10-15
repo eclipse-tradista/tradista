@@ -3,16 +3,19 @@ package org.eclipse.tradista.core.marketdata.quandl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.Provider;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
-import org.springframework.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.jimmoores.quandl.DataSetRequest;
@@ -41,6 +44,8 @@ public class QuandlProvider implements Provider {
 
 	private static final Properties properties = new Properties();
 
+	private static final Logger logger = LoggerFactory.getLogger(QuandlProvider.class);
+
 	protected QuandlSession session;
 
 	{
@@ -49,8 +54,7 @@ public class QuandlProvider implements Provider {
 			properties.load(in);
 			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -70,7 +74,7 @@ public class QuandlProvider implements Provider {
 				for (Map.Entry<String, String> entry : fieldMapping.entrySet()) {
 					if (!StringUtils.isEmpty(entry.getValue())) {
 						for (final Row row : result) {
-							QuoteValue quoteValue = new QuoteValue(java.time.LocalDate.now(),
+							QuoteValue quoteValue = new QuoteValue(java.time.LocalDate.now(ZoneId.systemDefault()),
 									feedConfig.getMapping().get(data));
 							quoteValue.setEnteredDate(java.time.LocalDate.now());
 							quoteValue.setSourceName(feedConfig.getFeedType().toString());

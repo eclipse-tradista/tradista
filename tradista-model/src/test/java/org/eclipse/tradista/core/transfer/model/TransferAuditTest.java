@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class TransferAuditTest {
+class TransferAuditTest {
 
 	private static final Currency currency = new Currency("EUR");
 	private static final Book book;
@@ -43,7 +43,7 @@ public class TransferAuditTest {
 	}
 
 	@Test
-	public void testDefaultCreationTimeOnNewTransfer() {
+	void testDefaultCreationTimeOnNewTransfer() {
 		Instant before = Instant.now().minus(1, ChronoUnit.SECONDS);
 		CashTransfer transfer = CashTransfer
 				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency)
@@ -59,7 +59,7 @@ public class TransferAuditTest {
 	}
 
 	@Test
-	public void testExplicitCreationTimeViaBuilder() {
+	void testExplicitCreationTimeViaBuilder() {
 		Instant historicalCreation = Instant.parse("2024-01-15T10:30:00Z");
 		Instant historicalUpdate = Instant.parse("2024-01-16T14:20:00Z");
 
@@ -72,7 +72,7 @@ public class TransferAuditTest {
 	}
 
 	@Test
-	public void testDeprecatedSetCreationDateTimeIsNoOp() {
+	void testDeprecatedSetCreationDateTimeIsNoOp() {
 		Instant originalCreation = Instant.parse("2024-05-10T08:00:00Z");
 		CashTransfer transfer = CashTransfer
 				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency)
@@ -87,7 +87,7 @@ public class TransferAuditTest {
 	}
 
 	@Test
-	public void testLastUpdateTimeModification() {
+	void testLastUpdateTimeModification() {
 		CashTransfer transfer = CashTransfer
 				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.of(2025, 6, 1), currency).build();
 
@@ -100,7 +100,7 @@ public class TransferAuditTest {
 	}
 
 	@Test
-	public void testToBuilderPreservesAuditFields() {
+	void testToBuilderPreservesAuditFields() {
 		Instant creationTime = Instant.parse("2024-02-01T12:00:00Z");
 		Instant lastUpdateTime = Instant.parse("2024-02-02T15:00:00Z");
 

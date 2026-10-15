@@ -154,6 +154,12 @@ public class QuoteValue extends TradistaObject implements MarketData, Comparable
 		this.date = date;
 	}
 
+	public QuoteValue(LocalDate date, Quote quote, QuoteSet quoteSet) {
+		this.quote = quote;
+		this.date = date;
+		this.quoteSet = quoteSet;
+	}
+
 	public QuoteValue(LocalDate date, BigDecimal bid, BigDecimal ask, BigDecimal open, BigDecimal close,
 			BigDecimal high, BigDecimal low, BigDecimal last, String sourceName) {
 		this.date = date;

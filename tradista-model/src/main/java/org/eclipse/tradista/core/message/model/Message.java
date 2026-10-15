@@ -1,7 +1,5 @@
 package org.eclipse.tradista.core.message.model;
 
-import java.time.Instant;
-
 import org.eclipse.tradista.core.common.model.TimestampedObject;
 import org.eclipse.tradista.core.workflow.model.Status;
 import org.eclipse.tradista.core.workflow.model.WorkflowObject;

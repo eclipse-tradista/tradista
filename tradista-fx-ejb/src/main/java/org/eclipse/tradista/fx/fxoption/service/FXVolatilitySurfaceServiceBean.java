@@ -69,7 +69,7 @@ public class FXVolatilitySurfaceServiceBean implements FXVolatilitySurfaceServic
 	}
 
 	@Override
-	public FXVolatilitySurface getFXVolatilitySurfaceById(@CheckVolatilitySurfaceAccess long id) {
+	public FXVolatilitySurface getFXVolatilitySurfaceById(long id) {
 		return FXVolatilitySurfaceSQL.getFXVolatilitySurfaceById(id);
 	}
 
