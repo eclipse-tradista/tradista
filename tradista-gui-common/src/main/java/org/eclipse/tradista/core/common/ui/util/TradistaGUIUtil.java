@@ -82,6 +82,8 @@ import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -143,6 +145,8 @@ import javafx.util.Callback;
 
 public final class TradistaGUIUtil {
 
+	private static final String GLOBAL = "Global";
+
 	private static final int GOLDEN_RATIO_WIDTH = 16;
 
 	private static final int GOLDEN_RATIO_HEIGHT = 38;
@@ -170,6 +174,8 @@ public final class TradistaGUIUtil {
 	private static final String WARNING_CSS_CLASS = "labelWarning";
 
 	private static final String ERROR_CSS_CLASS = "labelError";
+
+	private static final Logger logger = LoggerFactory.getLogger(TradistaGUIUtil.class);
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss z");
 
@@ -786,7 +792,7 @@ public final class TradistaGUIUtil {
 				if (empty || fc == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = fc.getProcessingOrg() == null ? "Global" : fc.getProcessingOrg().getShortName();
+					String poSuffix = fc.getProcessingOrg() == null ? GLOBAL : fc.getProcessingOrg().getShortName();
 					setText(fc.getName() + " [" + poSuffix + "]");
 				} else {
 					setText(fc.getName());
@@ -844,7 +850,7 @@ public final class TradistaGUIUtil {
 				if (empty || qs == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = qs.getProcessingOrg() == null ? "Global" : qs.getProcessingOrg().getShortName();
+					String poSuffix = qs.getProcessingOrg() == null ? GLOBAL : qs.getProcessingOrg().getShortName();
 					setText(qs.getName() + " [" + poSuffix + "]");
 				} else {
 					setText(qs.getName());
@@ -863,7 +869,10 @@ public final class TradistaGUIUtil {
 	 * Disambiguates names for global administrators.
 	 * 
 	 * @param comboBox the ComboBox to fill.
+	 * @deprecated As of version 3.3.0, use {@link #fillQuoteSetComboBox(ComboBox)}
+	 *             instead.
 	 */
+	@Deprecated(since = "3.3.0", forRemoval = true)
 	public static void fillQuoteSetComboBox(QuoteSet currentQuoteSet, ComboBox<String> comboBox) {
 		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
 		Set<QuoteSet> quoteSets = null;
@@ -899,7 +908,7 @@ public final class TradistaGUIUtil {
 							setText(item + " (Multiple POs)");
 						} else if (!matches.isEmpty()) {
 							QuoteSet qs = matches.get(0);
-							String poSuffix = qs.getProcessingOrg() == null ? "Global"
+							String poSuffix = qs.getProcessingOrg() == null ? GLOBAL
 									: qs.getProcessingOrg().getShortName();
 							setText(item + " [" + poSuffix + "]");
 						} else {
@@ -949,7 +958,7 @@ public final class TradistaGUIUtil {
 				if (empty || pp == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = pp.getProcessingOrg() == null ? "Global" : pp.getProcessingOrg().getShortName();
+					String poSuffix = pp.getProcessingOrg() == null ? GLOBAL : pp.getProcessingOrg().getShortName();
 					setText(pp.getName() + " [" + poSuffix + "]");
 				} else {
 					setText(pp.getName());
@@ -1065,7 +1074,7 @@ public final class TradistaGUIUtil {
 				if (empty || curve == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
 				} else {
@@ -1116,7 +1125,7 @@ public final class TradistaGUIUtil {
 				if (empty || curve == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
 				} else {
@@ -1166,7 +1175,7 @@ public final class TradistaGUIUtil {
 				if (empty || curve == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
 				} else {
@@ -1217,7 +1226,7 @@ public final class TradistaGUIUtil {
 				if (empty || curve == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = curve.getProcessingOrg() == null ? "Global"
+					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
 				} else {
@@ -1438,7 +1447,7 @@ public final class TradistaGUIUtil {
 				if (empty || surface == null) {
 					setText(null);
 				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					String poSuffix = surface.getProcessingOrg() == null ? "Global"
+					String poSuffix = surface.getProcessingOrg() == null ? GLOBAL
 							: surface.getProcessingOrg().getShortName();
 					setText(surface.getName() + " [" + poSuffix + "]");
 				} else {
@@ -1530,7 +1539,7 @@ public final class TradistaGUIUtil {
 		try {
 			media = new Media(TradistaGUIUtil.class.getResource("/tradista-animation.mp4").toURI().toString());
 		} catch (URISyntaxException urise) {
-			urise.printStackTrace();
+			logger.error(urise.getMessage());
 		}
 		Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 		Thread thread;
@@ -1697,8 +1706,7 @@ public final class TradistaGUIUtil {
 			}
 
 		} catch (IOException ioe) {
-			// Manage logs
-			ioe.printStackTrace();
+			logger.error(ioe.getMessage());
 			throw new TradistaTechnicalException(ioe.getMessage());
 		}
 	}
@@ -1743,8 +1751,8 @@ public final class TradistaGUIUtil {
 				process.getInputStream().close();
 				process.getErrorStream().close();
 
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (IOException ioe) {
+				logger.error(ioe.getMessage());
 			}
 		}).start();
 	}
@@ -1764,12 +1772,6 @@ public final class TradistaGUIUtil {
 	public static ComboBox<InterestRateCurve> createInterestRateCurveComboBox() {
 		ComboBox<InterestRateCurve> cb = new ComboBox<>();
 		fillInterestRateCurveComboBox(cb);
-		return cb;
-	}
-
-	public static ComboBox<VolatilitySurface<?, ?, ?>> createSurfaceComboBox(String surfaceType) {
-		ComboBox<VolatilitySurface<?, ?, ?>> cb = new ComboBox<>();
-		fillSurfaceComboBox(surfaceType, cb);
 		return cb;
 	}
 }
