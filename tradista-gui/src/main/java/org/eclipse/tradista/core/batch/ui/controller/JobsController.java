@@ -17,7 +17,6 @@ import org.eclipse.tradista.core.batch.model.TradistaJobExecution;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.calendar.model.Calendar;
-import org.eclipse.tradista.core.calendar.ui.view.TradistaCalendarComboBox;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
@@ -27,15 +26,11 @@ import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaSaveConfirmationDialog;
 import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.common.util.ClientUtil;
-import org.eclipse.tradista.core.error.ui.view.TradistaErrorTypeComboBox;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaFeedConfigComboBox;
-import org.eclipse.tradista.core.marketdata.ui.view.TradistaQuoteSetComboBox;
 import org.eclipse.tradista.core.marketdata.ui.view.TradistaQuoteSetsListView;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
-import org.eclipse.tradista.core.position.ui.view.TradistaPositionDefinitionComboBox;
 
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
@@ -463,13 +458,13 @@ public class JobsController extends TradistaControllerAdapter {
 
 		private TextField textField;
 
-		private TradistaCalendarComboBox calendarComboBox;
+		private ComboBox<Calendar> calendarComboBox;
 
-		private TradistaPositionDefinitionComboBox positionDefinitionComboBox;
+		private ComboBox<PositionDefinition> positionDefinitionComboBox;
 
-		private TradistaQuoteSetComboBox quoteSetComboBox;
+		private ComboBox<QuoteSet> quoteSetComboBox;
 
-		private TradistaFeedConfigComboBox feedConfigComboBox;
+		private ComboBox<FeedConfig> feedConfigComboBox;
 
 		private TradistaQuoteSetsListView quoteSetsListView;
 
@@ -477,7 +472,7 @@ public class JobsController extends TradistaControllerAdapter {
 
 		private CheckBox checkBox;
 
-		private TradistaErrorTypeComboBox errorTypeComboBox;
+		private ComboBox<String> errorTypeComboBox;
 
 		private ComboBox<String> errorStatusComboBox;
 
@@ -589,7 +584,8 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createCalendarComboBox() {
-			calendarComboBox = new TradistaCalendarComboBox();
+			calendarComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillCalendarComboBox(calendarComboBox);
 			if (getItem() != null) {
 				calendarComboBox.setValue((Calendar) getItem());
 			}
@@ -604,7 +600,8 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createPositionDefinitionComboBox() {
-			positionDefinitionComboBox = new TradistaPositionDefinitionComboBox();
+			positionDefinitionComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillPositionDefinitionComboBox(positionDefinitionComboBox);
 			if (getItem() != null) {
 				positionDefinitionComboBox.setValue((PositionDefinition) getItem());
 			}
@@ -619,7 +616,8 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createQuoteSetComboBox() {
-			quoteSetComboBox = new TradistaQuoteSetComboBox();
+			quoteSetComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillQuoteSetComboBox(quoteSetComboBox);
 			if (getItem() != null) {
 				quoteSetComboBox.setValue((QuoteSet) getItem());
 			}
@@ -675,7 +673,8 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createFeedConfigComboBox() {
-			feedConfigComboBox = new TradistaFeedConfigComboBox();
+			feedConfigComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillFeedConfigComboBox(feedConfigComboBox);
 			if (getItem() != null) {
 				feedConfigComboBox.setValue((FeedConfig) getItem());
 			}
@@ -721,7 +720,8 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 
 		private void createErrorTypeComboBox() {
-			errorTypeComboBox = new TradistaErrorTypeComboBox();
+			errorTypeComboBox = new ComboBox<>();
+			TradistaGUIUtil.fillErrorTypeComboBox(errorTypeComboBox);
 			if (getItem() != null) {
 				errorTypeComboBox.setValue((String) getItem());
 			}

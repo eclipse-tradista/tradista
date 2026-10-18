@@ -11,7 +11,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
-<?import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.141"
 	xmlns:fx="http://javafx.com/fxml/1"
@@ -30,20 +29,20 @@
 			<HBox maxHeight="-Infinity" maxWidth="-Infinity"
 				minHeight="-Infinity" minWidth="-Infinity" GridPane.rowIndex="1">
 				<children>
-					<TradistaCurrencyComboBox
+					<ComboBox
 						fx:id="fxVolatilitySurfacePrimaryCurrencyComboBox"
 						maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>
 							<Insets right="10.0" />
 						</HBox.margin>
-					</TradistaCurrencyComboBox>
-					<TradistaCurrencyComboBox
+					</ComboBox>
+					<ComboBox
 						fx:id="fxVolatilitySurfaceQuoteCurrencyComboBox"
 						maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>
 							<Insets right="10.0" />
 						</HBox.margin>
-					</TradistaCurrencyComboBox>
+					</ComboBox>
 					<ComboBox fx:id="fxVolatilitySurfaceComboBox"
 						maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 						<HBox.margin>

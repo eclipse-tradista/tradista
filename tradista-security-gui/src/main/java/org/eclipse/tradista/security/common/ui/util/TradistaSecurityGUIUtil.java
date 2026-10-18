@@ -176,4 +176,16 @@ public final class TradistaSecurityGUIUtil {
 		}
 	}
 
+	public static ComboBox<Equity> createEquityComboBox() {
+		ComboBox<Equity> cb = new ComboBox<>();
+		fillEquityComboBox(cb);
+		return cb;
+	}
+
+	public static ComboBox<EquityOptionVolatilitySurface> createEquityOptionVolatilitySurfaceComboBox() {
+		ComboBox<EquityOptionVolatilitySurface> cb = new ComboBox<>();
+		fillEquityOptionVolatilitySurfaceComboBox(cb);
+		return cb;
+	}
+
 }

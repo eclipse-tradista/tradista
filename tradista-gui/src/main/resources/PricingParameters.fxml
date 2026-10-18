@@ -18,10 +18,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<?import org.eclipse.tradista.core.currency.ui.view.TradistaCurrencyComboBox?>
-<?import org.eclipse.tradista.core.index.ui.view.TradistaIndexComboBox?>
-<?import org.eclipse.tradista.core.product.ui.view.TradistaProductTypeComboBox?>
-
 <GridPane hgap="10.0" maxHeight="-Infinity"
 	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 	styleClass="root" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.171"
@@ -226,12 +222,12 @@
 											minHeight="-Infinity" minWidth="-Infinity"
 											GridPane.rowIndex="1">
 											<children>
-												<TradistaCurrencyComboBox
+												<ComboBox
 													fx:id="currencyComboBox">
 													<HBox.margin>
 														<Insets right="10.0" />
 													</HBox.margin>
-												</TradistaCurrencyComboBox>
+												</ComboBox>
 												<ComboBox fx:id="discountCurveComboBox" />
 											</children>
 											<opaqueInsets>
@@ -300,12 +296,12 @@
 											minHeight="-Infinity" minWidth="-Infinity"
 											GridPane.rowIndex="1">
 											<children>
-												<TradistaIndexComboBox
+												<ComboBox
 													fx:id="indexComboBox">
 													<HBox.margin>
 														<Insets right="10.0" />
 													</HBox.margin>
-												</TradistaIndexComboBox>
+												</ComboBox>
 												<ComboBox fx:id="indexCurveComboBox" />
 											</children>
 											<opaqueInsets>
@@ -375,18 +371,18 @@
 											minHeight="-Infinity" minWidth="-Infinity"
 											GridPane.rowIndex="1">
 											<children>
-												<TradistaCurrencyComboBox
+												<ComboBox
 													fx:id="primaryCurrencyComboBox">
 													<HBox.margin>
 														<Insets right="10.0" />
 													</HBox.margin>
-												</TradistaCurrencyComboBox>
-												<TradistaCurrencyComboBox
+												</ComboBox>
+												<ComboBox
 													fx:id="quoteCurrencyComboBox">
 													<HBox.margin>
 														<Insets right="10.0" />
 													</HBox.margin>
-												</TradistaCurrencyComboBox>
+												</ComboBox>
 												<ComboBox fx:id="fxCurveComboBox" />
 											</children>
 											<opaqueInsets>
@@ -545,13 +541,13 @@
 											minHeight="-Infinity" minWidth="-Infinity"
 											GridPane.rowIndex="1">
 											<children>
-												<TradistaProductTypeComboBox
+												<ComboBox
 													fx:id="productTypeComboBox" maxWidth="-Infinity"
 													minHeight="-Infinity" minWidth="-Infinity">
 													<HBox.margin>
 														<Insets right="10.0" />
 													</HBox.margin>
-												</TradistaProductTypeComboBox>
+												</ComboBox>
 												<TextField fx:id="customPricerTextField"
 													maxWidth="-Infinity" minHeight="-Infinity"
 													minWidth="-Infinity">
