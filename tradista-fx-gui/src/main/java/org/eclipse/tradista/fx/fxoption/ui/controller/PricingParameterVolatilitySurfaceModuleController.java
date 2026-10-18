@@ -81,11 +81,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public void initialize() {
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, Currency>, TableCell<FXVolatilitySurfaceProperty, Currency>> fxVolatilitySurfacePrimaryCurrencyCellFactory = _ -> new TradistaComboBoxTableCell<FXVolatilitySurfaceProperty, Currency>(
-				() -> {
-					ComboBox<Currency> cb = new ComboBox<>();
-					TradistaGUIUtil.fillCurrencyComboBox(cb);
-					return cb;
-				}, (row, newCurrency) -> {
+				TradistaGUIUtil::createCurrencyComboBox, (row, newCurrency) -> {
 					if (newCurrency != null && !newCurrency.equals(row.getPrimaryCurrency())
 							&& fxVolatilitySurfaceTable.getItems().contains(
 									new FXVolatilitySurfaceProperty(newCurrency, row.getQuoteCurrency(), null))) {
@@ -96,11 +92,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				});
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, Currency>, TableCell<FXVolatilitySurfaceProperty, Currency>> fxVolatilitySurfaceQuoteCurrencyCellFactory = _ -> new TradistaComboBoxTableCell<FXVolatilitySurfaceProperty, Currency>(
-				() -> {
-					ComboBox<Currency> cb = new ComboBox<>();
-					TradistaGUIUtil.fillCurrencyComboBox(cb);
-					return cb;
-				}, (row, newCurrency) -> {
+				TradistaGUIUtil::createCurrencyComboBox, (row, newCurrency) -> {
 					if (newCurrency != null && !newCurrency.equals(row.getQuoteCurrency())
 							&& fxVolatilitySurfaceTable.getItems().contains(
 									new FXVolatilitySurfaceProperty(row.getPrimaryCurrency(), newCurrency, null))) {
@@ -111,11 +103,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 				});
 
 		Callback<TableColumn<FXVolatilitySurfaceProperty, FXVolatilitySurface>, TableCell<FXVolatilitySurfaceProperty, FXVolatilitySurface>> fxVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
-				() -> {
-					ComboBox<FXVolatilitySurface> cb = new ComboBox<>();
-					TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(cb);
-					return cb;
-				});
+				TradistaFXGUIUtil::createFXVolatilitySurfaceComboBox);
 
 		fxVolatilitySurfaceTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 

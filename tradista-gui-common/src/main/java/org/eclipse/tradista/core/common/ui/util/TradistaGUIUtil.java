@@ -1748,4 +1748,28 @@ public final class TradistaGUIUtil {
 			}
 		}).start();
 	}
+
+	public static ComboBox<Currency> createCurrencyComboBox() {
+		ComboBox<Currency> cb = new ComboBox<>();
+		fillCurrencyComboBox(cb);
+		return cb;
+	}
+
+	public static ComboBox<Index> createIndexComboBox() {
+		ComboBox<Index> cb = new ComboBox<>();
+		fillIndexComboBox(cb);
+		return cb;
+	}
+
+	public static ComboBox<InterestRateCurve> createInterestRateCurveComboBox() {
+		ComboBox<InterestRateCurve> cb = new ComboBox<>();
+		fillInterestRateCurveComboBox(cb);
+		return cb;
+	}
+
+	public static ComboBox<VolatilitySurface<?, ?, ?>> createSurfaceComboBox(String surfaceType) {
+		ComboBox<VolatilitySurface<?, ?, ?>> cb = new ComboBox<>();
+		fillSurfaceComboBox(surfaceType, cb);
+		return cb;
+	}
 }

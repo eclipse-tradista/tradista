@@ -104,4 +104,10 @@ public final class TradistaIRGUIUtil {
 		}
 	}
 
+	public static ComboBox<SwaptionVolatilitySurface> createSwaptionVolatilitySurfaceComboBox() {
+		ComboBox<SwaptionVolatilitySurface> cb = new ComboBox<>();
+		fillSwaptionVolatilitySurfaceComboBox(cb);
+		return cb;
+	}
+
 }

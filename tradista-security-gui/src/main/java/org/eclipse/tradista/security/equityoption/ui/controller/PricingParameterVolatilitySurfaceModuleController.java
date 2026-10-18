@@ -73,11 +73,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 	public void initialize() {
 
 		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, Equity>, TableCell<EquityOptionVolatilitySurfaceProperty, Equity>> equityOptionVolatilitySurfaceEquityCellFactory = _ -> new TradistaComboBoxTableCell<EquityOptionVolatilitySurfaceProperty, Equity>(
-				() -> {
-					ComboBox<Equity> cb = new ComboBox<>();
-					TradistaSecurityGUIUtil.fillEquityComboBox(cb);
-					return cb;
-				}, (row, newEquity) -> {
+				TradistaSecurityGUIUtil::createEquityComboBox, (row, newEquity) -> {
 					if (newEquity != null && !newEquity.equals(row.getEquity()) && equityOptionVolatilitySurfaceTable
 							.getItems().contains(new EquityOptionVolatilitySurfaceProperty(newEquity, null))) {
 						return String.format("The Equity %s is already in the list.%n", newEquity);
@@ -85,11 +81,7 @@ public class PricingParameterVolatilitySurfaceModuleController extends TradistaC
 					return null;
 				});
 		Callback<TableColumn<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>, TableCell<EquityOptionVolatilitySurfaceProperty, EquityOptionVolatilitySurface>> equityOptionVolatilitySurfaceCellFactory = _ -> new TradistaComboBoxTableCell<>(
-				() -> {
-					ComboBox<EquityOptionVolatilitySurface> cb = new ComboBox<>();
-					TradistaSecurityGUIUtil.fillEquityOptionVolatilitySurfaceComboBox(cb);
-					return cb;
-				});
+				TradistaSecurityGUIUtil::createEquityOptionVolatilitySurfaceComboBox);
 
 		equityOptionVolatilitySurfaceTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 

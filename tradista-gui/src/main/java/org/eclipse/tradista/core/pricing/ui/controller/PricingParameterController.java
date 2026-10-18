@@ -74,8 +74,6 @@ import javafx.scene.layout.StackPane;
 
 public class PricingParameterController extends TradistaControllerAdapter {
 
-	private static final String CURVE = "curve";
-
 	private static final String THE_CURRENCY_PAIR_IS_ALREADY_IN_THE_LIST = "The Currency Pair %s.%s is already in the list.%n";
 
 	private static final String PRIMARY_AND_QUOTE_CURRENCIES_MUST_BE_DIFFERENT = "Primary and Quote Currencies must be different.%n";

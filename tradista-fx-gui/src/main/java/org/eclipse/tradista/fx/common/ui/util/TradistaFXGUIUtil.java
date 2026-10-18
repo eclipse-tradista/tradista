@@ -90,4 +90,10 @@ public final class TradistaFXGUIUtil {
 		}
 	}
 
+	public static ComboBox<FXVolatilitySurface> createFXVolatilitySurfaceComboBox() {
+		ComboBox<FXVolatilitySurface> cb = new ComboBox<>();
+		fillFXVolatilitySurfaceComboBox(cb);
+		return cb;
+	}
+
 }
