@@ -102,6 +102,22 @@ public class UserBusinessDelegate {
 		return SecurityUtil.run(() -> userService.getUserById(id));
 	}
 
+	/**
+	 * Authenticates a user, configures the global security context for remote EJB
+	 * invocations, and stores the authenticated user in {@link ClientUtil}.
+	 * <p>
+	 * <strong>Note:</strong> This method is intended exclusively for standalone
+	 * remote EJB clients (such as the JavaFX desktop client) running in their own
+	 * JVM. It must not be called from the web application or server-side components
+	 * (where authentication is managed per request/session by the application
+	 * server container).
+	 * </p>
+	 *
+	 * @param login    the user's login
+	 * @param password the user's password
+	 * @return the authenticated {@link User}
+	 * @throws TradistaBusinessException if the login or password is empty
+	 */
 	public User login(String login, String password) throws TradistaBusinessException {
 		User user;
 		StringBuilder errMsg = new StringBuilder();

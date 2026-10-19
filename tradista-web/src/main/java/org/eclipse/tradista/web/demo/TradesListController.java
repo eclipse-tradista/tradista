@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.service.TradeBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
 
@@ -19,6 +19,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -46,9 +47,12 @@ public class TradesListController implements Serializable {
 	private List<EquityTrade> filteredTrades;
 	private PositionDefinition posDef;
 
+	@Inject
+	private UserManager userManager;
+
 	@PostConstruct
 	public void init() {
-		posDef = new PositionDefinition(StringUtils.EMPTY, ClientUtil.getCurrentUser().getProcessingOrg());
+		posDef = new PositionDefinition(StringUtils.EMPTY, userManager.getCurrentProcessingOrg());
 		posDef.setProductType(Equity.EQUITY);
 		try {
 			posDef.setBook(new BookBusinessDelegate().getBookByNameAndPoId("Demo Book", 2));

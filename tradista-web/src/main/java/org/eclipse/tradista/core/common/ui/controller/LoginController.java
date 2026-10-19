@@ -3,16 +3,17 @@ package org.eclipse.tradista.core.common.ui.controller;
 import java.io.Serializable;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.MathProperties;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,11 +48,17 @@ public class LoginController implements Serializable {
 
 	private ConfigurationBusinessDelegate configurationBusinessDelegate;
 
+	private UserBusinessDelegate userBusinessDelegate;
+
+	@Inject
+	private UserManager userManager;
+
 	@PostConstruct
 	public void init() {
 		originalUrl = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("jakarta.servlet.forward.servlet_path");
 		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
+		userBusinessDelegate = new UserBusinessDelegate();
 	}
 
 	public String getLogin() {
@@ -78,11 +85,11 @@ public class LoginController implements Serializable {
 		HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
 		try {
 			request.login(getLogin(), getPassword());
-			ClientUtil.setCurrentUser(
-					new UserBusinessDelegate().getUserByLogin(externalContext.getUserPrincipal().getName()));
+			userManager
+					.setCurrentUser(userBusinessDelegate.getUserByLogin(externalContext.getUserPrincipal().getName()));
 			MathProperties.setUIDecimalFormat(
-					configurationBusinessDelegate.getUIConfiguration(ClientUtil.getCurrentUser()).getDecimalFormat());
-		} catch (ServletException se) {
+					configurationBusinessDelegate.getUIConfiguration(userManager.getCurrentUser()).getDecimalFormat());
+		} catch (ServletException _) {
 			context.addMessage("errMsg", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Login failed.", null));
 			return null;
 		} catch (TradistaBusinessException _) {

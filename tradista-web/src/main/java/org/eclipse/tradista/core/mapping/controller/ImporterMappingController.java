@@ -16,13 +16,13 @@ import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.importer.service.ImporterConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 import org.eclipse.tradista.core.mapping.model.MappingType;
 import org.eclipse.tradista.core.mapping.service.MappingBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.event.CellEditEvent;
@@ -33,6 +33,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -85,6 +86,9 @@ public class ImporterMappingController implements Serializable {
 
 	private List<MappingDTO> displayedMappings;
 
+	@Inject
+	private UserManager userManager;
+
 	@PostConstruct
 	public void init() {
 		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
@@ -93,23 +97,14 @@ public class ImporterMappingController implements Serializable {
 		bookBusinessDelegate = new BookBusinessDelegate();
 		Set<String> allImpNames = null;
 		processingOrgs = new TreeSet<>();
-		if (ClientUtil.currentUserIsAdmin()) {
-			LegalEntity currentPo = ClientUtil.getCurrentProcessingOrg();
-			if (currentPo != null) {
-				processingOrgs.add(currentPo);
-				processingOrg = currentPo;
-			} else {
-				Set<LegalEntity> pos = legalEntityBusinessDelegate.getAllProcessingOrgs();
-				if (pos != null) {
-					processingOrgs.addAll(pos);
-				}
-			}
+		LegalEntity currentPo = userManager.getCurrentProcessingOrg();
+		if (currentPo != null) {
+			processingOrgs.add(currentPo);
+			processingOrg = currentPo;
 		} else {
-			try {
-				processingOrgs.add(legalEntityBusinessDelegate
-						.getLegalEntityById(ClientUtil.getCurrentUser().getProcessingOrg().getId()));
-			} catch (TradistaBusinessException _) {
-				// Not expected here
+			Set<LegalEntity> pos = legalEntityBusinessDelegate.getAllProcessingOrgs();
+			if (pos != null) {
+				processingOrgs.addAll(pos);
 			}
 		}
 		allImporterNames = new HashSet<>();

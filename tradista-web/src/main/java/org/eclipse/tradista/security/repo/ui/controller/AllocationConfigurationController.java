@@ -12,8 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusinessDelegate;
@@ -24,6 +24,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -78,11 +79,14 @@ public class AllocationConfigurationController implements Serializable {
 
 	private SortedSet<LegalEntity> allProcessingOrgs;
 
+	@Inject
+	private UserManager userManager;
+
 	@PostConstruct
 	public void init() {
 		allocationConfigurationBusinessDelegate = new AllocationConfigurationBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
-		if (ClientUtil.currentUserIsAdmin()) {
+		if (userManager.isCurrentUserAdmin()) {
 			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
 			allProcessingOrgs = new TreeSet<>();
@@ -98,9 +102,9 @@ public class AllocationConfigurationController implements Serializable {
 	private void refresh() {
 		Set<AllocationConfiguration> allocConfigs = null;
 		try {
-			if (ClientUtil.getCurrentProcessingOrg() != null) {
+			if (userManager.getCurrentProcessingOrg() != null) {
 				allocConfigs = allocationConfigurationBusinessDelegate
-						.getAllocationConfigurationsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
+						.getAllocationConfigurationsByPoId(userManager.getCurrentProcessingOrg().getId());
 			} else {
 				allocConfigs = allocationConfigurationBusinessDelegate.getAllAllocationConfigurations();
 			}
@@ -127,8 +131,8 @@ public class AllocationConfigurationController implements Serializable {
 		if (allBooks == null) {
 			return new ArrayList<>();
 		}
-		LegalEntity currentPo = ClientUtil.getCurrentProcessingOrg();
-		if (ClientUtil.currentUserIsAdmin() && currentPo != null) {
+		LegalEntity currentPo = userManager.getCurrentProcessingOrg();
+		if (userManager.isCurrentUserAdmin() && currentPo != null) {
 			return allBooks.stream().filter(b -> b.getProcessingOrg().equals(currentPo))
 					.collect(java.util.stream.Collectors.toList());
 		}
@@ -216,9 +220,9 @@ public class AllocationConfigurationController implements Serializable {
 	}
 
 	public void checkSave() {
-		if (allocationConfiguration == null && ClientUtil.currentUserIsAdmin()
-				&& ClientUtil.getCurrentProcessingOrg() != null) {
-			processingOrg = ClientUtil.getCurrentProcessingOrg();
+		if (allocationConfiguration == null && userManager.isCurrentUserAdmin()
+				&& userManager.getCurrentProcessingOrg() != null) {
+			processingOrg = userManager.getCurrentProcessingOrg();
 			PrimeFaces.current().executeScript("PF('saveConfirmation').show()");
 		} else {
 			save();
@@ -261,10 +265,10 @@ public class AllocationConfigurationController implements Serializable {
 			}
 			if (allocationConfiguration == null) {
 				LegalEntity po;
-				if (ClientUtil.currentUserIsAdmin()) {
+				if (userManager.isCurrentUserAdmin()) {
 					po = processingOrg;
 				} else {
-					po = ClientUtil.getCurrentUser().getProcessingOrg();
+					po = userManager.getCurrentProcessingOrg();
 				}
 				allocationConfiguration = new AllocationConfiguration(allocationConfigurationName, po);
 			}
@@ -290,10 +294,10 @@ public class AllocationConfigurationController implements Serializable {
 		}
 		try {
 			LegalEntity po;
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (userManager.isCurrentUserAdmin()) {
 				po = copyProcessingOrg;
 			} else {
-				po = ClientUtil.getCurrentUser().getProcessingOrg();
+				po = userManager.getCurrentProcessingOrg();
 			}
 			AllocationConfiguration copyAllocationConfiguration = new AllocationConfiguration(
 					copyAllocationConfigurationName, po);
@@ -365,7 +369,7 @@ public class AllocationConfigurationController implements Serializable {
 		if (book == null) {
 			return StringUtils.EMPTY;
 		}
-		if (!ClientUtil.currentUserIsAdmin() || ClientUtil.getCurrentProcessingOrg() != null) {
+		if (!userManager.isCurrentUserAdmin() || userManager.getCurrentProcessingOrg() != null) {
 			return book.getName();
 		}
 		return book.getName() + " [" + book.getProcessingOrg().getShortName() + "]";
@@ -375,7 +379,7 @@ public class AllocationConfigurationController implements Serializable {
 		if (ac == null) {
 			return StringUtils.EMPTY;
 		}
-		if (!ClientUtil.currentUserIsAdmin() || ClientUtil.getCurrentProcessingOrg() != null) {
+		if (!userManager.isCurrentUserAdmin() || userManager.getCurrentProcessingOrg() != null) {
 			return ac.getName();
 
 		}

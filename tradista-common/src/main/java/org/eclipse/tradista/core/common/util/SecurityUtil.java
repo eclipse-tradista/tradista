@@ -48,8 +48,8 @@ public final class SecurityUtil {
 
 	public static final String CURRENT_USER = "CURRENT_USER";
 
-	static {
-		authenticationContext = AuthenticationContext.captureCurrent();
+	private static AuthenticationContext getAuthenticationContext() {
+		return authenticationContext != null ? authenticationContext : AuthenticationContext.captureCurrent();
 	}
 
 	@FunctionalInterface
@@ -59,7 +59,7 @@ public final class SecurityUtil {
 
 	public static <T, E extends TradistaBusinessException> T runEx(ExceptionSupplier<T, E> consumer) throws E {
 		try {
-			return authenticationContext.runAsSupplierEx(consumer);
+			return getAuthenticationContext().runAsSupplierEx(consumer);
 		} catch (EJBException ejbe) {
 			Throwable[] suppressedExceptions = ejbe.getSuppressed();
 			if (suppressedExceptions.length > 0) {
@@ -82,7 +82,7 @@ public final class SecurityUtil {
 
 	public static <T> T run(Supplier<T> supplier) {
 		try {
-			return authenticationContext.runAsSupplier(supplier);
+			return getAuthenticationContext().runAsSupplier(supplier);
 		} catch (RequestSendFailedException rsfe) {
 			Throwable[] suppressedExceptions = rsfe.getSuppressed();
 			if (suppressedExceptions.length > 0) {
@@ -109,7 +109,7 @@ public final class SecurityUtil {
 
 	public static void run(Runnable runnable) {
 		try {
-			authenticationContext.run(runnable);
+			getAuthenticationContext().run(runnable);
 		} catch (RequestSendFailedException rsfe) {
 			Throwable[] suppressedExceptions = rsfe.getSuppressed();
 			if (suppressedExceptions.length > 0) {
@@ -163,7 +163,7 @@ public final class SecurityUtil {
 
 	public static void runEx(final ExRunnable exRunnable) throws TradistaBusinessException {
 		try {
-			authenticationContext.runExConsumer(toExConsumer(exRunnable), null);
+			getAuthenticationContext().runExConsumer(toExConsumer(exRunnable), null);
 		} catch (RequestSendFailedException rsfe) {
 			Throwable[] suppressedExceptions = rsfe.getSuppressed();
 			if (suppressedExceptions.length > 0) {
@@ -188,6 +188,19 @@ public final class SecurityUtil {
 		}
 	}
 
+	/**
+	 * Configures the global Elytron {@link AuthenticationContext} with the given
+	 * credentials for SASL-based remote EJB invocations.
+	 * <p>
+	 * <strong>Note:</strong> This method modifies a static authentication context
+	 * and is intended exclusively for standalone remote EJB clients (such as the
+	 * JavaFX desktop client) running in their own JVM. It must not be called from
+	 * the web application or server-side components.
+	 * </p>
+	 *
+	 * @param login    the user's login
+	 * @param password the user's password
+	 */
 	public static void setCredential(String login, String password) {
 		Credential credential = new PasswordCredential(
 				ClearPassword.createRaw(ClearPassword.ALGORITHM_CLEAR, password.toCharArray()));

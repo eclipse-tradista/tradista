@@ -40,16 +40,17 @@
 									binding="#{processingOrgDefaultsController.save()}" />
 							</p:commandButton>
 							<p:outputLabel value="Load by Processing Org"
-								rendered="#{empty userManager.currentUserProcessingOrg}" />
+								styleClass="tradista-menu-item"
+								rendered="#{empty userManager.currentProcessingOrg}" />
 							<p:selectOneMenu
 								value="#{processingOrgDefaultsController.selectedPo}"
 								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
+								rendered="#{empty userManager.currentProcessingOrg}"
 								converter="legalEntityConverter">
 								<f:selectItems value="#{processingOrgDefaultsController.allPos}" />
 							</p:selectOneMenu>
 							<p:commandButton value="Load" styleClass="rounded-button"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
+								rendered="#{empty userManager.currentProcessingOrg}"
 								update="@form">
 								<f:actionListener
 									binding="#{processingOrgDefaultsController.load()}" />

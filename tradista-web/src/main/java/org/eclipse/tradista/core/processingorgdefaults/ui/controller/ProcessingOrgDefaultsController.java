@@ -10,11 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.service.InformationBusinessDelegate;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.processingorgdefaults.model.ProcessingOrgDefaults;
 import org.eclipse.tradista.core.processingorgdefaults.service.ProcessingOrgDefaultsBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -61,13 +62,16 @@ public class ProcessingOrgDefaultsController implements Serializable {
 
 	private Map<String, String> moduleControllers;
 
+	@Inject
+	private UserManager userManager;
+
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingOrgDefaultsController.class);
 
 	@PostConstruct
 	public void init() {
 		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
 		informationBusinessDelegate = new InformationBusinessDelegate();
-		LegalEntity currentPo = ClientUtil.getCurrentUser().getProcessingOrg();
+		LegalEntity currentPo = userManager.getCurrentProcessingOrg();
 		long poId = currentPo != null ? currentPo.getId() : 0;
 		if (poId > 0) {
 			try {
