@@ -30,6 +30,8 @@ import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 import org.eclipse.tradista.ir.irswapoption.service.SwaptionVolatilitySurfaceBusinessDelegate;
 import org.eclipse.tradista.ir.irswapoption.view.IRSwapOptionVolatilitySurfaceCreatorDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -67,6 +69,8 @@ import javafx.scene.layout.VBox;
  ********************************************************************************/
 
 public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatilitySurfaceController {
+
+	private static final Logger logger = LoggerFactory.getLogger(IRSwapOptionVolatilitySurfacesController.class);
 
 	@FXML
 	private TableView<SurfacePointProperty> pointsTable;
@@ -310,7 +314,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog(
 						"IRSwapOption Volatility Surface", ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -352,7 +356,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("IRSwapOption Volatility Surface",
 						surface.getProcessingOrg(), surface.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
@@ -514,8 +518,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 									: TradistaGUIUtil.parseAmount(point.getZAxis(), VOLATILITY)));
 				}
 			} catch (DateTimeParseException dtpe) {
-				// TODO Auto-generated catch block
-				dtpe.printStackTrace();
+				logger.error(dtpe.getMessage());
 			}
 		}
 
@@ -523,7 +526,7 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 	}
 
 	private String toPeriodString(Number period) {
-		String p = "";
+		String p = StringUtils.EMPTY;
 		if (period.longValue() == (30)) {
 			p = "1M";
 		}

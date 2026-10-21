@@ -235,7 +235,7 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Feed Configuration",
 						ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -277,7 +277,7 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("Feed Configuration",
 						currentFeedConfig.getProcessingOrg(), currentFeedConfig.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();

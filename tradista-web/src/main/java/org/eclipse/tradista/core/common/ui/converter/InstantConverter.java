@@ -13,6 +13,7 @@ import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
@@ -30,12 +31,15 @@ import jakarta.faces.convert.FacesConverter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@FacesConverter("instantConverter")
+@FacesConverter(value = "instantConverter", managed = true)
 public class InstantConverter implements Converter<Instant> {
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss z");
 
 	private static final Logger logger = LoggerFactory.getLogger(InstantConverter.class);
+
+	@Inject
+	private UserManager userManager;
 
 	@Override
 	public Instant getAsObject(FacesContext context, UIComponent component, String value) {
@@ -50,10 +54,6 @@ public class InstantConverter implements Converter<Instant> {
 		if (value == null) {
 			return StringUtils.EMPTY;
 		}
-
-		// 1. Retrieve the UserMAnager from the session via the Expression Language (EL)
-		UserManager userManager = context.getApplication().evaluateExpressionGet(context, "#{userManager}",
-				UserManager.class);
 
 		if (userManager != null) {
 			ZonedDateTime ldt = userManager.getUserTime(value);

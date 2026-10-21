@@ -2,11 +2,12 @@ package org.eclipse.tradista.core.user.ui.manager;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.user.model.User;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Named;
@@ -33,28 +34,55 @@ public class UserManager implements Serializable {
 
 	private static final long serialVersionUID = -3434595366265551240L;
 
-	public String getCurrentUserProcessingOrg() {
-		LegalEntity userPo = ClientUtil.getCurrentUser().getProcessingOrg();
-		if (userPo != null) {
-			return userPo.getShortName();
-		}
-		return StringUtils.EMPTY;
+	private User currentUser;
+
+	/**
+	 * The Processing Org currently selected by the admin user. When set, all
+	 * relevant UI components filter their data accordingly.
+	 */
+	private LegalEntity currentProcessingOrg;
+
+	public User getCurrentUser() {
+		return currentUser;
+	}
+
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
+		this.currentProcessingOrg = currentUser != null ? currentUser.getProcessingOrg() : null;
+	}
+
+	public LegalEntity getCurrentProcessingOrg() {
+		return currentProcessingOrg;
+	}
+
+	public void setCurrentProcessingOrg(LegalEntity currentProcessingOrg) {
+		this.currentProcessingOrg = currentProcessingOrg;
 	}
 
 	public String getCurrentUserFirstName() {
-		return ClientUtil.getCurrentUser().getFirstName();
+		return currentUser != null ? currentUser.getFirstName() : StringUtils.EMPTY;
 	}
 
 	public String getCurrentUserSurname() {
-		return ClientUtil.getCurrentUser().getSurname();
+		return currentUser != null ? currentUser.getSurname() : StringUtils.EMPTY;
+	}
+
+	public ZoneId getCurrentUserZoneId() {
+		if (currentProcessingOrg != null && currentProcessingOrg.getTimeZone() != null) {
+			return currentProcessingOrg.getTimeZone();
+		}
+		return ZoneId.systemDefault();
 	}
 
 	public ZonedDateTime getUserTime(Instant instant) {
-		return ClientUtil.getCurrentUserTime(instant);
+		if (instant == null) {
+			return null;
+		}
+		return ZonedDateTime.ofInstant(instant, getCurrentUserZoneId());
 	}
 
 	public boolean isCurrentUserAdmin() {
-		return ClientUtil.currentUserIsAdmin();
+		return currentUser != null && currentUser.isAdmin();
 	}
 
 }

@@ -28,10 +28,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.rating.model.Rating;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.primefaces.event.CellEditEvent;
 
 import jakarta.annotation.PostConstruct;
@@ -39,6 +39,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 @Named
@@ -60,6 +61,9 @@ public class RatingAgencyController implements Serializable {
 	private String newRatingDescription;
 
 	private transient RatingBusinessDelegate ratingBusinessDelegate;
+
+	@Inject
+	private UserManager userManager;
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		ratingBusinessDelegate = new RatingBusinessDelegate();
@@ -289,6 +293,6 @@ public class RatingAgencyController implements Serializable {
 	}
 
 	public boolean isAdmin() {
-		return ClientUtil.currentUserIsAdmin();
+		return userManager.isCurrentUserAdmin();
 	}
 }

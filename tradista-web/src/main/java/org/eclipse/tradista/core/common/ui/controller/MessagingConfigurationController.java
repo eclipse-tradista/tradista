@@ -12,10 +12,10 @@ import org.eclipse.tradista.core.common.messaging.model.MessagingEventSubscripti
 import org.eclipse.tradista.core.common.messaging.model.MessagingFilter;
 import org.eclipse.tradista.core.common.messaging.model.MessagingListener;
 import org.eclipse.tradista.core.common.messaging.service.MessagingConfigurationBusinessDelegate;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.trade.messaging.TradeEvent;
 import org.eclipse.tradista.core.transfer.messaging.CashTransferEvent;
 import org.eclipse.tradista.core.transfer.messaging.ProductTransferEvent;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.primefaces.model.DualListModel;
 import org.springframework.util.CollectionUtils;
 
@@ -23,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -50,6 +51,9 @@ public class MessagingConfigurationController implements Serializable {
 	private static final String RESTART_SERVER_MSG = "Configuration saved successfully. Please restart the Tradista servers to apply the changes to the messaging infrastructure.";
 
 	private MessagingConfigurationBusinessDelegate delegate;
+
+	@Inject
+	private UserManager userManager;
 
 	// Listeners
 	private List<MessagingListener> listeners;
@@ -102,7 +106,7 @@ public class MessagingConfigurationController implements Serializable {
 	// --- LISTENERS ACTIONS ---
 
 	public void addNewListener() {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to add listeners.");
 			return;
 		}
@@ -129,7 +133,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	public void saveListeners() {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to update listeners.");
 			return;
 		}
@@ -148,7 +152,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	public void saveListener(MessagingListener listener) {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to update listeners.");
 			return;
 		}
@@ -162,7 +166,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	public void deleteListener(MessagingListener listener) {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to delete listeners.");
 			return;
 		}
@@ -180,7 +184,7 @@ public class MessagingConfigurationController implements Serializable {
 	// --- FILTERS ACTIONS ---
 
 	public void addNewFilter() {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to add filters.");
 			return;
 		}
@@ -206,7 +210,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	public void deleteFilter(MessagingFilter filter) {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to delete filters.");
 			return;
 		}
@@ -260,7 +264,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	public void saveListenerFilterAssignments() {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to update filter assignments.");
 			return;
 		}
@@ -322,7 +326,7 @@ public class MessagingConfigurationController implements Serializable {
 	}
 
 	public void saveSubscriptions() {
-		if (!ClientUtil.currentUserIsAdmin()) {
+		if (!userManager.isCurrentUserAdmin()) {
 			addErrorMessage("Only administrator users are allowed to update event subscriptions.");
 			return;
 		}
@@ -349,7 +353,7 @@ public class MessagingConfigurationController implements Serializable {
 	// --- GETTERS & SETTERS ---
 
 	public boolean isCurrentUserAdmin() {
-		return ClientUtil.currentUserIsAdmin();
+		return userManager.isCurrentUserAdmin();
 	}
 
 	public List<MessagingListener> getListeners() {

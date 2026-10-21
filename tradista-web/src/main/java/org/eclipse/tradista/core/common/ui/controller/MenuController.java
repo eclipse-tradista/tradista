@@ -5,8 +5,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
@@ -17,6 +17,7 @@ import org.primefaces.model.menu.Submenu;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -43,19 +44,19 @@ public class MenuController implements Serializable {
 
 	private MenuModel model;
 
-	private LegalEntity currentProcessingOrg;
-
 	private SortedSet<LegalEntity> allProcessingOrgs;
+
+	@Inject
+	private UserManager userManager;
 
 	@PostConstruct
 	public void init() {
-		if (ClientUtil.currentUserIsAdmin()) {
+		if (userManager.isCurrentUserAdmin()) {
 			allProcessingOrgs = new TreeSet<>();
 			Set<LegalEntity> processingOrgs = new LegalEntityBusinessDelegate().getAllProcessingOrgs();
 			if (processingOrgs != null) {
 				allProcessingOrgs.addAll(processingOrgs);
 			}
-			currentProcessingOrg = ClientUtil.getCurrentProcessingOrg();
 		}
 
 		model = new DefaultMenuModel();
@@ -103,14 +104,6 @@ public class MenuController implements Serializable {
 		return "/login.xhtml?faces-redirect=true";
 	}
 
-	public LegalEntity getCurrentProcessingOrg() {
-		return currentProcessingOrg;
-	}
-
-	public void setCurrentProcessingOrg(LegalEntity currentProcessingOrg) {
-		this.currentProcessingOrg = currentProcessingOrg;
-	}
-
 	public SortedSet<LegalEntity> getAllProcessingOrgs() {
 		return allProcessingOrgs;
 	}
@@ -120,7 +113,6 @@ public class MenuController implements Serializable {
 	}
 
 	public void updateProcessingOrg() {
-		ClientUtil.setCurrentProcessingOrg(currentProcessingOrg);
 		try {
 			FacesContext.getCurrentInstance().getExternalContext()
 					.redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath()

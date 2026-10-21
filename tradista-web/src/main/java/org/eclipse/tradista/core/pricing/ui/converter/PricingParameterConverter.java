@@ -3,16 +3,17 @@ package org.eclipse.tradista.core.pricing.ui.converter;
 import java.io.Serializable;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.ConverterException;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -30,12 +31,15 @@ import jakarta.faces.convert.FacesConverter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@FacesConverter("pricingParameterConverter")
+@FacesConverter(value = "pricingParameterConverter", managed = true)
 public class PricingParameterConverter implements Serializable, Converter<PricingParameter> {
 
 	private static final long serialVersionUID = -6835622240440539539L;
 
 	private PricerBusinessDelegate pricerBusinessDelegate;
+
+	@Inject
+	private UserManager userManager;
 
 	public PricingParameterConverter() {
 		pricerBusinessDelegate = new PricerBusinessDelegate();
@@ -50,7 +54,7 @@ public class PricingParameterConverter implements Serializable, Converter<Pricin
 	public PricingParameter getAsObject(FacesContext context, UIComponent component, String value) {
 		PricingParameter pricingParameter = null;
 		try {
-			LegalEntity currentPo = ClientUtil.getCurrentUser().getProcessingOrg();
+			LegalEntity currentPo = userManager.getCurrentProcessingOrg();
 			long poId = currentPo != null ? currentPo.getId() : 0;
 			pricingParameter = pricerBusinessDelegate.getPricingParameterByNameAndPoId(value, poId);
 		} catch (TradistaBusinessException tbe) {

@@ -81,7 +81,7 @@ public class UsersController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("User",
 						ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -129,7 +129,7 @@ public class UsersController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("User", user.getProcessingOrg(), user.getLogin(),
 						false);
 				dialog.setContentText("Please enter the login of the new User:");

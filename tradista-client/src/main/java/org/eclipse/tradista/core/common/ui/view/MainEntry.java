@@ -378,7 +378,7 @@ public class MainEntry extends Application {
 
 		root.getChildren().add(menuBar);
 
-		if (ClientUtil.currentUserIsAdmin()) {
+		if (ClientUtil.isCurrentUserAdmin()) {
 			LegalEntityBusinessDelegate legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			ComboBox<LegalEntity> poComboBox = new ComboBox<>();
 			Set<LegalEntity> pos = legalEntityBusinessDelegate.getAllProcessingOrgs();

@@ -305,7 +305,7 @@ public class ZeroCouponCurvesController extends TradistaGenerableCurveController
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Zero Coupon Curve",
 						ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -354,7 +354,7 @@ public class ZeroCouponCurvesController extends TradistaGenerableCurveController
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("Zero Coupon Curve", curve.getProcessingOrg(),
 						curve.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();

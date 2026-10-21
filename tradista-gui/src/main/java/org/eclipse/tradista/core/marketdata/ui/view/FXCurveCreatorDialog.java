@@ -44,7 +44,7 @@ public class FXCurveCreatorDialog extends TradistaDialog<FXCurve> {
 
 		Label poLabel = new Label("Processing Org: ");
 		ComboBox<LegalEntity> poComboBox = new ComboBox<>();
-		boolean isAdmin = ClientUtil.currentUserIsAdmin();
+		boolean isAdmin = ClientUtil.isCurrentUserAdmin();
 		if (isAdmin) {
 			TradistaGUIUtil.fillProcessingOrgComboBox(poComboBox);
 			poComboBox.getItems().add(0, BlankLegalEntity.getInstance());

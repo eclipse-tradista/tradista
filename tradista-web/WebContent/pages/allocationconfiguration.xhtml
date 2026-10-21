@@ -28,7 +28,7 @@
 						</p:column>
 					</p:row>
 					<p:row
-						rendered="#{empty userManager.currentUserProcessingOrg and empty menuController.currentProcessingOrg}">
+						rendered="#{empty userManager.currentProcessingOrg}">
 						<p:column>
 							<p:outputLabel styleClass="tradista-menu-item"
 								value="Processing Org :" />
@@ -147,13 +147,13 @@
 						<p:column>
 							<p:outputLabel styleClass="tradista-menu-item"
 								value="Please choose a Processing Org :"
-								rendered="#{empty userManager.currentUserProcessingOrg}" />
+								rendered="#{userManager.currentUserAdmin}" />
 						</p:column>
 						<p:column>
 							<p:selectOneMenu
 								value="#{allocationConfigurationController.copyProcessingOrg}"
 								styleClass="tradista-menu-item"
-								rendered="#{empty userManager.currentUserProcessingOrg}"
+								rendered="#{userManager.currentUserAdmin}"
 								converter="legalEntityConverter">
 								<f:selectItems
 									value="#{allocationConfigurationController.allProcessingOrgs}" />

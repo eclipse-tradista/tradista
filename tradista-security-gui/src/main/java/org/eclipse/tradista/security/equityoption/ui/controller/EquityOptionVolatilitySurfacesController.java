@@ -333,7 +333,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog(
 						"Equity Option Volatility Surface", ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -376,7 +376,7 @@ public class EquityOptionVolatilitySurfacesController extends TradistaVolatility
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("Equity Option Volatility Surface",
 						surface.getProcessingOrg(), surface.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();

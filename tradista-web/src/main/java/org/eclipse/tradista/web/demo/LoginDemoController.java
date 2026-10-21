@@ -4,13 +4,14 @@ import java.io.Serializable;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
-import org.eclipse.tradista.core.common.util.ClientUtil;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
+import org.eclipse.tradista.core.user.ui.manager.UserManager;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,9 @@ public class LoginDemoController implements Serializable {
 
 	private String password;
 
+	@Inject
+	private UserManager userManager;
+
 	public String getLogin() {
 		return login;
 	}
@@ -64,7 +68,7 @@ public class LoginDemoController implements Serializable {
 		HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
 		try {
 			request.login(getLogin(), getPassword());
-			ClientUtil.setCurrentUser(
+			userManager.setCurrentUser(
 					new UserBusinessDelegate().getUserByLogin(externalContext.getUserPrincipal().getName()));
 		} catch (ServletException | TradistaBusinessException | TradistaTechnicalException e) {
 			context.addMessage(null, new FacesMessage("Login failed", e.getMessage()));
