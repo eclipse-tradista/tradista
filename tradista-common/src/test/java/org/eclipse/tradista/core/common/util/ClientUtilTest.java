@@ -42,20 +42,28 @@ class ClientUtilTest {
 
 	@Test
 	void testCurrentUserIsAdminWhenNoUserIsSet() {
-		assertFalse(ClientUtil.currentUserIsAdmin());
+		assertFalse(ClientUtil.isCurrentUserAdmin());
 	}
 
 	@Test
 	void testCurrentUserIsAdminForAdminAndRegularUser() {
 		User admin = new User("Admin", "User", null);
 		ClientUtil.setCurrentUser(admin);
-		assertTrue(ClientUtil.currentUserIsAdmin());
+		assertTrue(ClientUtil.isCurrentUserAdmin());
 
 		LegalEntity po = new LegalEntity("PO_1");
 		po.setRole(LegalEntity.Role.PROCESSING_ORG);
 		User regularUser = new User("Regular", "User", po);
 		ClientUtil.setCurrentUser(regularUser);
+		assertFalse(ClientUtil.isCurrentUserAdmin());
+	}
+
+	@Test
+	@SuppressWarnings("deprecation")
+	void testDeprecatedCurrentUserIsAdmin() {
 		assertFalse(ClientUtil.currentUserIsAdmin());
+		ClientUtil.setCurrentUser(new User("Admin", "User", null));
+		assertTrue(ClientUtil.currentUserIsAdmin());
 	}
 
 	@Test

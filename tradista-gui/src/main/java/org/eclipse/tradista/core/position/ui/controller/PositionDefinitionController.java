@@ -141,7 +141,7 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 		LegalEntity po = null;
 		boolean proceed = false;
 
-		if (ClientUtil.currentUserIsAdmin() && isNew) {
+		if (ClientUtil.isCurrentUserAdmin() && isNew) {
 			TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Position Definition",
 					ClientUtil.getCurrentProcessingOrg(), false);
 			Optional<LegalEntity> result = dialog.showAndWait();
@@ -204,7 +204,7 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 		LegalEntity po = null;
 		boolean proceed = false;
 
-		if (ClientUtil.currentUserIsAdmin()) {
+		if (ClientUtil.isCurrentUserAdmin()) {
 			TradistaCopyDialog dialog = new TradistaCopyDialog("Position Definition",
 					positionDefinition.getProcessingOrg(), nameLabel.getText(), false);
 			Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();

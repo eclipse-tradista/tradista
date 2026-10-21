@@ -319,7 +319,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("FX Curve",
 						ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -362,7 +362,7 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("FX Curve", curve.getProcessingOrg(),
 						curve.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();

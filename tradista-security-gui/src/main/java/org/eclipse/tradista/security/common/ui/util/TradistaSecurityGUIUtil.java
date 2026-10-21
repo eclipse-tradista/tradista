@@ -127,7 +127,7 @@ public final class TradistaSecurityGUIUtil {
 	public static void fillEquityOptionVolatilitySurfaceComboBox(
 			ComboBox<EquityOptionVolatilitySurface>... comboBoxes) {
 		Set<EquityOptionVolatilitySurface> surfaces = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				surfaces = equityOptionVolatilitySurfaceBusinessDelegate
 						.getEquityOptionVolatilitySurfacesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
@@ -151,7 +151,7 @@ public final class TradistaSecurityGUIUtil {
 				super.updateItem(surface, empty);
 				if (empty || surface == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = surface.getProcessingOrg() == null ? "Global"
 							: surface.getProcessingOrg().getShortName();
 					setText(surface.getName() + " [" + poSuffix + "]");

@@ -3,7 +3,6 @@ package org.eclipse.tradista.core.legalentity.ui.controller;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
@@ -75,8 +74,7 @@ public class LegalEntityController extends TradistaControllerAdapter {
 		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		role.setItems(FXCollections.observableArrayList(LegalEntity.Role.values()));
 		role.setValue(LegalEntity.Role.COUNTERPARTY);
-		List<ZoneId> zones = ZoneId.getAvailableZoneIds().stream().sorted().map(ZoneId::of)
-				.collect(Collectors.toList());
+		List<ZoneId> zones = ZoneId.getAvailableZoneIds().stream().sorted().map(ZoneId::of).toList();
 		timeZone.setItems(FXCollections.observableArrayList(zones));
 	}
 
@@ -88,7 +86,7 @@ public class LegalEntityController extends TradistaControllerAdapter {
 		confirmation.setContentText("Do you want to save this Legal Entity?");
 
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				if (legalEntity == null) {
 					legalEntity = new LegalEntity(shortName.getText());

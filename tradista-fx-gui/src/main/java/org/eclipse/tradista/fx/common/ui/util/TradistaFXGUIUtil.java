@@ -41,7 +41,7 @@ public final class TradistaFXGUIUtil {
 	@SafeVarargs
 	public static void fillFXVolatilitySurfaceComboBox(ComboBox<FXVolatilitySurface>... comboBoxes) {
 		Set<FXVolatilitySurface> surfaces = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				surfaces = fxVolatilitySurfaceBusinessDelegate
 						.getFXVolatilitySurfacesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
@@ -65,7 +65,7 @@ public final class TradistaFXGUIUtil {
 				super.updateItem(surface, empty);
 				if (empty || surface == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = surface.getProcessingOrg() == null ? "Global"
 							: surface.getProcessingOrg().getShortName();
 					setText(surface.getName() + " [" + poSuffix + "]");

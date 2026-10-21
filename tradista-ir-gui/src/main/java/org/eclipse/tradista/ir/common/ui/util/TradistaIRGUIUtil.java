@@ -55,7 +55,7 @@ public final class TradistaIRGUIUtil {
 	@SafeVarargs
 	public static void fillSwaptionVolatilitySurfaceComboBox(ComboBox<SwaptionVolatilitySurface>... comboBoxes) {
 		Set<SwaptionVolatilitySurface> surfaces = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				surfaces = swaptionVolatilitySurfaceBusinessDelegate
 						.getSwaptionVolatilitySurfacesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
@@ -79,7 +79,7 @@ public final class TradistaIRGUIUtil {
 				super.updateItem(surface, empty);
 				if (empty || surface == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = surface.getProcessingOrg() == null ? "Global"
 							: surface.getProcessingOrg().getShortName();
 					setText(surface.getName() + " [" + poSuffix + "]");

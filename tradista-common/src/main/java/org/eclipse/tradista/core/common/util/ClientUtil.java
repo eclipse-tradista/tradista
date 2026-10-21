@@ -81,8 +81,24 @@ public final class ClientUtil {
 	 * @return {@code true} if a current user is set and has administrator
 	 *         privileges, {@code false} otherwise
 	 */
-	public static boolean currentUserIsAdmin() {
+	public static boolean isCurrentUserAdmin() {
 		return currentUser != null && currentUser.isAdmin();
+	}
+
+	/**
+	 * Checks whether the currently authenticated user is an administrator.
+	 * <p>
+	 * Must only be called from standalone remote EJB clients.
+	 * </p>
+	 *
+	 * @return {@code true} if a current user is set and has administrator
+	 *         privileges, {@code false} otherwise
+	 * @deprecated As of version 3.3.0, replaced by {@link #isCurrentUserAdmin()}
+	 *             to comply with Java naming conventions.
+	 */
+	@Deprecated(since = "3.3.0", forRemoval = true)
+	public static boolean currentUserIsAdmin() {
+		return isCurrentUserAdmin();
 	}
 
 	/**

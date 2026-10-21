@@ -297,7 +297,7 @@ public class JobsController extends TradistaControllerAdapter {
 			LegalEntity selectedPo = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("Job instance",
 						currentJobInstance.getProcessingOrg(), currentJobInstance.getName(), true);
 				dialog.setContentText("Please choose a Job instance name:");
@@ -419,7 +419,7 @@ public class JobsController extends TradistaControllerAdapter {
 	@FXML
 	protected void create(ActionEvent event) {
 		LegalEntity po = null;
-		if (ClientUtil.currentUserIsAdmin()) {
+		if (ClientUtil.isCurrentUserAdmin()) {
 			TradistaSaveConfirmationDialog saveDialog = new TradistaSaveConfirmationDialog("Job Instance",
 					ClientUtil.getCurrentProcessingOrg(), true);
 			Optional<LegalEntity> saveResult = saveDialog.showAndWait();

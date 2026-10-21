@@ -700,7 +700,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillPositionDefinitionComboBox(boolean addBlank, ComboBox<PositionDefinition>... comboBoxes) {
 		Set<PositionDefinition> posDefs = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				posDefs = positionDefinitionBusinessDelegate
 						.getPositionDefinitionsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
@@ -728,7 +728,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(posDef, empty);
 				if (empty || posDef == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					if (posDef instanceof BlankPositionDefinition) {
 						setText(posDef.toString());
 					} else {
@@ -763,7 +763,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillFeedConfigComboBox(boolean addBlank, ComboBox<FeedConfig>... comboBoxes) {
 		Set<FeedConfig> feedConfigs = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				feedConfigs = feedBusinessDelegate.getFeedConfigsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -791,7 +791,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(fc, empty);
 				if (empty || fc == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = fc.getProcessingOrg() == null ? GLOBAL : fc.getProcessingOrg().getShortName();
 					setText(fc.getName() + " [" + poSuffix + "]");
 				} else {
@@ -828,7 +828,7 @@ public final class TradistaGUIUtil {
 	public static void fillQuoteSetComboBox(ComboBox<QuoteSet> comboBox) {
 		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
 		Set<QuoteSet> quoteSets = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				quoteSets = quoteBusinessDelegate.getQuoteSetsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -849,7 +849,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(qs, empty);
 				if (empty || qs == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = qs.getProcessingOrg() == null ? GLOBAL : qs.getProcessingOrg().getShortName();
 					setText(qs.getName() + " [" + poSuffix + "]");
 				} else {
@@ -876,7 +876,7 @@ public final class TradistaGUIUtil {
 	public static void fillQuoteSetComboBox(QuoteSet currentQuoteSet, ComboBox<String> comboBox) {
 		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
 		Set<QuoteSet> quoteSets = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				quoteSets = quoteBusinessDelegate.getQuoteSetsByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -892,7 +892,7 @@ public final class TradistaGUIUtil {
 
 		List<String> names = quoteSetsList.stream().map(QuoteSet::getName).distinct().toList();
 
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 			comboBox.setCellFactory(_ -> new ListCell<String>() {
 				@Override
 				protected void updateItem(String item, boolean empty) {
@@ -933,7 +933,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillPricingParameterComboBox(boolean addBlank, ComboBox<PricingParameter>... comboBoxes) {
 		Set<PricingParameter> pps = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				pps = pricerBusinessDelegate.getPricingParametersByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -957,7 +957,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(pp, empty);
 				if (empty || pp == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = pp.getProcessingOrg() == null ? GLOBAL : pp.getProcessingOrg().getShortName();
 					setText(pp.getName() + " [" + poSuffix + "]");
 				} else {
@@ -1050,7 +1050,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillInterestRateCurveComboBox(ComboBox<InterestRateCurve>... comboBoxes) {
 		Set<InterestRateCurve> curves = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				curves = interestRateCurveBusinessDelegate
 						.getInterestRateCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
@@ -1073,7 +1073,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(curve, empty);
 				if (empty || curve == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
@@ -1101,7 +1101,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillZeroCouponCurveComboBox(ComboBox<ZeroCouponCurve>... comboBoxes) {
 		Set<ZeroCouponCurve> curves = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				curves = interestRateCurveBusinessDelegate
 						.getZeroCouponCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
@@ -1124,7 +1124,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(curve, empty);
 				if (empty || curve == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
@@ -1152,7 +1152,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillFXCurveComboBox(ComboBox<FXCurve>... comboBoxes) {
 		Set<FXCurve> curves = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				curves = fxCurveBusinessDelegate.getFXCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -1174,7 +1174,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(curve, empty);
 				if (empty || curve == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
@@ -1203,7 +1203,7 @@ public final class TradistaGUIUtil {
 	public static void fillCurveComboBox(ComboBox<Curve<? extends LocalDate, ? extends BigDecimal>>... comboBoxes) {
 		Set<Curve<? extends LocalDate, ? extends BigDecimal>> curves = null;
 		CurveBusinessDelegate curveBusinessDelegate = new CurveBusinessDelegate();
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				curves = curveBusinessDelegate.getCurvesByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -1225,7 +1225,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(curve, empty);
 				if (empty || curve == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = curve.getProcessingOrg() == null ? GLOBAL
 							: curve.getProcessingOrg().getShortName();
 					setText(curve.getName() + " [" + poSuffix + "]");
@@ -1253,7 +1253,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillBookComboBox(ComboBox<Book>... comboBoxes) {
 		Set<Book> books = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				books = bookBusinessDelegate.getBooksByPoId(ClientUtil.getCurrentProcessingOrg().getId());
 			} catch (TradistaBusinessException _) {
@@ -1276,7 +1276,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(book, empty);
 				if (empty || book == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					setText(book.getName() + " [" + book.getProcessingOrg().getShortName() + "]");
 				} else {
 					setText(book.getName());
@@ -1315,7 +1315,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(user, empty);
 				if (empty || user == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poName = user.getProcessingOrg() != null
 							? " [" + user.getProcessingOrg().getShortName() + "]"
 							: " [Admin]";
@@ -1346,7 +1346,7 @@ public final class TradistaGUIUtil {
 		Set<TradistaJobInstance> jobInstances = null;
 		BatchBusinessDelegate batchBusinessDelegate = new BatchBusinessDelegate();
 		try {
-			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+			if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 				jobInstances = batchBusinessDelegate
 						.getAllJobInstances(ClientUtil.getCurrentProcessingOrg().getShortName());
 			} else {
@@ -1369,7 +1369,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(job, empty);
 				if (empty || job == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poName = job.getProcessingOrg() != null ? " [" + job.getProcessingOrg().getShortName() + "]"
 							: " [Global]";
 					setText(job.getName() + poName);
@@ -1419,7 +1419,7 @@ public final class TradistaGUIUtil {
 	@SafeVarargs
 	public static void fillSurfaceComboBox(String surfaceType, ComboBox<VolatilitySurface<?, ?, ?>>... comboBoxes) {
 		List<VolatilitySurface<?, ?, ?>> surfaces = null;
-		if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
+		if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() != null) {
 			try {
 				surfaces = surfaceBusinessDelegate.getSurfacesByTypeAndPoId(surfaceType,
 						ClientUtil.getCurrentProcessingOrg().getId());
@@ -1446,7 +1446,7 @@ public final class TradistaGUIUtil {
 				super.updateItem(surface, empty);
 				if (empty || surface == null) {
 					setText(null);
-				} else if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 					String poSuffix = surface.getProcessingOrg() == null ? GLOBAL
 							: surface.getProcessingOrg().getShortName();
 					setText(surface.getName() + " [" + poSuffix + "]");

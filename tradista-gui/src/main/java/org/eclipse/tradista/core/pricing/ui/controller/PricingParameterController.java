@@ -541,7 +541,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("Pricing Parameters Set",
 						pricingParameter.getProcessingOrg(), pricingParameter.getName(), false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
@@ -591,7 +591,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Pricing Parameters Set",
 						ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -1214,7 +1214,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (getItem() == null) {
 				return StringUtils.EMPTY;
 			}
-			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+			if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 				String poSuffix = getItem().getProcessingOrg() == null ? GLOBAL
 						: getItem().getProcessingOrg().getShortName();
 				return getItem().getName() + " [" + poSuffix + "]";
@@ -1373,7 +1373,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (getItem() == null) {
 				return StringUtils.EMPTY;
 			}
-			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+			if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 				String poSuffix = getItem().getProcessingOrg() == null ? GLOBAL
 						: getItem().getProcessingOrg().getShortName();
 				return getItem().getName() + " [" + poSuffix + "]";
@@ -1646,7 +1646,7 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			if (getItem() == null) {
 				return StringUtils.EMPTY;
 			}
-			if (ClientUtil.currentUserIsAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
+			if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
 				String poSuffix = getItem().getProcessingOrg() == null ? GLOBAL
 						: getItem().getProcessingOrg().getShortName();
 				return getItem().getName() + " [" + poSuffix + "]";

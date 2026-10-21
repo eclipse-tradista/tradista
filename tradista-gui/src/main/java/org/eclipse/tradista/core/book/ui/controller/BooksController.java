@@ -81,7 +81,7 @@ public class BooksController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin() && isNew) {
+			if (ClientUtil.isCurrentUserAdmin() && isNew) {
 				TradistaSaveConfirmationDialog dialog = new TradistaSaveConfirmationDialog("Book",
 						ClientUtil.getCurrentProcessingOrg(), false);
 				Optional<LegalEntity> result = dialog.showAndWait();
@@ -127,7 +127,7 @@ public class BooksController extends TradistaControllerAdapter {
 			LegalEntity po = null;
 			boolean proceed = false;
 
-			if (ClientUtil.currentUserIsAdmin()) {
+			if (ClientUtil.isCurrentUserAdmin()) {
 				TradistaCopyDialog dialog = new TradistaCopyDialog("Book", book.getProcessingOrg(), book.getName(),
 						false);
 				Optional<TradistaCopyDialog.Result> result = dialog.showAndWait();
