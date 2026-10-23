@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.bond.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -50,4 +52,10 @@ public class PricerMeasurePARYIELD extends PricerMeasure {
 		return bondPricerBusinessDelegate.parYieldParYield(params, trade, currency, pricingDate);
 
 	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
+	}
+
 }

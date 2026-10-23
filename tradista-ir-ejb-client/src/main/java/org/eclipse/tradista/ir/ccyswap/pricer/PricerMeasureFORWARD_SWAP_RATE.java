@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.ccyswap.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -47,6 +49,11 @@ public class PricerMeasureFORWARD_SWAP_RATE extends PricerMeasure {
 
 	public String toString() {
 		return "FORWARD_SWAP_RATE";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		ccySwapPricerBusinessDelegate = new CcySwapPricerBusinessDelegate();
 	}
 
 }

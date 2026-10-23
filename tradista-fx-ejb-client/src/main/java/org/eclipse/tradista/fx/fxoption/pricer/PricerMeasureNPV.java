@@ -1,5 +1,7 @@
 package org.eclipse.tradista.fx.fxoption.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -73,6 +75,11 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	public String toString() {
 		return "NPV";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		fxOptionPricerBusinessDelegate = new FXOptionPricerBusinessDelegate();
 	}
 
 }

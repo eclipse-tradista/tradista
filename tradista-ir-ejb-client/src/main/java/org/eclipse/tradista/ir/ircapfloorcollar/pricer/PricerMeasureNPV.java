@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -74,6 +76,11 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	public int hashCode() {
 		return getClass().hashCode();
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		irCapFloorCollarPricerBusinessDelegate = new IRCapFloorCollarPricerBusinessDelegate();
 	}
 
 }

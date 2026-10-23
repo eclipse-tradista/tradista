@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.specificrepo.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -46,4 +48,10 @@ public class PricerMeasureCOLLATERAL_MARK_TO_MARKET extends PricerMeasure {
 			throws TradistaBusinessException {
 		return specificRepoPricerBusinessDelegate.getCollateralMarkToMarket(trade, currency, pricingDate, params);
 	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();
+	}
+
 }
