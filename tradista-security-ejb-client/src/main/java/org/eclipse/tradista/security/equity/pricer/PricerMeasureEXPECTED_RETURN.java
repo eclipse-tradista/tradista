@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.equity.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasureEXPECTED_RETURN extends PricerMeasure {
 
 	private static final long serialVersionUID = 7565285618234200040L;
 
-	private EquityPricerBusinessDelegate equityPricerBusinessDelegate;
+	private transient EquityPricerBusinessDelegate equityPricerBusinessDelegate;
 
 	public PricerMeasureEXPECTED_RETURN() {
 		super();
@@ -58,6 +60,11 @@ public class PricerMeasureEXPECTED_RETURN extends PricerMeasure {
 	public BigDecimal capm(PricingParameter params, EquityTrade trade, Currency currency, LocalDate pricingDate)
 			throws PricerException, TradistaBusinessException {
 		return equityPricerBusinessDelegate.expectedReturnCapm(params, trade, currency, pricingDate);
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		equityPricerBusinessDelegate = new EquityPricerBusinessDelegate();
 	}
 
 }

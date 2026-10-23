@@ -64,12 +64,16 @@ public class ImporterMappingController implements Serializable {
 
 	private MappingType mappingTypeLoadingCriterion;
 
+	@Inject
 	private MappingBusinessDelegate mappingBusinessDelegate;
 
+	@Inject
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
 	private LegalEntity processingOrg;
@@ -91,10 +95,6 @@ public class ImporterMappingController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
-		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
-		mappingBusinessDelegate = new MappingBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
 		Set<String> allImpNames = null;
 		processingOrgs = new TreeSet<>();
 		LegalEntity currentPo = userManager.getCurrentProcessingOrg();

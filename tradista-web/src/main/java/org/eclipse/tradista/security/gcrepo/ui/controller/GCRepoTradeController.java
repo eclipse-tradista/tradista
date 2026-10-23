@@ -39,6 +39,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -77,18 +78,25 @@ public class GCRepoTradeController implements Serializable {
 
 	private Set<GCBasket> allBaskets;
 
+	@Inject
 	private GCRepoTradeBusinessDelegate gcRepoTradeBusinessDelegate;
 
+	@Inject
 	private CurrencyBusinessDelegate currencyBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	@Inject
 	private IndexBusinessDelegate indexBusinessDelegate;
 
+	@Inject
 	private GCBasketBusinessDelegate gcBasketBusinessDelegate;
 
+	@Inject
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
 
 	private String idToBeLoaded;
@@ -112,13 +120,6 @@ public class GCRepoTradeController implements Serializable {
 
 	@PostConstruct
 	public void init() throws TradistaBusinessException {
-		gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
-		gcBasketBusinessDelegate = new GCBasketBusinessDelegate();
-		currencyBusinessDelegate = new CurrencyBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
-		indexBusinessDelegate = new IndexBusinessDelegate();
-		workflowBusinessDelegate = new WorkflowBusinessDelegate();
 		allCurrencies = currencyBusinessDelegate.getAllCurrencies();
 		allCounterparties = legalEntityBusinessDelegate.getAllCounterparties();
 		allIndexes = indexBusinessDelegate.getAllIndexes();

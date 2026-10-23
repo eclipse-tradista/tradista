@@ -49,11 +49,14 @@ public class MenuController implements Serializable {
 	@Inject
 	private UserManager userManager;
 
+	@Inject
+	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
+
 	@PostConstruct
 	public void init() {
 		if (userManager.isCurrentUserAdmin()) {
 			allProcessingOrgs = new TreeSet<>();
-			Set<LegalEntity> processingOrgs = new LegalEntityBusinessDelegate().getAllProcessingOrgs();
+			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
 			if (processingOrgs != null) {
 				allProcessingOrgs.addAll(processingOrgs);
 			}

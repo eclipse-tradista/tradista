@@ -6,11 +6,13 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.ConverterException;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 /********************************************************************************
  * Copyright (c) 2022 Olivier Asuncion
@@ -28,15 +30,14 @@ import jakarta.faces.convert.FacesConverter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@FacesConverter("currencyConverter")
+@ApplicationScoped
+@FacesConverter(value = "currencyConverter", managed = true)
 public class CurrencyConverter implements Serializable, Converter<Currency> {
 
 	private static final long serialVersionUID = 3802860683043711768L;
-	private CurrencyBusinessDelegate currencyBusinessDelegate;
 
-	public CurrencyConverter() {
-		currencyBusinessDelegate = new CurrencyBusinessDelegate();
-	}
+	@Inject
+	private CurrencyBusinessDelegate currencyBusinessDelegate;
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, Currency currency) {

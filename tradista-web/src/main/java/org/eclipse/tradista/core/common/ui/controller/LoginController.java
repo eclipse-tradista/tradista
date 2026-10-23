@@ -46,8 +46,10 @@ public class LoginController implements Serializable {
 
 	private String originalUrl;
 
+	@Inject
 	private ConfigurationBusinessDelegate configurationBusinessDelegate;
 
+	@Inject
 	private UserBusinessDelegate userBusinessDelegate;
 
 	@Inject
@@ -57,8 +59,6 @@ public class LoginController implements Serializable {
 	public void init() {
 		originalUrl = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("jakarta.servlet.forward.servlet_path");
-		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
-		userBusinessDelegate = new UserBusinessDelegate();
 	}
 
 	public String getLogin() {

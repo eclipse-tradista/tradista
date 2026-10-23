@@ -14,6 +14,7 @@ import org.eclipse.tradista.security.repo.service.AllocationConfigurationBusines
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -42,10 +43,14 @@ public class ProcessingOrgDefaultsCollateralManagementController implements Seri
 
 	private SortedSet<AllocationConfiguration> allAllocationConfigurations;
 
+	@Inject
+	private QuoteBusinessDelegate quoteBusinessDelegate;
+
+	@Inject
+	private AllocationConfigurationBusinessDelegate allocationConfigurationBusinessDelegate;
+
 	@PostConstruct
 	public void init() {
-		QuoteBusinessDelegate quoteBusinessDelegate = new QuoteBusinessDelegate();
-		AllocationConfigurationBusinessDelegate allocationConfigurationBusinessDelegate = new AllocationConfigurationBusinessDelegate();
 		Set<QuoteSet> allQs = quoteBusinessDelegate.getAllQuoteSets();
 		allQuoteSets = new TreeSet<>();
 		allQuoteSets.add(BlankQuoteSet.getInstance());

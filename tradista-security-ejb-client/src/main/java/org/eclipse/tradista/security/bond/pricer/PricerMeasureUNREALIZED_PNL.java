@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.bond.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ import org.eclipse.tradista.security.bond.service.BondPricerBusinessDelegate;
 public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -6099839442804867432L;
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		super();
@@ -48,6 +50,11 @@ public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	public String toString() {
 		return "UNREALIZED_PNL";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
 	}
 
 }

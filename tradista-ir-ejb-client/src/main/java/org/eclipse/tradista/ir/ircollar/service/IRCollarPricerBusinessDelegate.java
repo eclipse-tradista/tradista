@@ -20,5 +20,4 @@ import org.eclipse.tradista.ir.ircapfloorcollar.service.IRCapFloorCollarPricerBu
 
 public class IRCollarPricerBusinessDelegate extends IRCapFloorCollarPricerBusinessDelegate {
 
-	private static final long serialVersionUID = 3141141340452971975L;
 }

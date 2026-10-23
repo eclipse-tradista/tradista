@@ -6,10 +6,12 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.common.service.SecurityBusinessDelegate;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -27,15 +29,14 @@ import jakarta.faces.convert.FacesConverter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@FacesConverter("securityConverter")
+@ApplicationScoped
+@FacesConverter(value = "securityConverter", managed = true)
 public class SecurityConverter implements Serializable, Converter<Security> {
 
 	private static final long serialVersionUID = 3469069244088871255L;
-	private SecurityBusinessDelegate securityBusinessDelegate;
 
-	public SecurityConverter() {
-		securityBusinessDelegate = new SecurityBusinessDelegate();
-	}
+	@Inject
+	private SecurityBusinessDelegate securityBusinessDelegate;
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, Security security) {

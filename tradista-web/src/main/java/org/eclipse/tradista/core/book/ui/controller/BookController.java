@@ -16,6 +16,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import software.xdev.chartjs.model.charts.DoughnutChart;
 import software.xdev.chartjs.model.color.RGBAColor;
@@ -49,8 +50,10 @@ public class BookController implements Serializable {
 
 	private String cashDonutModel;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private BookAnalysisBusinessDelegate bookAnalysisBusinessDelegate;
 
 	private Book book;
@@ -59,8 +62,6 @@ public class BookController implements Serializable {
 
 	@PostConstruct
 	public void init() throws TradistaBusinessException {
-		bookBusinessDelegate = new BookBusinessDelegate();
-		bookAnalysisBusinessDelegate = new BookAnalysisBusinessDelegate();
 		loadBook();
 	}
 

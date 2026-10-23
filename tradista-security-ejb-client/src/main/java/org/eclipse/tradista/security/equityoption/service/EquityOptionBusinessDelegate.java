@@ -1,6 +1,5 @@
 package org.eclipse.tradista.security.equityoption.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
@@ -28,9 +27,8 @@ import org.eclipse.tradista.security.equityoption.validator.EquityOptionValidato
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityOptionBusinessDelegate implements Serializable {
+public class EquityOptionBusinessDelegate {
 
-	private static final long serialVersionUID = 5129022391357676738L;
 	private EquityOptionService equityOptionService;
 
 	private EquityOptionValidator validator;

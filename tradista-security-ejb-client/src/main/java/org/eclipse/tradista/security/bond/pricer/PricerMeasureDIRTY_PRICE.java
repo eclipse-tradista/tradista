@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.bond.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasureDIRTY_PRICE extends PricerMeasure {
 
 	private static final long serialVersionUID = 2894965128990331797L;
 
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasureDIRTY_PRICE() {
 		super();
@@ -48,6 +50,11 @@ public class PricerMeasureDIRTY_PRICE extends PricerMeasure {
 
 	public String toString() {
 		return "DIRTY_PRICE";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
 	}
 
 }

@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fx.fxoption.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -28,9 +27,7 @@ import org.eclipse.tradista.fx.fxoption.validator.FXOptionTradeValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXOptionPricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -7137084591554434226L;
+public class FXOptionPricerBusinessDelegate {
 
 	private FXOptionPricerService fxOptionPricerService;
 

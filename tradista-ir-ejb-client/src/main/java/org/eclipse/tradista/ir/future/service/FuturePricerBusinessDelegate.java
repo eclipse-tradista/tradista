@@ -1,6 +1,5 @@
 package org.eclipse.tradista.ir.future.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -34,9 +33,7 @@ import org.eclipse.tradista.ir.future.validator.FutureValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FuturePricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -7137084591554434226L;
+public class FuturePricerBusinessDelegate {
 
 	private FuturePricerService futurePricerService;
 

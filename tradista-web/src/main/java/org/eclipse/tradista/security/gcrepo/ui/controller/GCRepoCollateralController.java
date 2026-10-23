@@ -36,6 +36,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import software.xdev.chartjs.model.charts.DoughnutChart;
 import software.xdev.chartjs.model.color.RGBAColor;
@@ -65,18 +66,25 @@ public class GCRepoCollateralController implements Serializable {
 
 	private static final long serialVersionUID = 3483809203529526285L;
 
+	@Inject
 	private GCRepoTradeBusinessDelegate gcRepoTradeBusinessDelegate;
 
+	@Inject
 	private GCRepoPricerBusinessDelegate gcRepoPricerBusinessDelegate;
 
+	@Inject
 	private ProductInventoryBusinessDelegate productInventoryBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate;
 
+	@Inject
 	private SecurityBusinessDelegate securityBusinessDelegate;
 
+	@Inject
 	private CollateralOptimizationBusinessDelegate collateralOptimizationBusinessDelegate;
 
 	private boolean considerBasel3LiquidityRatios;
@@ -155,13 +163,6 @@ public class GCRepoCollateralController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
-		gcRepoPricerBusinessDelegate = new GCRepoPricerBusinessDelegate();
-		productInventoryBusinessDelegate = new ProductInventoryBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
-		securityBusinessDelegate = new SecurityBusinessDelegate();
-		collateralOptimizationBusinessDelegate = new CollateralOptimizationBusinessDelegate();
 		DoughnutChart dc = new DoughnutChart();
 		dc.setData(DoughnutChart.data());
 		dc.getData().addDataset(new DoughnutDataset());

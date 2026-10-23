@@ -34,6 +34,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import software.xdev.chartjs.model.charts.DoughnutChart;
 import software.xdev.chartjs.model.color.RGBAColor;
@@ -63,16 +64,22 @@ public class SpecificRepoCollateralController implements Serializable {
 
 	private static final long serialVersionUID = 7445438652264271942L;
 
+	@Inject
 	private SpecificRepoTradeBusinessDelegate specificRepoTradeBusinessDelegate;
 
+	@Inject
 	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
+	@Inject
 	private ProductInventoryBusinessDelegate productInventoryBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate;
 
+	@Inject
 	private SecurityBusinessDelegate securityBusinessDelegate;
 
 	private String context;
@@ -147,12 +154,6 @@ public class SpecificRepoCollateralController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		specificRepoTradeBusinessDelegate = new SpecificRepoTradeBusinessDelegate();
-		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();
-		productInventoryBusinessDelegate = new ProductInventoryBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		securityBusinessDelegate = new SecurityBusinessDelegate();
-		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
 		DoughnutChart dc = new DoughnutChart();
 		dc.setData(DoughnutChart.data());
 		dc.getData().addDataset(new DoughnutDataset());

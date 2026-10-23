@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.specificrepo.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -31,7 +33,7 @@ public class PricerMeasureDELTA extends PricerMeasure {
 
 	private static final long serialVersionUID = -4718733300720843365L;
 
-	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
+	private transient SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureDELTA() {
 		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();
@@ -46,4 +48,10 @@ public class PricerMeasureDELTA extends PricerMeasure {
 			throws TradistaBusinessException {
 		return specificRepoPricerBusinessDelegate.getDelta(trade, currency, pricingDate, params);
 	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();
+	}
+
 }

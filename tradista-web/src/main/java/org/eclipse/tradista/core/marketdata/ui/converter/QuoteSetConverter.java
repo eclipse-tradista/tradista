@@ -6,11 +6,13 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.service.QuoteBusinessDelegate;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.ConverterException;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -28,16 +30,14 @@ import jakarta.faces.convert.FacesConverter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@FacesConverter("quoteSetConverter")
+@ApplicationScoped
+@FacesConverter(value = "quoteSetConverter", managed = true)
 public class QuoteSetConverter implements Serializable, Converter<QuoteSet> {
 
 	private static final long serialVersionUID = -2974706453367560177L;
 
+	@Inject
 	private QuoteBusinessDelegate quoteBusinessDelegate;
-
-	public QuoteSetConverter() {
-		quoteBusinessDelegate = new QuoteBusinessDelegate();
-	}
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, QuoteSet quoteSet) {

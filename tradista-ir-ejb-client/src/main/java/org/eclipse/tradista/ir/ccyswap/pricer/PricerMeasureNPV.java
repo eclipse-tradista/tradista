@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.ccyswap.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	private static final long serialVersionUID = -5531480017530021198L;
 
-	private CcySwapPricerBusinessDelegate ccySwapPricerBusinessDelegate;
+	private transient CcySwapPricerBusinessDelegate ccySwapPricerBusinessDelegate;
 
 	public PricerMeasureNPV() {
 		super();
@@ -47,6 +49,11 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	public String toString() {
 		return "NPV";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		ccySwapPricerBusinessDelegate = new CcySwapPricerBusinessDelegate();
 	}
 
 }

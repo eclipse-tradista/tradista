@@ -9,6 +9,7 @@ import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
@@ -31,6 +32,7 @@ import jakarta.inject.Inject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+@ApplicationScoped
 @FacesConverter(value = "instantConverter", managed = true)
 public class InstantConverter implements Converter<Instant> {
 

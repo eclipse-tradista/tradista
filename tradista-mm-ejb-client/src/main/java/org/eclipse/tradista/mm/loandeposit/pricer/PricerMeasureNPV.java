@@ -1,5 +1,7 @@
 package org.eclipse.tradista.mm.loandeposit.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -33,7 +35,7 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	private static final long serialVersionUID = 8153046384132092404L;
 
-	private LoanDepositPricerBusinessDelegate loanDepositPricerBusinessDelegate;
+	private transient LoanDepositPricerBusinessDelegate loanDepositPricerBusinessDelegate;
 
 	public PricerMeasureNPV() {
 		super();
@@ -54,6 +56,11 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	public String toString() {
 		return "NPV";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		loanDepositPricerBusinessDelegate = new LoanDepositPricerBusinessDelegate();
 	}
 
 }

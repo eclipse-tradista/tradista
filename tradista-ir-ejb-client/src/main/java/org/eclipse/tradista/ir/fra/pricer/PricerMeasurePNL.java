@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.fra.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasurePNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -9151237991706035941L;
 
-	private FRAPricerBusinessDelegate fraPricerBusinessDelegate;
+	private transient FRAPricerBusinessDelegate fraPricerBusinessDelegate;
 
 	public PricerMeasurePNL() {
 		super();
@@ -48,6 +50,11 @@ public class PricerMeasurePNL extends PricerMeasure {
 
 	public String toString() {
 		return "PNL";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		fraPricerBusinessDelegate = new FRAPricerBusinessDelegate();
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.bond.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasureYTM extends PricerMeasure {
 
 	private static final long serialVersionUID = -5591468117605558664L;
 
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasureYTM() {
 		super();
@@ -48,4 +50,10 @@ public class PricerMeasureYTM extends PricerMeasure {
 			throws PricerException, TradistaBusinessException {
 		return bondPricerBusinessDelegate.ytmNewtonRaphson(params, trade, currency, pricingDate);
 	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		bondPricerBusinessDelegate = new BondPricerBusinessDelegate();
+	}
+
 }

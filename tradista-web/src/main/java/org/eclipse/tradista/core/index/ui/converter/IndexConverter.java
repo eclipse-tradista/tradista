@@ -6,11 +6,13 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.index.service.IndexBusinessDelegate;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.ConverterException;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 /********************************************************************************
  * Copyright (c) 2023 Olivier Asuncion
@@ -28,15 +30,14 @@ import jakarta.faces.convert.FacesConverter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-@FacesConverter("indexConverter")
+@ApplicationScoped
+@FacesConverter(value = "indexConverter", managed = true)
 public class IndexConverter implements Serializable, Converter<Index> {
 
 	private static final long serialVersionUID = 1302621501579077205L;
-	private IndexBusinessDelegate indexBusinessDelegate;
 
-	public IndexConverter() {
-		indexBusinessDelegate = new IndexBusinessDelegate();
-	}
+	@Inject
+	private IndexBusinessDelegate indexBusinessDelegate;
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, Index index) {

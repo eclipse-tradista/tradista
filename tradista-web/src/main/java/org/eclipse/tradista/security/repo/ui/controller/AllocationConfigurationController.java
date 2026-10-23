@@ -59,10 +59,13 @@ public class AllocationConfigurationController implements Serializable {
 
 	private DualListModel<Book> books;
 
+	@Inject
 	private AllocationConfigurationBusinessDelegate allocationConfigurationBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
 	private List<Book> availableBooks;
@@ -84,10 +87,7 @@ public class AllocationConfigurationController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		allocationConfigurationBusinessDelegate = new AllocationConfigurationBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
 		if (userManager.isCurrentUserAdmin()) {
-			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			Set<LegalEntity> processingOrgs = legalEntityBusinessDelegate.getAllProcessingOrgs();
 			allProcessingOrgs = new TreeSet<>();
 			if (processingOrgs != null) {
