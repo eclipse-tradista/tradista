@@ -1,6 +1,5 @@
 package org.eclipse.tradista.security.specificrepo.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,9 +34,7 @@ import org.eclipse.tradista.security.specificrepo.validator.SpecificRepoTradeVal
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class SpecificRepoPricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -644716507703744185L;
+public class SpecificRepoPricerBusinessDelegate {
 
 	private SpecificRepoPricerService specificRepoPricerService;
 

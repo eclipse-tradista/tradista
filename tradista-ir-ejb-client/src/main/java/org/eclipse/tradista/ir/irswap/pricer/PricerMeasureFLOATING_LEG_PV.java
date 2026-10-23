@@ -32,7 +32,7 @@ public class PricerMeasureFLOATING_LEG_PV extends PricerMeasure {
 
 	private static final long serialVersionUID = 7840639617280222555L;
 
-	private IRSwapPricerBusinessDelegate irSwapPricerBusinessDelegate;
+	private transient IRSwapPricerBusinessDelegate irSwapPricerBusinessDelegate;
 
 	public PricerMeasureFLOATING_LEG_PV() {
 		super();

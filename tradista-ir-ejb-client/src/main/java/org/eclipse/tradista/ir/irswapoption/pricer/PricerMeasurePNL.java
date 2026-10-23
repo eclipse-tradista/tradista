@@ -31,7 +31,7 @@ import org.eclipse.tradista.ir.irswapoption.service.IRSwapOptionPricerBusinessDe
 public class PricerMeasurePNL extends PricerMeasure {
 
 	private static final long serialVersionUID = 7786232750342556854L;
-	private IRSwapOptionPricerBusinessDelegate irSwapOptionPricerBusinessDelegate;
+	private transient IRSwapOptionPricerBusinessDelegate irSwapOptionPricerBusinessDelegate;
 
 	public PricerMeasurePNL() {
 		super();

@@ -35,7 +35,7 @@ public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 	 */
 	private static final long serialVersionUID = -1554464512468028517L;
 
-	private FXPricerBusinessDelegate fxPricerBusinessDelegate;
+	private transient FXPricerBusinessDelegate fxPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		super();

@@ -33,7 +33,7 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	private static final long serialVersionUID = 8153046384132092404L;
 
-	private LoanDepositPricerBusinessDelegate loanDepositPricerBusinessDelegate;
+	private transient LoanDepositPricerBusinessDelegate loanDepositPricerBusinessDelegate;
 
 	public PricerMeasureNPV() {
 		super();

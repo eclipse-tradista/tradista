@@ -31,7 +31,7 @@ import org.eclipse.tradista.fx.fxoption.service.FXOptionPricerBusinessDelegate;
 public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -7659250755120179295L;
-	private FXOptionPricerBusinessDelegate fxOptionPricerBusinessDelegate;
+	private transient FXOptionPricerBusinessDelegate fxOptionPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		super();

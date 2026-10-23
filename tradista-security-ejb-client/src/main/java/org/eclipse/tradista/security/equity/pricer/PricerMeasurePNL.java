@@ -32,7 +32,7 @@ import org.eclipse.tradista.security.equity.service.EquityPricerBusinessDelegate
 public class PricerMeasurePNL extends PricerMeasure {
 
 	private static final long serialVersionUID = 6686801429056963228L;
-	private EquityPricerBusinessDelegate equityPricerBusinessDelegate;
+	private transient EquityPricerBusinessDelegate equityPricerBusinessDelegate;
 
 	public PricerMeasurePNL() {
 		super();

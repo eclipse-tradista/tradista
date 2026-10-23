@@ -31,7 +31,7 @@ import org.eclipse.tradista.ir.ccyswap.service.CcySwapPricerBusinessDelegate;
 public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -3447895503323793801L;
-	private CcySwapPricerBusinessDelegate ccySwapPricerBusinessDelegate;
+	private transient CcySwapPricerBusinessDelegate ccySwapPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		super();

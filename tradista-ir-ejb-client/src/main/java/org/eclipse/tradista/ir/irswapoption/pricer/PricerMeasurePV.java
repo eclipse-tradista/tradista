@@ -32,7 +32,7 @@ public class PricerMeasurePV extends PricerMeasure {
 
 	private static final long serialVersionUID = -74190369166117716L;
 
-	private IRSwapOptionPricerBusinessDelegate irSwapOptionPricerBusinessDelegate;
+	private transient IRSwapOptionPricerBusinessDelegate irSwapOptionPricerBusinessDelegate;
 
 	public PricerMeasurePV() {
 		super();

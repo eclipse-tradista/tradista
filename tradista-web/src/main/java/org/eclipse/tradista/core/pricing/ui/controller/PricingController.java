@@ -22,6 +22,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -64,12 +65,16 @@ public class PricingController implements Serializable {
 
 	private Set<QuoteSet> allQuoteSets;
 
+	@Inject
 	private PricerBusinessDelegate pricerBusinessDelegate;
 
+	@Inject
 	private QuoteBusinessDelegate quoteBusinessDelegate;
 
+	@Inject
 	private CurrencyBusinessDelegate currencyBusinessDelegate;
 
+	@Inject
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
 
 	private String pricingMethod;
@@ -84,10 +89,6 @@ public class PricingController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		pricerBusinessDelegate = new PricerBusinessDelegate();
-		quoteBusinessDelegate = new QuoteBusinessDelegate();
-		currencyBusinessDelegate = new CurrencyBusinessDelegate();
-		workflowBusinessDelegate = new WorkflowBusinessDelegate();
 		allPricingParameters = pricerBusinessDelegate.getAllPricingParameters();
 		allQuoteSets = quoteBusinessDelegate.getAllQuoteSets();
 		allCurrencies = currencyBusinessDelegate.getAllCurrencies();

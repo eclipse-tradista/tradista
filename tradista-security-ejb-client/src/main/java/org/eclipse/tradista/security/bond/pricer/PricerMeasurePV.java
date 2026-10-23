@@ -32,7 +32,7 @@ public class PricerMeasurePV extends PricerMeasure {
 
 	private static final long serialVersionUID = -8087875386122651362L;
 
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasurePV() {
 		super();

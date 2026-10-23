@@ -32,7 +32,7 @@ public class PricerMeasureFWD_LEG_NPV extends PricerMeasure {
 
 	private static final long serialVersionUID = 6957246352035416215L;
 
-	private FXSwapPricerBusinessDelegate fxSwapPricerBusinessDelegate;
+	private transient FXSwapPricerBusinessDelegate fxSwapPricerBusinessDelegate;
 
 	public PricerMeasureFWD_LEG_NPV() {
 		super();

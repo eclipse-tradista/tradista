@@ -9,10 +9,10 @@ import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.gcrepo.service.GCRepoTradeBusinessDelegate;
 import org.eclipse.tradista.security.repo.ui.controller.PartialTermination;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -39,12 +39,8 @@ public class GCRepoPartialTerminationController implements Serializable {
 
 	private Set<PartialTermination> partialTerminations;
 
+	@Inject
 	private GCRepoTradeBusinessDelegate gcRepoTradeBusinessDelegate;
-
-	@PostConstruct
-	public void init() {
-		gcRepoTradeBusinessDelegate = new GCRepoTradeBusinessDelegate();
-	}
 
 	public Set<PartialTermination> getPartialTerminations() {
 		return partialTerminations;

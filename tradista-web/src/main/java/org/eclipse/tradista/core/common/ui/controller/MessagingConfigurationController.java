@@ -50,6 +50,7 @@ public class MessagingConfigurationController implements Serializable {
 
 	private static final String RESTART_SERVER_MSG = "Configuration saved successfully. Please restart the Tradista servers to apply the changes to the messaging infrastructure.";
 
+	@Inject
 	private MessagingConfigurationBusinessDelegate delegate;
 
 	@Inject
@@ -78,7 +79,6 @@ public class MessagingConfigurationController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		delegate = new MessagingConfigurationBusinessDelegate();
 		refreshData();
 
 		// Event types

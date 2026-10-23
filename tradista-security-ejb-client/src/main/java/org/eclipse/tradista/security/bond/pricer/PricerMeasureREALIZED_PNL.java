@@ -33,7 +33,7 @@ public class PricerMeasureREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = 2703454148406424024L;
 
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasureREALIZED_PNL() {
 		super();

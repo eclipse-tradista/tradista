@@ -32,7 +32,7 @@ public class PricerMeasureDIRTY_PRICE extends PricerMeasure {
 
 	private static final long serialVersionUID = 2894965128990331797L;
 
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasureDIRTY_PRICE() {
 		super();

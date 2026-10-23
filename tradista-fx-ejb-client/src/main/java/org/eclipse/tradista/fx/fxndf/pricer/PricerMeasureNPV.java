@@ -30,7 +30,7 @@ import org.eclipse.tradista.fx.fxndf.service.FXNDFPricerBusinessDelegate;
 
 public class PricerMeasureNPV extends PricerMeasure {
 
-	private FXNDFPricerBusinessDelegate fxNdfPricerBusinessDelegate;
+	private transient FXNDFPricerBusinessDelegate fxNdfPricerBusinessDelegate;
 
 	public PricerMeasureNPV() {
 		super();

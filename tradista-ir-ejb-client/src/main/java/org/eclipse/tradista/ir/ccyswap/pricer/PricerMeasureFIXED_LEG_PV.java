@@ -32,7 +32,7 @@ public class PricerMeasureFIXED_LEG_PV extends PricerMeasure {
 
 	private static final long serialVersionUID = 1523107565112256508L;
 
-	private CcySwapPricerBusinessDelegate ccySwapPricerBusinessDelegate;
+	private transient CcySwapPricerBusinessDelegate ccySwapPricerBusinessDelegate;
 
 	public PricerMeasureFIXED_LEG_PV() {
 		super();

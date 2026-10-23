@@ -32,7 +32,7 @@ import org.eclipse.tradista.ir.future.service.FuturePricerBusinessDelegate;
 public class PricerMeasureREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -3502117436474002793L;
-	private FuturePricerBusinessDelegate futurePricerBusinessDelegate;
+	private transient FuturePricerBusinessDelegate futurePricerBusinessDelegate;
 
 	public PricerMeasureREALIZED_PNL() {
 		super();

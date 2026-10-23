@@ -32,7 +32,7 @@ import org.eclipse.tradista.security.bond.service.BondPricerBusinessDelegate;
 public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -6099839442804867432L;
-	private BondPricerBusinessDelegate bondPricerBusinessDelegate;
+	private transient BondPricerBusinessDelegate bondPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		super();

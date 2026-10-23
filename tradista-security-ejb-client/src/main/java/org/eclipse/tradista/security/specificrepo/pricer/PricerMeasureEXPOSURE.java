@@ -31,7 +31,7 @@ public class PricerMeasureEXPOSURE extends PricerMeasure {
 
 	private static final long serialVersionUID = -4097653953464619077L;
 
-	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
+	private transient SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureEXPOSURE() {
 		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();

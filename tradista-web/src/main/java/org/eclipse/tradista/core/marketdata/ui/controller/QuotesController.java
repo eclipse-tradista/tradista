@@ -19,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -53,8 +54,10 @@ public class QuotesController implements Serializable {
 
 	private boolean realTime;
 
+	@Inject
 	private QuoteBusinessDelegate quoteBusinessDelegate;
 
+	@Inject
 	private MarketDataConfigurationBusinessDelegate marketDataConfigurationBusinessDelegate;
 
 	private int frequency;
@@ -63,13 +66,11 @@ public class QuotesController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		quoteBusinessDelegate = new QuoteBusinessDelegate();
 		quoteDate = LocalDate.now();
 		allQuoteSets = quoteBusinessDelegate.getAllQuoteSets();
 		if (allQuoteSets != null) {
 			quoteSet = allQuoteSets.stream().findFirst().get();
 		}
-		marketDataConfigurationBusinessDelegate = new MarketDataConfigurationBusinessDelegate();
 	}
 
 	public void setQuoteValues(List<QuoteValue> quoteValues) {

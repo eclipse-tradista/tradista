@@ -8,6 +8,7 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
 import org.eclipse.tradista.core.user.ui.manager.UserManager;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
@@ -31,19 +32,17 @@ import jakarta.inject.Inject;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+@ApplicationScoped
 @FacesConverter(value = "pricingParameterConverter", managed = true)
 public class PricingParameterConverter implements Serializable, Converter<PricingParameter> {
 
 	private static final long serialVersionUID = -6835622240440539539L;
 
+	@Inject
 	private PricerBusinessDelegate pricerBusinessDelegate;
 
 	@Inject
 	private UserManager userManager;
-
-	public PricingParameterConverter() {
-		pricerBusinessDelegate = new PricerBusinessDelegate();
-	}
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, PricingParameter pricingParameter) {

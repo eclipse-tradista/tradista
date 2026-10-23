@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,12 +30,11 @@ import org.eclipse.tradista.fx.fxndf.validator.FXNDFTradeValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXNDFPricerBusinessDelegate implements Serializable {
+public class FXNDFPricerBusinessDelegate {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7137084591554434226L;
 
 	private FXNDFPricerService fxNdfPricerService;
 

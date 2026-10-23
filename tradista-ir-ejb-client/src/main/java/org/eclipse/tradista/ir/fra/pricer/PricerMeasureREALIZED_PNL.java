@@ -32,7 +32,7 @@ public class PricerMeasureREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -8261506502789212878L;
 
-	private FRAPricerBusinessDelegate fraPricerBusinessDelegate;
+	private transient FRAPricerBusinessDelegate fraPricerBusinessDelegate;
 
 	public PricerMeasureREALIZED_PNL() {
 		super();

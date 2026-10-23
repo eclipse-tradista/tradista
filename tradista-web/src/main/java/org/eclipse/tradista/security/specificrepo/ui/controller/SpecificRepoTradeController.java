@@ -36,6 +36,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -74,18 +75,25 @@ public class SpecificRepoTradeController implements Serializable {
 
 	private Set<Security> allSecurities;
 
+	@Inject
 	private SpecificRepoTradeBusinessDelegate specificRepoTradeBusinessDelegate;
 
+	@Inject
 	private CurrencyBusinessDelegate currencyBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	@Inject
 	private IndexBusinessDelegate indexBusinessDelegate;
 
+	@Inject
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
 
+	@Inject
 	private SecurityBusinessDelegate securityBusinessDelegate;
 
 	private String idToBeLoaded;
@@ -109,13 +117,6 @@ public class SpecificRepoTradeController implements Serializable {
 
 	@PostConstruct
 	public void init() throws TradistaBusinessException {
-		specificRepoTradeBusinessDelegate = new SpecificRepoTradeBusinessDelegate();
-		currencyBusinessDelegate = new CurrencyBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
-		indexBusinessDelegate = new IndexBusinessDelegate();
-		workflowBusinessDelegate = new WorkflowBusinessDelegate();
-		securityBusinessDelegate = new SecurityBusinessDelegate();
 		allCurrencies = currencyBusinessDelegate.getAllCurrencies();
 		allCounterparties = legalEntityBusinessDelegate.getAllCounterparties();
 		allIndexes = indexBusinessDelegate.getAllIndexes();

@@ -9,10 +9,10 @@ import org.eclipse.tradista.security.repo.ui.controller.PartialTermination;
 import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
 import org.eclipse.tradista.security.specificrepo.service.SpecificRepoTradeBusinessDelegate;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -39,12 +39,8 @@ public class SpecificRepoPartialTerminationController implements Serializable {
 
 	private Set<PartialTermination> partialTerminations;
 
+	@Inject
 	private SpecificRepoTradeBusinessDelegate specificRepoTradeBusinessDelegate;
-
-	@PostConstruct
-	public void init() {
-		specificRepoTradeBusinessDelegate = new SpecificRepoTradeBusinessDelegate();
-	}
 
 	public Set<PartialTermination> getPartialTerminations() {
 		return partialTerminations;

@@ -23,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -53,8 +54,10 @@ public class CashflowsController implements Serializable {
 
 	private InterestRateCurve discountCurve;
 
+	@Inject
 	private PricerBusinessDelegate pricerBusinessDelegate;
 
+	@Inject
 	private CashflowsAnalysisBusinessDelegate cashflowsAnalysisBusinessDelegate;
 
 	private String analysisResult;
@@ -62,8 +65,6 @@ public class CashflowsController implements Serializable {
 	@PostConstruct
 	public void init() {
 		cashflows = Collections.synchronizedList(new ArrayList<CashFlow>());
-		pricerBusinessDelegate = new PricerBusinessDelegate();
-		cashflowsAnalysisBusinessDelegate = new CashflowsAnalysisBusinessDelegate();
 	}
 
 	public void setCashflows(List<CashFlow> cashflows) {

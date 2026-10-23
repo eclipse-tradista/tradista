@@ -31,7 +31,7 @@ public class PricerMeasureCONVEXITY extends PricerMeasure {
 
 	private static final long serialVersionUID = 869121254728314160L;
 
-	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
+	private transient SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureCONVEXITY() {
 		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();

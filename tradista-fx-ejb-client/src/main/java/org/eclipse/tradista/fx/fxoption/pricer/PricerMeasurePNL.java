@@ -35,7 +35,7 @@ public class PricerMeasurePNL extends PricerMeasure {
 	 */
 	private static final long serialVersionUID = 8763653903853022052L;
 
-	private FXOptionPricerBusinessDelegate fxOptionPricerBusinessDelegate;
+	private transient FXOptionPricerBusinessDelegate fxOptionPricerBusinessDelegate;
 
 	public PricerMeasurePNL() {
 		super();

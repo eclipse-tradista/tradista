@@ -29,6 +29,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -83,12 +84,16 @@ public class MessageReportController implements Serializable {
 
 	private Set<String> allStatuses;
 
+	@Inject
 	private MessageBusinessDelegate messageBusinessDelegate;
 
+	@Inject
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
 
+	@Inject
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
+	@Inject
 	private ExporterConfigurationBusinessDelegate exporterConfigurationBusinessDelegate;
 
 	private Message selectedMsg;
@@ -97,10 +102,6 @@ public class MessageReportController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		messageBusinessDelegate = new MessageBusinessDelegate();
-		workflowBusinessDelegate = new WorkflowBusinessDelegate();
-		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
-		exporterConfigurationBusinessDelegate = new ExporterConfigurationBusinessDelegate();
 		allStatuses = workflowBusinessDelegate.getAllMessageStatusNames();
 		allTypes = messageBusinessDelegate.getAllMessageTypes();
 		allDirections = Set.of(IncomingMessage.INCOMING, OutgoingMessage.OUTGOING);

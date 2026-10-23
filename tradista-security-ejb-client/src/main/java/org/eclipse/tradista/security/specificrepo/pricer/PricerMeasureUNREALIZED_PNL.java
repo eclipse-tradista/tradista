@@ -31,7 +31,7 @@ public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -1160644913114120724L;
 
-	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
+	private transient SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();

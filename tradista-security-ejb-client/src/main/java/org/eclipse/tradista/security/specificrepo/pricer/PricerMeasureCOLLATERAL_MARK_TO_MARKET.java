@@ -31,7 +31,7 @@ public class PricerMeasureCOLLATERAL_MARK_TO_MARKET extends PricerMeasure {
 
 	private static final long serialVersionUID = -3401504778246479377L;
 
-	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
+	private transient SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureCOLLATERAL_MARK_TO_MARKET() {
 		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();

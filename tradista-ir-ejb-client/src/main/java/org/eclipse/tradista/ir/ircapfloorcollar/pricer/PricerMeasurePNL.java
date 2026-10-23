@@ -32,7 +32,7 @@ public class PricerMeasurePNL extends PricerMeasure {
 
 	private static final long serialVersionUID = 8753831569697140231L;
 
-	private IRCapFloorCollarPricerBusinessDelegate irCapFloorCollarPricerBusinessDelegate;
+	private transient IRCapFloorCollarPricerBusinessDelegate irCapFloorCollarPricerBusinessDelegate;
 
 	public PricerMeasurePNL() {
 		super();

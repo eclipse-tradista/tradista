@@ -32,7 +32,7 @@ public class PricerMeasureFORWARD_SWAP_RATE extends PricerMeasure {
 
 	private static final long serialVersionUID = -6246071467585103837L;
 
-	private IRSwapOptionPricerBusinessDelegate irSwapOptionPricerBusinessDelegate;
+	private transient IRSwapOptionPricerBusinessDelegate irSwapOptionPricerBusinessDelegate;
 
 	public PricerMeasureFORWARD_SWAP_RATE() {
 		super();

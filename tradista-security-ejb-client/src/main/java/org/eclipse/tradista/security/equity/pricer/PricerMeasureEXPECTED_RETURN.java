@@ -32,7 +32,7 @@ public class PricerMeasureEXPECTED_RETURN extends PricerMeasure {
 
 	private static final long serialVersionUID = 7565285618234200040L;
 
-	private EquityPricerBusinessDelegate equityPricerBusinessDelegate;
+	private transient EquityPricerBusinessDelegate equityPricerBusinessDelegate;
 
 	public PricerMeasureEXPECTED_RETURN() {
 		super();

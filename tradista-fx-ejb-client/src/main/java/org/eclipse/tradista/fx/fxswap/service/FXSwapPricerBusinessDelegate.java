@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fx.fxswap.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,9 +30,8 @@ import org.eclipse.tradista.fx.fxswap.validator.FXSwapTradeValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXSwapPricerBusinessDelegate implements Serializable {
+public class FXSwapPricerBusinessDelegate {
 
-	private static final long serialVersionUID = -7934812925515293266L;
 	private FXSwapPricerService fxSwapPricerService;
 	private FXSwapTradeValidator validator;
 
