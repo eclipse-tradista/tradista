@@ -32,10 +32,6 @@ import org.eclipse.tradista.fx.fxndf.validator.FXNDFTradeValidator;
 
 public class FXNDFPricerBusinessDelegate {
 
-	/**
-	 * 
-	 */
-
 	private FXNDFPricerService fxNdfPricerService;
 
 	private FXNDFTradeValidator validator;
@@ -81,7 +77,7 @@ public class FXNDFPricerBusinessDelegate {
 		if (pricingDate == null) {
 			errorMsg.append(String.format("The pricing date cannot be null.%n"));
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		validator.validateTrade(trade);

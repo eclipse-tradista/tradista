@@ -20,7 +20,4 @@ import org.eclipse.tradista.fx.fx.service.FXPricerBusinessDelegate;
 
 public class FXForwardPricerBusinessDelegate extends FXPricerBusinessDelegate {
 
-	/**
-	 * 
-	 */
 }
