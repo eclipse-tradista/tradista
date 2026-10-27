@@ -27,6 +27,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -61,24 +62,25 @@ public class EquityTradeController implements Serializable {
 
 	private Direction[] allDirections;
 
+	@Inject
 	private EquityBusinessDelegate equityBusinessDelegate;
 
+	@Inject
 	private CurrencyBusinessDelegate currencyBusinessDelegate;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
 
+	@Inject
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	@Inject
 	private EquityTradeBusinessDelegate equityTradeBusinessDelegate;
 
 	private String idToBeLoaded;
 
 	@PostConstruct
 	public void init() throws TradistaBusinessException {
-		equityBusinessDelegate = new EquityBusinessDelegate();
-		currencyBusinessDelegate = new CurrencyBusinessDelegate();
-		bookBusinessDelegate = new BookBusinessDelegate();
-		legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 		allEquities = equityBusinessDelegate.getAllEquities();
 		allCurrencies = currencyBusinessDelegate.getAllCurrencies();
 		allCounterparties = legalEntityBusinessDelegate.getAllCounterparties();
@@ -88,7 +90,6 @@ public class EquityTradeController implements Serializable {
 		equityTrade.setSettlementDate(LocalDate.now());
 		equityTrade.setBook(bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2));
 		equityTrade.setBuySell(true);
-		equityTradeBusinessDelegate = new EquityTradeBusinessDelegate();
 	}
 
 	public String getId() {

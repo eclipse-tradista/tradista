@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.specificrepo.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -31,7 +33,7 @@ public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	private static final long serialVersionUID = -1160644913114120724L;
 
-	private SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
+	private transient SpecificRepoPricerBusinessDelegate specificRepoPricerBusinessDelegate;
 
 	public PricerMeasureUNREALIZED_PNL() {
 		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();
@@ -46,6 +48,11 @@ public class PricerMeasureUNREALIZED_PNL extends PricerMeasure {
 
 	public String toString() {
 		return "UNREALIZED_PNL";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		specificRepoPricerBusinessDelegate = new SpecificRepoPricerBusinessDelegate();
 	}
 
 }

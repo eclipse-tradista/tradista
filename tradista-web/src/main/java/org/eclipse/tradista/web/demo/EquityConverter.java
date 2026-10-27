@@ -9,6 +9,7 @@ import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -32,11 +33,9 @@ import jakarta.inject.Named;
 public class EquityConverter implements Serializable, Converter<Equity> {
 
 	private static final long serialVersionUID = -4653152149962851313L;
-	private EquityBusinessDelegate equityBusinessDelegate;
 
-	public EquityConverter() {
-		equityBusinessDelegate = new EquityBusinessDelegate();
-	}
+	@Inject
+	private EquityBusinessDelegate equityBusinessDelegate;
 
 	@Override
 	public String getAsString(FacesContext context, UIComponent component, Equity equity) {

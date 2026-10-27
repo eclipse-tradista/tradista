@@ -1,6 +1,5 @@
 package org.eclipse.tradista.ir.irswapoption.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,9 +30,7 @@ import org.eclipse.tradista.ir.irswapoption.validator.IRSwapOptionTradeValidator
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRSwapOptionPricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -7137084591554434226L;
+public class IRSwapOptionPricerBusinessDelegate {
 
 	private IRSwapOptionPricerService irSwapOptionPricerService;
 

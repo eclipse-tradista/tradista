@@ -17,8 +17,6 @@ package org.eclipse.tradista.core.rating.ui.controller;
 
 import static org.eclipse.tradista.core.common.ui.util.TradistaGUIConstants.ERROR;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,18 +58,14 @@ public class RatingAgencyController implements Serializable {
 
 	private String newRatingDescription;
 
-	private transient RatingBusinessDelegate ratingBusinessDelegate;
+	@Inject
+	private RatingBusinessDelegate ratingBusinessDelegate;
 
 	@Inject
 	private UserManager userManager;
 
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		ratingBusinessDelegate = new RatingBusinessDelegate();
-	}
-
 	@PostConstruct
 	public void init() {
-		ratingBusinessDelegate = new RatingBusinessDelegate();
 		loadAllAgencies();
 	}
 

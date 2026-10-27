@@ -1,6 +1,5 @@
 package org.eclipse.tradista.security.equityoption.service;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,9 +24,7 @@ import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpec
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class EquityOptionContractSpecificationBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -1793657842553613816L;
+public class EquityOptionContractSpecificationBusinessDelegate {
 
 	private EquityOptionContractSpecificationService equityOptionContractSpecificationService;
 

@@ -1,6 +1,5 @@
 package org.eclipse.tradista.ir.ircapfloorcollar.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -32,9 +31,7 @@ import org.eclipse.tradista.ir.ircapfloorcollar.validator.IRCapFloorCollarTradeV
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class IRCapFloorCollarPricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = -7137084591554434226L;
+public class IRCapFloorCollarPricerBusinessDelegate {
 
 	private IRCapFloorCollarPricerService irCapFloorCollarPricerService;
 

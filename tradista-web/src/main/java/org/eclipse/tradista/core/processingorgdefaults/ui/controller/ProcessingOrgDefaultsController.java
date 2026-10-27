@@ -50,10 +50,13 @@ public class ProcessingOrgDefaultsController implements Serializable {
 
 	private ProcessingOrgDefaults poDefaults;
 
+	@Inject
 	private ProcessingOrgDefaultsBusinessDelegate poDefaultsBusinessDelegate;
 
+	@Inject
 	private LegalEntityBusinessDelegate legalEntityBusinessDelegate;
 
+	@Inject
 	private InformationBusinessDelegate informationBusinessDelegate;
 
 	private SortedSet<LegalEntity> allPos;
@@ -69,8 +72,6 @@ public class ProcessingOrgDefaultsController implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		poDefaultsBusinessDelegate = new ProcessingOrgDefaultsBusinessDelegate();
-		informationBusinessDelegate = new InformationBusinessDelegate();
 		LegalEntity currentPo = userManager.getCurrentProcessingOrg();
 		long poId = currentPo != null ? currentPo.getId() : 0;
 		if (poId > 0) {
@@ -82,7 +83,6 @@ public class ProcessingOrgDefaultsController implements Serializable {
 						new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
 			}
 		} else {
-			legalEntityBusinessDelegate = new LegalEntityBusinessDelegate();
 			allPos = new TreeSet<>(legalEntityBusinessDelegate.getAllProcessingOrgs());
 		}
 		moduleControllers = new HashMap<>();

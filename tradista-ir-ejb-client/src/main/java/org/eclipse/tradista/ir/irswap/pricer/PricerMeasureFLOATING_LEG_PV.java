@@ -1,5 +1,7 @@
 package org.eclipse.tradista.ir.irswap.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasureFLOATING_LEG_PV extends PricerMeasure {
 
 	private static final long serialVersionUID = 7840639617280222555L;
 
-	private IRSwapPricerBusinessDelegate irSwapPricerBusinessDelegate;
+	private transient IRSwapPricerBusinessDelegate irSwapPricerBusinessDelegate;
 
 	public PricerMeasureFLOATING_LEG_PV() {
 		super();
@@ -47,6 +49,11 @@ public class PricerMeasureFLOATING_LEG_PV extends PricerMeasure {
 
 	public String toString() {
 		return "FLOATING_LEG_PV";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		irSwapPricerBusinessDelegate = new IRSwapPricerBusinessDelegate();
 	}
 
 }

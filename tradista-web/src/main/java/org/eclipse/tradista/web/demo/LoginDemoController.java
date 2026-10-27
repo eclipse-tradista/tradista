@@ -45,6 +45,9 @@ public class LoginDemoController implements Serializable {
 	@Inject
 	private UserManager userManager;
 
+	@Inject
+	private UserBusinessDelegate userBusinessDelegate;
+
 	public String getLogin() {
 		return login;
 	}
@@ -68,8 +71,8 @@ public class LoginDemoController implements Serializable {
 		HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
 		try {
 			request.login(getLogin(), getPassword());
-			userManager.setCurrentUser(
-					new UserBusinessDelegate().getUserByLogin(externalContext.getUserPrincipal().getName()));
+			userManager
+					.setCurrentUser(userBusinessDelegate.getUserByLogin(externalContext.getUserPrincipal().getName()));
 		} catch (ServletException | TradistaBusinessException | TradistaTechnicalException e) {
 			context.addMessage(null, new FacesMessage("Login failed", e.getMessage()));
 			return null;

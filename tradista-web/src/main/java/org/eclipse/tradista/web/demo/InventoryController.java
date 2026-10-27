@@ -23,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import software.xdev.chartjs.model.charts.LineChart;
 import software.xdev.chartjs.model.data.LineData;
@@ -53,11 +54,14 @@ public class InventoryController implements Serializable {
 
 	private String lineModel;
 
+	@Inject
 	private BookBusinessDelegate bookBusinessDelegate;
+
+	@Inject
+	private ProductInventoryBusinessDelegate productInventoryBusinessDelegate;
 
 	@PostConstruct
 	public void init() {
-		bookBusinessDelegate = new BookBusinessDelegate();
 		loadInventory();
 	}
 
@@ -87,7 +91,7 @@ public class InventoryController implements Serializable {
 
 		try {
 			book = bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2);
-			inventory = new ProductInventoryBusinessDelegate().getProductInventories(LocalDate.now(),
+			inventory = productInventoryBusinessDelegate.getProductInventories(LocalDate.now(),
 					LocalDate.now().plusDays(6), "Equity", 0, book.getId(), false);
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,

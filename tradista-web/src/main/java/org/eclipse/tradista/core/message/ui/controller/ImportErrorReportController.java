@@ -20,6 +20,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -68,8 +69,10 @@ public class ImportErrorReportController implements Serializable {
 
 	private ImportErrorType[] allImportErrorTypes;
 
+	@Inject
 	private ImporterConfigurationBusinessDelegate importerConfigurationBusinessDelegate;
 
+	@Inject
 	private ImportErrorBusinessDelegate importErrorBusinessDelegate;
 
 	private ImportError selectedError;
@@ -79,8 +82,6 @@ public class ImportErrorReportController implements Serializable {
 		allStatuses = Status.values();
 		statuses = new ArrayList<>(List.of(Status.UNSOLVED));
 		allImportErrorTypes = ImportErrorType.values();
-		importerConfigurationBusinessDelegate = new ImporterConfigurationBusinessDelegate();
-		importErrorBusinessDelegate = new ImportErrorBusinessDelegate();
 		try {
 			allImporterNames = importerConfigurationBusinessDelegate.getAllImporterNames();
 		} catch (TradistaTechnicalException _) {

@@ -1,6 +1,5 @@
 package org.eclipse.tradista.mm.loandeposit.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -30,9 +29,7 @@ import org.eclipse.tradista.mm.loandeposit.validator.LoanDepositTradeValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class LoanDepositPricerBusinessDelegate implements Serializable {
-
-	private static final long serialVersionUID = 5575888221370103740L;
+public class LoanDepositPricerBusinessDelegate {
 
 	private LoanDepositPricerService loanDepositPricerService;
 

@@ -1,6 +1,5 @@
 package org.eclipse.tradista.fx.fxndf.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,12 +30,7 @@ import org.eclipse.tradista.fx.fxndf.validator.FXNDFTradeValidator;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
-public class FXNDFPricerBusinessDelegate implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7137084591554434226L;
+public class FXNDFPricerBusinessDelegate {
 
 	private FXNDFPricerService fxNdfPricerService;
 
@@ -83,7 +77,7 @@ public class FXNDFPricerBusinessDelegate implements Serializable {
 		if (pricingDate == null) {
 			errorMsg.append(String.format("The pricing date cannot be null.%n"));
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		validator.validateTrade(trade);

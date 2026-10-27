@@ -20,5 +20,4 @@ import org.eclipse.tradista.fx.fx.service.FXPricerBusinessDelegate;
 
 public class FXSpotPricerBusinessDelegate extends FXPricerBusinessDelegate {
 
-	private static final long serialVersionUID = -1195851017431329443L;
 }

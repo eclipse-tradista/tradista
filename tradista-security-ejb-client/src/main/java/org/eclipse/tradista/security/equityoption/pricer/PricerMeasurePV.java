@@ -1,5 +1,7 @@
 package org.eclipse.tradista.security.equityoption.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -31,7 +33,7 @@ import org.eclipse.tradista.security.equityoption.service.EquityOptionPricerBusi
 public class PricerMeasurePV extends PricerMeasure {
 
 	private static final long serialVersionUID = -5007624459065997287L;
-	private EquityOptionPricerBusinessDelegate equityOptionPricerBusinessDelegate;
+	private transient EquityOptionPricerBusinessDelegate equityOptionPricerBusinessDelegate;
 
 	public PricerMeasurePV() {
 		super();
@@ -73,6 +75,11 @@ public class PricerMeasurePV extends PricerMeasure {
 
 	public String toString() {
 		return "PV";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		equityOptionPricerBusinessDelegate = new EquityOptionPricerBusinessDelegate();
 	}
 
 }

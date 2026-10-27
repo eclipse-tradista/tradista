@@ -93,8 +93,8 @@ public final class ClientUtil {
 	 *
 	 * @return {@code true} if a current user is set and has administrator
 	 *         privileges, {@code false} otherwise
-	 * @deprecated As of version 3.3.0, replaced by {@link #isCurrentUserAdmin()}
-	 *             to comply with Java naming conventions.
+	 * @deprecated As of version 3.3.0, replaced by {@link #isCurrentUserAdmin()} to
+	 *             comply with Java naming conventions.
 	 */
 	@Deprecated(since = "3.3.0", forRemoval = true)
 	public static boolean currentUserIsAdmin() {

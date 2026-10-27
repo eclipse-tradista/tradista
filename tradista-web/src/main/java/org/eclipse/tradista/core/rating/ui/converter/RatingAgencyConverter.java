@@ -19,19 +19,19 @@ import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
-@FacesConverter("ratingAgencyConverter")
+@ApplicationScoped
+@FacesConverter(value = "ratingAgencyConverter", managed = true)
 public class RatingAgencyConverter implements Converter<RatingAgency> {
 
+	@Inject
 	private RatingBusinessDelegate ratingBusinessDelegate;
-
-	public RatingAgencyConverter() {
-		ratingBusinessDelegate = new RatingBusinessDelegate();
-	}
 
 	@Override
 	public RatingAgency getAsObject(FacesContext context, UIComponent component, String value) {

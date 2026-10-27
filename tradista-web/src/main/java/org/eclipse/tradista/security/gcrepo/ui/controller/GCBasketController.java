@@ -17,6 +17,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /********************************************************************************
@@ -53,16 +54,16 @@ public class GCBasketController implements Serializable {
 
 	private DualListModel<Security> securities;
 
+	@Inject
 	private GCBasketBusinessDelegate gcBasketBusinessDelegate;
 
+	@Inject
 	private SecurityBusinessDelegate securityBusinessDelegate;
 
 	private List<Security> availableSecurities;
 
 	@PostConstruct
 	public void init() {
-		gcBasketBusinessDelegate = new GCBasketBusinessDelegate();
-		securityBusinessDelegate = new SecurityBusinessDelegate();
 		gcBasket = new GCBasket();
 		availableSecurities = new ArrayList<>();
 		Set<Security> allSecurities = securityBusinessDelegate.getAllSecurities();

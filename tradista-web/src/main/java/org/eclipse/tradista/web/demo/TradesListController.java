@@ -50,12 +50,18 @@ public class TradesListController implements Serializable {
 	@Inject
 	private UserManager userManager;
 
+	@Inject
+	private BookBusinessDelegate bookBusinessDelegate;
+
+	@Inject
+	private TradeBusinessDelegate tradeBusinessDelegate;
+
 	@PostConstruct
 	public void init() {
 		posDef = new PositionDefinition(StringUtils.EMPTY, userManager.getCurrentProcessingOrg());
 		posDef.setProductType(Equity.EQUITY);
 		try {
-			posDef.setBook(new BookBusinessDelegate().getBookByNameAndPoId("Demo Book", 2));
+			posDef.setBook(bookBusinessDelegate.getBookByNameAndPoId("Demo Book", 2));
 		} catch (TradistaBusinessException tbe) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
@@ -76,7 +82,7 @@ public class TradesListController implements Serializable {
 	}
 
 	public void loadTrades() {
-		Set<Trade<?>> tradesSet = new TradeBusinessDelegate().getTrades(posDef);
+		Set<Trade<?>> tradesSet = tradeBusinessDelegate.getTrades(posDef);
 		if (tradesSet != null) {
 			trades = tradesSet.stream().map(trade -> (EquityTrade) trade).collect(Collectors.toList());
 		}

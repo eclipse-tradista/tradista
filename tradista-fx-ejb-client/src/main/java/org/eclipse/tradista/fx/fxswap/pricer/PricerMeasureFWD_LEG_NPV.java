@@ -1,5 +1,7 @@
 package org.eclipse.tradista.fx.fxswap.pricer;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -32,7 +34,7 @@ public class PricerMeasureFWD_LEG_NPV extends PricerMeasure {
 
 	private static final long serialVersionUID = 6957246352035416215L;
 
-	private FXSwapPricerBusinessDelegate fxSwapPricerBusinessDelegate;
+	private transient FXSwapPricerBusinessDelegate fxSwapPricerBusinessDelegate;
 
 	public PricerMeasureFWD_LEG_NPV() {
 		super();
@@ -57,6 +59,11 @@ public class PricerMeasureFWD_LEG_NPV extends PricerMeasure {
 
 	public String toString() {
 		return "FWD_LEG_NPV";
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		fxSwapPricerBusinessDelegate = new FXSwapPricerBusinessDelegate();
 	}
 
 }
