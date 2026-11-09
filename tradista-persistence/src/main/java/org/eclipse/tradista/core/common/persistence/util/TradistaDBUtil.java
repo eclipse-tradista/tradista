@@ -450,8 +450,12 @@ public final class TradistaDBUtil {
 	}
 
 	public static void addParameterizedInFilter(StringBuilder sqlQuery, Expression expression, Object[] values) {
-		TradistaDBUtil.addFilter(false, sqlQuery, expression,
-				(values == null) ? null : Arrays.stream(values).map(v -> "?").toArray(String[]::new));
+		if (values == null || values.length == 0) {
+			return;
+		}
+		String[] questionMarks = new String[values.length];
+		Arrays.fill(questionMarks, "?");
+		addFreeTextFilter(sqlQuery, expression, "IN (" + String.join(",", questionMarks) + ")");
 	}
 
 	public static String wrapWithQuotes(String value) {

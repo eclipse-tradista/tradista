@@ -3,6 +3,7 @@ package org.eclipse.tradista.core.pricing.util;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
@@ -115,8 +116,8 @@ public final class PricerUtil {
 	 */
 	public static BigDecimal getInterestRateAsOfDate(String quoteName, long quoteSetId, long indexCurveId, Tenor tenor,
 			DayCountConvention dcc, LocalDate valueDate) throws PricerException {
-		valueDate = (valueDate == null) ? LocalDate.now() : valueDate;
-		if (valueDate.isAfter(LocalDate.now())) {
+		valueDate = (valueDate == null) ? LocalDate.now(ZoneId.systemDefault()) : valueDate;
+		if (valueDate.isAfter(LocalDate.now(ZoneId.systemDefault()))) {
 			// Look into the curve
 			if (tenor.equals(Tenor.NO_TENOR)) {
 				throw new PricerException(String.format(
@@ -138,7 +139,7 @@ public final class PricerUtil {
 			if (rate == null) {
 				// If valueDate is today and no quotes are available, we try to look in the
 				// curve as of today + Tenor
-				if (valueDate.equals(LocalDate.now())) {
+				if (valueDate.equals(LocalDate.now(ZoneId.systemDefault()))) {
 					if (tenor.equals(Tenor.NO_TENOR)) {
 						throw new PricerException(
 								String.format("Impossible to look for a value in curve with a Tenor being equals to %s",

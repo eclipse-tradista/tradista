@@ -517,7 +517,7 @@
 														<Insets right="20.0" />
 													</HBox.margin>
 												</Button>
-												<Label fx:id="cfPricingDate" text="Pricing date">
+												<Label text="Pricing date">
 													<HBox.margin>
 														<Insets right="10.0" />
 													</HBox.margin>

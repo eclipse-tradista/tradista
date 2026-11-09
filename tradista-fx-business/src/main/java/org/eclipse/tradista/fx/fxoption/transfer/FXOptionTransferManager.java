@@ -2,6 +2,7 @@ package org.eclipse.tradista.fx.fxoption.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
 import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.fx.fxoption.messaging.FXOptionTradeEvent;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -35,6 +38,8 @@ import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
  ********************************************************************************/
 
 public class FXOptionTransferManager implements TransferManager<FXOptionTradeEvent> {
+
+	private static final Logger logger = LoggerFactory.getLogger(FXOptionTransferManager.class);
 
 	protected TransferBusinessDelegate transferBusinessDelegate;
 
@@ -130,23 +135,20 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 	}
 
 	private CashTransfer createNewCashSettlementTransfer(FXOptionTrade trade) throws TradistaBusinessException {
-		CashTransfer cashSettlementTransfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getUnderlyingSettlementDate(),
 						trade.getUnderlying().getCurrencyOne())
 				.trade(trade).fixingDateTime(trade.getExerciseDate().atStartOfDay()).status(Transfer.Status.UNKNOWN)
 				.build();
-
-		return cashSettlementTransfer;
 	}
 
 	private CashTransfer createNewPremiumTransfer(FXOptionTrade trade) throws TradistaBusinessException {
-		CashTransfer premiumTransfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
 				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
 				.quantityOrAmount(trade.getAmount())
 				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 
-		return premiumTransfer;
 	}
 
 	@Override
@@ -161,7 +163,7 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 		if (fxRate == null) {
 			FixingError fixingError = new FixingError();
 			fixingError.setCashTransfer(transfer);
-			fixingError.setErrorDate(LocalDateTime.now());
+			fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 			String errorMsg = String.format(
 					"Transfer %d cannot be fixed. Impossible to get the %s/%s FX closing rate as of %tD in QuoteSet %d.",
 					transfer.getId(), fxOptionTrade.getUnderlying().getCurrency(),
@@ -178,8 +180,8 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 		if (fxOptionTrade.isBuy()) {

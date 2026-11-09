@@ -358,6 +358,12 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 	}
 
+	private String getJobInstancePo(TradistaJobInstance jobInstance) {
+		return jobInstance != null && jobInstance.getProcessingOrg() != null
+				? jobInstance.getProcessingOrg().getShortName()
+				: null;
+	}
+
 	@FXML
 	protected void run() {
 		try {
@@ -371,7 +377,8 @@ public class JobsController extends TradistaControllerAdapter {
 
 			Optional<ButtonType> result = confirmation.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.OK) {
-				batchBusinessDelegate.runJobInstance(currentJobInstance.getName(), po);
+				batchBusinessDelegate.runJobInstance(currentJobInstance.getName(),
+						getJobInstancePo(currentJobInstance));
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -394,7 +401,8 @@ public class JobsController extends TradistaControllerAdapter {
 			Optional<ButtonType> result = confirmation.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.OK) {
 
-				batchBusinessDelegate.deleteJobInstance(currentJobInstance.getName(), po);
+				batchBusinessDelegate.deleteJobInstance(currentJobInstance.getName(),
+						getJobInstancePo(currentJobInstance));
 
 				TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
 				if (!jobInstance.getItems().contains(currentJobInstance)) {
@@ -785,10 +793,13 @@ public class JobsController extends TradistaControllerAdapter {
 
 		if (jobExecutions != null) {
 			for (TradistaJobExecution jobExecution : jobExecutions) {
+				String executionPo = jobExecution.getProcessingOrg() != null
+						? jobExecution.getProcessingOrg().getShortName()
+						: null;
 				jobExecutionProperties.add(new JobExecutionProperty(jobExecution.getId(), jobExecution.getName(),
 						jobExecution.getStatus(), jobExecution.getStartTime(), jobExecution.getEndTime(),
 						jobExecution.getErrorCause(), jobExecution.getJobInstanceName(), jobExecution.getJobType(),
-						jobExecution.getJobInstance() != null));
+						executionPo, jobExecution.getJobInstance() != null));
 			}
 		}
 
@@ -866,7 +877,7 @@ public class JobsController extends TradistaControllerAdapter {
 		private final ObjectProperty<List<Button>> actions;
 
 		private JobExecutionProperty(long id, final String name, String status, LocalDateTime startTime,
-				LocalDateTime endTime, String errorCause, final String jobInstanceName, String jobType,
+				LocalDateTime endTime, String errorCause, final String jobInstanceName, String jobType, String jobPo,
 				boolean jobInstanceStillExists) {
 			this.id = new SimpleLongProperty(id);
 			this.name = new SimpleStringProperty(name);
@@ -882,7 +893,7 @@ public class JobsController extends TradistaControllerAdapter {
 
 			if (status.equals("FAILED") && jobInstanceStillExists) {
 				Button retryButton = new Button("Retry");
-				retryButton.setOnAction(_ -> JobsController.this.retry(jobInstanceName, po));
+				retryButton.setOnAction(_ -> JobsController.this.retry(jobInstanceName, jobPo));
 				buttons.add(retryButton);
 			}
 			if (status.equals("IN PROGRESS")) {
