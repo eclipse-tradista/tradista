@@ -47,6 +47,8 @@ import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 import org.eclipse.tradista.mm.loandeposit.service.LoanDepositPricerBusinessDelegate;
 import org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -81,6 +83,8 @@ import javafx.util.Callback;
  ********************************************************************************/
 
 public class LoanDepositTradeDefinitionController extends TradistaTradeBookingController {
+
+	private static final Logger logger = LoggerFactory.getLogger(LoanDepositTradeDefinitionController.class);
 
 	@FXML
 	private ComboBox<Trade.Direction> buySell;
@@ -478,40 +482,37 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<>() {
-			public DateCell call(final DatePicker datePicker) {
-				return new DateCell() {
+		final Callback<DatePicker, DateCell> businessDayCellFactory = _ -> {
+			return new DateCell() {
 
-					LoanDepositTrade mmTrade;
+				LoanDepositTrade mmTrade;
 
-					private boolean isAvailable(LocalDate date) {
-						if (mmTrade == null) {
-							if (direction.getValue().equals(Direction.LOAN)) {
-								mmTrade = LoanTrade.create();
-							} else {
-								mmTrade = DepositTrade.create();
-							}
-							mmTrade.setCurrency(currency.getValue());
+				private boolean isAvailable(LocalDate date) {
+					if (mmTrade == null) {
+						if (direction.getValue().equals(Direction.LOAN)) {
+							mmTrade = LoanTrade.create();
+						} else {
+							mmTrade = DepositTrade.create();
 						}
-
-						try {
-							return loanDepositTradeBusinessDelegate.isBusinessDay(mmTrade, date);
-						} catch (TradistaBusinessException tbe) {
-							tbe.printStackTrace();
-						}
-						return false;
-
+						mmTrade.setCurrency(currency.getValue());
 					}
 
-					@Override
-					public void updateItem(LocalDate item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!isAvailable(item)) {
-							setDisable(true);
-						}
+					try {
+						return loanDepositTradeBusinessDelegate.isBusinessDay(mmTrade, date);
+					} catch (TradistaBusinessException tbe) {
+						logger.error(tbe.getMessage(), tbe);
 					}
-				};
-			}
+					return false;
+				}
+
+				@Override
+				public void updateItem(LocalDate item, boolean empty) {
+					super.updateItem(item, empty);
+					if (!isAvailable(item)) {
+						setDisable(true);
+					}
+				}
+			};
 		};
 
 		floatingRateIndex.valueProperty().addListener((_, _, newValue) -> {
