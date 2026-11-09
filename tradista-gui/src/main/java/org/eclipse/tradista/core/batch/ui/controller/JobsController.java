@@ -19,6 +19,7 @@ import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
+import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -358,12 +359,6 @@ public class JobsController extends TradistaControllerAdapter {
 		}
 	}
 
-	private String getJobInstancePo(TradistaJobInstance jobInstance) {
-		return jobInstance != null && jobInstance.getProcessingOrg() != null
-				? jobInstance.getProcessingOrg().getShortName()
-				: null;
-	}
-
 	@FXML
 	protected void run() {
 		try {
@@ -378,7 +373,7 @@ public class JobsController extends TradistaControllerAdapter {
 			Optional<ButtonType> result = confirmation.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.OK) {
 				batchBusinessDelegate.runJobInstance(currentJobInstance.getName(),
-						getJobInstancePo(currentJobInstance));
+						TradistaModelUtil.getPoShortName(currentJobInstance));
 			}
 		} catch (TradistaBusinessException tbe) {
 			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
@@ -402,7 +397,7 @@ public class JobsController extends TradistaControllerAdapter {
 			if (result.isPresent() && result.get() == ButtonType.OK) {
 
 				batchBusinessDelegate.deleteJobInstance(currentJobInstance.getName(),
-						getJobInstancePo(currentJobInstance));
+						TradistaModelUtil.getPoShortName(currentJobInstance));
 
 				TradistaGUIUtil.fillJobInstanceComboBox(jobInstance);
 				if (!jobInstance.getItems().contains(currentJobInstance)) {
@@ -793,13 +788,10 @@ public class JobsController extends TradistaControllerAdapter {
 
 		if (jobExecutions != null) {
 			for (TradistaJobExecution jobExecution : jobExecutions) {
-				String executionPo = jobExecution.getProcessingOrg() != null
-						? jobExecution.getProcessingOrg().getShortName()
-						: null;
 				jobExecutionProperties.add(new JobExecutionProperty(jobExecution.getId(), jobExecution.getName(),
 						jobExecution.getStatus(), jobExecution.getStartTime(), jobExecution.getEndTime(),
 						jobExecution.getErrorCause(), jobExecution.getJobInstanceName(), jobExecution.getJobType(),
-						executionPo, jobExecution.getJobInstance() != null));
+						TradistaModelUtil.getPoShortName(jobExecution), jobExecution.getJobInstance() != null));
 			}
 		}
 

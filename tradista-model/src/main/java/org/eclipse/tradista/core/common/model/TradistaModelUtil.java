@@ -118,4 +118,10 @@ public final class TradistaModelUtil {
 		}
 	}
 
+	public static String getPoShortName(Segregable segregable) {
+		return (segregable != null && segregable.getProcessingOrg() != null)
+				? segregable.getProcessingOrg().getShortName()
+				: null;
+	}
+
 }
