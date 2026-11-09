@@ -310,7 +310,8 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 									}
 								}
 								return left;
-							})).values().stream().filter(cf -> cf.getAmount().signum() > 0).toList();
+							})).values().stream().filter(cf -> cf.getAmount().signum() > 0)
+							.collect(Collectors.toList());
 					Collections.sort(cfsByCurrencyAndPurposeList);
 					cfsByCurrencyAndPurpose = FXCollections
 							.observableArrayList(CashFlowProperty.toCashFlowPropertyList(cfsByCurrencyAndPurposeList));

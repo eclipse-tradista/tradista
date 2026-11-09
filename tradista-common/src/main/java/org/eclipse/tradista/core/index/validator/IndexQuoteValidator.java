@@ -45,7 +45,7 @@ public class IndexQuoteValidator extends DefaultQuoteValidator {
 			errMsg.append(String.format("The Tenor (%s) must be a valid one: %s%n.", data[2], Tenor.values()));
 		}
 
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}
