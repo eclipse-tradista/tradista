@@ -37,6 +37,10 @@ public final class LoanDepositTransferUtil {
 
 	private static LoanDepositTradeBusinessDelegate loanDepositBusinessDelegate = new LoanDepositTradeBusinessDelegate();
 
+	private LoanDepositTransferUtil() {
+		/* This utility class should not be instantiated */
+	}
+
 	/**
 	 * @param trade the mm trade for which we want to generate the cash transfers
 	 */
@@ -50,11 +54,11 @@ public final class LoanDepositTransferUtil {
 			while (!cfDate.isAfter(mmTrade.getEndDate())) {
 				LocalDate settlementDate = cfDate;
 				LocalDate fixingDate = cfDate;
-				LocalDate endOfPeriod = cfDate;
+				LocalDate endOfPeriod;
 
 				try {
 					cfDate = DateUtil.addTenor(cfDate, mmTrade.getPaymentFrequency());
-				} catch (TradistaBusinessException abe) {
+				} catch (TradistaBusinessException _) {
 					// Should not appear here.
 				}
 				/*
@@ -104,7 +108,7 @@ public final class LoanDepositTransferUtil {
 		if (mmTrade.isFixed()) {
 			try {
 				paymentAmount = loanDepositBusinessDelegate.getPaymentAmount(mmTrade, fixingDate, endOfPeriod, 0, 0);
-			} catch (TradistaBusinessException pe) {
+			} catch (TradistaBusinessException _) {
 				// Should not happen here.
 			}
 			builder.quantityOrAmount(paymentAmount);
@@ -129,9 +133,7 @@ public final class LoanDepositTransferUtil {
 			builder.status(Transfer.Status.UNKNOWN);
 		}
 
-		CashTransfer ct = builder.build();
-
-		return ct;
+		return builder.build();
 	}
 
 }

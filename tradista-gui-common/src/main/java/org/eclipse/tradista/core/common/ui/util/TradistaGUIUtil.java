@@ -30,6 +30,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.tradista.core.batch.model.TradistaJobInstance;
 import org.eclipse.tradista.core.batch.service.BatchBusinessDelegate;
+import org.eclipse.tradista.core.book.model.BlankBook;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.calendar.model.Calendar;
@@ -1277,7 +1278,11 @@ public final class TradistaGUIUtil {
 				if (empty || book == null) {
 					setText(null);
 				} else if (ClientUtil.isCurrentUserAdmin() && ClientUtil.getCurrentProcessingOrg() == null) {
-					setText(book.getName() + " [" + book.getProcessingOrg().getShortName() + "]");
+					if (book instanceof BlankBook) {
+						setText(book.toString());
+					} else {
+						setText(book.getName() + " [" + book.getProcessingOrg().getShortName() + "]");
+					}
 				} else {
 					setText(book.getName());
 				}

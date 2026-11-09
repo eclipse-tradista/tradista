@@ -3,6 +3,7 @@ package org.eclipse.tradista.mm.deposit.transfer;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.eclipse.tradista.core.transfer.model.Transfer;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
 import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 import org.eclipse.tradista.mm.loandeposit.transfer.LoanDepositTransferManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -35,6 +38,8 @@ import org.eclipse.tradista.mm.loandeposit.transfer.LoanDepositTransferManager;
 
 public class DepositTransferManager extends LoanDepositTransferManager {
 
+	private static final Logger logger = LoggerFactory.getLogger(DepositTransferManager.class);
+
 	@Override
 	public void fixCashTransfer(CashTransfer transfer, long quoteSetId) throws TradistaBusinessException {
 		DepositTrade trade = (DepositTrade) transfer.getTrade();
@@ -50,10 +55,10 @@ public class DepositTransferManager extends LoanDepositTransferManager {
 		try {
 			amount = loanDepositBusinessDelegate.getPaymentAmount(trade, transfer.getFixingDateTime().toLocalDate(),
 					endOfPeriod, quoteSetId, 0);
-		} catch (TradistaBusinessException abe) {
+		} catch (TradistaBusinessException _) {
 			FixingError fixingError = new FixingError();
 			fixingError.setCashTransfer(transfer);
-			fixingError.setErrorDate(LocalDateTime.now());
+			fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 			String quoteName = Index.INDEX + "." + trade.getFloatingRateIndex() + "."
 					+ trade.getFloatingRateIndexTenor();
 			String errorMsg = String.format(
@@ -69,8 +74,8 @@ public class DepositTransferManager extends LoanDepositTransferManager {
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 		if (trade.isBuy()) {

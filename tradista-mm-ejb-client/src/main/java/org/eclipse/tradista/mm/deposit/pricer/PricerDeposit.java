@@ -22,9 +22,6 @@ import org.eclipse.tradista.mm.loandeposit.pricer.PricerLoanDeposit;
 @Parameterizable(name = "Default Deposit Pricer")
 public class PricerDeposit extends PricerLoanDeposit {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6026664836817369376L;
 
 }
