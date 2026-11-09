@@ -75,7 +75,7 @@ class LoanDepositTransferManagerTest {
 
 	@BeforeAll
 	static void setUpConfigurationBusinessDelegate() {
-		mockedConfigConstruction = Mockito.mockConstruction(ConfigurationBusinessDelegate.class, (mock, context) -> {
+		mockedConfigConstruction = Mockito.mockConstruction(ConfigurationBusinessDelegate.class, (mock, _) -> {
 			lenient().when(mock.getScale()).thenReturn((short) 2);
 			lenient().when(mock.getRoundingMode()).thenReturn(RoundingMode.HALF_EVEN);
 		});
