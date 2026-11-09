@@ -75,7 +75,7 @@ class LoanDepositTransferManagerTest {
 
 	@BeforeAll
 	static void setUpConfigurationBusinessDelegate() {
-		mockedConfigConstruction = Mockito.mockConstruction(ConfigurationBusinessDelegate.class, (mock, context) -> {
+		mockedConfigConstruction = Mockito.mockConstruction(ConfigurationBusinessDelegate.class, (mock, _) -> {
 			lenient().when(mock.getScale()).thenReturn((short) 2);
 			lenient().when(mock.getRoundingMode()).thenReturn(RoundingMode.HALF_EVEN);
 		});
@@ -96,12 +96,13 @@ class LoanDepositTransferManagerTest {
 		lenient().when(loanDepositBusinessDelegate.isBusinessDay(any(), any())).thenReturn(true);
 	}
 
-	private LoanTrade createFixedRateLoanTrade(BigDecimal amount) {
-		LoanTrade trade = LoanTrade.builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency).amount(amount)
-				.book(book).counterparty(counterparty).settlementDate(LocalDate.of(2026, 1, 1))
-				.endDate(LocalDate.of(2026, 6, 1)).tradeDate(LocalDate.of(2025, 12, 1)).dayCountConvention(dcc)
-				.paymentFrequency(Tenor.THREE_MONTHS).interestPayment(InterestPayment.END_OF_PERIOD)
-				.interestType(LoanDepositTrade.InterestType.SIMPLE).interestFixing(null).build();
+	private LoanTrade createFixedRateLoanTrade() {
+		LoanTrade trade = LoanTrade.builder().fixedRate(BigDecimal.valueOf(3.5)).currency(currency)
+				.amount(BigDecimal.valueOf(1_000_000)).book(book).counterparty(counterparty)
+				.settlementDate(LocalDate.of(2026, 1, 1)).endDate(LocalDate.of(2026, 6, 1))
+				.tradeDate(LocalDate.of(2025, 12, 1)).dayCountConvention(dcc).paymentFrequency(Tenor.THREE_MONTHS)
+				.interestPayment(InterestPayment.END_OF_PERIOD).interestType(LoanDepositTrade.InterestType.SIMPLE)
+				.interestFixing(null).build();
 		trade.setId(1L);
 		trade.setBuySell(true);
 		return trade;
@@ -121,8 +122,8 @@ class LoanDepositTransferManagerTest {
 
 	@Test
 	void testCreateTransfersWhenBothInterestFixingAreNullDoesNotThrowNPE() {
-		LoanTrade oldTrade = createFixedRateLoanTrade(BigDecimal.valueOf(1_000_000));
-		LoanTrade updatedTrade = createFixedRateLoanTrade(BigDecimal.valueOf(2_000_000));
+		LoanTrade oldTrade = createFixedRateLoanTrade();
+		LoanTrade updatedTrade = createFixedRateLoanTrade();
 
 		LoanDepositTradeEvent event = new LoanDepositTradeEvent();
 		event.setOldTrade(oldTrade);
@@ -133,7 +134,7 @@ class LoanDepositTransferManagerTest {
 
 	@Test
 	void testCreateTransfersWhenOldInterestFixingNullAndNewNotNullDoesNotThrowNPE() {
-		LoanTrade oldTrade = createFixedRateLoanTrade(BigDecimal.valueOf(1_000_000));
+		LoanTrade oldTrade = createFixedRateLoanTrade();
 		LoanTrade updatedTrade = createFloatingRateLoanTrade(InterestPayment.BEGINNING_OF_PERIOD);
 
 		LoanDepositTradeEvent event = new LoanDepositTradeEvent();
@@ -146,7 +147,7 @@ class LoanDepositTransferManagerTest {
 	@Test
 	void testCreateTransfersWhenOldInterestFixingNotNullAndNewNullDoesNotThrowNPE() {
 		LoanTrade oldTrade = createFloatingRateLoanTrade(InterestPayment.BEGINNING_OF_PERIOD);
-		LoanTrade updatedTrade = createFixedRateLoanTrade(BigDecimal.valueOf(1_000_000));
+		LoanTrade updatedTrade = createFixedRateLoanTrade();
 
 		LoanDepositTradeEvent event = new LoanDepositTradeEvent();
 		event.setOldTrade(oldTrade);
