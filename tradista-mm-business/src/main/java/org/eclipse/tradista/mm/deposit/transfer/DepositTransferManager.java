@@ -15,7 +15,6 @@ import org.eclipse.tradista.core.transfer.model.CashTransfer;
 import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.model.Transfer;
 import org.eclipse.tradista.mm.loandeposit.model.DepositTrade;
-import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade;
 import org.eclipse.tradista.mm.loandeposit.transfer.LoanDepositTransferManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +45,10 @@ public class DepositTransferManager extends LoanDepositTransferManager {
 		BigDecimal amount;
 		LocalDate endOfPeriod;
 		// Determinate the end of period
-		LoanDepositTrade mmTrade = (LoanDepositTrade) transfer.getTrade();
-		if ((mmTrade).getInterestPayment().equals(InterestPayment.END_OF_PERIOD)) {
+		if (trade.getInterestPayment().equals(InterestPayment.END_OF_PERIOD)) {
 			endOfPeriod = transfer.getSettlementDate();
 		} else {
-			endOfPeriod = DateUtil.addTenor(transfer.getSettlementDate(), mmTrade.getPaymentFrequency()).minusDays(1);
+			endOfPeriod = DateUtil.addTenor(transfer.getSettlementDate(), trade.getPaymentFrequency()).minusDays(1);
 		}
 		try {
 			amount = loanDepositBusinessDelegate.getPaymentAmount(trade, transfer.getFixingDateTime().toLocalDate(),
@@ -95,6 +93,7 @@ public class DepositTransferManager extends LoanDepositTransferManager {
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

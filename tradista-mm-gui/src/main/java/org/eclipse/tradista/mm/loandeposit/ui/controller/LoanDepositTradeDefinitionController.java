@@ -1,12 +1,15 @@
 package org.eclipse.tradista.mm.loandeposit.ui.controller;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart;
@@ -24,7 +27,6 @@ import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
-import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.ui.controller.QuoteProperty;
@@ -45,10 +47,10 @@ import org.eclipse.tradista.mm.loandeposit.model.LoanDepositTrade.InterestType;
 import org.eclipse.tradista.mm.loandeposit.model.LoanTrade;
 import org.eclipse.tradista.mm.loandeposit.service.LoanDepositPricerBusinessDelegate;
 import org.eclipse.tradista.mm.loandeposit.service.LoanDepositTradeBusinessDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -81,6 +83,8 @@ import javafx.util.Callback;
  ********************************************************************************/
 
 public class LoanDepositTradeDefinitionController extends TradistaTradeBookingController {
+
+	private static final Logger logger = LoggerFactory.getLogger(LoanDepositTradeDefinitionController.class);
 
 	@FXML
 	private ComboBox<Trade.Direction> buySell;
@@ -301,67 +305,58 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 		loanDepositPricerBusinessDelegate = new LoanDepositPricerBusinessDelegate();
 		bookBusinessDelegate = new BookBusinessDelegate();
 
-		tradeDate.setValue(LocalDate.now());
+		tradeDate.setValue(LocalDate.now(ZoneId.systemDefault()));
 
-		interestRateIsFixed.selectedProperty().addListener(new ChangeListener<>() {
-			public void changed(ObservableValue<? extends Boolean> ov, Boolean oldValue, Boolean newValue) {
-				fixedRateLabel.setVisible(newValue);
-				fixedRate.setVisible(newValue);
-				floatingRateIndexLabel.setVisible(!newValue);
-				floatingRateIndexTenorLabel.setVisible(!newValue);
-				floatingRateIndex.setVisible(!newValue);
-				floatingRateIndexTenor.setVisible(!newValue);
-				spreadLabel.setVisible(!newValue);
-				spread.setVisible(!newValue);
-				fixingPeriodLabel.setVisible(!newValue);
-				fixingPeriod.setVisible(!newValue);
-				interestFixing.setVisible(!newValue);
-				interestFixingLabel.setVisible(!newValue);
-			}
+		interestRateIsFixed.selectedProperty().addListener((_, _, newValue) -> {
+			fixedRateLabel.setVisible(newValue);
+			fixedRate.setVisible(newValue);
+			floatingRateIndexLabel.setVisible(!newValue);
+			floatingRateIndexTenorLabel.setVisible(!newValue);
+			floatingRateIndex.setVisible(!newValue);
+			floatingRateIndexTenor.setVisible(!newValue);
+			spreadLabel.setVisible(!newValue);
+			spread.setVisible(!newValue);
+			fixingPeriodLabel.setVisible(!newValue);
+			fixingPeriod.setVisible(!newValue);
+			interestFixing.setVisible(!newValue);
+			interestFixingLabel.setVisible(!newValue);
 		});
 
-		maturity.valueProperty().addListener(new ChangeListener<>() {
-			public void changed(ObservableValue<? extends Tenor> ov, Tenor oldValue, Tenor newValue) {
-				if (newValue != null) {
-					boolean tenorIsSpecified = (!newValue.equals(Tenor.NO_TENOR));
-					endDate.setDisable(tenorIsSpecified);
-					if (tenorIsSpecified) {
-						if (startDate.getValue() != null) {
-							try {
-								endDate.setValue(DateUtil.addTenor(startDate.getValue().minusDays(1), newValue));
-							} catch (TradistaBusinessException _) {
-								// Should not appear here.
-							}
-						} else {
-							endDate.setValue(null);
-						}
-					}
-				}
-			}
-		});
-
-		startDate.valueProperty().addListener(new ChangeListener<>() {
-			public void changed(ObservableValue<? extends LocalDate> ov, LocalDate oldValue, LocalDate newValue) {
-				if (newValue != null) {
-					boolean tenorIsSpecified = (!maturity.getValue().equals(Tenor.NO_TENOR));
-					if (tenorIsSpecified) {
+		maturity.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				boolean tenorIsSpecified = (!newValue.equals(Tenor.NO_TENOR));
+				endDate.setDisable(tenorIsSpecified);
+				if (tenorIsSpecified) {
+					if (startDate.getValue() != null) {
 						try {
-							endDate.setValue(DateUtil.addTenor(newValue.minusDays(1), maturity.getValue()));
+							endDate.setValue(DateUtil.addTenor(startDate.getValue().minusDays(1), newValue));
 						} catch (TradistaBusinessException _) {
 							// Should not appear here.
 						}
+					} else {
+						endDate.setValue(null);
 					}
 				}
 			}
 		});
 
-		interestType.valueProperty().addListener(new ChangeListener<>() {
-			public void changed(ObservableValue<? extends InterestType> ov, InterestType oldValue,
-					InterestType newValue) {
-				if (newValue != null) {
-					compoundPeriodLabel.setVisible(newValue.equals(InterestType.COMPOUND));
-					compoundPeriod.setVisible(newValue.equals(InterestType.COMPOUND));
+		startDate.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				boolean tenorIsSpecified = (!maturity.getValue().equals(Tenor.NO_TENOR));
+				if (tenorIsSpecified) {
+					try {
+						endDate.setValue(DateUtil.addTenor(newValue.minusDays(1), maturity.getValue()));
+					} catch (TradistaBusinessException _) {
+						// Should not appear here.
+					}
 				}
+			}
+		});
+
+		interestType.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				compoundPeriodLabel.setVisible(newValue.equals(InterestType.COMPOUND));
+				compoundPeriod.setVisible(newValue.equals(InterestType.COMPOUND));
 			}
 		});
 
@@ -389,171 +384,141 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 		cfDiscountedAmount.setCellValueFactory(cellData -> cellData.getValue().getDiscountedAmount());
 		cfDiscountFactor.setCellValueFactory(cellData -> cellData.getValue().getDiscountFactor());
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends QuoteSet> observableValue, QuoteSet oldValue,
-					QuoteSet newValue) {
-				if (newValue != null && selectedQuoteDate.getValue() != null && floatingRateIndex.getValue() != null
-						&& floatingRateIndexTenor.getValue() != null) {
-					String index = Index.INDEX + "." + floatingRateIndex.getValue().getName() + "."
-							+ floatingRateIndexTenor.getValue();
-					fillQuotesTable(newValue, selectedQuoteDate.getValue(), index);
-				}
+		selectedQuoteSet.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null && selectedQuoteDate.getValue() != null && floatingRateIndex.getValue() != null
+					&& floatingRateIndexTenor.getValue() != null) {
+				String index = Index.INDEX + "." + floatingRateIndex.getValue().getName() + "."
+						+ floatingRateIndexTenor.getValue();
+				fillQuotesTable(newValue, selectedQuoteDate.getValue(), index);
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
-					LocalDate newValue) {
-				fillQuotesTable(selectedQuoteSet.getValue(), newValue, Index.INDEX + "."
-						+ floatingRateIndex.getValue().getName() + "." + floatingRateIndexTenor.getValue());
+		selectedQuoteDate.valueProperty().addListener((_, _, newValue) -> {
+			fillQuotesTable(selectedQuoteSet.getValue(), newValue, Index.INDEX + "."
+					+ floatingRateIndex.getValue().getName() + "." + floatingRateIndexTenor.getValue());
+		});
+
+		floatingRateIndex.getSelectionModel().selectedItemProperty().addListener((_, _, newIndex) -> {
+			if (newIndex != null) {
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
+						Index.INDEX + "." + newIndex.getName() + "." + floatingRateIndexTenor.getValue());
 			}
 		});
 
-		floatingRateIndex.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Index> observableValue, Index oldIndex, Index newIndex) {
-				if (newIndex != null) {
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
-							Index.INDEX + "." + newIndex.getName() + "." + floatingRateIndexTenor.getValue());
-				}
+		floatingRateIndexTenor.getSelectionModel().selectedItemProperty().addListener((_, _, newTenor) -> {
+			if (floatingRateIndex.getValue() != null) {
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
+						Index.INDEX + "." + floatingRateIndex.getValue().getName() + "." + newTenor);
 			}
 		});
 
-		floatingRateIndexTenor.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Tenor> observableValue, Tenor oldTenor, Tenor newTenor) {
-				if (floatingRateIndex.getValue() != null) {
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
-							Index.INDEX + "." + floatingRateIndex.getValue().getName() + "." + newTenor);
-				}
-			}
-		});
-
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends PricerMeasure> observableValue,
-					PricerMeasure oldPricerMeasure, PricerMeasure newPricerMeasure) {
-				// newPricerMeasure is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricerMeasure != null) {
-					TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
-							pricingMethod);
-				}
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((_, _, newPricerMeasure) -> {
+			// newPricerMeasure is null when we do "setItems" in
+			// the first call of the refresh method
+			if (newPricerMeasure != null) {
+				TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
+						pricingMethod);
 			}
 		});
 
 		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends PricingParameter> observableValue,
-					PricingParameter oldPricingParam, PricingParameter newPricingParam) {
-				// newPricingParam is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricingParam != null) {
-					Pricer pricer = null;
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener((_, _, newPricingParam) -> {
+			// newPricingParam is null when we do "setItems" in
+			// the first call of the refresh method
+			if (newPricingParam != null) {
+				Pricer pricer = null;
+				try {
+					pricer = pricerBusinessDelegate.getPricer(LoanDepositTrade.LOAN_DEPOSIT, newPricingParam);
+				} catch (TradistaBusinessException _) {
+					// Will never happen in this case.
+				}
+				TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
+				pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
+				pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
+
+				if (currency.getValue() != null) {
+					InterestRateCurve discountCurve = newPricingParam.getDiscountCurve(currency.getValue());
+					if (discountCurve != null) {
+						cfDiscountCurve.setText(discountCurve.getName());
+						TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+					} else {
+						cfDiscountCurve.setText(String.format(
+								"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+								newPricingParam.getName(), currency.getValue()));
+						TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
+					}
+				}
+			}
+		});
+
+		currency.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			// newValue is null on first call to refresh.
+			if (newValue != null) {
+				if (pricingParameter.getValue() != null) {
+					InterestRateCurve discountCurve = pricingParameter.getValue().getDiscountCurve(newValue);
+					if (discountCurve != null) {
+						cfDiscountCurve.setText(discountCurve.getName());
+						TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+					} else {
+						cfDiscountCurve.setText(String.format(
+								"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+								pricingParameter.getValue().getName(), newValue));
+						TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
+					}
+				}
+			}
+		});
+
+		pricingDate.setOnAction(
+				_ -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+
+		pricingDate.setValue(LocalDate.now(ZoneId.systemDefault()));
+		cfPricingDate.setText(LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+		book.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				bookChartPane.updateBookChart(newValue);
+			}
+		});
+
+		final Callback<DatePicker, DateCell> businessDayCellFactory = _ -> {
+			return new DateCell() {
+
+				LoanDepositTrade mmTrade;
+
+				private boolean isAvailable(LocalDate date) {
+					if (mmTrade == null) {
+						if (direction.getValue().equals(Direction.LOAN)) {
+							mmTrade = LoanTrade.create();
+						} else {
+							mmTrade = DepositTrade.create();
+						}
+						mmTrade.setCurrency(currency.getValue());
+					}
+
 					try {
-						pricer = pricerBusinessDelegate.getPricer(LoanDepositTrade.LOAN_DEPOSIT, newPricingParam);
-					} catch (TradistaBusinessException _) {
-						// Will never happen in this case.
+						return loanDepositTradeBusinessDelegate.isBusinessDay(mmTrade, date);
+					} catch (TradistaBusinessException tbe) {
+						logger.error(tbe.getMessage(), tbe);
 					}
-					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
-					pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
-					pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
+					return false;
+				}
 
-					if (currency.getValue() != null) {
-						InterestRateCurve discountCurve = newPricingParam.getDiscountCurve(currency.getValue());
-						if (discountCurve != null) {
-							cfDiscountCurve.setText(discountCurve.getName());
-							TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
-						} else {
-							cfDiscountCurve.setText(String.format(
-									"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
-									newPricingParam.getName(), currency.getValue()));
-							TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
-						}
+				@Override
+				public void updateItem(LocalDate item, boolean empty) {
+					super.updateItem(item, empty);
+					if (!isAvailable(item)) {
+						setDisable(true);
 					}
 				}
-			}
-		});
-
-		currency.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
-					Currency newValue) {
-				// newValue is null on first call to refresh.
-				if (newValue != null) {
-					if (pricingParameter.getValue() != null) {
-						InterestRateCurve discountCurve = pricingParameter.getValue().getDiscountCurve(newValue);
-						if (discountCurve != null) {
-							cfDiscountCurve.setText(discountCurve.getName());
-							TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
-						} else {
-							cfDiscountCurve.setText(String.format(
-									"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
-									pricingParameter.getValue().getName(), newValue));
-							TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
-						}
-					}
-				}
-			}
-		});
-
-		pricingDate.setValue(LocalDate.now());
-
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
-				if (newValue != null) {
-					bookChartPane.updateBookChart(newValue);
-				}
-			}
-		});
-
-		final Callback<DatePicker, DateCell> businessDayCellFactory = new Callback<>() {
-			public DateCell call(final DatePicker datePicker) {
-				return new DateCell() {
-
-					LoanDepositTrade mmTrade;
-
-					private boolean isAvailable(LocalDate date) {
-						if (mmTrade == null) {
-							if (direction.getValue().equals(Direction.LOAN)) {
-								mmTrade = LoanTrade.create();
-							} else {
-								mmTrade = DepositTrade.create();
-							}
-							mmTrade.setCurrency(currency.getValue());
-						}
-
-						try {
-							return loanDepositTradeBusinessDelegate.isBusinessDay(mmTrade, date);
-						} catch (TradistaBusinessException tbe) {
-							tbe.printStackTrace();
-						}
-						return false;
-
-					}
-
-					@Override
-					public void updateItem(LocalDate item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!isAvailable(item)) {
-							setDisable(true);
-						}
-					}
-				};
-			}
+			};
 		};
 
-		floatingRateIndex.valueProperty().addListener(new ChangeListener<>() {
-			public void changed(ObservableValue<? extends Index> ov, Index oldValue, Index newValue) {
-				if (newValue != null) {
-					interestFixing.setValue(newValue.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD
-							: InterestPayment.END_OF_PERIOD);
-				}
+		floatingRateIndex.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				interestFixing.setValue(
+						newValue.isPrefixed() ? InterestPayment.BEGINNING_OF_PERIOD : InterestPayment.END_OF_PERIOD);
 			}
 		});
 
@@ -605,7 +570,6 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 		confirmation.setHeaderText("Copy Trade");
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
-		LocalDate oldCreationDate = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -674,7 +638,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 		interestRateIsFixed.setSelected(trade.isFixed());
 		paymentFrequency.setValue(trade.getPaymentFrequency());
 		principal.setText(TradistaGUIUtil.formatAmount(trade.getAmount()));
-		spread.setText(trade.getSpread() == null ? "" : TradistaGUIUtil.formatAmount(trade.getSpread()));
+		spread.setText(trade.getSpread() == null ? StringUtils.EMPTY : TradistaGUIUtil.formatAmount(trade.getSpread()));
 		startDate.setValue(trade.getSettlementDate());
 		interestType.setValue(trade.getInterestType());
 		compoundPeriod.setValue(trade.getCompoundPeriod());
@@ -708,7 +672,7 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 	@FXML
 	public void clear() {
 		trade = null;
-		tradeId.setText("");
+		tradeId.setText(StringUtils.EMPTY);
 		startDate.setValue(null);
 		endDate.setValue(null);
 		principal.clear();

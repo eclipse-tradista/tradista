@@ -10,6 +10,7 @@ import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.util.PricerUtil;
 import org.eclipse.tradista.core.tenor.model.Tenor;
@@ -87,10 +88,16 @@ public class LoanDepositTradeBusinessDelegate {
 			if (!trade.isFixed()) {
 				try {
 					r = PricerUtil.getInterestRateAsOfDate(
-							trade.getFloatingRateIndex() + "." + trade.getFloatingRateIndexTenor(), quoteSetId,
-							indexCurveId, trade.getFloatingRateIndexTenor(), trade.getDayCountConvention(), fixingDate);
+							Index.INDEX + "." + trade.getFloatingRateIndex() + "." + trade.getFloatingRateIndexTenor(),
+							quoteSetId, indexCurveId, trade.getFloatingRateIndexTenor(), trade.getDayCountConvention(),
+							fixingDate);
 				} catch (PricerException pe) {
 					throw new TradistaBusinessException(pe.getMessage());
+				}
+				if (r == null) {
+					throw new TradistaBusinessException(String.format(
+							"Impossible to get the %s.%s.%s index value of %s in QuoteSet %d.", Index.INDEX,
+							trade.getFloatingRateIndex(), trade.getFloatingRateIndexTenor(), fixingDate, quoteSetId));
 				}
 				if (trade.getSpread() != null) {
 					// Spreads are expressed as basis point. It must be divided by 100 before being
@@ -132,9 +139,17 @@ public class LoanDepositTradeBusinessDelegate {
 				while (!valDate.isAfter(fixingDate)) {
 					try {
 						r = PricerUtil.getInterestRateAsOfDate(
-								trade.getFloatingRateIndex() + "." + trade.getFloatingRateIndexTenor(), quoteSetId,
-								indexCurveId, trade.getFloatingRateIndexTenor(), trade.getDayCountConvention(),
-								valDate);
+								Index.INDEX + "." + trade.getFloatingRateIndex() + "."
+										+ trade.getFloatingRateIndexTenor(),
+								quoteSetId, indexCurveId, trade.getFloatingRateIndexTenor(),
+								trade.getDayCountConvention(), valDate);
+
+						if (r == null) {
+							throw new TradistaBusinessException(
+									String.format("Impossible to get the %s.%s.%s index value as of %s in QuoteSet %d.",
+											Index.INDEX, trade.getFloatingRateIndex(),
+											trade.getFloatingRateIndexTenor(), valDate, quoteSetId));
+						}
 
 						if (trade.getSpread() != null) {
 							// Spreads are expressed as basis point. It must be divided by 100 before being
@@ -148,7 +163,7 @@ public class LoanDepositTradeBusinessDelegate {
 						paymentAmount = capital.subtract(lastCapital);
 						try {
 							valDate = DateUtil.addTenor(valDate, trade.getPaymentFrequency());
-						} catch (TradistaBusinessException tbe) {
+						} catch (TradistaBusinessException _) {
 							// Should not appear here.
 						}
 					} catch (PricerException pe) {

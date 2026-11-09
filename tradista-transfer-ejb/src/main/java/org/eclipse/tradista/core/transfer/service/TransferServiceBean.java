@@ -25,6 +25,8 @@ import org.eclipse.tradista.core.transfer.model.TransferManager;
 import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.core.transfer.persistence.TransferSQL;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.EJB;
@@ -50,6 +52,8 @@ import jakarta.ejb.Stateless;
 @PermitAll
 @Stateless
 public class TransferServiceBean implements TransferService {
+
+	private static final Logger logger = LoggerFactory.getLogger(TransferServiceBean.class);
 
 	@EJB
 	private LocalTransferMessagingService messagingService;
@@ -242,7 +246,8 @@ public class TransferServiceBean implements TransferService {
 				try {
 					TradistaUtil.getTransferManager(productType).fixCashTransfer((CashTransfer) transfer, quoteSetId);
 				} catch (TradistaBusinessException _) {
-					// TODO add log
+					logger.error("Error trying to fix cash transfer {} using quote set {}", transfer.getId(),
+							quoteSetId);
 				}
 			}
 		}

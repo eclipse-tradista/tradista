@@ -1,15 +1,22 @@
 package org.eclipse.tradista.mm.loandeposit.transfer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import org.eclipse.tradista.core.book.model.Book;
+import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.currency.model.Currency;
@@ -17,6 +24,9 @@ import org.eclipse.tradista.core.daycountconvention.model.DayCountConvention;
 import org.eclipse.tradista.core.interestpayment.model.InterestPayment;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.tenor.model.Tenor;
+import org.eclipse.tradista.core.transfer.model.CashTransfer;
+import org.eclipse.tradista.core.transfer.model.Transfer;
+import org.eclipse.tradista.core.transfer.model.TransferPurpose;
 import org.eclipse.tradista.core.transfer.service.FixingErrorBusinessDelegate;
 import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.mm.loan.transfer.LoanTransferManager;
@@ -166,5 +176,25 @@ class LoanDepositTransferManagerTest {
 		event.setTrade(updatedTrade);
 
 		assertDoesNotThrow(() -> transferManager.createTransfers(event));
+	}
+
+	@Test
+	void testFixCashTransferSetsStatusToKnownOnSuccess() throws TradistaBusinessException {
+		LoanTrade trade = createFloatingRateLoanTrade(InterestPayment.END_OF_PERIOD);
+		CashTransfer transfer = CashTransfer
+				.builder(book, TransferPurpose.INTEREST_PAYMENT, LocalDate.of(2026, 4, 1), currency).trade(trade)
+				.fixingDateTime(LocalDateTime.of(2026, 4, 1, 0, 0)).status(Transfer.Status.UNKNOWN).build();
+		transfer.setId(100L);
+
+		BigDecimal calculatedAmount = BigDecimal.valueOf(5000);
+		when(loanDepositBusinessDelegate.getPaymentAmount(eq(trade), any(LocalDate.class), any(LocalDate.class),
+				anyLong(), anyLong())).thenReturn(calculatedAmount);
+
+		transferManager.fixCashTransfer(transfer, 1L);
+
+		assertEquals(Transfer.Status.KNOWN, transfer.getStatus());
+		assertEquals(Transfer.Direction.PAY, transfer.getDirection());
+		assertEquals(calculatedAmount, transfer.getAmount());
+		verify(transferBusinessDelegate).saveTransfer(transfer);
 	}
 }
