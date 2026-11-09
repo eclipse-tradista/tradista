@@ -3,6 +3,7 @@ package org.eclipse.tradista.mm.loandeposit.transfer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.transfer.model.CashTransfer;
@@ -62,9 +63,7 @@ public abstract class LoanDepositTransferManager implements TransferManager<Loan
 							&& (oldTrade.getFixedRate().compareTo(trade.getFixedRate()) != 0))
 					|| !oldTrade.getPaymentFrequency().equals(trade.getPaymentFrequency())
 					|| !oldTrade.getInterestPayment().equals(trade.getInterestPayment())
-					|| ((oldTrade.getInterestFixing() != null && trade.getInterestFixing() == null)
-							|| (oldTrade.getInterestFixing() == null && trade.getInterestFixing() != null)
-							|| (!oldTrade.getInterestFixing().equals(trade.getInterestFixing())))
+					|| !Objects.equals(oldTrade.getInterestFixing(), trade.getInterestFixing())
 					|| (oldTrade.isBuy() != trade.isBuy()) || (!oldTrade.getBook().equals(trade.getBook()))
 					|| (!oldTrade.getProductType().equals(trade.getProductType()))) {
 				List<Transfer> transfers = transferBusinessDelegate.getTransfersByTradeIdAndPurpose(oldTrade.getId(),
