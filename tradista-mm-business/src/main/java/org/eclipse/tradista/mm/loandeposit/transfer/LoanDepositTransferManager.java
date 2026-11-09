@@ -1,6 +1,7 @@
 package org.eclipse.tradista.mm.loandeposit.transfer;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -156,12 +157,11 @@ public abstract class LoanDepositTransferManager implements TransferManager<Loan
 				direction = Direction.RECEIVE;
 			}
 		}
-		CashTransfer transfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.NOTIONAL_PAYMENT, trade.getSettlementDate(),
 						trade.getCurrency())
 				.trade(trade).quantityOrAmount(trade.getAmount()).direction(direction)
-				.fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN).build();
-		return transfer;
+				.fixingDateTime(LocalDateTime.now(ZoneId.systemDefault())).status(Transfer.Status.KNOWN).build();
 	}
 
 	private CashTransfer createNewNotionalRepayment(LoanDepositTrade trade) throws TradistaBusinessException {
@@ -179,11 +179,10 @@ public abstract class LoanDepositTransferManager implements TransferManager<Loan
 				direction = Direction.PAY;
 			}
 		}
-		CashTransfer transfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.NOTIONAL_REPAYMENT, trade.getEndDate(), trade.getCurrency())
 				.trade(trade).quantityOrAmount(trade.getAmount()).direction(direction)
-				.fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN).build();
-		return transfer;
+				.fixingDateTime(LocalDateTime.now(ZoneId.systemDefault())).status(Transfer.Status.KNOWN).build();
 	}
 
 }
