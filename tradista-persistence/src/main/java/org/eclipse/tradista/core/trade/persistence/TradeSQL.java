@@ -415,11 +415,10 @@ public class TradeSQL {
 		try (Connection con = TradistaDB.getConnection();
 				PreparedStatement stmtGetTradesByPosition = con.prepareStatement(buildSQLTradeQuery(posDef))) {
 			try (ResultSet results = stmtGetTradesByPosition.executeQuery()) {
+				Class<Trade<? extends Product>> klass = TradistaUtil.getTradeToken();
 				while (results.next()) {
-					Class<Trade<? extends Product>> klass = null;
 					if (trades == null) {
 						trades = new HashSet<>();
-						klass = TradistaUtil.getTradeToken();
 					}
 					Trade<? extends Product> trade = null;
 					if (posDef.getProductType() != null) {
