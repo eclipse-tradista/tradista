@@ -252,6 +252,7 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 				.multiply(dividendYield).multiply(quantity);
 		transfer.setDirection(Transfer.Direction.RECEIVE);
 		transfer.setAmount(dividend);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

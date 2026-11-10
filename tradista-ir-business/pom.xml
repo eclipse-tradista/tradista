@@ -22,5 +22,10 @@
 			<artifactId>ir-ejb-client</artifactId>
 			<version>${ir-ejb-client.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.core</groupId>
+			<artifactId>tradista-test-util</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

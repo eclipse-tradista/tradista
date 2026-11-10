@@ -101,6 +101,7 @@ public class IRCollarTransferManager extends IRCapFloorCollarTransferManager {
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

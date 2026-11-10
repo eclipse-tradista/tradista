@@ -219,6 +219,7 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

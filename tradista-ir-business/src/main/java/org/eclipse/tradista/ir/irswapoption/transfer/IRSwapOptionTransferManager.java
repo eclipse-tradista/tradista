@@ -51,6 +51,7 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 	public IRSwapOptionTransferManager() {
 		transferBusinessDelegate = new TransferBusinessDelegate();
 		fixingErrorBusinessDelegate = new FixingErrorBusinessDelegate();
+		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 	}
 
 	@Override
@@ -236,8 +237,8 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 				throw new TradistaBusinessException(errorMsg);
 			}
 			fractionedNotional = notional.multiply(PricerUtil.daysToYear(indexTenor));
-			amount = fractionedNotional
-					.multiply(ir.divide(BigDecimal.valueOf(100), configurationBusinessDelegate.getRoundingMode()));
+			amount = fractionedNotional.multiply(ir.divide(BigDecimal.valueOf(100),
+					configurationBusinessDelegate.getScale(), configurationBusinessDelegate.getRoundingMode()));
 		}
 		if (amount.signum() == 0) {
 			// No transfer
@@ -272,6 +273,7 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

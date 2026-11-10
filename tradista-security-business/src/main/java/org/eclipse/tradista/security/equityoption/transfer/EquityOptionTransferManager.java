@@ -267,6 +267,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

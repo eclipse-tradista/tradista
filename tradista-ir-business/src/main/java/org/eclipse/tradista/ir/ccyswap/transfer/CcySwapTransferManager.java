@@ -325,6 +325,7 @@ public class CcySwapTransferManager implements TransferManager<CcySwapTradeEvent
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 
