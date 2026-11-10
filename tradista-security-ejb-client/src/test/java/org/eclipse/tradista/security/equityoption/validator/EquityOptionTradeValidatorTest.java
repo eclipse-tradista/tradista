@@ -39,13 +39,13 @@ import org.junit.jupiter.api.Test;
 class EquityOptionTradeValidatorTest {
 
 	private static final EquityOptionTradeValidator validator = new EquityOptionTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final EquityTrade underlyingTrade;
 
 	static {
-		Exchange exchange = TradistaTestUtil.createExchange("EPA");
+		Exchange exchange = TradistaTestUtil.EPA;
 		Calendar calendar = new Calendar("EPA_CAL");
 		exchange.setCalendar(calendar);
 

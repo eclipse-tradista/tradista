@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 class EquityValidatorTest {
 
 	private static final EquityValidator validator = new EquityValidator();
-	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
+	private static final Exchange exchange = TradistaTestUtil.EPA;
 	private static final Currency currency = TradistaTestUtil.EUR;
 
 	@Test

@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 class FXNDFTradeValidatorTest {
 
 	private static final FXNDFTradeValidator validator = new FXNDFTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency usd = TradistaTestUtil.USD;
 	private static final Currency brl = TradistaTestUtil.BRL;

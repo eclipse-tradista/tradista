@@ -36,11 +36,10 @@ import org.junit.jupiter.api.Test;
 
 class EquityOptionTradeAuditTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final EquityTrade underlyingTrade = EquityTrade.builder()
-			.product(Equity.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
-					.currency(TradistaTestUtil.EUR).build())
+			.product(Equity.builder(TradistaTestUtil.EPA, "FR0000120271").currency(TradistaTestUtil.EUR).build())
 			.book(book).counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1))
 			.settlementDate(LocalDate.of(2025, 6, 3)).quantity(BigDecimal.valueOf(100)).amount(BigDecimal.valueOf(50.0))
 			.build();

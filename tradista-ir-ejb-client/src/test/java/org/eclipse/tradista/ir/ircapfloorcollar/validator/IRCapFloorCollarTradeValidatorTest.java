@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 class IRCapFloorCollarTradeValidatorTest {
 
 	private static final IRCapFloorCollarTradeValidator validator = new IRCapFloorCollarTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final FRATrade forwardTrade;

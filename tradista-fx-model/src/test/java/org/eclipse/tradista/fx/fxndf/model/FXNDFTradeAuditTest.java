@@ -36,7 +36,7 @@ class FXNDFTradeAuditTest {
 	private static final Currency usd = TradistaTestUtil.USD;
 	private static final Currency brl = TradistaTestUtil.BRL;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 
 	@Test
 	void testDefaultCreationTimeOnNewFXNDFTrade() {

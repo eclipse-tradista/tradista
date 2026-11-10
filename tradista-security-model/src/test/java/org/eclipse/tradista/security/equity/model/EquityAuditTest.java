@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 class EquityAuditTest {
 
-	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
+	private static final Exchange exchange = TradistaTestUtil.EPA;
 
 	@Test
 	void testDefaultCreationTimeOnNewEquity() {

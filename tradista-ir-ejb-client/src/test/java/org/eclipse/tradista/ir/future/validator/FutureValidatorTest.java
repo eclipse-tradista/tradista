@@ -32,7 +32,7 @@ class FutureValidatorTest {
 
 	private static final FutureValidator validator = new FutureValidator();
 	private static final FutureContractSpecification contractSpecification;
-	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
+	private static final Exchange exchange = TradistaTestUtil.EPA;
 
 	static {
 		contractSpecification = new FutureContractSpecification("EURIBOR_3M");

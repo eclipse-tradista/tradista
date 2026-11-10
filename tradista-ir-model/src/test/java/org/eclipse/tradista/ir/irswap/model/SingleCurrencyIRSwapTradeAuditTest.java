@@ -39,7 +39,7 @@ class SingleCurrencyIRSwapTradeAuditTest {
 
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	@Test

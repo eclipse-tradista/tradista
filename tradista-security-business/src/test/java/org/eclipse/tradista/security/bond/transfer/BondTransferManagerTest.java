@@ -58,9 +58,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BondTransferManagerTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final Currency EUR = TradistaTestUtil.EUR;
-	private static final Exchange EPA = TradistaTestUtil.createExchange("EPA");
+	private static final Exchange EPA = TradistaTestUtil.EPA;
 
 	private static MockedConstruction<ConfigurationBusinessDelegate> mockedConfigConstruction;
 	private static MockedStatic<PricerUtil> mockedPricerUtil;

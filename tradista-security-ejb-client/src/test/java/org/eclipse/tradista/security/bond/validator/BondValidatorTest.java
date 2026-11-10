@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 class BondValidatorTest {
 
 	private static final BondValidator validator = new BondValidator();
-	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
+	private static final Exchange exchange = TradistaTestUtil.EPA;
 	private static final Currency currency = TradistaTestUtil.EUR;
 
 	@Test

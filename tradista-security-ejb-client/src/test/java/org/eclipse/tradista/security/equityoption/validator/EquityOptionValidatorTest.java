@@ -39,7 +39,7 @@ class EquityOptionValidatorTest {
 	private static final Equity underlying;
 
 	static {
-		Exchange exchange = TradistaTestUtil.createExchange("EPA");
+		Exchange exchange = TradistaTestUtil.EPA;
 		contractSpecification = new EquityOptionContractSpecification("SAN_OPTION");
 		contractSpecification.setExchange(exchange);
 		contractSpecification.setStyle(VanillaOptionTrade.Style.AMERICAN);

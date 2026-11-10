@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Test;
 
 class EquityTradeAuditTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Equity equity = Equity.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+	private static final Equity equity = Equity.builder(TradistaTestUtil.EPA, "FR0000120271")
 			.currency(TradistaTestUtil.EUR).build();
 
 	@Test

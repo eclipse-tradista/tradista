@@ -40,7 +40,7 @@ class CcySwapTradeAuditTest {
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final Index index = TradistaTestUtil.EURIBOR;
 
 	@Test

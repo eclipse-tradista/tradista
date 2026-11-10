@@ -60,7 +60,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class IRCollarTransferManagerTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency EUR = TradistaTestUtil.EUR;
 	private static final DayCountConvention dcc = new DayCountConvention(DayCountConvention.ACT_360);

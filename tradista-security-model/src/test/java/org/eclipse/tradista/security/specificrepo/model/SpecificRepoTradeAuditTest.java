@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
 
 class SpecificRepoTradeAuditTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Bond bond = Bond.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
-			.currency(TradistaTestUtil.EUR).build();
+	private static final Bond bond = Bond.builder(TradistaTestUtil.EPA, "FR0000120271").currency(TradistaTestUtil.EUR)
+			.build();
 	private static final Status status;
 
 	static {

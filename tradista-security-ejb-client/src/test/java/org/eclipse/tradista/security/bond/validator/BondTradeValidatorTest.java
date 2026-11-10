@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
 class BondTradeValidatorTest {
 
 	private static final BondTradeValidator validator = new BondTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency currency = TradistaTestUtil.EUR;
-	private static final Bond bond = Bond.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+	private static final Bond bond = Bond.builder(TradistaTestUtil.EPA, "FR0000120271")
 			.issueDate(LocalDate.of(2025, 1, 1)).maturityDate(LocalDate.of(2035, 1, 1)).currency(currency).build();
 
 	private BondTrade.Builder createValidTradeBuilder() {

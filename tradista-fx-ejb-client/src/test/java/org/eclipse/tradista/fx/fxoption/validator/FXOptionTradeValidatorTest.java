@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 class FXOptionTradeValidatorTest {
 
 	private static final FXOptionTradeValidator validator = new FXOptionTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;

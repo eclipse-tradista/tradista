@@ -34,7 +34,7 @@ class EquityOptionAuditTest {
 
 	private static final EquityOptionContractSpecification contractSpecification = new EquityOptionContractSpecification(
 			"SAN_OPTION");
-	private static final Equity underlying = Equity.of(TradistaTestUtil.createExchange("EPA"), "FR0000120271");
+	private static final Equity underlying = Equity.of(TradistaTestUtil.EPA, "FR0000120271");
 
 	@Test
 	void testDefaultCreationTimeOnNewEquityOption() {

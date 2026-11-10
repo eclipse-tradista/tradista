@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Test;
 
 class BondTradeAuditTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Bond bond = Bond.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
+	private static final Bond bond = Bond.builder(TradistaTestUtil.EPA, "FR0000120271")
 			.issueDate(LocalDate.of(2025, 1, 1)).maturityDate(LocalDate.of(2035, 1, 1)).currency(TradistaTestUtil.EUR)
 			.build();
 

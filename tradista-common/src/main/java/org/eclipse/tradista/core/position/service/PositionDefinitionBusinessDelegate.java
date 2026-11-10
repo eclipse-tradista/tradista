@@ -79,6 +79,10 @@ public class PositionDefinitionBusinessDelegate {
 		}
 		if (StringUtils.isEmpty(positionDefinition.getName())) {
 			errMsg.append(String.format("The name is mandatory.%n"));
+		} else {
+			if (positionDefinition.getName().length() > 50) {
+				errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
+			}
 		}
 		if (positionDefinition.getPricingParameter() == null) {
 			errMsg.append(String.format("The pricing parameter set is mandatory.%n"));

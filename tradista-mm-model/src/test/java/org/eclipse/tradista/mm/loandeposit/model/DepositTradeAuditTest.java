@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 class DepositTradeAuditTest {
 
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 
 	@Test

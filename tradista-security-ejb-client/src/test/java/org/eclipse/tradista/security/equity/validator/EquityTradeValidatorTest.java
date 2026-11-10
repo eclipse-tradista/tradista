@@ -34,11 +34,11 @@ import org.junit.jupiter.api.Test;
 class EquityTradeValidatorTest {
 
 	private static final EquityTradeValidator validator = new EquityTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency currency = TradistaTestUtil.EUR;
-	private static final Equity equity = Equity.builder(TradistaTestUtil.createExchange("EPA"), "FR0000120271")
-			.currency(currency).build();
+	private static final Equity equity = Equity.builder(TradistaTestUtil.EPA, "FR0000120271").currency(currency)
+			.build();
 
 	private EquityTrade.Builder createValidTradeBuilder() {
 		return EquityTrade.builder().product(equity).book(book).counterparty(counterparty).currency(currency)

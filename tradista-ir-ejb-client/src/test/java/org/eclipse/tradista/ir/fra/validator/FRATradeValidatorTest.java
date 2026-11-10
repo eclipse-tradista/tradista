@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 class FRATradeValidatorTest {
 
 	private static final FRATradeValidator validator = new FRATradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final Index index = TradistaTestUtil.EURIBOR;
