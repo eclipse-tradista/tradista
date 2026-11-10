@@ -133,6 +133,9 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 		TradistaGUIUtil.fillCurrencyComboBox(currency);
 		TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
 		TradistaGUIUtil.fillPositionDefinitionComboBox(false, load);
+
+		name.managedProperty().bind(name.visibleProperty());
+		nameLabel.managedProperty().bind(nameLabel.visibleProperty());
 	}
 
 	@FXML
@@ -166,7 +169,6 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 			try {
 				if (isNew) {
 					positionDefinition = new PositionDefinition(name.getText(), po);
-					nameLabel.setText(name.getText());
 				}
 
 				positionDefinition.setBook(book.getValue());
@@ -189,6 +191,7 @@ public class PositionDefinitionController extends TradistaControllerAdapter {
 				}
 				positionDefinition.setRealTime(isRealTime.isSelected());
 				positionDefinition.setId(positionBusinessDelegate.savePositionDefinition(positionDefinition));
+				nameLabel.setText(name.getText());
 				name.setVisible(false);
 				nameLabel.setVisible(true);
 			} catch (TradistaBusinessException tbe) {
