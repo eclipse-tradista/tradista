@@ -24,6 +24,20 @@ import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+/**
+ * Shared test fixtures.
+ * <p>
+ * Convention:
+ * <ul>
+ * <li>An object that can be created with a simple constructor call (no setter
+ * needed) is exposed as a constant (e.g. {@link #EUR}, {@link #EPA}). These
+ * constants are shared by all tests: they must never be modified.</li>
+ * <li>An object that needs additional setup (e.g. a role to set) or that
+ * depends on such an object is created by a {@code createXxx} method, which
+ * returns a new instance on each call.</li>
+ * <li>Only the variants actually used by tests are provided (YAGNI).</li>
+ * </ul>
+ */
 public final class TradistaTestUtil {
 
 	public static final Currency EUR = new Currency("EUR");
