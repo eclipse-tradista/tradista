@@ -174,7 +174,7 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 	private CashTransfer createNewPremiumTransfer(IRSwapOptionTrade trade) throws TradistaBusinessException {
 		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
-				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
+				.trade(trade).fixingDateTime(LocalDateTime.now(ZoneId.systemDefault())).status(Transfer.Status.KNOWN)
 				.quantityOrAmount(trade.getAmount())
 				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 	}
@@ -202,7 +202,7 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 					fixingError.setCashTransfer(transfer);
 					fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 					String errorMsg = String.format(
-							"Transfer %n cannot be fixed. No defined cash settlement, no alternative index tenor and no underlying maturity.",
+							"Transfer %d cannot be fixed. No defined cash settlement, no alternative index tenor and no underlying maturity.",
 							transfer.getId());
 					fixingError.setErrorMessage(errorMsg);
 					fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
@@ -226,7 +226,7 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 			if (ir == null) {
 				FixingError fixingError = new FixingError();
 				fixingError.setCashTransfer(transfer);
-				fixingError.setErrorDate(LocalDateTime.now());
+				fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 				String errorMsg = String.format(
 						"Transfer %d cannot be fixed. Impossible to get the %s index value (CLOSE) as of %tD in QuoteSet %d.",
 						transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);

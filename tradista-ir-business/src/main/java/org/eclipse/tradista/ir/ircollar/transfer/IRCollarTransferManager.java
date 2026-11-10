@@ -75,7 +75,7 @@ public class IRCollarTransferManager extends IRCapFloorCollarTransferManager {
 		if (ir.compareTo(trade.getCapStrike()) <= 0 && ir.compareTo(trade.getFloorStrike()) >= 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
-			logger.info("After fixing, transfer {} has been deleted as the interest rate is within the collar",
+			logger.info("After fixing, transfer {} has been deleted as the interest rate is within the collar.",
 					transfer.getId());
 			return;
 		}
