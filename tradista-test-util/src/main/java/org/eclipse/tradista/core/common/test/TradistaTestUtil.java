@@ -5,6 +5,8 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.core.index.model.Index;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.position.model.PositionDefinition;
+import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
@@ -28,6 +30,7 @@ public final class TradistaTestUtil {
 	public static final Currency USD = new Currency("USD");
 	public static final Currency BRL = new Currency("BRL");
 	public static final Index EURIBOR = new Index("EURIBOR");
+	public static final Exchange EPA = new Exchange("EPA");
 
 	private TradistaTestUtil() {
 	}
@@ -38,42 +41,38 @@ public final class TradistaTestUtil {
 		return po;
 	}
 
-	public static LegalEntity createProcessingOrg(String name) {
-		LegalEntity po = new LegalEntity(name);
-		po.setRole(LegalEntity.Role.PROCESSING_ORG);
-		return po;
-	}
-
 	public static LegalEntity createCounterparty() {
 		LegalEntity cp = new LegalEntity("CP");
 		cp.setRole(LegalEntity.Role.COUNTERPARTY);
 		return cp;
 	}
 
-	public static LegalEntity createCounterparty(String name) {
-		LegalEntity cp = new LegalEntity(name);
-		cp.setRole(LegalEntity.Role.COUNTERPARTY);
-		return cp;
+	public static Book createBook() {
+		return new Book("Book", createProcessingOrg());
 	}
 
-	public static Book createTradingBook() {
-		return new Book("TradingBook", createProcessingOrg());
+	public static Book createBook(LegalEntity po) {
+		return new Book("Book", po);
 	}
 
-	public static Book createBook(String name) {
-		return new Book(name, createProcessingOrg());
+	public static PricingParameter createPricingParameter() {
+		return new PricingParameter("PricingParameter", createProcessingOrg());
 	}
 
-	public static Book createBook(String name, LegalEntity po) {
-		return new Book(name, po);
+	public static PricingParameter createPricingParameter(LegalEntity po) {
+		return new PricingParameter("PricingParameter", po);
 	}
 
-	public static Exchange createExchange(String code) {
-		return new Exchange(code);
+	public static PositionDefinition createPositionDefinition() {
+		return new PositionDefinition("PositionDefinition", createProcessingOrg());
 	}
 
-	public static Index createIndex(String name) {
-		return new Index(name);
+	public static PositionDefinition createPositionDefinition(LegalEntity po) {
+		return new PositionDefinition("PositionDefinition", po);
+	}
+
+	public static PositionDefinition createPositionDefinition(String name, LegalEntity po) {
+		return new PositionDefinition(name, po);
 	}
 
 }

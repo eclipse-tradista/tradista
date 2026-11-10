@@ -39,7 +39,7 @@ class FXOptionTradeAuditTest {
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final FXTrade underlyingTrade = FXTrade.builder().currencyOne(eur).currency(usd)
 			.amountOne(BigDecimal.valueOf(100_000)).amount(BigDecimal.valueOf(110_000)).book(book)
 			.counterparty(counterparty).tradeDate(LocalDate.of(2025, 6, 1)).settlementDate(LocalDate.of(2025, 6, 3))

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 class BondAuditTest {
 
-	private static final Exchange exchange = TradistaTestUtil.createExchange("EPA");
+	private static final Exchange exchange = TradistaTestUtil.EPA;
 
 	@Test
 	void testDefaultCreationTimeOnNewBond() {

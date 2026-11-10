@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 class IRCapFloorCollarTradeAuditTest {
 
 	private static final Currency currency = TradistaTestUtil.EUR;
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final FRATrade forwardTrade = FRATrade.builder().fixedRate(BigDecimal.valueOf(2.5))
 			.startDate(LocalDate.of(2025, 6, 1)).maturityDate(LocalDate.of(2025, 9, 1))

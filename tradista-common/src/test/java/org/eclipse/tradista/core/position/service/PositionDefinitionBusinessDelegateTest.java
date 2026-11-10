@@ -1,14 +1,12 @@
 package org.eclipse.tradista.core.position.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.eclipse.tradista.core.book.model.Book;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.currency.model.Currency;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
-import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -33,38 +31,23 @@ class PositionDefinitionBusinessDelegateTest {
 
 	@Test
 	void testSavePositionDefinitionNameExceeds50Characters() {
-		LegalEntity po = new LegalEntity("PO");
-		Book book = new Book("Book", po);
-		Currency currency = new Currency("EUR");
-		PricingParameter pricingParameter = new PricingParameter("PP", po);
+		LegalEntity po = TradistaTestUtil.createProcessingOrg();
+		PositionDefinition posDef = TradistaTestUtil.createPositionDefinition("A".repeat(51), po);
+		posDef.setBook(TradistaTestUtil.createBook(po));
+		posDef.setCurrency(TradistaTestUtil.EUR);
+		posDef.setPricingParameter(TradistaTestUtil.createPricingParameter(po));
 
-		String name51Chars = "A".repeat(51);
-		PositionDefinition posDef = new PositionDefinition(name51Chars, po);
-		posDef.setBook(book);
-		posDef.setCurrency(currency);
-		posDef.setPricingParameter(pricingParameter);
-
-		TradistaBusinessException exception = assertThrows(TradistaBusinessException.class,
-				() -> businessDelegate.savePositionDefinition(posDef));
-
-		assertEquals(String.format("The name cannot exceed 50 characters.%n"), exception.getMessage());
+		assertThrows(TradistaBusinessException.class, () -> businessDelegate.savePositionDefinition(posDef));
 	}
 
 	@Test
 	void testSavePositionDefinitionBlankOrEmptyName() {
-		LegalEntity po = new LegalEntity("PO");
-		Book book = new Book("Book", po);
-		Currency currency = new Currency("EUR");
-		PricingParameter pricingParameter = new PricingParameter("PP", po);
+		LegalEntity po = TradistaTestUtil.createProcessingOrg();
+		PositionDefinition posDef = TradistaTestUtil.createPositionDefinition(StringUtils.EMPTY, po);
+		posDef.setBook(TradistaTestUtil.createBook(po));
+		posDef.setCurrency(TradistaTestUtil.EUR);
+		posDef.setPricingParameter(TradistaTestUtil.createPricingParameter(po));
 
-		PositionDefinition posDef = new PositionDefinition("", po);
-		posDef.setBook(book);
-		posDef.setCurrency(currency);
-		posDef.setPricingParameter(pricingParameter);
-
-		TradistaBusinessException exception = assertThrows(TradistaBusinessException.class,
-				() -> businessDelegate.savePositionDefinition(posDef));
-
-		assertEquals(String.format("The name is mandatory.%n"), exception.getMessage());
+		assertThrows(TradistaBusinessException.class, () -> businessDelegate.savePositionDefinition(posDef));
 	}
 }

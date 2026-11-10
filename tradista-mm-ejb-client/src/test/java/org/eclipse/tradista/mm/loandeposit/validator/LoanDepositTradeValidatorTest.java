@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 class LoanDepositTradeValidatorTest {
 
 	private static final LoanDepositTradeValidator validator = new LoanDepositTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Currency currency = TradistaTestUtil.EUR;
 	private static final DayCountConvention dcc = new DayCountConvention(DayCountConvention.ACT_360);

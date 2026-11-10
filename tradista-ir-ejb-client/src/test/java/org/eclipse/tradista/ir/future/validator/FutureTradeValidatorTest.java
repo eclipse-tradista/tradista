@@ -36,13 +36,13 @@ import org.junit.jupiter.api.Test;
 class FutureTradeValidatorTest {
 
 	private static final FutureTradeValidator validator = new FutureTradeValidator();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
 	private static final Future future;
 
 	static {
 		FutureContractSpecification spec = new FutureContractSpecification("EURIBOR_3M");
-		spec.setExchange(TradistaTestUtil.createExchange("EPA"));
+		spec.setExchange(TradistaTestUtil.EPA);
 		spec.setCurrency(TradistaTestUtil.EUR);
 		spec.setDayCountConvention(new DayCountConvention(DayCountConvention.ACT_360));
 		spec.setReferenceRateIndex(TradistaTestUtil.EURIBOR);

@@ -36,7 +36,7 @@ class FXSwapTradeAuditTest {
 	private static final Currency eur = TradistaTestUtil.EUR;
 	private static final Currency usd = TradistaTestUtil.USD;
 	private static final LegalEntity counterparty = TradistaTestUtil.createCounterparty();
-	private static final Book book = TradistaTestUtil.createTradingBook();
+	private static final Book book = TradistaTestUtil.createBook();
 
 	@Test
 	void testDefaultCreationTimeOnNewFXSwapTrade() {

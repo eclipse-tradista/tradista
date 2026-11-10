@@ -33,7 +33,7 @@ class FutureAuditTest {
 
 	static {
 		contractSpecification = new FutureContractSpecification("EURIBOR_3M");
-		contractSpecification.setExchange(TradistaTestUtil.createExchange("EPA"));
+		contractSpecification.setExchange(TradistaTestUtil.EPA);
 	}
 
 	@Test
