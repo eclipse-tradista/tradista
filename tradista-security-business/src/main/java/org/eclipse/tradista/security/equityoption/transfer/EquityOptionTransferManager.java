@@ -23,6 +23,8 @@ import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equityoption.messaging.EquityOptionTradeEvent;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -41,6 +43,8 @@ import org.eclipse.tradista.security.equityoption.model.EquityOptionTrade;
  ********************************************************************************/
 
 public class EquityOptionTransferManager implements TransferManager<EquityOptionTradeEvent> {
+
+	private static final Logger logger = LoggerFactory.getLogger(EquityOptionTransferManager.class);
 
 	protected TransferBusinessDelegate transferBusinessDelegate;
 
@@ -171,34 +175,28 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 	}
 
 	private CashTransfer createNewCashSettlementTransfer(EquityOptionTrade trade) {
-		CashTransfer cashSettlementTransfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getExerciseDate(),
 						trade.getUnderlying().getCurrency())
 				.trade(trade).fixingDateTime(trade.getExerciseDate().atStartOfDay()).status(Transfer.Status.UNKNOWN)
 				.build();
-
-		return cashSettlementTransfer;
 	}
 
 	private CashTransfer createNewPremiumTransfer(EquityOptionTrade trade) {
-		CashTransfer premiumTransfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
 				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
 				.quantityOrAmount(trade.getAmount())
 				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
-
-		return premiumTransfer;
 	}
 
 	private ProductTransfer createNewEquityOptionSettlementTransfer(EquityOptionTrade trade) {
-		ProductTransfer eqOptionSettlementTransfer = ProductTransfer
+		return ProductTransfer
 				.builder(trade.getBook(), TransferPurpose.EQUITY_OPTION_SETTLEMENT, trade.getSettlementDate())
 				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
 				.quantityOrAmount(trade.getQuantity())
 				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
 				.status(Transfer.Status.KNOWN).build();
-
-		return eqOptionSettlementTransfer;
 	}
 
 	@Override
@@ -212,7 +210,7 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 		if (equityPrice == null) {
 			FixingError fixingError = new FixingError();
 			fixingError.setCashTransfer(transfer);
-			fixingError.setErrorDate(LocalDateTime.now());
+			fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 			String errorMsg = String.format(
 					"Transfer %d cannot be fixed. Impossible to get the %s price closing value as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
@@ -228,8 +226,8 @@ public class EquityOptionTransferManager implements TransferManager<EquityOption
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 		if (trade.isBuy()) {

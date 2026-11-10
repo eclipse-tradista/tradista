@@ -2,6 +2,7 @@ package org.eclipse.tradista.ir.irswapoption.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,8 @@ import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.ir.irswap.model.IRSwapTrade;
 import org.eclipse.tradista.ir.irswapoption.messaging.IRSwapOptionTradeEvent;
 import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -41,6 +44,8 @@ import org.eclipse.tradista.ir.irswapoption.model.IRSwapOptionTrade;
  ********************************************************************************/
 
 public class IRSwapOptionTransferManager implements TransferManager<IRSwapOptionTradeEvent> {
+
+	private static final Logger logger = LoggerFactory.getLogger(IRSwapOptionTransferManager.class);
 
 	protected TransferBusinessDelegate transferBusinessDelegate;
 
@@ -159,23 +164,19 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 	}
 
 	private CashTransfer createNewCashSettlementTransfer(IRSwapOptionTrade trade) throws TradistaBusinessException {
-		CashTransfer cashSettlementTransfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.CASH_SETTLEMENT, trade.getSettlementDate(),
 						trade.getUnderlying().getCurrency())
 				.trade(trade).fixingDateTime(trade.getExerciseDate().atStartOfDay()).status(Transfer.Status.UNKNOWN)
 				.build();
-
-		return cashSettlementTransfer;
 	}
 
 	private CashTransfer createNewPremiumTransfer(IRSwapOptionTrade trade) throws TradistaBusinessException {
-		CashTransfer premiumTransfer = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
 				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
 				.quantityOrAmount(trade.getAmount())
 				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
-
-		return premiumTransfer;
 	}
 
 	@Override
@@ -199,7 +200,7 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 				} else {
 					FixingError fixingError = new FixingError();
 					fixingError.setCashTransfer(transfer);
-					fixingError.setErrorDate(LocalDateTime.now());
+					fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 					String errorMsg = String.format(
 							"Transfer %n cannot be fixed. No defined cash settlement, no alternative index tenor and no underlying maturity.",
 							transfer.getId());
@@ -243,8 +244,8 @@ public class IRSwapOptionTransferManager implements TransferManager<IRSwapOption
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 		if (trade.isBuy()) {

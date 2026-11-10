@@ -145,7 +145,7 @@ public class FXOptionTransferManager implements TransferManager<FXOptionTradeEve
 	private CashTransfer createNewPremiumTransfer(FXOptionTrade trade) throws TradistaBusinessException {
 		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.PREMIUM, trade.getSettlementDate(), trade.getCurrency())
-				.trade(trade).fixingDateTime(LocalDateTime.now()).status(Transfer.Status.KNOWN)
+				.trade(trade).fixingDateTime(LocalDateTime.now(ZoneId.systemDefault())).status(Transfer.Status.KNOWN)
 				.quantityOrAmount(trade.getAmount())
 				.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE).build();
 
