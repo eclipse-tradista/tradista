@@ -24,6 +24,8 @@ import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.security.equity.messaging.EquityTradeEvent;
 import org.eclipse.tradista.security.equity.model.Equity;
 import org.eclipse.tradista.security.equity.model.EquityTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -42,6 +44,8 @@ import org.eclipse.tradista.security.equity.model.EquityTrade;
  ********************************************************************************/
 
 public class EquityTransferManager implements TransferManager<EquityTradeEvent> {
+
+	private static final Logger logger = LoggerFactory.getLogger(EquityTransferManager.class);
 
 	protected TransferBusinessDelegate transferBusinessDelegate;
 
@@ -148,14 +152,11 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 	}
 
 	private ProductTransfer createNewEquitySettlement(EquityTrade trade) {
-		ProductTransfer productTransfer = ProductTransfer
-				.builder(trade.getBook(), TransferPurpose.EQUITY_SETTLEMENT, trade.getSettlementDate()).trade(trade)
-				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+		return ProductTransfer.builder(trade.getBook(), TransferPurpose.EQUITY_SETTLEMENT, trade.getSettlementDate())
+				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
 				.quantityOrAmount(trade.getQuantity())
 				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
 				.status(Transfer.Status.KNOWN).build();
-
-		return productTransfer;
 	}
 
 	private List<CashTransfer> createNewDividends(List<CashTransfer> cashTransfers, EquityTrade trade)
@@ -186,16 +187,13 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 	}
 
 	private CashTransfer createNewEquityPayment(EquityTrade trade) {
-
-		CashTransfer payment = CashTransfer
+		return CashTransfer
 				.builder(trade.getBook(), TransferPurpose.EQUITY_PAYMENT, trade.getSettlementDate(),
 						trade.getCurrency())
 				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
 				.quantityOrAmount(trade.getAmount().multiply(trade.getQuantity()))
 				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
 				.status(Transfer.Status.KNOWN).build();
-
-		return payment;
 	}
 
 	@Override
@@ -226,14 +224,16 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 		if (dividendYield.signum() <= 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info(
+					"After fixing, transfer {} has been deleted as the dividend yield is negative or equal to zero.",
+					transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 
 		if (equityPrice == null) {
 			FixingError fixingError = new FixingError();
 			fixingError.setCashTransfer(transfer);
-			fixingError.setErrorDate(LocalDateTime.now());
+			fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 			String errorMsg = String.format(
 					"Transfer %d cannot be fixed. Impossible to get the %s price closing value as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
@@ -252,6 +252,7 @@ public class EquityTransferManager implements TransferManager<EquityTradeEvent> 
 				.multiply(dividendYield).multiply(quantity);
 		transfer.setDirection(Transfer.Direction.RECEIVE);
 		transfer.setAmount(dividend);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

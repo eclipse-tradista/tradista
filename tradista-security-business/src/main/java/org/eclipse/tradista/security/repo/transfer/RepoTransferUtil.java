@@ -30,6 +30,8 @@ import org.eclipse.tradista.security.gcrepo.model.GCRepoTrade;
 import org.eclipse.tradista.security.repo.model.RepoTrade;
 import org.eclipse.tradista.security.repo.trade.RepoTradeUtil;
 import org.eclipse.tradista.security.specificrepo.model.SpecificRepoTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 /********************************************************************************
@@ -49,6 +51,8 @@ import org.springframework.util.CollectionUtils;
  ********************************************************************************/
 
 public final class RepoTransferUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(RepoTransferUtil.class);
 
 	private static TransferBusinessDelegate transferBusinessDelegate = new TransferBusinessDelegate();
 
@@ -91,7 +95,7 @@ public final class RepoTransferUtil {
 		// No partial termination
 		if (notionalReduction == null) {
 			if (existingCashTransfers != null) {
-				existingCashTransfers.stream().forEach(t -> {
+				existingCashTransfers.forEach(t -> {
 					t.setStatus(Status.CANCELED);
 					cashPayments.add((CashTransfer) t);
 				});
@@ -245,7 +249,7 @@ public final class RepoTransferUtil {
 					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
 						ProductTransfer newCollateralPayment = ProductTransfer
 								.builder(bookEntry.getKey(), entry.getKey(), TransferPurpose.COLLATERAL_SETTLEMENT,
-										LocalDate.now())
+										LocalDate.now(ZoneId.systemDefault()))
 								.trade(trade)
 								.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
 								.quantityOrAmount(bookEntry.getValue()).fixingDateTime(LocalDateTime.now())
@@ -268,7 +272,7 @@ public final class RepoTransferUtil {
 					for (Map.Entry<Book, BigDecimal> bookEntry : entry.getValue().entrySet()) {
 						ProductTransfer newCollateralPayment = ProductTransfer
 								.builder(bookEntry.getKey(), entry.getKey(), TransferPurpose.COLLATERAL_SETTLEMENT,
-										LocalDate.now())
+										LocalDate.now(ZoneId.systemDefault()))
 								.trade(trade)
 								.direction(trade.isBuy() ? Transfer.Direction.PAY : Transfer.Direction.RECEIVE)
 								.quantityOrAmount(bookEntry.getValue()).fixingDateTime(LocalDateTime.now())
@@ -409,7 +413,7 @@ public final class RepoTransferUtil {
 									.stream().filter(t -> t.getProduct().equals(entry.getKey())).findFirst().get();
 							substitutedCollateralTransfer.setQuantity(
 									substitutedCollateralTransfer.getQuantity().subtract(bookEntry.getValue()));
-							if (substitutedCollateralTransfer.getQuantity().equals(BigDecimal.ZERO)) {
+							if (substitutedCollateralTransfer.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
 								try {
 									transferBusinessDelegate.deleteTransfer(substitutedCollateralTransfer.getId());
 								} catch (TradistaBusinessException _) {
@@ -459,8 +463,8 @@ public final class RepoTransferUtil {
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 
@@ -482,13 +486,14 @@ public final class RepoTransferUtil {
 
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 
 	public static void createFixingError(CashTransfer transfer, String errorMsg) throws TradistaBusinessException {
 		FixingError fixingError = new FixingError();
 		fixingError.setCashTransfer(transfer);
-		fixingError.setErrorDate(LocalDateTime.now());
+		fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 		fixingError.setErrorMessage(errorMsg);
 		fixingError.setStatus(org.eclipse.tradista.core.error.model.Error.Status.UNSOLVED);
 		List<FixingError> errors = new ArrayList<>(1);

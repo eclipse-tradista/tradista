@@ -2,6 +2,7 @@ package org.eclipse.tradista.ir.ircollar.transfer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import org.eclipse.tradista.core.transfer.model.FixingError;
 import org.eclipse.tradista.core.transfer.model.Transfer;
 import org.eclipse.tradista.ir.ircapfloorcollar.model.IRCapFloorCollarTrade;
 import org.eclipse.tradista.ir.ircapfloorcollar.transfer.IRCapFloorCollarTransferManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -35,6 +38,8 @@ import org.eclipse.tradista.ir.ircapfloorcollar.transfer.IRCapFloorCollarTransfe
  ********************************************************************************/
 
 public class IRCollarTransferManager extends IRCapFloorCollarTransferManager {
+
+	private static final Logger logger = LoggerFactory.getLogger(IRCollarTransferManager.class);
 
 	protected ConfigurationBusinessDelegate configurationBusinessDelegate;
 
@@ -56,7 +61,7 @@ public class IRCollarTransferManager extends IRCapFloorCollarTransferManager {
 		if (ir == null) {
 			FixingError fixingError = new FixingError();
 			fixingError.setCashTransfer(transfer);
-			fixingError.setErrorDate(LocalDateTime.now());
+			fixingError.setErrorDate(LocalDateTime.now(ZoneId.systemDefault()));
 			String errorMsg = String.format(
 					"Transfer %d cannot be fixed. Impossible to get the %s index value (CLOSE) as of %tD in QuoteSet %d.",
 					transfer.getId(), quoteName, transfer.getFixingDateTime(), quoteSetId);
@@ -67,11 +72,12 @@ public class IRCollarTransferManager extends IRCapFloorCollarTransferManager {
 			fixingErrorBusinessDelegate.saveFixingErrors(errors);
 			throw new TradistaBusinessException(errorMsg);
 		}
-		if (!(ir.compareTo(trade.getCapStrike()) > 0) && !(ir.compareTo(trade.getFloorStrike()) < 0)) {
+		if (ir.compareTo(trade.getCapStrike()) <= 0 && ir.compareTo(trade.getFloorStrike()) >= 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as the interest rate is within the collar.",
+					transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		fractionedNotional = notional.multiply(PricerUtil.daysToYear(trade.getIrForwardTrade().getDayCountConvention(),
 				transfer.getFixingDateTime().toLocalDate(),
@@ -101,6 +107,7 @@ public class IRCollarTransferManager extends IRCapFloorCollarTransferManager {
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

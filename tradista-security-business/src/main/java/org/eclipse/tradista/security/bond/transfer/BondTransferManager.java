@@ -24,6 +24,8 @@ import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.security.bond.messaging.BondTradeEvent;
 import org.eclipse.tradista.security.bond.model.Bond;
 import org.eclipse.tradista.security.bond.model.BondTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -42,6 +44,8 @@ import org.eclipse.tradista.security.bond.model.BondTrade;
  ********************************************************************************/
 
 public class BondTransferManager implements TransferManager<BondTradeEvent> {
+
+	private static final Logger logger = LoggerFactory.getLogger(BondTransferManager.class);
 
 	protected TransferBusinessDelegate transferBusinessDelegate;
 
@@ -162,13 +166,10 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 	}
 
 	private ProductTransfer createNewBondSettlement(BondTrade trade) {
-		ProductTransfer productTransfer = ProductTransfer
-				.builder(trade.getBook(), TransferPurpose.BOND_SETTLEMENT, trade.getSettlementDate()).trade(trade)
-				.direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
+		return ProductTransfer.builder(trade.getBook(), TransferPurpose.BOND_SETTLEMENT, trade.getSettlementDate())
+				.trade(trade).direction(trade.isBuy() ? Transfer.Direction.RECEIVE : Transfer.Direction.PAY)
 				.fixingDateTime(LocalDate.ofInstant(trade.getCreationTime(), ZoneId.systemDefault()).atStartOfDay())
 				.quantityOrAmount(trade.getQuantity()).status(Transfer.Status.KNOWN).build();
-
-		return productTransfer;
 	}
 
 	private List<CashTransfer> createOrUpdateCoupons(List<CashTransfer> existingTransfers,
@@ -364,8 +365,8 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 		if (amount.signum() > 0) {
@@ -377,6 +378,7 @@ public class BondTransferManager implements TransferManager<BondTradeEvent> {
 
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 

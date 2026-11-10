@@ -23,6 +23,8 @@ import org.eclipse.tradista.core.transfer.service.TransferBusinessDelegate;
 import org.eclipse.tradista.ir.ccyswap.messaging.CcySwapTradeEvent;
 import org.eclipse.tradista.ir.ccyswap.model.CcySwapTrade;
 import org.eclipse.tradista.ir.irswap.transfer.IRSwapTransferUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -41,6 +43,8 @@ import org.eclipse.tradista.ir.irswap.transfer.IRSwapTransferUtil;
  ********************************************************************************/
 
 public class CcySwapTransferManager implements TransferManager<CcySwapTradeEvent> {
+
+	private static final Logger logger = LoggerFactory.getLogger(CcySwapTransferManager.class);
 
 	protected TransferBusinessDelegate transferBusinessDelegate;
 
@@ -188,8 +192,7 @@ public class CcySwapTransferManager implements TransferManager<CcySwapTradeEvent
 
 	}
 
-	private List<Transfer> createNewFixedLegInterestPayments(List<CashTransfer> paymentTransfers, CcySwapTrade trade)
-			throws TradistaBusinessException {
+	private List<Transfer> createNewFixedLegInterestPayments(List<CashTransfer> paymentTransfers, CcySwapTrade trade) {
 		List<Transfer> transfers = new ArrayList<Transfer>();
 		if (paymentTransfers == null) {
 			paymentTransfers = IRSwapTransferUtil.generatePaymentCashTransfers(trade);
@@ -216,8 +219,7 @@ public class CcySwapTransferManager implements TransferManager<CcySwapTradeEvent
 		return transfers;
 	}
 
-	private List<Transfer> createNewFixedLegNotionalPayments(List<CashTransfer> paymentTransfers, CcySwapTrade trade)
-			throws TradistaBusinessException {
+	private List<Transfer> createNewFixedLegNotionalPayments(List<CashTransfer> paymentTransfers, CcySwapTrade trade) {
 		List<Transfer> transfers = new ArrayList<Transfer>();
 		if (paymentTransfers == null) {
 			paymentTransfers = IRSwapTransferUtil.generatePaymentCashTransfers(trade);
@@ -286,8 +288,8 @@ public class CcySwapTransferManager implements TransferManager<CcySwapTradeEvent
 		if (amount.signum() == 0) {
 			// No transfer
 			transferBusinessDelegate.deleteTransfer(transfer.getId());
+			logger.info("After fixing, transfer {} has been deleted as its amount is zero.", transfer.getId());
 			return;
-			// TODO add a warn somewhere ?
 		}
 		Transfer.Direction direction;
 		if (trade.isBuy()) {
@@ -325,6 +327,7 @@ public class CcySwapTransferManager implements TransferManager<CcySwapTradeEvent
 		}
 		transfer.setDirection(direction);
 		transfer.setAmount(amount);
+		transfer.setStatus(Transfer.Status.KNOWN);
 		transferBusinessDelegate.saveTransfer(transfer);
 	}
 
