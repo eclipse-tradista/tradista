@@ -528,8 +528,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					controller.load(pricingParameter);
 				}
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -578,8 +578,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				TradistaGUIUtil.fillPricingParameterComboBox(pricingParam);
 			}
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -620,53 +620,53 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				pricingParameter.setId(pricerBusinessDelegate.savePricingParameter(pricingParameter));
 			}
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
 
 	@FXML
 	protected void deleteParam() {
-		int index = pricingParamTable.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			pricingParamTable.getItems().remove(index);
+		PricingParamProperty selectedItem = pricingParamTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			pricingParamTable.getItems().remove(selectedItem);
 			pricingParamTable.getSelectionModel().clearSelection();
 		}
 	}
 
 	@FXML
 	protected void deleteDiscountCurve() {
-		int index = discountCurveTable.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			discountCurveTable.getItems().remove(index);
+		DiscountCurveProperty selectedItem = discountCurveTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			discountCurveTable.getItems().remove(selectedItem);
 			discountCurveTable.getSelectionModel().clearSelection();
 		}
 	}
 
 	@FXML
 	protected void deleteIndexCurve() {
-		int index = indexCurveTable.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			indexCurveTable.getItems().remove(index);
+		IndexCurveProperty selectedItem = indexCurveTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			indexCurveTable.getItems().remove(selectedItem);
 			indexCurveTable.getSelectionModel().clearSelection();
 		}
 	}
 
 	@FXML
 	protected void deleteFXCurve() {
-		int index = fxCurveTable.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			fxCurveTable.getItems().remove(index);
+		FXCurveProperty selectedItem = fxCurveTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			fxCurveTable.getItems().remove(selectedItem);
 			fxCurveTable.getSelectionModel().clearSelection();
 		}
 	}
 
 	@FXML
 	protected void deleteCustomPricer() {
-		int index = customPricerTable.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			customPricerTable.getItems().remove(index);
+		CustomPricerProperty selectedItem = customPricerTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			customPricerTable.getItems().remove(selectedItem);
 			customPricerTable.getSelectionModel().clearSelection();
 		}
 	}
@@ -704,8 +704,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					save.setDisable(true);
 				}
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -733,8 +733,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					.add(new PricingParamProperty(nameTextField.getText(), valueTextField.getText()));
 			nameTextField.clear();
 			valueTextField.clear();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -764,8 +764,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 
 			currencyComboBox.getSelectionModel().clearSelection();
 			discountCurveComboBox.getSelectionModel().clearSelection();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -792,8 +792,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					.add(new IndexCurveProperty(indexComboBox.getValue(), indexCurveComboBox.getValue()));
 			indexComboBox.getSelectionModel().clearSelection();
 			indexCurveComboBox.getSelectionModel().clearSelection();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -829,8 +829,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 			primaryCurrencyComboBox.getSelectionModel().clearSelection();
 			quoteCurrencyComboBox.getSelectionModel().clearSelection();
 			fxCurveComboBox.getSelectionModel().clearSelection();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -859,8 +859,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 					.add(new CustomPricerProperty(productTypeComboBox.getValue(), customPricerTextField.getText()));
 			productTypeComboBox.getSelectionModel().clearSelection();
 			customPricerTextField.clear();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -903,8 +903,8 @@ public class PricingParameterController extends TradistaControllerAdapter {
 				}
 			}
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 
@@ -960,9 +960,31 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((_, _, nv) -> {
-				if (Boolean.FALSE.equals(nv)) {
-					commitEdit(textField.getText());
+			textField.focusedProperty().addListener(new ChangeListener<>() {
+
+				private boolean changing;
+
+				private String oldValue;
+
+				@Override
+				public void changed(ObservableValue<? extends Boolean> b, Boolean ov, Boolean nv) {
+					if (Boolean.TRUE.equals(nv)) {
+						oldValue = textField.getText();
+					}
+					if (Boolean.FALSE.equals(nv) && !changing) {
+						if (textField.getText().isEmpty()) {
+							changing = true;
+							TradistaAlert alert = new TradistaAlert(AlertType.ERROR,
+									String.format("The Value cannot be empty.%n"));
+							alert.showAndWait();
+							Platform.runLater(() -> {
+								textField.setText(oldValue);
+								changing = false;
+							});
+						} else {
+							commitEdit(textField.getText());
+						}
+					}
 				}
 			});
 		}
@@ -1690,10 +1712,27 @@ public class PricingParameterController extends TradistaControllerAdapter {
 		private void createTextField() {
 			textField = new TextField(getString());
 			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener((_, _, nv) -> {
-				if (Boolean.FALSE.equals(nv)) {
-					model.setCustomPricer(textField.getText());
-					commitEdit(textField.getText());
+			textField.focusedProperty().addListener(new ChangeListener<>() {
+
+				private boolean changing;
+
+				@Override
+				public void changed(ObservableValue<? extends Boolean> b, Boolean ov, Boolean nv) {
+					if (Boolean.FALSE.equals(nv) && !changing) {
+						if (textField.getText().isEmpty()) {
+							changing = true;
+							TradistaAlert alert = new TradistaAlert(AlertType.ERROR,
+									String.format("The Pricer cannot be empty.%n"));
+							alert.showAndWait();
+							Platform.runLater(() -> {
+								textField.setText(model == null ? StringUtils.EMPTY : model.getCustomPricer().get());
+								changing = false;
+							});
+						} else {
+							model.setCustomPricer(textField.getText());
+							commitEdit(textField.getText());
+						}
+					}
 				}
 			});
 			textField.setMaxWidth(Double.MAX_VALUE);

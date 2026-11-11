@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.security.common.model.Security;
 import org.eclipse.tradista.security.common.service.SecurityBusinessDelegate;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
@@ -138,9 +139,9 @@ public class GCBasketController implements Serializable {
 			}
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"GC Basket " + gcBasket.getId() + " successfully saved"));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 	}
 
@@ -165,9 +166,9 @@ public class GCBasketController implements Serializable {
 			gcBasket.setSecurities(copyGCBasket.getSecurities());
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
 					"GC Basket " + gcBasket.getId() + " successfully created"));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		} finally {
 			copyGCBasketName = null;
 		}
@@ -202,12 +203,12 @@ public class GCBasketController implements Serializable {
 						"Error", "GC Basket " + idOrName + " was not found."));
 			}
 
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please type a valid id."));
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", tbe.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", te.getMessage()));
 		}
 
 	}

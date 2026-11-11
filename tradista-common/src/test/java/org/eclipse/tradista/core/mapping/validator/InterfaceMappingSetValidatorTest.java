@@ -115,4 +115,46 @@ class InterfaceMappingSetValidatorTest {
 		assertThrows(TradistaBusinessException.class, () -> validator.validateInterfaceMappingSet(ims));
 	}
 
+	@Test
+	void testInterfaceNameExceeds50Characters() {
+		InterfaceMappingSet ims = new InterfaceMappingSet("A".repeat(51), MappingType.Book,
+				InterfaceMappingSet.Direction.INCOMING, createProcessingOrg());
+		ims.addMapping("EXT_1", "INT_1");
+		assertThrows(TradistaBusinessException.class, () -> validator.validateInterfaceMappingSet(ims));
+	}
+
+	@Test
+	void testBlankInterfaceName() {
+		InterfaceMappingSet ims = new InterfaceMappingSet("   ", MappingType.Book,
+				InterfaceMappingSet.Direction.INCOMING, createProcessingOrg());
+		ims.addMapping("EXT_1", "INT_1");
+		assertThrows(TradistaBusinessException.class, () -> validator.validateInterfaceMappingSet(ims));
+	}
+
+	@Test
+	void testNullInterfaceNameAllowed() {
+		InterfaceMappingSet ims = new InterfaceMappingSet(null, MappingType.Book,
+				InterfaceMappingSet.Direction.INCOMING, createProcessingOrg());
+		ims.addMapping("EXT_1", "INT_1");
+		assertDoesNotThrow(() -> validator.validateInterfaceMappingSet(ims));
+	}
+
+	@Test
+	void testMappingValueExceeds50Characters() {
+		InterfaceMappingSet ims = createValidInterfaceMappingSet();
+		Set<InterfaceMappingSet.Mapping> mappings = new HashSet<>();
+		mappings.add(new InterfaceMappingSet.Mapping(ims, "A".repeat(51), "INT_VAL"));
+		ims.setMappings(mappings);
+		assertThrows(TradistaBusinessException.class, () -> validator.validateInterfaceMappingSet(ims));
+	}
+
+	@Test
+	void testMappedValueExceeds50Characters() {
+		InterfaceMappingSet ims = createValidInterfaceMappingSet();
+		Set<InterfaceMappingSet.Mapping> mappings = new HashSet<>();
+		mappings.add(new InterfaceMappingSet.Mapping(ims, "EXT_VAL", "A".repeat(51)));
+		ims.setMappings(mappings);
+		assertThrows(TradistaBusinessException.class, () -> validator.validateInterfaceMappingSet(ims));
+	}
+
 }

@@ -5,6 +5,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,8 @@ import org.eclipse.tradista.core.marketdata.model.Curve;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 import org.eclipse.tradista.core.marketdata.service.CurveBusinessDelegate;
 import org.eclipse.tradista.core.marketdata.ui.view.CurveCreatorDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -56,6 +59,8 @@ import javafx.scene.control.TableView;
  ********************************************************************************/
 
 public class CurvesController extends TradistaControllerAdapter {
+
+	private static final Logger logger = LoggerFactory.getLogger(CurvesController.class);
 
 	@FXML
 	private TableView<RatePointProperty> pointsTable;
@@ -120,8 +125,8 @@ public class CurvesController extends TradistaControllerAdapter {
 			try {
 				TradistaGUIUtil.parseAmount(t.getNewValue(), "Rate");
 				t.getTableView().getItems().get(t.getTablePosition().getRow()).setRate(t.getNewValue());
-			} catch (TradistaBusinessException abe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, abe.getMessage());
+			} catch (TradistaBusinessException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
 			pointsTable.refresh();
@@ -145,10 +150,10 @@ public class CurvesController extends TradistaControllerAdapter {
 		}
 
 		year.setItems(FXCollections.observableArrayList(years));
-		year.getSelectionModel().select(Year.now());
+		year.getSelectionModel().select(Year.now(ZoneId.systemDefault()));
 
 		month.setItems(FXCollections.observableArrayList(Month.values()));
-		month.getSelectionModel().select(LocalDate.now().getMonth());
+		month.getSelectionModel().select(LocalDate.now(ZoneId.systemDefault()).getMonth());
 
 		updateWindow();
 	}
@@ -187,8 +192,8 @@ public class CurvesController extends TradistaControllerAdapter {
 			}
 			pointsChart.getData().clear();
 			pointsChart.getData().add(series);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 
@@ -200,8 +205,8 @@ public class CurvesController extends TradistaControllerAdapter {
 			List<RatePoint> ratePoints = toRatePointList(pointsTable.getItems());
 			curveBusinessDelegate.saveCurvePoints(curve.getValue(), ratePoints,
 					year.getSelectionModel().getSelectedItem(), month.getSelectionModel().getSelectedItem());
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -221,8 +226,8 @@ public class CurvesController extends TradistaControllerAdapter {
 					pointsTable.setItems(null);
 				}
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -295,9 +300,8 @@ public class CurvesController extends TradistaControllerAdapter {
 						LocalDate.from(DateTimeFormatter.ofPattern("yyyy-MM-dd").parse(point.getDate().getValue())),
 						point.getRate().getValue().isEmpty() ? null
 								: TradistaGUIUtil.parseAmount(point.getRate().getValue(), "Rate")));
-			} catch (DateTimeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (DateTimeException dte) {
+				logger.error(dte.getMessage(), dte);
 			}
 		}
 

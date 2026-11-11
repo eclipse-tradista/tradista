@@ -530,9 +530,9 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void deleteDateRule() {
-		int index = dateRulesDurations.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			dateRulesDurations.getItems().remove(index);
+		DateRuleDurationProperty selectedItem = dateRulesDurations.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			dateRulesDurations.getItems().remove(selectedItem);
 			dateRulesDurations.getSelectionModel().clearSelection();
 		}
 	}
@@ -586,9 +586,9 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void deleteCalendar() {
-		int index = calendarsList.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			calendarsList.getItems().remove(index);
+		Calendar selectedItem = calendarsList.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			calendarsList.getItems().remove(selectedItem);
 			calendarsList.getSelectionModel().clearSelection();
 		}
 	}

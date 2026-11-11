@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
@@ -88,11 +87,23 @@ public class PricingParameterValidator implements Serializable {
 			throw new TradistaBusinessException("The Pricing Parameter Set cannot be null.");
 		}
 		StringBuilder errMsg = new StringBuilder();
-		if (StringUtils.isEmpty(param.getName())) {
-			errMsg.append(String.format("Please select a Pricing Parameters Set Name.%n"));
-		} else {
-			if (param.getName().length() > 50) {
-				errMsg.append(String.format("The Pricing Parameters Set Name cannot exceed 50 characters.%n"));
+		TradistaUtil.validateName(param.getName(), errMsg);
+
+		if (param.getParams() != null) {
+			for (Map.Entry<String, String> entry : param.getParams().entrySet()) {
+				String paramName = entry.getKey();
+				try {
+					TradistaUtil.validateName(paramName);
+				} catch (TradistaBusinessException tbe) {
+					errMsg.append(String.format("Property name '%s': %s%n", paramName, tbe.getMessage()));
+				}
+				String paramValue = entry.getValue();
+				if (paramValue == null || paramValue.isBlank()) {
+					errMsg.append(String.format("The value of the property '%s' is mandatory.%n", paramName));
+				} else if (paramValue.length() > 50) {
+					errMsg.append(
+							String.format("The value of the property '%s' cannot exceed 50 characters.%n", paramName));
+				}
 			}
 		}
 
@@ -107,6 +118,23 @@ public class PricingParameterValidator implements Serializable {
 			if (param.getProcessingOrg() == null && param.getQuoteSet().getProcessingOrg() != null) {
 				errMsg.append(String
 						.format("If the Pricing Parameters Set is a global one, the QuoteSet must also be global.%n"));
+			}
+		}
+
+		if (param.getCustomPricers() != null) {
+			for (Map.Entry<String, String> entry : param.getCustomPricers().entrySet()) {
+				String productType = entry.getKey();
+				if (productType == null || productType.isBlank()) {
+					errMsg.append(String.format("The product type of a custom pricer is mandatory.%n"));
+				}
+				String pricer = entry.getValue();
+				if (pricer == null || pricer.isBlank()) {
+					errMsg.append(
+							String.format("The custom pricer of the product type '%s' is mandatory.%n", productType));
+				} else if (pricer.length() > 50) {
+					errMsg.append(String.format(
+							"The custom pricer of the product type '%s' cannot exceed 50 characters.%n", productType));
+				}
 			}
 		}
 

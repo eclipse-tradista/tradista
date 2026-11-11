@@ -10,6 +10,7 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.model.Curve;
 import org.eclipse.tradista.core.marketdata.model.RatePoint;
 
@@ -88,6 +89,7 @@ public class CurveBusinessDelegate {
 		if (curve == null) {
 			throw new TradistaBusinessException("The curve cannot be null.");
 		}
+		TradistaUtil.validateName(curve.getName());
 		return SecurityUtil.runEx(() -> curveService.saveCurve(curve));
 	}
 

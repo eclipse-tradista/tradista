@@ -26,10 +26,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.rating.model.Rating;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.service.RatingBusinessDelegate;
-import org.eclipse.tradista.core.user.ui.manager.UserManager;
 import org.primefaces.event.CellEditEvent;
 
 import jakarta.annotation.PostConstruct;
@@ -61,9 +61,6 @@ public class RatingAgencyController implements Serializable {
 	@Inject
 	private RatingBusinessDelegate ratingBusinessDelegate;
 
-	@Inject
-	private UserManager userManager;
-
 	@PostConstruct
 	public void init() {
 		loadAllAgencies();
@@ -92,9 +89,9 @@ public class RatingAgencyController implements Serializable {
 						ratings.add(new RatingDTO(r));
 					}
 				}
-			} catch (TradistaBusinessException e) {
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, te.getMessage()));
 			}
 		}
 	}
@@ -116,9 +113,9 @@ public class RatingAgencyController implements Serializable {
 			load(); // refresh ratings
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating Agency successfully saved."));
-		} catch (TradistaBusinessException e) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, te.getMessage()));
 		}
 	}
 
@@ -155,9 +152,9 @@ public class RatingAgencyController implements Serializable {
 			newRatingDescription = StringUtils.EMPTY;
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating successfully saved."));
-		} catch (TradistaBusinessException e) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, te.getMessage()));
 		}
 	}
 
@@ -167,9 +164,9 @@ public class RatingAgencyController implements Serializable {
 			ratings.remove(ratingDto);
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating successfully deleted."));
-		} catch (TradistaBusinessException e) {
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, te.getMessage()));
 		}
 	}
 
@@ -199,9 +196,9 @@ public class RatingAgencyController implements Serializable {
 				ratings.clear();
 			}
 			loadAllAgencies();
-		} catch (Exception e) {
+		} catch (TradistaTechnicalException te) {
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, te.getMessage()));
 		}
 	}
 
@@ -234,9 +231,9 @@ public class RatingAgencyController implements Serializable {
 				ratingBusinessDelegate.saveRating(realRating);
 				FacesContext.getCurrentInstance().addMessage(null,
 						new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Rating successfully updated."));
-			} catch (TradistaBusinessException e) {
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, e.getMessage()));
+						new FacesMessage(FacesMessage.SEVERITY_ERROR, ERROR, te.getMessage()));
 				if (isCodeColumn) {
 					editedRating.setCode(oldValue);
 				} else {
@@ -284,9 +281,5 @@ public class RatingAgencyController implements Serializable {
 
 	public void setNewRatingDescription(String newRatingDescription) {
 		this.newRatingDescription = newRatingDescription;
-	}
-
-	public boolean isAdmin() {
-		return userManager.isCurrentUserAdmin();
 	}
 }

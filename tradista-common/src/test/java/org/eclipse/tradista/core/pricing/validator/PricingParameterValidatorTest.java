@@ -41,4 +41,60 @@ class PricingParameterValidatorTest {
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
 	}
+
+	@Test
+	void testValidatePricingParameterPropertyNameExceeds50Characters() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setParams(java.util.Map.of("A".repeat(51), "value"));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
+
+	@Test
+	void testValidatePricingParameterBlankPropertyValue() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setParams(java.util.Map.of("key", " "));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
+
+	@Test
+	void testValidatePricingParameterPropertyValueExceeds50Characters() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setParams(java.util.Map.of("key", "A".repeat(51)));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
+
+	@Test
+	void testValidatePricingParameterBlankCustomPricer() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setCustomPricers(java.util.Map.of("FXOption", " "));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
+
+	@Test
+	void testValidatePricingParameterCustomPricerExceeds50Characters() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setCustomPricers(java.util.Map.of("FXOption", "A".repeat(51)));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
+
+	@Test
+	void testValidatePricingParameterBlankCustomPricerProductType() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setCustomPricers(java.util.Map.of(" ", "pricer"));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
+
+	@Test
+	void testValidatePricingParameterBlankPropertyName() {
+		PricingParameter param = TradistaTestUtil.createPricingParameter("name");
+		param.setParams(java.util.Map.of(" ", "value"));
+
+		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
+	}
 }

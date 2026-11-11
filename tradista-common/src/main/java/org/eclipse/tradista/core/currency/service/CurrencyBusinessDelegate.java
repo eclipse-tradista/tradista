@@ -54,9 +54,7 @@ public class CurrencyBusinessDelegate {
 		} else if (currency.getIsoCode().length() > 3) {
 			throw new TradistaBusinessException("The ISO code cannot contain more than 3 characters.");
 		}
-		if (currency.getName() != null) {
-			TradistaUtil.validateName(currency.getName());
-		}
+		TradistaUtil.validateName(currency.getName());
 		// Fixing date offset cannot be positive: we never fix rates after the
 		// settlement dates!
 		if (currency.getFixingDateOffset() > 0) {

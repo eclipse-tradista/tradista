@@ -1,6 +1,7 @@
 package org.eclipse.tradista.ir.irswapoption.validator;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.ir.irswapoption.model.SwaptionVolatilitySurface;
 
 /********************************************************************************
@@ -26,13 +27,7 @@ public class SwaptionVolatilitySurfaceValidator {
 		if (surface == null) {
 			throw new TradistaBusinessException("The surface cannot be null.%n");
 		}
-		if (surface.getName() == null) {
-			errMsg.append(String.format("The surface name is mandatory.%n"));
-		} else {
-			if (surface.getName().length() > 50) {
-				errMsg.append(String.format("The surface name cannot exceed 50 characters.%n"));
-			}
-		}
+		TradistaUtil.validateName(surface.getName(), errMsg);
 		if (surface.getQuoteSet() != null) {
 			if (surface.getProcessingOrg() == null && surface.getQuoteSet().getProcessingOrg() != null) {
 				errMsg.append(String.format(

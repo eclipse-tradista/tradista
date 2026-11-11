@@ -348,8 +348,8 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				curve.setId(fxCurveBusinessDelegate.saveFXCurve(((FXCurve) curve)));
 				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -392,8 +392,8 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				curve = copyCurve;
 				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -407,8 +407,8 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				curve = null;
 				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -454,8 +454,8 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 			pointsChart.setCreateSymbols(false);
 			pointsChart.getData().clear();
 			pointsChart.getData().add(series);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -472,8 +472,8 @@ public class FXCurvesController extends TradistaGenerableCurveController {
 				fxCurveBusinessDelegate.saveFXCurve(fxCurve);
 				TradistaGUIUtil.fillFXCurveComboBox((ComboBox<FXCurve>) (ComboBox<?>) curveComboBox);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
