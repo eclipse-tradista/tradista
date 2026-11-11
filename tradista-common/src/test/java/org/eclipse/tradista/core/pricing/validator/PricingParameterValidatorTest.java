@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.test.TradistaTestUtil;
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.junit.jupiter.api.Test;
 
@@ -31,16 +30,14 @@ class PricingParameterValidatorTest {
 
 	@Test
 	void testValidatePricingParameterNameExceeds50Characters() {
-		LegalEntity po = TradistaTestUtil.createProcessingOrg();
-		PricingParameter param = new PricingParameter("A".repeat(51), po);
+		PricingParameter param = TradistaTestUtil.createPricingParameter("A".repeat(51));
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
 	}
 
 	@Test
 	void testValidatePricingParameterBlankOrEmptyName() {
-		LegalEntity po = TradistaTestUtil.createProcessingOrg();
-		PricingParameter param = new PricingParameter(StringUtils.EMPTY, po);
+		PricingParameter param = TradistaTestUtil.createPricingParameter(StringUtils.EMPTY);
 
 		assertThrows(TradistaBusinessException.class, () -> validator.validatePricingParameter(param));
 	}

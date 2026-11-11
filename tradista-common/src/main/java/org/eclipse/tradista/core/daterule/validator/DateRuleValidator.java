@@ -5,6 +5,7 @@ import java.time.Period;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.daterule.model.DateRule;
 
 /********************************************************************************
@@ -32,13 +33,7 @@ public class DateRuleValidator implements Serializable {
 			throw new TradistaBusinessException("The date rule cannot be null.");
 		}
 		StringBuilder errorMsg = new StringBuilder();
-		if (StringUtils.isBlank(dateRule.getName())) {
-			errorMsg.append(String.format("The name cannot be empty.%n"));
-		} else {
-			if (dateRule.getName().length() > 50) {
-				errorMsg.append(String.format("The name cannot exceed 50 characters.%n"));
-			}
-		}
+		TradistaUtil.validateName(dateRule.getName(), errorMsg);
 
 		if (dateRule.isSequence()) {
 			if (dateRule.getSteps() == null || dateRule.getSteps().isEmpty()) {

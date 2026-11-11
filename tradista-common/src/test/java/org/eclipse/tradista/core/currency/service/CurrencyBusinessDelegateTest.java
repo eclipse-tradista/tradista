@@ -3,6 +3,7 @@ package org.eclipse.tradista.core.currency.service;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +29,7 @@ class CurrencyBusinessDelegateTest {
 
 	@Test
 	void testSaveCurrencyNameExceeds50Characters() {
-		Currency currency = new Currency("EUR");
-		currency.setName("A".repeat(51));
+		Currency currency = TradistaTestUtil.createCurrency("A".repeat(51));
 
 		assertThrows(TradistaBusinessException.class, () -> businessDelegate.saveCurrency(currency));
 	}

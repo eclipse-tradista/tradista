@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.test.TradistaTestUtil;
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -31,16 +30,14 @@ class BookBusinessDelegateTest {
 
 	@Test
 	void testSaveBookNameExceeds50Characters() {
-		LegalEntity po = TradistaTestUtil.createProcessingOrg();
-		Book book = new Book("A".repeat(51), po);
+		Book book = TradistaTestUtil.createBook("A".repeat(51));
 
 		assertThrows(TradistaBusinessException.class, () -> businessDelegate.saveBook(book));
 	}
 
 	@Test
 	void testSaveBookBlankOrEmptyName() {
-		LegalEntity po = TradistaTestUtil.createProcessingOrg();
-		Book book = new Book(StringUtils.EMPTY, po);
+		Book book = TradistaTestUtil.createBook(StringUtils.EMPTY);
 
 		assertThrows(TradistaBusinessException.class, () -> businessDelegate.saveBook(book));
 	}

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 
 /********************************************************************************
@@ -53,8 +54,8 @@ public class CurrencyBusinessDelegate {
 		} else if (currency.getIsoCode().length() > 3) {
 			throw new TradistaBusinessException("The ISO code cannot contain more than 3 characters.");
 		}
-		if (currency.getName() != null && currency.getName().length() > 50) {
-			throw new TradistaBusinessException("The name cannot exceed 50 characters.");
+		if (currency.getName() != null) {
+			TradistaUtil.validateName(currency.getName());
 		}
 		// Fixing date offset cannot be positive: we never fix rates after the
 		// settlement dates!

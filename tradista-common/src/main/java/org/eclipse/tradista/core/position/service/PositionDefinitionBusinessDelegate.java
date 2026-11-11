@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.position.model.PositionDefinition;
 import org.eclipse.tradista.core.product.service.ProductBusinessDelegate;
 
@@ -77,13 +78,7 @@ public class PositionDefinitionBusinessDelegate {
 		if (positionDefinition.getCurrency() == null) {
 			errMsg.append(String.format("The currency is mandatory.%n"));
 		}
-		if (StringUtils.isEmpty(positionDefinition.getName())) {
-			errMsg.append(String.format("The name is mandatory.%n"));
-		} else {
-			if (positionDefinition.getName().length() > 50) {
-				errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
-			}
-		}
+		TradistaUtil.validateName(positionDefinition.getName(), errMsg);
 		if (positionDefinition.getPricingParameter() == null) {
 			errMsg.append(String.format("The pricing parameter set is mandatory.%n"));
 		}

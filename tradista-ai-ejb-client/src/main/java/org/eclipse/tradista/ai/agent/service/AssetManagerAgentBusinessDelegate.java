@@ -4,6 +4,7 @@ import org.eclipse.tradista.ai.agent.model.AssetManagerAgent;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -34,13 +35,7 @@ public class AssetManagerAgentBusinessDelegate {
 			throw new TradistaBusinessException("The agent cannot be null.");
 		}
 		StringBuilder errMsg = new StringBuilder();
-		if (agent.getName() == null) {
-			errMsg.append(String.format("The name is mandatory.%n"));
-		} else {
-			if (agent.getName().length() > 50) {
-				errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
-			}
-		}
+		TradistaUtil.validateName(agent.getName(), errMsg);
 		if (agent.getMandate() == null) {
 			errMsg.append(String.format("The mandate is mandatory.%n"));
 		}

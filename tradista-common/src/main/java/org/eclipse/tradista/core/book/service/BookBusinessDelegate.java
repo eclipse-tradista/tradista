@@ -12,6 +12,7 @@ import org.eclipse.tradista.core.cashinventory.service.CashInventoryService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.productinventory.service.ProductInventoryService;
 
 /********************************************************************************
@@ -46,13 +47,7 @@ public class BookBusinessDelegate {
 
 	public long saveBook(Book book) throws TradistaBusinessException {
 		StringBuilder errMsg = new StringBuilder();
-		if (StringUtils.isBlank(book.getName())) {
-			errMsg.append("The name cannot be empty.");
-		} else {
-			if (book.getName().length() > 50) {
-				errMsg.append("The name cannot exceed 50 characters.");
-			}
-		}
+		TradistaUtil.validateName(book.getName(), errMsg);
 		if (book.getProcessingOrg() == null) {
 			errMsg.append("The processing org cannot be null.");
 		}
