@@ -66,6 +66,10 @@ public class MandateBusinessDelegate {
 		}
 		if (mandate.getName() == null) {
 			errMsg.append(String.format("The name is mandatory.%n"));
+		} else {
+			if (mandate.getName().length() > 50) {
+				errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
+			}
 		}
 		if (mandate.getProductTypeAllocations() == null) {
 			errMsg.append(String.format("The product type allocation is mandatory.%n"));

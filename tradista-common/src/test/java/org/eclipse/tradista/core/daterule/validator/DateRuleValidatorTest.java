@@ -78,6 +78,12 @@ class DateRuleValidatorTest {
 	}
 
 	@Test
+	void testNameExceeds50Characters() throws TradistaBusinessException {
+		DateRule dateRule = createValidStandardDateRule("A".repeat(51));
+		assertThrows(TradistaBusinessException.class, () -> validator.validateDateRule(dateRule));
+	}
+
+	@Test
 	void testBlankName() throws TradistaBusinessException {
 		// DateRule only sets name via constructor; instantiate with null/blank
 		DateRule dateRuleNull = new DateRule(null);

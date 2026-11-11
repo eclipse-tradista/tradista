@@ -32,6 +32,10 @@ public class EquityOptionVolatilitySurfaceValidator {
 		}
 		if (StringUtils.isBlank(surface.getName())) {
 			errMsg.append(String.format("The surface name is mandatory.%n"));
+		} else {
+			if (surface.getName().length() > 50) {
+				errMsg.append(String.format("The surface name cannot exceed 50 characters.%n"));
+			}
 		}
 		if (surface.isGenerated()) {
 			if (surface.getAlgorithm() == null) {

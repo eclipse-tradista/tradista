@@ -110,6 +110,10 @@ public class FutureContractSpecificationBusinessDelegate {
 
 		if (StringUtils.isEmpty(fcs.getName())) {
 			errMsg.append("The name is mandatory.\n");
+		} else {
+			if (fcs.getName().length() > 50) {
+				errMsg.append("The name cannot exceed 50 characters.\n");
+			}
 		}
 		if (fcs.getNotional() == null) {
 			errMsg.append("The notional is mandatory.\n");

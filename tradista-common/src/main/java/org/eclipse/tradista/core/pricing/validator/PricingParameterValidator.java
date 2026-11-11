@@ -91,8 +91,8 @@ public class PricingParameterValidator implements Serializable {
 		if (StringUtils.isEmpty(param.getName())) {
 			errMsg.append(String.format("Please select a Pricing Parameters Set Name.%n"));
 		} else {
-			if (param.getName().length() > 20) {
-				errMsg.append(String.format("The Pricing Parameters Set Name cannot exceed 20 characters.%n"));
+			if (param.getName().length() > 50) {
+				errMsg.append(String.format("The Pricing Parameters Set Name cannot exceed 50 characters.%n"));
 			}
 		}
 

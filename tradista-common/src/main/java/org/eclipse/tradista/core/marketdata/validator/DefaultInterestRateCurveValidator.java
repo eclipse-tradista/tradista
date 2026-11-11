@@ -29,6 +29,9 @@ public class DefaultInterestRateCurveValidator implements InterestRateCurveValid
 		if (curve.getName() == null) {
 			throw new TradistaBusinessException("The curve name is mandatory.");
 		}
+		if (curve.getName().length() > 50) {
+			throw new TradistaBusinessException("The curve name cannot exceed 50 characters.");
+		}
 	}
 
 }

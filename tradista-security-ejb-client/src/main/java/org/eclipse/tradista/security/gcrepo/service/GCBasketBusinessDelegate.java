@@ -39,6 +39,9 @@ public class GCBasketBusinessDelegate {
 			if (StringUtils.isEmpty(gcBasket.getName())) {
 				throw new TradistaBusinessException("the GC Basket name is mandatory.");
 			}
+			if (gcBasket.getName().length() > 50) {
+				throw new TradistaBusinessException("The name cannot exceed 50 characters.");
+			}
 		}
 		return SecurityUtil.runEx(() -> gcBasketService.saveGCBasket(gcBasket));
 	}

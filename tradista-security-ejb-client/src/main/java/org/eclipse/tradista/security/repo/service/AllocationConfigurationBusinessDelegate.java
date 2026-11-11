@@ -44,6 +44,10 @@ public class AllocationConfigurationBusinessDelegate {
 		} else {
 			if (StringUtils.isEmpty(allocationConfiguration.getName())) {
 				errMsg.append(String.format("the Allocation Configuration name is mandatory.%n"));
+			} else {
+				if (allocationConfiguration.getName().length() > 50) {
+					errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
+				}
 			}
 		}
 		LegalEntity po = allocationConfiguration.getProcessingOrg();

@@ -186,7 +186,7 @@
 								<Insets right="10.0" />
 							</HBox.margin>
 						</Label>
-						<Label fx:id="nameLabel" visible="false" />
+						<Label fx:id="nameLabel" visible="false" managed="false" />
 						<TextField fx:id="name" maxHeight="-Infinity"
 							maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
 							<HBox.margin>

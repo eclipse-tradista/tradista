@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.calendar.model.BlankCalendar;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.calendar.service.CalendarBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -15,8 +17,6 @@ import org.eclipse.tradista.core.common.ui.view.TradistaTextInputDialog;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.currency.service.CurrencyBusinessDelegate;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -77,19 +77,8 @@ public class CurrenciesController extends TradistaControllerAdapter {
 	public void initialize() {
 		calendarBusinessDelegate = new CalendarBusinessDelegate();
 		currencyBusinessDelegate = new CurrencyBusinessDelegate();
-		nonDeliverable.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-				if (arg2) {
-					fixingDateOffsetLabel.setVisible(true);
-					fixingDateOffset.setVisible(true);
-
-				} else {
-					fixingDateOffsetLabel.setVisible(false);
-					fixingDateOffset.setVisible(false);
-				}
-			}
-		});
+		fixingDateOffset.visibleProperty().bind(nonDeliverable.selectedProperty());
+		fixingDateOffsetLabel.visibleProperty().bind(nonDeliverable.selectedProperty());
 		TradistaGUIUtil.fillComboBox(calendarBusinessDelegate.getAllCalendars(), calendar);
 		calendar.getItems().add(0, BlankCalendar.getInstance());
 		calendar.getSelectionModel().selectFirst();
@@ -105,7 +94,7 @@ public class CurrenciesController extends TradistaControllerAdapter {
 		if (!fixingDateOffset.getText().isEmpty()) {
 			try {
 				Integer.parseInt(fixingDateOffset.getText());
-			} catch (NumberFormatException nfe) {
+			} catch (NumberFormatException _) {
 				throw new TradistaBusinessException(
 						String.format("The fixing date offset (%s) is not correct.", fixingDateOffset.getText()));
 			}
@@ -120,7 +109,7 @@ public class CurrenciesController extends TradistaControllerAdapter {
 		confirmation.setContentText("Do you want to save this Currency?");
 
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
@@ -143,8 +132,8 @@ public class CurrenciesController extends TradistaControllerAdapter {
 				currency.setId(currencyBusinessDelegate.saveCurrency(currency));
 				isoCode.setVisible(false);
 				isoCodeLabel.setVisible(true);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -177,8 +166,8 @@ public class CurrenciesController extends TradistaControllerAdapter {
 				isoCodeLabel.setVisible(true);
 				isoCodeLabel.setText(currency.getIsoCode());
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -203,8 +192,8 @@ public class CurrenciesController extends TradistaControllerAdapter {
 			}
 
 			load(currency);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -230,7 +219,7 @@ public class CurrenciesController extends TradistaControllerAdapter {
 	public void clear() {
 		currency = null;
 		isoCode.clear();
-		isoCodeLabel.setText("");
+		isoCodeLabel.setText(StringUtils.EMPTY);
 		isoCode.setVisible(true);
 		isoCodeLabel.setVisible(false);
 		name.clear();

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -72,6 +73,9 @@ public class BooksController extends TradistaControllerAdapter {
 		bookBusinessDelegate = new BookBusinessDelegate();
 		TradistaGUIUtil.fillBookComboBox(bookComboBox);
 		copyButton.setDisable(true);
+
+		name.managedProperty().bind(name.visibleProperty());
+		nameLabel.managedProperty().bind(nameLabel.visibleProperty());
 	}
 
 	@FXML
@@ -114,8 +118,8 @@ public class BooksController extends TradistaControllerAdapter {
 				book.setId(bookBusinessDelegate.saveBook(book));
 				load(book);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -155,8 +159,8 @@ public class BooksController extends TradistaControllerAdapter {
 				copyBook.setId(bookBusinessDelegate.saveBook(copyBook));
 				load(copyBook);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -168,8 +172,8 @@ public class BooksController extends TradistaControllerAdapter {
 				throw new TradistaBusinessException("Please select a book.");
 			}
 			load(bookComboBox.getValue());
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}

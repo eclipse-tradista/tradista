@@ -48,6 +48,10 @@ public class BookBusinessDelegate {
 		StringBuilder errMsg = new StringBuilder();
 		if (StringUtils.isBlank(book.getName())) {
 			errMsg.append("The name cannot be empty.");
+		} else {
+			if (book.getName().length() > 50) {
+				errMsg.append("The name cannot exceed 50 characters.");
+			}
 		}
 		if (book.getProcessingOrg() == null) {
 			errMsg.append("The processing org cannot be null.");

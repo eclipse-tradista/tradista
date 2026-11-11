@@ -50,6 +50,10 @@ public class EquityOptionContractSpecificationBusinessDelegate {
 
 		if (StringUtils.isEmpty(eos.getName())) {
 			errMsg.append("The name is mandatory.\n");
+		} else {
+			if (eos.getName().length() > 50) {
+				errMsg.append("The name cannot exceed 50 characters.\n");
+			}
 		}
 
 		if (eos.getExchange() == null) {

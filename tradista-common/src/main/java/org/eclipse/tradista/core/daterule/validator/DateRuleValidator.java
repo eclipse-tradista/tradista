@@ -34,6 +34,10 @@ public class DateRuleValidator implements Serializable {
 		StringBuilder errorMsg = new StringBuilder();
 		if (StringUtils.isBlank(dateRule.getName())) {
 			errorMsg.append(String.format("The name cannot be empty.%n"));
+		} else {
+			if (dateRule.getName().length() > 50) {
+				errorMsg.append(String.format("The name cannot exceed 50 characters.%n"));
+			}
 		}
 
 		if (dateRule.isSequence()) {

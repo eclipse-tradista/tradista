@@ -163,7 +163,7 @@
 						<FXCollections fx:factory="observableArrayList" />
 					</items>
 				</ComboBox>
-				<Label fx:id="nameLabel" visible="false"
+				<Label fx:id="nameLabel" visible="false" managed="false"
 					GridPane.columnIndex="1" />
 			</children>
 			<padding>

@@ -160,7 +160,7 @@
 				<ComboBox fx:id="maturityDatesDateRule"
 					maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
 					minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-				<Label fx:id="nameLabel" visible="false"
+				<Label fx:id="nameLabel" visible="false" managed="false"
 					GridPane.columnIndex="1" />
 			</children>
 			<padding>

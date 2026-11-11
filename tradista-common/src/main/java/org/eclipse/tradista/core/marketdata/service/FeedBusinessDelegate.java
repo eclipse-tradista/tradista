@@ -60,6 +60,10 @@ public class FeedBusinessDelegate {
 		}
 		if (feedConfig.getName() == null || feedConfig.getName().isEmpty()) {
 			errMsg.append(String.format("The name is mandatory.%n"));
+		} else {
+			if (feedConfig.getName().length() > 50) {
+				errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
+			}
 		}
 		if (feedConfig.getFeedType() == null) {
 			errMsg.append(String.format("The feed type is mandatory.%n"));

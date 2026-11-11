@@ -84,7 +84,7 @@
 				<TextField fx:id="name" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" />
 				<Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Description" GridPane.rowIndex="1" />
 				<TextArea fx:id="description" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label fx:id="nameLabel" visible="false" GridPane.columnIndex="1" />
+            <Label fx:id="nameLabel" visible="false" managed="false" GridPane.columnIndex="1" />
             <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Pre/Post Fixed" GridPane.rowIndex="2" />
             <ComboBox fx:id="fixing" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 			</children>

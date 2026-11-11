@@ -29,6 +29,10 @@ public class DefaultFXCurveValidator implements FXCurveValidator {
 		}
 		if (curve.getName() == null) {
 			errMsg.append(String.format("The curve name is mandatory.%n"));
+		} else {
+			if (curve.getName().length() > 50) {
+				errMsg.append(String.format("The curve name cannot exceed 50 characters.%n"));
+			}
 		}
 
 		if (curve.isGenerated()) {

@@ -36,6 +36,10 @@ public class AssetManagerAgentBusinessDelegate {
 		StringBuilder errMsg = new StringBuilder();
 		if (agent.getName() == null) {
 			errMsg.append(String.format("The name is mandatory.%n"));
+		} else {
+			if (agent.getName().length() > 50) {
+				errMsg.append(String.format("The name cannot exceed 50 characters.%n"));
+			}
 		}
 		if (agent.getMandate() == null) {
 			errMsg.append(String.format("The mandate is mandatory.%n"));

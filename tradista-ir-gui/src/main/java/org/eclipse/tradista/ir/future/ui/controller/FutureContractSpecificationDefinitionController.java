@@ -2,7 +2,9 @@ package org.eclipse.tradista.ir.future.ui.controller;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaController;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -89,6 +91,8 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 		TradistaGUIUtil.fillComboBox(futureContractSpecificationBusinessDelegate.getAllFutureContractSpecifications(),
 				load);
 
+		name.managedProperty().bind(name.visibleProperty());
+		nameLabel.managedProperty().bind(nameLabel.visibleProperty());
 	}
 
 	private void buildFutureContractSpecification(FutureContractSpecification futureContractSpecification) {
@@ -102,7 +106,7 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 			futureContractSpecification.setReferenceRateIndexTenor(referenceRateIndexTenor.getValue());
 			futureContractSpecification.setDayCountConvention(dayCountConvention.getValue());
 			futureContractSpecification.setMaturityDatesDateRule(maturityDatesDateRule.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
 	}
@@ -115,23 +119,23 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 		confirmation.setContentText("Do you want to save this Future Contract Specification?");
 
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
 				if (name.isVisible()) {
 					futureContractSpecification = new FutureContractSpecification(name.getText());
-					nameLabel.setText(name.getText());
 				}
 
 				buildFutureContractSpecification(futureContractSpecification);
 
 				futureContractSpecification.setId(futureContractSpecificationBusinessDelegate
 						.saveFutureContractSpecification(futureContractSpecification));
+				nameLabel.setText(name.getText());
 				name.setVisible(false);
 				nameLabel.setVisible(true);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -159,8 +163,8 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 				nameLabel.setText(futureContractSpecification.getName());
 				TradistaGUIUtil.fillComboBox(
 						futureContractSpecificationBusinessDelegate.getAllFutureContractSpecifications(), load);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -188,8 +192,8 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 			}
 
 			load(fcs);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 
@@ -215,7 +219,7 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 		futureContractSpecification = null;
 		notional.clear();
 		name.clear();
-		nameLabel.setText("");
+		nameLabel.setText(StringUtils.EMPTY);
 		name.setVisible(true);
 		nameLabel.setVisible(false);
 	}
@@ -239,7 +243,7 @@ public class FutureContractSpecificationDefinitionController implements Tradista
 		} catch (TradistaBusinessException tbe) {
 			errMsg.append(tbe.getMessage());
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

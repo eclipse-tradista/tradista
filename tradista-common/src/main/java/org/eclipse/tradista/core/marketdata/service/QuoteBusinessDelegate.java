@@ -271,6 +271,9 @@ public class QuoteBusinessDelegate {
 		if (StringUtils.isEmpty(quoteSet.getName())) {
 			throw new TradistaBusinessException("The quote set name must be specified.");
 		}
+		if (quoteSet.getName().length() > 50) {
+			throw new TradistaBusinessException("The quote set name cannot exceed 50 characters.");
+		}
 		return SecurityUtil.runEx(() -> quoteService.saveQuoteSet(quoteSet));
 	}
 

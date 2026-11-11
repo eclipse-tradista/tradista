@@ -47,6 +47,9 @@ public class IndexBusinessDelegate {
 		if (StringUtils.isBlank(index.getName())) {
 			throw new TradistaBusinessException("The name cannot be empty.");
 		}
+		if (index.getName().length() > 50) {
+			throw new TradistaBusinessException("The name cannot exceed 50 characters.");
+		}
 		return SecurityUtil.runEx(() -> indexService.saveIndex(index));
 	}
 
