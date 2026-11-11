@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
@@ -343,8 +344,8 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 				surface.setId(swaptionVolatilitySurfaceBusinessDelegate.saveSwaptionVolatilitySurface(surface));
 				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -387,8 +388,8 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 				surface = copySwaptionVolatilitySurface;
 				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -404,8 +405,8 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 				swaptionVolatilitySurfaceBusinessDelegate.saveSwaptionVolatilitySurface(surface);
 				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -424,8 +425,8 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 				surface = null;
 				TradistaIRGUIUtil.fillSwaptionVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -462,8 +463,8 @@ public class IRSwapOptionVolatilitySurfacesController extends TradistaVolatility
 			// Update the points table
 			pointsTable.setItems(FXCollections.observableArrayList(toSurfacePointPropertyList(surfacePoints)));
 			pointsTable.refresh();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}

@@ -222,8 +222,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 			saveButton.setDisable(false);
 			copyButton.setDisable(false);
 			deleteButton.setDisable(false);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -264,8 +264,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 				currentFeedConfig.setId(feedBusinessDelegate.saveFeedConfig(currentFeedConfig));
 			}
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -307,17 +307,17 @@ public class FeedConfigController extends TradistaControllerAdapter {
 				TradistaGUIUtil.fillFeedConfigComboBox(this.feedConfig);
 				feedConfigName.setText(currentFeedConfig.getName());
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
 
 	@FXML
 	protected void deleteFeedMappingValue() {
-		int index = feedMappingTable.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			feedMappingTable.getItems().remove(index);
+		FeedMappingProperty selectedItem = feedMappingTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			feedMappingTable.getItems().remove(selectedItem);
 			feedMappingTable.getSelectionModel().clearSelection();
 		}
 	}
@@ -333,8 +333,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 				feedBusinessDelegate.saveFeedConfig(fc);
 				TradistaGUIUtil.fillFeedConfigComboBox(feedConfig);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -373,8 +373,8 @@ public class FeedConfigController extends TradistaControllerAdapter {
 
 			feedMappingTable.getItems().clear();
 			feedMappingTable.getItems().addAll(newList);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}

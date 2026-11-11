@@ -6,6 +6,7 @@ import java.util.Set;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.model.FeedConfig;
 import org.eclipse.tradista.core.marketdata.model.Quote;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
@@ -58,9 +59,7 @@ public class FeedBusinessDelegate {
 		if (feedConfig == null) {
 			throw new TradistaBusinessException("The feed config cannot be null");
 		}
-		if (feedConfig.getName() == null || feedConfig.getName().isEmpty()) {
-			errMsg.append(String.format("The name is mandatory.%n"));
-		}
+		TradistaUtil.validateName(feedConfig.getName(), errMsg);
 		if (feedConfig.getFeedType() == null) {
 			errMsg.append(String.format("The feed type is mandatory.%n"));
 		}

@@ -1,6 +1,7 @@
 package org.eclipse.tradista.core.marketdata.validator;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 
 /********************************************************************************
@@ -26,9 +27,7 @@ public class DefaultInterestRateCurveValidator implements InterestRateCurveValid
 		if (curve == null) {
 			throw new TradistaBusinessException("The curve cannot be null.");
 		}
-		if (curve.getName() == null) {
-			throw new TradistaBusinessException("The curve name is mandatory.");
-		}
+		TradistaUtil.validateName(curve.getName());
 	}
 
 }

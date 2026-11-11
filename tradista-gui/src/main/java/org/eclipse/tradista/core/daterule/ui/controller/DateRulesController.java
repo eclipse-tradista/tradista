@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.calendar.service.CalendarBusinessDelegate;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -66,7 +67,10 @@ import javafx.scene.layout.VBox;
 public class DateRulesController extends TradistaControllerAdapter {
 
 	@FXML
-	private TextField name, dateOffset;
+	private TextField name;
+
+	@FXML
+	private TextField dateOffset;
 
 	@FXML
 	private Label nameLabel;
@@ -75,7 +79,40 @@ public class DateRulesController extends TradistaControllerAdapter {
 	private DatePicker startDate;
 
 	@FXML
-	private CheckBox january, february, march, april, may, june, july, august, september, october, november, december;
+	private CheckBox january;
+
+	@FXML
+	private CheckBox february;
+
+	@FXML
+	private CheckBox march;
+
+	@FXML
+	private CheckBox april;
+
+	@FXML
+	private CheckBox may;
+
+	@FXML
+	private CheckBox june;
+
+	@FXML
+	private CheckBox july;
+
+	@FXML
+	private CheckBox august;
+
+	@FXML
+	private CheckBox september;
+
+	@FXML
+	private CheckBox october;
+
+	@FXML
+	private CheckBox november;
+
+	@FXML
+	private CheckBox december;
 
 	@FXML
 	private ComboBox<DateRollingConvention> drc;
@@ -85,7 +122,10 @@ public class DateRulesController extends TradistaControllerAdapter {
 	private CalendarBusinessDelegate calendarBusinessDelegate;
 
 	@FXML
-	private ComboBox<DateRule> load, subDateRuleName;
+	private ComboBox<DateRule> load;
+
+	@FXML
+	private ComboBox<DateRule> subDateRuleName;
 
 	private DateRule dateRule;
 
@@ -111,10 +151,19 @@ public class DateRulesController extends TradistaControllerAdapter {
 	private TableView<DateRuleDurationProperty> dateRulesDurations;
 
 	@FXML
-	private GridPane singleGrid, sequenceGrid;
+	private GridPane singleGrid;
 
 	@FXML
-	private ComboBox<Integer> subDateRuleYear, subDateRuleMonth, subDateRuleDay;
+	private GridPane sequenceGrid;
+
+	@FXML
+	private ComboBox<Integer> subDateRuleYear;
+
+	@FXML
+	private ComboBox<Integer> subDateRuleMonth;
+
+	@FXML
+	private ComboBox<Integer> subDateRuleDay;
 
 	@FXML
 	private ComboBox<Calendar> calendar;
@@ -178,6 +227,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 		TradistaGUIUtil.fillComboBox(calendarBusinessDelegate.getAllCalendars(), calendar);
 
+		name.managedProperty().bind(name.visibleProperty());
+		nameLabel.managedProperty().bind(nameLabel.visibleProperty());
 	}
 
 	private class DateRuleDurationMovesCellFactory extends TableCell<DateRuleDurationProperty, List<Button>> {
@@ -202,7 +253,6 @@ public class DateRulesController extends TradistaControllerAdapter {
 			try {
 				if (name.isVisible()) {
 					dateRule = new DateRule(name.getText());
-					nameLabel.setText(name.getText());
 				}
 				dateRule.setSequence(isSequence.isSelected());
 				if (isSequence.isSelected()) {
@@ -261,10 +311,11 @@ public class DateRulesController extends TradistaControllerAdapter {
 					}
 				}
 				dateRule.setId(dateRuleBusinessDelegate.saveDateRule(dateRule));
+				nameLabel.setText(name.getText());
 				name.setVisible(false);
 				nameLabel.setVisible(true);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -343,8 +394,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 				nameLabel.setVisible(true);
 				nameLabel.setText(dateRule.getName());
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 
@@ -370,8 +421,8 @@ public class DateRulesController extends TradistaControllerAdapter {
 			}
 
 			load(dateRule);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -414,7 +465,6 @@ public class DateRulesController extends TradistaControllerAdapter {
 		name.setVisible(false);
 		nameLabel.setText(dateRule.getName());
 		nameLabel.setVisible(true);
-
 	}
 
 	@FXML
@@ -480,9 +530,9 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void deleteDateRule() {
-		int index = dateRulesDurations.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			dateRulesDurations.getItems().remove(index);
+		DateRuleDurationProperty selectedItem = dateRulesDurations.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			dateRulesDurations.getItems().remove(selectedItem);
 			dateRulesDurations.getSelectionModel().clearSelection();
 		}
 	}
@@ -536,9 +586,9 @@ public class DateRulesController extends TradistaControllerAdapter {
 
 	@FXML
 	protected void deleteCalendar() {
-		int index = calendarsList.getSelectionModel().getSelectedIndex();
-		if (index >= 0) {
-			calendarsList.getItems().remove(index);
+		Calendar selectedItem = calendarsList.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			calendarsList.getItems().remove(selectedItem);
 			calendarsList.getSelectionModel().clearSelection();
 		}
 	}

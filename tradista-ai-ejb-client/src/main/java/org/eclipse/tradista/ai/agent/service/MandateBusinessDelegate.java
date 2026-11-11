@@ -7,6 +7,7 @@ import org.eclipse.tradista.ai.agent.model.Mandate.Allocation;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -64,9 +65,7 @@ public class MandateBusinessDelegate {
 		if (mandate.getInitialCashCurrency() == null) {
 			errMsg.append(String.format("The initial cash currency is mandatory.%n"));
 		}
-		if (mandate.getName() == null) {
-			errMsg.append(String.format("The name is mandatory.%n"));
-		}
+		TradistaUtil.validateName(mandate.getName(), errMsg);
 		if (mandate.getProductTypeAllocations() == null) {
 			errMsg.append(String.format("The product type allocation is mandatory.%n"));
 		} else {

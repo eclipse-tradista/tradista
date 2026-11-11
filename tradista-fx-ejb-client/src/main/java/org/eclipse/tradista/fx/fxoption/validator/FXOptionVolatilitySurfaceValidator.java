@@ -3,6 +3,7 @@ package org.eclipse.tradista.fx.fxoption.validator;
 import java.math.BigDecimal;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 
@@ -29,9 +30,7 @@ public class FXOptionVolatilitySurfaceValidator {
 		if (surface == null) {
 			throw new TradistaBusinessException("The surface cannot be null.%n");
 		}
-		if (surface.getName() == null) {
-			errMsg.append(String.format("The surface name is mandatory.%n"));
-		}
+		TradistaUtil.validateName(surface.getName(), errMsg);
 		if (surface.getQuoteSet() != null) {
 			if (surface.getProcessingOrg() == null && surface.getQuoteSet().getProcessingOrg() != null) {
 				errMsg.append(String.format(

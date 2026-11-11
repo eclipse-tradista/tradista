@@ -10,6 +10,7 @@ import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.daterule.service.DateRuleBusinessDelegate;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.ir.future.model.FutureContractSpecification;
@@ -108,9 +109,7 @@ public class FutureContractSpecificationBusinessDelegate {
 
 		StringBuilder errMsg = new StringBuilder();
 
-		if (StringUtils.isEmpty(fcs.getName())) {
-			errMsg.append("The name is mandatory.\n");
-		}
+		TradistaUtil.validateName(fcs.getName(), errMsg);
 		if (fcs.getNotional() == null) {
 			errMsg.append("The notional is mandatory.\n");
 		} else {

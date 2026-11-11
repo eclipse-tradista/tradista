@@ -104,7 +104,7 @@
 				<TextArea fx:id="description" maxHeight="-Infinity"
 					maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 					GridPane.columnIndex="1" GridPane.rowIndex="1" />
-				<Label fx:id="nameLabel" GridPane.columnIndex="1" />
+				<Label fx:id="nameLabel" visible="false" managed="false" GridPane.columnIndex="1" />
 				<TradistaBookPieChart fx:id="bookChartPane"
 					GridPane.rowIndex="2" GridPane.columnSpan="2" />
 			</children>

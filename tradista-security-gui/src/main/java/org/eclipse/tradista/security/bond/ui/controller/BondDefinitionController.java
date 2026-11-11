@@ -233,7 +233,11 @@ public class BondDefinitionController implements TradistaController {
 			if (newVal != null) {
 				try {
 					Set<Rating> ratings = ratingBusinessDelegate.getRatingsByAgencyId(newVal.getId());
-					ratingComboBox.setItems(FXCollections.observableArrayList(ratings));
+					if (ratings != null) {
+						ratingComboBox.setItems(FXCollections.observableArrayList(ratings));
+					} else {
+						ratingComboBox.getItems().clear();
+					}
 				} catch (TradistaBusinessException _) {
 					ratingComboBox.getItems().clear();
 				}

@@ -3,11 +3,11 @@ package org.eclipse.tradista.security.repo.service;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.security.repo.model.AllocationConfiguration;
 
@@ -41,11 +41,8 @@ public class AllocationConfigurationBusinessDelegate {
 		StringBuilder errMsg = new StringBuilder();
 		if (allocationConfiguration == null) {
 			throw new TradistaBusinessException("the Allocation Configuration cannot be null.");
-		} else {
-			if (StringUtils.isEmpty(allocationConfiguration.getName())) {
-				errMsg.append(String.format("the Allocation Configuration name is mandatory.%n"));
-			}
 		}
+		TradistaUtil.validateName(allocationConfiguration.getName(), errMsg);
 		LegalEntity po = allocationConfiguration.getProcessingOrg();
 		Set<Book> books = allocationConfiguration.getBooks();
 		if (po != null) {

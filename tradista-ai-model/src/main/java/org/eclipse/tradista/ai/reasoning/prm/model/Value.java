@@ -21,9 +21,6 @@ import org.eclipse.tradista.core.common.model.TradistaObject;
 
 public abstract class Value extends TradistaObject {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8581940950906208113L;
 
 	@Id

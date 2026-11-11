@@ -20,7 +20,7 @@
 								<f:selectItems value="#{ratingAgencyController.allAgencies}" var="ag" itemLabel="#{ag.name}" itemValue="#{ag}" />
 								<p:ajax event="change" listener="#{ratingAgencyController.load}" update=":ratingAgencyForm:ratingsTable :ratingAgencyForm:deleteAgencyBtnWrapper :ratingAgencyForm:addRatingBtnWrapper" />
 							</p:selectOneMenu>
-							<h:panelGroup id="deleteAgencyBtnWrapper" rendered="#{ratingAgencyController.admin}">
+							<h:panelGroup id="deleteAgencyBtnWrapper">
 								<p:commandButton id="deleteAgencyBtn" value="Delete Agency" action="#{ratingAgencyController.deleteAgency}" update="@form" styleClass="rounded-button ui-button-danger" disabled="#{ratingAgencyController.agency == null}">
 									<p:confirm header="Confirmation" message="Are you sure you want to delete this agency?" icon="pi pi-exclamation-triangle" />
 								</p:commandButton>
@@ -28,13 +28,13 @@
 							</h:panelGroup>
 						</p:column>
 					</p:row>
-					<p:row rendered="#{ratingAgencyController.admin}">
+					<p:row>
 						<p:column>
 							<p:outputLabel value="Or create new Agency: " styleClass="tradista-menu-item" />
-							<p:inputText value="#{ratingAgencyController.newAgencyName}" placeholder="Agency Name" style="margin-right: 10px;" disabled="#{!ratingAgencyController.admin}">
+							<p:inputText value="#{ratingAgencyController.newAgencyName}" placeholder="Agency Name" style="margin-right: 10px;">
 								<p:ajax event="keyup" update="createAgencyBtnWrapper" />
 							</p:inputText>
-							<h:panelGroup id="createAgencyBtnWrapper" rendered="#{ratingAgencyController.admin}">
+							<h:panelGroup id="createAgencyBtnWrapper">
 								<p:commandButton id="createAgencyBtn" value="Create Agency" action="#{ratingAgencyController.saveAgency}" update="@form" styleClass="rounded-button" disabled="#{empty ratingAgencyController.newAgencyName}" />
 								<p:tooltip for="createAgencyBtnWrapper" value="Please enter an agency name to create it." rendered="#{empty ratingAgencyController.newAgencyName}" styleClass="tooltip-primary" />
 							</h:panelGroup>
@@ -45,7 +45,7 @@
 						<p:column>
 							<p:card style="max-width: 900px; margin-top: 10px; margin-bottom: 15px;">
 								<p:dataTable id="ratingsTable" var="rating" value="#{ratingAgencyController.ratings}"
-									editable="#{ratingAgencyController.admin}" editMode="cell"
+									editable="true" editMode="cell"
 									tableStyleClass="tradista-datatable" size="small"
 									tableStyle="width: 100%;">
 									<p:ajax event="cellEdit" listener="#{ratingAgencyController.onRatingEdit}" update=":ratingAgencyForm:msg" />
@@ -74,7 +74,7 @@
 											</f:facet>
 										</p:cellEditor>
 									</p:column>
-									<p:column exportable="false" headerText="Actions" rendered="#{ratingAgencyController.admin}"
+									<p:column exportable="false" headerText="Actions"
 										style="width: 10%; text-align: center;">
 										<p:commandButton class="rounded-button ui-button-danger" icon="pi pi-trash"
 											actionListener="#{ratingAgencyController.deleteRating(rating)}"
@@ -86,12 +86,12 @@
 						</p:column>
 					</p:row>
 
-					<p:row rendered="#{ratingAgencyController.admin}">
+					<p:row>
 						<p:column>
 							<p:outputLabel value="Add a Rating: " styleClass="tradista-menu-item" />
-							<p:inputText value="#{ratingAgencyController.newRatingCode}" placeholder="Rating Code" style="margin-right: 10px;" disabled="#{!ratingAgencyController.admin}" />
-							<p:inputText value="#{ratingAgencyController.newRatingDescription}" placeholder="Description" style="margin-right: 10px;" disabled="#{!ratingAgencyController.admin}" />
-							<h:panelGroup id="addRatingBtnWrapper" rendered="#{ratingAgencyController.admin}">
+							<p:inputText value="#{ratingAgencyController.newRatingCode}" placeholder="Rating Code" style="margin-right: 10px;" />
+							<p:inputText value="#{ratingAgencyController.newRatingDescription}" placeholder="Description" style="margin-right: 10px;" />
+							<h:panelGroup id="addRatingBtnWrapper">
 								<p:commandButton id="addRatingBtn" value="Add Rating" action="#{ratingAgencyController.saveRating}" update="@form" styleClass="rounded-button" disabled="#{ratingAgencyController.agency == null}" />
 								<p:tooltip for="addRatingBtnWrapper" value="Please select an agency first to add a rating." rendered="#{ratingAgencyController.agency == null}" styleClass="tooltip-primary" />
 							</h:panelGroup>

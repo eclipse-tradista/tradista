@@ -2,10 +2,10 @@ package org.eclipse.tradista.security.equityoption.service;
 
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionContractSpecification;
 
 /********************************************************************************
@@ -48,9 +48,7 @@ public class EquityOptionContractSpecificationBusinessDelegate {
 
 		StringBuilder errMsg = new StringBuilder();
 
-		if (StringUtils.isEmpty(eos.getName())) {
-			errMsg.append("The name is mandatory.\n");
-		}
+		TradistaUtil.validateName(eos.getName(), errMsg);
 
 		if (eos.getExchange() == null) {
 			errMsg.append("The exchange is mandatory.\n");

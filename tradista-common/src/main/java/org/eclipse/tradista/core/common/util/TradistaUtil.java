@@ -54,6 +54,8 @@ public final class TradistaUtil {
 
 	private static final String RETURN_TYPE_CANNOT_BE_NULL = "The return type cannot be null.%n";
 
+	private static final int MAX_NAME_LENGTH = 50;
+
 	private TradistaUtil() {
 	}
 
@@ -560,6 +562,38 @@ public final class TradistaUtil {
 
 		} catch (IOException ioe) {
 			throw new TradistaTechnicalException(ioe.getMessage());
+		}
+	}
+
+	/**
+	 * Throws TradistaBusinessException if the name is blank or exceeds 50
+	 * characters.
+	 *
+	 * @param name The name to validate
+	 * @throws TradistaBusinessException if the name is blank or exceeds 50
+	 *                                   characters
+	 */
+	public static void validateName(String name) throws TradistaBusinessException {
+		if (StringUtils.isBlank(name)) {
+			throw new TradistaBusinessException("The name is mandatory.");
+		}
+		if (name.length() > MAX_NAME_LENGTH) {
+			throw new TradistaBusinessException(
+					String.format("The name cannot exceed %d characters.", MAX_NAME_LENGTH));
+		}
+	}
+
+	/**
+	 * Validates the name and appends the error message to errMsg if invalid.
+	 *
+	 * @param name   The name to validate
+	 * @param errMsg The StringBuilder to append the error message to
+	 */
+	public static void validateName(String name, StringBuilder errMsg) {
+		try {
+			validateName(name);
+		} catch (TradistaBusinessException tbe) {
+			errMsg.append(String.format("%s%n", tbe.getMessage()));
 		}
 	}
 

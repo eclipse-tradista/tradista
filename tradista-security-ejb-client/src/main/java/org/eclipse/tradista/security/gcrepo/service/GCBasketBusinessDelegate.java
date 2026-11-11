@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.security.gcrepo.model.GCBasket;
 
 /********************************************************************************
@@ -35,11 +36,8 @@ public class GCBasketBusinessDelegate {
 	public long saveGCBasket(GCBasket gcBasket) throws TradistaBusinessException {
 		if (gcBasket == null) {
 			throw new TradistaBusinessException("the GC Basket cannot be null.");
-		} else {
-			if (StringUtils.isEmpty(gcBasket.getName())) {
-				throw new TradistaBusinessException("the GC Basket name is mandatory.");
-			}
 		}
+		TradistaUtil.validateName(gcBasket.getName());
 		return SecurityUtil.runEx(() -> gcBasketService.saveGCBasket(gcBasket));
 	}
 

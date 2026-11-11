@@ -65,12 +65,26 @@ public final class TradistaTestUtil {
 		return new Book("Book", createProcessingOrg());
 	}
 
+	public static Book createBook(String name) {
+		return new Book(name, createProcessingOrg());
+	}
+
 	public static Book createBook(LegalEntity po) {
 		return new Book("Book", po);
 	}
 
+	public static Currency createCurrency(String name) {
+		Currency currency = new Currency("EUR");
+		currency.setName(name);
+		return currency;
+	}
+
 	public static PricingParameter createPricingParameter() {
 		return new PricingParameter("PricingParameter", createProcessingOrg());
+	}
+
+	public static PricingParameter createPricingParameter(String name) {
+		return new PricingParameter(name, createProcessingOrg());
 	}
 
 	public static PricingParameter createPricingParameter(LegalEntity po) {

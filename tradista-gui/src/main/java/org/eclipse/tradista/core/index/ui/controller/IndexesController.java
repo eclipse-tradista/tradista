@@ -2,7 +2,9 @@ package org.eclipse.tradista.core.index.ui.controller;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaControllerAdapter;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -63,6 +65,9 @@ public class IndexesController extends TradistaControllerAdapter {
 		TradistaGUIUtil.fillComboBox(indexBusinessDelegate.getAllIndexes(), load);
 		fixing.setItems(FXCollections.observableArrayList(Fixing.values()));
 		fixing.setValue(Fixing.PREFIXED);
+
+		name.managedProperty().bind(name.visibleProperty());
+		nameLabel.managedProperty().bind(nameLabel.visibleProperty());
 	}
 
 	@FXML
@@ -73,19 +78,19 @@ public class IndexesController extends TradistaControllerAdapter {
 		confirmation.setContentText("Do you want to save this Index?");
 
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				if (name.isVisible()) {
-					new Index(name.getText());
-					nameLabel.setText(name.getText());
+					index = new Index(name.getText());
 				}
 				index.setDescription(description.getText());
 				index.setPrefixed(fixing.getValue().equals(Fixing.PREFIXED));
 				index.setId(indexBusinessDelegate.saveIndex(index));
+				nameLabel.setText(name.getText());
 				name.setVisible(false);
 				nameLabel.setVisible(true);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -109,8 +114,8 @@ public class IndexesController extends TradistaControllerAdapter {
 				nameLabel.setVisible(true);
 				nameLabel.setText(index.getName());
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -135,8 +140,8 @@ public class IndexesController extends TradistaControllerAdapter {
 			}
 
 			load(index);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -156,7 +161,7 @@ public class IndexesController extends TradistaControllerAdapter {
 		index = null;
 		name.clear();
 		description.clear();
-		nameLabel.setText("");
+		nameLabel.setText(StringUtils.EMPTY);
 		name.setVisible(true);
 		nameLabel.setVisible(false);
 	}

@@ -2,7 +2,9 @@ package org.eclipse.tradista.security.equityoption.ui.controller;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaController;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
@@ -42,7 +44,10 @@ import javafx.scene.control.TextField;
 public class EquityOptionContractSpecificationDefinitionController implements TradistaController {
 
 	@FXML
-	private TextField quantity, name;
+	private TextField quantity;
+
+	@FXML
+	private TextField name;
 
 	@FXML
 	private Label nameLabel;
@@ -96,6 +101,9 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 		TradistaGUIUtil.fillComboBox(
 				equityOptionSpecificationBusinessDelegate.getAllEquityOptionContractSpecifications(), load);
 		TradistaGUIUtil.fillCurrencyComboBox(premiumCurrency);
+
+		name.managedProperty().bind(name.visibleProperty());
+		nameLabel.managedProperty().bind(nameLabel.visibleProperty());
 	}
 
 	private void buildSpecification(EquityOptionContractSpecification equityOptionContractSpecification) {
@@ -106,10 +114,6 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 						.setQuantity(TradistaGUIUtil.parseAmount(quantity.getText(), "Quantity"));
 			}
 			equityOptionContractSpecification.setStyle(style.getValue());
-			if (name.isVisible()) {
-				equityOptionContractSpecification = new EquityOptionContractSpecification(name.getText());
-				nameLabel.setText(name.getText());
-			}
 			if (!settlementDateOffset.getText().isEmpty()) {
 				equityOptionContractSpecification
 						.setSettlementDateOffset(Short.parseShort(settlementDateOffset.getText()));
@@ -121,7 +125,7 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 						.setMultiplier(TradistaGUIUtil.parseAmount(multiplier.getText(), "Multiplier"));
 			}
 			equityOptionContractSpecification.setPremiumCurrency(premiumCurrency.getValue());
-		} catch (TradistaBusinessException tbe) {
+		} catch (TradistaBusinessException _) {
 			// Should not appear at this stage.
 		}
 	}
@@ -134,7 +138,7 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 		confirmation.setContentText("Do you want to save this Equity Option Contract Specification?");
 
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
@@ -145,10 +149,11 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 
 				equityOptionContractSpecification.setId(equityOptionSpecificationBusinessDelegate
 						.saveEquityOptionContractSpecification(equityOptionContractSpecification));
+				nameLabel.setText(name.getText());
 				name.setVisible(false);
 				nameLabel.setVisible(true);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -175,8 +180,8 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 				nameLabel.setText(equityOptionContractSpecification.getName());
 				TradistaGUIUtil.fillComboBox(
 						equityOptionSpecificationBusinessDelegate.getAllEquityOptionContractSpecifications(), load);
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -203,8 +208,8 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 			}
 
 			load(eos);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 
@@ -232,7 +237,7 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 		quantity.clear();
 		name.clear();
 		settlementDateOffset.clear();
-		nameLabel.setText("");
+		nameLabel.setText(StringUtils.EMPTY);
 		name.setVisible(true);
 		nameLabel.setVisible(false);
 		multiplier.clear();
@@ -265,11 +270,11 @@ public class EquityOptionContractSpecificationDefinitionController implements Tr
 			if (!settlementDateOffset.getText().isEmpty()) {
 				Short.parseShort(settlementDateOffset.getText());
 			}
-		} catch (NumberFormatException nfe) {
+		} catch (NumberFormatException _) {
 			errMsg.append(
 					String.format("The settlement date offset is incorrect: %s.%n", settlementDateOffset.getText()));
 		}
-		if (errMsg.length() > 0) {
+		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
 		}
 	}

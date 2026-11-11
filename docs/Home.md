@@ -25,6 +25,7 @@ Explore the core sections of our documentation:
 | Guide | Description | Target Audience |
 | :--- | :--- | :--- |
 | [🔌 Interception Framework](interception-Framework) | Deep dive into our declarative, annotation-driven system for authorization, segregation, and exception handling. | Developers |
+| [📐 Entity Design Guidelines](entity-Design-Guidelines) | Architectural standards for domain entities (`TradistaObject`, `Segregable`), naming constraints (50 chars), and business validations. | Developers |
 
 ---
 

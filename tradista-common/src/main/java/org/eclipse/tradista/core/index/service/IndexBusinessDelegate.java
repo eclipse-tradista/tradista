@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.index.model.Index;
 
 /********************************************************************************
@@ -44,9 +45,7 @@ public class IndexBusinessDelegate {
 	}
 
 	public long saveIndex(Index index) throws TradistaBusinessException {
-		if (StringUtils.isBlank(index.getName())) {
-			throw new TradistaBusinessException("The name cannot be empty.");
-		}
+		TradistaUtil.validateName(index.getName());
 		return SecurityUtil.runEx(() -> indexService.saveIndex(index));
 	}
 

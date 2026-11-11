@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.rating.model.Rating;
 import org.eclipse.tradista.core.rating.model.RatingAgency;
 import org.eclipse.tradista.core.rating.model.RatingAssignment;
@@ -55,13 +56,7 @@ public class RatingBusinessDelegate {
 		if (ratingAgency == null) {
 			throw new TradistaBusinessException("The rating agency cannot be null.");
 		}
-		if (StringUtils.isBlank(ratingAgency.getName())) {
-			throw new TradistaBusinessException("The rating agency name cannot be empty.");
-		} else {
-			if (ratingAgency.getName().length() > 50) {
-				throw new TradistaBusinessException("The rating agency name cannot exceed 50 characters.");
-			}
-		}
+		TradistaUtil.validateName(ratingAgency.getName());
 		return SecurityUtil.runEx(() -> ratingService.saveRatingAgency(ratingAgency));
 	}
 

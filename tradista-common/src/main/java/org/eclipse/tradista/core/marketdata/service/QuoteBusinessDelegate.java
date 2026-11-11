@@ -268,9 +268,7 @@ public class QuoteBusinessDelegate {
 		if (quoteSet == null) {
 			throw new TradistaBusinessException("The Quote Set cannot be null.");
 		}
-		if (StringUtils.isEmpty(quoteSet.getName())) {
-			throw new TradistaBusinessException("The quote set name must be specified.");
-		}
+		TradistaUtil.validateName(quoteSet.getName());
 		return SecurityUtil.runEx(() -> quoteService.saveQuoteSet(quoteSet));
 	}
 

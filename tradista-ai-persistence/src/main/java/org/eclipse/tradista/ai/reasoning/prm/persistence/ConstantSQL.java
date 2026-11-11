@@ -64,8 +64,6 @@ public class ConstantSQL {
 			}
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		constant.setId(constantId);
@@ -87,8 +85,6 @@ public class ConstantSQL {
 			}
 
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return constant;
@@ -107,8 +103,6 @@ public class ConstantSQL {
 				}
 			}
 		} catch (SQLException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		return constant;

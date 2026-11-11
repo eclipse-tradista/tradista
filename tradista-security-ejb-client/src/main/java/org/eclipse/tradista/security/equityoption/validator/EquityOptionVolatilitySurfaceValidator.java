@@ -2,8 +2,8 @@ package org.eclipse.tradista.security.equityoption.validator;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.marketdata.model.SurfacePoint;
 import org.eclipse.tradista.security.equityoption.model.EquityOptionVolatilitySurface;
 
@@ -30,9 +30,7 @@ public class EquityOptionVolatilitySurfaceValidator {
 		if (surface == null) {
 			throw new TradistaBusinessException("The surface cannot be null.%n");
 		}
-		if (StringUtils.isBlank(surface.getName())) {
-			errMsg.append(String.format("The surface name is mandatory.%n"));
-		}
+		TradistaUtil.validateName(surface.getName(), errMsg);
 		if (surface.isGenerated()) {
 			if (surface.getAlgorithm() == null) {
 				errMsg.append(String.format("The algorithm is mandatory when the surface is generated.%n"));

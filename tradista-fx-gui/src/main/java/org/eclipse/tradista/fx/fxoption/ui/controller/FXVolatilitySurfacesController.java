@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
 import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.ui.view.TradistaCopyDialog;
@@ -30,6 +31,8 @@ import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
 import org.eclipse.tradista.fx.fxoption.model.FXVolatilitySurface;
 import org.eclipse.tradista.fx.fxoption.service.FXVolatilitySurfaceBusinessDelegate;
 import org.eclipse.tradista.fx.fxoption.ui.view.FXVolatilitySurfaceCreatorDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -70,6 +73,8 @@ import javafx.scene.layout.VBox;
  ********************************************************************************/
 
 public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceController {
+
+	private static final Logger logger = LoggerFactory.getLogger(FXVolatilitySurfacesController.class);
 
 	@FXML
 	private TableView<SurfacePointProperty> pointsTable;
@@ -368,8 +373,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 				surface.setId(fxVolatilitySurfaceBusinessDelegate.saveFXVolatilitySurface(surface));
 				TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -412,8 +417,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 				surface = copyFXVolatilitySurface;
 				TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -428,8 +433,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 				TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(volatilitySurface);
 			}
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -478,8 +483,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 				pointsTable.setItems(FXCollections.observableArrayList(properties));
 				pointsTable.refresh();
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -534,8 +539,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			List<SurfacePointProperty> properties = buildTableContent(points);
 			pointsTable.setItems(FXCollections.observableArrayList(properties));
 			pointsTable.refresh();
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -553,8 +558,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 			pointsTable.setItems(FXCollections.observableArrayList(toSurfacePointPropertyList(surfacePoints)));
 			pointsTable.refresh();
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -570,8 +575,8 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 				fxVolatilitySurfaceBusinessDelegate.saveFXVolatilitySurface(surface);
 				TradistaFXGUIUtil.fillFXVolatilitySurfaceComboBox(volatilitySurface);
 			}
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -641,8 +646,7 @@ public class FXVolatilitySurfacesController extends TradistaVolatilitySurfaceCon
 						}
 					}
 				} catch (DateTimeParseException dtpe) {
-					// TODO Auto-generated catch block
-					dtpe.printStackTrace();
+					logger.error(dtpe.getMessage(), dtpe);
 				}
 			}
 		}

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.util.TradistaUtil;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet;
 import org.eclipse.tradista.core.mapping.model.InterfaceMappingSet.Mapping;
 import org.springframework.util.CollectionUtils;
@@ -36,6 +37,9 @@ public class InterfaceMappingSetValidator implements Serializable {
 		if (ims.getDirection() == null) {
 			errMsg.append(String.format("The direction is mandatory.%n"));
 		}
+		if (ims.getInterfaceName() != null) {
+			TradistaUtil.validateName(ims.getInterfaceName(), errMsg);
+		}
 		if (ims.getProcessingOrg() == null) {
 			errMsg.append(String.format("The processing organization is mandatory.%n"));
 		}
@@ -45,9 +49,13 @@ public class InterfaceMappingSetValidator implements Serializable {
 			for (Mapping m : ims.getMappings()) {
 				if (StringUtils.isBlank(m.getValue())) {
 					errMsg.append(String.format("A mapping cannot have an empty original value.%n"));
+				} else if (m.getValue().length() > 50) {
+					errMsg.append(String.format("A mapping original value cannot exceed 50 characters.%n"));
 				}
 				if (StringUtils.isBlank(m.getMappedValue())) {
 					errMsg.append(String.format("A mapping cannot have an empty mapped value.%n"));
+				} else if (m.getMappedValue().length() > 50) {
+					errMsg.append(String.format("A mapping mapped value cannot exceed 50 characters.%n"));
 				}
 			}
 		}
