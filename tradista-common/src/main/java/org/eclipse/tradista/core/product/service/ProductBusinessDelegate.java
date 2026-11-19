@@ -77,6 +77,8 @@ public class ProductBusinessDelegate {
 
 	private static final String FX_PRODUCT_TYPE = "FX";
 
+	private static final String COMMERCIAL_PRODUCT_TYPE = "Commercial";
+
 	// Product families
 
 	private static final String IR = "ir";
@@ -86,6 +88,8 @@ public class ProductBusinessDelegate {
 	private static final String MM = "mm";
 
 	private static final String SECURITY = "security";
+
+	private static final String COMMERCIAL_PRODUCT_FAMILY = "commercial";
 
 	private ProductService productService;
 
@@ -110,6 +114,7 @@ public class ProductBusinessDelegate {
 		canBeOTC.add(EQUITY_OPTION);
 		canBeOTC.add(GC_REPO);
 		canBeOTC.add(SPECIFIC_REPO);
+		canBeOTC.add(COMMERCIAL_PRODUCT_TYPE);
 
 		canBeListed = new HashSet<>();
 		canBeListed.add(EQUITY_OPTION);
@@ -199,6 +204,8 @@ public class ProductBusinessDelegate {
 			return SECURITY;
 		case SPECIFIC_REPO:
 			return SECURITY;
+		case COMMERCIAL_PRODUCT_TYPE:
+			return COMMERCIAL_PRODUCT_FAMILY;
 		}
 		throw new TradistaBusinessException(String.format("This product type %s is not identified.", productType));
 	}

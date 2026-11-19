@@ -204,6 +204,10 @@ public class TransferReportController extends TradistaControllerAdapter {
 							// lightskyblue
 							currentRow.setStyle("-fx-background-color:rgba(135, 206, 250,.7)");
 						}
+						if (item.equals(Transfer.Status.SETTLED)) {
+							// mediumseagreen
+							currentRow.setStyle("-fx-background-color:rgba(60, 179, 113, .7)");
+						}
 					}
 				}
 			};

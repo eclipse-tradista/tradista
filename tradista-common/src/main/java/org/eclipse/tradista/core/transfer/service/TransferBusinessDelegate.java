@@ -142,11 +142,11 @@ public class TransferBusinessDelegate {
 		StringBuilder errMsg = new StringBuilder();
 
 		if (purpose == null) {
-			errMsg.append(String.format("The transferServiceRequest purpose cannot be null.%n"));
+			errMsg.append(String.format("The transfer purpose cannot be null.%n"));
 		}
 
 		if (tradeId <= 0) {
-			errMsg.append("The transferServiceRequest trade id must be positive.");
+			errMsg.append("The transfer trade id must be positive.");
 		}
 
 		if (!errMsg.isEmpty()) {
@@ -155,7 +155,6 @@ public class TransferBusinessDelegate {
 
 		return SecurityUtil
 				.runEx(() -> transferService.getTransfersByTradeIdAndPurpose(tradeId, purpose, includeCancel));
-
 	}
 
 	public List<Transfer> getTransfersByTradeId(long tradeId) throws TradistaBusinessException {

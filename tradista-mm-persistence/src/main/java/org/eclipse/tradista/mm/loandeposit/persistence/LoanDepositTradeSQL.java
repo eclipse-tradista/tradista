@@ -225,8 +225,6 @@ public class LoanDepositTradeSQL {
 			stmtSaveLoanDepositTrade.setLong(15, tradeId);
 			stmtSaveLoanDepositTrade.executeUpdate();
 		} catch (SQLException | TradistaBusinessException sqle) {
-			// TODO Manage logs
-			sqle.printStackTrace();
 			throw new TradistaTechnicalException(sqle);
 		}
 		trade.setId(tradeId);

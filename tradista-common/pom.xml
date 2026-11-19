@@ -48,6 +48,11 @@
 			<version>${ir-ejb-interface.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-ejb-interface</artifactId>
+			<version>${commercial-ejb-interface.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tradista.mm</groupId>
 			<artifactId>mm-ejb-interface</artifactId>
 			<version>${mm-ejb-interface.version}</version>

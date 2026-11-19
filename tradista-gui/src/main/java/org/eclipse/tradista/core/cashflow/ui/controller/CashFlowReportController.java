@@ -220,44 +220,9 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 					}
 					Function<CashFlow, String> compositeKey = cf -> cf.getDate() + cf.getCurrency().toString();
 					List<CashFlow> cfsByCurrencyList = cfsListCopy.stream()
-							.collect(Collectors.toMap(compositeKey, Function.identity(), (left, right) -> {
-								BigDecimal newAmount;
-								BigDecimal newDiscountedAmount;
-								if (left.getDirection().equals(CashFlow.Direction.PAY)) {
-									newAmount = left.getAmount().negate();
-									newDiscountedAmount = (left.getDiscountedAmount() == null) ? null
-											: left.getDiscountedAmount().negate();
-								} else {
-									newAmount = left.getAmount();
-									newDiscountedAmount = (left.getDiscountedAmount() == null) ? null
-											: left.getDiscountedAmount();
-								}
-								if (right.getDirection().equals(CashFlow.Direction.PAY)) {
-									newAmount = newAmount.subtract(right.getAmount());
-									newDiscountedAmount = (right.getDiscountedAmount() == null) ? null
-											: newDiscountedAmount.subtract(right.getDiscountedAmount());
-								} else {
-									newAmount = newAmount.add(right.getAmount());
-									newDiscountedAmount = (right.getDiscountedAmount() == null) ? null
-											: newDiscountedAmount.add(right.getDiscountedAmount());
-								}
-								if (newAmount.signum() > 0) {
-									left.setAmount(newAmount);
-									left.setDiscountedAmount(newDiscountedAmount);
-									left.setDirection(CashFlow.Direction.RECEIVE);
-								} else {
-									if (newAmount.signum() <= 0) {
-										left.setAmount(newAmount.negate());
-										left.setDiscountedAmount(newDiscountedAmount.negate());
-										left.setDirection(CashFlow.Direction.PAY);
-									}
-								}
-								if (left.getPurpose() != null && !left.getPurpose().equals(right.getPurpose())) {
-									left.setPurpose(null);
-								}
-								return left;
-							})).values().stream().filter(cf -> cf.getAmount().signum() > 0)
-							.collect(Collectors.toList());
+							.collect(Collectors.toMap(compositeKey, Function.identity(),
+									(left, right) -> mergeCashFlows(left, right, true)))
+							.values().stream().filter(cf -> cf.getAmount().signum() > 0).collect(Collectors.toList());
 					Collections.sort(cfsByCurrencyList);
 					cfsByCurrency = FXCollections
 							.observableArrayList(CashFlowProperty.toCashFlowPropertyList(cfsByCurrencyList));
@@ -277,41 +242,9 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 					Function<CashFlow, String> compositeKey = cf -> cf.getDate() + cf.getCurrency().toString()
 							+ cf.getPurpose();
 					List<CashFlow> cfsByCurrencyAndPurposeList = cfsListCopy.stream()
-							.collect(Collectors.toMap(compositeKey, Function.identity(), (left, right) -> {
-								BigDecimal newAmount;
-								BigDecimal newDiscountedAmount;
-								if (left.getDirection().equals(CashFlow.Direction.PAY)) {
-									newAmount = left.getAmount().negate();
-									newDiscountedAmount = (left.getDiscountedAmount() == null) ? null
-											: left.getDiscountedAmount().negate();
-								} else {
-									newAmount = left.getAmount();
-									newDiscountedAmount = (left.getDiscountedAmount() == null) ? null
-											: left.getDiscountedAmount();
-								}
-								if (right.getDirection().equals(CashFlow.Direction.PAY)) {
-									newAmount = newAmount.subtract(right.getAmount());
-									newDiscountedAmount = (right.getDiscountedAmount() == null) ? null
-											: newDiscountedAmount.subtract(right.getDiscountedAmount());
-								} else {
-									newAmount = newAmount.add(right.getAmount());
-									newDiscountedAmount = (right.getDiscountedAmount() == null) ? null
-											: newDiscountedAmount.add(right.getDiscountedAmount());
-								}
-								if (newAmount.signum() > 0) {
-									left.setAmount(newAmount);
-									left.setDiscountedAmount(newDiscountedAmount);
-									left.setDirection(CashFlow.Direction.RECEIVE);
-								} else {
-									if (newAmount.signum() <= 0) {
-										left.setAmount(newAmount.negate());
-										left.setDiscountedAmount(newDiscountedAmount.negate());
-										left.setDirection(CashFlow.Direction.PAY);
-									}
-								}
-								return left;
-							})).values().stream().filter(cf -> cf.getAmount().signum() > 0)
-							.collect(Collectors.toList());
+							.collect(Collectors.toMap(compositeKey, Function.identity(),
+									(left, right) -> mergeCashFlows(left, right, false)))
+							.values().stream().filter(cf -> cf.getAmount().signum() > 0).collect(Collectors.toList());
 					Collections.sort(cfsByCurrencyAndPurposeList);
 					cfsByCurrencyAndPurpose = FXCollections
 							.observableArrayList(CashFlowProperty.toCashFlowPropertyList(cfsByCurrencyAndPurposeList));
@@ -321,6 +254,40 @@ public class CashFlowReportController extends TradistaControllerAdapter {
 		}
 		report.setItems(data);
 		report.refresh();
+	}
+
+	private CashFlow mergeCashFlows(CashFlow left, CashFlow right, boolean clearPurposeOnMismatch) {
+		BigDecimal newAmount;
+		BigDecimal newDiscountedAmount;
+		if (left.getDirection().equals(CashFlow.Direction.PAY)) {
+			newAmount = left.getAmount().negate();
+			newDiscountedAmount = (left.getDiscountedAmount() == null) ? null : left.getDiscountedAmount().negate();
+		} else {
+			newAmount = left.getAmount();
+			newDiscountedAmount = left.getDiscountedAmount();
+		}
+		if (right.getDirection().equals(CashFlow.Direction.PAY)) {
+			newAmount = newAmount.subtract(right.getAmount());
+			newDiscountedAmount = (newDiscountedAmount == null || right.getDiscountedAmount() == null) ? null
+					: newDiscountedAmount.subtract(right.getDiscountedAmount());
+		} else {
+			newAmount = newAmount.add(right.getAmount());
+			newDiscountedAmount = (newDiscountedAmount == null || right.getDiscountedAmount() == null) ? null
+					: newDiscountedAmount.add(right.getDiscountedAmount());
+		}
+		if (newAmount.signum() > 0) {
+			left.setAmount(newAmount);
+			left.setDiscountedAmount(newDiscountedAmount);
+			left.setDirection(CashFlow.Direction.RECEIVE);
+		} else {
+			left.setAmount(newAmount.negate());
+			left.setDiscountedAmount(newDiscountedAmount == null ? null : newDiscountedAmount.negate());
+			left.setDirection(CashFlow.Direction.PAY);
+		}
+		if (clearPurposeOnMismatch && left.getPurpose() != null && !left.getPurpose().equals(right.getPurpose())) {
+			left.setPurpose(null);
+		}
+		return left;
 	}
 
 	@FXML

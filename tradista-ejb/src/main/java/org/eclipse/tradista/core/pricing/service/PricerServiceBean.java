@@ -36,6 +36,7 @@ import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.persistence.TradeSQL;
 import org.eclipse.tradista.core.trade.service.CheckTradeAccess;
 import org.eclipse.tradista.core.trade.service.ProductScope;
+import org.eclipse.tradista.core.trade.service.TradeService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 
 import jakarta.annotation.PostConstruct;
@@ -66,6 +67,9 @@ public class PricerServiceBean implements PricerService {
 
 	@EJB
 	private LocalConfigurationService configurationService;
+
+	@EJB
+	private TradeService tradeService;
 
 	private static final String TRADE_ID_MSG = "Trade id %d: %s";
 
@@ -306,7 +310,7 @@ public class PricerServiceBean implements PricerService {
 					"The position definition wit id %s could not be found in the system.", positionDefinitionId));
 		}
 		List<CashFlow> cfs = new ArrayList<>();
-		Set<Trade<?>> trades = TradeSQL.getTrades(posDef);
+		Set<Trade<?>> trades = tradeService.getTrades(posDef);
 		if (trades != null && !trades.isEmpty()) {
 			for (Trade<?> trade : trades) {
 				try {
@@ -329,7 +333,7 @@ public class PricerServiceBean implements PricerService {
 	@Override
 	public List<CashFlow> generateAllCashFlows(@CheckProcessingOrg PricingParameter pp, LocalDate valueDate)
 			throws TradistaBusinessException {
-		List<Trade<?>> trades = TradeSQL.getAllTrades();
+		List<Trade<?>> trades = tradeService.getAllTrades();
 		List<CashFlow> cfs = new ArrayList<>();
 		if (trades != null && !trades.isEmpty()) {
 			for (Trade<?> trade : trades) {

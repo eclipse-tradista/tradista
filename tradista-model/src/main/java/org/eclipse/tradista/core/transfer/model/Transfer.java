@@ -35,7 +35,7 @@ public abstract class Transfer extends TimestampedObject implements Segregable {
 	private static final long serialVersionUID = 3471863038215096341L;
 
 	public enum Status {
-		UNKNOWN, KNOWN, POTENTIAL, CANCELED;
+		UNKNOWN, KNOWN, POTENTIAL, SETTLED, CANCELED;
 
 		@Override
 		public String toString() {
@@ -48,6 +48,8 @@ public abstract class Transfer extends TimestampedObject implements Segregable {
 				return "Canceled";
 			case POTENTIAL:
 				return "Potential";
+			case SETTLED:
+				return "Settled";
 			}
 			return super.toString();
 		}
@@ -69,6 +71,8 @@ public abstract class Transfer extends TimestampedObject implements Segregable {
 				return CANCELED;
 			case "Potential":
 				return POTENTIAL;
+			case "Settled":
+				return SETTLED;
 			}
 			return null;
 		}

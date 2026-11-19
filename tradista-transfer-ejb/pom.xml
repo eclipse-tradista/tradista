@@ -45,6 +45,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-business</artifactId>
+			<version>${commercial-business.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tradista.fx</groupId>
 			<artifactId>fx-business</artifactId>
 			<version>${fx-business.version}</version>
