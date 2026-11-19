@@ -20,6 +20,16 @@ public final class TradistaGUIConstants {
 
 	public static final String VOLATILITY = "Volatility";
 
+	public static final String KNOWN_STYLE = "-fx-background-color:rgba(144, 238, 144, .7)";
+
+	public static final String UNKNOWN_STYLE = "-fx-background-color:rgba(255, 193, 77, .7)";
+
+	public static final String CANCELED_STYLE = "-fx-background-color:rgba(205,92,92,.7)";
+
+	public static final String POTENTIAL_STYLE = "-fx-background-color:rgba(135, 206, 250,.7)";
+
+	public static final String SETTLED_STYLE = "-fx-background-color:rgba(60, 179, 113, .7)";
+
 	private TradistaGUIConstants() {
 	}
 

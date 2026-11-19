@@ -77,9 +77,9 @@ public class LoanDepositPricerBusinessDelegate {
 			errorMsg.append(String.format("The pricing parameters cannot be null.%n"));
 		}
 		if (pricingDate == null) {
-			errorMsg.append(String.format("The pricing date cannot be null.%n"));
+			errorMsg.append("The pricing date cannot be null.");
 		}
-		if (errorMsg.length() > 0) {
+		if (!errorMsg.isEmpty()) {
 			throw new TradistaBusinessException(errorMsg.toString());
 		}
 		validator.validateTrade(trade);

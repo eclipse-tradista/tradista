@@ -32,8 +32,11 @@ public class CommercialPricerBusinessDelegate {
 
 	private CommercialPricerService commercialPricerService;
 
+	private CommercialTradeValidator validator;
+
 	public CommercialPricerBusinessDelegate() {
 		commercialPricerService = TradistaServiceLocator.getInstance().getCommercialPricerService();
+		validator = new CommercialTradeValidator();
 	}
 
 	public BigDecimal npvDiscountedCashFlow(PricingParameter params, CommercialTrade trade, Currency currency,
@@ -44,12 +47,20 @@ public class CommercialPricerBusinessDelegate {
 
 	public List<CashFlow> generateCashFlows(CommercialTrade trade, PricingParameter pp, LocalDate pricingDate)
 			throws TradistaBusinessException {
+		StringBuffer errorMsg = new StringBuffer();
 		if (trade == null) {
-			throw new TradistaBusinessException("The trade cannot be null.");
+			errorMsg.append(String.format("The trade cannot be null.%n"));
+		}
+		if (pp == null) {
+			errorMsg.append(String.format("The pricing parameters cannot be null.%n"));
 		}
 		if (pricingDate == null) {
-			throw new TradistaBusinessException("The pricing date cannot be null.");
+			errorMsg.append("The pricing date cannot be null.");
 		}
+		if (!errorMsg.isEmpty()) {
+			throw new TradistaBusinessException(errorMsg.toString());
+		}
+		validator.validateTrade(trade);
 		return SecurityUtil.runEx(() -> commercialPricerService.generateCashFlows(pp, trade, pricingDate));
 	}
 

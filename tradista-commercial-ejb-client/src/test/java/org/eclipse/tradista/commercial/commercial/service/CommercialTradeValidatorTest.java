@@ -10,10 +10,8 @@ import java.util.List;
 
 import org.eclipse.tradista.commercial.commercial.model.CommercialTrade;
 import org.eclipse.tradista.commercial.commercial.model.CommercialTrade.CommercialCashFlow;
-import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
-import org.eclipse.tradista.core.currency.model.Currency;
-import org.eclipse.tradista.core.legalentity.model.LegalEntity;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.junit.jupiter.api.Test;
 
 /********************************************************************************
@@ -37,9 +35,9 @@ class CommercialTradeValidatorTest {
 	private final CommercialTradeValidator validator = new CommercialTradeValidator();
 
 	private CommercialTrade.Builder baseValidTradeBuilder() {
-		return CommercialTrade.builder().book(new Book("BOOK", new LegalEntity("PO")))
-				.counterparty(new LegalEntity("CP")).currency(new Currency("EUR")).tradeDate(LocalDate.now())
-				.amount(new BigDecimal("1000.00")).documentReference("PO-2026-0001");
+		return CommercialTrade.builder().book(TradistaTestUtil.createBook())
+				.counterparty(TradistaTestUtil.createCounterparty()).currency(TradistaTestUtil.EUR)
+				.tradeDate(LocalDate.now()).amount(new BigDecimal("1000.00")).documentReference("PO-2026-0001");
 	}
 
 	@Test

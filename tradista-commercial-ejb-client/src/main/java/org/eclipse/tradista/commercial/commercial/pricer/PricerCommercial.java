@@ -1,5 +1,6 @@
-package org.eclipse.tradista.commercial.commercial.model;
+package org.eclipse.tradista.commercial.commercial.pricer;
 
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
 import org.eclipse.tradista.core.pricing.pricer.Pricer;
 
 /********************************************************************************
@@ -18,12 +19,12 @@ import org.eclipse.tradista.core.pricing.pricer.Pricer;
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 
+@Parameterizable(name = "Default Commercial Pricer")
 public class PricerCommercial extends Pricer {
 
 	private static final long serialVersionUID = 1L;
 
 	public PricerCommercial() {
-		super();
 		getPricerMeasures().add(new PricerMeasureNPV());
 	}
 

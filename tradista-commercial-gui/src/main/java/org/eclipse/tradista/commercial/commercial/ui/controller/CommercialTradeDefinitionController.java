@@ -2,15 +2,15 @@ package org.eclipse.tradista.commercial.commercial.ui.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.commercial.commercial.model.CommercialTrade;
 import org.eclipse.tradista.commercial.commercial.model.CommercialTrade.CommercialCashFlow;
-import org.eclipse.tradista.commercial.commercial.model.PricerCommercial;
 import org.eclipse.tradista.commercial.commercial.service.CommercialPricerBusinessDelegate;
 import org.eclipse.tradista.commercial.commercial.service.CommercialTradeBusinessDelegate;
 import org.eclipse.tradista.core.action.constants.ActionConstants;
@@ -29,6 +29,8 @@ import org.eclipse.tradista.core.legalentity.model.LegalEntity;
 import org.eclipse.tradista.core.marketdata.model.InterestRateCurve;
 import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.ui.controller.QuoteProperty;
+import org.eclipse.tradista.core.pricing.pricer.Parameterizable;
+import org.eclipse.tradista.core.pricing.pricer.Pricer;
 import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
 import org.eclipse.tradista.core.pricing.service.PricerBusinessDelegate;
@@ -45,6 +47,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -99,6 +102,10 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 	private Label cfPricingDate;
 	@FXML
 	private Label cfDiscountCurve;
+	@FXML
+	private Label pricerLabel;
+	@FXML
+	private Label pricerQuoteSetLabel;
 	@FXML
 	private Label pricerResultLabel;
 	@FXML
@@ -189,6 +196,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 
 	private CommercialTradeBusinessDelegate commercialTradeBusinessDelegate;
 	private CommercialPricerBusinessDelegate commercialPricerBusinessDelegate;
+	private PricerBusinessDelegate pricerBusinessDelegate;
 	private TransferBusinessDelegate transferBusinessDelegate;
 
 	private WorkflowBusinessDelegate workflowBusinessDelegate;
@@ -199,6 +207,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 	public void initialize() {
 		commercialTradeBusinessDelegate = new CommercialTradeBusinessDelegate();
 		commercialPricerBusinessDelegate = new CommercialPricerBusinessDelegate();
+		pricerBusinessDelegate = new PricerBusinessDelegate();
 		transferBusinessDelegate = new TransferBusinessDelegate();
 		workflowBusinessDelegate = new WorkflowBusinessDelegate();
 		updateStatusAndActions(null);
@@ -226,40 +235,64 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 
 		TradistaGUIUtil.fillBookComboBox(book);
 		TradistaGUIUtil.fillCounterpartyComboBox(counterparty);
-		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
 		TradistaGUIUtil.fillQuoteSetComboBox(quoteSet);
+
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((_, _, newPricerMeasure) -> {
+			// newPricerMeasure is null when we do "setItems" in
+			// the first call of the refresh method
+			if (newPricerMeasure != null) {
+				TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
+						pricingMethod);
+			}
+		});
+
+		TradistaGUIUtil.fillCurrencyComboBox(currency, pricingCurrency);
+
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener((_, _, newPricingParam) -> {
+			// newPricingParam is null when we do "setItems" in
+			// the first call of the refresh method
+			if (newPricingParam != null) {
+				Pricer pricer = null;
+				try {
+					pricer = pricerBusinessDelegate.getPricer(CommercialTrade.COMMERCIAL, newPricingParam);
+				} catch (TradistaBusinessException _) {
+					// Will never happen in this case.
+				}
+				TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
+				pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
+				pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
+
+				if (currency.getValue() != null) {
+					InterestRateCurve discountCurve = newPricingParam.getDiscountCurve(currency.getValue());
+					if (discountCurve != null) {
+						cfDiscountCurve.setText(discountCurve.getName());
+						TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
+					} else {
+						cfDiscountCurve.setText(String.format(
+								"Pricing Parameters Set '%s' doesn't contain a discount curve for currency %s.",
+								newPricingParam.getName(), currency.getValue()));
+						TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
+					}
+				}
+			}
+		});
+
 		TradistaGUIUtil.fillPricingParameterComboBox(pricingParameter);
-		updateDiscountCurveLabel();
-		pricingParameter.valueProperty().addListener((_, _, _) -> updateDiscountCurveLabel());
+
 		currency.valueProperty().addListener((_, _, _) -> {
 			updateDiscountCurveLabel();
 			fillFxQuotesTable();
 		});
 		quoteSet.valueProperty().addListener((_, _, _) -> fillFxQuotesTable());
 		quoteDate.valueProperty().addListener((_, _, _) -> fillFxQuotesTable());
-
-		TradistaGUIUtil.fillComboBox(new PricerCommercial().getPricerMeasures(), pricingMeasure);
-		pricingMeasure.getSelectionModel().selectFirst();
-		if (pricingMeasure.getValue() != null) {
-			TradistaGUIUtil.fillComboBox(new PricerBusinessDelegate().getAllPricingMethods(pricingMeasure.getValue()),
-					pricingMethod);
-			pricingMethod.getSelectionModel().selectFirst();
-		}
-		pricingMeasure.valueProperty().addListener((obs, oldMeasure, newMeasure) -> {
-			if (newMeasure != null) {
-				TradistaGUIUtil.fillComboBox(new PricerBusinessDelegate().getAllPricingMethods(newMeasure),
-						pricingMethod);
-				pricingMethod.getSelectionModel().selectFirst();
-			}
-		});
-		pricingDate.setValue(LocalDate.now());
-		cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-		pricingDate.valueProperty().addListener((_, _, newDate) -> cfPricingDate
-				.setText(newDate != null ? newDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : ""));
-		quoteDate.setValue(LocalDate.now());
+		pricingDate.setValue(LocalDate.now(ZoneId.systemDefault()));
+		cfPricingDate.setText(TradistaGUIUtil.formatDate(pricingDate.getValue()));
+		pricingDate.valueProperty()
+				.addListener((_, _, newDate) -> cfPricingDate.setText(TradistaGUIUtil.formatDate(newDate)));
+		quoteDate.setValue(LocalDate.now(ZoneId.systemDefault()));
 		fillFxQuotesTable();
 
-		book.valueProperty().addListener((obs, oldBook, newBook) -> {
+		book.valueProperty().addListener((_, _, newBook) -> {
 			if (newBook != null) {
 				bookChartPane.updateBookChart(newBook);
 			}
@@ -270,7 +303,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 
 		buySell.setItems(FXCollections.observableArrayList(Trade.Direction.BUY, Trade.Direction.SELL));
 		buySell.getSelectionModel().selectFirst();
-		tradeDate.setValue(LocalDate.now());
+		tradeDate.setValue(LocalDate.now(ZoneId.systemDefault()));
 
 		cashFlowsTable.setEditable(true);
 		cashFlowsTable.setItems(cashFlowRows);
@@ -320,24 +353,13 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 			@Override
 			protected void updateItem(CommercialCashFlowRow item, boolean empty) {
 				super.updateItem(item, empty);
-				if (empty || item == null || item.getTransferStatus() == null) {
-					setStyle("");
-					return;
-				}
-				switch (item.getTransferStatus()) {
-				case KNOWN -> setStyle("-fx-background-color:rgba(144, 238, 144, .7)");
-				case UNKNOWN -> setStyle("-fx-background-color:rgba(255, 193, 77, .7)");
-				case CANCELED -> setStyle("-fx-background-color:rgba(205,92,92,.7)");
-				case POTENTIAL -> setStyle("-fx-background-color:rgba(135, 206, 250,.7)");
-				case SETTLED -> setStyle("-fx-background-color:rgba(60, 179, 113, .7)");
-				}
+				TradistaGUIUtil.applyTransferStatusStyle(this,
+						(empty || item == null) ? null : item.getTransferStatus());
 			}
 		});
 	}
 
 	private static class DatePickerCell extends TableCell<CommercialCashFlowRow, LocalDate> {
-
-		private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		private DatePicker datePicker;
 
@@ -355,7 +377,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 		public void cancelEdit() {
 			super.cancelEdit();
 			setContentDisplay(ContentDisplay.TEXT_ONLY);
-			setText(getItem() != null ? getItem().format(DATE_FORMATTER) : null);
+			setText(TradistaGUIUtil.formatDate(getItem()));
 			setGraphic(null);
 		}
 
@@ -373,7 +395,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 				setGraphic(datePicker);
 			} else {
 				setContentDisplay(ContentDisplay.TEXT_ONLY);
-				setText(item != null ? item.format(DATE_FORMATTER) : null);
+				setText(TradistaGUIUtil.formatDate(item));
 				setGraphic(null);
 			}
 		}
@@ -394,8 +416,8 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 
 	@FXML
 	private void addEmptyRow() {
-		CommercialCashFlowRow row = new CommercialCashFlowRow(LocalDate.now().plusDays(30), BigDecimal.ZERO,
-				Transfer.Status.KNOWN, null);
+		CommercialCashFlowRow row = new CommercialCashFlowRow(LocalDate.now(ZoneId.systemDefault()).plusDays(30),
+				BigDecimal.ZERO, Transfer.Status.KNOWN, null);
 		cashFlowRows.add(row);
 	}
 
@@ -462,8 +484,8 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 				tradeIdLabel.setText(String.valueOf(id));
 				updateStatusAndActions(trade);
 				loadTransfersForTrade(id);
-			} catch (TradistaBusinessException | TradistaTechnicalException e) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, e.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException tbe) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -499,8 +521,8 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 			tradeDate.setValue(trade.getTradeDate());
 			updateStatusAndActions(trade);
 			loadTransfersForTrade(trade.getId());
-		} catch (TradistaBusinessException | TradistaTechnicalException e) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, e.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -524,11 +546,11 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 				tradeIdLabel.setText(String.valueOf(id));
 				updateStatusAndActions(trade);
 				loadTransfersForTrade(id);
-			} catch (TradistaBusinessException | TradistaTechnicalException e) {
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				if (trade != null) {
 					trade.setId(oldTradeId);
 				}
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, e.getMessage());
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -550,16 +572,16 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 	public void clear() {
 		trade = null;
 		loadTradeId.clear();
-		tradeIdLabel.setText("");
+		tradeIdLabel.setText(StringUtils.EMPTY);
 		book.getSelectionModel().selectFirst();
 		counterparty.getSelectionModel().selectFirst();
 		currency.getSelectionModel().selectFirst();
 		buySell.getSelectionModel().selectFirst();
 		documentReference.clear();
-		tradeDate.setValue(LocalDate.now());
-		pricingDate.setValue(LocalDate.now());
-		cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-		pricerResultLabel.setText("");
+		tradeDate.setValue(LocalDate.now(ZoneId.systemDefault()));
+		pricingDate.setValue(LocalDate.now(ZoneId.systemDefault()));
+		cfPricingDate.setText(TradistaGUIUtil.formatDate(pricingDate.getValue()));
+		pricerResultLabel.setText(StringUtils.EMPTY);
 		updateStatusAndActions(null);
 		cashFlowRows.clear();
 		generatedCashFlowsTable.getItems().clear();
@@ -576,7 +598,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 		setNodeVisible(applyActionLabel, false);
 		setNodeVisible(actionComboBox, false);
 		if (!isSaved) {
-			statusLabel.setText("");
+			statusLabel.setText(StringUtils.EMPTY);
 			return;
 		}
 		statusLabel.setText(currentTrade.getStatus().getName());
@@ -586,7 +608,7 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 				Set<String> availableActions = workflowBusinessDelegate
 						.getAvailableActionsFromStatus(workflow.getName(), currentTrade.getStatus());
 				if (availableActions != null && !availableActions.isEmpty() && actionComboBox != null) {
-					actionComboBox.getItems().add("");
+					actionComboBox.getItems().add(StringUtils.EMPTY);
 					actionComboBox.getItems().addAll(availableActions);
 					actionComboBox.getSelectionModel().selectFirst();
 					actionComboBox.setDisable(false);
@@ -622,12 +644,12 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 							pp.getName(), curr));
 			TradistaGUIUtil.applyWarningStyle(cfDiscountCurve);
 		} else {
-			cfDiscountCurve.setText("");
+			cfDiscountCurve.setText(StringUtils.EMPTY);
 			TradistaGUIUtil.unapplyWarningStyle(cfDiscountCurve);
 		}
 	}
 
-	private void setNodeVisible(javafx.scene.Node node, boolean visible) {
+	private void setNodeVisible(Node node, boolean visible) {
 		if (node != null) {
 			node.setVisible(visible);
 			node.setManaged(visible);
@@ -669,15 +691,32 @@ public class CommercialTradeDefinitionController extends TradistaControllerAdapt
 			// Handle error
 		}
 		if (trade != null && trade.getItems() != null) {
-			for (int i = 0; i < trade.getItems().size(); i++) {
-				CommercialCashFlow item = trade.getItems().get(i);
-				Transfer matchedTransfer = (transfers != null && i < transfers.size()) ? transfers.get(i) : null;
+			List<Transfer> matchedTransfers = new ArrayList<>();
+			for (CommercialCashFlow item : trade.getItems()) {
+				Transfer matchedTransfer = findMatchingTransfer(transfers, item, matchedTransfers);
+				if (matchedTransfer != null) {
+					matchedTransfers.add(matchedTransfer);
+				}
 				Transfer.Status status = item.isSettled() ? Transfer.Status.SETTLED
 						: (matchedTransfer != null ? matchedTransfer.getStatus() : Transfer.Status.KNOWN);
 				cashFlowRows.add(
 						new CommercialCashFlowRow(item.getSettlementDate(), item.getAmount(), status, matchedTransfer));
 			}
 		}
+	}
+
+	private Transfer findMatchingTransfer(List<Transfer> transfers, CommercialCashFlow item,
+			List<Transfer> matchedTransfers) {
+		if (transfers == null || item.getSettlementDate() == null) {
+			return null;
+		}
+		for (Transfer transfer : transfers) {
+			if (!matchedTransfers.contains(transfer) && transfer.getStatus() != Transfer.Status.CANCELED
+					&& item.getSettlementDate().equals(transfer.getSettlementDate())) {
+				return transfer;
+			}
+		}
+		return null;
 	}
 
 	public static class CommercialCashFlowRow {

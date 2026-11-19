@@ -184,31 +184,7 @@ public class TransferReportController extends TradistaControllerAdapter {
 					setGraphic(null);
 
 					TableRow<?> currentRow = getTableRow();
-
-					if (!isEmpty()) {
-						// See https://www.htmlcodes.ws/color/html-color-tester.cfm
-						// TO DO: use a Util class for colors
-						if (item.equals(Transfer.Status.KNOWN)) {
-							// lightgreen color
-							currentRow.setStyle("-fx-background-color:rgba(144, 238, 144, .7)");
-						}
-						if (item.equals(Transfer.Status.UNKNOWN)) {
-							// #ffc14d color
-							currentRow.setStyle("-fx-background-color:rgba(255, 193, 77, .7)");
-						}
-						if (item.equals(Transfer.Status.CANCELED)) {
-							// indianred color
-							currentRow.setStyle("-fx-background-color:rgba(205,92,92,.7)");
-						}
-						if (item.equals(Transfer.Status.POTENTIAL)) {
-							// lightskyblue
-							currentRow.setStyle("-fx-background-color:rgba(135, 206, 250,.7)");
-						}
-						if (item.equals(Transfer.Status.SETTLED)) {
-							// mediumseagreen
-							currentRow.setStyle("-fx-background-color:rgba(60, 179, 113, .7)");
-						}
-					}
+					TradistaGUIUtil.applyTransferStatusStyle(currentRow, isEmpty() ? null : item);
 				}
 			};
 		});

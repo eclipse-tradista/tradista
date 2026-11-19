@@ -39,11 +39,14 @@
         <TradistaBookPieChart fx:id="bookChartPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
 
         <!-- Bottom-Left: Pricer (aligned with Quotes/Cashflows Forecast) -->
-        <GridPane hgap="10.0" vgap="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+        <GridPane hgap="10.0" vgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity"
+                  minHeight="-Infinity" minWidth="-Infinity"
+                  GridPane.columnIndex="0" GridPane.rowIndex="1"
+                  GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                 <Label text="Pricer:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <Label fx:id="pricerLabel" text="Default Commercial Pricer" style="-fx-font-weight: bold;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label fx:id="pricerLabel" styleClass="labelBold" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                 <Label text="Pricer Quote Set:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <Label fx:id="pricerQuoteSetLabel" text="DefaultQS" style="-fx-font-weight: bold;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label fx:id="pricerQuoteSetLabel" styleClass="labelBold" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                 <Label text="Pricing parameter:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                 <ComboBox fx:id="pricingParameter" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                 <Label text="Pricing measure:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
@@ -55,7 +58,7 @@
                 <Label text="Pricing date:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                 <DatePicker fx:id="pricingDate" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
                 <Button text="Price" onAction="#price" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                <Label fx:id="pricerResultLabel" text="Result" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                <Label fx:id="pricerResultLabel" styleClass="labelBold" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
             </GridPane>
 
         <!-- Top-Right: Trade Form & Schedule -->

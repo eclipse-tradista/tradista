@@ -181,7 +181,7 @@ public class CommercialTradeSQL {
 		StringBuilder sqlQuery = new StringBuilder(
 				TradistaDBUtil.buildSelectQuery(COMMERCIAL_CASHFLOW_FIELDS, COMMERCIAL_CASHFLOW_TABLE));
 		TradistaDBUtil.addParameterizedFilter(sqlQuery, CASHFLOW_COMMERCIAL_TRADE_ID_FIELD);
-		sqlQuery.append(" ORDER BY ").append(SETTLEMENT_DATE_FIELD.getName());
+		TradistaDBUtil.addOrderBy(sqlQuery, SETTLEMENT_DATE_FIELD);
 		try (PreparedStatement stmtGetItems = con.prepareStatement(sqlQuery.toString())) {
 			stmtGetItems.setLong(1, tradeId);
 			try (ResultSet rs = stmtGetItems.executeQuery()) {

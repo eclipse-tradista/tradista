@@ -37,7 +37,10 @@ public class CommercialTradeBusinessDelegate {
 		return SecurityUtil.runEx(() -> commercialTradeService.saveCommercialTrade(trade, action));
 	}
 
-	public CommercialTrade getCommercialTradeById(long id) {
+	public CommercialTrade getCommercialTradeById(long id) throws TradistaBusinessException {
+		if (id <= 0) {
+			throw new TradistaBusinessException("The trade id must be positive.");
+		}
 		return SecurityUtil.run(() -> commercialTradeService.getCommercialTradeById(id));
 	}
 

@@ -570,4 +570,12 @@ public final class TradistaDBUtil {
 		}
 	}
 
+	public static void addOrderBy(StringBuilder sqlQuery, Field... fields) {
+		if (sqlQuery == null || ArrayUtils.isEmpty(fields)) {
+			return;
+		}
+		sqlQuery.append(" ORDER BY ");
+		sqlQuery.append(String.join(",", Arrays.stream(fields).map(Field::getFullName).toArray(String[]::new)));
+	}
+
 }

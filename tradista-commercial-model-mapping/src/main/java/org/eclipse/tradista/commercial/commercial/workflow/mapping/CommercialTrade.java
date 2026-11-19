@@ -1,6 +1,5 @@
 package org.eclipse.tradista.commercial.commercial.workflow.mapping;
 
-import org.eclipse.tradista.core.common.model.TradistaModelUtil;
 import org.eclipse.tradista.core.workflow.model.mapping.StatusMapper;
 
 import finance.tradista.flow.model.Status;
@@ -57,11 +56,16 @@ public class CommercialTrade implements WorkflowObject {
 	}
 
 	@Override
-	public CommercialTrade clone() {
-		CommercialTrade cloned = new CommercialTrade(workflow);
-		cloned.setTrade(
-				(org.eclipse.tradista.commercial.commercial.model.CommercialTrade) TradistaModelUtil.clone(trade));
-		return cloned;
+	public WorkflowObject clone() throws CloneNotSupportedException {
+		CommercialTrade commercialTrade = (CommercialTrade) super.clone();
+		if (this.trade != null) {
+			commercialTrade.trade = (org.eclipse.tradista.commercial.commercial.model.CommercialTrade) this.trade
+					.clone();
+		}
+		if (this.workflow != null) {
+			commercialTrade.workflow = this.workflow.clone();
+		}
+		return commercialTrade;
 	}
 
 }

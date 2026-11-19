@@ -2,7 +2,6 @@ package org.eclipse.tradista.mm.loandeposit.ui.controller;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -470,11 +469,10 @@ public class LoanDepositTradeDefinitionController extends TradistaTradeBookingCo
 			}
 		});
 
-		pricingDate.setOnAction(
-				_ -> cfPricingDate.setText(pricingDate.getValue().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+		pricingDate.setOnAction(_ -> cfPricingDate.setText(TradistaGUIUtil.formatDate(pricingDate.getValue())));
 
 		pricingDate.setValue(LocalDate.now(ZoneId.systemDefault()));
-		cfPricingDate.setText(LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+		cfPricingDate.setText(TradistaGUIUtil.formatDate(LocalDate.now(ZoneId.systemDefault())));
 
 		book.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			if (newValue != null) {

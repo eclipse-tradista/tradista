@@ -15,6 +15,7 @@ import org.eclipse.tradista.commercial.commercial.model.CommercialTrade;
 import org.eclipse.tradista.commercial.commercial.model.CommercialTrade.CommercialCashFlow;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.test.TradistaTestUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.transfer.model.CashTransfer;
 import org.eclipse.tradista.core.transfer.model.Transfer;
@@ -60,8 +61,8 @@ class CommercialTradeTransferManagerTest {
 		flow.setSettlementDate(LocalDate.now().plusDays(15));
 		flow.setAmount(new BigDecimal("5000"));
 
-		CommercialTrade trade = CommercialTrade.builder().id(1L).book(mock(Book.class)).currency(mock(Currency.class))
-				.buySell(true).documentReference("PO-001").items(List.of(flow)).build();
+		CommercialTrade trade = CommercialTrade.builder().id(1L).book(TradistaTestUtil.createBook())
+				.currency(TradistaTestUtil.EUR).buySell(true).documentReference("PO-001").items(List.of(flow)).build();
 
 		CommercialTradeEvent event = new CommercialTradeEvent();
 		event.setTrade(trade);
@@ -78,10 +79,9 @@ class CommercialTradeTransferManagerTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void testUpdateTradePreservesSettledAndCancelsKnown() throws TradistaBusinessException {
-		Book book = mock(Book.class);
-		Currency currency = mock(Currency.class);
+		Book book = TradistaTestUtil.createBook();
+		Currency currency = TradistaTestUtil.EUR;
 
 		CommercialCashFlow flow = new CommercialCashFlow();
 		flow.setSettlementDate(LocalDate.now().plusDays(30));
@@ -91,13 +91,13 @@ class CommercialTradeTransferManagerTest {
 		CommercialTrade newTrade = CommercialTrade.builder().id(1L).book(book).currency(currency).buySell(true)
 				.items(List.of(flow)).build();
 
-		CashTransfer settledTransfer = new CashTransfer(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.now().plusDays(5), oldTrade, currency);
-		settledTransfer.setStatus(Transfer.Status.SETTLED);
+		CashTransfer settledTransfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.now().plusDays(5), currency).trade(oldTrade)
+				.status(Transfer.Status.SETTLED).build();
 
-		CashTransfer knownTransfer = new CashTransfer(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.now().plusDays(30), oldTrade, currency);
-		knownTransfer.setStatus(Transfer.Status.KNOWN);
+		CashTransfer knownTransfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.now().plusDays(30), currency).trade(oldTrade)
+				.status(Transfer.Status.KNOWN).build();
 
 		when(transferBusinessDelegate.getTransfersByTradeIdAndPurpose(1L, TransferPurpose.CASH_SETTLEMENT, false))
 				.thenReturn(List.of(settledTransfer, knownTransfer));
@@ -116,8 +116,8 @@ class CommercialTradeTransferManagerTest {
 
 	@Test
 	void testCancelTradeCancelsKnownTransfers() throws TradistaBusinessException {
-		Book book = mock(Book.class);
-		Currency currency = mock(Currency.class);
+		Book book = TradistaTestUtil.createBook();
+		Currency currency = TradistaTestUtil.EUR;
 		Status cancelledStatus = new Status();
 		cancelledStatus.setName("CANCELLED");
 
@@ -125,9 +125,9 @@ class CommercialTradeTransferManagerTest {
 		CommercialTrade cancelledTrade = CommercialTrade.builder().id(1L).book(book).currency(currency)
 				.status(cancelledStatus).build();
 
-		CashTransfer knownTransfer = new CashTransfer(book, TransferPurpose.CASH_SETTLEMENT,
-				LocalDate.now().plusDays(30), oldTrade, currency);
-		knownTransfer.setStatus(Transfer.Status.KNOWN);
+		CashTransfer knownTransfer = CashTransfer
+				.builder(book, TransferPurpose.CASH_SETTLEMENT, LocalDate.now().plusDays(30), currency).trade(oldTrade)
+				.status(Transfer.Status.KNOWN).build();
 
 		when(transferBusinessDelegate.getTransfersByTradeIdAndPurpose(1L, TransferPurpose.CASH_SETTLEMENT, false))
 				.thenReturn(List.of(knownTransfer));

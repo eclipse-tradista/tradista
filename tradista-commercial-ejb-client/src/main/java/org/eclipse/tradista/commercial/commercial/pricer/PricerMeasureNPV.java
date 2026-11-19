@@ -1,14 +1,16 @@
-package org.eclipse.tradista.commercial.commercial.model;
+package org.eclipse.tradista.commercial.commercial.pricer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.eclipse.tradista.commercial.commercial.model.CommercialTrade;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.pricing.exception.PricerException;
 import org.eclipse.tradista.core.pricing.pricer.PricerMeasure;
 import org.eclipse.tradista.core.pricing.pricer.Pricing;
 import org.eclipse.tradista.core.pricing.pricer.PricingParameter;
+import org.eclipse.tradista.core.pricing.util.PricerConstants;
 
 /********************************************************************************
  * Copyright (c) 2026 Olivier Asuncion
@@ -30,10 +32,6 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	private static final long serialVersionUID = 1L;
 
-	public PricerMeasureNPV() {
-		super();
-	}
-
 	@Pricing
 	public BigDecimal discountedCashFlow(PricingParameter params, CommercialTrade trade, Currency currency,
 			LocalDate pricingDate) throws PricerException, TradistaBusinessException {
@@ -42,7 +40,7 @@ public class PricerMeasureNPV extends PricerMeasure {
 
 	@Override
 	public String toString() {
-		return "NPV";
+		return PricerConstants.NPV;
 	}
 
 }
