@@ -50,6 +50,7 @@ public final class TradistaDBConstants {
 	public static final String INDEX_OFFSET = "INDEX_OFFSET";
 	public static final String NOTICE_PERIOD = "NOTICE_PERIOD";
 	public static final String AMOUNT = "AMOUNT";
+	public static final String SETTLEMENT_DATE = "SETTLEMENT_DATE";
 	public static final String QUANTITY = "QUANTITY";
 	public static final String CURRENCY_ID = "CURRENCY_ID";
 	public static final String TRADE_ID = "TRADE_ID";

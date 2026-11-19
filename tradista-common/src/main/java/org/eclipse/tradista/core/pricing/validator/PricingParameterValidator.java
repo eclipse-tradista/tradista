@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
@@ -98,7 +99,7 @@ public class PricingParameterValidator implements Serializable {
 					errMsg.append(String.format("Property name '%s': %s%n", paramName, tbe.getMessage()));
 				}
 				String paramValue = entry.getValue();
-				if (paramValue == null || paramValue.isBlank()) {
+				if (StringUtils.isBlank(paramValue)) {
 					errMsg.append(String.format("The value of the property '%s' is mandatory.%n", paramName));
 				} else if (paramValue.length() > 50) {
 					errMsg.append(
@@ -124,11 +125,11 @@ public class PricingParameterValidator implements Serializable {
 		if (param.getCustomPricers() != null) {
 			for (Map.Entry<String, String> entry : param.getCustomPricers().entrySet()) {
 				String productType = entry.getKey();
-				if (productType == null || productType.isBlank()) {
+				if (StringUtils.isBlank(productType)) {
 					errMsg.append(String.format("The product type of a custom pricer is mandatory.%n"));
 				}
 				String pricer = entry.getValue();
-				if (pricer == null || pricer.isBlank()) {
+				if (StringUtils.isBlank(pricer)) {
 					errMsg.append(
 							String.format("The custom pricer of the product type '%s' is mandatory.%n", productType));
 				} else if (pricer.length() > 50) {

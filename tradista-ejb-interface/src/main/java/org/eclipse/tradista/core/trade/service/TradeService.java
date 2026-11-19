@@ -44,4 +44,6 @@ public interface TradeService {
 	void checkTradeBasics(Trade<?> trade) throws TradistaBusinessException;
 
 	void checkTradeBasics(Trade<?> trade, boolean checkCurrency) throws TradistaBusinessException;
+
+	List<Trade<? extends Product>> getAllTrades();
 }

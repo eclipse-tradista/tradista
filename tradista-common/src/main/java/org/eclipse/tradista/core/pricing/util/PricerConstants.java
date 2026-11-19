@@ -18,6 +18,8 @@ package org.eclipse.tradista.core.pricing.util;
 
 public final class PricerConstants {
 
+	public static final String NPV = "NPV";
+
 	public static final String FX_CURVE_COULD_NOT_BE_FOUND_IN_PARAMS_FOR_CURRENCY_PAIR = "The FX curve could not be found in params {} for currency pair {}.";
 
 	private PricerConstants() {

@@ -80,6 +80,7 @@ import org.eclipse.tradista.core.tenor.model.Tenor;
 import org.eclipse.tradista.core.trade.model.OptionTrade;
 import org.eclipse.tradista.core.trade.model.Trade;
 import org.eclipse.tradista.core.trade.model.VanillaOptionTrade;
+import org.eclipse.tradista.core.transfer.model.Transfer;
 import org.eclipse.tradista.core.user.model.User;
 import org.eclipse.tradista.core.user.service.UserBusinessDelegate;
 import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
@@ -179,6 +180,8 @@ public final class TradistaGUIUtil {
 	private static final Logger logger = LoggerFactory.getLogger(TradistaGUIUtil.class);
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss z");
+
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	private static IndexBusinessDelegate indexBusinessDelegate = new IndexBusinessDelegate();
 
@@ -461,6 +464,10 @@ public final class TradistaGUIUtil {
 	}
 
 	@SafeVarargs
+	public static void fillCounterpartyComboBox(ComboBox<LegalEntity>... comboBoxes) {
+		fillComboBox(legalEntityBusinessDelegate.getAllLegalEntities(), comboBoxes);
+	}
+
 	public static <T> void fillComboBox(Collection<? extends T> collection, ComboBox<T>... comboBoxes) {
 		ObservableList<T> data;
 		if (collection != null && !collection.isEmpty()) {
@@ -1651,6 +1658,13 @@ public final class TradistaGUIUtil {
 		return zdt.format(DATE_TIME_FORMATTER);
 	}
 
+	public static String formatDate(LocalDate date) {
+		if (date == null) {
+			return StringUtils.EMPTY;
+		}
+		return date.format(DATE_FORMATTER);
+	}
+
 	public static List<String> formatAmounts(List<BigDecimal> amounts) {
 		if (amounts == null) {
 			return null;
@@ -1778,5 +1792,22 @@ public final class TradistaGUIUtil {
 		ComboBox<InterestRateCurve> cb = new ComboBox<>();
 		fillInterestRateCurveComboBox(cb);
 		return cb;
+	}
+
+	public static void applyTransferStatusStyle(Node node, Transfer.Status status) {
+		if (node == null) {
+			return;
+		}
+		if (status == null) {
+			node.setStyle(StringUtils.EMPTY);
+			return;
+		}
+		switch (status) {
+		case KNOWN -> node.setStyle(TradistaGUIConstants.KNOWN_STYLE);
+		case UNKNOWN -> node.setStyle(TradistaGUIConstants.UNKNOWN_STYLE);
+		case CANCELED -> node.setStyle(TradistaGUIConstants.CANCELED_STYLE);
+		case POTENTIAL -> node.setStyle(TradistaGUIConstants.POTENTIAL_STYLE);
+		case SETTLED -> node.setStyle(TradistaGUIConstants.SETTLED_STYLE);
+		}
 	}
 }

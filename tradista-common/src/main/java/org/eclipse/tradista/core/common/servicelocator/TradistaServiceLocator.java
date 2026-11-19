@@ -17,6 +17,8 @@ import org.eclipse.tradista.ai.analysis.service.CashflowsAnalysisService;
 import org.eclipse.tradista.ai.analysis.service.CollateralOptimizationService;
 import org.eclipse.tradista.ai.reasoning.common.service.FormulaService;
 import org.eclipse.tradista.ai.reasoning.fol.service.FolFormulaService;
+import org.eclipse.tradista.commercial.commercial.service.CommercialPricerService;
+import org.eclipse.tradista.commercial.commercial.service.CommercialTradeService;
 import org.eclipse.tradista.core.batch.service.BatchService;
 import org.eclipse.tradista.core.book.service.BookService;
 import org.eclipse.tradista.core.calendar.service.CalendarService;
@@ -148,6 +150,8 @@ public class TradistaServiceLocator {
 
 	private static final String MM_EJB = "mm-ejb";
 
+	private static final String COMMERCIAL_EJB = "commercial-ejb";
+
 	private static final String SECURITY_COMMON_SERVICE_PACKAGE = "org.eclipse.tradista.security.common.service";
 
 	private static final String BOND_SERVICE_PACKAGE = "org.eclipse.tradista.security.bond.service";
@@ -187,6 +191,8 @@ public class TradistaServiceLocator {
 	private static final String FX_SWAP_SERVICE_PACKAGE = "org.eclipse.tradista.fx.fxswap.service";
 
 	private static final String LOAN_DEPOSIT_SERVICE_PACKAGE = "org.eclipse.tradista.mm.loandeposit.service";
+
+	private static final String COMMERCIAL_SERVICE_PACKAGE = "org.eclipse.tradista.commercial.commercial.service";
 
 	private static final String MM_COMMON_SERVICE_PACKAGE = "org.eclipse.tradista.mm.common.service";
 
@@ -689,6 +695,16 @@ public class TradistaServiceLocator {
 
 	public TransferService getTransferService() {
 		return (TransferService) getService(TRANSFER_APP, TRANSFER_EJB, TRANSFER_SERVICE_PACKAGE, "TransferService");
+	}
+
+	public CommercialTradeService getCommercialTradeService() {
+		return (CommercialTradeService) getService(APP, COMMERCIAL_EJB, COMMERCIAL_SERVICE_PACKAGE,
+				"CommercialTradeService");
+	}
+
+	public CommercialPricerService getCommercialPricerService() {
+		return (CommercialPricerService) getService(APP, COMMERCIAL_EJB, COMMERCIAL_SERVICE_PACKAGE,
+				"CommercialPricerService");
 	}
 
 	private Object getService(String application, String module, String packageName, String serviceName) {

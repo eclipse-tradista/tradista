@@ -9,6 +9,7 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SELECT;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SETTLEMENT_DATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.WHERE;
 
@@ -76,13 +77,14 @@ public class TradeSQL {
 	private static final String FX_OPTION = "FXOption";
 	private static final String GC_REPO = "GCRepo";
 	private static final String SPECIFIC_REPO = "SpecificRepo";
+	private static final String COMMERCIAL = "Commercial";
 
 	public static final Field ID_FIELD = new Field(ID, ID);
 	private static final Field BUY_SELL_FIELD = new Field("BUY_SELL", "BUY_SELL");
 	private static final Field CREATION_TIME_FIELD = new Field(CREATION_TIME, CREATION_TIME);
 	private static final Field LAST_UPDATE_TIME_FIELD = new Field(LAST_UPDATE_TIME, LAST_UPDATE_TIME);
 	public static final Field TRADE_DATE_FIELD = new Field("TRADE_DATE", "TRADE_DATE");
-	private static final Field SETTLEMENT_DATE_FIELD = new Field("SETTLEMENT_DATE", "SETTLEMENT_DATE");
+	private static final Field SETTLEMENT_DATE_FIELD = new Field(SETTLEMENT_DATE, SETTLEMENT_DATE);
 	public static final Field PRODUCT_ID_FIELD = new Field("PRODUCT_ID", "PRODUCT_ID");
 	private static final Field AMOUNT_FIELD = new Field(AMOUNT, AMOUNT);
 	private static final Field COUNTERPARTY_ID_FIELD = new Field("COUNTERPARTY_ID", "COUNTERPARTY_ID");
@@ -482,6 +484,7 @@ public class TradeSQL {
 			join += " LEFT OUTER JOIN IRSWAP_TRADE ON IRSWAP_TRADE.IRSWAP_TRADE_ID = TRADE.ID";
 			join += " LEFT OUTER JOIN CCYSWAP_TRADE ON CCYSWAP_TRADE.CCYSWAP_TRADE_ID = IRSWAP_TRADE.IRSWAP_TRADE_ID";
 			join += " LEFT OUTER JOIN LOAN_DEPOSIT_TRADE ON LOAN_DEPOSIT_TRADE.LOAN_DEPOSIT_TRADE_ID = TRADE.ID";
+			join += " LEFT OUTER JOIN COMMERCIAL_TRADE ON COMMERCIAL_TRADE.COMMERCIAL_TRADE_ID = TRADE.ID";
 			join += " LEFT OUTER JOIN IRFORWARD_TRADE ON IRFORWARD_TRADE.IRFORWARD_TRADE_ID = TRADE.ID";
 			join += " LEFT OUTER JOIN FRA_TRADE ON FRA_TRADE.FRA_TRADE_ID = IRFORWARD_TRADE.IRFORWARD_TRADE_ID";
 			join += " LEFT OUTER JOIN FUTURE_TRADE ON FUTURE_TRADE.FUTURE_TRADE_ID = IRFORWARD_TRADE.IRFORWARD_TRADE_ID";
@@ -575,6 +578,9 @@ public class TradeSQL {
 			aliases.append("LOAN_DEPOSIT_TRADE.MATURITY MATURITY,");
 			aliases.append("LOAN_DEPOSIT_TRADE.INTEREST_TYPE INTEREST_TYPE,");
 			aliases.append("LOAN_DEPOSIT_TRADE.COMPOUND_PERIOD COMPOUND_PERIOD,");
+
+			aliases.append("COMMERCIAL_TRADE.COMMERCIAL_TRADE_ID COMMERCIAL_TRADE_ID,");
+			aliases.append("COMMERCIAL_TRADE.DOCUMENT_REFERENCE DOCUMENT_REFERENCE,");
 
 			aliases.append("FRA_TRADE.FRA_TRADE_ID FRA_TRADE_ID,");
 			aliases.append("FRA_TRADE.START_DATE START_DATE,");
@@ -826,6 +832,11 @@ public class TradeSQL {
 			aliases.append("LOAN_DEPOSIT_TRADE.INTEREST_TYPE INTEREST_TYPE");
 			break;
 		}
+		case COMMERCIAL: {
+			aliases.append("COMMERCIAL_TRADE.COMMERCIAL_TRADE_ID COMMERCIAL_TRADE_ID,");
+			aliases.append("COMMERCIAL_TRADE.DOCUMENT_REFERENCE DOCUMENT_REFERENCE");
+			break;
+		}
 		case FRA: {
 			aliases.append("IRFORWARD_TRADE.IRFORWARD_TRADE_ID IRFORWARD_TRADE_ID,");
 			aliases.append("IRFORWARD_TRADE.MATURITY_DATE IRFORWARD_MATURITY_DATE,");
@@ -1073,6 +1084,10 @@ public class TradeSQL {
 			where += ID_FIELD.getFullName() + " = LOAN_DEPOSIT_TRADE.LOAN_DEPOSIT_TRADE_ID";
 			break;
 		}
+		case COMMERCIAL: {
+			where += ID_FIELD.getFullName() + " = COMMERCIAL_TRADE.COMMERCIAL_TRADE_ID";
+			break;
+		}
 		case FRA: {
 			where += ID_FIELD.getFullName()
 					+ " = IRFORWARD_TRADE.IRFORWARD_TRADE_ID AND IRFORWARD_TRADE.IRFORWARD_TRADE_ID = FRA_TRADE.FRA_TRADE_ID";
@@ -1137,6 +1152,8 @@ public class TradeSQL {
 			return "IRSWAP_TRADE";
 		case LOAN_DEPOSIT:
 			return "LOAN_DEPOSIT_TRADE";
+		case COMMERCIAL:
+			return "COMMERCIAL_TRADE";
 		case FRA:
 			return "FRA_TRADE, IRFORWARD_TRADE";
 		case FUTURE:

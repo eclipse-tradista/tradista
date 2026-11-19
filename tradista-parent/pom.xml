@@ -49,6 +49,30 @@
 		<core-business.version>
 			3.3.0-SNAPSHOT
 		</core-business.version>
+		<commercial-business.version>
+			3.3.0-SNAPSHOT
+		</commercial-business.version>
+		<commercial-ejb.version>
+			3.3.0-SNAPSHOT
+		</commercial-ejb.version>
+		<commercial-ejb-client.version>
+			3.3.0-SNAPSHOT
+		</commercial-ejb-client.version>
+		<commercial-ejb-interface.version>
+			3.3.0-SNAPSHOT
+		</commercial-ejb-interface.version>
+		<commercial-gui.version>
+			3.3.0-SNAPSHOT
+		</commercial-gui.version>
+		<commercial-model.version>
+			3.3.0-SNAPSHOT
+		</commercial-model.version>
+		<commercial-model-mapping.version>
+			3.3.0-SNAPSHOT
+		</commercial-model-mapping.version>
+		<commercial-persistence.version>
+			3.3.0-SNAPSHOT
+		</commercial-persistence.version>
 		<core-common.version>
 			3.3.0-SNAPSHOT
 		</core-common.version>
@@ -264,6 +288,14 @@
 		</dependencies>
 	</dependencyManagement>
 	<modules>
+		<module>../tradista-commercial-model</module>
+		<module>../tradista-commercial-model-mapping</module>
+		<module>../tradista-commercial-ejb-interface</module>
+		<module>../tradista-commercial-ejb-client</module>
+		<module>../tradista-commercial-persistence</module>
+		<module>../tradista-commercial-business</module>
+		<module>../tradista-commercial-ejb</module>
+		<module>../tradista-commercial-gui</module>
 		<module>../tradista-model</module>
 		<module>../tradista-test-util</module>
 		<module>../tradista-model-mapping</module>

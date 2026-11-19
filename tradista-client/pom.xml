@@ -58,6 +58,11 @@
 			<version>${fx-gui.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-gui</artifactId>
+			<version>${commercial-gui.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tradista.mm</groupId>
 			<artifactId>mm-gui</artifactId>
 			<version>${mm-gui.version}</version>

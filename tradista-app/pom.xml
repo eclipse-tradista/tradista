@@ -46,6 +46,12 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-ejb</artifactId>
+			<version>${commercial-ejb.version}</version>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.tradista.fx</groupId>
 			<artifactId>fx-ejb</artifactId>
 			<version>${fx-ejb.version}</version>
@@ -76,6 +82,12 @@
 					<artifactId>security-model</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-ejb</artifactId>
+			<version>${commercial-ejb.version}</version>
+			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.mm</groupId>
@@ -202,6 +214,12 @@
 			<artifactId>ir-model</artifactId>
 			<version>${ir-model.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-ejb</artifactId>
+			<version>${commercial-ejb.version}</version>
+			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.mm</groupId>
