@@ -691,6 +691,16 @@ public class TradistaServiceLocator {
 		return (TransferService) getService(TRANSFER_APP, TRANSFER_EJB, TRANSFER_SERVICE_PACKAGE, "TransferService");
 	}
 
+	public org.eclipse.tradista.commercial.commercial.service.CommercialTradeService getCommercialTradeService() {
+		return (org.eclipse.tradista.commercial.commercial.service.CommercialTradeService) getService(APP,
+				"commercial-ejb", "org.eclipse.tradista.commercial.commercial.service", "CommercialTradeService");
+	}
+
+	public org.eclipse.tradista.commercial.commercial.service.CommercialPricerService getCommercialPricerService() {
+		return (org.eclipse.tradista.commercial.commercial.service.CommercialPricerService) getService(APP,
+				"commercial-ejb", "org.eclipse.tradista.commercial.commercial.service", "CommercialPricerService");
+	}
+
 	private Object getService(String application, String module, String packageName, String serviceName) {
 
 		Object service;

@@ -17,5 +17,10 @@
 			<artifactId>core-gui-common</artifactId>
 			<version>${core-gui-common.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-gui</artifactId>
+			<version>${commercial-gui.version}</version>
+		</dependency>
 	</dependencies>
 </project>

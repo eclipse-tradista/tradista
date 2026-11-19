@@ -499,7 +499,7 @@ public class MainEntry extends Application {
 					&& !product.equals("FXNDF") && !product.equals("IRSwap") && !product.equals("CcySwap")
 					&& !product.equals("IRSwapOption") && !product.equals("LoanDeposit")
 					&& !product.equals("IRCapFloorCollar") && !product.equals("FRA") && !product.equals("Future")
-					&& !product.equals("SpecificRepo") && !product.equals(GC_REPO)) {
+					&& !product.equals("SpecificRepo") && !product.equals(GC_REPO) && !product.equals("Commercial")) {
 				MenuItem productMenuItem = new MenuItem(product);
 				menuProduct.getItems().add(productMenuItem);
 				setupMenuItem(productMenuItem, product, product + "Product", primScreenBounds, false);

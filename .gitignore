@@ -1,0 +1,28 @@
+# Maven / Build
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Logs & local Derby files
+*.log
+derby.log
+
+# IDE (Eclipse / IntelliJ / VS Code)
+.project
+.classpath
+.settings/
+.metadata/
+.idea/
+*.iml
+.vscode/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Local agent context (machine-specific paths)
+AGENTS.md
+.gemini/

@@ -83,6 +83,11 @@ public class TradeServiceBean implements TradeService {
 	}
 
 	@Override
+	public List<Trade<? extends Product>> getAllTrades() {
+		return TradeSQL.getAllTrades();
+	}
+
+	@Override
 	public void checkTradeBasics(Trade<?> trade) throws TradistaBusinessException {
 		checkTradeBasics(trade, false);
 	}

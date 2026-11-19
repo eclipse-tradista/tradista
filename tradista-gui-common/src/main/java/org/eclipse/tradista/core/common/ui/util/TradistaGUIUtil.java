@@ -461,6 +461,10 @@ public final class TradistaGUIUtil {
 	}
 
 	@SafeVarargs
+	public static void fillCounterpartyComboBox(ComboBox<LegalEntity>... comboBoxes) {
+		fillComboBox(new LegalEntityBusinessDelegate().getAllLegalEntities(), comboBoxes);
+	}
+
 	public static <T> void fillComboBox(Collection<? extends T> collection, ComboBox<T>... comboBoxes) {
 		ObservableList<T> data;
 		if (collection != null && !collection.isEmpty()) {

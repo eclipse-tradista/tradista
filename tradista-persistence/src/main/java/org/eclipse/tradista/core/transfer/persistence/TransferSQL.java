@@ -7,6 +7,7 @@ import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConsta
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.LAST_UPDATE_TIME;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.PRODUCT_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.QUANTITY;
+import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.SETTLEMENT_DATE;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.STATUS;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TRADE_ID;
 import static org.eclipse.tradista.core.common.persistence.util.TradistaDBConstants.TYPE;
@@ -91,7 +92,7 @@ public class TransferSQL {
 
 	private static final Field FIXING_DATETIME_FIELD = new Field("FIXING_DATETIME");
 
-	private static final Field SETTLEMENT_DATE_FIELD = new Field("SETTLEMENT_DATE");
+	private static final Field SETTLEMENT_DATE_FIELD = new Field(SETTLEMENT_DATE);
 
 	private static final Field CURRENCY_ID_FIELD = new Field(CURRENCY_ID);
 

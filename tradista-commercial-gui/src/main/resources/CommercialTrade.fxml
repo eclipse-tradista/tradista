@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane hgap="20.0" maxHeight="-Infinity" maxWidth="-Infinity"
+          minHeight="-Infinity" minWidth="-Infinity" vgap="20.0" styleClass="root"
+          xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="org.eclipse.tradista.commercial.commercial.ui.controller.CommercialTradeDefinitionController">
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES"/>
+        <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES"/>
+        <RowConstraints vgrow="ALWAYS"/>
+    </rowConstraints>
+
+    <children>
+        <!-- Top-Left: Book Pie Chart -->
+        <TradistaBookPieChart fx:id="bookChartPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+
+        <!-- Bottom-Left: Pricer (aligned with Quotes/Cashflows Forecast) -->
+        <GridPane hgap="10.0" vgap="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <Label text="Pricer:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="pricerLabel" text="Default Commercial Pricer" style="-fx-font-weight: bold;" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Pricer Quote Set:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="pricerQuoteSetLabel" text="DefaultQS" style="-fx-font-weight: bold;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Pricing parameter:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="pricingParameter" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Pricing measure:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="pricingMeasure" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="Pricing method:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="pricingMethod" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                <Label text="Pricing currency:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="pricingCurrency" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                <Label text="Pricing date:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="pricingDate" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                <Button text="Price" onAction="#price" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <Label fx:id="pricerResultLabel" text="Result" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            </GridPane>
+
+        <!-- Top-Right: Trade Form & Schedule -->
+        <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                <Label text="Commercial Trade" styleClass="labelBold"/>
+                <TextField fx:id="loadTradeId" promptText="Load by trade ID" onAction="#load"/>
+                <Button text="Load" onAction="#load"/>
+                <Button text="Save" onAction="#save"/>
+                <Button text="Copy" onAction="#copy"/>
+                <Button text="New" onAction="#clear"/>
+                <Button text="Refresh" onAction="#refresh"/>
+            </HBox>
+
+            <VBox spacing="10.0" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                    <Label text="Trade Id" styleClass="labelBold"/>
+                    <Label fx:id="tradeIdLabel" styleClass="labelBold"/>
+                </HBox>
+
+                <HBox spacing="20.0" alignment="CENTER_LEFT">
+                <GridPane hgap="10.0" vgap="8.0" alignment="CENTER_LEFT">
+                    <Label text="Book:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="book" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Counterparty:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="counterparty" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Currency:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="currency" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="Direction (Buy/Sell):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="buySell" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Label text="Document Ref:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="documentReference" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                    <Label text="Trade Date:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="tradeDate" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                    <Label fx:id="statusTitleLabel" text="Status:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                    <Label fx:id="statusLabel" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                    <Label fx:id="applyActionLabel" text="Apply action:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="actionComboBox" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                </GridPane>
+
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                    <HBox spacing="10.0" alignment="CENTER_LEFT">
+                        <Label text="Expected Cash Flows:"/>
+                        <Button fx:id="addRowButton" text="+ Add Cash Flow" onAction="#addEmptyRow"/>
+                        <Button fx:id="removeRowButton" text="- Remove" onAction="#removeSelectedRow"/>
+                    </HBox>
+
+                    <TableView fx:id="cashFlowsTable" prefHeight="180.0">
+                        <columns>
+                            <TableColumn fx:id="settlementDateCol" text="Settlement Date" prefWidth="130.0"/>
+                            <TableColumn fx:id="amountCol" text="Amount" prefWidth="120.0"/>
+                            <TableColumn fx:id="transferStatusCol" text="Transfer Status" prefWidth="130.0"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </HBox>
+            </VBox>
+        </VBox>
+
+        <!-- Bottom-Right: Quotes & Cash Flows Tabs -->
+        <TabPane GridPane.columnIndex="1" GridPane.rowIndex="1" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Quotes">
+                    <VBox spacing="10.0">
+                        <padding>
+                            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                        </padding>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Label text="Quote Date:"/>
+                            <DatePicker fx:id="quoteDate"/>
+                            <Label text="Quote Set:"/>
+                            <ComboBox fx:id="quoteSet"/>
+                            <CheckBox fx:id="realTime" text="Real Time"/>
+                        </HBox>
+                        <TableView fx:id="quotesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="quoteName" text="Name" prefWidth="120.0"/>
+                                <TableColumn fx:id="quoteDateCol" text="Date" prefWidth="90.0"/>
+                                <TableColumn fx:id="quoteType" text="Type" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteBid" text="Bid" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteAsk" text="Ask" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteOpen" text="Open" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteClose" text="Close" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteHigh" text="High" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteLow" text="Low" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteLast" text="Last" prefWidth="70.0"/>
+                                <TableColumn fx:id="quoteEnteredDate" text="Entered Date" prefWidth="100.0"/>
+                                <TableColumn fx:id="quoteSourceName" text="Source Name" prefWidth="100.0"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+                <Tab text="Cashflows Forecast">
+                    <VBox spacing="10.0">
+                        <padding>
+                            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                        </padding>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <Button fx:id="generateCashFlowsButton" text="Generate" onAction="#generateCashFlows"/>
+                            <Label text="Pricing Date:"/>
+                            <Label fx:id="cfPricingDate" styleClass="labelBold"/>
+                            <Label text="Discount Curve:"/>
+                            <Label fx:id="cfDiscountCurve" styleClass="labelBold"/>
+                        </HBox>
+                        <TableView fx:id="generatedCashFlowsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="cfDate" text="Date" prefWidth="120.0"/>
+                                <TableColumn fx:id="cfPurpose" text="Purpose" prefWidth="140.0"/>
+                                <TableColumn fx:id="cfDirection" text="Direction" prefWidth="100.0"/>
+                                <TableColumn fx:id="cfAmount" text="Amount" prefWidth="120.0"/>
+                                <TableColumn fx:id="cfCurrency" text="Currency" prefWidth="90.0"/>
+                                <TableColumn fx:id="cfDiscountedAmount" text="Discounted Amount" prefWidth="140.0"/>
+                                <TableColumn fx:id="cfDiscountFactor" text="Discount Factor" prefWidth="120.0"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</GridPane>
