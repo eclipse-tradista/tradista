@@ -6588,25 +6588,50 @@ body .ui-confirm-popup .ui-confirm-popup-message {
   margin-left: 1rem;
 }
 
+body.ui-dialog-open {
+  position: relative;
+}
 body .ui-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+}
+body .ui-dialog.ui-overflow-hidden,
+body .ui-dialog.ui-dialog-absolute,
+body .ui-dialog.ui-dialog-fitviewport {
+  overflow-y: hidden;
+}
+body .ui-dialog.ui-dialog-absolute .ui-dialog-box {
+  position: absolute;
+}
+body .ui-dialog .ui-dialog-box {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
   padding: 0;
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
   border: 0 none;
   border-radius: 3px;
 }
-body .ui-dialog .ui-dialog-titlebar {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar {
   background: #FDFEFF;
   color: #515C66;
   font-weight: 700;
   border-bottom: 0 none;
   padding: 1.5rem;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-title {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-title {
   margin: 0;
   float: none;
   font-size: 1.25rem;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon {
   border: 0 none;
   padding: 0;
   margin-left: 0.5rem;
@@ -6622,74 +6647,74 @@ body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon {
   padding: 0;
   user-select: none;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon:hover {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon:hover {
   background: rgba(232, 241, 248, 0.7);
   color: #515C66;
   border-color: transparent;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon:focus {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon:focus {
   outline: 0 none;
   outline-offset: 0;
   box-shadow: 0 0 0 0.2rem #59C5B9;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-closethick {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-closethick {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-closethick:before {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-closethick:before {
   content: "\e90b";
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-minus {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-minus {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-minus:before {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-minus:before {
   content: "\e90f";
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-plus {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-plus {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-plus:before {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-plus:before {
   content: "\e90d";
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-extlink {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-extlink {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-extlink:before {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-extlink:before {
   content: "\e93b";
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-newwin {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-newwin {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-newwin:before {
+body .ui-dialog .ui-dialog-box .ui-dialog-titlebar .ui-dialog-titlebar-icon .ui-icon-newwin:before {
   content: "\e93a";
 }
-body .ui-dialog .ui-dialog-content {
+body .ui-dialog .ui-dialog-box .ui-dialog-content {
   background: #FDFEFF;
   color: #515C66;
   border: 0 none;
   padding: 0 1.5rem 2rem 1.5rem;
   border: 0 none;
 }
-body .ui-dialog .ui-dialog-footer {
+body .ui-dialog .ui-dialog-box .ui-dialog-footer {
   border-top: 0 none;
   background: #FDFEFF;
   color: #515C66;
@@ -6697,119 +6722,119 @@ body .ui-dialog .ui-dialog-footer {
   margin: 0;
   text-align: right;
 }
-body .ui-dialog .ui-dialog-footer button {
+body .ui-dialog .ui-dialog-box .ui-dialog-footer button {
   margin: 0 0.5rem 0 0;
   width: auto;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content {
   padding: 0 1.5rem 2rem 1.5rem;
   display: -ms-flexbox;
   display: flex;
   -ms-flex-align: center;
   align-items: center;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span {
   float: none;
   display: inline-block;
   vertical-align: middle;
   line-height: 1;
   margin: 0 0 0 0.5rem;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon {
   margin-right: 0.5rem;
   font-size: 2.5rem;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon.ui-icon-warn {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon.ui-icon-warn {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon.ui-icon-warn:before {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon.ui-icon-warn:before {
   content: "\e922";
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon.ui-icon-info {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon.ui-icon-info {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon.ui-icon-info:before {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon.ui-icon-info:before {
   content: "\e924";
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon.ui-icon-error {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon.ui-icon-error {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-confirm-dialog .ui-dialog-content > span.ui-icon.ui-icon-error:before {
+body .ui-dialog.ui-confirm-dialog .ui-dialog-box .ui-dialog-content > span.ui-icon.ui-icon-error:before {
   content: "\e90c";
 }
-body .ui-dialog.ui-resizable .ui-dialog-content {
+body .ui-dialog.ui-resizable .ui-dialog-box .ui-dialog-content {
   box-sizing: content-box;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content {
   padding: 0 1.5rem 2rem 1.5rem;
   display: -ms-flexbox;
   display: flex;
   -ms-flex-align: center;
   align-items: center;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span {
   float: none;
   display: inline-block;
   vertical-align: middle;
   line-height: 1;
   margin: 0 0 0 0.5rem;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message {
   margin-right: 0.5rem;
   font-size: 2.5rem;
   width: auto;
   height: auto;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-warn-icon {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-warn-icon {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-warn-icon:before {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-warn-icon:before {
   content: "\e922";
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-info-icon {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-info-icon {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-info-icon:before {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-info-icon:before {
   content: "\e924";
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-error-icon {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-error-icon {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-error-icon:before {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-error-icon:before {
   content: "\e90c";
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-fatal-icon {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-fatal-icon {
   font-family: "primeicons" !important;
   font-style: normal;
   font-weight: normal;
   display: inline-block;
   background: none;
 }
-body .ui-dialog.ui-message-dialog .ui-dialog-content > span.ui-dialog-message.ui-messages-fatal-icon:before {
+body .ui-dialog.ui-message-dialog .ui-dialog-box .ui-dialog-content > span.ui-dialog-message.ui-messages-fatal-icon:before {
   content: "\e910";
 }
 
