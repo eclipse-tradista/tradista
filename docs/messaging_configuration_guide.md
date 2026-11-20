@@ -6,7 +6,7 @@ This guide explains how **event-driven messaging** is configured in the Eclipse 
 
 ## 1. Overview
 
-Tradista uses an internal event-routing mechanism to decouple trade and transfer operations from downstream processing (such as transfer generation, cash/product inventory updates, and FIX trade capture exports):
+Eclipse Tradista uses an internal event-routing mechanism to decouple trade and transfer operations from downstream processing (such as transfer generation, cash/product inventory updates, and FIX trade capture exports):
 
 * **Event Types**: Business events published by the platform (currently `Trade`, `CashTransfer`, and `ProductTransfer`; the mechanism is designed to be extended to additional domain event types in the future).
 * **Listeners**: Consumers listening on dedicated message queues (e.g., `transferQueue`, `cashInventoryQueue`, `productInventoryQueue`, `tradeCaptureReportExporterQueue`).
