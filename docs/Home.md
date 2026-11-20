@@ -19,6 +19,7 @@ Explore the core sections of our documentation:
 ### 📖 User Guides
 | Guide | Description | Target Audience |
 | :--- | :--- | :--- |
+| [📈 Trades](Trades-User-Guide) | User guides for managing, pricing, and forecasting trades by product type. | Users / Developers |
 | [📊 Ratings Management](ratings-User-Guide) | Guide to configuring Rating Agencies, Ratings, and assigning them to Securities (Bonds and Equities). | Users / Developers |
 
 ### 🛡️ Architecture & Security
