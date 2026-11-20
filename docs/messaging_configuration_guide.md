@@ -29,7 +29,7 @@ This tab defines which **Listeners** receive each **Event Type**:
 ![Event Routing & Subscriptions](images/messaging_subscriptions.png)
 
 #### Default Subscriptions
-Out of the box, Tradista initializes the following subscriptions:
+Out of the box, Eclipse Tradista initializes the following subscriptions:
 * **`Trade`** → `transfer` (`transferQueue`), `tradeCaptureReportExporter` (`tradeCaptureReportExporterQueue`)
 * **`CashTransfer`** → `cashInventory` (`cashInventoryQueue`)
 * **`ProductTransfer`** → `productInventory` (`productInventoryQueue`)
@@ -65,6 +65,6 @@ This tab allows registering message filters and assigning them to specific liste
    * Click **Save Filter Assignments** to apply.
 
 #### Default Filters
-Out of the box, Tradista registers the `isAllocatedTrade` filter (filtering allocated trades) and assigns it to `tradeCaptureReportExporter`.
+Out of the box, Eclipse Tradista registers the `isAllocatedTrade` filter (filtering allocated trades) and assigns it to `tradeCaptureReportExporter`.
 
 ![Filters & Assignments](images/messaging_filters.jpg)
