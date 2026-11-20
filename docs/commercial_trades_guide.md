@@ -1,4 +1,4 @@
-# User Guide: Commercial Trades & Cash Flow Management (Ticket 358)
+# User Guide: Commercial Trades & Cash Flow Management
 
 This guide explains how to book, manage, price, and forecast **Commercial Trades** in Eclipse Tradista.
 
