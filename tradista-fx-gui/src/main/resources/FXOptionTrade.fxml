@@ -147,9 +147,10 @@
 						<TextField fx:id="amountTwo" maxHeight="-Infinity"
 							maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 							GridPane.columnIndex="6" GridPane.rowIndex="4" />
-						<TextField fx:id="strike" maxHeight="-Infinity"
-							maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-							GridPane.columnIndex="1" GridPane.rowIndex="6" />
+						<Label fx:id="strike" styleClass="labelBold"
+							maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+							minWidth="-Infinity" GridPane.columnIndex="1"
+							GridPane.rowIndex="7" />
 						<ComboBox fx:id="buySell" maxHeight="-Infinity"
 							maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 							GridPane.columnIndex="1" GridPane.rowIndex="2">
@@ -240,7 +241,7 @@
 							GridPane.columnIndex="3" GridPane.rowIndex="4" />
 						<DatePicker fx:id="exerciseDate" maxHeight="-Infinity"
 							maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-							GridPane.columnIndex="1" GridPane.rowIndex="7" />
+							GridPane.columnIndex="1" GridPane.rowIndex="6" />
 						<ComboBox fx:id="book" maxHeight="-Infinity"
 							maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
 							GridPane.columnIndex="1" GridPane.rowIndex="4" />
@@ -249,10 +250,10 @@
 							GridPane.rowIndex="4" />
 						<Label maxHeight="-Infinity" maxWidth="-Infinity"
 							minHeight="-Infinity" minWidth="-Infinity" text="Strike"
-							GridPane.rowIndex="6" />
+							GridPane.rowIndex="7" />
 						<Label maxHeight="-Infinity" maxWidth="-Infinity"
 							minHeight="-Infinity" minWidth="-Infinity" text="Exercise date"
-							GridPane.rowIndex="7" />
+							GridPane.rowIndex="6" />
 						<Label maxHeight="-Infinity" maxWidth="-Infinity"
 							minHeight="-Infinity" minWidth="-Infinity" text="Settlement type"
 							GridPane.columnIndex="2" GridPane.rowIndex="6" />

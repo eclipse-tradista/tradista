@@ -1,16 +1,20 @@
 package org.eclipse.tradista.fx.fxoption.ui.controller;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart;
 import org.eclipse.tradista.core.calendar.model.Calendar;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
+import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.ui.controller.TradistaTradeBookingController;
 import org.eclipse.tradista.core.common.ui.publisher.TradistaPublisher;
 import org.eclipse.tradista.core.common.ui.util.TradistaGUIUtil;
@@ -18,7 +22,6 @@ import org.eclipse.tradista.core.common.ui.view.TradistaAlert;
 import org.eclipse.tradista.core.common.util.DateUtil;
 import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.core.legalentity.model.LegalEntity;
-import org.eclipse.tradista.core.marketdata.model.QuoteSet;
 import org.eclipse.tradista.core.marketdata.model.QuoteType;
 import org.eclipse.tradista.core.marketdata.model.QuoteValue;
 import org.eclipse.tradista.core.marketdata.ui.controller.QuoteProperty;
@@ -39,7 +42,6 @@ import org.eclipse.tradista.legalentity.service.LegalEntityBusinessDelegate;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
@@ -98,7 +100,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 	private TextField settlementDateOffset;
 
 	@FXML
-	private TextField strike;
+	private Label strike;
 
 	@FXML
 	private TextField amountOne;
@@ -259,169 +261,136 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			// Won't happen because 'now' cannot be null
 		}
 
-		selectedQuoteSet.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends QuoteSet> arg0, QuoteSet oldValue, QuoteSet newValue) {
-				if (newValue != null && currencyOne.getValue() != null && currencyTwo.getValue() != null
-						&& selectedQuoteDate.getValue() != null) {
-					String currencyOneCurrencyTwoExchangeRate = "FX." + currencyOne.getValue().getIsoCode() + "."
-							+ currencyTwo.getValue().getIsoCode() + "%";
-					String currencyTwoCurrencyOneExchangeRate = "FX." + currencyTwo.getValue().getIsoCode() + "."
-							+ currencyOne.getValue().getIsoCode() + "%";
-					fillQuotesTable(newValue, selectedQuoteDate.getValue(), currencyOneCurrencyTwoExchangeRate,
-							currencyTwoCurrencyOneExchangeRate);
-				}
+		selectedQuoteSet.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null && currencyOne.getValue() != null && currencyTwo.getValue() != null
+					&& selectedQuoteDate.getValue() != null) {
+				String currencyOneCurrencyTwoExchangeRate = "FX." + currencyOne.getValue().getIsoCode() + "."
+						+ currencyTwo.getValue().getIsoCode() + "%";
+				String currencyTwoCurrencyOneExchangeRate = "FX." + currencyTwo.getValue().getIsoCode() + "."
+						+ currencyOne.getValue().getIsoCode() + "%";
+				fillQuotesTable(newValue, selectedQuoteDate.getValue(), currencyOneCurrencyTwoExchangeRate,
+						currencyTwoCurrencyOneExchangeRate);
 			}
 		});
 
-		selectedQuoteDate.valueProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends LocalDate> observableValue, LocalDate oldValue,
-					LocalDate newValue) {
-				if (newValue != null && currencyOne.getValue() != null && currencyTwo.getValue() != null) {
-					String currencyOneCurrencyTwoExchangeRate = "FX." + currencyOne.getValue().getIsoCode() + "."
-							+ currencyTwo.getValue().getIsoCode() + "%";
-					String currencyTwoCurrencyOneExchangeRate = "FX." + currencyTwo.getValue().getIsoCode() + "."
-							+ currencyOne.getValue().getIsoCode() + "%";
-					fillQuotesTable(selectedQuoteSet.getValue(), newValue, currencyOneCurrencyTwoExchangeRate,
-							currencyTwoCurrencyOneExchangeRate);
-				}
+		selectedQuoteDate.valueProperty().addListener((_, _, newValue) -> {
+			if (newValue != null && currencyOne.getValue() != null && currencyTwo.getValue() != null) {
+				String currencyOneCurrencyTwoExchangeRate = "FX." + currencyOne.getValue().getIsoCode() + "."
+						+ currencyTwo.getValue().getIsoCode() + "%";
+				String currencyTwoCurrencyOneExchangeRate = "FX." + currencyTwo.getValue().getIsoCode() + "."
+						+ currencyOne.getValue().getIsoCode() + "%";
+				fillQuotesTable(selectedQuoteSet.getValue(), newValue, currencyOneCurrencyTwoExchangeRate,
+						currencyTwoCurrencyOneExchangeRate);
 			}
 		});
 
-		currencyOne.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
-					Currency newValue) {
-				if (selectedQuoteDate.getValue() != null && newValue != null && currencyTwo.getValue() != null) {
-					String currencyOneCurrencyTwoExchangeRate = "FX." + newValue.getIsoCode() + "."
-							+ currencyTwo.getValue().getIsoCode() + "%";
-					String currencyTwoCurrencyOneExchangeRate = "FX." + currencyTwo.getValue().getIsoCode() + "."
-							+ newValue.getIsoCode() + "%";
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
-							currencyOneCurrencyTwoExchangeRate, currencyTwoCurrencyOneExchangeRate);
-				}
+		currencyOne.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (selectedQuoteDate.getValue() != null && newValue != null && currencyTwo.getValue() != null) {
+				String currencyOneCurrencyTwoExchangeRate = "FX." + newValue.getIsoCode() + "."
+						+ currencyTwo.getValue().getIsoCode() + "%";
+				String currencyTwoCurrencyOneExchangeRate = "FX." + currencyTwo.getValue().getIsoCode() + "."
+						+ newValue.getIsoCode() + "%";
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
+						currencyOneCurrencyTwoExchangeRate, currencyTwoCurrencyOneExchangeRate);
 			}
 		});
 
-		currencyTwo.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Currency> observableValue, Currency oldValue,
-					Currency newValue) {
-				if (selectedQuoteDate.getValue() != null && currencyOne.getValue() != null && newValue != null) {
-					String currencyOneCurrencyTwoExchangeRate = "FX." + currencyOne.getValue().getIsoCode() + "."
-							+ newValue.getIsoCode() + "%";
-					String currencyTwoCurrencyOneExchangeRate = "FX." + newValue.getIsoCode() + "."
-							+ currencyOne.getValue().getIsoCode() + "%";
-					fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
-							currencyOneCurrencyTwoExchangeRate, currencyTwoCurrencyOneExchangeRate);
-				}
+		currencyTwo.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (selectedQuoteDate.getValue() != null && currencyOne.getValue() != null && newValue != null) {
+				String currencyOneCurrencyTwoExchangeRate = "FX." + currencyOne.getValue().getIsoCode() + "."
+						+ newValue.getIsoCode() + "%";
+				String currencyTwoCurrencyOneExchangeRate = "FX." + newValue.getIsoCode() + "."
+						+ currencyOne.getValue().getIsoCode() + "%";
+				fillQuotesTable(selectedQuoteSet.getValue(), selectedQuoteDate.getValue(),
+						currencyOneCurrencyTwoExchangeRate, currencyTwoCurrencyOneExchangeRate);
 			}
 		});
 
-		pricingDate.setValue(LocalDate.now());
+		pricingDate.setValue(LocalDate.now(ZoneId.systemDefault()));
 
-		pricingMeasure.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends PricerMeasure> arg0, PricerMeasure arg1,
-					PricerMeasure newPricerMeasure) {
-				// newPricerMeasure is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricerMeasure != null) {
-					TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newPricerMeasure),
-							pricingMethod);
-				}
+		pricingMeasure.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			// newPricerMeasure is null when we do "setItems" in
+			// the first call of the refresh method
+			if (newValue != null) {
+				TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingMethods(newValue), pricingMethod);
 			}
 		});
 
-		pricingParameter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends PricingParameter> arg0, PricingParameter arg1,
-					PricingParameter newPricingParam) {
-				// newPricingParam is null when we do "setItems" in
-				// the first call of the refresh method
-				if (newPricingParam != null) {
-					Pricer pricer = null;
-					try {
-						pricer = pricerBusinessDelegate.getPricer(FXOptionTrade.FX_OPTION, newPricingParam);
-					} catch (TradistaBusinessException tbe) {
-						// Will never happen in this case.
-					}
-					TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
-					pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
-					pricerQuoteSetLabel.setText(newPricingParam.getQuoteSet().getName());
+		pricingParameter.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			// newPricingParam is null when we do "setItems" in
+			// the first call of the refresh method
+			if (newValue != null) {
+				Pricer pricer = null;
+				try {
+					pricer = pricerBusinessDelegate.getPricer(FXOptionTrade.FX_OPTION, newValue);
+				} catch (TradistaBusinessException tbe) {
+					// Will never happen in this case.
 				}
+				TradistaGUIUtil.fillComboBox(pricer.getPricerMeasures(), pricingMeasure);
+				pricerLabel.setText(pricer.getClass().getAnnotation(Parameterizable.class).name());
+				pricerQuoteSetLabel.setText(newValue.getQuoteSet().getName());
 			}
 		});
 
-		final Callback<DatePicker, DateCell> tradingDayCellFactory = new Callback<>() {
-			public DateCell call(final DatePicker datePicker) {
-				return new DateCell() {
+		final Callback<DatePicker, DateCell> tradingDayCellFactory = _ -> new DateCell() {
 
-					FXOptionTrade fxOptionTrade;
+			FXOptionTrade fxOptionTrade;
 
-					private boolean isAvailable(LocalDate date) {
-						boolean isAvailable = true;
+			private boolean isAvailable(LocalDate date) {
+				boolean isAvailable = true;
 
-						if (fxOptionTrade == null) {
-							fxOptionTrade = FXOptionTrade.create();
-							FXTrade fxTrade = FXTrade.create();
-							fxTrade.setCurrency(currencyTwo.getValue());
-							fxTrade.setCurrencyOne(currencyOne.getValue());
-							fxOptionTrade.setUnderlying(fxTrade);
-						}
+				if (fxOptionTrade == null) {
+					fxOptionTrade = FXOptionTrade.create();
+					FXTrade fxTrade = FXTrade.create();
+					fxTrade.setCurrency(currencyTwo.getValue());
+					fxTrade.setCurrencyOne(currencyOne.getValue());
+					fxOptionTrade.setUnderlying(fxTrade);
+				}
 
-						try {
-							isAvailable = fxOptionTradeBusinessDelegate.getFXExchange().getCalendar()
-									.isBusinessDay(date);
-						} catch (TradistaBusinessException tbe) {
-							// Won't happen because 'date' cannot be null
-						}
+				try {
+					isAvailable = fxOptionTradeBusinessDelegate.getFXExchange().getCalendar().isBusinessDay(date);
+				} catch (TradistaBusinessException _) {
+					// Won't happen because 'date' cannot be null
+				}
 
-						return isAvailable;
-					}
+				return isAvailable;
+			}
 
-					@Override
-					public void updateItem(LocalDate item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!isAvailable(item)) {
-							setDisable(true);
-						}
-					}
-				};
+			@Override
+			public void updateItem(LocalDate item, boolean empty) {
+				super.updateItem(item, empty);
+				if (!isAvailable(item)) {
+					setDisable(true);
+				}
 			}
 		};
 
-		final Callback<DatePicker, DateCell> settlementDayCellFactory = new Callback<>() {
-			public DateCell call(final DatePicker datePicker) {
-				return new DateCell() {
+		final Callback<DatePicker, DateCell> settlementDayCellFactory = _ -> new DateCell() {
 
-					FXOptionTrade fxOptionTrade;
+			FXOptionTrade fxOptionTrade;
 
-					private boolean isAvailable(LocalDate date) {
-						if (fxOptionTrade == null) {
-							fxOptionTrade = FXOptionTrade.create();
-							FXTrade fxTrade = FXTrade.create();
-							fxTrade.setCurrency(currencyTwo.getValue());
-							fxTrade.setCurrencyOne(currencyOne.getValue());
-							fxOptionTrade.setUnderlying(fxTrade);
-						}
-						try {
-							return fxOptionTradeBusinessDelegate.isBusinessDay(fxOptionTrade, date);
-						} catch (TradistaBusinessException tbe) {
-							tbe.printStackTrace();
-						}
-						return false;
-					}
+			private boolean isAvailable(LocalDate date) {
+				if (fxOptionTrade == null) {
+					fxOptionTrade = FXOptionTrade.create();
+					FXTrade fxTrade = FXTrade.create();
+					fxTrade.setCurrency(currencyTwo.getValue());
+					fxTrade.setCurrencyOne(currencyOne.getValue());
+					fxOptionTrade.setUnderlying(fxTrade);
+				}
+				try {
+					return fxOptionTradeBusinessDelegate.isBusinessDay(fxOptionTrade, date);
+				} catch (TradistaBusinessException tbe) {
+					// Not expected here as date and currency one can't be null
+				}
+				return false;
+			}
 
-					@Override
-					public void updateItem(LocalDate item, boolean empty) {
-						super.updateItem(item, empty);
-						if (!isAvailable(item)) {
-							setDisable(true);
-						}
-					}
-				};
+			@Override
+			public void updateItem(LocalDate item, boolean empty) {
+				super.updateItem(item, empty);
+				if (!isAvailable(item)) {
+					setDisable(true);
+				}
 			}
 		};
 
@@ -431,12 +400,9 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		settlementDate.setDayCellFactory(tradingDayCellFactory);
 		selectedQuoteDate.setDayCellFactory(settlementDayCellFactory);
 
-		book.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<>() {
-			@Override
-			public void changed(ObservableValue<? extends Book> arg0, Book oldValue, Book newValue) {
-				if (newValue != null) {
-					bookChartPane.updateBookChart(newValue);
-				}
+		book.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
+			if (newValue != null) {
+				bookChartPane.updateBookChart(newValue);
 			}
 		});
 
@@ -445,6 +411,30 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		TradistaGUIUtil.fillCurrencyComboBox(currencyOne, currencyTwo, pricingCurrency, premiumCurrency);
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 
+		ChangeListener<String> amountListener = (observable, oldValue, newValue) -> updateStrike();
+		amountOne.textProperty().addListener(amountListener);
+		amountTwo.textProperty().addListener(amountListener);
+
+	}
+
+	private void updateStrike() {
+		if (!StringUtils.isBlank(amountOne.getText()) && !StringUtils.isBlank(amountTwo.getText())) {
+			try {
+				BigDecimal amtOne = TradistaGUIUtil.parseAmount(amountOne.getText(), null);
+				BigDecimal amtTwo = TradistaGUIUtil.parseAmount(amountTwo.getText(), null);
+				if (amtOne.signum() != 0) {
+					FXTrade underlying = FXTrade.builder().amountOne(amtOne).amount(amtTwo).build();
+					FXOptionTrade optionTrade = FXOptionTrade.builder().underlying(underlying).build();
+					BigDecimal calculatedStrike = fxOptionTradeBusinessDelegate.calculateStrike(optionTrade);
+					if (calculatedStrike != null) {
+						strike.setText(TradistaGUIUtil.formatAmount(calculatedStrike));
+						return;
+					}
+				}
+			} catch (TradistaBusinessException _) {
+			}
+		}
+		strike.setText(StringUtils.EMPTY);
 	}
 
 	@FXML
@@ -456,7 +446,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		confirmation.setContentText("Do you want to save this Trade?");
 
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
@@ -467,8 +457,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 					trade.getUnderlying().setId(existingTrade.getUnderlying().getId());
 				}
 				tradeId.setText(String.valueOf(trade.getId()));
-			} catch (TradistaBusinessException tbe) {
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -483,11 +473,9 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		confirmation.setContentText("Do you want to copy this Trade?");
 		long oldTradeId = 0;
 		long oldUnderlyingTradeId = 0;
-		LocalDate oldCreationDate = null;
-		LocalDate oldUnderlyingCreationDate = null;
 		FXTrade underlying = null;
 		Optional<ButtonType> result = confirmation.showAndWait();
-		if (result.get() == ButtonType.OK) {
+		if (result.isPresent() && result.get() == ButtonType.OK) {
 			try {
 				checkAmounts();
 
@@ -504,11 +492,11 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 					trade.getUnderlying().setId(existingTrade.getUnderlying().getId());
 				}
 				tradeId.setText(String.valueOf(trade.getId()));
-			} catch (TradistaBusinessException tbe) {
+			} catch (TradistaBusinessException | TradistaTechnicalException te) {
 				trade.setId(oldTradeId);
 				underlying.setId(oldUnderlyingTradeId);
 				trade.setUnderlying(underlying);
-				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+				TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 				alert.showAndWait();
 			}
 		}
@@ -535,8 +523,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 						String.format("The %s trade %s was not found.", FXOptionTrade.FX_OPTION, load.getText()));
 			}
 			load(fxOptionTrade);
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -568,10 +556,10 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 	@FXML
 	public void clear() {
 		trade = null;
-		tradeId.setText("");
+		tradeId.setText(StringUtils.EMPTY);
 		maturityDate.setValue(null);
 		settlementDate.setValue(null);
-		strike.clear();
+		strike.setText(StringUtils.EMPTY);
 		premium.clear();
 		settlementDateOffset.clear();
 		amountOne.clear();
@@ -599,9 +587,6 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			trade.setSettlementType(settlementType.getValue());
 			if (!settlementDateOffset.getText().isEmpty()) {
 				trade.setSettlementDateOffset(Integer.parseInt(settlementDateOffset.getText()));
-			}
-			if (!strike.getText().isEmpty()) {
-				trade.setStrike(TradistaGUIUtil.parseAmount(strike.getText(), "Strike"));
 			}
 
 			// Building the underlying
@@ -641,6 +626,10 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				}
 			}
 			trade.setUnderlying(underlying);
+			BigDecimal calculatedStrike = fxOptionTradeBusinessDelegate.calculateStrike(trade);
+			if (calculatedStrike != null) {
+				trade.setStrike(calculatedStrike);
+			}
 		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
@@ -657,8 +646,8 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 					pricerBusinessDelegate.calculate(trade, pricingParameter.getValue(), pricingCurrency.getValue(),
 							pricingDate.getValue(), pricingMeasure.getValue(), pricingMethod.getValue())));
 
-		} catch (TradistaBusinessException tbe) {
-			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, tbe.getMessage());
+		} catch (TradistaBusinessException | TradistaTechnicalException te) {
+			TradistaAlert alert = new TradistaAlert(AlertType.ERROR, te.getMessage());
 			alert.showAndWait();
 		}
 	}
@@ -676,34 +665,31 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 	@Override
 	public void update(TradistaPublisher publisher) {
 		super.update(publisher);
-		if (publisher instanceof MarketDataPublisher) {
+		if (publisher instanceof MarketDataPublisher mdp) {
 			if (!publisher.isError()) {
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						Set<QuoteValue> quoteValues = ((MarketDataPublisher) publisher).getQuoteValues();
-						if (quoteValues != null && !quoteValues.isEmpty()) {
-							for (QuoteValue qv : quoteValues) {
-								if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
-									if (qv.getQuote().getName()
-											.equals("FX." + currencyOne.getValue() + "." + currencyTwo.getValue())
-											|| qv.getQuote().getName().equals(
-													"FX." + currencyTwo.getValue() + "." + currencyOne.getValue())) {
-										if (qv.getDate().equals(selectedQuoteDate.getValue())) {
-											if (qv.getQuote().getType().equals(QuoteType.EXCHANGE_RATE)) {
-												if (FXOptionTradeDefinitionController.this.quoteValues.contains(qv)) {
-													FXOptionTradeDefinitionController.this.quoteValues.remove(qv);
-												}
-												FXOptionTradeDefinitionController.this.quoteValues.add(qv);
+				Platform.runLater(() -> {
+					Set<QuoteValue> quoteValues = mdp.getQuoteValues();
+					if (quoteValues != null && !quoteValues.isEmpty()) {
+						for (QuoteValue qv : quoteValues) {
+							if (qv.getQuoteSet().equals(selectedQuoteSet.getValue())) {
+								if (qv.getQuote().getName()
+										.equals("FX." + currencyOne.getValue() + "." + currencyTwo.getValue())
+										|| qv.getQuote().getName().equals(
+												"FX." + currencyTwo.getValue() + "." + currencyOne.getValue())) {
+									if (qv.getDate().equals(selectedQuoteDate.getValue())) {
+										if (qv.getQuote().getType().equals(QuoteType.EXCHANGE_RATE)) {
+											if (this.quoteValues.contains(qv)) {
+												this.quoteValues.remove(qv);
 											}
+											this.quoteValues.add(qv);
 										}
 									}
 								}
 							}
 						}
-						quotesTable.setItems(FXCollections.observableArrayList(
-								QuoteProperty.toQuotePropertyList(FXOptionTradeDefinitionController.this.quoteValues)));
 					}
+					quotesTable.setItems(
+							FXCollections.observableArrayList(QuoteProperty.toQuotePropertyList(this.quoteValues)));
 				});
 			}
 		}
@@ -734,11 +720,6 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		} catch (NumberFormatException _) {
 			errMsg.append(
 					String.format("The settlement date offset is incorrect: %s.%n", settlementDateOffset.getText()));
-		}
-		try {
-			TradistaGUIUtil.checkAmount(strike.getText(), "Strike");
-		} catch (TradistaBusinessException tbe) {
-			errMsg.append(tbe.getMessage());
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
