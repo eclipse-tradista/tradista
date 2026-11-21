@@ -1,10 +1,12 @@
 package org.eclipse.tradista.fx.fxoption.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.servicelocator.TradistaServiceLocator;
 import org.eclipse.tradista.core.common.util.SecurityUtil;
+import org.eclipse.tradista.core.configuration.service.ConfigurationBusinessDelegate;
 import org.eclipse.tradista.core.exchange.model.Exchange;
 import org.eclipse.tradista.fx.fx.service.FXTradeBusinessDelegate;
 import org.eclipse.tradista.fx.fxoption.model.FXOptionTrade;
@@ -34,10 +36,13 @@ public class FXOptionTradeBusinessDelegate {
 
 	private FXTradeBusinessDelegate fxTradeBusinessDelegate;
 
+	private ConfigurationBusinessDelegate configurationBusinessDelegate;
+
 	public FXOptionTradeBusinessDelegate() {
 		fxOptionTradeService = TradistaServiceLocator.getInstance().getFXOptionTradeService();
 		validator = new FXOptionTradeValidator();
 		fxTradeBusinessDelegate = new FXTradeBusinessDelegate();
+		configurationBusinessDelegate = new ConfigurationBusinessDelegate();
 	}
 
 	public long saveFXOptionTrade(FXOptionTrade trade) throws TradistaBusinessException {
@@ -58,6 +63,14 @@ public class FXOptionTradeBusinessDelegate {
 			throw new TradistaBusinessException("The trade id must be positive.");
 		}
 		return SecurityUtil.runEx(() -> fxOptionTradeService.getFXOptionTradeById(id));
+	}
+
+	public BigDecimal calculateStrike(FXOptionTrade fxOptionTrade) {
+		if (fxOptionTrade == null) {
+			return null;
+		}
+		return fxOptionTrade.getStrike(configurationBusinessDelegate.getScale(),
+				configurationBusinessDelegate.getRoundingMode());
 	}
 
 }

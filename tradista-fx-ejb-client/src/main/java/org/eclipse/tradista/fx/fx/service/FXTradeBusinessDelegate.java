@@ -69,7 +69,10 @@ public class FXTradeBusinessDelegate extends AbstractFXTradeBusinessDelegate<FXT
 	}
 
 	public Type determinateType(FXTrade trade) throws TradistaBusinessException {
-		if (trade.getType() == null) {
+		if (trade == null) {
+			return null;
+		}
+		if (trade.getType() == null && trade.getTradeDate() != null && trade.getSettlementDate() != null) {
 			// FX Spot are generally settled in T+2.
 			// there are some exceptions, see
 			// https://en.wikipedia.org/wiki/Foreign_exchange_spot#Settlement_date

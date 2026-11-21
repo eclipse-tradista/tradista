@@ -1,6 +1,7 @@
 package org.eclipse.tradista.fx.fxoption.validator;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
@@ -203,6 +204,17 @@ class FXOptionTradeValidatorTest {
 
 		FXOptionTrade tradeNeg = createValidTradeBuilder().amount(BigDecimal.valueOf(-500)).build();
 		assertThrows(TradistaBusinessException.class, () -> validator.validateTrade(tradeNeg));
+	}
+
+	@Test
+	void testSubUnitStrike() {
+		FXTrade underlying = FXTrade.builder().currencyOne(eur).currency(usd).amountOne(BigDecimal.valueOf(200))
+				.amount(BigDecimal.valueOf(100)).book(book).counterparty(counterparty)
+				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
+				.type(FXTrade.Type.FX_SPOT).build();
+		FXOptionTrade trade = createValidTradeBuilder().underlying(underlying).build();
+		assertEquals(0, new BigDecimal("0.5").compareTo(trade.getStrike()));
+		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 
 }

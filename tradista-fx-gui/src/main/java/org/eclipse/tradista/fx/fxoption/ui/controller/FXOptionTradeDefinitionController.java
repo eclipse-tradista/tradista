@@ -1,11 +1,13 @@
 package org.eclipse.tradista.fx.fxoption.ui.controller;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.tradista.core.book.model.Book;
 import org.eclipse.tradista.core.book.service.BookBusinessDelegate;
 import org.eclipse.tradista.core.book.ui.controller.TradistaBookPieChart;
@@ -98,7 +100,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 	private TextField settlementDateOffset;
 
 	@FXML
-	private TextField strike;
+	private Label strike;
 
 	@FXML
 	private TextField amountOne;
@@ -445,6 +447,30 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		TradistaGUIUtil.fillCurrencyComboBox(currencyOne, currencyTwo, pricingCurrency, premiumCurrency);
 		TradistaGUIUtil.fillComboBox(pricerBusinessDelegate.getAllPricingParameters(), pricingParameter);
 
+		ChangeListener<String> amountListener = (observable, oldValue, newValue) -> updateStrike();
+		amountOne.textProperty().addListener(amountListener);
+		amountTwo.textProperty().addListener(amountListener);
+
+	}
+
+	private void updateStrike() {
+		if (!StringUtils.isBlank(amountOne.getText()) && !StringUtils.isBlank(amountTwo.getText())) {
+			try {
+				BigDecimal amtOne = TradistaGUIUtil.parseAmount(amountOne.getText(), null);
+				BigDecimal amtTwo = TradistaGUIUtil.parseAmount(amountTwo.getText(), null);
+				if (amtOne.signum() != 0) {
+					FXTrade underlying = FXTrade.builder().amountOne(amtOne).amount(amtTwo).build();
+					FXOptionTrade optionTrade = FXOptionTrade.builder().underlying(underlying).build();
+					BigDecimal calculatedStrike = fxOptionTradeBusinessDelegate.calculateStrike(optionTrade);
+					if (calculatedStrike != null) {
+						strike.setText(TradistaGUIUtil.formatAmount(calculatedStrike));
+						return;
+					}
+				}
+			} catch (TradistaBusinessException _) {
+			}
+		}
+		strike.setText("");
 	}
 
 	@FXML
@@ -571,7 +597,7 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		tradeId.setText("");
 		maturityDate.setValue(null);
 		settlementDate.setValue(null);
-		strike.clear();
+		strike.setText("");
 		premium.clear();
 		settlementDateOffset.clear();
 		amountOne.clear();
@@ -599,9 +625,6 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 			trade.setSettlementType(settlementType.getValue());
 			if (!settlementDateOffset.getText().isEmpty()) {
 				trade.setSettlementDateOffset(Integer.parseInt(settlementDateOffset.getText()));
-			}
-			if (!strike.getText().isEmpty()) {
-				trade.setStrike(TradistaGUIUtil.parseAmount(strike.getText(), "Strike"));
 			}
 
 			// Building the underlying
@@ -641,6 +664,10 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 				}
 			}
 			trade.setUnderlying(underlying);
+			BigDecimal calculatedStrike = fxOptionTradeBusinessDelegate.calculateStrike(trade);
+			if (calculatedStrike != null) {
+				trade.setStrike(calculatedStrike);
+			}
 		} catch (TradistaBusinessException _) {
 			// Should not appear here.
 		}
@@ -734,11 +761,6 @@ public class FXOptionTradeDefinitionController extends TradistaTradeBookingContr
 		} catch (NumberFormatException _) {
 			errMsg.append(
 					String.format("The settlement date offset is incorrect: %s.%n", settlementDateOffset.getText()));
-		}
-		try {
-			TradistaGUIUtil.checkAmount(strike.getText(), "Strike");
-		} catch (TradistaBusinessException tbe) {
-			errMsg.append(tbe.getMessage());
 		}
 		if (!errMsg.isEmpty()) {
 			throw new TradistaBusinessException(errMsg.toString());
