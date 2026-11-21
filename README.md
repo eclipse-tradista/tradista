@@ -20,7 +20,7 @@ Built on a robust **Jakarta EE** architecture, Eclipse Tradista enables you to o
 Learn more at [**tradista.finance**](https://tradista.finance).
 
 <p align="center">
-  <img src="dashboard.png"  alt="Tradista Dashboard" width="900">
+  <img src="dashboard.png"  alt="Eclipse Tradista Dashboard" width="900">
 </p>
 <p align="center">
   <em>Full Lifecycle Management: Seamlessly monitor trades, risk, and inventory.</em>
@@ -34,20 +34,20 @@ Tested configuration:
 - Server: WildFly 36.0.1.Final
 - JRE: Oracle JRE v24.0.2+12-54 and OpenJDK JRE Eclipse Temurin implementation v24.0.2+12
 - Database: Derby 10.17.1.0
-- Build automation tool: Maven 3.9.16
+- Build automation tool: Maven 3.10.1
 
-Tradista can be built using Maven, build the whole application using the tradista-parent project.
+Eclipse Tradista can be built using Maven, build the whole application using the tradista-parent project.
 
 1. Run ```mvn validate``` once to ensure that all needed dependencies are added to your local repository.
 
-2. Then run ```mvn clean install``` to build Tradista.
+2. Then run ```mvn clean install``` to build Eclipse Tradista.
 
 Thanks for you interest. 
-Feel free to download the Tradista Demo Package [here](https://github.com/oasuncion/tradista-demo) to test the solution.
+Feel free to download the Eclipse Tradista Demo Package [here](https://github.com/oasuncion/tradista-demo) to test the solution.
 Ping us anytime for any question.
 
 # Dependencies
-Tradista is made possible using powerful third party tools:
+Eclipse Tradista is made possible using powerful third party tools:
 - [Apache Commons](https://commons.apache.org/) for Maths, CSV processing and many more
 - [Apache Derby](https://db.apache.org/derby/) for the database
 - [Apache Maven](https://maven.apache.org/) for the builds
