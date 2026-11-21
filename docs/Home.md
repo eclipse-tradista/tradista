@@ -20,6 +20,7 @@ Explore the core sections of our documentation:
 | Guide | Description | Target Audience |
 | :--- | :--- | :--- |
 | [📈 Trades](Trades-User-Guide) | User guides for managing, pricing, and forecasting trades by product type. | Users / Developers |
+| [📨 Messaging Configuration](Messaging-Configuration-Guide) | Guide to configuring Event Routing & Subscriptions, Listeners & Pollers, and Message Filters. | Users / Administrators |
 | [📊 Ratings Management](ratings-User-Guide) | Guide to configuring Rating Agencies, Ratings, and assigning them to Securities (Bonds and Equities). | Users / Developers |
 
 ### 🛡️ Architecture & Security
