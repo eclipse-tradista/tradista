@@ -1,15 +1,13 @@
 <jboss-deployment-structure>
 	<deployment>
 		<dependencies>
-			<module name="org.eclipse.tradista.fx.model" export="true">
-			</module>
+			<module name="org.eclipse.tradista.fx.model" export="true" />
 			<module name="org.eclipse.tradista.security.model"
-				export="true">
-			</module>
-			<module name="org.eclipse.tradista.mm.model" export="true">
-			</module>
-			<module name="org.eclipse.tradista.ir.model" export="true">
-			</module>
+				export="true" />
+			<module name="org.eclipse.tradista.mm.model" export="true" />
+			<module name="org.eclipse.tradista.ir.model" export="true" />
+			<module name="org.eclipse.tradista.commercial.model"
+				export="true" />
 		</dependencies>
 	</deployment>
 </jboss-deployment-structure>
