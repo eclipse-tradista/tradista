@@ -43,13 +43,11 @@
 					<groupId>org.eclipse.tradista.security</groupId>
 					<artifactId>security-model</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.commercial</groupId>
+					<artifactId>commercial-model</artifactId>
+				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tradista.commercial</groupId>
-			<artifactId>commercial-ejb</artifactId>
-			<version>${commercial-ejb.version}</version>
-			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.fx</groupId>
@@ -81,13 +79,11 @@
 					<groupId>org.eclipse.tradista.security</groupId>
 					<artifactId>security-model</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.commercial</groupId>
+					<artifactId>commercial-model</artifactId>
+				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.tradista.commercial</groupId>
-			<artifactId>commercial-ejb</artifactId>
-			<version>${commercial-ejb.version}</version>
-			<type>ejb</type>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.tradista.mm</groupId>
@@ -118,6 +114,10 @@
 				<exclusion>
 					<groupId>org.eclipse.tradista.security</groupId>
 					<artifactId>security-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.commercial</groupId>
+					<artifactId>commercial-model</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -151,6 +151,10 @@
 					<groupId>org.eclipse.tradista.security</groupId>
 					<artifactId>security-model</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.commercial</groupId>
+					<artifactId>commercial-model</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -182,6 +186,46 @@
 				<exclusion>
 					<groupId>org.eclipse.tradista.security</groupId>
 					<artifactId>security-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.commercial</groupId>
+					<artifactId>commercial-model</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-ejb</artifactId>
+			<version>${commercial-ejb.version}</version>
+			<type>ejb</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.eclipse.tradista.core</groupId>
+					<artifactId>core-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.ai</groupId>
+					<artifactId>ai-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.fx</groupId>
+					<artifactId>fx-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.ir</groupId>
+					<artifactId>ir-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.mm</groupId>
+					<artifactId>mm-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.security</groupId>
+					<artifactId>security-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.tradista.commercial</groupId>
+					<artifactId>commercial-model</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -216,12 +260,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.tradista.commercial</groupId>
-			<artifactId>commercial-ejb</artifactId>
-			<version>${commercial-ejb.version}</version>
-			<type>ejb</type>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.tradista.mm</groupId>
 			<artifactId>mm-model</artifactId>
 			<version>${mm-model.version}</version>
@@ -231,6 +269,12 @@
 			<groupId>org.eclipse.tradista.security</groupId>
 			<artifactId>security-model</artifactId>
 			<version>${security-model.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.tradista.commercial</groupId>
+			<artifactId>commercial-model</artifactId>
+			<version>${commercial-model.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
