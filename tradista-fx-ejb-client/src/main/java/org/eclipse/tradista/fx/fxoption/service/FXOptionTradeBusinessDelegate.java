@@ -69,7 +69,7 @@ public class FXOptionTradeBusinessDelegate {
 		if (fxOptionTrade == null) {
 			return null;
 		}
-		return fxOptionTrade.getStrike(configurationBusinessDelegate.getScale(),
+		return fxOptionTrade.calculateStrike(configurationBusinessDelegate.getScale(),
 				configurationBusinessDelegate.getRoundingMode());
 	}
 

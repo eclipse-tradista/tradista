@@ -13,6 +13,8 @@ import org.eclipse.tradista.core.currency.model.Currency;
 import org.eclipse.tradista.fx.fx.model.FXTrade;
 import org.eclipse.tradista.fx.fx.model.FXTrade.Type;
 import org.eclipse.tradista.fx.fx.validator.FXTradeValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /********************************************************************************
  * Copyright (c) 2018 Olivier Asuncion
@@ -31,6 +33,8 @@ import org.eclipse.tradista.fx.fx.validator.FXTradeValidator;
  ********************************************************************************/
 
 public class FXTradeBusinessDelegate extends AbstractFXTradeBusinessDelegate<FXTrade> {
+
+	private static final Logger logger = LoggerFactory.getLogger(FXTradeBusinessDelegate.class);
 
 	private FXTradeService fxTradeService;
 
@@ -58,7 +62,7 @@ public class FXTradeBusinessDelegate extends AbstractFXTradeBusinessDelegate<FXT
 		}
 		currencyOneCalendar = currencyOne.getCalendar();
 		if (currencyOneCalendar == null) {
-			// TODO Add a warning log
+			logger.warn("The calendar of the FX Trade {}'s curreny one ({}) is null.", fxTrade.getId(), currencyOne);
 		}
 		boolean isBusinessDay = super.isBusinessDay(fxTrade, date);
 		if (currencyOneCalendar != null) {
@@ -72,6 +76,8 @@ public class FXTradeBusinessDelegate extends AbstractFXTradeBusinessDelegate<FXT
 		if (trade == null) {
 			return null;
 		}
+		// Trade and settlement dates can be null when the FXTrade is the underlying of
+		// an unexercised FXOptionTrade.
 		if (trade.getType() == null && trade.getTradeDate() != null && trade.getSettlementDate() != null) {
 			// FX Spot are generally settled in T+2.
 			// there are some exceptions, see

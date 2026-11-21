@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 import org.eclipse.tradista.core.book.model.Book;
@@ -61,7 +62,8 @@ class FXOptionTradeValidatorTest {
 				.currency(usd).amount(BigDecimal.valueOf(5000)).style(VanillaOptionTrade.Style.EUROPEAN)
 				.type(OptionTrade.Type.CALL).settlementType(OptionTrade.SettlementType.CASH).settlementDateOffset(2)
 				.tradeDate(LocalDate.of(2025, 6, 1)).maturityDate(LocalDate.of(2025, 12, 1))
-				.settlementDate(LocalDate.of(2025, 6, 3)).exerciseDate(LocalDate.of(2025, 12, 1));
+				.settlementDate(LocalDate.of(2025, 6, 3)).exerciseDate(LocalDate.of(2025, 12, 1))
+				.strike(BigDecimal.valueOf(1.1));
 	}
 
 	@Test
@@ -213,7 +215,9 @@ class FXOptionTradeValidatorTest {
 				.tradeDate(LocalDate.of(2025, 12, 1)).settlementDate(LocalDate.of(2025, 12, 3))
 				.type(FXTrade.Type.FX_SPOT).build();
 		FXOptionTrade trade = createValidTradeBuilder().underlying(underlying).build();
-		assertEquals(0, new BigDecimal("0.5").compareTo(trade.getStrike()));
+		BigDecimal calculatedStrike = trade.calculateStrike(2, RoundingMode.HALF_EVEN);
+		trade.setStrike(calculatedStrike);
+		assertEquals(0, new BigDecimal("0.50").compareTo(trade.getStrike()));
 		assertDoesNotThrow(() -> validator.validateTrade(trade));
 	}
 

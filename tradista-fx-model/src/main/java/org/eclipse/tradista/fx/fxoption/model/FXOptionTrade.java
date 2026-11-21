@@ -1,7 +1,6 @@
 package org.eclipse.tradista.fx.fxoption.model;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.Instant;
 
@@ -46,29 +45,11 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 	 * For FX Options, the strike is the following rate : Quote Amount / Primary
 	 * Amount (the primary amount being the one to be bought).
 	 */
-	public BigDecimal getStrike(int scale, RoundingMode roundingMode) {
+	public BigDecimal calculateStrike(int scale, RoundingMode roundingMode) {
 		FXTrade underlying = getUnderlying();
 		if (underlying != null && underlying.getAmount() != null && underlying.getAmountOne() != null
 				&& underlying.getAmountOne().signum() != 0) {
 			return underlying.getAmount().divide(underlying.getAmountOne(), scale, roundingMode);
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * For FX Options, the strike is the following rate : Quote Amount / Primary
-	 * Amount (the primary amount being the one to be bought).
-	 */
-	@Override
-	public BigDecimal getStrike() {
-		if (super.getStrike() != null) {
-			return super.getStrike();
-		}
-		FXTrade underlying = getUnderlying();
-		if (underlying != null && underlying.getAmount() != null && underlying.getAmountOne() != null
-				&& underlying.getAmountOne().signum() != 0) {
-			return underlying.getAmount().divide(underlying.getAmountOne(), MathContext.DECIMAL64);
 		} else {
 			return null;
 		}
