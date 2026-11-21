@@ -45,12 +45,11 @@ public class FXOptionTrade extends VanillaOptionTrade<FXTrade> {
 	 * For FX Options, the strike is the following rate : Quote Amount / Primary
 	 * Amount (the primary amount being the one to be bought).
 	 */
-	@Override
-	public BigDecimal getStrike() {
+	public BigDecimal calculateStrike(int scale, RoundingMode roundingMode) {
 		FXTrade underlying = getUnderlying();
 		if (underlying != null && underlying.getAmount() != null && underlying.getAmountOne() != null
 				&& underlying.getAmountOne().signum() != 0) {
-			return underlying.getAmount().divide(underlying.getAmountOne(), RoundingMode.HALF_EVEN);
+			return underlying.getAmount().divide(underlying.getAmountOne(), scale, roundingMode);
 		} else {
 			return null;
 		}
