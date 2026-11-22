@@ -15,10 +15,12 @@ import org.eclipse.tradista.ai.agent.service.MandateService;
 import org.eclipse.tradista.ai.analysis.service.BookAnalysisService;
 import org.eclipse.tradista.ai.analysis.service.CashflowsAnalysisService;
 import org.eclipse.tradista.ai.analysis.service.CollateralOptimizationService;
+import org.eclipse.tradista.ai.common.service.AIInformationService;
 import org.eclipse.tradista.ai.reasoning.common.service.FormulaService;
 import org.eclipse.tradista.ai.reasoning.fol.service.FolFormulaService;
 import org.eclipse.tradista.commercial.commercial.service.CommercialPricerService;
 import org.eclipse.tradista.commercial.commercial.service.CommercialTradeService;
+import org.eclipse.tradista.commercial.common.service.CommercialInformationService;
 import org.eclipse.tradista.core.batch.service.BatchService;
 import org.eclipse.tradista.core.book.service.BookService;
 import org.eclipse.tradista.core.calendar.service.CalendarService;
@@ -194,6 +196,8 @@ public class TradistaServiceLocator {
 
 	private static final String COMMERCIAL_SERVICE_PACKAGE = "org.eclipse.tradista.commercial.commercial.service";
 
+	private static final String COMMERCIAL_COMMON_SERVICE_PACKAGE = "org.eclipse.tradista.commercial.common.service";
+
 	private static final String MM_COMMON_SERVICE_PACKAGE = "org.eclipse.tradista.mm.common.service";
 
 	private static final String MARKET_DATA_APP = "marketdata-app";
@@ -255,6 +259,8 @@ public class TradistaServiceLocator {
 	private static final String AI_ANALYSIS_SERVICE_PACKAGE = "org.eclipse.tradista.ai.analysis.service";
 
 	private static final String AGENT_SERVICE_PACKAGE = "org.eclipse.tradista.ai.agent.service";
+
+	private static final String AI_SERVICE_PACKAGE = "org.eclipse.tradista.ai.common.service";
 
 	private static final String TRANSFER_APP = "transfer-app";
 
@@ -686,6 +692,15 @@ public class TradistaServiceLocator {
 	public SecurityInformationService getSecurityInformationService() {
 		return (SecurityInformationService) getService(APP, SECURITY_EJB, SECURITY_COMMON_SERVICE_PACKAGE,
 				"SecurityInformationService");
+	}
+
+	public CommercialInformationService getCommercialInformationService() {
+		return (CommercialInformationService) getService(APP, COMMERCIAL_EJB, COMMERCIAL_COMMON_SERVICE_PACKAGE,
+				"CommercialInformationService");
+	}
+
+	public AIInformationService getAIInformationService() {
+		return (AIInformationService) getService(AI_APP, AI_EJB, AI_SERVICE_PACKAGE, "AIInformationService");
 	}
 
 	public CashInventoryService getCashInventoryService() {

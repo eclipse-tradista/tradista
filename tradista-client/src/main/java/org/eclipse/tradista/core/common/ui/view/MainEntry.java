@@ -2,6 +2,8 @@ package org.eclipse.tradista.core.common.ui.view;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -646,30 +648,46 @@ public class MainEntry extends Application {
 	private void setupVersionMenuItem() {
 		version.setOnAction(_ -> {
 			GridPane pane = new GridPane();
-			pane.setStyle("-fx-padding: 10; -fx-hgap: 10; -fx-vgap: 10;");
-			pane.getStyleClass().add("root");
+			pane.getStyleClass().add("version-table");
 			Map<String, String> modules = new InformationBusinessDelegate().getModules();
 			if (modules != null && !modules.isEmpty()) {
-				int i = 0;
-				Label moduleLabel = new Label("Module");
-				moduleLabel.setStyle("-fx-font-weight: bold;");
-				pane.add(moduleLabel, 0, i);
-				Label versionLabel = new Label(VERSION);
-				versionLabel.setStyle("-fx-font-weight: bold;");
-				pane.add(versionLabel, 1, i);
-				i++;
-				for (Map.Entry<String, String> entry : modules.entrySet()) {
-					pane.add(new Label(entry.getKey()), 0, i, 1, 1);
-					pane.add(new Label(entry.getValue()), 1, i, 1, 1);
-					i++;
+				pane.add(createVersionCell("Domain", Pos.CENTER, false, "version-table-header"), 0, 0);
+				pane.add(createVersionCell("Module", Pos.CENTER, false, "version-table-header"), 1, 0);
+				pane.add(createVersionCell(VERSION, Pos.CENTER, false, "version-table-header"), 2, 0);
+
+				List<Map.Entry<String, String>> entries = new ArrayList<>(modules.entrySet());
+				int row = 1;
+				int idx = 0;
+				while (idx < entries.size()) {
+					String domain = getModuleDomain(entries.get(idx).getKey());
+					int end = idx + 1;
+					while (end < entries.size() && domain.equals(getModuleDomain(entries.get(end).getKey()))) {
+						end++;
+					}
+					int groupSize = end - idx;
+					pane.add(createVersionCell(domain, Pos.CENTER, true, "version-table-cell",
+							"version-table-domain-cell"), 0, row, 1, groupSize);
+					for (int j = idx; j < end; j++) {
+						String altClass = (row % 2 == 0) ? "version-table-cell-alt" : null;
+						pane.add(createVersionCell(entries.get(j).getKey(), Pos.CENTER_LEFT, false,
+								"version-table-cell", altClass), 1, row, 1, 1);
+						pane.add(createVersionCell(entries.get(j).getValue(), Pos.CENTER_LEFT, false,
+								"version-table-cell", altClass), 2, row, 1, 1);
+						row++;
+					}
+					idx = end;
 				}
 			}
+			StackPane container = new StackPane(pane);
+			container.setPadding(new Insets(12));
+			container.getStyleClass().add("root");
+
 			Stage stage = new Stage();
 			TradistaGUIUtil.setTradistaIcons(stage);
 			Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
 			stage.setTitle(VERSION);
 			Group root = new Group();
-			root.getChildren().add(pane);
+			root.getChildren().add(container);
 			try {
 				root.getStylesheets().add("/"
 						+ new ConfigurationBusinessDelegate().getUIConfiguration(ClientUtil.getCurrentUser()).getStyle()
@@ -691,6 +709,32 @@ public class MainEntry extends Application {
 			stage.setX((Screen.getPrimary().getVisualBounds().getWidth() - stage.getWidth()) / 2);
 			stage.setY((Screen.getPrimary().getVisualBounds().getHeight() - stage.getHeight()) / 2);
 		});
+	}
+
+	private StackPane createVersionCell(String text, Pos alignment, boolean bold, String... styleClasses) {
+		Label label = new Label(text);
+		if (bold) {
+			label.getStyleClass().add("labelBold");
+		}
+		StackPane cell = new StackPane(label);
+		cell.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		StackPane.setAlignment(label, alignment);
+		for (String styleClass : styleClasses) {
+			if (styleClass != null) {
+				cell.getStyleClass().add(styleClass);
+			}
+		}
+		return cell;
+	}
+
+	private String getModuleDomain(String moduleName) {
+		return switch (moduleName) {
+		case "Core" -> "Core";
+		case "AI" -> "AI";
+		case "FX", "MM", "Commercial", "IR", "Security" -> "Asset Classes";
+		default ->
+			(moduleName.endsWith(" Importer") || moduleName.endsWith(" Exporter")) ? "Interfaces" : "Market Data";
+		};
 	}
 
 }
