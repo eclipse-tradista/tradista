@@ -56,6 +56,7 @@ Eclipse Tradista is made possible using powerful third party tools:
 - [Bloomberg API](https://www.bloomberg.com/professional/support/api-library/) to connect to Bloomberg
 - [JavaFX](https://openjfx.io/) for the Desktop client
 - [JUnit](https://junit.org/) for unit testing
+- [LangChain4j](https://docs.langchain4j.dev/) for LLM integration
 - [Mockito](https://site.mockito.org/) for mocking in unit tests
 - [PrimeFaces](https://www.primefaces.org/) for the WEB UI (a JSF implementation)
 - [PrimeFlex](https://www.primeflex.org/) for the WEB UI (a CSS library)
