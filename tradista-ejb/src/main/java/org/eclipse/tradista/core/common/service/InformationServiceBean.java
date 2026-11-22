@@ -3,7 +3,10 @@ package org.eclipse.tradista.core.common.service;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.eclipse.tradista.ai.common.service.AIInformationBusinessDelegate;
+import org.eclipse.tradista.commercial.common.service.CommercialInformationService;
 import org.eclipse.tradista.core.common.exception.TradistaBusinessException;
 import org.eclipse.tradista.core.common.exception.TradistaTechnicalException;
 import org.eclipse.tradista.core.common.util.TradistaUtil;
@@ -16,6 +19,7 @@ import org.eclipse.tradista.ir.common.service.IRInformationService;
 import org.eclipse.tradista.mm.common.service.MMInformationService;
 import org.eclipse.tradista.security.common.service.SecurityInformationService;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.PermitAll;
@@ -57,6 +61,9 @@ public class InformationServiceBean implements InformationService {
 	@EJB
 	private SecurityInformationService securityInformationService;
 
+	@EJB
+	private CommercialInformationService commercialInformationService;
+
 	@PostConstruct
 	private void init() {
 		productBusinessDelegate = new ProductBusinessDelegate();
@@ -77,7 +84,8 @@ public class InformationServiceBean implements InformationService {
 
 		Set<String> prods = productBusinessDelegate.getAvailableProductTypes();
 
-		if (prods != null && !prods.isEmpty()) {
+		if (!CollectionUtils.isEmpty(prods)) {
+			Map<String, String> productModules = new TreeMap<>();
 			for (String prod : prods) {
 				String prodFamily = null;
 				try {
@@ -87,23 +95,28 @@ public class InformationServiceBean implements InformationService {
 				}
 				switch (prodFamily) {
 				case ("fx"): {
-					modules.put("FX", fxInformationService.getFXModuleVersion());
+					productModules.putIfAbsent("FX", fxInformationService.getFXModuleVersion());
 					break;
 				}
 				case ("mm"): {
-					modules.put("MM", mmInformationService.getMMModuleVersion());
+					productModules.putIfAbsent("MM", mmInformationService.getMMModuleVersion());
+					break;
+				}
+				case ("commercial"): {
+					productModules.putIfAbsent("Commercial", commercialInformationService.getCommercialModuleVersion());
 					break;
 				}
 				case ("ir"): {
-					modules.put("IR", irInformationService.getIRModuleVersion());
+					productModules.putIfAbsent("IR", irInformationService.getIRModuleVersion());
 					break;
 				}
 				case ("security"): {
-					modules.put("Security", securityInformationService.getSecurityModuleVersion());
+					productModules.putIfAbsent("Security", securityInformationService.getSecurityModuleVersion());
 					break;
 				}
 				}
 			}
+			modules.putAll(productModules);
 		}
 
 		// Get the Importer modules versions
@@ -115,6 +128,15 @@ public class InformationServiceBean implements InformationService {
 		// Get the Exporter modules versions
 		try {
 			modules.putAll(new ExporterInformationBusinessDelegate().getExporterModuleVersions());
+		} catch (TradistaTechnicalException _) {
+		}
+
+		// Get the AI module version
+		try {
+			String aiVersion = new AIInformationBusinessDelegate().getAIModuleVersion();
+			if (aiVersion != null) {
+				modules.put("AI", aiVersion);
+			}
 		} catch (TradistaTechnicalException _) {
 		}
 
