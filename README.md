@@ -55,12 +55,14 @@ Eclipse Tradista is made possible using powerful third party tools:
 - [ASP4J](https://github.com/hbeck/asp4j) for Answer Set Programming
 - [Bloomberg API](https://www.bloomberg.com/professional/support/api-library/) to connect to Bloomberg
 - [JavaFX](https://openjfx.io/) for the Desktop client
+- [JUnit](https://junit.org/) for unit testing
+- [Mockito](https://site.mockito.org/) for mocking in unit tests
 - [PrimeFaces](https://www.primefaces.org/) for the WEB UI (a JSF implementation)
 - [PrimeFlex](https://www.primeflex.org/) for the WEB UI (a CSS library)
 - [Quandl4J](https://github.com/jimmoores/quandl4j) to connect to Quandl REST API
 - [Quartz](http://www.quartz-scheduler.org/) for job scheduling
 - [QuickFIX/J](https://www.quickfixj.org/) for FIX messages import
-- [Spring](https://spring.io/) for dependency injection, introspection and many more
+- [Spring](https://spring.io/) for dependency injection, messaging (Spring Integration), introspection and many more
 - [Tradista Flow](https://github.com/oasuncion/tradista-flow) for Workflow management
 - [Tweety](https://tweetyproject.org/) for first order logic processing
 - [WildFly](https://www.wildfly.org/) for the server
